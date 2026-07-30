@@ -10,6 +10,7 @@
  * ==================================================
  */
 
+import { saveUser } from "../../js/storage.js";
 
 //==================================
 // Constant
@@ -774,10 +775,16 @@ function bindThemeEvent(){
 
 function finishOnboarding(){
 
-    console.log(
+    saveUser({
 
-        onboardingData
+        ...onboardingData,
 
+        onboardingCompleted : true
+
+    });
+
+    location.replace(
+        "../dashboard/index.html"
     );
 
 }
