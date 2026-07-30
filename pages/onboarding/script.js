@@ -487,7 +487,94 @@ ${createOption({
 
 }
 
+function renderTheme(){
 
+    onboarding.innerHTML = `
+
+        ${createProgress()}
+
+        <section class="content fade">
+
+            ${createBadge(
+                "🎨",
+                "Tampilan"
+            )}
+
+            ${createTitle(
+                "Pilih tema"
+            )}
+
+            ${createDescription(
+                "Pilih tampilan yang paling nyaman untukmu."
+            )}
+
+            ${createOption({
+
+                icon : "☀️",
+
+                title : "Terang",
+
+                description :
+                    "Cocok digunakan pada siang hari.",
+
+                value : "light",
+
+                selected :
+                    onboardingData.theme === "light"
+
+            })}
+
+            ${createOption({
+
+                icon : "🌙",
+
+                title : "Gelap",
+
+                description :
+                    "Nyaman digunakan pada malam hari.",
+
+                value : "dark",
+
+                selected :
+                    onboardingData.theme === "dark"
+
+            })}
+
+            ${createOption({
+
+                icon : "⚙️",
+
+                title : "Ikuti Sistem",
+
+                description :
+                    "Mengikuti pengaturan perangkat.",
+
+                value : "system",
+
+                selected :
+                    onboardingData.theme === "system"
+
+            })}
+
+        </section>
+
+        <footer class="footer">
+
+            ${createButton({
+
+                id : "btnFinish",
+
+                text : "Selesai"
+
+            })}
+
+        </footer>
+
+    `;
+
+    bindThemeEvent();
+
+                    }
 
 
 //==================================
@@ -624,5 +711,75 @@ function bindCurrencyEvent(){
 
 }
 
+function bindThemeEvent(){
+
+    const options =
+
+        document.querySelectorAll(
+            ".option"
+        );
+
+    const button =
+
+        document.getElementById(
+            "btnFinish"
+        );
+
+
+    options.forEach(option => {
+
+        option.addEventListener(
+
+            "click",
+
+            () => {
+
+                options.forEach(item =>
+
+                    item.classList.remove(
+                        "active"
+                    )
+
+                );
+
+                option.classList.add(
+                    "active"
+                );
+
+                onboardingData.theme =
+
+                    option.dataset.value;
+
+            }
+
+        );
+
+    });
+
+
+    button.addEventListener(
+
+        "click",
+
+        finishOnboarding
+
+    );
+
+}
+
+
+//==================================
+// Function
+//==================================
+
+function finishOnboarding(){
+
+    console.log(
+
+        onboardingData
+
+    );
+
+}
 
 
