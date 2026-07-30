@@ -6,9 +6,17 @@
  * Version     : 1.0.0
  *
  * Description :
- * Onboarding Wizard Controller
+ * Mengatur seluruh proses Onboarding Wizard.
  * ==================================================
  */
+
+
+//==================================
+// Constant
+//==================================
+
+const HERO_IMAGE =
+    "../../assets/images/hero/hero-dashboard.png";
 
 
 //==================================
@@ -33,9 +41,9 @@ const onboardingData = {
 //==================================
 
 const onboarding =
-document.getElementById(
-    "onboarding"
-);
+    document.getElementById(
+        "onboarding"
+    );
 
 
 //==================================
@@ -61,7 +69,7 @@ const steps = [
 
 function nextStep(){
 
-    if(currentStep >= steps.length-1)
+    if(currentStep >= steps.length - 1)
         return;
 
     currentStep++;
@@ -94,28 +102,25 @@ function render(){
 
 }
 
-
 //==================================
 // Component
 //==================================
 
-function renderProgress(){
+function createProgress(){
 
     return `
 
         <div class="progress">
 
-            ${
-                steps.map((_,index)=>`
+            ${steps.map((_, index) => `
 
-                    <span class="${
-                        index===currentStep
-                        ? "active"
-                        : ""
-                    }"></span>
+                <span class="${
+                    index === currentStep
+                    ? "active"
+                    : ""
+                }"></span>
 
-                `).join("")
-            }
+            `).join("")}
 
         </div>
 
@@ -124,164 +129,496 @@ function renderProgress(){
 }
 
 
+function createIllustration(image = HERO_IMAGE){
+
+    return `
+
+        <div class="illustration fade">
+
+            <img
+                src="${image}"
+                alt="Finance Assistant">
+
+        </div>
+
+    `;
+
+}
+
+
+function createBadge(icon, text){
+
+    return `
+
+        <span class="badge">
+
+            ${icon}
+
+            ${text}
+
+        </span>
+
+    `;
+
+}
+
+
+function createTitle(text){
+
+    return `
+
+        <h1>
+
+            ${text}
+
+        </h1>
+
+    `;
+
+}
+
+
+function createDescription(text){
+
+    return `
+
+        <p>
+
+            ${text}
+
+        </p>
+
+    `;
+
+}
+
+function createInput({
+
+    id,
+
+    placeholder = "",
+
+    value = "",
+
+    maxlength = 20
+
+}){
+
+    return `
+
+        <div class="form">
+
+            <input
+
+                id="${id}"
+
+                class="input"
+
+                type="text"
+
+                placeholder="${placeholder}"
+
+                value="${value}"
+
+                maxlength="${maxlength}"
+
+                autocomplete="off"
+
+                spellcheck="false"
+
+            >
+
+        </div>
+
+    `;
+
+}
+
+
+function createButton({
+
+    id,
+
+    text,
+
+    disabled = false
+
+}){
+
+    return `
+
+        <button
+
+            id="${id}"
+
+            class="button"
+
+            ${disabled ? "disabled" : ""}
+
+        >
+
+            ${text}
+
+        </button>
+
+    `;
+
+}
+
+
+function createOption({
+
+    icon = "",
+
+    title,
+
+    description = "",
+
+    value,
+
+    selected = false
+
+}){
+
+    return `
+
+        <div
+
+            class="option ${selected ? "active" : ""}"
+
+            data-value="${value}"
+
+        >
+
+            <div class="option-content">
+
+                <h3>
+
+                    ${icon} ${title}
+
+                </h3>
+
+                ${
+                    description
+                    ? `
+                        <p>
+
+                            ${description}
+
+                        </p>
+                    `
+                    : ""
+                }
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
 //==================================
-// Welcome
+// Screen
 //==================================
 
 function renderWelcome(){
 
     onboarding.innerHTML = `
 
-        ${renderProgress()}
+        ${createProgress()}
 
-        <div class="illustration fade">
-
-            <img
-                src="../../assets/images/hero/hero-dashboard.png"
-                alt="Finance Assistant">
-
-        </div>
+        ${createIllustration()}
 
         <section class="content fade">
 
-            <span class="badge">
+            ${createBadge(
+                "👋",
+                "Selamat Datang"
+            )}
 
-                👋 Selamat Datang
+            ${createTitle(
+                "Finance Assistant"
+            )}
 
-            </span>
-
-            <h1>
-
-                Finance Assistant
-
-            </h1>
-
-            <p>
-
-                Halo!
-
-                Aku akan membantumu
-                mengelola keuangan
-                dengan lebih mudah.
-
-            </p>
+            ${createDescription(
+                "Halo! Aku akan membantumu mengelola keuangan dengan lebih mudah."
+            )}
 
         </section>
 
         <footer class="footer">
 
-            <button
-                class="button"
-                id="btnNext">
+            ${createButton({
 
-                Mulai
+                id : "btnStart",
 
-            </button>
+                text : "Mulai"
+
+            })}
 
         </footer>
 
     `;
 
-    document
-        .getElementById("btnNext")
-        .addEventListener(
-            "click",
-            nextStep
-        );
+    bindWelcomeEvent();
 
 }
-
-
-//==================================
-// Display Name
-//==================================
 
 function renderDisplayName(){
 
     onboarding.innerHTML = `
 
-        ${renderProgress()}
+        ${createProgress()}
 
         <section class="content fade">
 
-            <span class="badge">
+            ${createBadge(
+                "👤",
+                "Nama"
+            )}
 
-                👤 Nama
+            ${createTitle(
+                "Aku akan memanggilmu siapa?"
+            )}
 
-            </span>
+            ${createDescription(
+                "Nama panggilan ini akan digunakan di seluruh aplikasi."
+            )}
 
-            <h1>
+            ${createInput({
 
-                Aku akan memanggilmu siapa?
+                id : "displayName",
 
-            </h1>
+                placeholder : "Nama Panggilan",
 
-            <p>
+                value : onboardingData.displayName
 
-                Nama panggilan ini akan
-                digunakan di seluruh aplikasi.
-
-            </p>
+            })}
 
         </section>
 
+        <footer class="footer">
+
+            ${createButton({
+
+                id : "btnNext",
+
+                text : "Lanjut",
+
+                disabled :
+                    onboardingData.displayName
+                    .trim() === ""
+
+            })}
+
+        </footer>
+
     `;
 
+    bindDisplayNameEvent();
+
 }
-
-
-//==================================
-// Currency
-//==================================
 
 function renderCurrency(){
 
     onboarding.innerHTML = `
 
-        ${renderProgress()}
+        ${createProgress()}
 
         <section class="content fade">
 
-            <h1>
+            ${createBadge(
+                "💱",
+                "Mata Uang"
+            )}
 
-                Currency
+            ${createTitle(
+                "Pilih mata uang"
+            )}
 
-            </h1>
+            ${createDescription(
+                "Pilih mata uang yang paling sering kamu gunakan."
+            )}
+
+            ${createOption({
+
+                text : "🇮🇩 Indonesian Rupiah (IDR)",
+
+                value : "IDR",
+
+                selected :
+                    onboardingData.currency === "IDR"
+
+            })}
+
+            ${createOption({
+
+                text : "🇺🇸 US Dollar (USD)",
+
+                value : "USD",
+
+                selected :
+                    onboardingData.currency === "USD"
+
+            })}
 
         </section>
 
+        <footer class="footer">
+
+            ${createButton({
+
+                id : "btnNext",
+
+                text : "Lanjut"
+
+            })}
+
+        </footer>
+
     `;
+
+    bindCurrencyEvent();
 
 }
 
 
+
+
 //==================================
-// Theme
+// Event
 //==================================
 
-function renderTheme(){
+function bindWelcomeEvent(){
 
-    onboarding.innerHTML = `
+    document
 
-        ${renderProgress()}
+        .getElementById(
+            "btnStart"
+        )
 
-        <section class="content fade">
+        .addEventListener(
 
-            <h1>
+            "click",
 
-                Theme
+            nextStep
 
-            </h1>
+        );
 
-        </section>
+}
 
-    `;
+function bindDisplayNameEvent(){
+
+    const input =
+
+        document.getElementById(
+            "displayName"
+        );
+
+    const button =
+
+        document.getElementById(
+            "btnNext"
+        );
+
+
+    input.focus();
+
+
+    input.addEventListener(
+
+        "input",
+
+        () => {
+
+            onboardingData.displayName =
+
+                input.value.trimStart();
+
+            button.disabled =
+
+                onboardingData.displayName
+                .trim() === "";
+
+        }
+
+    );
+
+
+    button.addEventListener(
+
+        "click",
+
+        () => {
+
+            onboardingData.displayName =
+
+                input.value.trim();
+
+            nextStep();
+
+        }
+
+    );
+
+}
+
+function bindCurrencyEvent(){
+
+    const options =
+
+        document.querySelectorAll(
+            ".option"
+        );
+
+    const button =
+
+        document.getElementById(
+            "btnNext"
+        );
+
+
+    options.forEach(option => {
+
+        option.addEventListener(
+
+            "click",
+
+            () => {
+
+                options.forEach(item =>
+
+                    item.classList.remove(
+                        "active"
+                    )
+
+                );
+
+                option.classList.add(
+                    "active"
+                );
+
+                onboardingData.currency =
+
+                    option.dataset.value;
+
+            }
+
+        );
+
+    });
+
+
+    button.addEventListener(
+
+        "click",
+
+        nextStep
+
+    );
 
 }
 
 
-//==================================
-// Init
-//==================================
 
-render();
