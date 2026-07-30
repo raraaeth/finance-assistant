@@ -6,11 +6,12 @@ File        : index.html
 Version     : 1.0.0
 
 Description :
-Halaman onboarding pertama (Welcome Screen)
+Onboarding Wizard
 ==================================================
 -->
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
@@ -21,7 +22,7 @@ Halaman onboarding pertama (Welcome Screen)
         name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-    <title>Welcome</title>
+    <title>Finance Assistant</title>
 
     <link
         rel="stylesheet"
@@ -31,50 +32,12 @@ Halaman onboarding pertama (Welcome Screen)
 
 <body>
 
-    <main class="container">
+    <main id="onboarding"></main>
 
-        <section class="hero">
-
-            <img
-                src="../../assets/images/hero/hero-dashboard.png"
-                alt="Finance Assistant">
-
-        </section>
-
-        <section class="content">
-
-            <span class="badge">
-                👋 Selamat Datang
-            </span>
-
-            <h1>
-                Finance Assistant
-            </h1>
-
-            <p>
-
-                Kelola seluruh kebutuhan
-                keuanganmu dalam satu platform
-                yang sederhana, cepat,
-                dan nyaman digunakan.
-
-            </p>
-
-        </section>
-
-        <footer>
-
-            <button id="btnStart">
-
-                Mulai
-
-            </button>
-
-        </footer>
-
-    </main>
-
-    <script src="script.js"></script>
+    <script
+        type="module"
+        src="script.js">
+    </script>
 
 </body>
 
