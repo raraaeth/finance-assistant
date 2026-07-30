@@ -1,13 +1,14 @@
-import { loadUser } from "./storage.js";
+/**
+ * ==============================================
+ * Finance Assistant
+ * Module      : App
+ * File        : app.js
+ * Version     : 1.0.0
+ *
+ * Description :
+ * Entry point aplikasi.
+ * Selama development langsung membuka Onboarding.
+ * ==============================================
+ */
 
-const user = loadUser();
-
-if(user?.onboardingCompleted){
-
-    location.href="pages/dashboard/";
-
-}else{
-
-    location.href="pages/onboarding/";
-
-}
+location.replace("pages/onboarding/index.html");
