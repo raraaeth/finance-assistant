@@ -443,25 +443,29 @@ function renderCurrency(){
 
             ${createOption({
 
-                text : "🇮🇩 Indonesian Rupiah (IDR)",
+    icon : "🇮🇩",
 
-                value : "IDR",
+    title : "Indonesian Rupiah (IDR)",
 
-                selected :
-                    onboardingData.currency === "IDR"
+    value : "IDR",
 
-            })}
+    selected :
+        onboardingData.currency === "IDR"
 
-            ${createOption({
+})}
 
-                text : "🇺🇸 US Dollar (USD)",
+${createOption({
 
-                value : "USD",
+    icon : "🇺🇸",
 
-                selected :
-                    onboardingData.currency === "USD"
+    title : "US Dollar (USD)",
 
-            })}
+    value : "USD",
+
+    selected :
+        onboardingData.currency === "USD"
+
+})}
 
         </section>
 
