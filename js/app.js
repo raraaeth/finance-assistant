@@ -11,4 +11,20 @@
  * ==============================================
  */
 
-location.replace("pages/onboarding/index.html");
+import { loadUser } from "./storage.js";
+
+const user = loadUser();
+
+if (user?.onboardingCompleted) {
+
+    location.replace(
+        "pages/dashboard/index.html"
+    );
+
+} else {
+
+    location.replace(
+        "pages/onboarding/index.html"
+    );
+
+}
