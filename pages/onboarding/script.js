@@ -1,58 +1,63 @@
 /**
- * ==============================================
+ * ==================================================
  * Finance Assistant
  * Module      : Onboarding
  * File        : script.js
  * Version     : 1.0.0
  *
  * Description :
- * Mengatur seluruh proses onboarding.
- * ==============================================
+ * Onboarding Wizard Controller
+ * ==================================================
  */
 
 
-//======================================
+//==================================
 // State
-//======================================
+//==================================
 
 let currentStep = 0;
 
 const onboardingData = {
 
     displayName : "",
+
     currency    : "IDR",
+
     theme       : "system"
 
 };
 
 
-//======================================
-// Step List
-//======================================
-
-const steps = [
-
-    renderWelcome,
-    renderDisplayName,
-    renderCurrency,
-    renderTheme
-
-];
-
-
-//======================================
+//==================================
 // DOM
-//======================================
+//==================================
 
-const container =
+const onboarding =
 document.getElementById(
     "onboarding"
 );
 
 
-//======================================
+//==================================
+// Step
+//==================================
+
+const steps = [
+
+    renderWelcome,
+
+    renderDisplayName,
+
+    renderCurrency,
+
+    renderTheme
+
+];
+
+
+//==================================
 // Navigation
-//======================================
+//==================================
 
 function nextStep(){
 
@@ -77,79 +82,206 @@ function previousStep(){
 }
 
 
-//======================================
+//==================================
 // Render
-//======================================
+//==================================
 
 function render(){
+
+    onboarding.innerHTML = "";
 
     steps[currentStep]();
 
 }
 
 
-//======================================
+//==================================
+// Component
+//==================================
+
+function renderProgress(){
+
+    return `
+
+        <div class="progress">
+
+            ${
+                steps.map((_,index)=>`
+
+                    <span class="${
+                        index===currentStep
+                        ? "active"
+                        : ""
+                    }"></span>
+
+                `).join("")
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+//==================================
 // Welcome
-//======================================
+//==================================
 
 function renderWelcome(){
 
-    container.innerHTML = `
+    onboarding.innerHTML = `
 
-        Welcome Screen
+        ${renderProgress()}
+
+        <div class="illustration fade">
+
+            <img
+                src="../../assets/images/hero/hero-dashboard.png"
+                alt="Finance Assistant">
+
+        </div>
+
+        <section class="content fade">
+
+            <span class="badge">
+
+                👋 Selamat Datang
+
+            </span>
+
+            <h1>
+
+                Finance Assistant
+
+            </h1>
+
+            <p>
+
+                Halo!
+
+                Aku akan membantumu
+                mengelola keuangan
+                dengan lebih mudah.
+
+            </p>
+
+        </section>
+
+        <footer class="footer">
+
+            <button
+                class="button"
+                id="btnNext">
+
+                Mulai
+
+            </button>
+
+        </footer>
 
     `;
+
+    document
+        .getElementById("btnNext")
+        .addEventListener(
+            "click",
+            nextStep
+        );
 
 }
 
 
-//======================================
+//==================================
 // Display Name
-//======================================
+//==================================
 
 function renderDisplayName(){
 
-    container.innerHTML = `
+    onboarding.innerHTML = `
 
-        Display Name
+        ${renderProgress()}
+
+        <section class="content fade">
+
+            <span class="badge">
+
+                👤 Nama
+
+            </span>
+
+            <h1>
+
+                Aku akan memanggilmu siapa?
+
+            </h1>
+
+            <p>
+
+                Nama panggilan ini akan
+                digunakan di seluruh aplikasi.
+
+            </p>
+
+        </section>
 
     `;
 
 }
 
 
-//======================================
+//==================================
 // Currency
-//======================================
+//==================================
 
 function renderCurrency(){
 
-    container.innerHTML = `
+    onboarding.innerHTML = `
 
-        Currency
+        ${renderProgress()}
+
+        <section class="content fade">
+
+            <h1>
+
+                Currency
+
+            </h1>
+
+        </section>
 
     `;
 
 }
 
 
-//======================================
+//==================================
 // Theme
-//======================================
+//==================================
 
 function renderTheme(){
 
-    container.innerHTML = `
+    onboarding.innerHTML = `
 
-        Theme
+        ${renderProgress()}
+
+        <section class="content fade">
+
+            <h1>
+
+                Theme
+
+            </h1>
+
+        </section>
 
     `;
 
 }
 
 
-//======================================
+//==================================
 // Init
-//======================================
+//==================================
 
 render();
