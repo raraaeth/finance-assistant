@@ -298,6 +298,34 @@ body{
 
 }
 
+.option-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+
+}
+
+.option-content h3{
+
+    font-size:1rem;
+
+    font-weight:600;
+
+}
+
+.option-content p{
+
+    color:var(--text-secondary);
+
+    font-size:.9rem;
+
+    line-height:1.5;
+
+}
+
 
 /*==================================
   Footer
