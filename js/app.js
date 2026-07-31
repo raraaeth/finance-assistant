@@ -14,58 +14,26 @@ import { loadUser } from "./storage.js";
 
 document.addEventListener("DOMContentLoaded", init);
 
-
-/* ==============================================
-   INIT
-============================================== */
-
 function init() {
 
-    renderAppShell();
+    const user = loadUser();
 
-    loadPage("onboarding");
-    
-}
+    if (user?.onboardingCompleted) {
 
-/* ==============================================
-   APP SHELL
-============================================== */
+        loadPage("dashboard");
 
-function renderAppShell() {
+    } else {
 
-    const app = document.getElementById("app");
+        loadPage("onboarding");
 
-    app.innerHTML = `
-
-        <div id="app-shell">
-
-            <header id="app-header"></header>
-
-            <main id="app-main"></main>
-
-            <nav id="app-bottom-navigation"></nav>
-
-        </div>
-
-    `;
+    }
 
 }
 
-/* ==============================================
-   PAGE LOADER
-============================================== */
+function loadPage(page) {
 
-async function loadPage(page) {
+    const frame = document.getElementById("app-frame");
 
-    const main = document.getElementById("app-main");
-
-    const response = await fetch(
-        `pages/${page}/page.html`
-    );
-
-    const html = await response.text();
-
-    main.innerHTML = html;
+    frame.src = `pages/${page}/page.html`;
 
 }
-
