@@ -263,6 +263,47 @@
 
 }
 
+#pro-google-login-button.loading{
+
+    opacity:.7;
+
+    pointer-events:none;
+
+}
+
+#pro-google-login-button:disabled{
+
+    opacity:.5;
+
+    cursor:not-allowed;
+
+}
+
+.spinner{
+
+    width:18px;
+
+    height:18px;
+
+    border:2px solid rgba(255,255,255,.4);
+
+    border-top-color:#fff;
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
 
 
 /*==================================
