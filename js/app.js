@@ -13,13 +13,13 @@ const user = loadUser();
 if (user?.onboardingCompleted) {
 
     location.replace(
-        "pages/dashboard/page.html"
+        "pages/dashboard/index.html"
     );
 
 } else {
 
     location.replace(
-        "pages/onboarding/page.html"
+        "pages/onboarding/index.html"
     );
 
 }
