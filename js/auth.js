@@ -1,3 +1,4 @@
+
 /* ==========================================
    GOOGLE AUTH
 ========================================== */
@@ -11,10 +12,16 @@ const Auth = {
     scopes: [
         "openid",
         "email",
-        "profile"
-    ]
+        "profile",
+        "https://www.googleapis.com/auth/drive.file"
+    ],
+
+    client: null,
+
+    session: null
 
 };
+
 
 /* ==========================================
    INITIALIZE
@@ -28,11 +35,12 @@ function init() {
 
     if (isCallbackPage()) {
 
-    handleCallback();
+        handleCallback();
 
     }
 
 }
+
 
 /* ==========================================
    PAGE
@@ -44,22 +52,25 @@ function isCallbackPage() {
 
 }
 
+
 /* ==========================================
    LOGIN
 ========================================== */
 
+function loginGoogle() {
+
+
+
+}
 
 
 /* ==========================================
    CALLBACK
 ========================================== */
+
 function handleCallback() {
 
-    const params = new URLSearchParams(location.search);
 
-    console.log(location.search);
-
-    console.log(params);
 
 }
 
@@ -68,8 +79,25 @@ function handleCallback() {
    SESSION
 ========================================== */
 
+function saveSession() {
+
+
+
+}
+
+function loadSession() {
+
+
+
+}
 
 
 /* ==========================================
    LOGOUT
 ========================================== */
+
+function logout() {
+
+
+
+}
