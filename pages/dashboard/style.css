@@ -5,13 +5,21 @@ File        : style.css
 Version     : 1.0.0
 ==================================================*/
 
+
+/*==================================
+  Root
+==================================*/
+
 :root{
 
     --primary:#2563eb;
+
     --background:#f5f7fb;
+
     --surface:#ffffff;
 
     --text:#111827;
+
     --secondary:#6b7280;
 
     --border:#e5e7eb;
@@ -23,7 +31,9 @@ Version     : 1.0.0
 *{
 
     margin:0;
+
     padding:0;
+
     box-sizing:border-box;
 
 }
@@ -31,8 +41,11 @@ Version     : 1.0.0
 body{
 
     font-family:
+
         Inter,
+
         system-ui,
+
         sans-serif;
 
     background:var(--background);
@@ -40,6 +53,11 @@ body{
     color:var(--text);
 
 }
+
+
+/*==================================
+  Layout
+==================================*/
 
 #dashboard{
 
@@ -50,6 +68,23 @@ body{
     padding:24px;
 
 }
+
+.modules{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+    margin-top:36px;
+
+}
+
+
+/*==================================
+  Hero
+==================================*/
 
 .hero{
 
@@ -111,17 +146,27 @@ body{
 
 }
 
-.modules{
 
-    display:flex;
+/*==================================
+  Section
+==================================*/
 
-    flex-direction:column;
+.section-title{
 
-    gap:16px;
+    margin-top:16px;
 
-    margin-top:36px;
+    font-size:1.1rem;
+
+    font-weight:700;
+
+    color:var(--text);
 
 }
+
+
+/*==================================
+  Module Card
+==================================*/
 
 .module-card{
 
@@ -188,3 +233,14 @@ body{
     font-weight:bold;
 
 }
+
+
+/*==================================
+  Animation
+==================================*/
+
+
+
+/*==================================
+  Responsive
+==================================*/
