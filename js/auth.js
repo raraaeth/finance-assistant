@@ -208,13 +208,13 @@ const response = await fetch(
         },
         body: new URLSearchParams({
 
-            client_id: GOOGLE.clientId,
+            client_id: Auth.clientId,
 
             code: code,
 
             code_verifier: verifier,
 
-            redirect_uri: GOOGLE.redirectUri,
+            redirect_uri: Auth.redirectUri,
 
             grant_type: "authorization_code"
 
