@@ -1,0 +1,52 @@
+/*==================================================
+Finance Assistant
+Module      : Dashboard
+File        : style.css
+Version     : 1.0.0
+==================================================*/
+
+:root{
+
+    --primary:#2563eb;
+    --background:#f5f7fb;
+    --surface:#ffffff;
+
+    --text:#111827;
+    --secondary:#6b7280;
+
+    --border:#e5e7eb;
+
+    --radius:18px;
+
+}
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:
+        Inter,
+        system-ui,
+        sans-serif;
+
+    background:var(--background);
+
+    color:var(--text);
+
+}
+
+#dashboard{
+
+    max-width:430px;
+
+    margin:auto;
+
+    padding:24px;
+
+}
