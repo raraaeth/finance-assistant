@@ -10,14 +10,36 @@
  * ==============================================
  */
 
+//==================================
+// Import
+//==================================
+
+import {
+
+    loadUser
+
+} from "../../js/storage.js";
+
+
+//==================================
+// Constant
+//==================================
+
 const HERO_IMAGE =
     "../../assets/images/hero/hero-dashboard.png";
 
-import { loadUser }
 
-from "../../js/storage.js";
+//==================================
+// State
+//==================================
 
-const user = loadUser();
+const user =
+    loadUser();
+
+
+//==================================
+// DOM
+//==================================
 
 const dashboard =
 
@@ -25,7 +47,10 @@ const dashboard =
         "dashboard"
     );
 
-render();
+
+//==================================
+// Component
+//==================================
 
 function createHero(){
 
@@ -75,13 +100,13 @@ function createHero(){
 
 function createModuleCard({
 
+    id,
+
     icon,
 
     title,
 
-    description,
-
-    id
+    description
 
 }){
 
@@ -89,9 +114,9 @@ function createModuleCard({
 
         <article
 
-            class="module-card"
-
             id="${id}"
+
+            class="module-card"
 
         >
 
@@ -125,6 +150,10 @@ function createModuleCard({
 
 }
 
+
+//==================================
+// Render
+//==================================
 
 function render(){
 
@@ -190,6 +219,48 @@ function render(){
 
     `;
 
+    bindModuleEvents();
+
 }
 
 
+//==================================
+// Event
+//==================================
+
+function bindModuleEvents(){
+
+    document
+
+        .querySelectorAll(
+            ".module-card"
+        )
+
+        .forEach(card => {
+
+            card.addEventListener(
+
+                "click",
+
+                () => {
+
+                    console.log(
+
+                        card.id
+
+                    );
+
+                }
+
+            );
+
+        });
+
+}
+
+
+//==================================
+// Init
+//==================================
+
+render();
