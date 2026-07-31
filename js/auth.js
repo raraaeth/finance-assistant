@@ -137,6 +137,7 @@ function saveCodeVerifier(verifier) {
     );
 
 }
+
 function getCodeVerifier() {
 
     return sessionStorage.getItem(
@@ -179,6 +180,23 @@ async function handleCallback() {
         "Authorization Code:",
         code
     );
+
+const verifier = getCodeVerifier();
+
+if(!verifier){
+
+    console.error(
+        "Code verifier not found."
+    );
+
+    return;
+
+}
+
+console.log(
+    "Code Verifier:",
+    verifier
+);
 
 }
 
