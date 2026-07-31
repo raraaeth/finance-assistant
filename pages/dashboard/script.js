@@ -73,6 +73,58 @@ function createHero(){
 
 }
 
+function createModuleCard({
+
+    icon,
+
+    title,
+
+    description,
+
+    id
+
+}){
+
+    return `
+
+        <article
+
+            class="module-card"
+
+            id="${id}"
+
+        >
+
+            <div class="module-content">
+
+                <h2>
+
+                    ${icon}
+
+                    ${title}
+
+                </h2>
+
+                <p>
+
+                    ${description}
+
+                </p>
+
+            </div>
+
+            <span class="module-arrow">
+
+                →
+
+            </span>
+
+        </article>
+
+    `;
+
+}
+
 
 function render(){
 
@@ -80,6 +132,64 @@ function render(){
 
         ${createHero()}
 
+        <section class="modules">
+
+            ${createModuleCard({
+
+                id : "financial",
+
+                icon : "💰",
+
+                title : "Financial",
+
+                description :
+                    "Kelola pemasukan, pengeluaran, dan laporan."
+
+            })}
+
+            ${createModuleCard({
+
+                id : "saving",
+
+                icon : "🏦",
+
+                title : "Saving",
+
+                description :
+                    "Pantau tabungan dan target keuangan."
+
+            })}
+
+            ${createModuleCard({
+
+                id : "payroll",
+
+                icon : "💼",
+
+                title : "Payroll",
+
+                description :
+                    "Kelola absensi dan perhitungan gaji."
+
+            })}
+
+            ${createModuleCard({
+
+                id : "profile",
+
+                icon : "👤",
+
+                title : "Profile",
+
+                description :
+                    "Kelola akun dan pengaturan aplikasi."
+
+            })}
+
+        </section>
+
     `;
 
 }
+
+
