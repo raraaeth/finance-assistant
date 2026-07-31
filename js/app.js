@@ -3,28 +3,69 @@
  * Finance Assistant
  * Module      : App
  * File        : app.js
- * Version     : 1.0.0
+ * Version     : 2.0.0
  *
  * Description :
- * Entry point aplikasi.
- * Selama development langsung membuka Onboarding.
+ * Entry Point Finance Assistant
  * ==============================================
  */
 
 import { loadUser } from "./storage.js";
 
-const user = loadUser();
+document.addEventListener("DOMContentLoaded", init);
 
-if (user?.onboardingCompleted) {
 
-    location.replace(
-        "pages/dashboard/page.html"
-    );
+/* ==============================================
+   INIT
+============================================== */
 
-} else {
+function init() {
 
-    location.replace(
-        "pages/onboarding/page.html"
-    );
+    renderAppShell();
+
+    loadPage("onboarding");
+    
+}
+
+/* ==============================================
+   APP SHELL
+============================================== */
+
+function renderAppShell() {
+
+    const app = document.getElementById("app");
+
+    app.innerHTML = `
+
+        <div id="app-shell">
+
+            <header id="app-header"></header>
+
+            <main id="app-main"></main>
+
+            <nav id="app-bottom-navigation"></nav>
+
+        </div>
+
+    `;
 
 }
+
+/* ==============================================
+   PAGE LOADER
+============================================== */
+
+async function loadPage(page) {
+
+    const main = document.getElementById("app-main");
+
+    const response = await fetch(
+        `pages/${page}/page.html`
+    );
+
+    const html = await response.text();
+
+    main.innerHTML = html;
+
+}
+
