@@ -126,20 +126,44 @@
 
 }
 
-#pro-login-title{
+#pro-login-badge{
 
-    font-size:28px;
+    padding:6px 14px;
+
+    border-radius:999px;
+
+    background:rgba(37,99,235,.12);
+
+    color:var(--primary);
+
+    font-size:12px;
 
     font-weight:700;
+
+    letter-spacing:1px;
+
+}
+
+#pro-login-title{
+
+    font-size:34px;
+
+    font-weight:800;
+
+    line-height:1.2;
 
 }
 
 
 #pro-login-description{
 
-    max-width:320px;
+    max-width:340px;
 
-    line-height:1.6;
+    color:var(--text-secondary);
+
+    font-size:16px;
+
+    line-height:1.7;
 
 }
 
@@ -312,3 +336,28 @@
 /*==================================
     Responsive
 ==================================*/
+
+@keyframes float{
+
+    0%{
+
+        transform:translateY(0);
+
+    }
+
+    50%{
+
+        transform:translateY(-8px);
+
+    }
+
+    100%{
+
+        transform:translateY(0);
+
+    }
+
+}
+
+animation:float 3s ease-in-out infinite;
+
