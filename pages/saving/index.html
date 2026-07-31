@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+
+        Finance Assistant - Saving
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="../../css/global.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/main.css"
+    >
+
+</head>
+
+<body>
+
+<div id="saving">
+
+<!--==================================
+    Header
+==================================-->
+
+<header id="sav-header">
+
+    <div class="header-container">
+
+        <div class="header-left">
+
+            <button id="sav-back-button">
+
+            </button>
+
+        </div>
+
+        <div class="header-center">
+
+            <h1>
+
+                Tabungan
+
+            </h1>
+
+        </div>
+
+        <div class="header-right">
+
+            <button id="sav-profile-button">
+
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!--==================================
+    Tab Navigation
+==================================-->
+
+<nav id="sav-tab-navigation">
+
+    <div class="tab-container">
+
+        <button
+            class="tab-button active"
+            data-page="home"
+        >
+
+            Home
+
+        </button>
+
+        <button
+            class="tab-button"
+            data-page="statistics"
+        >
+
+            Statistik
+
+        </button>
+
+        <button
+            class="tab-button"
+            data-page="summary"
+        >
+
+            Ringkasan
+
+        </button>
+
+    </div>
+
+</nav>
+
+
+<!--==================================
+    Main Content
+==================================-->
+
+<main id="sav-main">
+
+<!--==================================
+    Home
+==================================-->
+
+<section
+    id="sav-home"
+    class="page active-page"
+>
+
+    <!--==================================
+        Hero
+    ==================================-->
+
+    <section id="sav-hero-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Ringkasan Saldo
+    ==================================-->
+
+    <section id="sav-balance-summary-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+            </div>
+
+            <div class="section-content">
+
+                <div id="sav-total-balance-card">
+
+                </div>
+
+                <div id="sav-monthly-change-card">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Input Transaksi
+    ==================================-->
+
+    <section id="sav-transaction-input-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+            </div>
+
+            <div class="section-content">
+
+                <div id="sav-deposit-button">
+
+                </div>
+
+                <div id="sav-withdraw-button">
+
+                </div>
+
+                <div id="sav-transfer-button">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Kelola Tabungan
+    ==================================-->
+
+    <section id="sav-saving-setting-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+            </div>
+
+            <div class="section-content">
+
+                <div id="sav-saving-list-card">
+
+                </div>
+
+                <div id="sav-storage-card">
+
+                </div>
+
+                <div id="sav-goal-card">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+  <!--==================================
+    Statistik
+==================================-->
+
+<section
+    id="sav-statistics"
+    class="page"
+>
+
+    <!--==================================
+        Filter
+    ==================================-->
+
+    <section id="sav-filter-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                </div>
+
+                <div class="section-action">
+
+                </div>
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Grafik
+    ==================================-->
+
+    <section id="sav-chart-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                </div>
+
+                <div class="section-action">
+
+                </div>
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Rincian Transaksi
+    ==================================-->
+
+    <section id="sav-transaction-detail-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                </div>
+
+                <div class="section-action">
+
+                </div>
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+</section>
+
+
+<!--==================================
+    Ringkasan
+==================================-->
+
+<section
+    id="sav-summary"
+    class="page"
+>
+
+    <!--==================================
+        Tabungan Pribadi
+    ==================================-->
+
+    <section id="sav-personal-saving-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                </div>
+
+                <div class="section-action">
+
+                </div>
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Tabungan Bersama / Kas
+    ==================================-->
+
+    <section id="sav-shared-saving-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                </div>
+
+                <div class="section-action">
+
+                </div>
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Goal
+    ==================================-->
+
+    <section id="sav-goal-summary-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                </div>
+
+                <div class="section-action">
+
+                </div>
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!--==================================
+        Distribusi Penyimpanan Dana
+    ==================================-->
+
+    <section id="sav-storage-summary-section">
+
+        <div class="section-container">
+
+            <div class="section-header">
+
+                <div class="section-title">
+
+                </div>
+
+                <div class="section-action">
+
+                </div>
+
+            </div>
+
+            <div class="section-content">
+
+            </div>
+
+        </div>
+
+    </section>
+
+</section>
+
+</main>
+
+</div>
+
+<!--==================================
+    End Main
+==================================-->
+
+<script
+    type="module"
+    src="js/main.js"
+></script>
+
+</body>
+
+              </html>
+              
