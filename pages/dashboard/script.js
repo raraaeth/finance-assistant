@@ -249,6 +249,38 @@ function render(){
 
 }
 
+//==================================
+// Navigation
+//==================================
+
+function openFinancial(){
+
+    window.location.href =
+        "../financial/";
+
+}
+
+function openSaving(){
+
+    window.location.href =
+        "../saving/";
+
+}
+
+function openPayroll(){
+
+    window.location.href =
+        "../payroll/";
+
+}
+
+function openProfile(){
+
+    window.location.href =
+        "../profile/";
+
+}
+
 
 //==================================
 // Event
@@ -270,11 +302,33 @@ function bindModuleEvents(){
 
                 () => {
 
-                    console.log(
+                    switch(card.id){
 
-                        card.id
+                        case "financial":
 
-                    );
+                            openFinancial();
+
+                            break;
+
+                        case "saving":
+
+                            openSaving();
+
+                            break;
+
+                        case "payroll":
+
+                            openPayroll();
+
+                            break;
+
+                        case "profile":
+
+                            openProfile();
+
+                            break;
+
+                    }
 
                 }
 
