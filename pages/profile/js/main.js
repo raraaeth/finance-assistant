@@ -1,3 +1,5 @@
+import { loginGoogle } from "../../../js/auth.js";
+
 /*==================================
     Profile
 ==================================*/
@@ -11,9 +13,47 @@ document.addEventListener("DOMContentLoaded",init);
 
 function init(){
 
+    initEvents();
+
     initProfile();
 
 }
+
+/*==================================
+    Events
+==================================*/
+
+function initEvents(){
+
+    document
+        .getElementById("pro-google-login-button")
+        .addEventListener("click", onGoogleLogin);
+
+}
+
+/*==================================
+    Login
+==================================*/
+
+async function onGoogleLogin(){
+
+    const button = document.getElementById(
+        "pro-google-login-button"
+    );
+
+    button.classList.add("loading");
+
+    button.disabled = true;
+
+    button.innerHTML = `
+        <div class="spinner"></div>
+        <span>Connecting...</span>
+    `;
+
+    await loginGoogle();
+
+}
+
 
 
 /*==================================
