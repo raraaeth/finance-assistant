@@ -58,7 +58,7 @@ function isCallbackPage() {
    LOGIN
 ========================================== */
 
-async function loginGoogle() {
+export async function loginGoogle() {
 
     await requestAuthorization();
 
