@@ -157,12 +157,30 @@ function removeCodeVerifier() {
    CALLBACK
 ========================================== */
 
-function handleCallback() {
+async function handleCallback() {
 
+    const params = new URLSearchParams(
+        location.search
+    );
 
+    const code = params.get("code");
+
+    if(!code){
+
+        console.error(
+            "Authorization code not found."
+        );
+
+        return;
+
+    }
+
+    console.log(
+        "Authorization Code:",
+        code
+    );
 
 }
-
 
 /* ==========================================
    SESSION
