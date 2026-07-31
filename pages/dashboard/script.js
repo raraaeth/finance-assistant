@@ -150,6 +150,20 @@ function createModuleCard({
 
 }
 
+function createSectionTitle(title){
+
+    return `
+
+        <h2 class="section-title">
+
+            ${title}
+
+        </h2>
+
+    `;
+
+}
+
 
 //==================================
 // Render
@@ -160,6 +174,10 @@ function render(){
     dashboard.innerHTML = `
 
         ${createHero()}
+
+        ${createSectionTitle(
+            "Modul"
+        )}
 
         <section class="modules">
 
@@ -201,6 +219,14 @@ function render(){
                     "Kelola absensi dan perhitungan gaji."
 
             })}
+
+        </section>
+
+        ${createSectionTitle(
+            "Akun"
+        )}
+
+        <section class="modules">
 
             ${createModuleCard({
 
