@@ -8,58 +8,21 @@
 
 import { loadUser } from "./storage.js";
 
-document.addEventListener("DOMContentLoaded", init);
+const user = loadUser();
 
+if (user?.onboardingCompleted) {
 
-/* ==============================================
-   INIT
-============================================== */
+    location.replace(
+        "pages/dashboard/page.html"
+    );
 
-function init() {
+} else {
 
-    renderApp();
-
-}
-
-
-/* ==============================================
-   APP
-============================================== */
-
-function renderApp() {
-
-    document.getElementById("app").innerHTML = `
-
-        <iframe
-            id="app-frame"
-            frameborder="0">
-        </iframe>
-
-    `;
-
-    const user = loadUser();
-
-    if (user?.onboardingCompleted) {
-
-        loadPage("dashboard");
-
-    } else {
-
-        loadPage("onboarding");
-
-    }
+    location.replace(
+        "pages/onboarding/page.html"
+    );
 
 }
 
 
-/* ==============================================
-   PAGE
-============================================== */
 
-function loadPage(page) {
-
-    const frame = document.getElementById("app-frame");
-
-    frame.src = `pages/${page}/page.html`;
-
-}
