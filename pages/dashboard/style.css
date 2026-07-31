@@ -50,3 +50,63 @@ body{
     padding:24px;
 
 }
+
+.hero{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+}
+
+.hero img{
+
+    width:100%;
+
+}
+
+.hero-text{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+.hero-text h1{
+
+    font-size:2rem;
+
+    line-height:1.2;
+
+}
+
+.hero-text p{
+
+    color:var(--secondary);
+
+    line-height:1.6;
+
+}
+
+.badge{
+
+    align-self:flex-start;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:#dbeafe;
+
+    color:var(--primary);
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+}
