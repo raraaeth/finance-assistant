@@ -198,6 +198,38 @@ console.log(
     verifier
 );
 
+const response = await fetch(
+    "https://oauth2.googleapis.com/token",
+    {
+        method: "POST",
+        headers: {
+            "Content-Type":
+                "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+
+            client_id: GOOGLE.clientId,
+
+            code: code,
+
+            code_verifier: verifier,
+
+            redirect_uri: GOOGLE.redirectUri,
+
+            grant_type: "authorization_code"
+
+        })
+    }
+);
+
+const token = await response.json();
+
+console.log(
+    "Token Response:",
+    token
+);
+
+
 }
 
 /* ==========================================
