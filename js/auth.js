@@ -198,7 +198,24 @@ function removeCodeVerifier() {
         verifier
     );
 
-    const response=await fetch(
+   const form=new URLSearchParams();
+
+form.append(
+    "action",
+    "login"
+);
+
+form.append(
+    "code",
+    code
+);
+
+form.append(
+    "verifier",
+    verifier
+);
+       
+       const response=await fetch(
 
         "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
 
@@ -206,25 +223,18 @@ function removeCodeVerifier() {
 
             method:"POST",
 
-            headers:{
+        body:form
 
-                "Content-Type":"application/json"
+    }
 
-            },
+);
 
-            body:JSON.stringify({
+const result=await response.json();
 
-                action:"login",
-
-                code:code,
-
-                verifier:verifier
-
-            })
-
-        }
-
-    );
+console.log(
+    "Apps Script Response:",
+    result
+);
 
     const result=await response.json();
 
