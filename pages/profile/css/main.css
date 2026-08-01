@@ -1,39 +1,20 @@
-/*==================================
-    Profile
-==================================*/
+/*==================================================
+Finance Assistant
+Module      : Profile
+File        : main.css
+Version     : 2.0.0
 
+Description :
+Profile & Account Center
 
-/*==================================
-    Layout
-==================================*/
-
-#profile{
-
-    display:flex;
-
-    flex-direction:column;
-
-    min-height:100vh;
-
-}
-
-
-#pro-main{
-
-    flex:1;
-
-}
-
-
-/*==================================
-    Header
-==================================*/
-
-#pro-header{
-
-}
-
-
+Features :
+- Google Authentication
+- User Profile
+- Workspace
+- Application Settings
+- Synchronization
+- Logout
+==================================================*/
 /*==================================
     Login
 ==================================*/
@@ -56,7 +37,7 @@
 
     width:100%;
 
-    max-width:420px;
+    max-width:430px;
 
 }
 
@@ -66,11 +47,14 @@
 
     flex-direction:column;
 
-    align-items:center;
-
-    gap:24px;
+    gap:28px;
 
 }
+
+
+/*==================================
+    Hero
+==================================*/
 
 #pro-login-hero{
 
@@ -80,61 +64,27 @@
 
     align-items:center;
 
-    gap:16px;
-
     text-align:center;
 
-}
-
-#pro-login-illustration{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
+    gap:18px;
 
 }
 
-.illustration-circle{
+#pro-login-image{
 
-    width:160px;
+    width:240px;
 
-    height:160px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    border-radius:50%;
-
-    background:linear-gradient(
-        135deg,
-        var(--primary),
-        #60a5fa
-    );
-
-    box-shadow:0 12px 30px rgba(37,99,235,.25);
-
-    animation:float 3s ease-in-out infinite;
-    
-}
-
-.illustration-icon{
-
-    font-size:72px;
+    max-width:100%;
 
 }
 
 #pro-login-badge{
 
-    padding:6px 14px;
+    padding:8px 16px;
 
     border-radius:999px;
 
-    background:rgba(37,99,235,.12);
+    background:#dbeafe;
 
     color:var(--primary);
 
@@ -156,56 +106,91 @@
 
 }
 
-
 #pro-login-description{
-
-    max-width:340px;
 
     color:var(--text-secondary);
 
-    font-size:16px;
-
-    line-height:1.7;
+    line-height:1.8;
 
 }
 
+#pro-login-message{
 
-#pro-login-note{
+    width:100%;
 
-    max-width:320px;
+    padding:18px;
 
-    text-align:center;
+    border-radius:18px;
 
-    color:var(--text-secondary);
+    background:var(--surface);
 
-    font-size:14px;
+    border:1px solid var(--border);
+
+    color:var(--text);
 
     line-height:1.6;
 
 }
 
 
-#pro-google-login-button{
+/*==================================
+    Benefit
+==================================*/
 
-    width:100%;
+#pro-login-benefits{
 
-    max-width:320px;
+    display:flex;
 
-    height:56px;
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.pro-benefit{
 
     display:flex;
 
     align-items:center;
 
-    justify-content:center;
-
     gap:12px;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    font-weight:500;
+
+}
+
+
+/*==================================
+    Google Button
+==================================*/
+
+#pro-google-login-button{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    width:100%;
+
+    padding:18px 20px;
+
+    border:none;
+
+    border-radius:18px;
 
     background:var(--primary);
 
-    color:#fff;
-
-    border-radius:16px;
+    color:#ffffff;
 
     box-shadow:var(--shadow);
 
@@ -225,12 +210,11 @@
 
 }
 
-
 .google-icon{
 
-    width:28px;
+    width:42px;
 
-    height:28px;
+    height:42px;
 
     display:flex;
 
@@ -238,13 +222,13 @@
 
     justify-content:center;
 
-    background:#fff;
+    border-radius:50%;
+
+    background:#ffffff;
 
     color:#4285F4;
 
-    border-radius:50%;
-
-    font-size:16px;
+    font-size:20px;
 
     font-weight:700;
 
@@ -252,148 +236,66 @@
 
 }
 
-.google-text{
+.google-button-content{
 
-    font-weight:600;
+    display:flex;
 
-    letter-spacing:.2px;
+    flex-direction:column;
 
-}
+    align-items:flex-start;
 
-#pro-google-login-button.loading{
-
-    opacity:.7;
-
-    pointer-events:none;
+    gap:4px;
 
 }
 
-#pro-google-login-button:disabled{
+.google-title{
 
-    opacity:.5;
+    font-size:16px;
 
-    cursor:not-allowed;
-
-}
-
-.spinner{
-
-    width:18px;
-
-    height:18px;
-
-    border:2px solid rgba(255,255,255,.4);
-
-    border-top-color:#fff;
-
-    border-radius:50%;
-
-    animation:spin .8s linear infinite;
+    font-weight:700;
 
 }
 
-@keyframes spin{
+.google-subtitle{
 
-    to{
+    font-size:13px;
 
-        transform:rotate(360deg);
-
-    }
+    opacity:.85;
 
 }
 
 
 /*==================================
-    Dashboard
+    Privacy
 ==================================*/
 
-#pro-dashboard-section{
+#pro-login-note{
+
+    padding:20px;
+
+    border-radius:18px;
+
+    background:rgba(37,99,235,.06);
+
+    text-align:center;
 
 }
 
+#pro-login-note strong{
 
-/*==================================
-    Hero
-==================================*/
+    display:block;
 
-#pro-hero-section{
+    margin-bottom:10px;
 
-}
-
-
-/*==================================
-    Active Apps
-==================================*/
-
-#pro-active-app-section{
+    color:var(--text);
 
 }
 
+#pro-login-note p{
 
-/*==================================
-    Theme
-==================================*/
+    color:var(--text-secondary);
 
-#pro-theme-section{
-
-}
-
-
-/*==================================
-    Setting
-==================================*/
-
-#pro-setting-section{
-
-}
-
-
-/*==================================
-    Sync
-==================================*/
-
-#pro-sync-section{
-
-}
-
-
-/*==================================
-    Logout
-==================================*/
-
-#pro-logout-section{
-
-}
-
-
-#pro-logout-button{
-
-}
-
-
-/*==================================
-    Responsive
-==================================*/
-
-@keyframes float{
-
-    0%{
-
-        transform:translateY(0);
-
-    }
-
-    50%{
-
-        transform:translateY(-8px);
-
-    }
-
-    100%{
-
-        transform:translateY(0);
-
-    }
+    line-height:1.7;
 
 }
 
