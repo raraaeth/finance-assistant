@@ -422,3 +422,143 @@ Features :
     line-height:1.6;
 
 }
+
+/*==================================
+    Workspace
+==================================*/
+
+#pro-active-workspace,
+
+#pro-inactive-workspace{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(2,1fr);
+
+    gap:16px;
+
+}
+
+#pro-workspace-divider{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    margin:28px 0;
+
+}
+
+#pro-workspace-divider::before,
+
+#pro-workspace-divider::after{
+
+    content:"";
+
+    flex:1;
+
+    height:1px;
+
+    background:var(--border);
+
+}
+
+#pro-workspace-divider span{
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+
+.workspace-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    padding:20px;
+
+    border:1px solid var(--border);
+
+    border-radius:20px;
+
+    background:var(--surface);
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.workspace-card:hover{
+
+    transform:translateY(-2px);
+
+    border-color:var(--primary);
+
+}
+
+
+.workspace-icon{
+
+    font-size:32px;
+
+}
+
+.workspace-card h3{
+
+    font-size:18px;
+
+    font-weight:700;
+
+}
+
+.workspace-card p{
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+}
+
+.workspace-status{
+
+    align-self:flex-start;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.workspace-status.active{
+
+    background:#dcfce7;
+
+    color:#15803d;
+
+}
+
+.workspace-status.inactive{
+
+    background:#fef3c7;
+
+    color:#b45309;
+
+}
+
+
