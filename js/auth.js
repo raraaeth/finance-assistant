@@ -31,31 +31,23 @@ init();
 
 function init(){
 
-    console.log(
+    console.log("Auth loaded");
 
-        "Auth loaded"
+    if(isCallbackPage()){
 
-    );
-
-    const session = loadSession();
-
-    if(session){
-
-        console.log(
-
-            "Auto Login",
-
-            session
-
-        );
+        handleCallback();
 
         return;
 
     }
 
-    if(isCallbackPage()){
+    const session = loadSession();
 
-        handleCallback();
+    if(session){
+
+        console.log("Auto Login", session);
+
+        return;
 
     }
 
