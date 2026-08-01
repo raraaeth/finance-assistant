@@ -351,6 +351,10 @@ export function logout(){
 
     removeCodeVerifier();
 
-    location.href = "/";
+    location.replace(
+
+        "/finance-assistant/pages/profile/"
+
+    );
 
 }
