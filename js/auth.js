@@ -277,6 +277,8 @@ console.log(
 
 removeCodeVerifier();
 
+console.log("Redirecting...");
+
 location.replace(
     "../pages/dashboard/index.html"
 );
