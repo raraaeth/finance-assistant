@@ -2,7 +2,7 @@
 Finance Assistant
 Module      : Dashboard
 File        : style.css
-Version     : 1.0.0
+Version     : 2.0.0
 ==================================================*/
 
 
@@ -27,6 +27,11 @@ Version     : 1.0.0
     --radius:18px;
 
 }
+
+
+/*==================================
+  Reset
+==================================*/
 
 *{
 
@@ -69,23 +74,10 @@ body{
 
 }
 
-.modules{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:16px;
-
-    margin-top:36px;
-
-}
-
 
 /*==================================
   Hero
 ==================================*/
-
 .hero{
 
     display:flex;
@@ -100,6 +92,8 @@ body{
 
     width:100%;
 
+    border-radius:var(--radius);
+
 }
 
 .hero-text{
@@ -108,23 +102,7 @@ body{
 
     flex-direction:column;
 
-    gap:16px;
-
-}
-
-.hero-text h1{
-
-    font-size:2rem;
-
-    line-height:1.2;
-
-}
-
-.hero-text p{
-
-    color:var(--secondary);
-
-    line-height:1.6;
+    gap:18px;
 
 }
 
@@ -146,16 +124,35 @@ body{
 
 }
 
+.hero-text h1{
+
+    font-size:2rem;
+
+    line-height:1.2;
+
+}
+
+.hero-text p{
+
+    color:var(--secondary);
+
+    line-height:1.8;
+
+    font-size:.95rem;
+
+}
+
 
 /*==================================
   Section
 ==================================*/
-
 .section-title{
 
-    margin-top:16px;
+    margin-top:40px;
 
-    font-size:1.1rem;
+    margin-bottom:20px;
+
+    font-size:1.15rem;
 
     font-weight:700;
 
@@ -163,11 +160,20 @@ body{
 
 }
 
+.modules{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
 
 /*==================================
   Module Card
 ==================================*/
-
 .module-card{
 
     display:flex;
@@ -176,7 +182,9 @@ body{
 
     align-items:center;
 
-    padding:18px;
+    gap:16px;
+
+    padding:20px;
 
     border:1px solid var(--border);
 
@@ -186,7 +194,13 @@ body{
 
     cursor:pointer;
 
-    transition:.25s;
+    transition:
+
+        transform .2s,
+
+        border-color .2s,
+
+        box-shadow .2s;
 
 }
 
@@ -196,9 +210,17 @@ body{
 
     transform:translateY(-2px);
 
+    box-shadow:
+
+        0 10px 24px
+
+        rgba(0,0,0,.06);
+
 }
 
 .module-content{
+
+    flex:1;
 
     display:flex;
 
@@ -212,35 +234,142 @@ body{
 
     font-size:1.05rem;
 
+    font-weight:700;
+
+    line-height:1.4;
+
 }
 
 .module-content p{
 
+    font-size:.92rem;
+
     color:var(--secondary);
 
-    line-height:1.5;
-
-    font-size:.92rem;
+    line-height:1.6;
 
 }
 
 .module-arrow{
 
+    flex-shrink:0;
+
     font-size:1.5rem;
 
     color:var(--primary);
 
-    font-weight:bold;
+    font-weight:700;
 
 }
 
 
 /*==================================
-  Animation
+  Install Card
 ==================================*/
+.install-card{
 
+    margin-top:40px;
+
+    padding:24px;
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius);
+
+    background:var(--surface);
+
+    box-shadow:
+
+        0 10px 30px
+
+        rgba(0,0,0,.05);
+
+}
+
+.install-card h3{
+
+    font-size:1.2rem;
+
+    line-height:1.5;
+
+    font-weight:700;
+
+}
+
+.install-card p{
+
+    margin-top:14px;
+
+    color:var(--secondary);
+
+    line-height:1.7;
+
+    font-size:.95rem;
+
+}
+
+.install-button{
+
+    width:100%;
+
+    margin-top:24px;
+
+    padding:18px;
+
+    border:none;
+
+    border-radius:var(--radius);
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:
+
+        transform .2s,
+
+        box-shadow .2s,
+
+        opacity .2s;
+
+}
+
+.install-button:hover{
+
+    transform:translateY(-2px);
+
+    opacity:.95;
+
+    box-shadow:
+
+        0 8px 20px
+
+        rgba(37,99,235,.25);
+
+  }
 
 
 /*==================================
   Responsive
 ==================================*/
+@media (max-width:480px){
+
+    #dashboard{
+
+        padding:20px;
+
+    }
+
+    .hero-text h1{
+
+        font-size:1.8rem;
+
+    }
+
+}
