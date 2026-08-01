@@ -51,6 +51,48 @@ Features :
 
 }
 
+/*==================================
+    Header
+==================================*/
+#pro-header{
+
+    padding:28px 24px 8px;
+
+}
+
+.header-center{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+.header-center h1{
+
+    font-size:42px;
+
+    font-weight:800;
+
+    letter-spacing:-1px;
+
+}
+
+.header-center p{
+
+    max-width:320px;
+
+    text-align:center;
+
+    color:var(--text-secondary);
+
+    line-height:1.6;
+
+}
 
 /*==================================
     Hero
@@ -167,6 +209,46 @@ Features :
 
 }
 
+/*==================================
+    Divider
+==================================*/
+#pro-login-divider{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    width:100%;
+
+}
+
+#pro-login-divider::before,
+
+#pro-login-divider::after{
+
+    content:"";
+
+    flex:1;
+
+    height:1px;
+
+    background:var(--border);
+
+}
+
+#pro-login-divider span{
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    background:var(--primary);
+
+}
 
 /*==================================
     Google Button
@@ -261,6 +343,47 @@ Features :
     font-size:13px;
 
     opacity:.85;
+
+}
+
+/*==================================
+    Bubble
+==================================*/
+#pro-login-message{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    width:100%;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    text-align:center;
+
+}
+
+#pro-login-message strong{
+
+    font-size:18px;
+
+    color:var(--text);
+
+}
+
+#pro-login-message p{
+
+    color:var(--text-secondary);
+
+    line-height:1.7;
 
 }
 
