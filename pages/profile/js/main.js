@@ -249,6 +249,12 @@ function renderProfile(){
 
 function renderHero(){
 
+    const greeting =
+
+        document.getElementById(
+            "pro-user-greeting"
+        );
+
     const name =
 
         document.getElementById(
@@ -267,6 +273,10 @@ function renderHero(){
             "pro-user-photo"
         );
 
+    greeting.textContent =
+
+        getGreeting();
+
     name.textContent =
 
         Profile.user.name;
@@ -278,6 +288,36 @@ function renderHero(){
     photo.src =
 
         Profile.user.photo;
+
+}
+
+//==================================
+// Greeting
+//==================================
+
+function getGreeting(){
+
+    const hour = new Date().getHours();
+
+    if(hour < 11){
+
+        return "🌅 Selamat Pagi";
+
+    }
+
+    if(hour < 15){
+
+        return "☀️ Selamat Siang";
+
+    }
+
+    if(hour < 18){
+
+        return "🌇 Selamat Sore";
+
+    }
+
+    return "🌙 Selamat Malam";
 
 }
 
