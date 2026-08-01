@@ -33,6 +33,24 @@ import {
 
 } from "../../../js/auth.js";
 
+//==================================
+// State
+//==================================
+
+const Profile = {
+
+    session : null,
+
+    user : null,
+
+    workspace : [],
+
+    settings : [],
+
+    guides : []
+
+};
+
 
 //==================================
 // Initialize
@@ -51,6 +69,10 @@ function init(){
     initEvents();
 
     initProfile();
+
+    initData();
+
+    renderProfile();
 
 }
 
@@ -171,4 +193,115 @@ function initProfile(){
 
 }
 
+//==================================
+// Data
+//==================================
+
+function initData(){
+
+    const session = loadSession();
+
+    if(!session){
+
+        return;
+
+    }
+
+    Profile.session = session;
+
+    Profile.user = {
+
+        name :
+
+            session.user?.name ??
+
+            "Guest",
+
+        email :
+
+            session.user?.email ??
+
+            "",
+
+        photo :
+
+            session.user?.picture ??
+
+            ""
+
+    };
+
+}
+
+//==================================
+// Render
+//==================================
+
+function renderProfile(){
+
+    renderHero();
+
+}
+
+//==================================
+// Hero
+//==================================
+
+function renderHero(){
+
+    const name =
+
+        document.getElementById(
+            "pro-user-name"
+        );
+
+    const email =
+
+        document.getElementById(
+            "pro-user-email"
+        );
+
+    const photo =
+
+        document.getElementById(
+            "pro-user-photo"
+        );
+
+    name.textContent =
+
+        Profile.user.name;
+
+    email.textContent =
+
+        Profile.user.email;
+
+    photo.src =
+
+        Profile.user.photo;
+
+}
+
+//==================================
+// Workspace
+//==================================
+
+
+//==================================
+// Setting
+//==================================
+
+
+//==================================
+// Sync
+//==================================
+
+
+//==================================
+// Guide
+//==================================
+
+
+//==================================
+// Logout
+//==================================
 
