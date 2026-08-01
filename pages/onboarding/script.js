@@ -565,9 +565,9 @@ function renderTheme(){
 
             ${createButton({
 
-                id : "btnFinish",
+                id : "btnNext",
 
-                text : "Selesai"
+                text : "Lanjut"
 
             })}
 
@@ -779,9 +779,9 @@ function bindThemeEvent(){
 
     const button =
 
-        document.getElementById(
-            "btnFinish"
-        );
+    document.getElementById(
+        "btnNext"
+    );
 
 
     options.forEach(option => {
@@ -817,11 +817,11 @@ function bindThemeEvent(){
 
     button.addEventListener(
 
-        "click",
+    "click",
 
-        finishOnboarding
+    nextStep
 
-    );
+);
 
 }
 
