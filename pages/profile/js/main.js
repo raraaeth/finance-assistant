@@ -96,6 +96,21 @@ function initEvents(){
             onGoogleLogin
 
         );
+    document
+
+    .getElementById(
+        "pro-logout-button"
+    )
+
+    .addEventListener(
+
+        "click",
+
+        onLogout
+
+    );
+
+    
 
 }
 
@@ -861,4 +876,25 @@ function renderLogout(){
     `;
 
 }
+
+function onLogout(){
+
+    if(
+
+        !confirm(
+
+            "Yakin ingin keluar?"
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+    logout();
+
+}
+
 
