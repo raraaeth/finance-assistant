@@ -872,6 +872,8 @@ function finishOnboarding(){
 // Init
 //==================================
 
+window.finishOnboarding = finishOnboarding;
+
 render();
 
 
