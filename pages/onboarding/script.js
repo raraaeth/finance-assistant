@@ -829,22 +829,23 @@ function bindThemeEvent(){
 function bindGoogleLogin(){
 
     document
+    .getElementById("btnGoogle")
+    .addEventListener(
+        "click",
+        () => {
 
-        .getElementById(
-            "btnGoogle"
-        )
+            saveUser({
 
-        .addEventListener(
+                ...onboardingData,
 
-            "click",
+                onboardingCompleted: true
 
-            () => {
+            });
 
-                loginGoogle();
+            loginGoogle();
 
-            }
-
-        );
+        }
+    );
 
 }
 
