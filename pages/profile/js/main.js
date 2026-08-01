@@ -430,6 +430,10 @@ divider.style.display =
 
 function createWorkspaceCard(item){
 
+    const active =
+
+        item.status === "active";
+
     return `
 
         <article
@@ -452,19 +456,31 @@ function createWorkspaceCard(item){
 
             </h3>
 
-            <p>
+            <span
+
+                class="workspace-status ${
+
+                    active
+
+                    ? "active"
+
+                    : "inactive"
+
+                }"
+
+            >
 
                 ${
 
-                    item.status === "active"
+                    active
 
-                    ? "Aktif"
+                    ? "🟢 Aktif"
 
-                    : "Belum Dibuat"
+                    : "🟡 Belum Dibuat"
 
                 }
 
-            </p>
+            </span>
 
         </article>
 
