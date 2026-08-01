@@ -221,6 +221,39 @@ function render(){
             })}
 
         </section>
+        
+       ${createSectionTitle(
+    "📲 Install Finance Assistant"
+)}
+
+<section class="install-card">
+
+    <h3>
+
+        Semua sudah siap.
+        Tinggal satu langkah lagi.
+
+    </h3>
+
+    <p>
+
+        Install Finance Assistant ke perangkatmu agar dapat diakses lebih cepat dan memberikan pengalaman terbaik dalam mengelola keuanganmu setiap hari.
+    </p>
+
+    <button
+
+        id="installApp"
+
+        class="install-button"
+
+    >
+
+        📲 Install Finance Assistant
+
+    </button>
+
+</section>
+
 
         ${createSectionTitle(
             "Akun"
