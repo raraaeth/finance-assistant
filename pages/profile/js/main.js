@@ -231,6 +231,46 @@ function initData(){
 
     };
 
+Profile.workspace = [
+
+    {
+
+        id : "financial",
+
+        icon : "💰",
+
+        title : "Financial",
+
+        status : "active"
+
+    },
+
+    {
+
+        id : "saving",
+
+        icon : "🏦",
+
+        title : "Saving",
+
+        status : "inactive"
+
+    },
+
+    {
+
+        id : "payroll",
+
+        icon : "💼",
+
+        title : "Payroll",
+
+        status : "inactive"
+
+    }
+
+];
+
 }
 
 //==================================
@@ -240,6 +280,8 @@ function initData(){
 function renderProfile(){
 
     renderHero();
+
+    renderWorkspace();
 
 }
 
@@ -324,7 +366,111 @@ function getGreeting(){
 //==================================
 // Workspace
 //==================================
+function renderWorkspace(){
 
+    const active =
+
+        document.getElementById(
+            "pro-active-workspace"
+        );
+
+    const inactive =
+
+        document.getElementById(
+            "pro-inactive-workspace"
+        );
+
+    const activeWorkspace =
+
+        Profile.workspace.filter(
+
+            item => item.status === "active"
+
+        );
+
+    const inactiveWorkspace =
+
+        Profile.workspace.filter(
+
+            item => item.status !== "active"
+
+        );
+
+    const divider =
+
+    document.getElementById(
+        "pro-workspace-divider"
+    );
+
+divider.style.display =
+
+    inactiveWorkspace.length
+
+        ? ""
+
+        : "none";
+
+    active.innerHTML =
+
+        activeWorkspace
+
+            .map(createWorkspaceCard)
+
+            .join("");
+
+    inactive.innerHTML =
+
+        inactiveWorkspace
+
+            .map(createWorkspaceCard)
+
+            .join("");
+
+}
+
+function createWorkspaceCard(item){
+
+    return `
+
+        <article
+
+            class="workspace-card"
+
+            data-id="${item.id}"
+
+        >
+
+            <div class="workspace-icon">
+
+                ${item.icon}
+
+            </div>
+
+            <h3>
+
+                ${item.title}
+
+            </h3>
+
+            <p>
+
+                ${
+
+                    item.status === "active"
+
+                    ? "Aktif"
+
+                    : "Belum Dibuat"
+
+                }
+
+            </p>
+
+        </article>
+
+    `;
+
+}
 
 //==================================
 // Setting
