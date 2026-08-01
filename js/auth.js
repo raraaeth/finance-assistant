@@ -300,7 +300,7 @@ function saveSession(session){
    LOAD SESSION
 =========================================*/
 
-function loadSession(){
+export function loadSession(){
 
     const data = localStorage.getItem(
 
@@ -339,7 +339,7 @@ function loadSession(){
    LOGOUT
 =========================================*/
 
-function logout(){
+export function logout(){
 
     Auth.session = null;
 
