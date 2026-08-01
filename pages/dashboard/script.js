@@ -314,6 +314,44 @@ function openProfile(){
 
 }
 
+let deferredPrompt = null;
+
+window.addEventListener(
+
+    "beforeinstallprompt",
+
+    event => {
+
+        event.preventDefault();
+
+        deferredPrompt = event;
+
+    }
+
+);
+
+async function installApp(){
+
+    if(!deferredPrompt){
+
+        alert(
+
+            "Install aplikasi belum tersedia pada perangkat ini."
+
+        );
+
+        return;
+
+    }
+
+    deferredPrompt.prompt();
+
+    await deferredPrompt.userChoice;
+
+    deferredPrompt = null;
+
+}
+
 
 //==================================
 // Event
@@ -368,6 +406,24 @@ function bindModuleEvents(){
             );
 
         });
+
+    const installButton =
+
+        document.getElementById(
+            "installApp"
+        );
+
+    if(installButton){
+
+        installButton.addEventListener(
+
+            "click",
+
+            installApp
+
+        );
+
+    }
 
 }
 
