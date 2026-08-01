@@ -59,7 +59,9 @@ const steps = [
 
     renderCurrency,
 
-    renderTheme
+    renderTheme,
+
+    renderGoogleLogin
 
 ];
 
@@ -576,6 +578,61 @@ function renderTheme(){
     bindThemeEvent();
 
                     }
+function renderGoogleLogin(){
+
+    onboarding.innerHTML = `
+
+        ${createProgress()}
+
+        <section class="content fade">
+
+            ${createBadge(
+                "🔐",
+                "Google"
+            )}
+
+            ${createTitle(
+                "Hubungkan Akun Google"
+            )}
+
+            ${createDescription(
+                "Satu langkah lagi. Finance Assistant akan membuat workspace pribadi di Google Drive milikmu."
+            )}
+
+            ${createOption({
+
+                icon : "✅",
+
+                title : "Workspace Pribadi",
+
+                description :
+                    "Folder dan Finance Core akan dibuat otomatis.",
+
+                value : "google",
+
+                selected : true
+
+            })}
+
+        </section>
+
+        <footer class="footer">
+
+            ${createButton({
+
+                id : "btnGoogle",
+
+                text : "Lanjutkan dengan Google"
+
+            })}
+
+        </footer>
+
+    `;
+
+    bindGoogleLogin();
+
+}
 
 
 //==================================
@@ -765,6 +822,28 @@ function bindThemeEvent(){
         finishOnboarding
 
     );
+
+}
+
+function bindGoogleLogin(){
+
+    document
+
+        .getElementById(
+            "btnGoogle"
+        )
+
+        .addEventListener(
+
+            "click",
+
+            () => {
+
+                loginGoogle();
+
+            }
+
+        );
 
 }
 
