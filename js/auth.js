@@ -277,11 +277,9 @@ console.log(
 
 removeCodeVerifier();
 
-if(window.finishOnboarding){
-
-    window.finishOnboarding();
-
-}
+location.replace(
+    "../pages/dashboard/index.html"
+);
 
 }
 
