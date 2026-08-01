@@ -25,7 +25,11 @@
 
 import {
 
-    loginGoogle
+    loginGoogle,
+
+    loadSession,
+
+    logout
 
 } from "../../../js/auth.js";
 
@@ -115,40 +119,56 @@ async function onGoogleLogin(){
 
 function initProfile(){
 
-    const isLogin = false;
+    const session = loadSession();
 
-    const login =
+    const loginSection =
 
         document.getElementById(
             "pro-login-section"
         );
 
-    const dashboard =
+    const dashboardSection =
 
         document.getElementById(
             "pro-dashboard-section"
         );
 
-    if(isLogin){
+    if(session){
 
-        login.classList.add(
+        loginSection.classList.add(
             "hidden"
         );
 
-        dashboard.classList.remove(
+        dashboardSection.classList.remove(
             "hidden"
         );
 
-    }else{
+        console.log(
 
-        login.classList.remove(
-            "hidden"
+            "Profile Mode : Login",
+
+            session
+
         );
 
-        dashboard.classList.add(
-            "hidden"
-        );
+        return;
 
     }
 
+    loginSection.classList.remove(
+        "hidden"
+    );
+
+    dashboardSection.classList.add(
+        "hidden"
+    );
+
+    console.log(
+
+        "Profile Mode : Guest"
+
+    );
+
 }
+
+
