@@ -484,9 +484,11 @@ Features :
 
     flex-direction:column;
 
-    gap:12px;
+    gap:10px;
 
-    padding:20px;
+    padding:16px;
+
+    min-height:160px;
 
     border:1px solid var(--border);
 
@@ -511,9 +513,9 @@ Features :
 
 .workspace-icon{
 
-    width:52px;
+    width:48px;
 
-    height:52px;
+    height:48px;
 
     display:flex;
 
@@ -521,11 +523,11 @@ Features :
 
     justify-content:center;
 
-    border-radius:16px;
+    border-radius:14px;
 
     background:#eef4ff;
 
-    font-size:28px;
+    font-size:24px;
 
 }
 
@@ -549,11 +551,11 @@ Features :
 
     align-self:flex-start;
 
-    padding:6px 12px;
+    padding:5px 10px;
 
     border-radius:999px;
 
-    font-size:13px;
+    font-size:12px;
 
     font-weight:600;
 
