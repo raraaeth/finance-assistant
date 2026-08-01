@@ -271,6 +271,118 @@ Profile.workspace = [
 
 ];
 
+    Profile.settings = [
+
+    {
+
+        id : "theme",
+
+        icon : "🎨",
+
+        title : "Tema",
+
+        value : "Light"
+
+    },
+
+    {
+
+        id : "language",
+
+        icon : "🌐",
+
+        title : "Bahasa",
+
+        value : "Indonesia"
+
+    },
+
+    {
+
+        id : "currency",
+
+        icon : "💵",
+
+        title : "Mata Uang",
+
+        value : "Rupiah (IDR)"
+
+    },
+
+    {
+
+        id : "date",
+
+        icon : "📅",
+
+        title : "Format Tanggal",
+
+        value : "DD/MM/YYYY"
+
+    },
+
+    {
+
+        id : "week",
+
+        icon : "📆",
+
+        title : "Hari Pertama Minggu",
+
+        value : "Senin"
+
+    }
+
+];
+
+Profile.sync = {
+
+    status : "Terhubung",
+
+    lastSync : "1 Agustus 2026"
+
+};
+
+Profile.about = {
+
+    version : "v1.0.0",
+
+    developer : "Raraa Studio"
+
+};    
+
+Profile.guides = [
+
+    {
+
+        id : "docs",
+
+        icon : "📖",
+
+        title : "Dokumentasi",
+
+        description :
+
+            "Pelajari cara menggunakan setiap modul."
+
+    },
+
+    {
+
+        id : "readme",
+
+        icon : "📄",
+
+        title : "README",
+
+        description :
+
+            "Visi, roadmap, dan informasi aplikasi."
+
+    }
+
+];
+
 }
 
 //==================================
@@ -282,6 +394,14 @@ function renderProfile(){
     renderHero();
 
     renderWorkspace();
+
+    renderSettings();
+
+    renderSync();
+
+    renderGuide();
+
+    renderLogout();
 
 }
 
@@ -492,18 +612,253 @@ function createWorkspaceCard(item){
 // Setting
 //==================================
 
+function renderSettings(){
+
+    const container =
+
+        document.getElementById(
+            "pro-setting-list"
+        );
+
+    container.innerHTML =
+
+        Profile.settings
+
+            .map(createSettingItem)
+
+            .join("");
+
+}
+function createSettingItem(item){
+
+    return `
+
+        <article
+
+            class="setting-item"
+
+            data-id="${item.id}"
+
+        >
+
+            <div class="setting-left">
+
+                <span class="setting-icon">
+
+                    ${item.icon}
+
+                </span>
+
+                <div>
+
+                    <h3>
+
+                        ${item.title}
+
+                    </h3>
+
+                    <p>
+
+                        ${item.value}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <span class="setting-arrow">
+
+                ›
+
+            </span>
+
+        </article>
+
+    `;
+
+}
 
 //==================================
 // Sync
 //==================================
+function renderSync(){
 
+    renderSyncCard();
+
+    renderAboutCard();
+
+}
+
+function renderSyncCard(){
+
+    const card =
+
+        document.getElementById(
+            "pro-sync-card"
+        );
+
+    card.innerHTML = `
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                ☁️
+
+            </div>
+
+            <h3>
+
+                Google Drive
+
+            </h3>
+
+            <p>
+
+                ${Profile.sync.status}
+
+            </p>
+
+            <small>
+
+                ${Profile.sync.lastSync}
+
+            </small>
+
+        </div>
+
+    `;
+
+}
+
+function renderAboutCard(){
+
+    const card =
+
+        document.getElementById(
+            "pro-about-card"
+        );
+
+    card.innerHTML = `
+
+        <div class="info-card">
+
+            <div class="info-icon">
+
+                ℹ️
+
+            </div>
+
+            <h3>
+
+                Tentang
+
+            </h3>
+
+            <p>
+
+                ${Profile.about.version}
+
+            </p>
+
+            <small>
+
+                ${Profile.about.developer}
+
+            </small>
+
+        </div>
+
+    `;
+
+}
 
 //==================================
 // Guide
 //==================================
+function renderGuide(){
+
+    const container =
+
+        document.getElementById(
+            "pro-guide-grid"
+        );
+
+    container.innerHTML =
+
+        Profile.guides
+
+            .map(createGuideCard)
+
+            .join("");
+
+}
+
+function createGuideCard(item){
+
+    return `
+
+        <article
+
+            class="guide-card"
+
+            data-id="${item.id}"
+
+        >
+
+            <div class="guide-icon">
+
+                ${item.icon}
+
+            </div>
+
+            <h3>
+
+                ${item.title}
+
+            </h3>
+
+            <p>
+
+                ${item.description}
+
+            </p>
+
+        </article>
+
+    `;
+
+}
 
 
 //==================================
 // Logout
 //==================================
+
+function renderLogout(){
+
+    const button =
+
+        document.getElementById(
+            "pro-logout-button"
+        );
+
+    button.innerHTML = `
+
+        <span>
+
+            🚪
+
+        </span>
+
+        <span>
+
+            Keluar dari Akun
+
+        </span>
+
+    `;
+
+}
 
