@@ -333,7 +333,9 @@ body{
 
 .footer{
 
-    margin-top:36px;
+    margin-top:auto;
+
+    padding-top:36px;
 
 }
 
@@ -365,6 +367,16 @@ body{
     opacity:.45;
 
     cursor:not-allowed;
+
+}
+
+.button-google{
+
+    background:#ffffff;
+
+    color:var(--text);
+
+    border:1px solid var(--border);
 
 }
 
