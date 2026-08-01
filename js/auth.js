@@ -83,6 +83,7 @@ export async function loginGoogle() {
     await requestAuthorization();
 
 }
+window.loginGoogle = loginGoogle;
 
 async function requestAuthorization() {
 
@@ -256,6 +257,14 @@ console.log(
     result
 );
 
+if(!result.success){
+
+    console.error(result);
+
+    return;
+
+}
+
 saveSession(result);
 
 console.log(
@@ -264,7 +273,15 @@ console.log(
 
     result
 
-);       
+);
+
+removeCodeVerifier();
+
+if(window.finishOnboarding){
+
+    window.finishOnboarding();
+
+}
 
 }
 
