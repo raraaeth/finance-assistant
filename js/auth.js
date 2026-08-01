@@ -158,13 +158,13 @@ function removeCodeVerifier() {
    CALLBACK
 ========================================== */
 
-async function handleCallback() {
+    async function handleCallback(){
 
-    const params = new URLSearchParams(
+    const params=new URLSearchParams(
         location.search
     );
 
-    const code = params.get("code");
+    const code=params.get("code");
 
     if(!code){
 
@@ -181,56 +181,61 @@ async function handleCallback() {
         code
     );
 
-const verifier = getCodeVerifier();
+    const verifier=getCodeVerifier();
 
-if(!verifier){
+    if(!verifier){
 
-    console.error(
-        "Code verifier not found."
+        console.error(
+            "Code verifier not found."
+        );
+
+        return;
+
+    }
+
+    console.log(
+        "Code Verifier:",
+        verifier
     );
 
-    return;
+    const response=await fetch(
+
+        "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
+
+        {
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":"application/json"
+
+            },
+
+            body:JSON.stringify({
+
+                action:"login",
+
+                code:code,
+
+                verifier:verifier
+
+            })
+
+        }
+
+    );
+
+    const result=await response.json();
+
+    console.log(
+        "Apps Script Response:",
+        result
+    );
 
 }
 
-console.log(
-    "Code Verifier:",
-    verifier
-);
-
-const response = await fetch(
-    "https://oauth2.googleapis.com/token",
-    {
-        method: "POST",
-        headers: {
-            "Content-Type":
-                "application/x-www-form-urlencoded"
-        },
-        body: new URLSearchParams({
-
-            client_id: Auth.clientId,
-
-            code: code,
-
-            code_verifier: verifier,
-
-            redirect_uri: Auth.redirectUri,
-
-            grant_type: "authorization_code"
-
-        })
-    }
-);
-
-const token = await response.json();
-
-console.log(
-    "Token Response:",
-    token
-);
-
-
-}
+    
 
 /* ==========================================
    SESSION
