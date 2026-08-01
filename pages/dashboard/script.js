@@ -76,11 +76,12 @@ function createHero(){
 
                 <p>
 
-                    Kelola keuanganmu
-                    dengan lebih mudah
-                    bersama Finance Assistant.
+    Workspace milikmu sudah siap digunakan.
+    Sekarang pelajari setiap modul agar kamu
+    memahami cara menggunakan aplikasi
+    sebelum mulai mencatat keuangan.
 
-                </p>
+</p>
 
             </div>
 
@@ -176,8 +177,8 @@ function render(){
         ${createHero()}
 
         ${createSectionTitle(
-            "Modul"
-        )}
+    "📚 Panduan Memulai"
+)}
 
         <section class="modules">
 
@@ -190,7 +191,7 @@ function render(){
                 title : "Financial",
 
                 description :
-                    "Kelola pemasukan, pengeluaran, dan laporan."
+    "Pelajari cara mengelola pemasukan, pengeluaran, dan laporan keuangan."
 
             })}
 
@@ -203,7 +204,7 @@ function render(){
                 title : "Saving",
 
                 description :
-                    "Pantau tabungan dan target keuangan."
+    "Pahami cara mengatur tabungan dan mencapai target keuanganmu."
 
             })}
 
@@ -216,8 +217,7 @@ function render(){
                 title : "Payroll",
 
                 description :
-                    "Kelola absensi dan perhitungan gaji."
-
+    "Pelajari sistem absensi dan pengelolaan gaji pribadi dan tahu besaran gaji sejak dini."
             })}
 
         </section>
