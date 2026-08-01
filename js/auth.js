@@ -29,11 +29,31 @@ const Auth = {
 
 init();
 
-function init() {
+function init(){
 
-    console.log("Auth loaded");
+    console.log(
 
-    if (isCallbackPage()) {
+        "Auth loaded"
+
+    );
+
+    const session = loadSession();
+
+    if(session){
+
+        console.log(
+
+            "Auto Login",
+
+            session
+
+        );
+
+        return;
+
+    }
+
+    if(isCallbackPage()){
 
         handleCallback();
 
@@ -236,33 +256,92 @@ console.log(
     result
 );
 
-}
+saveSession(result);
 
-    
+console.log(
 
-/* ==========================================
-   SESSION
-========================================== */
+    "Session Saved",
 
-function saveSession() {
+    result
 
-
-
-}
-
-function loadSession() {
-
-
+);       
 
 }
 
 
-/* ==========================================
+/*=========================================
+   SAVE SESSION
+=========================================*/
+
+function saveSession(session){
+
+    Auth.session = session;
+
+    localStorage.setItem(
+
+        "finance_session",
+
+        JSON.stringify(session)
+
+    );
+
+}
+
+/*=========================================
+   LOAD SESSION
+=========================================*/
+
+function loadSession(){
+
+    const data = localStorage.getItem(
+
+        "finance_session"
+
+    );
+
+    if(!data){
+
+        return null;
+
+    }
+
+    try{
+
+        Auth.session = JSON.parse(data);
+
+        return Auth.session;
+
+    }catch(error){
+
+        localStorage.removeItem(
+
+            "finance_session"
+
+        );
+
+        return null;
+
+    }
+
+}
+
+
+/*=========================================
    LOGOUT
-========================================== */
+=========================================*/
 
-function logout() {
+function logout(){
 
+    Auth.session = null;
 
+    localStorage.removeItem(
+
+        "finance_session"
+
+    );
+
+    removeCodeVerifier();
+
+    location.href = "/";
 
 }
