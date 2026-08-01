@@ -437,15 +437,29 @@ Features :
 
     text-align:center;
 
-    gap:18px;
+}
+
+#pro-user-photo{
+
+    width:96px;
+
+    height:96px;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    border:4px solid #ffffff;
+
+    box-shadow:0 10px 28px rgba(37,99,235,.15);
+
+    animation:profileFloat 4s ease-in-out infinite;
 
 }
 
 #pro-user-greeting{
 
-    display:inline-flex;
-
-    align-items:center;
+    margin-top:18px;
 
     padding:8px 18px;
 
@@ -461,27 +475,15 @@ Features :
 
 }
 
-#pro-user-photo{
-
-    width:96px;
-
-    height:96px;
-
-    border-radius:50%;
-
-    object-fit:cover;
-
-    border:4px solid #ffffff;
-
-    box-shadow:0 10px 30px rgba(37,99,235,.15);
-
-}
-
 #pro-user-name{
 
-    font-size:30px;
+    margin-top:18px;
+
+    font-size:38px;
 
     font-weight:800;
+
+    line-height:1.2;
 
     color:var(--text);
 
@@ -489,7 +491,7 @@ Features :
 
 #pro-user-email{
 
-    margin-top:-8px;
+    margin-top:4px;
 
     color:var(--text-secondary);
 
@@ -499,23 +501,27 @@ Features :
 
 #pro-user-description{
 
+    margin-top:18px;
+
     max-width:320px;
 
     color:var(--text-secondary);
 
-    line-height:1.7;
-
     font-size:15px;
+
+    line-height:1.7;
 
 }
 
-#pro-user-photo{
+#pro-hero-divider{
 
-    animation:
+    width:100%;
 
-        profileFloat
+    height:1px;
 
-        4s ease-in-out infinite;
+    margin-top:24px;
+
+    background:var(--border);
 
 }
 
@@ -540,18 +546,8 @@ Features :
     }
 
 }
+    
 
-#pro-hero-divider{
-
-    width:100%;
-
-    height:1px;
-
-    background:var(--border);
-
-    margin-top:8px;
-
-}
 
 /*==================================
     Workspace
