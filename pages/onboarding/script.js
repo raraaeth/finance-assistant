@@ -11,6 +11,7 @@
  */
 
 import { saveUser } from "../../js/storage.js";
+import { loginGoogle } from "../../js/auth.js";
 
 //==================================
 // Constant
