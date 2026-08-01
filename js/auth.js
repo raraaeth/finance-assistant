@@ -236,13 +236,6 @@ console.log(
     result
 );
 
-    const result=await response.json();
-
-    console.log(
-        "Apps Script Response:",
-        result
-    );
-
 }
 
     
