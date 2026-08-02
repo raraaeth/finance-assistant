@@ -142,13 +142,14 @@
 
 .nav-item.active .nav-icon{
 
-    background:#EAF2FF;
+    background:#2563EB;
 
-    color:#2563EB;
+    color:#FFFFFF;
 
-    transform:
+    transform:translateY(-3px);
 
-        translateY(-3px);
+    box-shadow:
+        0 8px 18px rgba(37,99,235,.30);
 
 }
 
@@ -172,7 +173,7 @@
 
     color:#2563EB;
 
-    font-weight:600;
+    font-weight:700;
 
 }
 
@@ -201,8 +202,10 @@
    CLICK
 ===================================================== */
 
-.nav-item:active{
+.nav-item.active{
 
-    transform:scale(.96);
+    background:#F3F4F6;
+
+    border-radius:18px;
 
 }
