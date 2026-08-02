@@ -2,7 +2,7 @@
    GLOBAL NAVIGATION
    FILE : navigation.js
    DESCRIPTION : Bottom Navigation Controller
-   VERSION : 3.0.0
+   VERSION : 4.0.0
 ===================================================== */
 
 
@@ -13,35 +13,43 @@
 const MENU = [
 
     {
+
         id : "home",
 
         label : "Home",
 
         icon : "home"
+
     },
 
     {
+
         id : "statistik",
 
         label : "Statistik",
 
         icon : "bar_chart"
+
     },
 
     {
+
         id : "ringkasan",
 
         label : "Ringkasan",
 
         icon : "description"
+
     },
 
     {
+
         id : "profile",
 
         label : "Profile",
 
         icon : "person"
+
     }
 
 ];
@@ -151,7 +159,7 @@ function renderNavigation(
 
 
 /* =====================================================
-   NAVIGATION EVENT
+   REGISTER NAVIGATION
 ===================================================== */
 
 function registerNavigation(
@@ -176,9 +184,27 @@ function registerNavigation(
 
                 ()=>{
 
+                    const page =
+
+                        button.dataset.page;
+
+                    if(
+
+                        page==="profile"
+
+                    ){
+
+                        window.location.href =
+
+                            "../profile/index.html";
+
+                        return;
+
+                    }
+
                     showPage(
 
-                        button.dataset.page
+                        page
 
                     );
 
@@ -200,6 +226,16 @@ function showPage(
     page
 
 ){
+
+    if(
+
+        page==="profile"
+
+    ){
+
+        return;
+
+    }
 
     document
 
@@ -235,23 +271,25 @@ function showPage(
 
     if(
 
-        activePage
+        !activePage
 
     ){
 
-        activePage.classList.remove(
-
-            "hidden"
-
-        );
-
-        activePage.classList.add(
-
-            "active-page"
-
-        );
+        return;
 
     }
+
+    activePage.classList.remove(
+
+        "hidden"
+
+    );
+
+    activePage.classList.add(
+
+        "active-page"
+
+    );
 
     updateNavigation(
 
@@ -263,7 +301,7 @@ function showPage(
 
 
 /* =====================================================
-   ACTIVE NAVIGATION
+   UPDATE NAVIGATION
 ===================================================== */
 
 function updateNavigation(
