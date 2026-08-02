@@ -1,4 +1,11 @@
 /* =====================================================
+   HOME
+   FILE : home.css
+   DESCRIPTION : Home Page
+   VERSION : 1.0.0
+===================================================== */
+
+/* =====================================================
    HERO
 ===================================================== */
 
@@ -10,13 +17,13 @@
 
     justify-content:space-between;
 
-    gap:20px;
+    gap:12px;
 
     padding:20px 0;
 
-    margin-bottom:24px;
-
 }
+
+
 
 /* =====================================================
    HERO CONTENT
@@ -24,9 +31,11 @@
 
 #hero-content{
 
-    flex:1;
+    flex:1.4;
 
 }
+
+
 
 /* =====================================================
    HERO BADGE
@@ -40,7 +49,7 @@
 
     justify-content:center;
 
-    padding:6px 14px;
+    padding:8px 18px;
 
     border-radius:999px;
 
@@ -48,11 +57,13 @@
 
     color:var(--primary);
 
-    font-size:12px;
+    font-size:13px;
 
     font-weight:600;
 
 }
+
+
 
 /* =====================================================
    HERO TITLE
@@ -60,15 +71,19 @@
 
 #hero-title{
 
-    margin-top:12px;
+    margin-top:14px;
 
-    font-size:28px;
+    font-size:30px;
 
     font-weight:700;
 
-    line-height:1.3;
+    line-height:1.25;
+
+    letter-spacing:-0.5px;
 
 }
+
+
 
 /* =====================================================
    HERO DESCRIPTION
@@ -76,15 +91,19 @@
 
 #hero-description{
 
-    margin-top:8px;
+    margin-top:12px;
+
+    max-width:220px;
 
     color:var(--text-secondary);
 
-    font-size:15px;
+    font-size:16px;
 
     line-height:1.6;
 
 }
+
+
 
 /* =====================================================
    HERO IMAGE
@@ -92,9 +111,17 @@
 
 #hero-image{
 
-    flex-shrink:0;
+    flex:1;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:flex-end;
 
 }
+
+
 
 /* =====================================================
    HERO IMAGE
@@ -102,10 +129,36 @@
 
 #hero-image img{
 
-    width:250px;
+    width:175px;
 
-    max-width:50vw;
+    max-width:42vw;
+
+    height:auto;
+
+    display:block;
 
 }
 
 
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+
+
+/* =====================================================
+   SAVING ACCOUNT
+===================================================== */
+
+
+
+/* =====================================================
+   DAILY INPUT
+===================================================== */
+
+
+
+/* =====================================================
+   SETTING
+===================================================== */
