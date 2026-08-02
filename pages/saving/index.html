@@ -25,97 +25,114 @@
         href="../../css/navigation.css">
 
     <!-- ==========================================
-        SHARED SAVING CSS
+         SHARED CSS
     ========================================== -->
 
     <link
         rel="stylesheet"
         href="shared/css/style.css">
 
-<!-- ==========================================
+    <!-- ==========================================
          SAVING CSS
-========================================== -->
-    
+    ========================================== -->
 
     <link
-    rel="stylesheet"
-    href="saving/css/home.css">
+        rel="stylesheet"
+        href="saving/css/home.css">
 
 </head>
 
 <body>
 
     <!-- ==========================================
-         SAVING PAGE
+         MODULE
     ========================================== -->
 
-    <div
-        id="saving-page"
-        class="page active-page">
-
-<!-- ==========================================
-     HERO
-========================================== -->
-
-<section id="hero">
-
-    <div id="hero-content">
-
-        <span id="hero-badge">
-
-            Saving
-
-        </span>
-
-        <h1 id="hero-title"></h1>
-
-        <p id="hero-description"></p>
-
-    </div>
-
-    <div id="hero-image">
-
-        <img
-            src="../../assets/images/hero/hero-saving.png"
-            alt="Hero Saving">
-
-    </div>
-
-</section>
+    <main id="saving-module">
 
         <!-- ==========================================
-             SUMMARY
+             SAVING WORKSPACE
         ========================================== -->
 
-        <section id="summary">
+        <section
+            id="saving-page"
+            class="page active-page">
+
+            <!-- ==========================================
+                 HERO
+            ========================================== -->
+
+            <section id="hero">
+
+                <div id="hero-content">
+
+                    <span id="hero-badge">
+
+                        Saving
+
+                    </span>
+
+                    <h1 id="hero-title"></h1>
+
+                    <p id="hero-description"></p>
+
+                </div>
+
+                <div id="hero-image">
+
+                    <img
+                        src="../../assets/images/hero/hero-saving.png"
+                        alt="Hero Saving">
+
+                </div>
+
+            </section>
+
+            <!-- ==========================================
+                 SUMMARY
+            ========================================== -->
+
+            <section id="summary">
+
+            </section>
+
+            <!-- ==========================================
+                 SAVING ACCOUNTS
+            ========================================== -->
+
+            <section id="saving-accounts">
+
+            </section>
+
+            <!-- ==========================================
+                 DAILY INPUT
+            ========================================== -->
+
+            <section id="daily-input">
+
+            </section>
+
+            <!-- ==========================================
+                 SETTING
+            ========================================== -->
+
+            <section id="setting">
+
+            </section>
 
         </section>
 
         <!-- ==========================================
-             SAVING ACCOUNTS
+             KAS WORKSPACE
         ========================================== -->
 
-        <section id="saving-accounts">
+        <section
+            id="kas-page"
+            class="page hidden">
 
         </section>
 
-        <!-- ==========================================
-             DAILY INPUT
-        ========================================== -->
-
-        <section id="daily-input">
-
-        </section>
-
-        <!-- ==========================================
-             SETTING
-        ========================================== -->
-
-        <section id="setting">
-
-        </section>
-
-    </div>
+    </main>
 
     <!-- ==========================================
          BOTTOM NAVIGATION
@@ -125,22 +142,15 @@
 
     </nav>
 
-    <!-- ==========================================
-         SHARED JS
-    ========================================== -->
+<!-- ==========================================
+     SAVING JS
+========================================== -->
 
-    <script src="shared/js/config.js"></script>
+<script
+    type="module"
+    src="saving/js/home.js"></script>
 
-    <script src="shared/js/api.js"></script>
-
-    <script src="shared/js/process.js"></script>
-
-    <!-- ==========================================
-         SAVING JS
-    ========================================== -->
-
-    <script src="saving/js/home.js"></script>
-
+    
 </body>
 
 </html>
