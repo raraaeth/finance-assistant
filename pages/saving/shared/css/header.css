@@ -14,15 +14,17 @@
 
     overflow:hidden;
 
-    padding:32px 28px 48px;
+    background:#fff;
 
-    background:#FFFFFF;
+    height:180px;
+
+    margin-bottom:24px;
 
 }
 
 
 /* =====================================================
-   CONTENT
+   HEADER CONTENT
 ===================================================== */
 
 #header-content{
@@ -30,6 +32,8 @@
     position:relative;
 
     z-index:2;
+
+    height:100%;
 
     display:flex;
 
@@ -44,49 +48,16 @@
 
     margin:0;
 
-    text-align:center;
-
     font-size:34px;
 
     font-weight:800;
 
-    color:#0F172A;
+    letter-spacing:-1px;
+
+    color:#111827;
 
 }
 
-#workspace{
-
-    margin-top:10px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-}
-
-
-#workspace-title{
-
-    font-size:18px;
-
-    font-weight:600;
-
-    color:#334155;
-
-}
-
-
-.wave{
-
-    color:#2563EB;
-
-    font-size:18px;
-
-    font-weight:700;
-
-}
 
 /* =====================================================
    HEADER WAVE
@@ -96,17 +67,14 @@
 
     position:absolute;
 
-    left:0;
+    inset:0;
 
-    right:0;
+    z-index:1;
 
-    bottom:0;
-
-    height:150px;
-
-    overflow:hidden;
+    pointer-events:none;
 
 }
+
 
 #header-wave svg{
 
@@ -117,6 +85,3 @@
     display:block;
 
 }
-
-
-    
