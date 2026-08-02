@@ -22,6 +22,12 @@
 //==================================
 // Import
 //==================================
+import {
+
+    loadUser
+
+} from "../../../js/storage.js";
+
 
 import {
 
@@ -215,6 +221,7 @@ function initProfile(){
 function initData(){
 
     const session = loadSession();
+    const user = loadUser();
 
     if(!session){
 
@@ -226,25 +233,25 @@ function initData(){
 
     Profile.user = {
 
-        name :
+    name :
 
-            session.user?.name ??
+        user?.displayName ??
 
-            "Guest",
+        "Guest",
 
-        email :
+    email :
 
-            session.user?.email ??
+        session.user?.email ??
 
-            "",
+        "",
 
-        photo :
+    photo :
 
-            session.user?.picture ??
+        session.user?.picture ??
 
-            ""
+        ""
 
-    };
+};
 
 Profile.workspace = [
 
