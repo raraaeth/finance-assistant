@@ -4,7 +4,6 @@
    VERSION : 1.0.0
 ===================================================== */
 
-
 /* =====================================================
    HEADER
 ===================================================== */
@@ -32,12 +31,20 @@
 
     z-index:2;
 
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
 }
 
 
 #app-title{
 
     margin:0;
+
+    text-align:center;
 
     font-size:34px;
 
@@ -46,7 +53,6 @@
     color:#0F172A;
 
 }
-
 
 #workspace{
 
@@ -82,9 +88,8 @@
 
 }
 
-
 /* =====================================================
-   WAVE
+   HEADER WAVE
 ===================================================== */
 
 #header-wave{
@@ -97,70 +102,21 @@
 
     bottom:0;
 
-    height:120px;
+    height:150px;
 
-    pointer-events:none;
-
-}
-
-
-/* layer putih → biru */
-
-#header-wave::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:0;
-
-    background:
-
-        linear-gradient(
-
-            90deg,
-
-            #FFFFFF 0%,
-
-            #F5F9FF 18%,
-
-            #E6F0FF 38%,
-
-            #BDD7FF 68%,
-
-            #2563EB 100%
-
-        );
+    overflow:hidden;
 
 }
 
-
-/* kurva */
-
-#header-wave::after{
-
-    content:"";
-
-    position:absolute;
-
-    left:0;
-
-    bottom:0;
+#header-wave svg{
 
     width:100%;
 
-    height:180px;
+    height:100%;
 
-    background:#FFFFFF;
-
-    border-bottom-right-radius:100%;
-
-    transform-origin:left bottom;
-
-    transform:
-
-        translateY(-92px)
-
-        scaleX(1.25);
+    display:block;
 
 }
+
+
+    
