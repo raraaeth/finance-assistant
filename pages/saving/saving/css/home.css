@@ -139,37 +139,74 @@
 }
 
 /* =====================================================
-   SUMMARY
+   SAVING
 ===================================================== */
 
-#summary{
+#saving{
 
-    margin-top:24px;
+    margin-bottom:28px;
 
 }
 
+.section-header{
 
-
-/* =====================================================
-   SUMMARY CARD
-===================================================== */
-
-#summary-card{
-
-    background:var(--card);
-
-    border-radius:20px;
-
-    padding:20px;
-
-    box-shadow:var(--shadow);
+    margin-bottom:18px;
 
 }
 
-/* =====================================================
-   SAVING ACCOUNT
-===================================================== */
+.section-title{
 
+    font-size:2rem;
+
+    font-weight:800;
+
+    color:#1F2937;
+
+}
+
+#saving-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.saving-card{
+
+    background:#FFFFFF;
+
+    border-radius:18px;
+
+    padding:18px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+
+}
+
+.saving-name{
+
+    font-size:1.05rem;
+
+    font-weight:700;
+
+    color:#1F2937;
+
+}
+
+.saving-balance{
+
+    margin-top:8px;
+
+    font-size:1.6rem;
+
+    font-weight:800;
+
+    color:#111827;
+
+}
 
 
 /* =====================================================
