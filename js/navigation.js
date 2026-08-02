@@ -9,31 +9,27 @@
 const MENU = [
 
     {
-        id: "financial",
-        label: "Financial",
-        icon: `<span class="nav-icon">💰</span>`,
-        href: "../financial/index.html"
+        id: "home",
+        label: "Home",
+        icon: `<span class="nav-icon">🏠</span>`
     },
 
     {
-        id: "payroll",
-        label: "Payroll",
-        icon: `<span class="nav-icon">💼</span>`,
-        href: "../payroll/index.html"
+        id: "statistik",
+        label: "Statistik",
+        icon: `<span class="nav-icon">📊</span>`
     },
 
     {
-        id: "saving",
-        label: "Saving",
-        icon: `<span class="nav-icon">🏦</span>`,
-        href: "../saving/index.html"
+        id: "ringkasan",
+        label: "Ringkasan",
+        icon: `<span class="nav-icon">📄</span>`
     },
 
     {
         id: "profile",
         label: "Profile",
-        icon: `<span class="nav-icon">👤</span>`,
-        href: "../profile/index.html"
+        icon: `<span class="nav-icon">👤</span>`
     }
 
 ];
