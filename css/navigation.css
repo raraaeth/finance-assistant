@@ -1,6 +1,12 @@
-/* ==========================================
+/* =====================================================
    GLOBAL BOTTOM NAVIGATION
-========================================== */
+   FILE : navigation.css
+   VERSION : 2.0.0
+===================================================== */
+
+/* =====================================================
+   CONTAINER
+===================================================== */
 
 #bottom-navigation{
 
@@ -8,29 +14,34 @@
 
     left:0;
 
+    right:0;
+
     bottom:0;
 
-    width:100%;
+    height:74px;
 
-    height:70px;
-
-    background:#ffffff;
-
-    border-top:1px solid #e5e7eb;
+    padding:0 8px;
 
     display:flex;
 
+    justify-content:space-between;
+
     align-items:center;
 
-    justify-content:space-around;
+    background:#FCFCFD;
+
+    border-top:1px solid #ECECEC;
+
+    box-shadow:
+        0 -6px 20px rgba(0,0,0,.08);
 
     z-index:999;
 
 }
 
-/* ==========================================
-   NAVIGATION ITEM
-========================================== */
+/* =====================================================
+   ITEM
+===================================================== */
 
 .nav-item{
 
@@ -40,56 +51,114 @@
 
     border:none;
 
-    background:none;
+    background:transparent;
 
     display:flex;
 
     flex-direction:column;
 
-    align-items:center;
-
     justify-content:center;
 
-    gap:4px;
+    align-items:center;
+
+    gap:6px;
 
     cursor:pointer;
 
-    color:#9ca3af;
-
-    transition:.25s;
+    transition:.25s ease;
 
 }
 
-/* ==========================================
-   ACTIVE NAVIGATION
-========================================== */
-
-.nav-item.active{
-
-    color:#2563eb;
-
-}
-
-/* ==========================================
-   NAVIGATION ICON
-========================================== */
+/* =====================================================
+   ICON
+===================================================== */
 
 .nav-icon{
 
+    width:42px;
+
+    height:42px;
+
+    border-radius:999px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
     font-size:22px;
 
-    line-height:1;
+    color:#9CA3AF;
+
+    transition:.25s ease;
 
 }
 
-/* ==========================================
-   NAVIGATION LABEL
-========================================== */
+/* =====================================================
+   LABEL
+===================================================== */
 
 .nav-label{
 
     font-size:12px;
 
+    font-weight:500;
+
+    color:#9CA3AF;
+
+    transition:.25s ease;
+
+}
+
+/* =====================================================
+   ACTIVE
+===================================================== */
+
+.nav-item.active .nav-icon{
+
+    background:#E8F1FF;
+
+    color:#2563EB;
+
+    transform:
+        translateY(-3px)
+        scale(1.05);
+
+}
+
+.nav-item.active .nav-label{
+
+    color:#2563EB;
+
     font-weight:600;
+
+}
+
+/* =====================================================
+   HOVER
+===================================================== */
+
+.nav-item:hover .nav-icon{
+
+    background:#F3F6FC;
+
+    color:#2563EB;
+
+}
+
+.nav-item:hover .nav-label{
+
+    color:#2563EB;
+
+}
+
+/* =====================================================
+   CLICK EFFECT
+===================================================== */
+
+.nav-item:active{
+
+    transform:scale(.95);
 
 }
