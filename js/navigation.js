@@ -1,45 +1,55 @@
-/* ==========================================
+/* =====================================================
    GLOBAL NAVIGATION
    FILE : navigation.js
    DESCRIPTION : Bottom Navigation Controller
-   VERSION : 2.0.0
-========================================== */
+   VERSION : 3.0.0
+===================================================== */
 
-/* ==========================================
+
+/* =====================================================
    MENU
-========================================== */
+===================================================== */
 
 const MENU = [
 
     {
-        id: "home",
-        label: "Home",
-        icon: "🏠"
+        id : "home",
+
+        label : "Home",
+
+        icon : "home"
     },
 
     {
-        id: "statistik",
-        label: "Statistik",
-        icon: "📊"
+        id : "statistik",
+
+        label : "Statistik",
+
+        icon : "bar_chart"
     },
 
     {
-        id: "ringkasan",
-        label: "Ringkasan",
-        icon: "📄"
+        id : "ringkasan",
+
+        label : "Ringkasan",
+
+        icon : "description"
     },
 
     {
-        id: "profile",
-        label: "Profile",
-        icon: "👤"
+        id : "profile",
+
+        label : "Profile",
+
+        icon : "person"
     }
 
 ];
 
-/* ==========================================
+
+/* =====================================================
    INIT
-========================================== */
+===================================================== */
 
 document.addEventListener(
 
@@ -49,13 +59,14 @@ document.addEventListener(
 
 );
 
-/* ==========================================
+
+/* =====================================================
    INIT NAVIGATION
-========================================== */
+===================================================== */
 
 function initNavigation(){
 
-    const container =
+    const navigation =
 
         document.getElementById(
 
@@ -63,41 +74,70 @@ function initNavigation(){
 
         );
 
-    if(!container){
+    if(!navigation){
 
         return;
 
     }
 
-    renderNavigation(container);
+    renderNavigation(
 
-    registerNavigation(container);
+        navigation
 
-    showPage("home");
+    );
+
+    registerNavigation(
+
+        navigation
+
+    );
+
+    showPage(
+
+        "home"
+
+    );
 
 }
 
-/* ==========================================
-   RENDER
-========================================== */
 
-function renderNavigation(container){
+/* =====================================================
+   RENDER NAVIGATION
+===================================================== */
 
-    container.innerHTML =
+function renderNavigation(
 
-        MENU.map(item => `
+    navigation
+
+){
+
+    navigation.innerHTML =
+
+        MENU.map(item=>`
 
             <button
-                class="nav-item"
-                data-page="${item.id}">
 
-                <span class="nav-icon">
+                class="nav-item"
+
+                data-page="${item.id}"
+
+            >
+
+                <span
+
+                    class="material-symbols-rounded nav-icon"
+
+                >
 
                     ${item.icon}
 
                 </span>
 
-                <span class="nav-label">
+                <span
+
+                    class="nav-label"
+
+                >
 
                     ${item.label}
 
@@ -109,51 +149,65 @@ function renderNavigation(container){
 
 }
 
-/* ==========================================
-   EVENTS
-========================================== */
 
-function registerNavigation(container){
+/* =====================================================
+   NAVIGATION EVENT
+===================================================== */
 
-    const buttons =
+function registerNavigation(
 
-        container.querySelectorAll(
+    navigation
+
+){
+
+    navigation
+
+        .querySelectorAll(
 
             ".nav-item"
 
-        );
+        )
 
-    buttons.forEach(button=>{
+        .forEach(button=>{
 
-        button.addEventListener(
+            button.addEventListener(
 
-            "click",
+                "click",
 
-            ()=>{
+                ()=>{
 
-                showPage(
+                    showPage(
 
-                    button.dataset.page
+                        button.dataset.page
 
-                );
+                    );
 
-            }
+                }
 
-        );
+            );
 
-    });
+        });
 
 }
 
-/* ==========================================
-   SHOW PAGE
-========================================== */
 
-function showPage(page){
+/* =====================================================
+   SHOW PAGE
+===================================================== */
+
+function showPage(
+
+    page
+
+){
 
     document
 
-        .querySelectorAll(".page")
+        .querySelectorAll(
+
+            ".page"
+
+        )
 
         .forEach(section=>{
 
@@ -171,7 +225,7 @@ function showPage(page){
 
         });
 
-    const active =
+    const activePage =
 
         document.getElementById(
 
@@ -179,15 +233,19 @@ function showPage(page){
 
         );
 
-    if(active){
+    if(
 
-        active.classList.remove(
+        activePage
+
+    ){
+
+        activePage.classList.remove(
 
             "hidden"
 
         );
 
-        active.classList.add(
+        activePage.classList.add(
 
             "active-page"
 
@@ -195,27 +253,40 @@ function showPage(page){
 
     }
 
-    updateNavigation(page);
+    updateNavigation(
+
+        page
+
+    );
 
 }
 
-/* ==========================================
-   ACTIVE NAVIGATION
-========================================== */
 
-function updateNavigation(page){
+/* =====================================================
+   ACTIVE NAVIGATION
+===================================================== */
+
+function updateNavigation(
+
+    page
+
+){
 
     document
 
-        .querySelectorAll(".nav-item")
+        .querySelectorAll(
 
-        .forEach(button=>{
+            ".nav-item"
 
-            button.classList.toggle(
+        )
+
+        .forEach(item=>{
+
+            item.classList.toggle(
 
                 "active",
 
-                button.dataset.page===page
+                item.dataset.page===page
 
             );
 
