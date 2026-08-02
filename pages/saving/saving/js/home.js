@@ -57,6 +57,8 @@ function init(){
 
     renderHero();
 
+    renderSummary();
+
 }
 
 
@@ -115,3 +117,24 @@ function renderHero(){
         CONFIG.hero.description;
 
 }
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+function renderSummary(){
+
+    document.getElementById(
+
+        "summary-card"
+
+    ).innerHTML =
+
+    `
+
+        Summary
+
+    `;
+
+}
+
