@@ -59,6 +59,8 @@ function init(){
 
     renderSummary();
 
+    renderSaving();
+
 }
 
 
@@ -126,15 +128,54 @@ function renderSummary(){
 
     document.getElementById(
 
-        "summary-card"
+        "summary-total"
+
+    ).textContent =
+
+        "Rp0";
+
+    document.getElementById(
+
+        "summary-change"
+
+    ).textContent =
+
+        "Rp0 Bulan Ini";
+
+}
+
+/* =====================================================
+   SAVING
+===================================================== */
+
+function renderSaving(){
+
+    document.getElementById(
+
+        "saving-list"
 
     ).innerHTML =
 
     `
 
-        Summary
+        <div class="saving-card">
+
+            <div class="saving-name">
+
+                Mandiri
+
+            </div>
+
+            <div class="saving-balance">
+
+                Rp0
+
+            </div>
+
+        </div>
 
     `;
 
 }
+
 
