@@ -1,4 +1,11 @@
 /* =====================================================
+   HOME
+   FILE : home.js
+   DESCRIPTION : Home Controller
+   VERSION : 1.0.0
+===================================================== */
+
+/* =====================================================
    IMPORT
 ===================================================== */
 
@@ -46,6 +53,12 @@ document.addEventListener(
 
 );
 
+function init(){
+
+    renderHero();
+
+}
+
 
 /* =====================================================
    INIT APP
@@ -57,12 +70,35 @@ function init(){
 
 }
 
+/* =====================================================
+   HOME
+===================================================== */
+
+function capitalize(text){
+
+    return text.replace(
+
+        /\b\w/g,
+
+        letter => letter.toUpperCase()
+
+    );
+
+}
 
 /* =====================================================
    HERO
 ===================================================== */
 
 function renderHero(){
+
+    const name = capitalize(
+
+        user?.displayName ??
+
+        "Guest"
+
+    );
 
     document.getElementById(
 
@@ -72,14 +108,13 @@ function renderHero(){
 
         CONFIG.hero.badge;
 
-
     document.getElementById(
 
-    "hero-title"
+        "hero-title"
 
-).innerHTML =
+    ).innerHTML =
 
-    `Halo, ${user?.displayName ?? "Guest"} <span>👋</span>`;
+        `Halo, ${name} 👋`;
 
     document.getElementById(
 
