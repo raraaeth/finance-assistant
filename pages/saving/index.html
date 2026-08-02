@@ -45,17 +45,17 @@
 <body>
 
     <!-- ==========================================
-         MODULE
+         WORKSPACE
     ========================================== -->
 
-    <main id="saving-module">
+    <main id="workspace">
 
         <!-- ==========================================
-             SAVING WORKSPACE
+             HOME
         ========================================== -->
 
         <section
-            id="saving-page"
+            id="home-page"
             class="page active-page">
 
             <!-- ==========================================
@@ -88,108 +88,130 @@
 
             </section>
 
-<!-- ==========================================
-     SUMMARY
-========================================== -->
+            <!-- ==========================================
+                 SUMMARY
+            ========================================== -->
 
-<section id="summary">
+            <section id="summary">
 
-    <div class="section-header">
+                <div class="section-header">
 
-        <span class="section-badge">
+                    <span class="section-badge">
 
-            📊 Ringkasan
+                        📊 Ringkasan
 
-        </span>
+                    </span>
 
-    </div>
+                </div>
 
-    <!-- Total Saldo -->
+                <!-- Total Saldo -->
 
-    <div id="summary-card">
+                <div id="summary-card">
 
-        <p id="summary-label">
+                    <p id="summary-label">
 
-            Total Saldo
+                        Total Saldo
 
-        </p>
+                    </p>
 
-        <h2 id="summary-total">
+                    <h2 id="summary-total">
 
-            Rp0
+                        Rp0
 
-        </h2>
+                    </h2>
 
-        <p id="summary-change">
+                    <p id="summary-change">
 
-            Rp0 Bulan Ini
+                        Rp0 Bulan Ini
 
-        </p>
+                    </p>
 
-    </div>
+                </div>
 
-    <!-- Daftar Penyimpanan -->
+                <!-- Daftar Penyimpanan -->
 
-    <div id="saving-card">
+                <div id="saving-card">
 
-        <div id="saving-list">
+                    <div id="saving-list">
 
-        </div>
+                    </div>
 
-    </div>
+                </div>
 
-</section>
+            </section>
 
-<!-- ==========================================
-     DAILY INPUT
-========================================== -->
+            <!-- ==========================================
+                 DAILY INPUT
+            ========================================== -->
 
-<section id="daily-input">
+            <section id="daily-input">
 
-    <div id="daily-input-header">
+                <div id="daily-input-header">
 
-        <h2>
+                    <h2>
 
-            Input Harian
+                        Input Harian
 
-        </h2>
+                    </h2>
 
-    </div>
+                </div>
 
-    <div id="daily-input-card">
+                <div id="daily-input-card">
 
-    </div>
+                </div>
 
-</section>
+            </section>
 
-<!-- ==========================================
-     SETTING
-========================================== -->
+            <!-- ==========================================
+                 SETTING
+            ========================================== -->
 
-<section id="setting">
+            <section id="setting">
 
-    <div id="setting-header">
+                <div id="setting-header">
 
-        <h2>
+                    <h2>
 
-            Pengaturan
+                        Pengaturan
 
-        </h2>
+                    </h2>
 
-    </div>
+                </div>
 
-    <div id="setting-card">
+                <div id="setting-card">
 
-    </div>
+                </div>
 
-</section>
+            </section>
+
+        </section>
 
         <!-- ==========================================
-             KAS WORKSPACE
+             STATISTIK
         ========================================== -->
 
         <section
-            id="kas-page"
+            id="statistik-page"
+            class="page hidden">
+
+        </section>
+
+        <!-- ==========================================
+             RINGKASAN
+        ========================================== -->
+
+        <section
+            id="ringkasan-page"
+            class="page hidden">
+
+        </section>
+
+        <!-- ==========================================
+             PROFILE
+        ========================================== -->
+
+        <section
+            id="profile-page"
             class="page hidden">
 
         </section>
@@ -204,15 +226,14 @@
 
     </nav>
 
-<!-- ==========================================
-     SAVING JS
-========================================== -->
+    <!-- ==========================================
+         SAVING JS
+    ========================================== -->
 
-<script
-    type="module"
-    src="saving/js/home.js"></script>
+    <script
+        type="module"
+        src="saving/js/home.js"></script>
 
-    
 </body>
 
 </html>
