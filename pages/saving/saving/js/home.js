@@ -158,19 +158,51 @@ function renderSaving(){
 
     `
 
-        <div class="saving-card">
+        <div class="saving-item">
 
-            <div class="saving-name">
+            <span class="saving-name">
 
-                Mandiri
+                🏦 Mandiri
 
-            </div>
+            </span>
 
-            <div class="saving-balance">
+            <span class="saving-balance">
 
                 Rp0
 
-            </div>
+            </span>
+
+        </div>
+
+        <div class="saving-item">
+
+            <span class="saving-name">
+
+                🏦 SeaBank
+
+            </span>
+
+            <span class="saving-balance">
+
+                Rp0
+
+            </span>
+
+        </div>
+
+        <div class="saving-item">
+
+            <span class="saving-name">
+
+                🏦 DANA
+
+            </span>
+
+            <span class="saving-balance">
+
+                Rp0
+
+            </span>
 
         </div>
 
