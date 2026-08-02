@@ -1,0 +1,166 @@
+/* =====================================================
+   HEADER
+   FILE : header.css
+   VERSION : 1.0.0
+===================================================== */
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+#app-header{
+
+    position:relative;
+
+    overflow:hidden;
+
+    padding:32px 28px 48px;
+
+    background:#FFFFFF;
+
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+#header-content{
+
+    position:relative;
+
+    z-index:2;
+
+}
+
+
+#app-title{
+
+    margin:0;
+
+    font-size:34px;
+
+    font-weight:800;
+
+    color:#0F172A;
+
+}
+
+
+#workspace{
+
+    margin-top:10px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+#workspace-title{
+
+    font-size:18px;
+
+    font-weight:600;
+
+    color:#334155;
+
+}
+
+
+.wave{
+
+    color:#2563EB;
+
+    font-size:18px;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   WAVE
+===================================================== */
+
+#header-wave{
+
+    position:absolute;
+
+    left:0;
+
+    right:0;
+
+    bottom:0;
+
+    height:120px;
+
+    pointer-events:none;
+
+}
+
+
+/* layer putih → biru */
+
+#header-wave::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+        linear-gradient(
+
+            90deg,
+
+            #FFFFFF 0%,
+
+            #F5F9FF 18%,
+
+            #E6F0FF 38%,
+
+            #BDD7FF 68%,
+
+            #2563EB 100%
+
+        );
+
+}
+
+
+/* kurva */
+
+#header-wave::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    bottom:0;
+
+    width:100%;
+
+    height:180px;
+
+    background:#FFFFFF;
+
+    border-bottom-right-radius:100%;
+
+    transform-origin:left bottom;
+
+    transform:
+
+        translateY(-92px)
+
+        scaleX(1.25);
+
+}
