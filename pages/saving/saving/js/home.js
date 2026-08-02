@@ -75,12 +75,11 @@ function renderHero(){
 
     document.getElementById(
 
-        "hero-title"
+    "hero-title"
 
-    ).textContent =
+).innerHTML =
 
-        `Halo, ${user?.displayName ?? "Guest"} 👋`;
-
+    `Halo, ${user?.displayName ?? "Guest"} <span>👋</span>`;
 
     document.getElementById(
 
