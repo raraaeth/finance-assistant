@@ -1,8 +1,9 @@
 /* =====================================================
    GLOBAL BOTTOM NAVIGATION
    FILE : navigation.css
-   VERSION : 2.0.0
+   VERSION : 3.0.0
 ===================================================== */
+
 
 /* =====================================================
    CONTAINER
@@ -18,9 +19,9 @@
 
     bottom:0;
 
-    height:74px;
+    height:76px;
 
-    padding:0 8px;
+    padding:0 12px;
 
     display:flex;
 
@@ -30,14 +31,16 @@
 
     background:#FCFCFD;
 
-    border-top:1px solid #ECECEC;
+    border-top:1px solid #E5E7EB;
 
     box-shadow:
-        0 -6px 20px rgba(0,0,0,.08);
+
+        0 -8px 24px rgba(15,23,42,.08);
 
     z-index:999;
 
 }
+
 
 /* =====================================================
    ITEM
@@ -61,7 +64,7 @@
 
     align-items:center;
 
-    gap:6px;
+    gap:4px;
 
     cursor:pointer;
 
@@ -69,15 +72,16 @@
 
 }
 
+
 /* =====================================================
    ICON
 ===================================================== */
 
 .nav-icon{
 
-    width:42px;
+    width:46px;
 
-    height:42px;
+    height:34px;
 
     border-radius:999px;
 
@@ -87,13 +91,33 @@
 
     align-items:center;
 
-    font-size:22px;
-
     color:#9CA3AF;
 
     transition:.25s ease;
 
 }
+
+
+/* =====================================================
+   MATERIAL ICON
+===================================================== */
+
+.material-symbols-rounded{
+
+    font-size:24px;
+
+    font-variation-settings:
+
+        'FILL' 0,
+
+        'wght' 500,
+
+        'GRAD' 0,
+
+        'opsz' 24;
+
+}
+
 
 /* =====================================================
    LABEL
@@ -111,21 +135,38 @@
 
 }
 
+
 /* =====================================================
    ACTIVE
 ===================================================== */
 
 .nav-item.active .nav-icon{
 
-    background:#E8F1FF;
+    background:#EAF2FF;
 
     color:#2563EB;
 
     transform:
-        translateY(-3px)
-        scale(1.05);
+
+        translateY(-3px);
 
 }
+
+
+.nav-item.active .material-symbols-rounded{
+
+    font-variation-settings:
+
+        'FILL' 1,
+
+        'wght' 600,
+
+        'GRAD' 0,
+
+        'opsz' 24;
+
+}
+
 
 .nav-item.active .nav-label{
 
@@ -135,17 +176,19 @@
 
 }
 
+
 /* =====================================================
    HOVER
 ===================================================== */
 
 .nav-item:hover .nav-icon{
 
-    background:#F3F6FC;
+    background:#F4F7FB;
 
     color:#2563EB;
 
 }
+
 
 .nav-item:hover .nav-label{
 
@@ -153,12 +196,13 @@
 
 }
 
+
 /* =====================================================
-   CLICK EFFECT
+   CLICK
 ===================================================== */
 
 .nav-item:active{
 
-    transform:scale(.95);
+    transform:scale(.96);
 
 }
