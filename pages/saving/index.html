@@ -82,93 +82,65 @@
 
     </div>
 
-<!-- ==========================================
-     HEADER WAVE
-========================================== -->
+    <!-- ==========================================
+         WAVE
+    ========================================== -->
 
-<div id="header-wave">
+    <div id="header-wave">
 
-    <svg
+        <svg
+            viewBox="0 0 1000 220"
+            preserveAspectRatio="none">
 
-        viewBox="0 0 1000 220"
+            <defs>
 
-        preserveAspectRatio="none"
+                <linearGradient
+                    id="waveGradient"
+                    x1="0%"
+                    y1="100%"
+                    x2="100%"
+                    y2="0%">
 
-    >
+                    <stop
+                        offset="0%"
+                        stop-color="#F8FBFF"/>
 
-        <defs>
+                    <stop
+                        offset="35%"
+                        stop-color="#DDEBFF"/>
 
-            <linearGradient
+                    <stop
+                        offset="70%"
+                        stop-color="#7EAFFF"/>
 
-                id="waveGradient"
+                    <stop
+                        offset="100%"
+                        stop-color="#2563EB"/>
 
-                x1="0%"
+                </linearGradient>
 
-                y1="0%"
+            </defs>
 
-                x2="100%"
+            <path
 
-                y2="0%"
+                fill="url(#waveGradient)"
 
-            >
+                d="
+                    M0,0
+                    L1000,0
+                    L1000,220
+                    C920,180
+                    760,125
+                    520,90
+                    C320,60
+                    150,40
+                    0,15
+                    Z
+                "/>
 
-                <stop
-                    offset="0%"
-                    stop-color="#FFFFFF"/>
+        </svg>
 
-                <stop
-                    offset="20%"
-                    stop-color="#F7FAFF"/>
-
-                <stop
-                    offset="45%"
-                    stop-color="#EAF2FF"/>
-
-                <stop
-                    offset="70%"
-                    stop-color="#BFD8FF"/>
-
-                <stop
-                    offset="100%"
-                    stop-color="#2563EB"/>
-
-            </linearGradient>
-
-        </defs>
-
-        <path
-
-            fill="url(#waveGradient)"
-
-            d="
-
-                M0,220
-
-                L0,220
-
-                C220,220
-
-                420,200
-
-                620,145
-
-                C760,110
-
-                880,55
-
-                1000,0
-
-                L1000,220
-
-                Z
-
-            "
-
-        />
-
-    </svg>
-
-</div>
+    </div>
 
 </header>
 
