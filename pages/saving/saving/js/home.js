@@ -33,6 +33,12 @@ import {
 
 } from "../../shared/js/process.js";
 
+import {
+
+    renderHeader
+
+} from "../../shared/js/header.js";
+
 
 /* =====================================================
    INIT DATA
@@ -55,6 +61,12 @@ document.addEventListener(
 
 function init(){
 
+    renderHeader(
+
+        "Finance Assistant"
+
+    );
+   
     renderHero();
 
     renderSummary();
