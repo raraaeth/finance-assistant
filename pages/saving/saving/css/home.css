@@ -144,21 +144,63 @@
 
 #summary{
 
-    margin-bottom:28px;
+    margin-bottom:32px;
 
 }
 
-#summary-card{
+.section-header{
+
+    margin-bottom:16px;
+
+}
+
+.section-badge{
+
+    display:inline-block;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:#F5F7FB;
+
+    color:#374151;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+#summary-card,
+
+#saving-card{
 
     background:#FFFFFF;
 
     border-radius:20px;
 
-    padding:22px;
+    padding:20px;
 
-    box-shadow:0 10px 30px rgba(0,0,0,.06);
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
 
 }
+
+#saving-card{
+
+    margin-top:16px;
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
 
 #summary-label{
 
@@ -166,19 +208,15 @@
 
     font-size:.95rem;
 
-    margin-bottom:10px;
-
 }
 
 #summary-total{
 
+    margin:10px 0;
+
     font-size:2rem;
 
     font-weight:800;
-
-    color:#111827;
-
-    margin-bottom:12px;
 
 }
 
@@ -186,52 +224,14 @@
 
     color:#16A34A;
 
-    font-size:.95rem;
-
     font-weight:600;
 
 }
 
 
 /* =====================================================
-   SECTION TITLE
+   SAVING LIST
 ===================================================== */
-
-.section-title{
-
-    font-size:2rem;
-
-    font-weight:800;
-
-    margin-bottom:18px;
-
-}
-
-/* =====================================================
-   SAVING
-===================================================== */
-
-#saving{
-
-    margin-bottom:28px;
-
-}
-
-.section-header{
-
-    margin-bottom:18px;
-
-}
-
-.section-title{
-
-    font-size:2rem;
-
-    font-weight:800;
-
-    color:#1F2937;
-
-}
 
 #saving-list{
 
@@ -243,35 +243,27 @@
 
 }
 
-.saving-card{
+.saving-item{
 
-    background:#FFFFFF;
+    display:flex;
 
-    border-radius:18px;
+    justify-content:space-between;
 
-    padding:18px;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.05);
+    align-items:center;
 
 }
 
 .saving-name{
 
-    font-size:1.05rem;
-
     font-weight:700;
 
-    color:#1F2937;
+    color:#374151;
 
 }
 
 .saving-balance{
 
-    margin-top:8px;
-
-    font-size:1.6rem;
-
-    font-weight:800;
+    font-weight:700;
 
     color:#111827;
 
