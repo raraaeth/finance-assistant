@@ -35,6 +35,12 @@ import {
 
 import {
 
+    Statistics
+
+} from "./statistics.js";
+
+import {
+
     Header
 
 } from
@@ -107,6 +113,8 @@ async function init(){
         API.bank
 
     );
+   
+   Statistics.init();
 
 
     renderHero();
