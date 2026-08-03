@@ -26,6 +26,14 @@ import {
 
 } from "./process.js";
 
+import {
+
+    Filter
+
+} from
+
+"../../shared/js/filter.js";
+
 
 /* =====================================================
    STATE
