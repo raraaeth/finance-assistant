@@ -3,18 +3,21 @@
    Workspace   : Saving
    Module      : Statistics
    File        : statistics.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Statistics Controller
 
    Sections :
+   - Import
    - State
    - Init
    - Filter
    - Chart
    - Transaction
+   - Helper
 ===================================================== */
+
 
 /* =====================================================
    IMPORT
@@ -24,7 +27,9 @@ import {
 
     Process
 
-} from "./process.js";
+} from
+
+"../../shared/js/process.js";
 
 import {
 
@@ -43,25 +48,11 @@ export const Statistics = {
 
     filter : {
 
-        period :
+        start : null,
 
-            "all",
+        end : null,
 
-        type :
-
-            "all",
-
-        bank :
-
-            "all",
-
-        category :
-
-            "all",
-
-        method :
-
-            "all"
+        range : 6
 
     },
 
@@ -76,118 +67,85 @@ export const Statistics = {
 
 Statistics.init = function(){
 
-    Statistics.applyFilter();
+    const today =
 
-    Statistics.renderTransaction();
+        new Date();
+
+    Statistics.filter.start =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth(),
+
+            1
+
+        );
+
+    Statistics.filter.end =
+
+        today;
+
+    Statistics.renderFilter();
+
+    Statistics.registerFilter();
+
+    Statistics.refresh();
 
 };
 
-
 /* =====================================================
-   FILTER
+   RENDER FILTER
 ===================================================== */
 
-Statistics.applyFilter = function(){
+Statistics.renderFilter = function(){
 
-    Statistics.data =
+    const period =
 
-        Process.transaction.filter(
+        document.getElementById(
 
-            item => {
+            "filter-period"
 
-                if(
+        );
 
-                    Statistics.filter.period !==
+    const range =
 
-                    "all"
+        document.getElementById(
 
-                ){
+            "filter-range"
 
-                    if(
+        );
 
-                        !item.tanggal.startsWith(
+    if(
 
-                            Statistics.filter.period
+        !period ||
 
-                        )
+        !range
 
-                    ){
+    ){
 
-                        return false;
+        return;
 
-                    }
+    }
 
-                }
+    period.value =
 
-                if(
+        formatPeriod(
 
-                    Statistics.filter.type !==
+            Statistics.filter.start,
 
-                    "all"
+            Statistics.filter.end
 
-                ){
+        );
 
-                    if(
+    range.innerHTML =
 
-                        item.jenis !==
+        Filter.createOption(
 
-                        Statistics.filter.type
+            Filter.range,
 
-                    ){
-
-                        return false;
-
-                    }
-
-                }
-
-                if(
-
-                    Statistics.filter.bank !==
-
-                    "all"
-
-                ){
-
-                    if(
-
-                        item.bank !==
-
-                        Statistics.filter.bank
-
-                    ){
-
-                        return false;
-
-                    }
-
-                }
-
-                if(
-
-                    Statistics.filter.category !==
-
-                    "all"
-
-                ){
-
-                    if(
-
-                        item.kategori !==
-
-                        Statistics.filter.category
-
-                    ){
-
-                        return false;
-
-                    }
-
-                }
-
-                return true;
-
-            }
+            Statistics.filter.range
 
         );
 
@@ -195,16 +153,37 @@ Statistics.applyFilter = function(){
 
 
 /* =====================================================
-   CHART
+   RENDER CHART
 ===================================================== */
 
 Statistics.renderChart = function(){
+
+    const canvas =
+
+        document.getElementById(
+
+            "statistics-chart-canvas"
+
+        );
+
+    if(
+
+        !canvas
+
+    ){
+
+        return;
+
+    }
+
+    /* Chart.js
+       Coming Soon */
 
 };
 
 
 /* =====================================================
-   TRANSACTION
+   RENDER TRANSACTION
 ===================================================== */
 
 Statistics.renderTransaction = function(){
@@ -213,7 +192,7 @@ Statistics.renderTransaction = function(){
 
         document.getElementById(
 
-            "transaction-list"
+            "statistics-transaction-list"
 
         );
 
@@ -245,7 +224,13 @@ Statistics.renderTransaction = function(){
 
                     <strong>
 
-                        ${item.keterangan || item.kategori}
+                        ${
+
+                            item.keterangan ||
+
+                            item.kategori
+
+                        }
 
                     </strong>
 
@@ -261,10 +246,6 @@ Statistics.renderTransaction = function(){
 
                 <div>
 
-                    ${item.jenis}
-
-                    <br>
-
                     ${item.nominal}
 
                 </div>
@@ -278,3 +259,219 @@ Statistics.renderTransaction = function(){
     );
 
 };
+
+
+/* =====================================================
+   REGISTER FILTER
+===================================================== */
+
+Statistics.registerFilter = function(){
+
+    const period =
+
+        document.getElementById(
+
+            "filter-period"
+
+        );
+
+    const range =
+
+        document.getElementById(
+
+            "filter-range"
+
+        );
+
+    if(
+
+        !period ||
+
+        !range
+
+    ){
+
+        return;
+
+    }
+
+    period.addEventListener(
+
+        "change",
+
+        ()=>{
+
+            /* Date Range Picker */
+
+        }
+
+    );
+
+    range.addEventListener(
+
+        "change",
+
+        event=>{
+
+            Statistics.filter.range =
+
+                Number(
+
+                    event.target.value
+
+                );
+
+            Statistics.refresh();
+
+        }
+
+    );
+
+};
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+Statistics.refresh = function(){
+
+    Statistics.applyFilter();
+
+    Statistics.renderChart();
+
+    Statistics.renderTransaction();
+
+};
+
+
+/* =====================================================
+   APPLY FILTER
+===================================================== */
+
+Statistics.applyFilter = function(){
+
+    Statistics.data =
+
+        Process.transaction.filter(
+
+            item=>{
+
+                return(
+
+                    item.date >=
+
+                    Statistics.filter.start &&
+
+                    item.date <=
+
+                    Statistics.filter.end
+
+                );
+
+            }
+
+        );
+
+};
+
+/* =====================================================
+   HELPER
+===================================================== */
+
+function formatPeriod(
+
+    start,
+
+    end
+
+){
+
+    return(
+
+        formatDate(
+
+            start
+
+        )
+
+        +
+
+        " - "
+
+        +
+
+        formatDate(
+
+            end
+
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT DATE
+===================================================== */
+
+function formatDate(
+
+    date
+
+){
+
+    return new Date(
+
+        date
+
+    ).toLocaleDateString(
+
+        "id-ID",
+
+        {
+
+            day :
+
+                "2-digit",
+
+            month :
+
+                "short",
+
+            year :
+
+                "numeric"
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    Statistics.init
+
+);
+
+/* =====================================================
+   START
+===================================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    Statistics.init
+
+);
+
