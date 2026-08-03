@@ -52,8 +52,8 @@ import {
 import {
 
     rupiah,
-   
-    rupiahShort
+
+    shortRupiah
 
 } from "../../../../js/utils.js";
 
