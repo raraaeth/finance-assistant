@@ -151,20 +151,6 @@
    CARD
 ===================================================== */
 
-#summary-card,
-
-#saving-card{
-
-    background:#FFFFFF;
-
-    border-radius:20px;
-
-    padding:20px;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.05);
-
-}
-
 #saving-card{
 
     margin-top:16px;
