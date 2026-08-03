@@ -2,33 +2,11 @@
    GLOBAL HEADER
    FILE : script.js
    DESCRIPTION : Header Component
-   VERSION : 1.0.0
+   VERSION : 2.0.0
 ===================================================== */
 
-
 /* =====================================================
-   CONFIG
-===================================================== */
-
-const BANNERS = {
-
-    saving :
-
-        "components/header/assets/saving-banner.webp",
-
-    financial :
-
-        "components/header/assets/financial-banner.webp",
-
-    payroll :
-
-        "components/header/assets/payroll-banner.webp"
-
-};
-
-
-/* =====================================================
-   HEADER
+   HEADER COMPONENT
 ===================================================== */
 
 export const Header = {
@@ -37,7 +15,9 @@ export const Header = {
 
         container,
 
-        theme = "saving"
+        theme = "saving",
+
+        path
 
     }){
 
@@ -59,17 +39,37 @@ export const Header = {
 
         }
 
+        const component =
+
+            `${path}index.html`;
+
         const response =
 
             await fetch(
 
-                "components/header/index.html"
+                component
 
             );
 
         element.innerHTML =
 
             await response.text();
+
+        const banners = {
+
+            saving :
+
+                `${path}assets/saving-banner.webp`,
+
+            financial :
+
+                `${path}assets/financial-banner.webp`,
+
+            payroll :
+
+                `${path}assets/payroll-banner.webp`
+
+        };
 
         const banner =
 
@@ -79,9 +79,21 @@ export const Header = {
 
             );
 
+        if(
+
+            !banner
+
+        ){
+
+            return;
+
+        }
+
         banner.src =
 
-            BANNERS[theme];
+            banners[theme] ??
+
+            banners.saving;
 
     }
 
