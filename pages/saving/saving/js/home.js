@@ -51,7 +51,9 @@ import {
 
 import {
 
-    rupiah
+    rupiah,
+   
+    rupiahShort
 
 } from "../../../../js/utils.js";
 
@@ -219,64 +221,61 @@ function renderSummary(){
 
 function renderSaving(){
 
-    document.getElementById(
+    const list =
 
-        "saving-list"
+        document.getElementById(
 
-    ).innerHTML =
+            "saving-list"
 
-    `
+        );
 
-        <div class="saving-item">
+    list.innerHTML =
 
-            <span class="saving-name">
+        "";
 
-                🏦 Mandiri
+    Object.entries(
 
-            </span>
+        Process.balance
 
-            <span class="saving-balance">
+    ).forEach(
 
-                Rp0
+        ([
 
-            </span>
+            bank,
 
-        </div>
+            data
 
-        <div class="saving-item">
+        ])=>{
 
-            <span class="saving-name">
+            list.innerHTML +=
 
-                🏦 SeaBank
+            `
 
-            </span>
+            <div class="saving-item">
 
-            <span class="saving-balance">
+                <span class="saving-name">
 
-                Rp0
+                    🏦 ${bank}
 
-            </span>
+                </span>
 
-        </div>
+                <span class="saving-balance">
 
-        <div class="saving-item">
+                    ${rupiahShort(
 
-            <span class="saving-name">
+                        data.balance
 
-                🏦 DANA
+                    )}
 
-            </span>
+                </span>
 
-            <span class="saving-balance">
+            </div>
 
-                Rp0
+            `;
 
-            </span>
+        }
 
-        </div>
-
-    `;
+    );
 
 }
-
 
