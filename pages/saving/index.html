@@ -10,7 +10,11 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-    <title>Saving</title>
+    <title>
+
+        Saving
+
+    </title>
 
     <!-- ==========================================
          GLOBAL CSS
@@ -37,8 +41,8 @@
         href="shared/css/style.css">
 
     <link
-    rel="stylesheet"
-    href="../../components/header/style.css">
+        rel="stylesheet"
+        href="../../components/header/style.css">
 
     <!-- ==========================================
          SAVING CSS
@@ -48,362 +52,429 @@
         rel="stylesheet"
         href="saving/css/home.css">
 
+    <link
+        rel="stylesheet"
+        href="saving/css/statistics.css">
+
+    <link
+        rel="stylesheet"
+        href="saving/css/summary.css">
+
 </head>
 
 <body>
 
-    <!-- ==========================================
+        <!-- ==========================================
          WORKSPACE
     ========================================== -->
 
     <main id="workspace">
 
-<!-- ==========================================
-     GLOBAL HEADER
-========================================== -->
-
-<div id="header-container">
-
-</div>
-
         <!-- ==========================================
-             HOME
+             GLOBAL HEADER
         ========================================== -->
 
-        <section
-            id="home-page"
-            class="page active-page">
-            
-<!-- ==========================================
-     HOME CONTENT
-========================================== -->
-
-            <!-- ==========================================
-                 HERO
-            ========================================== -->
-
-            <section id="hero">
-
-                <div id="hero-content">
-
-                    <h1 id="hero-title">
-
-                    </h1>
-
-                    <p id="hero-description">
-
-                    </p>
-
-                </div>
-
-                <div id="hero-image">
-
-                    <img
-                        src="../../assets/images/hero/hero-saving.png"
-                        alt="Hero Saving">
-
-                </div>
-
-            </section>
-
-            <!-- ==========================================
-                 SUMMARY
-            ========================================== -->
-
-            <section id="summary">
-
-                <div class="section-header">
-
-                    <span class="section-badge">
-
-                        📊 Ringkasan
-
-                    </span>
-
-                </div>
-
-                <!-- ==========================================
-                     TOTAL SALDO
-                ========================================== -->
-
-                <div
-
-    id="summary-card"
-
-    class="card"
-
->
-
-                    <p id="summary-label">
-
-                        Total Saldo
-
-                    </p>
-
-                    <h2 id="summary-total">
-
-                        Rp0
-
-                    </h2>
-
-                    <p id="summary-change">
-
-                        Rp0 Bulan Ini
-
-                    </p>
-
-                </div>
-
-                <!-- ==========================================
-                     SAVING LIST
-                ========================================== -->
-
-                <div
-
-    id="saving-card"
-
-    class="card"
-
->
-
-                    <div id="saving-list">
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            <!-- ==========================================
-                 DAILY INPUT
-            ========================================== -->
-
-            <section id="daily-input">
-
-                <div id="daily-input-header">
-
-                    <h2>
-
-                        Input Harian
-
-                    </h2>
-
-                </div>
-
-                <div id="daily-input-card">
-
-                </div>
-
-            </section>
-
-            <!-- ==========================================
-                 SETTING
-            ========================================== -->
-
-            <section id="setting">
-
-                <div id="setting-header">
-
-                    <h2>
-
-                        Pengaturan
-
-                    </h2>
-
-                </div>
-
-                <div id="setting-card">
-
-                </div>
-
-            </section>
-
-        </section>
-
-        <!-- ==========================================
-             STATISTIK PAGE 
-        ========================================== -->
-
-        <section
-            id="statistik-page"
-            class="page hidden">
-
-            <!-- ==========================================
-                 CONTENT
-            ========================================== -->
-
-            <section id="statistik">
-                
-<!--==================================
-    FILTER
-==================================-->
-
-<section
-
-    id="statistics-filter"
-
-    class="section"
-
->
-
-    <div class="section-header">
-
-        <span class="section-badge">
-
-            📊 Filter
-
-        </span>
-
-    </div>
-
-    <div
-
-        class="card"
-
-    >
-
-        <div
-
-            id="statistics-filter-list"
-
-            class="filter-grid"
-
-        >
+        <div id="header-container">
 
         </div>
 
-    </div>
+        <!-- ==========================================
+     HOME PAGE
+========================================== -->
 
-</section>
+<section
+    id="home-page"
+    class="page active-page">
 
-<!--==================================
-    CHART
-==================================-->
+    <!-- ==========================================
+         HERO
+    ========================================== -->
 
-<section id="statistics-chart">
+    <section
+        id="hero"
+        class="section">
 
-    <div class="section-header">
+        <div id="hero-content">
 
-        <h2>
+            <h1 id="hero-title">
 
-            Grafik
+            </h1>
 
-        </h2>
+            <p id="hero-description">
 
-    </div>
+            </p>
 
-    <div
+        </div>
 
-    class="card"
+        <div id="hero-image">
 
->
+            <img
+                src="../../assets/images/hero/hero-saving.png"
+                alt="Hero Saving">
 
-    <canvas
+        </div>
 
-        id="statistics-chart-canvas"
+    </section>
 
-    >
+    <!-- ==========================================
+         SUMMARY
+    ========================================== -->
 
-    </canvas>
+    <section
+        id="summary"
+        class="section">
 
-</div>
+        <div class="section-header">
 
-</section>
+            <span class="section-badge">
 
-<!--==================================
-    TRANSACTION
-==================================-->
+                📊 Ringkasan
 
-<section id="statistics-transaction">
+            </span>
 
-    <div class="section-header">
-
-        <h2>
-
-            Rincian Transaksi
-
-        </h2>
-
-    </div>
-
-    <div
-
-    class="card"
-
->
-
-    <div
-
-        id="statistics-transaction-list"
-
-        class="list"
-
-    >
-
-    </div>
-
-</div>
-
-</section>
-
-<!--==================================
-    DATA FLOW
-==================================-->
-
-<section id="statistics-flow">
-
-    <div class="section-header">
-
-        <h2>
-
-            Alur Data Statistik
-
-        </h2>
-
-    </div>
-
-    <div
-
-    class="card"
-
->
-
-    <div
-
-        id="statistics-flow-card"
-
-    >
-
-    </div>
-
-    </div>
-
-</section>
-
-            </section>
-
-        </section>
+        </div>
 
         <!-- ==========================================
-             RINGKASAN PAGE
+             TOTAL BALANCE
         ========================================== -->
 
-        <section
-            id="ringkasan-page"
-            class="page hidden">
+        <div
+            id="summary-card"
+            class="card">
 
-            <!-- ==========================================
-                 CONTENT
-            ========================================== -->
+            <p id="summary-label">
 
-            <section id="ringkasan">
+                Total Saldo
 
-            </section>
+            </p>
 
-        </section>
+            <h2 id="summary-total">
 
-<!-- ==========================================
-     PROFILE
+                Rp0
+
+            </h2>
+
+            <p id="summary-change">
+
+                Rp0 Bulan Ini
+
+            </p>
+
+        </div>
+
+        <!-- ==========================================
+             SAVING ACCOUNT
+        ========================================== -->
+
+        <div
+            id="saving-card"
+            class="card">
+
+            <div id="saving-list">
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         DAILY INPUT
+    ========================================== -->
+
+    <section
+        id="daily-input"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                ✍️ Input Harian
+
+            </span>
+
+        </div>
+
+        <div
+            id="daily-input-card"
+            class="card">
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         SETTING
+    ========================================== -->
+
+    <section
+        id="setting"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                ⚙️ Pengaturan
+
+            </span>
+
+        </div>
+
+        <div
+            id="setting-card"
+            class="card">
+
+        </div>
+
+    </section>
+
+</section>
+
+        <!-- ==========================================
+     STATISTICS PAGE
+========================================== -->
+
+<section
+    id="statistics-page"
+    class="page hidden">
+
+    <!-- ==========================================
+         FILTER
+    ========================================== -->
+
+    <section
+        id="statistics-filter"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                🔍 Filter
+
+            </span>
+
+        </div>
+
+        <div class="card">
+
+            <div
+                id="statistics-filter-list"
+                class="filter-grid">
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         CHART
+    ========================================== -->
+
+    <section
+        id="statistics-chart"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                📈 Grafik
+
+            </span>
+
+        </div>
+
+        <div class="card">
+
+            <canvas
+                id="statistics-chart-canvas">
+
+            </canvas>
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         TRANSACTION
+    ========================================== -->
+
+    <section
+        id="statistics-transaction"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                📄 Rincian Transaksi
+
+            </span>
+
+        </div>
+
+        <div class="card">
+
+            <div
+                id="statistics-transaction-list"
+                class="list">
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         DATA FLOW
+    ========================================== -->
+
+    <section
+        id="statistics-flow"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                🔄 Alur Data
+
+            </span>
+
+        </div>
+
+        <div class="card">
+
+            <div id="statistics-flow-card">
+
+            </div>
+
+        </div>
+
+    </section>
+
+</section>
+
+        <!-- ==========================================
+     SUMMARY PAGE
+========================================== -->
+
+<section
+    id="summary-page"
+    class="page hidden">
+
+    <!-- ==========================================
+         OVERVIEW
+    ========================================== -->
+
+    <section
+        id="summary-overview"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                📋 Ringkasan
+
+            </span>
+
+        </div>
+
+        <div
+            id="summary-overview-card"
+            class="card">
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         BANK
+    ========================================== -->
+
+    <section
+        id="summary-bank"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                🏦 Penyimpanan
+
+            </span>
+
+        </div>
+
+        <div
+            id="summary-bank-card"
+            class="card">
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         CATEGORY
+    ========================================== -->
+
+    <section
+        id="summary-category"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                🏷️ Kategori
+
+            </span>
+
+        </div>
+
+        <div
+            id="summary-category-card"
+            class="card">
+
+        </div>
+
+    </section>
+
+    <!-- ==========================================
+         ACTIVITY
+    ========================================== -->
+
+    <section
+        id="summary-activity"
+        class="section">
+
+        <div class="section-header">
+
+            <span class="section-badge">
+
+                📅 Aktivitas
+
+            </span>
+
+        </div>
+
+        <div
+            id="summary-activity-card"
+            class="card">
+
+        </div>
+
+    </section>
+
+</section>
+
+        <!-- ==========================================
+     PROFILE PAGE
 ========================================== -->
 
 <section
@@ -412,8 +483,7 @@
 
 </section>
 
-
-    </main>
+            </main>
 
     <!-- ==========================================
          BOTTOM NAVIGATION
@@ -423,8 +493,8 @@
 
     </nav>
 
-    <!-- ==========================================
-         HOME JS
+        <!-- ==========================================
+         HOME
     ========================================== -->
 
     <script
@@ -433,15 +503,15 @@
 
     </script>
 
-<!-- ==========================================
-     GLOBAL HEADER
-========================================== -->
+    <!-- ==========================================
+         GLOBAL HEADER
+    ========================================== -->
 
-<script
-    type="module"
-    src="../../components/header/script.js">
+    <script
+        type="module"
+        src="../../components/header/script.js">
 
-</script>
+    </script>
 
     <!-- ==========================================
          GLOBAL NAVIGATION
