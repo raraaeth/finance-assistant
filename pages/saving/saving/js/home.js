@@ -115,13 +115,6 @@ function renderHero(){
 
     );
 
-    document.getElementById(
-
-        "hero-badge"
-
-    ).textContent =
-
-        CONFIG.hero.badge;
 
     document.getElementById(
 
