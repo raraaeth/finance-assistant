@@ -1,8 +1,8 @@
 /* =====================================================
-   SAVING PAGE
+   PAGE
 ===================================================== */
 
-#saving-page{
+.page{
 
     display:flex;
 
@@ -16,10 +16,48 @@
 
 
 /* =====================================================
-   HERO
+   SECTION
 ===================================================== */
 
-#hero{
+.section{
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.card{
+
+    background:#ffffff;
+
+    border-radius:20px;
+
+    padding:18px;
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(
+
+            0,
+
+            0,
+
+            0,
+
+            .05
+
+        );
+
+}
+
+
+.card-header{
 
     display:flex;
 
@@ -27,72 +65,140 @@
 
     justify-content:space-between;
 
-    gap:20px;
+    margin-bottom:16px;
+
+}
+
+
+.card-title{
+
+    font-size:16px;
+
+    font-weight:700;
+
+}
+
+
+.card-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
 
 }
 
 
 /* =====================================================
-   HERO CONTENT
+   FILTER
 ===================================================== */
 
-#hero-content{
+.filter{
 
-    flex:1;
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
 
 }
 
 
-/* =====================================================
-   HERO IMAGE
-===================================================== */
+.filter-grid{
 
-#hero-image{
+    display:grid;
 
-    flex-shrink:0;
+    gap:12px;
 
 }
 
 
-/* =====================================================
-   SUMMARY
-===================================================== */
+.filter-label{
 
-#summary{
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#666;
+
+}
+
+
+.filter-select{
 
     width:100%;
 
-}
+    height:44px;
 
+    border:none;
 
-/* =====================================================
-   SAVING ACCOUNTS
-===================================================== */
+    border-radius:12px;
 
-#saving-accounts{
+    padding:0 14px;
 
-    width:100%;
+    background:#f4f5f7;
 
-}
-
-
-/* =====================================================
-   DAILY INPUT
-===================================================== */
-
-#daily-input{
-
-    width:100%;
+    font-size:14px;
 
 }
 
 
 /* =====================================================
-   SETTING
+   LIST
 ===================================================== */
 
-#setting{
+.list{
 
-    width:100%;
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+.list-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+
+/* =====================================================
+   BADGE
+===================================================== */
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   UTILITY
+===================================================== */
+
+.hidden{
+
+    display:none;
 
 }
