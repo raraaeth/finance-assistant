@@ -202,3 +202,110 @@
     display:none;
 
 }
+
+/* =====================================================
+   LIST
+===================================================== */
+
+.list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+.list-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+}
+
+/* =====================================================
+   FLEX
+===================================================== */
+
+.flex{
+
+    display:flex;
+
+}
+
+.flex-column{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.flex-center{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+.flex-between{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.grid{
+
+    display:grid;
+
+    gap:16px;
+
+}
+
+/* =====================================================
+   SCROLL
+===================================================== */
+
+.scroll-y{
+
+    overflow-y:auto;
+
+}
+
+.scroll-x{
+
+    overflow-x:auto;
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty{
+
+    padding:32px 20px;
+
+    text-align:center;
+
+    color:#9CA3AF;
+
+}
