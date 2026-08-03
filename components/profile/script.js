@@ -39,7 +39,7 @@ const Profile = {
 
     workspace : [],
 
-    currentWorkspace : null
+    currentApp : null
 
 };
 
@@ -48,19 +48,23 @@ const Profile = {
    COMPONENT
 ===================================================== */
 
-export const ProfileComponent = {
+const BASE =
 
+    "components/profile/";
+
+export const Profile = {
+   
     async render({
 
-        container,
+    container,
 
-        workspace
+    app
 
-    }){
+}){
 
-        Profile.currentWorkspace =
+        Profile.currentApp =
 
-            workspace;
+    app;
 
         const element =
 
@@ -84,9 +88,9 @@ export const ProfileComponent = {
 
             await fetch(
 
-                "/finance-assistant/components/profile/index.html"
+    `${BASE}index.html`
 
-            );
+);
 
         element.innerHTML =
 
@@ -236,7 +240,13 @@ function render(){
 
     }
 
-    renderUser();
+    renderUserCard();
+
+    renderWorkspaceCard();
+
+    renderMenuCard();
+
+    renderLogoutCard();
 
 }
 
@@ -344,7 +354,7 @@ function renderLogin(){
    USER
 ===================================================== */
 
-function renderUser(){
+function renderUserCard(){
 
     const login =
 
@@ -500,7 +510,7 @@ function getGreeting(){
    WORKSPACE
 ===================================================== */
 
-function renderWorkspace(){
+function renderWorkspaceCard(){
 
     initWorkspace();
 
@@ -813,7 +823,7 @@ function renderCreateWorkspace(){
    MENU
 ===================================================== */
 
-function renderMenu(){
+function renderMenuCard(){
 
     const container =
 
@@ -1020,7 +1030,7 @@ function openMenu(
    LOGOUT
 ===================================================== */
 
-function renderLogout(){
+function renderLogoutCard(){
 
     document.getElementById(
 
