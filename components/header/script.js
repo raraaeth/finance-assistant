@@ -2,11 +2,42 @@
    GLOBAL HEADER
    FILE : script.js
    DESCRIPTION : Header Component
-   VERSION : 2.0.0
+   VERSION : 3.0.0
 ===================================================== */
 
+
 /* =====================================================
-   HEADER COMPONENT
+   CONFIG
+===================================================== */
+
+const BASE =
+
+    "/finance-assistant/components/header/";
+
+
+/* =====================================================
+   THEMES
+===================================================== */
+
+const BANNERS = {
+
+    saving :
+
+        "saving-banner.webp",
+
+    financial :
+
+        "financial-banner.webp",
+
+    payroll :
+
+        "payroll-banner.webp"
+
+};
+
+
+/* =====================================================
+   HEADER
 ===================================================== */
 
 export const Header = {
@@ -15,23 +46,11 @@ export const Header = {
 
         container,
 
-        theme = "saving",
-
-        path
+        theme = "saving"
 
     }){
 
-       console.log({
-
-    container,
-
-    theme,
-
-    path
-
-});
-
-        const element =
+        const target =
 
             document.querySelector(
 
@@ -41,7 +60,7 @@ export const Header = {
 
         if(
 
-            !element
+            !target
 
         ){
 
@@ -49,41 +68,21 @@ export const Header = {
 
         }
 
-        const component =
-
-            `${path}index.html`;
-
         const response =
 
             await fetch(
 
-                component
+                `${BASE}index.html`
 
             );
 
-        element.innerHTML =
+        target.innerHTML =
 
             await response.text();
 
-        const banners = {
-
-            saving :
-
-                `${path}assets/saving-banner.webp`,
-
-            financial :
-
-                `${path}assets/financial-banner.webp`,
-
-            payroll :
-
-                `${path}assets/payroll-banner.webp`
-
-        };
-
         const banner =
 
-            element.querySelector(
+            target.querySelector(
 
                 "#header-banner"
 
@@ -101,9 +100,13 @@ export const Header = {
 
         banner.src =
 
-            banners[theme] ??
+            `${BASE}assets/${
 
-            banners.saving;
+                BANNERS[theme] ??
+
+                BANNERS.saving
+
+            }`;
 
     }
 
