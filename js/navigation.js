@@ -11,6 +11,7 @@
 ===================================================== */
 
 const MENU = [
+const MENU = [
 
     {
 
@@ -24,7 +25,7 @@ const MENU = [
 
     {
 
-        id : "statistik",
+        id : "statistics",
 
         label : "Statistik",
 
@@ -34,7 +35,7 @@ const MENU = [
 
     {
 
-        id : "ringkasan",
+        id : "summary",
 
         label : "Ringkasan",
 
@@ -53,7 +54,6 @@ const MENU = [
     }
 
 ];
-
 
 /* =====================================================
    INIT
