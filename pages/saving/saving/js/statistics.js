@@ -37,6 +37,14 @@ import {
 
 "../../shared/js/filter.js";
 
+import {
+
+    formatDate
+
+} from
+
+"../../js/utils.js";
+
 
 /* =====================================================
    STATE
@@ -366,43 +374,6 @@ Statistics.openDatePicker = function(){
 
 };
 
-/* =====================================================
-   FORMAT DATE
-===================================================== */
-
-function formatDate(
-
-    date
-
-){
-
-    return new Date(
-
-        date
-
-    ).toLocaleDateString(
-
-        "id-ID",
-
-        {
-
-            day :
-
-                "2-digit",
-
-            month :
-
-                "short",
-
-            year :
-
-                "numeric"
-
-        }
-
-    );
-
-}
 
 
 /* =====================================================
@@ -417,15 +388,5 @@ document.addEventListener(
 
 );
 
-/* =====================================================
-   START
-===================================================== */
 
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    Statistics.init
-
-);
 
