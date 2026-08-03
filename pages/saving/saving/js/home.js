@@ -49,6 +49,12 @@ import {
 
 "../../../../components/profile/script.js";
 
+import {
+
+    rupiah
+
+} from "../../../../js/utils.js";
+
 
 /* =====================================================
    INIT DATA
@@ -91,23 +97,6 @@ async function init(){
 
     );
 
-   console.log(
-
-    "CONFIG",
-
-    CONFIG
-
-);
-
-console.log(
-
-    "API",
-
-    API
-
-);
-
-   
 
     Process.init(
 
@@ -117,15 +106,6 @@ console.log(
 
     );
 
-   console.log(
-
-    "PROCESS",
-
-    Process
-
-);
-
-   
 
     renderHero();
 
@@ -203,11 +183,33 @@ function renderHero(){
 
 function renderSummary(){
 
-    console.log(
+    document.getElementById(
 
-        Process.summary
+        "summary-total"
 
-    );
+    ).textContent =
+
+        rupiah(
+
+            Process.summary
+
+            .totalBalance
+
+        );
+
+    document.getElementById(
+
+        "summary-change"
+
+    ).textContent =
+
+        `${
+
+            Process.summary
+
+            .totalTransaction
+
+        } Transaksi`;
 
 }
 
