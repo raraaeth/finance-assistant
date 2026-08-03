@@ -14,9 +14,7 @@
    - Normalize
    - Transaction
    - Balance
-   - Statistics
    - Summary
-   - Getter
    - Helper
 ===================================================== */
 
@@ -34,8 +32,6 @@ export const Process = {
     transaction : [],
 
     balance : {},
-
-    statistics : {},
 
     summary : {}
 
@@ -67,8 +63,6 @@ Process.init = function(
     processTransaction();
 
     processBalance();
-
-    processStatistics();
 
     processSummary();
 
@@ -134,11 +128,47 @@ function processTransaction(){
 
     Process.transaction =
 
-        [
+        Process.raw.map(item=>({
 
-            ...Process.raw
+            id :
 
-        ];
+                item.id,
+
+            tanggal :
+
+                item.tanggal,
+
+            date :
+
+                item.date,
+
+            jenis :
+
+                item.jenis,
+
+            kategori :
+
+                item.kategori,
+
+            bank :
+
+                item.bank,
+
+            tujuan :
+
+                item.nama,
+
+            nominal :
+
+                item.nominal,
+
+            keterangan :
+
+                item.keterangan ??
+
+                ""
+
+        }));
 
 }
 
@@ -151,26 +181,11 @@ function processBalance(){
 
     Process.balance = {};
 
-}
+    Process.transaction.forEach(
 
+        calculateBalance
 
-/* =====================================================
-   STATISTICS
-===================================================== */
-
-function processStatistics(){
-
-    Process.statistics = {
-
-        monthly : {},
-
-        category : {},
-
-        bank : {},
-
-        type : {}
-
-    };
+    );
 
 }
 
@@ -181,15 +196,47 @@ function processStatistics(){
 
 function processSummary(){
 
+    let totalBalance = 0;
+
+    let totalIncome = 0;
+
+    let totalExpense = 0;
+
+    let totalTransfer = 0;
+
+    Object.values(
+
+        Process.balance
+
+    ).forEach(item=>{
+
+        totalBalance +=
+
+            item.balance;
+
+        totalIncome +=
+
+            item.income;
+
+        totalExpense +=
+
+            item.expense;
+
+        totalTransfer +=
+
+            item.transferIn;
+
+    });
+
     Process.summary = {
 
-        totalBalance : 0,
+        totalBalance,
 
-        totalIncome : 0,
+        totalIncome,
 
-        totalExpense : 0,
+        totalExpense,
 
-        totalTransfer : 0,
+        totalTransfer,
 
         totalTransaction :
 
@@ -203,66 +250,133 @@ function processSummary(){
 
 
 /* =====================================================
-   GETTER
-===================================================== */
-
-Process.getTransaction =
-
-    function(){
-
-        return Process.transaction;
-
-    };
-
-Process.getBalance =
-
-    function(){
-
-        return Process.balance;
-
-    };
-
-Process.getStatistics =
-
-    function(){
-
-        return Process.statistics;
-
-    };
-
-Process.getSummary =
-
-    function(){
-
-        return Process.summary;
-
-    };
-
-
-/* =====================================================
    HELPER
 ===================================================== */
 
-function calculateIncome(){
+function calculateBalance(
 
-}
+    item
 
+){
 
-function calculateExpense(){
+    const from =
 
-}
+        item.bank;
 
+    const to =
 
-function calculateTransfer(){
+        item.tujuan;
 
-}
+    const amount =
 
+        item.nominal;
 
-function calculateBalance(){
+    if(
 
-}
+        from &&
 
+        !Process.balance[from]
 
-function sortTransaction(){
+    ){
+
+        Process.balance[from] = {
+
+            income : 0,
+
+            expense : 0,
+
+            transferIn : 0,
+
+            transferOut : 0,
+
+            balance : 0
+
+        };
+
+    }
+
+    if(
+
+        to &&
+
+        !Process.balance[to]
+
+    ){
+
+        Process.balance[to] = {
+
+            income : 0,
+
+            expense : 0,
+
+            transferIn : 0,
+
+            transferOut : 0,
+
+            balance : 0
+
+        };
+
+    }
+
+    switch(
+
+        item.jenis
+
+    ){
+
+        case "masuk":
+
+            Process.balance[from]
+
+                .income += amount;
+
+            Process.balance[from]
+
+                .balance += amount;
+
+            break;
+
+        case "keluar":
+
+            Process.balance[from]
+
+                .expense += amount;
+
+            Process.balance[from]
+
+                .balance -= amount;
+
+            break;
+
+        case "transfer":
+
+            Process.balance[from]
+
+                .transferOut += amount;
+
+            Process.balance[from]
+
+                .balance -= amount;
+
+            if(
+
+                to
+
+            ){
+
+                Process.balance[to]
+
+                    .transferIn += amount;
+
+                Process.balance[to]
+
+                    .balance += amount;
+
+            }
+
+            break;
+
+    }
 
 }
