@@ -41,6 +41,8 @@ import {
 
 "../../../../components/header/script.js";
 
+
+
 /* =====================================================
    INIT DATA
 ===================================================== */
@@ -64,11 +66,13 @@ async function init(){
 
     await Header.render({
 
-        container:"#header-container",
+        container :
 
-        theme:"saving",
+            "#header-container",
 
-        path:"../../../../components/header/"
+        theme :
+
+            "saving"
 
     });
 
