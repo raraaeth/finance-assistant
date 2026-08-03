@@ -272,14 +272,10 @@ function renderLogin(){
         <div class="profile-login">
 
             <img
-
-                class="profile-login-image"
-
-                src="${BASE}assets/guest.webp"
-
-                alt="Guest"
-
-            >
+    class="profile-login-image"
+    src="${getAvatar()}"
+    alt="Guest"
+>
 
             <h2 class="profile-login-title">
 
