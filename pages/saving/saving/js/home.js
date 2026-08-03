@@ -261,7 +261,7 @@ function renderSaving(){
 
                 <span class="saving-balance">
 
-                    ${rupiahShort(
+                    ${shortRupiah(
 
                         data.balance
 
