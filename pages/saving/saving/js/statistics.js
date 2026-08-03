@@ -16,7 +16,6 @@
    - Transaction
 ===================================================== */
 
-
 /* =====================================================
    IMPORT
 ===================================================== */
@@ -69,17 +68,9 @@ export const Statistics = {
 
 Statistics.init = function(){
 
-    Statistics.data =
+    Statistics.applyFilter();
 
-        Process.transaction;
-
-    console.log(
-
-        "STATISTICS",
-
-        Statistics
-
-    );
+    Statistics.renderTransaction();
 
 };
 
@@ -89,6 +80,108 @@ Statistics.init = function(){
 ===================================================== */
 
 Statistics.applyFilter = function(){
+
+    Statistics.data =
+
+        Process.transaction.filter(
+
+            item => {
+
+                if(
+
+                    Statistics.filter.period !==
+
+                    "all"
+
+                ){
+
+                    if(
+
+                        !item.tanggal.startsWith(
+
+                            Statistics.filter.period
+
+                        )
+
+                    ){
+
+                        return false;
+
+                    }
+
+                }
+
+                if(
+
+                    Statistics.filter.type !==
+
+                    "all"
+
+                ){
+
+                    if(
+
+                        item.jenis !==
+
+                        Statistics.filter.type
+
+                    ){
+
+                        return false;
+
+                    }
+
+                }
+
+                if(
+
+                    Statistics.filter.bank !==
+
+                    "all"
+
+                ){
+
+                    if(
+
+                        item.bank !==
+
+                        Statistics.filter.bank
+
+                    ){
+
+                        return false;
+
+                    }
+
+                }
+
+                if(
+
+                    Statistics.filter.category !==
+
+                    "all"
+
+                ){
+
+                    if(
+
+                        item.kategori !==
+
+                        Statistics.filter.category
+
+                    ){
+
+                        return false;
+
+                    }
+
+                }
+
+                return true;
+
+            }
+
+        );
 
 };
 
@@ -107,5 +200,73 @@ Statistics.renderChart = function(){
 ===================================================== */
 
 Statistics.renderTransaction = function(){
+
+    const list =
+
+        document.getElementById(
+
+            "transaction-list"
+
+        );
+
+    if(
+
+        !list
+
+    ){
+
+        return;
+
+    }
+
+    list.innerHTML =
+
+        "";
+
+    Statistics.data.forEach(
+
+        item=>{
+
+            list.innerHTML +=
+
+            `
+
+            <div class="transaction-item">
+
+                <div>
+
+                    <strong>
+
+                        ${item.keterangan || item.kategori}
+
+                    </strong>
+
+                    <br>
+
+                    <small>
+
+                        ${item.tanggal}
+
+                    </small>
+
+                </div>
+
+                <div>
+
+                    ${item.jenis}
+
+                    <br>
+
+                    ${item.nominal}
+
+                </div>
+
+            </div>
+
+            `;
+
+        }
+
+    );
 
 };
