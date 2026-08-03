@@ -31,7 +31,7 @@ import {
 
     Process
 
-} from "../../shared/js/process.js";
+} from "./process.js";
 
 import {
 
