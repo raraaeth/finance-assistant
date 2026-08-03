@@ -87,24 +87,77 @@ export const Profile = {
 
         }
 
-        const response =
+        await loadStyle();
 
-            await fetch(
+const response =
 
-                `${BASE}index.html`
+    await fetch(
 
-            );
+        `${BASE}index.html`
 
-        State.container.innerHTML =
+    );
 
-            await response.text();
+State.container.innerHTML =
 
-        init();
+    await response.text();
+
+init();
 
     }
 
 };
 
+/* =====================================================
+   LOAD STYLE
+===================================================== */
+
+async function loadStyle(){
+
+    const id =
+
+        "profile-component-style";
+
+    if(
+
+        document.getElementById(
+
+            id
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+    const link =
+
+        document.createElement(
+
+            "link"
+
+        );
+
+    link.id =
+
+        id;
+
+    link.rel =
+
+        "stylesheet";
+
+    link.href =
+
+        `${BASE}style.css`;
+
+    document.head.appendChild(
+
+        link
+
+    );
+
+}
 
 /* =====================================================
    INIT
