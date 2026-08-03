@@ -68,13 +68,29 @@ export function shortRupiah(
 
 ){
 
-    value =
+    value = Number(
 
-        Number(
+        value
 
-            value
+    );
+
+    function format(
+
+        number
+
+    ){
+
+        return Number(
+
+            number.toFixed(1)
+
+        ).toLocaleString(
+
+            "id-ID"
 
         );
+
+    }
 
     if(
 
@@ -84,15 +100,17 @@ export function shortRupiah(
 
     ){
 
-        return (
+        return `${
 
-            value /
+            format(
 
-            1000000000
+                value /
 
-        ).toFixed(1)
+                1000000000
 
-        + " M";
+            )
+
+        } Miliar`;
 
     }
 
@@ -104,15 +122,17 @@ export function shortRupiah(
 
     ){
 
-        return (
+        return `${
 
-            value /
+            format(
 
-            1000000
+                value /
 
-        ).toFixed(1)
+                1000000
 
-        + " Jt";
+            )
+
+        } Juta`;
 
     }
 
@@ -124,15 +144,17 @@ export function shortRupiah(
 
     ){
 
-        return (
+        return `${
 
-            value /
+            format(
 
-            1000
+                value /
 
-        ).toFixed(1)
+                1000
 
-        + " Rb";
+            )
+
+        } Ribu`;
 
     }
 
