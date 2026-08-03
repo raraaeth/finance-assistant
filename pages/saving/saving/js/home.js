@@ -83,22 +83,39 @@ async function init(){
 
     });
 
+    await API.load(
+
+        CONFIG.api.saving,
+
+        CONFIG.api.bank
+
+    );
+
+    Process.init(
+
+        API.raw,
+
+        API.bank
+
+    );
+
     renderHero();
 
     renderSummary();
 
     renderSaving();
-   await Profile.render({
 
-    container :
+    await Profile.render({
 
-        "#profile-page",
+        container :
 
-    app :
+            "#profile-page",
 
-        "saving"
+        app :
 
-});
+            "saving"
+
+    });
 
 }
 
@@ -158,21 +175,11 @@ function renderHero(){
 
 function renderSummary(){
 
-    document.getElementById(
+    console.log(
 
-        "summary-total"
+        Process.summary
 
-    ).textContent =
-
-        "Rp0";
-
-    document.getElementById(
-
-        "summary-change"
-
-    ).textContent =
-
-        "Rp0 Bulan Ini";
+    );
 
 }
 
