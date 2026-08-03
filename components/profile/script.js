@@ -158,6 +158,64 @@ function initData(){
 
 function initEvent(){
 
+    document.addEventListener(
+
+        "click",
+
+        onClick
+
+    );
+
+}
+
+function onClick(
+
+    event
+
+){
+
+    const menu =
+
+        event.target.closest(
+
+            ".profile-menu-item"
+
+        );
+
+    if(
+
+        menu
+
+    ){
+
+        openMenu(
+
+            menu.dataset.id
+
+        );
+
+        return;
+
+    }
+
+    const logoutButton =
+
+        event.target.closest(
+
+            "#profile-logout-button"
+
+        );
+
+    if(
+
+        logoutButton
+
+    ){
+
+        onLogout();
+
+    }
+
 }
 
 /* =====================================================
@@ -909,6 +967,56 @@ function createMenuItem(
 }
 
 /* =====================================================
+   OPEN MENU
+===================================================== */
+
+function openMenu(
+
+    id
+
+){
+
+    switch(
+
+        id
+
+    ){
+
+        case "settings":
+
+            console.log(
+
+                "Open Settings"
+
+            );
+
+            break;
+
+        case "sync":
+
+            console.log(
+
+                "Open Sync"
+
+            );
+
+            break;
+
+        case "guide":
+
+            console.log(
+
+                "Open Guide"
+
+            );
+
+            break;
+
+    }
+
+}
+
+/* =====================================================
    LOGOUT
 ===================================================== */
 
@@ -938,3 +1046,26 @@ function renderLogout(){
 
 }
 
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function onLogout(){
+
+    if(
+
+        !confirm(
+
+            "Yakin ingin keluar?"
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+    logout();
+
+}
