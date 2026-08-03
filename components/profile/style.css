@@ -1,0 +1,723 @@
+/* =====================================================
+   GLOBAL PROFILE
+   FILE : style.css
+   DESCRIPTION : Profile Component
+   VERSION : 1.0.0
+===================================================== */
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+#profile-component{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+    padding:20px;
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+#profile-login,
+
+#profile-dashboard{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.profile-card{
+
+    background:#ffffff;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    box-shadow:
+
+        0 8px 24px
+
+        rgba(15,23,42,.05);
+
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.profile-title{
+
+    margin-bottom:18px;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   MENU CARD
+===================================================== */
+
+.profile-menu-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:18px 20px;
+
+    background:#ffffff;
+
+    border-radius:18px;
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(15,23,42,.04);
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.profile-menu-item:hover{
+
+    transform:translateY(-2px);
+
+}
+
+
+/* =====================================================
+   MENU LEFT
+===================================================== */
+
+.profile-menu-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+.profile-menu-icon{
+
+    font-size:22px;
+
+}
+
+.profile-menu-title{
+
+    font-size:16px;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   MENU ARROW
+===================================================== */
+
+.profile-menu-arrow{
+
+    color:#9ca3af;
+
+    font-size:20px;
+
+}
+
+/* =====================================================
+   USER CARD
+===================================================== */
+
+.profile-user{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   AVATAR
+===================================================== */
+
+.profile-avatar{
+
+    width:88px;
+
+    height:88px;
+
+    object-fit:cover;
+
+    border-radius:50%;
+
+    border:4px solid #ffffff;
+
+    box-shadow:
+
+        0 8px 20px
+
+        rgba(37,99,235,.12);
+
+}
+
+
+/* =====================================================
+   GREETING
+===================================================== */
+
+.profile-greeting{
+
+    margin-top:16px;
+
+    padding:6px 16px;
+
+    border-radius:999px;
+
+    background:#eef4ff;
+
+    color:var(--primary);
+
+    font-size:13px;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   NAME
+===================================================== */
+
+.profile-name{
+
+    margin-top:16px;
+
+    font-size:26px;
+
+    font-weight:800;
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   EMAIL
+===================================================== */
+
+.profile-email{
+
+    margin-top:6px;
+
+    font-size:14px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
+
+.profile-description{
+
+    margin-top:16px;
+
+    max-width:280px;
+
+    font-size:14px;
+
+    line-height:1.6;
+
+    color:var(--text-secondary);
+
+}
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+.profile-workspace{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+
+/* =====================================================
+   GROUP
+===================================================== */
+
+.workspace-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   GROUP TITLE
+===================================================== */
+
+.workspace-group-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   ITEM
+===================================================== */
+
+.workspace-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:14px 16px;
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    background:#ffffff;
+
+    transition:.25s;
+
+    cursor:pointer;
+
+}
+
+.workspace-item:hover{
+
+    transform:translateY(-2px);
+
+    border-color:var(--primary);
+
+}
+
+
+/* =====================================================
+   LEFT
+===================================================== */
+
+.workspace-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+
+/* =====================================================
+   ICON
+===================================================== */
+
+.workspace-icon{
+
+    width:42px;
+
+    height:42px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:#eef4ff;
+
+    font-size:22px;
+
+}
+
+
+/* =====================================================
+   NAME
+===================================================== */
+
+.workspace-name{
+
+    font-size:16px;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.workspace-status{
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.workspace-status.active{
+
+    color:#16a34a;
+
+}
+
+.workspace-status.inactive{
+
+    color:#d97706;
+
+}
+
+
+/* =====================================================
+   CREATE
+===================================================== */
+
+.workspace-create{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    padding:16px;
+
+    border:2px dashed var(--border);
+
+    border-radius:16px;
+
+    color:var(--primary);
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.workspace-create:hover{
+
+    border-color:var(--primary);
+
+    background:#f8fbff;
+
+}
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.profile-menu{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.profile-menu-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:18px 20px;
+
+    border-radius:18px;
+
+    background:#ffffff;
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(15,23,42,.04);
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.profile-menu-item:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.profile-menu-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+.profile-menu-icon{
+
+    width:42px;
+
+    height:42px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:#eef4ff;
+
+    font-size:22px;
+
+}
+
+.profile-menu-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+}
+
+.profile-menu-title{
+
+    font-size:16px;
+
+    font-weight:700;
+
+}
+
+.profile-menu-description{
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+}
+
+.profile-menu-arrow{
+
+    font-size:22px;
+
+    color:#9ca3af;
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+.profile-logout{
+
+    margin-top:4px;
+
+}
+
+.profile-logout-button{
+
+    width:100%;
+
+    height:54px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:12px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:#ef4444;
+
+    color:#ffffff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.profile-logout-button:hover{
+
+    background:#dc2626;
+
+}
+
+.profile-logout-button:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+.profile-login{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:24px;
+
+    text-align:center;
+
+}
+
+.profile-login-image{
+
+    width:180px;
+
+}
+
+.profile-login-title{
+
+    font-size:30px;
+
+    font-weight:800;
+
+}
+
+.profile-login-description{
+
+    max-width:300px;
+
+    line-height:1.7;
+
+    color:var(--text-secondary);
+
+}
+
+.profile-login-button{
+
+    width:100%;
+
+    height:54px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(
+
+    min-width:768px
+
+){
+
+    #profile-component{
+
+        max-width:640px;
+
+        margin:0 auto;
+
+    }
+
+  }
