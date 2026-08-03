@@ -507,7 +507,7 @@ function getAvatar(){
 
     }
 
-    return `${BASE}assets/guest.webp`;
+    return `${BASE}assets/avatar.webp`;
 
 }
 
