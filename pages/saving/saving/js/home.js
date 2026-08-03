@@ -37,7 +37,9 @@ import {
 
     Header
 
-} from "../../../../components/header/script.js";
+} from
+
+"../../../../components/header/script.js";
 
 /* =====================================================
    INIT DATA
@@ -62,12 +64,14 @@ async function init(){
 
     await Header.render({
 
-    container:"#header-container",
+        container:"#header-container",
 
-    theme:"saving"
+        theme:"saving",
 
-});
-   
+        path:"../../../../components/header/"
+
+    });
+
     renderHero();
 
     renderSummary();
