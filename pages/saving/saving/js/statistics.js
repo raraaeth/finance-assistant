@@ -65,6 +65,18 @@ export const Statistics = {
 
 Statistics.init = function(){
 
+    initializeFilter();
+
+    Statistics.refresh();
+
+};
+
+/* =====================================================
+   INITIALIZE FILTER
+===================================================== */
+
+function initializeFilter(){
+
     const today =
 
         new Date();
@@ -85,93 +97,9 @@ Statistics.init = function(){
 
         today;
 
-    Statistics.renderFilter();
+    Filter.render(
 
-    Statistics.registerFilter();
-
-    Statistics.refresh();
-
-};
-
-/* =====================================================
-   RENDER FILTER
-===================================================== */
-
-Statistics.renderFilter = function(){
-
-    const container =
-
-        document.getElementById(
-
-            "statistics-filter-list"
-
-        );
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-    container.innerHTML =
-
-    `
-
-        <div class="filter-item">
-
-            <label
-                class="filter-label">
-
-                📅 Periode
-
-            </label>
-
-            <input
-
-                id="filter-period"
-
-                class="filter-input"
-
-                type="text"
-
-                readonly
-
-            >
-
-        </div>
-
-        <div class="filter-item">
-
-            <label
-                class="filter-label">
-
-                📊 Rentang
-
-            </label>
-
-            <select
-
-                id="filter-range"
-
-                class="filter-select"
-
-            >
-
-            </select>
-
-        </div>
-
-    `;
-
-    document.getElementById(
-
-        "filter-period"
-
-    ).value =
+        "#statistics-filter-list",
 
         formatPeriod(
 
@@ -179,17 +107,20 @@ Statistics.renderFilter = function(){
 
             Statistics.filter.end
 
-        );
-
-    Filter.setRange(
-
-        "filter-range",
+        ),
 
         Statistics.filter.range
 
     );
 
-};
+    Filter.register(
+
+        handleFilter
+
+    );
+
+}
+
 
 
 /* =====================================================
@@ -301,74 +232,6 @@ Statistics.renderTransaction = function(){
 };
 
 
-/* =====================================================
-   REGISTER FILTER
-===================================================== */
-
-Statistics.registerFilter = function(){
-
-    const period =
-
-        document.getElementById(
-
-            "filter-period"
-
-        );
-
-    const range =
-
-        document.getElementById(
-
-            "filter-range"
-
-        );
-
-    if(
-
-        !period ||
-
-        !range
-
-    ){
-
-        return;
-
-    }
-
-    period.addEventListener(
-
-        "change",
-
-        ()=>{
-
-            /* Date Range Picker */
-
-        }
-
-    );
-
-    range.addEventListener(
-
-        "change",
-
-        event=>{
-
-            Statistics.filter.range =
-
-                Number(
-
-                    event.target.value
-
-                );
-
-            Statistics.refresh();
-
-        }
-
-    );
-
-};
-
 
 /* =====================================================
    REFRESH
@@ -451,6 +314,57 @@ function formatPeriod(
 
 }
 
+/* =====================================================
+   HANDLE FILTER
+===================================================== */
+
+function handleFilter(
+
+    type,
+
+    value
+
+){
+
+    switch(
+
+        type
+
+    ){
+
+        case "period":
+
+            Statistics.openDatePicker();
+
+            break;
+
+        case "range":
+
+            Statistics.filter.range =
+
+                value;
+
+            Statistics.refresh();
+
+            break;
+
+    }
+
+}
+
+/* =====================================================
+   DATE PICKER
+===================================================== */
+
+Statistics.openDatePicker = function(){
+
+    console.log(
+
+        "Open Date Picker"
+
+    );
+
+};
 
 /* =====================================================
    FORMAT DATE
