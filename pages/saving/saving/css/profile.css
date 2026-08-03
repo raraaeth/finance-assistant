@@ -387,3 +387,285 @@
     background:#eef4ff;
 
 }
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.profile-menu{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+
+/* =====================================================
+   ITEM
+===================================================== */
+
+.profile-menu-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:18px;
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+    background:#ffffff;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.profile-menu-item:hover{
+
+    transform:translateY(-2px);
+
+    border-color:var(--primary);
+
+}
+
+
+/* =====================================================
+   LEFT
+===================================================== */
+
+.profile-menu-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+.profile-menu-icon{
+
+    width:44px;
+
+    height:44px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:#eef4ff;
+
+    font-size:22px;
+
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.profile-menu-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+}
+
+.profile-menu-title{
+
+    font-size:16px;
+
+    font-weight:700;
+
+}
+
+.profile-menu-description{
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+    line-height:1.5;
+
+}
+
+
+/* =====================================================
+   ARROW
+===================================================== */
+
+.profile-menu-arrow{
+
+    color:#9ca3af;
+
+    font-size:22px;
+
+}
+
+/* =====================================================
+   GUEST
+===================================================== */
+
+.profile-guest{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    text-align:center;
+
+    gap:20px;
+
+}
+
+.profile-guest-image{
+
+    width:180px;
+
+    max-width:100%;
+
+}
+
+.profile-guest-title{
+
+    font-size:28px;
+
+    font-weight:800;
+
+    color:var(--text);
+
+}
+
+.profile-guest-description{
+
+    max-width:300px;
+
+    color:var(--text-secondary);
+
+    line-height:1.7;
+
+}
+
+.profile-login-button{
+
+    width:100%;
+
+    height:54px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.profile-login-button:hover{
+
+    opacity:.92;
+
+}
+
+.profile-login-button:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+.profile-logout-button{
+
+    width:100%;
+
+    height:54px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#ef4444;
+
+    color:#ffffff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.profile-logout-button:hover{
+
+    background:#dc2626;
+
+}
+
+.profile-logout-button:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(
+
+    min-width:768px
+
+){
+
+    #profile-page{
+
+        max-width:720px;
+
+        margin:0 auto;
+
+    }
+
+}
