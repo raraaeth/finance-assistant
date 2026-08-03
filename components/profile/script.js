@@ -341,11 +341,45 @@ function renderLogin(){
 
         .addEventListener(
 
-            "click",
+    "click",
 
-            loginGoogle
+    onGoogleLogin
+
+);
+
+}
+
+/* =====================================================
+   GOOGLE LOGIN
+===================================================== */
+
+async function onGoogleLogin(){
+
+    const button =
+
+        document.getElementById(
+
+            "profile-login-button"
 
         );
+
+    if(
+
+        !button
+
+    ){
+
+        return;
+
+    }
+
+    button.disabled = true;
+
+    button.textContent =
+
+        "Menyiapkan Workspace...";
+
+    await loginGoogle();
 
 }
 
@@ -386,11 +420,7 @@ function renderUserCard(){
 
     const photo =
 
-        Profile.session.user?.picture
-
-        ||
-
-        "../../components/profile/assets/guest.webp";
+    getAvatar();
 
     const name =
 
@@ -505,6 +535,37 @@ function getGreeting(){
     return "🌙 Selamat Malam";
 
 }
+
+/* =====================================================
+   AVATAR
+===================================================== */
+
+function getAvatar(){
+
+    if(
+
+        Profile.user?.avatar
+
+    ){
+
+        return Profile.user.avatar;
+
+    }
+
+    if(
+
+        Profile.session?.user?.picture
+
+    ){
+
+        return Profile.session.user.picture;
+
+    }
+
+    return `${BASE}assets/guest.webp`;
+
+}
+
 
   /* =====================================================
    WORKSPACE
@@ -631,9 +692,9 @@ function initWorkspace(){
 
         active :
 
-            item.id ===
+    item.id ===
 
-            Profile.currentWorkspace
+    Profile.currentApp
 
     }));
 
@@ -651,14 +712,23 @@ function workspaceExists(
 ){
 
     /*
-        Sementara semua workspace
-        dianggap belum dibuat.
+        TODO
 
-        Nanti fungsi ini membaca
-        Storage / Database.
+        Membaca Workspace
+        milik user dari Storage.
+
+        Sementara hanya
+        aplikasi aktif yang
+        dianggap sudah dibuat.
     */
 
-    return true;
+    return (
+
+        item.id ===
+
+        Profile.currentApp
+
+    );
 
 }
 
@@ -730,9 +800,11 @@ function createWorkspaceItem(
 
     return `
 
-        <div
+        <button
 
-            class="workspace-item"
+    class="workspace-item"
+
+    type="button"
 
             data-id="${item.id}"
 
@@ -790,7 +862,7 @@ function createWorkspaceItem(
 
             </span>
 
-        </div>
+        </button>
 
     `;
 
@@ -805,15 +877,17 @@ function renderCreateWorkspace(){
 
     return `
 
-        <div
+        <button
 
-            class="workspace-create"
+    class="workspace-create"
 
-        >
+    type="button"
 
-            ➕ Create Workspace
+>
 
-        </div>
+    ➕ Create Workspace
+
+</button>
 
     `;
 
