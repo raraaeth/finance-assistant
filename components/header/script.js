@@ -21,6 +21,16 @@ export const Header = {
 
     }){
 
+       console.log({
+
+    container,
+
+    theme,
+
+    path
+
+});
+
         const element =
 
             document.querySelector(
