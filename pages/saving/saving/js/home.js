@@ -35,10 +35,9 @@ import {
 
 import {
 
-    renderHeader
+    Header
 
-} from "../../shared/js/header.js";
-
+} from "../../../../components/header/script.js";
 
 /* =====================================================
    INIT DATA
@@ -59,13 +58,15 @@ document.addEventListener(
 
 );
 
-function init(){
+async function init(){
 
-    renderHeader(
+    await Header.render({
 
-        "Finance Assistant"
+    container:"#header-container",
 
-    );
+    theme:"saving"
+
+});
    
     renderHero();
 
