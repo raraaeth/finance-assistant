@@ -1,16 +1,92 @@
 /* =====================================================
+   Finance Assistant
+   Workspace   : Saving
+   Module      : Config
+   File        : config.js
+   Version     : 1.0.0
+
+   Description :
+   Saving Configuration
+===================================================== */
+
+
+/* =====================================================
    CONFIG
 ===================================================== */
 
 export const CONFIG = {
 
-    hero:{
+    /* =============================================
+       APP
+    ============================================= */
 
-        badge:"Saving",
+    app : {
 
-        description:
+        name :
+
+            "Finance Assistant",
+
+        version :
+
+            "1.0.0"
+
+    },
+
+
+    /* =============================================
+       HERO
+    ============================================= */
+
+    hero : {
+
+        description :
 
             "Wujudkan tujuan keuanganmu sedikit demi sedikit."
+
+    },
+
+
+    /* =============================================
+       API
+    ============================================= */
+
+    api : {
+
+        saving :
+
+            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving",
+
+        bank :
+
+            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank"
+
+    },
+
+
+    /* =============================================
+       CURRENCY
+    ============================================= */
+
+    currency : {
+
+        locale :
+
+            "id-ID",
+
+        code :
+
+            "IDR"
+
+    },
+
+
+    /* =============================================
+       PAGINATION
+    ============================================= */
+
+    pagination : {
+
+        perPage : 20
 
     }
 
