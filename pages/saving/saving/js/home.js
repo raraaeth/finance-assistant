@@ -91,6 +91,24 @@ async function init(){
 
     );
 
+   console.log(
+
+    "CONFIG",
+
+    CONFIG
+
+);
+
+console.log(
+
+    "API",
+
+    API
+
+);
+
+   
+
     Process.init(
 
         API.raw,
@@ -98,6 +116,16 @@ async function init(){
         API.bank
 
     );
+
+   console.log(
+
+    "PROCESS",
+
+    Process
+
+);
+
+   
 
     renderHero();
 
