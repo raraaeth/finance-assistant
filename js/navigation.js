@@ -2,7 +2,7 @@
    GLOBAL NAVIGATION
    FILE : navigation.js
    DESCRIPTION : Bottom Navigation Controller
-   VERSION : 4.0.0
+   VERSION : 5.0.0
 ===================================================== */
 
 
@@ -82,7 +82,11 @@ function initNavigation(){
 
         );
 
-    if(!navigation){
+    if(
+
+        !navigation
+
+    ){
 
         return;
 
@@ -184,27 +188,9 @@ function registerNavigation(
 
                 ()=>{
 
-                    const page =
-
-                        button.dataset.page;
-
-                    if(
-
-                        page==="profile"
-
-                    ){
-
-                        window.location.href =
-
-                            "../profile/index.html";
-
-                        return;
-
-                    }
-
                     showPage(
 
-                        page
+                        button.dataset.page
 
                     );
 
@@ -226,16 +212,6 @@ function showPage(
     page
 
 ){
-
-    if(
-
-        page==="profile"
-
-    ){
-
-        return;
-
-    }
 
     document
 
