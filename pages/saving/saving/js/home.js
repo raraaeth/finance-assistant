@@ -41,6 +41,13 @@ import {
 
 "../../../../components/header/script.js";
 
+import {
+
+    Profile
+
+} from
+
+"../../../../components/profile/script.js";
 
 
 /* =====================================================
@@ -81,6 +88,17 @@ async function init(){
     renderSummary();
 
     renderSaving();
+   await Profile.render({
+
+    container :
+
+        "#profile-page",
+
+    app :
+
+        "saving"
+
+});
 
 }
 
