@@ -3,7 +3,7 @@
    Workspace   : Shared
    Module      : Filter
    File        : filter.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Shared Filter Helper
@@ -15,79 +15,6 @@
 ===================================================== */
 
 export const Filter = {};
-
-
-/* =====================================================
-   PERIOD
-===================================================== */
-
-Filter.period = [
-
-    {
-
-        value : "today",
-
-        label : "Hari Ini"
-
-    },
-
-    {
-
-        value : "yesterday",
-
-        label : "Kemarin"
-
-    },
-
-    {
-
-        value : "7days",
-
-        label : "7 Hari Terakhir"
-
-    },
-
-    {
-
-        value : "30days",
-
-        label : "30 Hari Terakhir"
-
-    },
-
-    {
-
-        value : "month",
-
-        label : "Bulan Ini"
-
-    },
-
-    {
-
-        value : "last-month",
-
-        label : "Bulan Lalu"
-
-    },
-
-    {
-
-        value : "year",
-
-        label : "Tahun Ini"
-
-    },
-
-    {
-
-        value : "all",
-
-        label : "Semua"
-
-    }
-
-];
 
 
 /* =====================================================
@@ -145,36 +72,106 @@ Filter.createOption = function(
 
     return data.map(
 
-        item =>
+        item=>`
 
-        `
+            <option
 
-        <option
+                value="${item.value}"
 
-            value="${item.value}"
+                ${
 
-            ${
+                    item.value === selected
 
-                item.value === selected
+                    ?
 
-                ?
+                    "selected"
 
-                "selected"
+                    :
 
-                :
+                    ""
 
-                ""
+                }
 
-            }
+            >
 
-        >
+                ${item.label}
 
-            ${item.label}
-
-        </option>
+            </option>
 
         `
 
     ).join("");
+
+};
+
+
+/* =====================================================
+   SET RANGE
+===================================================== */
+
+Filter.setRange = function(
+
+    id,
+
+    selected = 6
+
+){
+
+    const select =
+
+        document.getElementById(
+
+            id
+
+        );
+
+    if(
+
+        !select
+
+    ){
+
+        return;
+
+    }
+
+    select.innerHTML =
+
+        Filter.createOption(
+
+            Filter.range,
+
+            selected
+
+        );
+
+};
+
+
+/* =====================================================
+   GET VALUE
+===================================================== */
+
+Filter.getValue = function(
+
+    id
+
+){
+
+    const element =
+
+        document.getElementById(
+
+            id
+
+        );
+
+    return element ?
+
+        element.value
+
+        :
+
+        null;
 
 };
