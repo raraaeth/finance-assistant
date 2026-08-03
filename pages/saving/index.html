@@ -37,8 +37,8 @@
         href="shared/css/style.css">
 
     <link
-        rel="stylesheet"
-        href="shared/css/header.css">
+    rel="stylesheet"
+    href="../../components/header/style.css">
 
     <!-- ==========================================
          SAVING CSS
@@ -58,83 +58,13 @@
 
     <main id="workspace">
 
-        <!-- ==========================================
-             HEADER
-        ========================================== -->
+<!-- ==========================================
+     GLOBAL HEADER
+========================================== -->
 
-        <header id="app-header">
+<div id="header-container">
 
-            <div id="header-content">
-
-                <h1 id="app-title">
-
-                    Finance Assistant
-
-                </h1>
-
-            </div>
-
-            <!-- ==========================================
-                 HEADER WAVE
-            ========================================== -->
-
-            <div id="header-wave">
-
-                <svg
-                    viewBox="0 0 1000 220"
-                    preserveAspectRatio="none">
-
-                    <defs>
-
-                        <linearGradient
-                            id="waveGradient"
-                            x1="0%"
-                            y1="100%"
-                            x2="100%"
-                            y2="0%">
-
-                            <stop
-                                offset="0%"
-                                stop-color="#F8FBFF"/>
-
-                            <stop
-                                offset="35%"
-                                stop-color="#DDEBFF"/>
-
-                            <stop
-                                offset="70%"
-                                stop-color="#7EAFFF"/>
-
-                            <stop
-                                offset="100%"
-                                stop-color="#2563EB"/>
-
-                        </linearGradient>
-
-                    </defs>
-
-                    <path
-
-                        fill="url(#waveGradient)"
-
-                        d="
-                            M0,0
-                            L1000,0
-                            L1000,220
-                            C920,180
-                            760,125
-                            520,90
-                            C320,60
-                            150,40
-                            0,15
-                            Z
-                        "/>
-
-                </svg>
-
-            </div>
-
-        </header>
+</div>
 
         <!-- ==========================================
              HOME
@@ -336,6 +266,16 @@
         src="saving/js/home.js">
 
     </script>
+
+<!-- ==========================================
+     GLOBAL HEADER
+========================================== -->
+
+<script
+    type="module"
+    src="../../components/header/script.js">
+
+</script>
 
     <!-- ==========================================
          GLOBAL NAVIGATION
