@@ -73,6 +73,14 @@ Statistics.init = function(){
 
         Process.transaction;
 
+    console.log(
+
+        "STATISTICS",
+
+        Statistics
+
+    );
+
 };
 
 
