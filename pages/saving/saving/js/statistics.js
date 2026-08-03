@@ -99,27 +99,17 @@ Statistics.init = function(){
 
 Statistics.renderFilter = function(){
 
-    const period =
+    const container =
 
         document.getElementById(
 
-            "filter-period"
-
-        );
-
-    const range =
-
-        document.getElementById(
-
-            "filter-range"
+            "statistics-filter-list"
 
         );
 
     if(
 
-        !period ||
-
-        !range
+        !container
 
     ){
 
@@ -127,7 +117,61 @@ Statistics.renderFilter = function(){
 
     }
 
-    period.value =
+    container.innerHTML =
+
+    `
+
+        <div class="filter-item">
+
+            <label
+                class="filter-label">
+
+                📅 Periode
+
+            </label>
+
+            <input
+
+                id="filter-period"
+
+                class="filter-input"
+
+                type="text"
+
+                readonly
+
+            >
+
+        </div>
+
+        <div class="filter-item">
+
+            <label
+                class="filter-label">
+
+                📊 Rentang
+
+            </label>
+
+            <select
+
+                id="filter-range"
+
+                class="filter-select"
+
+            >
+
+            </select>
+
+        </div>
+
+    `;
+
+    document.getElementById(
+
+        "filter-period"
+
+    ).value =
 
         formatPeriod(
 
@@ -137,15 +181,13 @@ Statistics.renderFilter = function(){
 
         );
 
-    range.innerHTML =
+    Filter.setRange(
 
-        Filter.createOption(
+        "filter-range",
 
-            Filter.range,
+        Statistics.filter.range
 
-            Statistics.filter.range
-
-        );
+    );
 
 };
 
