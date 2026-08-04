@@ -310,40 +310,77 @@ Statistics.applyFilter = function(){
 };
 
 /* =====================================================
-   HELPER
+   HANDLE FILTER
 ===================================================== */
 
-function formatPeriod(
+function handleFilter(
 
-    start,
+    type,
 
-    end
+    value
 
 ){
 
-    return(
+    if(
 
-        formatDate(
+        type === "period"
 
-            start
+    ){
 
-        )
+        Statistics.openDatePicker();
 
-        +
+        return;
 
-        " - "
+    }
 
-        +
+    if(
 
-        formatDate(
+        type === "range"
 
-            end
+    ){
 
-        )
+        const today =
 
-    );
+            new Date();
+
+        Statistics.filter.end =
+
+            today;
+
+        Statistics.filter.start =
+
+            new Date(
+
+                today.getFullYear(),
+
+                today.getMonth() - (value - 1),
+
+                1
+
+            );
+
+        Statistics.filter.range =
+
+            value;
+
+        Filter.setPeriod(
+
+            formatPeriod(
+
+                Statistics.filter.start,
+
+                Statistics.filter.end
+
+            )
+
+        );
+
+        Statistics.refresh();
+
+    }
 
 }
+
 
 
 /* =====================================================
@@ -378,6 +415,41 @@ Statistics.openDatePicker = function(){
 
 };
 
+/* =====================================================
+   HELPER
+===================================================== */
+
+function formatPeriod(
+
+    start,
+
+    end
+
+){
+
+    return(
+
+        formatDate(
+
+            start
+
+        )
+
+        +
+
+        " - "
+
+        +
+
+        formatDate(
+
+            end
+
+        )
+
+    );
+
+}
 
 
 /* =====================================================
