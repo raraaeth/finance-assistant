@@ -26,8 +26,6 @@ export const Filter = {
 
 };
 
-export const Filter = {};
-
 
 /* =====================================================
    RANGE
