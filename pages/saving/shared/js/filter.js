@@ -164,10 +164,140 @@ Filter.render = function(
             >
 
                 <h3>
+/* =====================================================
+   RENDER
+===================================================== */
+
+Filter.render = function(
+
+    options
+
+){
+
+    const container =
+
+        document.querySelector(
+
+            options.container
+
+        );
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+    container.innerHTML =
+
+    `
+
+        <div class="filter-wrapper">
+
+            <button
+
+                id="filter-period"
+
+                class="filter-period"
+
+            >
+
+                <span
+
+                    class="material-symbols-rounded"
+
+                >
+
+                    calendar_month
+
+                </span>
+
+                <span
+
+                    class="filter-period-text"
+
+                >
+
+                    ${options.period}
+
+                </span>
+
+                <span
+
+                    class="material-symbols-rounded"
+
+                >
+
+                    expand_more
+
+                </span>
+
+            </button>
+
+            <div
+
+                class="filter-chip-group"
+
+            >
+
+                ${Filter.renderRange(
+
+                    options.range
+
+                )}
+
+            </div>
+
+        </div>
+
+        <div
+
+            id="filter-overlay"
+
+            class="filter-overlay hidden"
+
+        >
+
+        </div>
+
+        <div
+
+            id="filter-sheet"
+
+            class="filter-sheet hidden"
+
+        >
+
+            <div
+
+                class="filter-sheet-handle"
+
+            >
+
+            </div>
+
+            <div
+
+                class="filter-sheet-header"
+
+            >
+
+                <h3>
 
                     Pilih Periode
 
                 </h3>
+
+                <p>
+
+                    Tentukan rentang tanggal
+                    yang ingin ditampilkan.
+
+                </p>
 
             </div>
 
@@ -177,33 +307,49 @@ Filter.render = function(
 
             >
 
-                <label>
+                <div
 
-                    Tanggal Mulai
-
-                </label>
-
-                <input
-
-                    id="filter-start"
-
-                    type="date"
+                    class="filter-input"
 
                 >
 
-                <label>
+                    <label>
 
-                    Tanggal Akhir
+                        Tanggal Mulai
 
-                </label>
+                    </label>
 
-                <input
+                    <input
 
-                    id="filter-end"
+                        id="filter-start"
 
-                    type="date"
+                        type="date"
+
+                    >
+
+                </div>
+
+                <div
+
+                    class="filter-input"
 
                 >
+
+                    <label>
+
+                        Tanggal Akhir
+
+                    </label>
+
+                    <input
+
+                        id="filter-end"
+
+                        type="date"
+
+                    >
+
+                </div>
 
             </div>
 
