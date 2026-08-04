@@ -134,11 +134,23 @@
    CHART
 ===================================================== */
 
-#statistics-chart{
+.statistics-chart{
 
-    margin-bottom:24px;
+    position:relative;
 
-    min-height:320px;
+    width:100%;
+
+    height:280px;
+
+    padding:8px;
+
+}
+
+.statistics-chart canvas{
+
+    width:100% !important;
+
+    height:100% !important;
 
 }
 
