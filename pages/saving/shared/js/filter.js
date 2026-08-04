@@ -27,6 +27,7 @@ export const Filter = {
 };
 
 
+
 /* =====================================================
    RANGE
 ===================================================== */
@@ -68,93 +69,51 @@ Filter.range = [
 ];
 
 
-
 /* =====================================================
-   RENDER
+   RENDER RANGE
 ===================================================== */
 
-Filter.render = function(
+Filter.renderRange = function(
 
-    options
+    active = 6
 
 ){
 
-    Filter.container =
+    return Filter.range.map(
 
-        document.querySelector(
+        item=>`
 
-            options.container
+            <button
 
-        );
+                class="filter-button
 
-    if(
+                ${
 
-        !Filter.container
+                    item.value === active
 
-    ){
+                    ?
 
-        return;
+                    "active"
 
-    }
+                    :
 
-    Filter.period =
+                    ""
 
-        options.period;
+                }"
 
-    Filter.activeRange =
+                data-range="${item.value}"
 
-        options.range;
+            >
 
-    Filter.callback =
+                ${item.label}
 
-        options.callback;
+            </button>
 
-    Filter.container.innerHTML =
+        `
 
-    `
-
-        <button
-
-            id="filter-period"
-
-            class="filter-period"
-
-        >
-
-            <span>
-
-                📅
-
-            </span>
-
-            <span>
-
-                ${Filter.period}
-
-            </span>
-
-        </button>
-
-        <div
-
-            id="filter-range"
-
-            class="filter-range"
-
-        >
-
-            ${Filter.renderRange(
-
-                Filter.activeRange
-
-            )}
-
-        </div>
-
-    `;
+    ).join("");
 
 };
-
 
 /* =====================================================
 /* =====================================================
