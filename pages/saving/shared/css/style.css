@@ -515,20 +515,6 @@
    FILTER SHEET
 ===================================================== */
 
-.filter-overlay{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(15,23,42,.45);
-
-    backdrop-filter:blur(2px);
-
-    z-index:998;
-
-}
-
 .filter-sheet{
 
     position:fixed;
@@ -538,6 +524,12 @@
     right:0;
 
     bottom:0;
+
+    max-height:80vh;
+
+    display:flex;
+
+    flex-direction:column;
 
     background:#ffffff;
 
@@ -572,6 +564,7 @@
         ease;
 
 }
+
 
 /* =====================================================
    FILTER HANDLE
@@ -634,35 +627,17 @@
 
 .filter-sheet-body{
 
+    flex:1;
+
+    overflow-y:auto;
+
     display:flex;
 
     flex-direction:column;
 
-    gap:12px;
+    gap:16px;
 
-}
-
-.filter-sheet-body label{
-
-    font-size:13px;
-
-    font-weight:600;
-
-    color:#64748b;
-
-}
-
-.filter-sheet-body input{
-
-    width:100%;
-
-    padding:12px 14px;
-
-    border:1px solid #dbe3f0;
-
-    border-radius:12px;
-
-    font-size:15px;
+    padding:8px 0;
 
 }
 
@@ -673,11 +648,17 @@
 
 .filter-sheet-footer{
 
-    margin-top:24px;
-
     display:flex;
 
     gap:12px;
+
+    margin-top:20px;
+
+    padding-top:16px;
+
+    border-top:1px solid #e5e7eb;
+
+    background:#ffffff;
 
 }
 
@@ -685,7 +666,7 @@
 
     flex:1;
 
-    padding:14px;
+    height:48px;
 
     border:none;
 
@@ -696,20 +677,6 @@
     font-weight:600;
 
     cursor:pointer;
-
-}
-
-#filter-cancel{
-
-    background:#f1f5f9;
-
-}
-
-#filter-apply{
-
-    background:#2563eb;
-
-    color:#ffffff;
 
 }
 
