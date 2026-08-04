@@ -316,6 +316,38 @@ Filter.register = function(
 
         );
 
+    const overlay =
+
+        document.getElementById(
+
+            "filter-overlay"
+
+        );
+
+    const sheet =
+
+        document.getElementById(
+
+            "filter-sheet"
+
+        );
+
+    const cancel =
+
+        document.getElementById(
+
+            "filter-cancel"
+
+        );
+
+    const apply =
+
+        document.getElementById(
+
+            "filter-apply"
+
+        );
+
     if(
 
         period
@@ -328,7 +360,7 @@ Filter.register = function(
 
             ()=>{
 
-                options.onPeriod();
+                Filter.openSheet();
 
             }
 
@@ -356,9 +388,9 @@ Filter.register = function(
 
                     Filter.setRange(
 
-                    value
+                        value
 
-                   );
+                    );
 
                     options.onRange(
 
@@ -374,8 +406,117 @@ Filter.register = function(
 
     );
 
+    overlay?.addEventListener(
+
+        "click",
+
+        ()=>{
+
+            Filter.closeSheet();
+
+        }
+
+    );
+
+    cancel?.addEventListener(
+
+        "click",
+
+        ()=>{
+
+            Filter.closeSheet();
+
+        }
+
+    );
+
+    apply?.addEventListener(
+
+        "click",
+
+        ()=>{
+
+            options.onPeriod();
+
+            Filter.closeSheet();
+
+        }
+
+    );
+
 };
 
+/* =====================================================
+   OPEN SHEET
+===================================================== */
+
+Filter.openSheet = function(){
+
+    document
+
+        .getElementById(
+
+            "filter-overlay"
+
+        )
+
+        ?.classList.remove(
+
+            "hidden"
+
+        );
+
+    document
+
+        .getElementById(
+
+            "filter-sheet"
+
+        )
+
+        ?.classList.remove(
+
+            "hidden"
+
+        );
+
+};
+
+/* =====================================================
+   CLOSE SHEET
+===================================================== */
+
+Filter.closeSheet = function(){
+
+    document
+
+        .getElementById(
+
+            "filter-overlay"
+
+        )
+
+        ?.classList.add(
+
+            "hidden"
+
+        );
+
+    document
+
+        .getElementById(
+
+            "filter-sheet"
+
+        )
+
+        ?.classList.add(
+
+            "hidden"
+
+        );
+
+};
 
 /* =====================================================
    SET ACTIVE
