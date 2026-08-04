@@ -214,7 +214,7 @@ Filter.register = function(
 
         document.querySelectorAll(
 
-            ".filter-button"
+            ".filter-chip"
 
         );
 
@@ -293,7 +293,7 @@ Filter.setActive = function(
 
         .querySelectorAll(
 
-            ".filter-button"
+            ".filter-chip"
 
         )
 
@@ -369,6 +369,24 @@ Filter.setPeriod = function(
         </span>
 
     `;
+
+};
+
+/* =====================================================
+   SET RANGE
+===================================================== */
+
+Filter.setRange = function(
+
+    range
+
+){
+
+    Filter.setActive(
+
+        range
+
+    );
 
 };
 
