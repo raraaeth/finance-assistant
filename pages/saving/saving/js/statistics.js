@@ -168,19 +168,25 @@ function initializeFilter(){
 
 Statistics.renderChart = function(){
 
-    const chart =
-
-        buildChart();
-
     Chart.renderLine({
 
         canvas :
 
             "#statistics-chart-canvas",
 
-        labels :
+        labels : [
 
-            chart.labels,
+            "1",
+
+            "2",
+
+            "3",
+
+            "4",
+
+            "5"
+
+        ],
 
         datasets : [
 
@@ -188,11 +194,21 @@ Statistics.renderChart = function(){
 
                 label :
 
-                    "Saving",
+                    "Test",
 
-                data :
+                data : [
 
-                    chart.values,
+                    10,
+
+                    30,
+
+                    20,
+
+                    40,
+
+                    25
+
+                ],
 
                 borderWidth : 2,
 
@@ -222,7 +238,7 @@ Statistics.renderChart = function(){
 
         }
 
-    });
+    );
 
 };
 
