@@ -204,9 +204,7 @@ Statistics.renderChart = function(){
 
         ]
 
-    );
-
-};
+    });
 
 /* =====================================================
    RENDER TRANSACTION
