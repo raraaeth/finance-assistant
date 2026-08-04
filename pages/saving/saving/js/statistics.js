@@ -39,6 +39,14 @@ import {
 
 import {
 
+    Chart
+
+} from
+
+"../../shared/js/chart.js";
+
+import {
+
     formatDate
 
 } from
@@ -160,29 +168,63 @@ function initializeFilter(){
 
 Statistics.renderChart = function(){
 
-    const canvas =
+    const chart =
 
-        document.getElementById(
+        buildChart();
 
-            "statistics-chart-canvas"
+    Chart.renderLine({
 
-        );
+        canvas :
 
-    if(
+            "#statistics-chart-canvas",
 
-        !canvas
+        labels :
 
-    ){
+            chart.labels,
 
-        return;
+        datasets : [
 
-    }
+            {
 
-    /* Chart.js
-       Coming Soon */
+                label :
+
+                    "Saving",
+
+                data :
+
+                    chart.values,
+
+                borderWidth : 2,
+
+                tension : .35,
+
+                fill : false
+
+            }
+
+        ],
+
+        options : {
+
+            responsive : true,
+
+            maintainAspectRatio : false,
+
+            plugins : {
+
+                legend : {
+
+                    display : false
+
+                }
+
+            }
+
+        }
+
+    });
 
 };
-
 
 /* =====================================================
    RENDER TRANSACTION
@@ -308,6 +350,90 @@ Statistics.applyFilter = function(){
         );
 
 };
+
+/* =====================================================
+   BUILD CHART
+===================================================== */
+
+function buildChart(){
+
+    const chart = {};
+
+    Statistics.data.forEach(
+
+        item=>{
+
+            if(
+
+                !chart[
+
+                    item.tanggal
+
+                ]
+
+            ){
+
+                chart[
+
+                    item.tanggal
+
+                ] = 0;
+
+            }
+
+            switch(
+
+                item.jenis
+
+            ){
+
+                case "masuk":
+
+                    chart[
+
+                        item.tanggal
+
+                    ] += item.nominal;
+
+                    break;
+
+                case "keluar":
+
+                    chart[
+
+                        item.tanggal
+
+                    ] -= item.nominal;
+
+                    break;
+
+            }
+
+        }
+
+    );
+
+    return {
+
+        labels :
+
+            Object.keys(
+
+                chart
+
+            ),
+
+        values :
+
+            Object.values(
+
+                chart
+
+            )
+
+    };
+
+}
 
 /* =====================================================
    HANDLE FILTER
