@@ -33,7 +33,9 @@ export const Process = {
 
     balance : {},
 
-    summary : {}
+    summary : {},
+
+    chart : []
 
 };
 
@@ -65,6 +67,8 @@ Process.init = function(
     processBalance();
 
     processSummary();
+
+    processChart();
 
 };
 
@@ -245,6 +249,86 @@ function processSummary(){
             .length
 
     };
+
+}
+
+/* =====================================================
+   CHART
+===================================================== */
+
+function processChart(){
+
+    const chart = {};
+
+    Process.transaction.forEach(
+
+        item=>{
+
+            const date =
+
+                item.tanggal;
+
+            if(
+
+                !chart[date]
+
+            ){
+
+                chart[date] = 0;
+
+            }
+
+            switch(
+
+                item.jenis
+
+            ){
+
+                case "masuk":
+
+                    chart[date] +=
+
+                        item.nominal;
+
+                    break;
+
+                case "keluar":
+
+                    chart[date] -=
+
+                        item.nominal;
+
+                    break;
+
+            }
+
+        }
+
+    );
+
+    Process.chart =
+
+        Object.entries(
+
+            chart
+
+        ).map(
+
+            ([
+
+                date,
+
+                total
+
+            ])=>({
+
+                date,
+
+                total
+
+            })
+
+        );
 
 }
 
