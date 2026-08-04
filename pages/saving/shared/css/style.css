@@ -521,7 +521,9 @@
 
     inset:0;
 
-    background:rgba(0,0,0,.35);
+    background:rgba(15,23,42,.45);
+
+    backdrop-filter:blur(2px);
 
     z-index:998;
 
@@ -541,23 +543,23 @@
 
     border-radius:24px 24px 0 0;
 
-    padding:24px;
+    padding:20px;
 
     z-index:999;
 
     box-shadow:
 
-        0 -8px 32px
+        0 -10px 35px
 
         rgba(
 
-            0,
+            15,
 
-            0,
+            23,
 
-            0,
+            42,
 
-            .15
+            .18
 
         );
 
@@ -571,9 +573,21 @@
 
 }
 
-.hidden{
+/* =====================================================
+   FILTER HANDLE
+===================================================== */
 
-    display:none;
+.filter-sheet-handle{
+
+    width:48px;
+
+    height:5px;
+
+    margin:0 auto 18px;
+
+    border-radius:999px;
+
+    background:#d1d5db;
 
 }
 
@@ -584,7 +598,7 @@
 
 .filter-sheet-header{
 
-    margin-bottom:20px;
+    margin-bottom:24px;
 
     text-align:center;
 
@@ -594,12 +608,25 @@
 
     margin:0;
 
-    font-size:18px;
+    font-size:20px;
 
     font-weight:700;
 
+    color:#111827;
+
 }
 
+.filter-sheet-header p{
+
+    margin-top:8px;
+
+    font-size:14px;
+
+    color:#64748b;
+
+    line-height:1.5;
+
+}
 
 /* =====================================================
    FILTER SHEET BODY
