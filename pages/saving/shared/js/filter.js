@@ -139,6 +139,104 @@ Filter.render = function(
 
         </div>
 
+        <div
+
+            id="filter-overlay"
+
+            class="filter-overlay hidden"
+
+        >
+
+        </div>
+
+        <div
+
+            id="filter-sheet"
+
+            class="filter-sheet hidden"
+
+        >
+
+            <div
+
+                class="filter-sheet-header"
+
+            >
+
+                <h3>
+
+                    Pilih Periode
+
+                </h3>
+
+            </div>
+
+            <div
+
+                class="filter-sheet-body"
+
+            >
+
+                <label>
+
+                    Tanggal Mulai
+
+                </label>
+
+                <input
+
+                    id="filter-start"
+
+                    type="date"
+
+                >
+
+                <label>
+
+                    Tanggal Akhir
+
+                </label>
+
+                <input
+
+                    id="filter-end"
+
+                    type="date"
+
+                >
+
+            </div>
+
+            <div
+
+                class="filter-sheet-footer"
+
+            >
+
+                <button
+
+                    id="filter-cancel"
+
+                >
+
+                    Batal
+
+                </button>
+
+                <button
+
+                    id="filter-apply"
+
+                >
+
+                    Terapkan
+
+                </button>
+
+            </div>
+
+        </div>
+
     `;
 
 };
