@@ -106,31 +106,49 @@ function initializeFilter(){
 
     Filter.render({
 
-    container :
+        container :
 
-        "#statistics-filter-list",
+            "#statistics-filter-list",
 
-    period :
+        period :
 
-        formatPeriod(
+            formatPeriod(
 
-            Statistics.filter.start,
+                Statistics.filter.start,
 
-            Statistics.filter.end
+                Statistics.filter.end
 
-        ),
+            ),
 
-    range :
+        range :
 
-        Statistics.filter.range,
+            Statistics.filter.range
 
-    callback :
+    });
 
-        handleFilter
+    Filter.register({
 
-});
+        onPeriod :
 
-Filter.register();
+            ()=>{
+
+                Statistics.openDatePicker();
+
+            },
+
+        onRange :
+
+            value=>{
+
+                handleRange(
+
+                    value
+
+                );
+
+            }
+
+    });
 
 }
 
@@ -327,41 +345,22 @@ function formatPeriod(
 
 }
 
+
 /* =====================================================
-   HANDLE FILTER
+   HANDLE RANGE
 ===================================================== */
 
-function handleFilter(
-
-    type,
+function handleRange(
 
     value
 
 ){
 
-    switch(
+    Statistics.filter.range =
 
-        type
+        value;
 
-    ){
-
-        case "period":
-
-            Statistics.openDatePicker();
-
-            break;
-
-        case "range":
-
-            Statistics.filter.range =
-
-                value;
-
-            Statistics.refresh();
-
-            break;
-
-    }
+    Statistics.refresh();
 
 }
 
