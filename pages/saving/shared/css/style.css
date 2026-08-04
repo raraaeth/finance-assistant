@@ -520,31 +520,71 @@
 
     position:fixed;
 
-    inset:0;
+    top:0;
 
-    display:grid;
+    right:0;
 
-    grid-template-rows:
+    bottom:0;
 
-        auto
-
-        auto
-
-        1fr
-
-        auto;
+    width:100%;
 
     background:#ffffff;
 
     z-index:999;
 
+    display:flex;
+
+    flex-direction:column;
+
+    transform:
+
+        translateX(
+
+            100%
+
+        );
+
     animation:
 
-        filterSheetUp
+        filterSlideLeft
 
-        .25s
+        .3s
 
-        ease;
+        ease
+
+        forwards;
+
+}
+
+/* =====================================================
+   FILTER SLIDE LEFT
+===================================================== */
+
+@keyframes filterSlideLeft{
+
+    from{
+
+        transform:
+
+            translateX(
+
+                100%
+
+            );
+
+    }
+
+    to{
+
+        transform:
+
+            translateX(
+
+                0
+
+            );
+
+    }
 
 }
 
