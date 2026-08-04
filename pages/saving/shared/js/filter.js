@@ -14,6 +14,18 @@
    FILTER
 ===================================================== */
 
+export const Filter = {
+
+    container : null,
+
+    callback : null,
+
+    period : "",
+
+    activeRange : 6
+
+};
+
 export const Filter = {};
 
 
@@ -63,23 +75,31 @@ Filter.range = [
    RENDER
 ===================================================== */
 
-Filter.render = function(
+Filter.render(
 
-    container,
+    options
 
-    period,
+)
 
-    range
+    Filter.container =
 
-){
+    document.querySelector(
 
-    const element =
+        options.container
 
-        document.querySelector(
+    );
 
-            container
+Filter.period =
 
-        );
+    options.period;
+
+Filter.activeRange =
+
+    options.range;
+
+Filter.callback =
+
+    options.callback;
 
     if(
 
@@ -91,7 +111,7 @@ Filter.render = function(
 
     }
 
-    element.innerHTML =
+    Filter.container.innerHTML =
 
     `
 
@@ -190,11 +210,10 @@ Filter.renderRange = function(
    REGISTER
 ===================================================== */
 
-Filter.register = function(
+Filter.register = function(){
 
-    callback
-
-){
+    ...
+}{
 
     const period =
 
@@ -375,6 +394,14 @@ Filter.setRange = function(
     range
 
 ){
+
+    Filter.range =
+
+        Number(
+
+            range
+
+        );
 
     Filter.setActive(
 
