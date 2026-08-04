@@ -43,7 +43,7 @@ import {
 
 } from
 
-"../../shared/js/chart.js";
+"../../../../js/chart.js";
 
 import {
 
