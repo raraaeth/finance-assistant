@@ -73,41 +73,41 @@ Filter.range = [
    RENDER
 ===================================================== */
 
-Filter.render(
+Filter.render = function(
 
     options
 
-)
+){
 
     Filter.container =
 
-    document.querySelector(
+        document.querySelector(
 
-        options.container
+            options.container
 
-    );
-
-Filter.period =
-
-    options.period;
-
-Filter.activeRange =
-
-    options.range;
-
-Filter.callback =
-
-    options.callback;
+        );
 
     if(
 
-        !element
+        !Filter.container
 
     ){
 
         return;
 
     }
+
+    Filter.period =
+
+        options.period;
+
+    Filter.activeRange =
+
+        options.range;
+
+    Filter.callback =
+
+        options.callback;
 
     Filter.container.innerHTML =
 
@@ -129,7 +129,7 @@ Filter.callback =
 
             <span>
 
-                ${period}
+                ${Filter.period}
 
             </span>
 
@@ -145,7 +145,7 @@ Filter.callback =
 
             ${Filter.renderRange(
 
-                range
+                Filter.activeRange
 
             )}
 
@@ -157,6 +157,7 @@ Filter.callback =
 
 
 /* =====================================================
+/* =====================================================
    RENDER RANGE
 ===================================================== */
 
@@ -166,11 +167,9 @@ Filter.renderRange = function(
 
 ){
 
-    return Filter.range.map(
+    return Filter.rangeList.map(
 
-        item =>
-
-        `
+        item=>`
 
             <button
 
@@ -210,9 +209,6 @@ Filter.renderRange = function(
 
 Filter.register = function(){
 
-    ...
-}{
-
     const period =
 
         document.getElementById(
@@ -241,11 +237,19 @@ Filter.register = function(){
 
             ()=>{
 
-                callback(
+                if(
 
-                    "period"
+                    Filter.callback
 
-                );
+                ){
+
+                    Filter.callback(
+
+                        "period"
+
+                    );
+
+                }
 
             }
 
@@ -263,23 +267,35 @@ Filter.register = function(){
 
                 ()=>{
 
-                    Filter.setActive(
-
-                        button.dataset.range
-
-                    );
-
-                    callback(
-
-                        "range",
+                    const value =
 
                         Number(
 
                             button.dataset.range
 
-                        )
+                        );
+
+                    Filter.setRange(
+
+                        value
 
                     );
+
+                    if(
+
+                        Filter.callback
+
+                    ){
+
+                        Filter.callback(
+
+                            "range",
+
+                            value
+
+                        );
+
+                    }
 
                 }
 
@@ -290,7 +306,6 @@ Filter.register = function(){
     );
 
 };
-
 /* =====================================================
    SET ACTIVE
 ===================================================== */
@@ -393,7 +408,7 @@ Filter.setRange = function(
 
 ){
 
-    Filter.range =
+    Filter.activeRange =
 
         Number(
 
@@ -403,7 +418,7 @@ Filter.setRange = function(
 
     Filter.setActive(
 
-        range
+        Filter.activeRange
 
     );
 
