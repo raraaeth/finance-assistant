@@ -170,11 +170,7 @@ Statistics.renderChart = function(){
 
     console.log(
 
-        document.getElementById(
-
-            "statistics-chart-canvas"
-
-        )
+        window.Chart
 
     );
 
