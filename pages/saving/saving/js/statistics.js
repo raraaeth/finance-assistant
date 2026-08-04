@@ -163,80 +163,14 @@ function initializeFilter(){
 
 
 /* =====================================================
-   RENDER CHART
+         RENDER
 ===================================================== */
 
 Statistics.renderChart = function(){
 
-    Chart.renderLine({
+    console.log(
 
-        canvas :
-
-            "#statistics-chart-canvas",
-
-        labels : [
-
-            "1",
-
-            "2",
-
-            "3",
-
-            "4",
-
-            "5"
-
-        ],
-
-        datasets : [
-
-            {
-
-                label :
-
-                    "Test",
-
-                data : [
-
-                    10,
-
-                    30,
-
-                    20,
-
-                    40,
-
-                    25
-
-                ],
-
-                borderWidth : 2,
-
-                tension : .35,
-
-                fill : false
-
-            }
-
-        ],
-
-        options : {
-
-            responsive : true,
-
-            maintainAspectRatio : false,
-
-            plugins : {
-
-                legend : {
-
-                    display : false
-
-                }
-
-            }
-
-        }
+        "Chart OK"
 
     );
 
