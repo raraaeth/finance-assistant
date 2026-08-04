@@ -90,41 +90,52 @@ Filter.render = function(
 
     `
 
-        <button
+        <div class="filter-wrapper">
 
-            id="filter-period"
+            <button
 
-            class="filter-period"
+                id="filter-period"
 
-        >
+                class="filter-period"
 
-            <span>
+            >
 
-                📅
+                <span
+                    class="material-symbols-rounded">
 
-            </span>
+                    calendar_month
 
-            <span>
+                </span>
 
-                ${options.period}
+                <span
+                    class="filter-period-text">
 
-            </span>
+                    ${options.period}
 
-        </button>
+                </span>
 
-        <div
+                <span
+                    class="material-symbols-rounded">
 
-            id="filter-range"
+                    expand_more
 
-            class="filter-range"
+                </span>
 
-        >
+            </button>
 
-            ${Filter.renderRange(
+            <div
 
-                options.range
+                class="filter-chip-group"
 
-            )}
+            >
+
+                ${Filter.renderRange(
+
+                    options.range
+
+                )}
+
+            </div>
 
         </div>
 
@@ -151,7 +162,7 @@ Filter.renderRange = function(
 
             <button
 
-                class="filter-button
+                class="filter-chip
 
                 ${
 
@@ -180,7 +191,6 @@ Filter.renderRange = function(
     ).join("");
 
 };
-
 
 /* =====================================================
    REGISTER
