@@ -3,10 +3,10 @@
    Workspace   : Shared
    Module      : Filter
    File        : filter.js
-   Version     : 2.0.0
+   Version     : 3.0.0
 
    Description :
-   Shared Filter Helper
+   Shared Filter Component
 ===================================================== */
 
 
@@ -14,18 +14,7 @@
    FILTER
 ===================================================== */
 
-export const Filter = {
-
-    container : null,
-
-    callback : null,
-
-    period : "",
-
-    activeRange : 6
-
-};
-
+export const Filter = {};
 
 
 /* =====================================================
@@ -70,6 +59,81 @@ Filter.range = [
 
 
 /* =====================================================
+   RENDER
+===================================================== */
+
+Filter.render = function(
+
+    options
+
+){
+
+    const container =
+
+        document.querySelector(
+
+            options.container
+
+        );
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+    container.innerHTML =
+
+    `
+
+        <button
+
+            id="filter-period"
+
+            class="filter-period"
+
+        >
+
+            <span>
+
+                📅
+
+            </span>
+
+            <span>
+
+                ${options.period}
+
+            </span>
+
+        </button>
+
+        <div
+
+            id="filter-range"
+
+            class="filter-range"
+
+        >
+
+            ${Filter.renderRange(
+
+                options.range
+
+            )}
+
+        </div>
+
+    `;
+
+};
+
+
+/* =====================================================
    RENDER RANGE
 ===================================================== */
 
@@ -81,7 +145,9 @@ Filter.renderRange = function(
 
     return Filter.range.map(
 
-        item=>`
+        item =>
+
+        `
 
             <button
 
@@ -115,58 +181,16 @@ Filter.renderRange = function(
 
 };
 
-/* =====================================================
-/* =====================================================
-   RENDER RANGE
-===================================================== */
-
-Filter.renderRange = function(
-
-    active = 6
-
-){
-
-    return Filter.rangeList.map(
-
-        item=>`
-
-            <button
-
-                class="filter-button
-
-                ${
-
-                    item.value === active
-
-                    ?
-
-                    "active"
-
-                    :
-
-                    ""
-
-                }"
-
-                data-range="${item.value}"
-
-            >
-
-                ${item.label}
-
-            </button>
-
-        `
-
-    ).join("");
-
-};
 
 /* =====================================================
    REGISTER
 ===================================================== */
 
-Filter.register = function(){
+Filter.register = function(
+
+    options
+
+){
 
     const period =
 
@@ -196,19 +220,7 @@ Filter.register = function(){
 
             ()=>{
 
-                if(
-
-                    Filter.callback
-
-                ){
-
-                    Filter.callback(
-
-                        "period"
-
-                    );
-
-                }
+                options.onPeriod();
 
             }
 
@@ -234,27 +246,17 @@ Filter.register = function(){
 
                         );
 
-                    Filter.setRange(
+                    Filter.setActive(
 
                         value
 
                     );
 
-                    if(
+                    options.onRange(
 
-                        Filter.callback
+                        value
 
-                    ){
-
-                        Filter.callback(
-
-                            "range",
-
-                            value
-
-                        );
-
-                    }
+                    );
 
                 }
 
@@ -265,6 +267,8 @@ Filter.register = function(){
     );
 
 };
+
+
 /* =====================================================
    SET ACTIVE
 ===================================================== */
@@ -308,6 +312,7 @@ Filter.setActive = function(
         );
 
 };
+
 
 /* =====================================================
    SET PERIOD
@@ -354,32 +359,6 @@ Filter.setPeriod = function(
         </span>
 
     `;
-
-};
-
-/* =====================================================
-   SET RANGE
-===================================================== */
-
-Filter.setRange = function(
-
-    range
-
-){
-
-    Filter.activeRange =
-
-        Number(
-
-            range
-
-        );
-
-    Filter.setActive(
-
-        Filter.activeRange
-
-    );
 
 };
 
