@@ -53,7 +53,7 @@ Chart.renderLine = function(
 
     Chart.instance =
 
-        new window.Chart(
+        new Chart(
 
             canvas,
 
@@ -87,7 +87,7 @@ Chart.renderLine = function(
 
 };
 
-
+/* =====================================================
 /* =====================================================
    BAR
 ===================================================== */
@@ -120,7 +120,7 @@ Chart.renderBar = function(
 
     Chart.instance =
 
-        new window.Chart(
+        new Chart(
 
             canvas,
 
