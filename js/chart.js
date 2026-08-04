@@ -1,12 +1,12 @@
 /* =====================================================
    Finance Assistant
-   Workspace   : Shared
+   Global
    Module      : Chart
    File        : chart.js
    Version     : 1.0.0
 
    Description :
-   Shared Chart Component
+   Global Chart Helper
 ===================================================== */
 
 
@@ -22,7 +22,7 @@ export const Chart = {
 
 
 /* =====================================================
-   LINE
+   RENDER LINE
 ===================================================== */
 
 Chart.renderLine = function(
@@ -53,7 +53,7 @@ Chart.renderLine = function(
 
     Chart.instance =
 
-        new Chart(
+        new window.Chart(
 
             canvas,
 
@@ -87,9 +87,9 @@ Chart.renderLine = function(
 
 };
 
+
 /* =====================================================
-/* =====================================================
-   BAR
+   RENDER BAR
 ===================================================== */
 
 Chart.renderBar = function(
@@ -120,7 +120,7 @@ Chart.renderBar = function(
 
     Chart.instance =
 
-        new Chart(
+        new window.Chart(
 
             canvas,
 
