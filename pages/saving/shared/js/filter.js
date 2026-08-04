@@ -256,11 +256,11 @@ Filter.register = function(
 
                         );
 
-                    Filter.setActive(
+                    Filter.setRange(
 
-                        value
+                    value
 
-                    );
+                   );
 
                     options.onRange(
 
