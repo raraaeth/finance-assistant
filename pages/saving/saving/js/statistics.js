@@ -168,9 +168,41 @@ function initializeFilter(){
 
 Statistics.renderChart = function(){
 
-    console.log(
+    const chart =
 
-        window.Chart
+        buildChart();
+
+    Chart.renderLine({
+
+        canvas :
+
+            "#statistics-chart-canvas",
+
+        labels :
+
+            chart.labels,
+
+        datasets : [
+
+            {
+
+                label :
+
+                    "Saving",
+
+                data :
+
+                    chart.values,
+
+                borderWidth : 2,
+
+                tension : .35,
+
+                fill : false
+
+            }
+
+        ]
 
     );
 
