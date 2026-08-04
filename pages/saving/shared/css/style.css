@@ -510,3 +510,211 @@
     transform:scale(.96);
 
 }
+
+/* =====================================================
+   FILTER SHEET
+===================================================== */
+
+.filter-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.35);
+
+    z-index:998;
+
+}
+
+.filter-sheet{
+
+    position:fixed;
+
+    left:0;
+
+    right:0;
+
+    bottom:0;
+
+    background:#ffffff;
+
+    border-radius:24px 24px 0 0;
+
+    padding:24px;
+
+    z-index:999;
+
+    box-shadow:
+
+        0 -8px 32px
+
+        rgba(
+
+            0,
+
+            0,
+
+            0,
+
+            .15
+
+        );
+
+    animation:
+
+        filterSheetUp
+
+        .25s
+
+        ease;
+
+}
+
+.hidden{
+
+    display:none;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET HEADER
+===================================================== */
+
+.filter-sheet-header{
+
+    margin-bottom:20px;
+
+    text-align:center;
+
+}
+
+.filter-sheet-header h3{
+
+    margin:0;
+
+    font-size:18px;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET BODY
+===================================================== */
+
+.filter-sheet-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+.filter-sheet-body label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#64748b;
+
+}
+
+.filter-sheet-body input{
+
+    width:100%;
+
+    padding:12px 14px;
+
+    border:1px solid #dbe3f0;
+
+    border-radius:12px;
+
+    font-size:15px;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET FOOTER
+===================================================== */
+
+.filter-sheet-footer{
+
+    margin-top:24px;
+
+    display:flex;
+
+    gap:12px;
+
+}
+
+.filter-sheet-footer button{
+
+    flex:1;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:14px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+}
+
+#filter-cancel{
+
+    background:#f1f5f9;
+
+}
+
+#filter-apply{
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+}
+
+
+/* =====================================================
+   FILTER ANIMATION
+===================================================== */
+
+@keyframes filterSheetUp{
+
+    from{
+
+        transform:
+
+            translateY(
+
+                100%
+
+            );
+
+    }
+
+    to{
+
+        transform:
+
+            translateY(
+
+                0
+
+            );
+
+    }
+
+}
