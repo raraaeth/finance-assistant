@@ -105,9 +105,13 @@ function initializeFilter(){
 
         today;
 
-    Filter.render(
+    Filter.render({
+
+    container :
 
         "#statistics-filter-list",
+
+    period :
 
         formatPeriod(
 
@@ -117,15 +121,17 @@ function initializeFilter(){
 
         ),
 
-        Statistics.filter.range
+    range :
 
-    );
+        Statistics.filter.range,
 
-    Filter.register(
+    callback :
 
         handleFilter
 
-    );
+});
+
+Filter.register();
 
 }
 
