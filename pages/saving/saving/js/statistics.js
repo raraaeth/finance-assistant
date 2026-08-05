@@ -144,11 +144,15 @@ function initializeFilter(){
 
         onPeriod :
 
-            ()=>{
+    value=>{
 
-                Statistics.openDatePicker();
+        Statistics.applyPeriod(
 
-            },
+            value
+
+        );
+
+    },
 
         onRange :
 
@@ -601,6 +605,58 @@ function handleRange(
     Statistics.refresh();
 
 }
+
+/* =====================================================
+   APPLY PERIOD
+===================================================== */
+
+Statistics.applyPeriod = function(
+
+    value
+
+){
+
+    Statistics.filter.start =
+
+        new Date(
+
+            value.start
+
+        );
+
+    Statistics.filter.end =
+
+        new Date(
+
+            value.end
+
+        );
+
+    Statistics.filter.range =
+
+        null;
+
+    Filter.setRange(
+
+        null
+
+    );
+
+    Filter.setPeriod(
+
+        formatPeriod(
+
+            Statistics.filter.start,
+
+            Statistics.filter.end
+
+        )
+
+    );
+
+    Statistics.refresh();
+
+};
 
 /* =====================================================
    DATE PICKER
