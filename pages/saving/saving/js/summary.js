@@ -376,25 +376,31 @@ function renderDistribution(){
 
     Chart.renderDoughnut({
 
-        canvas :
+    canvas :
 
-            "#summary-distribution-chart",
+        "#summary-distribution-chart",
 
-        labels,
+    labels,
 
-        datasets : [
+    datasets : [
 
-            {
+        {
 
-                data :
+            data :
 
-                    values
+                values
 
-            }
+        }
 
-        ]
+    ],
 
-    });
+    options : {
+
+        maintainAspectRatio : false
+
+    }
+
+});
 
 }
 
