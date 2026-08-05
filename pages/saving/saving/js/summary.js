@@ -61,6 +61,14 @@ export const Summary = {};
 
 Summary.init = function(){
 
+   console.log(
+    Process.summary
+);
+
+console.log(
+    Process.balance
+);
+
     renderOverview();
 
     renderBank();
@@ -397,12 +405,9 @@ function renderDistribution(){
 function renderDistributionList(){
 
     const card =
-
-        document.getElementById(
-
-            "summary-distribution-list-card"
-
-        );
+    document.getElementById(
+        "summary-distribution-list"
+    );
 
     if(
 
