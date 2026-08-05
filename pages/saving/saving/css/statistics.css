@@ -275,3 +275,41 @@
 
 }
 
+/* ==========================================
+   SHOW MORE BUTTON
+========================================== */
+
+.show-more-button{
+
+    width:100%;
+
+    margin-top:16px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:6px;
+
+    background:none;
+
+    border:none;
+
+    color:#2563eb;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+}
+
+.show-more-button span{
+
+    font-size:12px;
+
+}
+
