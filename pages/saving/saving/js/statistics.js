@@ -69,7 +69,9 @@ export const Statistics = {
 
     },
 
-    data : []
+    data : [],
+
+    limit : 5
 
 };
 
@@ -236,7 +238,33 @@ Statistics.renderTransaction = function(){
 
         "";
 
-    Statistics.data.forEach(
+    Statistics.data
+
+    .sort(
+
+        (
+
+            a,
+
+            b
+
+        )=>
+
+            b.date -
+
+            a.date
+
+    )
+
+    .slice(
+
+        0,
+
+        Statistics.limit
+
+    )
+
+    .forEach(
 
         item=>{
 
