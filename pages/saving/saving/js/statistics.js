@@ -67,7 +67,7 @@ export const Statistics = {
 
         end : null,
 
-        range : 6
+        range : null
 
     },
 
