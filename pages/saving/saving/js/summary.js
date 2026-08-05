@@ -265,6 +265,58 @@ function renderBank(){
 
         "";
 
+    Object.entries(
+
+        Process.balance
+
+    ).forEach(
+
+        ([
+
+            name,
+
+            item
+
+        ])=>{
+
+            card.innerHTML +=
+
+            `
+
+            <div class="bank-item">
+
+                <div>
+
+                    <strong>
+
+                        ${name}
+
+                    </strong>
+
+                </div>
+
+                <div class="bank-balance">
+
+                    ${
+
+                        rupiah(
+
+                            item.balance
+
+                        )
+
+                    }
+
+                </div>
+
+            </div>
+
+            `;
+
+        }
+
+    );
+
 }
 
 
