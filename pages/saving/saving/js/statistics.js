@@ -47,7 +47,9 @@ import {
 
 import {
 
-    formatDate
+    formatDate,
+
+    rupiah
 
 } from
 
@@ -71,7 +73,9 @@ export const Statistics = {
 
     data : [],
 
-    limit : 5
+    limit : 5,
+
+    expanded : false
 
 };
 
@@ -308,13 +312,26 @@ Statistics.renderTransaction = function(){
 
         }
 
-    </div>
-
-    <div class="transaction-amount">
-
-        ${item.nominal}
 
     </div>
+
+    <div
+
+    class="transaction-amount transaction-${item.jenis}"
+
+>
+
+    ${
+
+        rupiah(
+
+            item.nominal
+
+        )
+
+    }
+
+</div>
 
 </div>
 
@@ -323,6 +340,44 @@ Statistics.renderTransaction = function(){
         }
 
     );
+
+   const button =
+
+    document.getElementById(
+
+        "statistics-show-more"
+
+    );
+
+if(
+
+    !button
+
+){
+
+    return;
+
+}
+
+button.style.display =
+
+    Statistics.data.length > 5 ?
+
+    "block"
+
+    :
+
+    "none";
+
+button.textContent =
+
+    Statistics.expanded ?
+
+    "Sembunyikan"
+
+    :
+
+    "Tampilkan Semua";
 
 };
 
@@ -562,6 +617,48 @@ Statistics.openDatePicker = function(){
     );
 
 };
+
+/* =====================================================
+   SHOW MORE
+===================================================== */
+
+document.addEventListener(
+
+    "click",
+
+    event=>{
+
+        if(
+
+            event.target.id !==
+
+            "statistics-show-more"
+
+        ){
+
+            return;
+
+        }
+
+        Statistics.expanded =
+
+            !Statistics.expanded;
+
+        Statistics.limit =
+
+            Statistics.expanded ?
+
+            Infinity
+
+            :
+
+            5;
+
+        Statistics.renderTransaction();
+
+    }
+
+);
 
 /* =====================================================
    HELPER
