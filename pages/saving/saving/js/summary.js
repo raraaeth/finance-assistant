@@ -410,14 +410,17 @@ function renderDistribution(){
 
 function renderDistributionList(){
 
-    const card =
-    document.getElementById(
-        "summary-distribution-list"
-    );
+    const list =
+
+        document.getElementById(
+
+            "summary-distribution-list"
+
+        );
 
     if(
 
-        !card
+        !list
 
     ){
 
@@ -425,9 +428,95 @@ function renderDistributionList(){
 
     }
 
-    card.innerHTML =
+    list.innerHTML =
 
         "";
+
+    const total =
+
+        Process.summary.totalBalance;
+
+    Object.entries(
+
+        Process.balance
+
+    ).forEach(
+
+        ([
+
+            name,
+
+            item
+
+        ])=>{
+
+            const percent =
+
+                total === 0
+
+                ?
+
+                0
+
+                :
+
+                (
+
+                    item.balance /
+
+                    total
+
+                ) * 100;
+
+            list.innerHTML +=
+
+            `
+
+            <div class="distribution-item">
+
+                <div class="distribution-header">
+
+                    <span>
+
+                        ${name}
+
+                    </span>
+
+                    <strong>
+
+                        ${rupiah(item.balance)}
+
+                    </strong>
+
+                </div>
+
+                <div class="distribution-bar">
+
+                    <div
+
+                        class="distribution-fill"
+
+                        style="width:${percent}%"
+
+                    >
+
+                    </div>
+
+                </div>
+
+                <div class="distribution-percent">
+
+                    ${percent.toFixed(1)}%
+
+                </div>
+
+            </div>
+
+            `;
+
+        }
+
+    );
 
 }
 
