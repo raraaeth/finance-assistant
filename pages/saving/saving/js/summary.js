@@ -374,7 +374,8 @@ function renderDistribution(){
 
         );
 
-    Chart.renderDoughnut({
+    
+Chart.renderDoughnut({
 
     canvas :
 
@@ -386,19 +387,27 @@ function renderDistribution(){
 
         {
 
-            data :
+            data : values,
 
-                values
+            backgroundColor : [
+
+                "#4F7CFF",
+
+                "#64B5F6",
+
+                "#4DD0E1",
+
+                "#81C784",
+
+                "#FFD54F",
+
+                "#FF8A65"
+
+            ]
 
         }
 
-    ],
-
-    options : {
-
-        maintainAspectRatio : false
-
-    }
+    ]
 
 });
 
@@ -521,17 +530,7 @@ function renderDistributionList(){
 }
 
 
-/* =====================================================
-   START
-===================================================== */
 
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    Summary.init
-
-);
 
 
 
