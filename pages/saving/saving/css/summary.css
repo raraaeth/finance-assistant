@@ -69,39 +69,6 @@
 /* =====================================================
    BANK
 ===================================================== */
-
-
-
-/* =====================================================
-   DISTRIBUTION
-===================================================== */
-
-#summary-distribution-card{
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    gap:24px;
-
-}
-
-#summary-distribution-chart{
-
-    width:100%;
-
-    max-width:260px;
-
-    height:260px;
-
-}
-
-/* =====================================================
-   BANK
-===================================================== */
-
 .bank-item{
 
     display:flex;
@@ -129,4 +96,35 @@
     font-weight:600;
 
 }
+
+
+/* =====================================================
+   DISTRIBUTION
+===================================================== */
+
+#summary-distribution-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:24px;
+
+}
+
+#summary-distribution-chart{
+
+    display:block;
+
+    width:260px !important;
+
+    height:260px !important;
+
+    margin:auto;
+
+}
+
+
 
