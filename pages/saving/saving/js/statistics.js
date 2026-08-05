@@ -370,15 +370,15 @@ button.style.display =
 
     "none";
 
-button.textContent =
+button.innerHTML =
 
     Statistics.expanded ?
 
-    "Sembunyikan"
+    'Sembunyikan <span>▲</span>'
 
     :
 
-    "Tampilkan Semua";
+    'Tampilkan Semua <span>▼</span>';
 
 };
 
