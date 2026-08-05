@@ -3,7 +3,7 @@
    Global
    Module      : Chart
    File        : chart.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Global Chart Helper
@@ -16,7 +16,32 @@
 
 export const Chart = {
 
-    instance : null
+    instances : {}
+
+};
+
+
+/* =====================================================
+   GET KEY
+===================================================== */
+
+Chart.getKey = function(
+
+    canvas
+
+){
+
+    return typeof canvas ===
+
+        "string"
+
+        ?
+
+        canvas
+
+        :
+
+        canvas.id;
 
 };
 
@@ -49,9 +74,21 @@ Chart.renderLine = function(
 
     }
 
-    Chart.destroy();
+    const key =
 
-    Chart.instance =
+        Chart.getKey(
+
+            options.canvas
+
+        );
+
+    Chart.destroy(
+
+        key
+
+    );
+
+    Chart.instances[key] =
 
         new window.Chart(
 
@@ -77,35 +114,35 @@ Chart.renderLine = function(
 
                 options : {
 
-    responsive : true,
+                    responsive : true,
 
-    maintainAspectRatio : false,
+                    maintainAspectRatio : false,
 
-    animation : {
+                    animation : {
 
-        duration : 700,
+                        duration : 700,
 
-        easing : "easeOutQuart"
+                        easing : "easeOutQuart"
 
-    },
+                    },
 
-    interaction : {
+                    interaction : {
 
-        intersect : false,
+                        intersect : false,
 
-        mode : "index"
+                        mode : "index"
 
-    },
+                    },
 
-    ...(
+                    ...(
 
-        options.options ??
+                        options.options ??
 
-        {}
+                        {}
 
-    )
+                    )
 
-}
+                }
 
             }
 
@@ -142,9 +179,21 @@ Chart.renderBar = function(
 
     }
 
-    Chart.destroy();
+    const key =
 
-    Chart.instance =
+        Chart.getKey(
+
+            options.canvas
+
+        );
+
+    Chart.destroy(
+
+        key
+
+    );
+
+    Chart.instances[key] =
 
         new window.Chart(
 
@@ -170,33 +219,34 @@ Chart.renderBar = function(
 
                 options : {
 
-    responsive : true,
+                    responsive : true,
 
-    maintainAspectRatio : false,
+                    maintainAspectRatio : false,
 
-    animation : {
+                    animation : {
 
-        duration : 700,
+                        duration : 700,
 
-        easing : "easeOutQuart"
+                        easing : "easeOutQuart"
 
-    },
+                    },
 
-    ...(
+                    ...(
 
-        options.options ??
+                        options.options ??
 
-        {}
+                        {}
 
-    )
+                    )
 
-}
+                }
 
             }
 
         );
 
 };
+
 
 /* =====================================================
    RENDER DOUGHNUT
@@ -226,9 +276,21 @@ Chart.renderDoughnut = function(
 
     }
 
-    Chart.destroy();
+    const key =
 
-    Chart.instance =
+        Chart.getKey(
+
+            options.canvas
+
+        );
+
+    Chart.destroy(
+
+        key
+
+    );
+
+    Chart.instances[key] =
 
         new window.Chart(
 
@@ -258,13 +320,7 @@ Chart.renderDoughnut = function(
 
                     maintainAspectRatio : false,
 
-                    animation : {
-
-                        duration : 700,
-
-                        easing : "easeOutQuart"
-
-                    },
+                    cutout : "70%",
 
                     plugins : {
 
@@ -276,98 +332,13 @@ Chart.renderDoughnut = function(
 
                     },
 
-                    ...(
-
-                        options.options ??
-
-                        {}
-
-                    )
-
-                }
-
-            }
-
-        );
-
-};
-
-
-/* =====================================================
-   RENDER PIE
-===================================================== */
-
-Chart.renderPie = function(
-
-    options
-
-){
-
-    const canvas =
-
-        document.querySelector(
-
-            options.canvas
-
-        );
-
-    if(
-
-        !canvas
-
-    ){
-
-        return;
-
-    }
-
-    Chart.destroy();
-
-    Chart.instance =
-
-        new window.Chart(
-
-            canvas,
-
-            {
-
-                type :
-
-                    "pie",
-
-                data : {
-
-                    labels :
-
-                        options.labels,
-
-                    datasets :
-
-                        options.datasets
-
-                },
-
-                options : {
-
-                    responsive : true,
-
-                    maintainAspectRatio : false,
-
                     animation : {
 
-                        duration : 700,
+                        animateRotate : true,
 
-                        easing : "easeOutQuart"
+                        animateScale : true,
 
-                    },
-
-                    plugins : {
-
-                        legend : {
-
-                            display : false
-
-                        }
+                        duration : 800
 
                     },
 
@@ -392,11 +363,15 @@ Chart.renderPie = function(
    DESTROY
 ===================================================== */
 
-Chart.destroy = function(){
+Chart.destroy = function(
+
+    key
+
+){
 
     if(
 
-        !Chart.instance
+        !Chart.instances[key]
 
     ){
 
@@ -404,10 +379,8 @@ Chart.destroy = function(){
 
     }
 
-    Chart.instance.destroy();
+    Chart.instances[key].destroy();
 
-    Chart.instance =
-
-        null;
+    delete Chart.instances[key];
 
 };
