@@ -198,6 +198,195 @@ Chart.renderBar = function(
 
 };
 
+/* =====================================================
+   RENDER DOUGHNUT
+===================================================== */
+
+Chart.renderDoughnut = function(
+
+    options
+
+){
+
+    const canvas =
+
+        document.querySelector(
+
+            options.canvas
+
+        );
+
+    if(
+
+        !canvas
+
+    ){
+
+        return;
+
+    }
+
+    Chart.destroy();
+
+    Chart.instance =
+
+        new window.Chart(
+
+            canvas,
+
+            {
+
+                type :
+
+                    "doughnut",
+
+                data : {
+
+                    labels :
+
+                        options.labels,
+
+                    datasets :
+
+                        options.datasets
+
+                },
+
+                options : {
+
+                    responsive : true,
+
+                    maintainAspectRatio : false,
+
+                    animation : {
+
+                        duration : 700,
+
+                        easing : "easeOutQuart"
+
+                    },
+
+                    plugins : {
+
+                        legend : {
+
+                            display : false
+
+                        }
+
+                    },
+
+                    ...(
+
+                        options.options ??
+
+                        {}
+
+                    )
+
+                }
+
+            }
+
+        );
+
+};
+
+
+/* =====================================================
+   RENDER PIE
+===================================================== */
+
+Chart.renderPie = function(
+
+    options
+
+){
+
+    const canvas =
+
+        document.querySelector(
+
+            options.canvas
+
+        );
+
+    if(
+
+        !canvas
+
+    ){
+
+        return;
+
+    }
+
+    Chart.destroy();
+
+    Chart.instance =
+
+        new window.Chart(
+
+            canvas,
+
+            {
+
+                type :
+
+                    "pie",
+
+                data : {
+
+                    labels :
+
+                        options.labels,
+
+                    datasets :
+
+                        options.datasets
+
+                },
+
+                options : {
+
+                    responsive : true,
+
+                    maintainAspectRatio : false,
+
+                    animation : {
+
+                        duration : 700,
+
+                        easing : "easeOutQuart"
+
+                    },
+
+                    plugins : {
+
+                        legend : {
+
+                            display : false
+
+                        }
+
+                    },
+
+                    ...(
+
+                        options.options ??
+
+                        {}
+
+                    )
+
+                }
+
+            }
+
+        );
+
+};
+
 
 /* =====================================================
    DESTROY
