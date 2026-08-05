@@ -536,78 +536,6 @@ function buildChart(){
 
 }
 
-/* =====================================================
-   HANDLE FILTER
-===================================================== */
-
-function handleFilter(
-
-    type,
-
-    value
-
-){
-
-    if(
-
-        type === "period"
-
-    ){
-
-        Statistics.openDatePicker();
-
-        return;
-
-    }
-
-    if(
-
-        type === "range"
-
-    ){
-
-        const today =
-
-            new Date();
-
-        Statistics.filter.end =
-
-            today;
-
-        Statistics.filter.start =
-
-            new Date(
-
-                today.getFullYear(),
-
-                today.getMonth() - (value - 1),
-
-                1
-
-            );
-
-        Statistics.filter.range =
-
-            value;
-
-        Filter.setPeriod(
-
-            formatPeriod(
-
-                Statistics.filter.start,
-
-                Statistics.filter.end
-
-            )
-
-        );
-
-        Statistics.refresh();
-
-    }
-
-}
-
 
 
 /* =====================================================
@@ -620,9 +548,55 @@ function handleRange(
 
 ){
 
+    const today =
+
+        new Date();
+
+    Statistics.filter.start =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth() - (value - 1),
+
+            1
+
+        );
+
+    Statistics.filter.end =
+
+        today;
+
     Statistics.filter.range =
 
         value;
+
+    Filter.setDate(
+
+        Statistics.filter.start,
+
+        Statistics.filter.end
+
+    );
+
+    Filter.setPeriod(
+
+        formatPeriod(
+
+            Statistics.filter.start,
+
+            Statistics.filter.end
+
+        )
+
+    );
+
+    Filter.setRange(
+
+        value
+
+    );
 
     Statistics.refresh();
 
