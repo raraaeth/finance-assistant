@@ -348,6 +348,7 @@ Statistics.renderTransaction = function(){
         "statistics-show-more"
 
     );
+   console.log(button);
 
 if(
 
