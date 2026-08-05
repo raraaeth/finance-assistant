@@ -274,17 +274,17 @@ function renderBank(){
 
 function renderDistribution(){
 
-    const card =
+    const canvas =
 
         document.getElementById(
 
-            "summary-distribution-card"
+            "summary-distribution-chart"
 
         );
 
     if(
 
-        !card
+        !canvas
 
     ){
 
@@ -292,12 +292,51 @@ function renderDistribution(){
 
     }
 
-    card.innerHTML =
+    const labels =
 
-        "";
+        Object.keys(
+
+            Process.balance
+
+        );
+
+    const values =
+
+        Object.values(
+
+            Process.balance
+
+        ).map(
+
+            item=>
+
+                item.balance
+
+        );
+
+    Chart.renderDoughnut({
+
+        canvas :
+
+            "#summary-distribution-chart",
+
+        labels,
+
+        datasets : [
+
+            {
+
+                data :
+
+                    values
+
+            }
+
+        ]
+
+    });
 
 }
-
 
 /* =====================================================
    DISTRIBUTION LIST
