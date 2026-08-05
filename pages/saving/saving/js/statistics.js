@@ -425,6 +425,29 @@ Statistics.applyFilter = function(){
             }
 
         );
+   console.log(
+
+    "Transaction :",
+
+    Process.transaction.length
+
+);
+
+console.log(
+
+    "Filtered :",
+
+    Statistics.data.length
+
+);
+
+console.log(
+
+    Statistics.filter.start,
+
+    Statistics.filter.end
+
+);
 
 };
 
