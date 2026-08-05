@@ -41,6 +41,12 @@ import {
 
 import {
 
+    Summary
+
+} from "./summary.js";
+
+import {
+
     Header
 
 } from
@@ -115,7 +121,7 @@ async function init(){
     );
    
    Statistics.init();
-
+   Summary.init();
 
     renderHero();
 
