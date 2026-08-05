@@ -297,7 +297,7 @@ function renderBank(){
 
                     <strong>
 
-                        ${name}
+                        ${formatBankName(name)}
 
                     </strong>
 
@@ -487,7 +487,7 @@ function renderDistributionList(){
 
                     <span>
 
-                        ${name}
+                        ${formatBankName(name)}
 
                     </span>
 
@@ -530,7 +530,37 @@ function renderDistributionList(){
 }
 
 
+/* =====================================================
+   HELPER
+===================================================== */
 
+function formatBankName(
+
+    name
+
+){
+
+    return name
+
+        .replace(
+
+            /_/g,
+
+            " "
+
+        )
+
+        .replace(
+
+            /\b\w/g,
+
+            letter=>
+
+                letter.toUpperCase()
+
+        );
+
+}
 
 
 
