@@ -200,13 +200,17 @@ function processBalance(){
 
 function processSummary(){
 
-    let totalBalance = 0;
+let totalBalance = 0;
 
-    let totalIncome = 0;
+let totalIncome = 0;
 
-    let totalExpense = 0;
+let totalExpense = 0;
 
-    let totalTransfer = 0;
+let totalTransfer = 0;
+
+let weeklyIncome = 0;
+
+let weeklyExpense = 0;
 
     Object.values(
 
@@ -231,24 +235,79 @@ function processSummary(){
             item.transferIn;
 
     });
+   const weekAgo =
+
+    new Date();
+
+weekAgo.setDate(
+
+    weekAgo.getDate() - 7
+
+);
+
+Process.transaction.forEach(
+
+    item=>{
+
+        if(
+
+            item.date < weekAgo
+
+        ){
+
+            return;
+
+        }
+
+        switch(
+
+            item.jenis
+
+        ){
+
+            case "masuk":
+
+                weeklyIncome +=
+
+                    item.nominal;
+
+                break;
+
+            case "keluar":
+
+                weeklyExpense +=
+
+                    item.nominal;
+
+                break;
+
+        }
+
+    }
+
+);
 
     Process.summary = {
 
-        totalBalance,
+    totalBalance,
 
-        totalIncome,
+    totalIncome,
 
-        totalExpense,
+    totalExpense,
 
-        totalTransfer,
+    totalTransfer,
 
-        totalTransaction :
+    weeklyIncome,
 
-            Process.transaction
+    weeklyExpense,
 
-            .length
+    totalTransaction :
 
-    };
+        Process.transaction
+
+        .length
+
+};
 
 }
 
