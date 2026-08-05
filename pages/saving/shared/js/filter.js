@@ -364,14 +364,6 @@ Filter.register = function(
 
         );
 
-    const sheet =
-
-        document.getElementById(
-
-            "filter-sheet"
-
-        );
-
     const cancel =
 
         document.getElementById(
@@ -388,25 +380,33 @@ Filter.register = function(
 
         );
 
-    if(
+    const startInput =
 
-        period
+        document.getElementById(
 
-    ){
-
-        period.addEventListener(
-
-            "click",
-
-            ()=>{
-
-                Filter.openSheet();
-
-            }
+            "filter-start"
 
         );
 
-    }
+    const endInput =
+
+        document.getElementById(
+
+            "filter-end"
+
+        );
+
+    period?.addEventListener(
+
+        "click",
+
+        ()=>{
+
+            Filter.openSheet();
+
+        }
+
+    );
 
     buttons.forEach(
 
@@ -476,7 +476,17 @@ Filter.register = function(
 
         ()=>{
 
-            options.onPeriod();
+            options.onPeriod({
+
+                start :
+
+                    startInput.value,
+
+                end :
+
+                    endInput.value
+
+            });
 
             Filter.closeSheet();
 
@@ -485,6 +495,8 @@ Filter.register = function(
     );
 
 };
+
+
 
 /* =====================================================
    OPEN SHEET
