@@ -121,8 +121,6 @@ async function init(){
 
     renderSummary();
 
-    renderSaving();
-
     await Profile.render({
 
         container :
@@ -209,81 +207,33 @@ function renderSummary(){
 
     document.getElementById(
 
-        "summary-change"
+        "summary-income"
 
     ).textContent =
 
-        `${
+        shortRupiah(
 
             Process.summary
 
-            .totalTransaction
-
-        } Transaksi`;
-
-}
-
-/* =====================================================
-   SAVING
-===================================================== */
-
-function renderSaving(){
-
-    const list =
-
-        document.getElementById(
-
-            "saving-list"
+            .weeklyIncome
 
         );
 
-    list.innerHTML =
+    document.getElementById(
 
-        "";
+        "summary-expense"
 
-    Object.entries(
+    ).textContent =
 
-        Process.balance
+        shortRupiah(
 
-    ).forEach(
+            Process.summary
 
-        ([
+            .weeklyExpense
 
-            bank,
-
-            data
-
-        ])=>{
-
-            list.innerHTML +=
-
-            `
-
-            <div class="saving-item">
-
-                <span class="saving-name">
-
-                    🏦 ${bank}
-
-                </span>
-
-                <span class="saving-balance">
-
-                    ${shortRupiah(
-
-                        data.balance
-
-                    )}
-
-                </span>
-
-            </div>
-
-            `;
-
-        }
-
-    );
+        );
 
 }
+
+
 
