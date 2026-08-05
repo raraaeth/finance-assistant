@@ -613,17 +613,17 @@ Filter.setPeriod = function(
 
 ){
 
-    const button =
+    const text =
 
-        document.getElementById(
+        document.querySelector(
 
-            "filter-period"
+            ".filter-period-text"
 
         );
 
     if(
 
-        !button
+        !text
 
     ){
 
@@ -631,23 +631,9 @@ Filter.setPeriod = function(
 
     }
 
-    button.innerHTML =
+    text.textContent =
 
-    `
-
-        <span>
-
-            📅
-
-        </span>
-
-        <span>
-
-            ${period}
-
-        </span>
-
-    `;
+        period;
 
 };
 
