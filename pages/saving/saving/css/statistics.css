@@ -253,5 +253,25 @@
 
 }
 
+/* =====================================================
+   TRANSACTION TYPE
+===================================================== */
 
+.transaction-masuk{
+
+    color:#22C55E;
+
+}
+
+.transaction-keluar{
+
+    color:#EF4444;
+
+}
+
+.transaction-transfer{
+
+    color:var(--text-primary);
+
+}
 
