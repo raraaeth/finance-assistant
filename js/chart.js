@@ -75,11 +75,37 @@ Chart.renderLine = function(
 
                 },
 
-                options :
+                options : {
 
-                    options.options ??
+    responsive : true,
 
-                    {}
+    maintainAspectRatio : false,
+
+    animation : {
+
+        duration : 700,
+
+        easing : "easeOutQuart"
+
+    },
+
+    interaction : {
+
+        intersect : false,
+
+        mode : "index"
+
+    },
+
+    ...(
+
+        options.options ??
+
+        {}
+
+    )
+
+}
 
             }
 
@@ -142,11 +168,29 @@ Chart.renderBar = function(
 
                 },
 
-                options :
+                options : {
 
-                    options.options ??
+    responsive : true,
 
-                    {}
+    maintainAspectRatio : false,
+
+    animation : {
+
+        duration : 700,
+
+        easing : "easeOutQuart"
+
+    },
+
+    ...(
+
+        options.options ??
+
+        {}
+
+    )
+
+}
 
             }
 
