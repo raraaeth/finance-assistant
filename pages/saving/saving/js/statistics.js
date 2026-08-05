@@ -274,37 +274,49 @@ Statistics.renderTransaction = function(){
 
             <div class="transaction-item">
 
-                <div>
+    <div class="transaction-info">
 
-                    <strong>
+        <strong>
 
-                        ${
+            ${item.kategori}
 
-                            item.keterangan ||
+        </strong>
 
-                            item.kategori
+        <small>
 
-                        }
+            ${item.tanggal}
 
-                    </strong>
+        </small>
 
-                    <br>
+        ${
 
-                    <small>
+            item.keterangan ?
 
-                        ${item.tanggal}
+            `
 
-                    </small>
+            <p>
 
-                </div>
+                ${item.keterangan}
 
-                <div>
+            </p>
 
-                    ${item.nominal}
+            `
 
-                </div>
+            :
 
-            </div>
+            ""
+
+        }
+
+    </div>
+
+    <div class="transaction-amount">
+
+        ${item.nominal}
+
+    </div>
+
+</div>
 
             `;
 
