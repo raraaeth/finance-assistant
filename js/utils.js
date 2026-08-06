@@ -235,3 +235,15 @@ export function formatTime(
     );
 
 }
+
+/* =====================================================
+   GLOBAL FORMATTER
+===================================================== */
+
+window.rupiah =
+
+    rupiah;
+
+window.shortRupiah =
+
+    shortRupiah;
