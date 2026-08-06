@@ -91,25 +91,13 @@ Summary.init = function(){
 
 Summary.play = function(){
 
-    Animation.count(
-
-        document.getElementById(
-
-            "summary-overview-total"
-
-        ),
-
-        Process.summary
-
-        .totalBalance,
-
-        rupiah
-
-    );
-
     renderDistribution();
 
-    animateDistributionBar();
+    Animation.play(
+
+        "#summary-page"
+
+    );
 
 };
 
@@ -149,11 +137,19 @@ function renderOverview(){
 
             </p>
 
-            <h2 id="summary-overview-total">
+            <h2
 
-                Rp0
+    id="summary-overview-total"
 
-            </h2>
+    data-animation="count"
+
+    data-target="${Process.summary.totalBalance}"
+
+>
+
+    Rp0
+
+</h2>
 
         </div>
 
@@ -484,6 +480,8 @@ function renderDistributionList(){
 
     class="distribution-fill"
 
+    data-animation="bar"
+
     data-width="${percent}%"
 
 >
@@ -538,42 +536,5 @@ function formatBankName(
         );
 
 }
-
-function animateDistributionBar(){
-
-    document
-
-        .querySelectorAll(
-
-            ".distribution-fill"
-
-        )
-
-        .forEach(
-
-            bar=>{
-
-                bar.style.width =
-
-                    "0";
-
-                requestAnimationFrame(
-
-                    ()=>{
-
-                        bar.style.width =
-
-                            bar.dataset.width;
-
-                    }
-
-                );
-
-            }
-
-        );
-
-}
-
 
 
