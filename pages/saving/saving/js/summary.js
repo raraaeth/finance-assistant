@@ -47,6 +47,14 @@ import {
 
 "../../../../js/utils.js";
 
+import {
+
+    Icon
+
+} from
+
+"../../../../js/icon.js";
+
 
 /* =====================================================
    SUMMARY
@@ -293,11 +301,41 @@ function renderBank(){
 
                 <div>
 
-                    <strong>
+                    <div class="bank-info">
 
-                        ${formatBankName(name)}
+    <img
 
-                    </strong>
+        class="bank-icon"
+
+        src="${
+
+            Icon.bank(
+
+                name
+
+            )
+
+        }"
+
+        alt="${name}"
+
+    >
+
+    <strong>
+
+        ${
+
+            formatName(
+
+                name
+
+            )
+
+        }
+
+    </strong>
+
+</div>
 
                 </div>
 
