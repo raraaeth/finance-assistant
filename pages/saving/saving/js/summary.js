@@ -69,14 +69,6 @@ export const Summary = {};
 
 Summary.init = function(){
 
-   console.log(
-    Process.summary
-);
-
-console.log(
-    Process.balance
-);
-
     renderOverview();
 
     renderDistribution();
@@ -251,118 +243,6 @@ function renderOverview(){
 
 }
 
-/* =====================================================
-   BANK
-===================================================== */
-
-function renderBank(){
-
-    const card =
-
-        document.getElementById(
-
-            "summary-bank-card"
-
-        );
-
-    if(
-
-        !card
-
-    ){
-
-        return;
-
-    }
-
-    card.innerHTML =
-
-        "";
-
-    Object.entries(
-
-        Process.balance
-
-    ).forEach(
-
-        ([
-
-            name,
-
-            item
-
-        ])=>{
-
-            card.innerHTML +=
-
-            `
-
-            <div class="bank-item">
-
-                <div>
-
-                    <div class="bank-info">
-
-    <img
-
-        class="bank-icon"
-
-        src="${
-
-            Icon.bank(
-
-                name
-
-            )
-
-        }"
-
-        alt="${name}"
-
-    >
-
-    <strong>
-
-        ${
-
-            formatName(
-
-                name
-
-            )
-
-        }
-
-    </strong>
-
-</div>
-
-                </div>
-
-                <div class="bank-balance">
-
-                    ${
-
-                        rupiah(
-
-                            item.balance
-
-                        )
-
-                    }
-
-                </div>
-
-            </div>
-
-            `;
-
-        }
-
-    );
-
-}
-
 
 /* =====================================================
    DISTRIBUTION
@@ -521,19 +401,57 @@ function renderDistributionList(){
 
                 <div class="distribution-header">
 
-                    <span>
+    <div class="distribution-bank">
 
-                        ${formatBankName(name)}
+        <img
 
-                    </span>
+            class="distribution-icon"
 
-                    <strong>
+            src="${
 
-                        ${rupiah(item.balance)}
+                Icon.bank(
 
-                    </strong>
+                    name
 
-                </div>
+                )
+
+            }"
+
+            alt="${name}"
+
+        >
+
+        <span>
+
+            ${
+
+                formatBankName(
+
+                    name
+
+                )
+
+            }
+
+        </span>
+
+    </div>
+
+    <strong>
+
+        ${
+
+            rupiah(
+
+                item.balance
+
+            )
+
+        }
+
+    </strong>
+
+</div>
 
                 <div class="distribution-bar">
 
