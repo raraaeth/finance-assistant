@@ -130,6 +130,14 @@ function playBar(
 
 ){
 
+   console.log(
+
+    "Play Bar",
+
+    element.dataset.width
+
+);
+
     element.style.width =
 
         "0";
@@ -158,6 +166,11 @@ Animation.play = function(
     container
 
 ){
+   console.log(
+
+    "Animation Play"
+
+);
 
     const page =
 
