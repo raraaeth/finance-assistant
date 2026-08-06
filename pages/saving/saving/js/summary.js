@@ -489,6 +489,34 @@ function renderDistributionList(){
             `;
 
         }
+       
+       );
+   
+       document
+
+    .querySelectorAll(
+
+        ".distribution-fill"
+
+    )
+
+    .forEach(
+
+        bar=>{
+
+            requestAnimationFrame(
+
+                ()=>{
+
+                    bar.style.width =
+
+                        bar.dataset.width;
+
+                }
+
+            );
+
+        }
 
     );
 
