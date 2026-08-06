@@ -94,6 +94,14 @@ Summary.init = function(){
 
 function renderOverview(){
 
+   console.log(
+
+    "Summary",
+
+    Process.summary
+
+);
+
     const card =
 
         document.getElementById(
@@ -271,6 +279,13 @@ function renderOverview(){
 ===================================================== */
 
 function renderDistribution(){
+   console.log(
+
+    "Balance",
+
+    Process.balance
+
+);
 
     const canvas =
 
