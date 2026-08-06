@@ -12,11 +12,11 @@
    - Import
    - Init
    - Overview
-   - Bank
    - Distribution
    - Distribution List
    - Helper
 ===================================================== */
+
 
 /* =====================================================
    IMPORT
@@ -55,7 +55,6 @@ import {
 "../../../../js/icon.js";
 
 
-
 /* =====================================================
    SUMMARY
 ===================================================== */
@@ -83,14 +82,6 @@ Summary.init = function(){
 ===================================================== */
 
 function renderOverview(){
-
-   console.log(
-
-    "Summary",
-
-    Process.summary
-
-);
 
     const card =
 
@@ -124,19 +115,23 @@ function renderOverview(){
 
             <h2
 
-    id="summary-overview-total"
+                id="summary-overview-total"
 
-    data-animation="count"
+            >
 
-    data-target="${Process.summary.totalBalance}"
+                ${
 
-    data-format="rupiah"
+                    rupiah(
 
->
+                        Process.summary
 
-    Rp0
+                        .totalBalance
 
-</h2>
+                    )
+
+                }
+
+            </h2>
 
         </div>
 
@@ -250,21 +245,14 @@ function renderOverview(){
 
     `;
 
-   
-}                
+}
+
 
 /* =====================================================
    DISTRIBUTION
 ===================================================== */
 
 function renderDistribution(){
-   console.log(
-
-    "Balance",
-
-    Process.balance
-
-);
 
     const canvas =
 
@@ -306,44 +294,44 @@ function renderDistribution(){
 
         );
 
-    
-Chart.renderDoughnut({
+    Chart.renderDoughnut({
 
-    canvas :
+        canvas :
 
-        "#summary-distribution-chart",
+            "#summary-distribution-chart",
 
-    labels,
+        labels,
 
-    datasets : [
+        datasets : [
 
-        {
+            {
 
-            data : values,
+                data : values,
 
-            backgroundColor : [
+                backgroundColor : [
 
-                "#4F7CFF",
+                    "#4F7CFF",
 
-                "#64B5F6",
+                    "#64B5F6",
 
-                "#4DD0E1",
+                    "#4DD0E1",
 
-                "#81C784",
+                    "#81C784",
 
-                "#FFD54F",
+                    "#FFD54F",
 
-                "#FF8A65"
+                    "#FF8A65"
 
-            ]
+                ]
 
-        }
+            }
 
-    ]
+        ]
 
-});
+    });
 
 }
+
 
 /* =====================================================
    DISTRIBUTION LIST
@@ -375,7 +363,9 @@ function renderDistributionList(){
 
     const total =
 
-        Process.summary.totalBalance;
+        Process.summary
+
+        .totalBalance;
 
     Object.entries(
 
@@ -393,7 +383,7 @@ function renderDistributionList(){
 
             const percent =
 
-                total === 0
+                total===0
 
                 ?
 
@@ -403,11 +393,11 @@ function renderDistributionList(){
 
                 (
 
-                    item.balance /
+                    item.balance/
 
                     total
 
-                ) * 100;
+                )*100;
 
             list.innerHTML +=
 
@@ -417,75 +407,95 @@ function renderDistributionList(){
 
                 <div class="distribution-header">
 
-    <div class="distribution-bank">
+                    <div
 
-        <img
+                        class="distribution-bank"
 
-            class="distribution-icon"
+                    >
 
-            src="${
+                        <img
 
-                Icon.bank(
+                            class="distribution-icon"
 
-                    name
+                            src="${
 
-                )
+                                Icon.bank(
 
-            }"
+                                    name
 
-            alt="${name}"
+                                )
 
-        >
+                            }"
 
-        <span>
+                            alt="${name}"
 
-            ${
+                        >
 
-                formatBankName(
+                        <span>
 
-                    name
+                            ${
 
-                )
+                                formatBankName(
 
-            }
+                                    name
 
-        </span>
+                                )
 
-    </div>
+                            }
 
-    <strong>
+                        </span>
 
-        ${
+                    </div>
 
-            rupiah(
+                    <strong>
 
-                item.balance
+                        ${
 
-            )
+                            rupiah(
 
-        }
+                                item.balance
 
-    </strong>
+                            )
 
-</div>
+                        }
 
-                <div class="distribution-bar">
+                    </strong>
+
+                </div>
+
+                <div
+
+                    class="distribution-bar"
+
+                >
 
                     <div
 
-    class="distribution-fill"
+                        class="distribution-fill"
 
-    data-animation="bar"
+                        style="width:${percent}%"
 
-    data-width="${percent}%"
+                    >
 
->
+                    </div>
 
-</div>
+                </div>
 
-                <div class="distribution-percent">
+                <div
 
-                    ${percent.toFixed(1)}%
+                    class="distribution-percent"
+
+                >
+
+                    ${
+
+                        percent.toFixed(
+
+                            1
+
+                        )
+
+                    }%
 
                 </div>
 
@@ -494,10 +504,11 @@ function renderDistributionList(){
             `;
 
         }
-       
-              );
-   
-         }
+
+    );
+
+}
+
 
 /* =====================================================
    HELPER
@@ -529,6 +540,4 @@ function formatBankName(
 
         );
 
-}
-
-
+                               }
