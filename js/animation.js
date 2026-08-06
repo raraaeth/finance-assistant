@@ -137,7 +137,7 @@ Animation.play = function(
 
         .querySelectorAll(
 
-            "[data-animation]"
+            '[data-animation="bar"]'
 
         )
 
@@ -145,58 +145,127 @@ Animation.play = function(
 
             element=>{
 
-                switch(
+                element.style.width =
 
-                    element.dataset.animation
+                    "0";
 
-                ){
+                requestAnimationFrame(
 
-                    case "count":
-
-                        Animation.count(
-
-                            element,
-
-                            Number(
-
-                                element.dataset.target
-
-                            ),
-
-                            window[
-
-                                element.dataset.format
-
-                            ]
-
-                        );
-
-                        break;
-
-                    case "bar":
+                    ()=>{
 
                         element.style.width =
 
-                            "0";
+                            element.dataset.width;
 
-                        requestAnimationFrame(
+                    }
 
-                            ()=>{
-
-                                element.style.width =
-
-                                    element.dataset.width;
-
-                            }
-
-                        );
-
-                        break;
-
-                }
+                );
 
             }
 
         );
 
 };
+
+/* =====================================================
+   OBSERVE
+===================================================== */
+
+Animation.observe = function(){
+
+    const pages =
+
+        document.querySelectorAll(
+
+            ".page"
+
+        );
+
+    if(
+
+        !pages.length
+
+    ){
+
+        return;
+
+    }
+
+    const observer =
+
+        new MutationObserver(
+
+            ()=>{
+
+                const activePage =
+
+                    document.querySelector(
+
+                        ".active-page"
+
+                    );
+
+                if(
+
+                    !activePage
+
+                ){
+
+                    return;
+
+                }
+
+                Animation.play(
+
+                    ".active-page"
+
+                );
+
+            }
+
+        );
+
+    pages.forEach(
+
+        page=>{
+
+            observer.observe(
+
+                page,
+
+                {
+
+                    attributes : true,
+
+                    attributeFilter : [
+
+                        "class"
+
+                    ]
+
+                }
+
+            );
+
+        }
+
+    );
+
+};
+
+/* =====================================================
+   START
+===================================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    ()=>{
+
+        Animation.observe();
+
+    }
+
+);
+
