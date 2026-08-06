@@ -55,6 +55,14 @@ import {
 
 "../../../../js/icon.js";
 
+import {
+
+    Animation
+
+} from
+
+"../../../../js/animation.js";
+
 
 
 
@@ -242,6 +250,20 @@ function renderOverview(){
 
     `;
 
+   Animation.count(
+
+    document.getElementById(
+
+        "summary-overview-total"
+
+    ),
+
+    Process.summary.totalBalance,
+
+    rupiah
+
+);
+   
 }                
 
 /* =====================================================
