@@ -71,8 +71,6 @@ console.log(
 
     renderOverview();
 
-    renderBank();
-
     renderDistribution();
 
     renderDistributionList();
