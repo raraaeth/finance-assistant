@@ -147,6 +147,8 @@ async function init(){
 
     });
 
+   Animation.observe();
+
 }
 
 
