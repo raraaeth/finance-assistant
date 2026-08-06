@@ -69,6 +69,14 @@ import {
 
 } from "../../../../js/utils.js";
 
+import {
+
+    Animation
+
+} from
+
+"../../../../js/animation.js";
+
 
 /* =====================================================
    INIT DATA
@@ -197,19 +205,21 @@ function renderHero(){
 
 function renderSummary(){
 
+    Animation.count(
+
     document.getElementById(
 
         "summary-total"
 
-    ).textContent =
+    ),
 
-        rupiah(
+    Process.summary
 
-            Process.summary
+    .totalBalance,
 
-            .totalBalance
+    rupiah
 
-        );
+);
 
     document.getElementById(
 
