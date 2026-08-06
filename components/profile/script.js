@@ -39,12 +39,9 @@ const State = {
 
     workspace : [],
 
-    currentApp : null,
-
     container : null
 
 };
-
 
 /* =====================================================
    COMPONENT
@@ -59,15 +56,9 @@ export const Profile = {
 
     async render({
 
-        container,
-
-        app
+        container
 
     }){
-
-        State.currentApp =
-
-            app;
 
         State.container =
 
@@ -640,14 +631,13 @@ function renderWorkspaceCard(){
 
 }
 
-
 /* =====================================================
-   INIT WORKSPACE
+   LOAD WORKSPACE
 ===================================================== */
 
-function initWorkspace(){
+function loadWorkspace(){
 
-    const workspace = [
+    return [
 
         {
 
@@ -655,84 +645,29 @@ function initWorkspace(){
 
             icon : "🏦",
 
-            title : "Saving"
+            title : "Saving",
 
-        },
-
-        {
-
-            id : "payroll",
-
-            icon : "💼",
-
-            title : "Payroll"
-
-        },
-
-        {
-
-            id : "financial",
-
-            icon : "💰",
-
-            title : "Financial"
+            active : true
 
         }
 
     ];
 
-    State.workspace =
-
-        workspace
-
-            .filter(
-
-                workspaceExists
-
-            )
-
-            .map(item=>({
-
-                ...item,
-
-                active :
-
-                    item.id ===
-
-                    State.currentApp
-
-            }));
-
 }
 
 
 /* =====================================================
-   EXISTS
+   INIT WORKSPACE
 ===================================================== */
 
-function workspaceExists(
+function initWorkspace(){
 
-    item
+    State.workspace =
 
-){
-
-    /*
-        TODO
-
-        Nanti membaca workspace
-        dari Storage / Google Drive.
-
-    */
-
-    return (
-
-        item.id ===
-
-        State.currentApp
-
-    );
+        loadWorkspace();
 
 }
+
 
 
 /* =====================================================
