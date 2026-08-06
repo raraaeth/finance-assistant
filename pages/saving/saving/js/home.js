@@ -126,18 +126,8 @@ async function init(){
     renderHero();
 
     renderSummary();
-
-    await Profile.render({
-
-        container :
-
-            "#profile-page",
-
-        app :
-
-            "saving"
-
-    await Profile.render({
+    
+   await Profile.render({
 
     container :
         "#profile-page",
