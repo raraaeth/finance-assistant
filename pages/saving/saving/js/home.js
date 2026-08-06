@@ -255,5 +255,5 @@ function renderSummary(){
 
         );
 
-}
+} 
 
