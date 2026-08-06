@@ -104,3 +104,99 @@ Animation.count = function(
     );
 
 };
+
+/* =====================================================
+   PLAY
+===================================================== */
+
+Animation.play = function(
+
+    container
+
+){
+
+    const page =
+
+        document.querySelector(
+
+            container
+
+        );
+
+    if(
+
+        !page
+
+    ){
+
+        return;
+
+    }
+
+    page
+
+        .querySelectorAll(
+
+            "[data-animation]"
+
+        )
+
+        .forEach(
+
+            element=>{
+
+                switch(
+
+                    element.dataset.animation
+
+                ){
+
+                    case "count":
+
+                        Animation.count(
+
+                            element,
+
+                            Number(
+
+                                element.dataset.target
+
+                            ),
+
+                            window[
+
+                                element.dataset.format
+
+                            ]
+
+                        );
+
+                        break;
+
+                    case "bar":
+
+                        element.style.width =
+
+                            "0";
+
+                        requestAnimationFrame(
+
+                            ()=>{
+
+                                element.style.width =
+
+                                    element.dataset.width;
+
+                            }
+
+                        );
+
+                        break;
+
+                }
+
+            }
+
+        );
+
+};
