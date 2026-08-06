@@ -206,24 +206,27 @@ function renderHero(){
 ===================================================== */
 
 function renderSummary(){
+function renderSummary(){
 
-   document.getElementById(
+    const total =
 
-    "summary-total"
+        document.getElementById(
 
-).dataset.target =
+            "summary-total"
 
-    Process.summary
+        );
 
-    .totalBalance;
+    total.dataset.target =
 
-Animation.play(
+        Process.summary
 
-    "#home-page"
+        .totalBalance;
 
-);
+    Animation.play(
 
-   
+        "#home-page"
+
+    );
 
     document.getElementById(
 
@@ -254,6 +257,4 @@ Animation.play(
         );
 
 }
-
-
 
