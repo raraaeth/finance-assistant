@@ -55,6 +55,14 @@ import {
 
 "../../../../js/icon.js";
 
+import {
+
+    Animation
+
+} from
+
+"../../../../js/animation.js";
+
 
 /* =====================================================
    SUMMARY
@@ -113,23 +121,29 @@ function renderOverview(){
 
             </p>
 
-            <h2>
+            <h2 id="summary-overview-total">
 
-                ${
+        Rp0
 
-                    rupiah(
-
-                        Process.summary
-
-                        .totalBalance
-
-                    )
-
-                }
-
-            </h2>
+    </h2>
 
         </div>
+        
+        Animation.count(
+
+    document.getElementById(
+
+        "summary-overview-total"
+
+    ),
+
+    Process.summary
+
+    .totalBalance,
+
+    rupiah
+
+);
 
         <div class="summary-grid">
 
