@@ -540,4 +540,4 @@ function formatBankName(
 
         );
 
-                               }
+}
