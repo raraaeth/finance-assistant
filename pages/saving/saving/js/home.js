@@ -206,7 +206,6 @@ function renderHero(){
 ===================================================== */
 
 function renderSummary(){
-function renderSummary(){
 
     const total =
 
