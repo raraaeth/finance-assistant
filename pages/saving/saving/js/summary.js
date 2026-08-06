@@ -123,27 +123,11 @@ function renderOverview(){
 
             <h2 id="summary-overview-total">
 
-        Rp0
+                Rp0
 
-    </h2>
+            </h2>
 
         </div>
-        
-        Animation.count(
-
-    document.getElementById(
-
-        "summary-overview-total"
-
-    ),
-
-    Process.summary
-
-    .totalBalance,
-
-    rupiah
-
-);
 
         <div class="summary-grid">
 
@@ -255,8 +239,23 @@ function renderOverview(){
 
     `;
 
-}
+    Animation.count(
 
+        document.getElementById(
+
+            "summary-overview-total"
+
+        ),
+
+        Process.summary
+
+        .totalBalance,
+
+        rupiah
+
+    );
+
+}                
 
 /* =====================================================
    DISTRIBUTION
