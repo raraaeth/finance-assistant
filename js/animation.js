@@ -3,10 +3,10 @@
    Global
    Module      : Animation
    File        : animation.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
-   Number Animation Helper
+   Global Animation Engine
 ===================================================== */
 
 
@@ -18,22 +18,36 @@ export const Animation = {};
 
 
 /* =====================================================
-   COUNT NUMBER
+   COUNT
 ===================================================== */
 
-Animation.count = function(
+function playCount(
 
-    element,
-
-    target,
-
-    formatter,
-
-    duration = 1200
+    element
 
 ){
 
-    let start = 0;
+    const target =
+
+        Number(
+
+            element.dataset.target
+
+        );
+
+    const formatter =
+
+        window[
+
+            element.dataset.format
+
+        ] ??
+
+        (value=>value);
+
+    const duration =
+
+        1200;
 
     const startTime =
 
@@ -67,9 +81,9 @@ Animation.count = function(
 
             Math.floor(
 
-                progress *
+                target *
 
-                target
+                progress
 
             );
 
@@ -103,7 +117,37 @@ Animation.count = function(
 
     );
 
-};
+}
+
+
+/* =====================================================
+   BAR
+===================================================== */
+
+function playBar(
+
+    element
+
+){
+
+    element.style.width =
+
+        "0";
+
+    requestAnimationFrame(
+
+        ()=>{
+
+            element.style.width =
+
+                element.dataset.width;
+
+        }
+
+    );
+
+}
+
 
 /* =====================================================
    PLAY
@@ -137,7 +181,7 @@ Animation.play = function(
 
         .querySelectorAll(
 
-            '[data-animation="bar"]'
+            "[data-animation]"
 
         )
 
@@ -145,17 +189,100 @@ Animation.play = function(
 
             element=>{
 
-                element.style.width =
+                switch(
 
-                    "0";
+                    element.dataset.animation
+
+                ){
+
+                    case "count":
+
+                        playCount(
+
+                            element
+
+                        );
+
+                        break;
+
+                    case "bar":
+
+                        playBar(
+
+                            element
+
+                        );
+
+                        break;
+
+                }
+
+            }
+
+        );
+
+};
+
+
+/* =====================================================
+   OBSERVER
+===================================================== */
+
+Animation.observe = function(){
+
+    const observer =
+
+        new MutationObserver(
+
+            ()=>{
 
                 requestAnimationFrame(
 
                     ()=>{
 
-                        element.style.width =
+                        Animation.play(
 
-                            element.dataset.width;
+                            ".active-page"
+
+                        );
+
+                    }
+
+                );
+
+            }
+
+        );
+
+    document
+
+        .querySelectorAll(
+
+            ".page"
+
+        )
+
+        .forEach(
+
+            page=>{
+
+                observer.observe(
+
+                    page,
+
+                    {
+
+                        attributes :
+
+                            true,
+
+                        attributeFilter :
+
+                            [
+
+                                "class"
+
+                            ]
 
                     }
 
@@ -166,6 +293,3 @@ Animation.play = function(
         );
 
 };
-
-
-    
