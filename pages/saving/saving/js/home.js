@@ -207,21 +207,23 @@ function renderHero(){
 
 function renderSummary(){
 
-    Animation.count(
+   document.getElementById(
 
-    document.getElementById(
+    "summary-total"
 
-        "summary-total"
-
-    ),
+).dataset.target =
 
     Process.summary
 
-    .totalBalance,
+    .totalBalance;
 
-    rupiah
+Animation.play(
+
+    "#home-page"
 
 );
+
+   
 
     document.getElementById(
 
