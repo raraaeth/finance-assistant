@@ -501,10 +501,15 @@ function renderDistributionList(){
 
         }
        
-       );
+              );
+
+    Animation.play(
+
+        "#summary-page"
+
+    );
 
 }
-
 
 /* =====================================================
    HELPER
