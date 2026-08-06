@@ -69,14 +69,6 @@ import {
 
 } from "../../../../js/utils.js";
 
-import {
-
-    Animation
-
-} from
-
-"../../../../js/animation.js";
-
 
 /* =====================================================
    INIT DATA
@@ -119,7 +111,6 @@ async function init(){
 
     );
 
-
     Process.init(
 
         API.raw,
@@ -127,9 +118,10 @@ async function init(){
         API.bank
 
     );
-   
-   Statistics.init();
-   Summary.init();
+
+    Statistics.init();
+
+    Summary.init();
 
     renderHero();
 
@@ -145,9 +137,7 @@ async function init(){
 
             "saving"
 
-    });
-
-   Animation.observe();
+    );
 
 }
 
@@ -156,17 +146,24 @@ async function init(){
    HOME
 ===================================================== */
 
-function capitalize(text){
+function capitalize(
+
+    text
+
+){
 
     return text.replace(
 
         /\b\w/g,
 
-        letter => letter.toUpperCase()
+        letter =>
+
+            letter.toUpperCase()
 
     );
 
 }
+
 
 /* =====================================================
    HERO
@@ -174,14 +171,15 @@ function capitalize(text){
 
 function renderHero(){
 
-    const name = capitalize(
+    const name =
 
-        user?.displayName ??
+        capitalize(
 
-        "Guest"
+            user?.displayName ??
 
-    );
+            "Guest"
 
+        );
 
     document.getElementById(
 
@@ -201,31 +199,26 @@ function renderHero(){
 
 }
 
+
 /* =====================================================
    SUMMARY
 ===================================================== */
 
 function renderSummary(){
 
-    const total =
+    document.getElementById(
 
-        document.getElementById(
+        "summary-total"
 
-            "summary-total"
+    ).textContent =
+
+        rupiah(
+
+            Process.summary
+
+            .totalBalance
 
         );
-
-    total.dataset.target =
-
-        Process.summary
-
-        .totalBalance;
-
-    Animation.play(
-
-        "#home-page"
-
-    );
 
     document.getElementById(
 
@@ -255,5 +248,4 @@ function renderSummary(){
 
         );
 
-} 
-
+       }
