@@ -470,15 +470,13 @@ function renderDistributionList(){
 
                     <div
 
-                        class="distribution-fill"
+    class="distribution-fill"
 
-                        style="width:${percent}%"
+    data-width="${percent}%"
 
-                    >
+>
 
-                    </div>
-
-                </div>
+</div>
 
                 <div class="distribution-percent">
 
