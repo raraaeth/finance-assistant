@@ -1,6 +1,6 @@
 💰 Finance Assistant
 
-Finance Assistant adalah platform berbasis Progressive Web App (PWA) yang dirancang untuk membantu pengguna mengelola aktivitas keuangan sehari-hari dengan mudah, fleksibel, dan terstruktur.
+Finance Assistant adalah platform berbasis Progressive Web App (PWA) yang dirancang untuk membantu pengguna mengelola aktivitas keuangan sehari-hari dengan mudah, fleksibel, dan terstruktur. 
 
 Platform ini menggunakan Google Spreadsheet sebagai media penyimpanan data dan dikembangkan dengan konsep modular, sehingga setiap tema dapat berdiri sendiri namun tetap memiliki pengalaman pengguna yang konsisten.
 
