@@ -11,6 +11,21 @@
 
 
 /* =====================================================
+   IMPORT
+===================================================== */
+
+import {
+
+    rupiah,
+
+    shortRupiah
+
+} from
+
+"./utils.js";
+
+
+/* =====================================================
    ANIMATION
 ===================================================== */
 
@@ -18,38 +33,59 @@ export const Animation = {};
 
 
 /* =====================================================
+   FORMATTER
+===================================================== */
+
+const formatter = {
+
+    rupiah,
+
+    shortRupiah
+
+};
+
+
+/* =====================================================
    COUNT
 ===================================================== */
 
-function playCount(
+Animation.count = function(
 
-    element
+    element,
+
+    target,
+
+    format,
+
+    duration = 1200
 
 ){
 
-    const target =
+    if(
 
-        Number(
+        !element
 
-            element.dataset.target
+    ){
 
-        );
+        return;
 
-    const formatter =
+    }
 
-        window[
+    const fn =
 
-            element.dataset.format
+        formatter[
+
+            format
 
         ] ??
 
-        (value=>value);
+        (
 
-    const duration =
+            value=>value
 
-        1200;
+        );
 
-    const startTime =
+    const start =
 
         performance.now();
 
@@ -67,7 +103,7 @@ function playCount(
 
                     now -
 
-                    startTime
+                    start
 
                 ) /
 
@@ -89,7 +125,7 @@ function playCount(
 
         element.textContent =
 
-            formatter(
+            fn(
 
                 value
 
@@ -117,44 +153,7 @@ function playCount(
 
     );
 
-}
-
-
-/* =====================================================
-   BAR
-===================================================== */
-
-function playBar(
-
-    element
-
-){
-
-   console.log(
-
-    "Play Bar",
-
-    element.dataset.width
-
-);
-
-    element.style.width =
-
-        "0";
-
-    requestAnimationFrame(
-
-        ()=>{
-
-            element.style.width =
-
-                element.dataset.width;
-
-        }
-
-    );
-
-}
+};
 
 
 /* =====================================================
@@ -166,11 +165,6 @@ Animation.play = function(
     container
 
 ){
-   console.log(
-
-    "Animation Play"
-
-);
 
     const page =
 
@@ -194,7 +188,7 @@ Animation.play = function(
 
         .querySelectorAll(
 
-            "[data-animation]"
+            '[data-animation="count"]'
 
         )
 
@@ -202,33 +196,19 @@ Animation.play = function(
 
             element=>{
 
-                switch(
+                Animation.count(
 
-                    element.dataset.animation
+                    element,
 
-                ){
+                    Number(
 
-                    case "count":
+                        element.dataset.target
 
-                        playCount(
+                    ),
 
-                            element
+                    element.dataset.format
 
-                        );
-
-                        break;
-
-                    case "bar":
-
-                        playBar(
-
-                            element
-
-                        );
-
-                        break;
-
-                }
+                );
 
             }
 
@@ -238,7 +218,7 @@ Animation.play = function(
 
 
 /* =====================================================
-   OBSERVER
+   OBSERVE
 ===================================================== */
 
 Animation.observe = function(){
@@ -249,17 +229,27 @@ Animation.observe = function(){
 
             ()=>{
 
-                requestAnimationFrame(
+                const page =
 
-                    ()=>{
+                    document.querySelector(
 
-                        Animation.play(
+                        ".active-page"
 
-                            ".active-page"
+                    );
 
-                        );
+                if(
 
-                    }
+                    !page
+
+                ){
+
+                    return;
+
+                }
+
+                Animation.play(
+
+                    ".active-page"
 
                 );
 
@@ -285,17 +275,13 @@ Animation.observe = function(){
 
                     {
 
-                        attributes :
+                        attributes : true,
 
-                            true,
+                        attributeFilter : [
 
-                        attributeFilter :
+                            "class"
 
-                            [
-
-                                "class"
-
-                            ]
+                        ]
 
                     }
 
