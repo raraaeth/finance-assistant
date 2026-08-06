@@ -86,6 +86,34 @@ Summary.init = function(){
 };
 
 /* =====================================================
+   PLAY
+===================================================== */
+
+Summary.play = function(){
+
+    Animation.count(
+
+        document.getElementById(
+
+            "summary-overview-total"
+
+        ),
+
+        Process.summary
+
+        .totalBalance,
+
+        rupiah
+
+    );
+
+    renderDistribution();
+
+    animateDistributionBar();
+
+};
+
+/* =====================================================
    OVERVIEW
 ===================================================== */
 
@@ -238,22 +266,6 @@ function renderOverview(){
         </div>
 
     `;
-
-    Animation.count(
-
-        document.getElementById(
-
-            "summary-overview-total"
-
-        ),
-
-        Process.summary
-
-        .totalBalance,
-
-        rupiah
-
-    );
 
 }                
 
@@ -491,34 +503,6 @@ function renderDistributionList(){
         }
        
        );
-   
-       document
-
-    .querySelectorAll(
-
-        ".distribution-fill"
-
-    )
-
-    .forEach(
-
-        bar=>{
-
-            requestAnimationFrame(
-
-                ()=>{
-
-                    bar.style.width =
-
-                        bar.dataset.width;
-
-                }
-
-            );
-
-        }
-
-    );
 
 }
 
@@ -550,6 +534,42 @@ function formatBankName(
             letter=>
 
                 letter.toUpperCase()
+
+        );
+
+}
+
+function animateDistributionBar(){
+
+    document
+
+        .querySelectorAll(
+
+            ".distribution-fill"
+
+        )
+
+        .forEach(
+
+            bar=>{
+
+                bar.style.width =
+
+                    "0";
+
+                requestAnimationFrame(
+
+                    ()=>{
+
+                        bar.style.width =
+
+                            bar.dataset.width;
+
+                    }
+
+                );
+
+            }
 
         );
 
