@@ -55,15 +55,6 @@ import {
 
 "../../../../js/icon.js";
 
-import {
-
-    Animation
-
-} from
-
-"../../../../js/animation.js";
-
-
 
 
 /* =====================================================
@@ -139,6 +130,8 @@ function renderOverview(){
     data-animation="count"
 
     data-target="${Process.summary.totalBalance}"
+
+    data-format="rupiah"
 
 >
 
@@ -258,19 +251,6 @@ function renderOverview(){
 
     `;
 
-   Animation.count(
-
-    document.getElementById(
-
-        "summary-overview-total"
-
-    ),
-
-    Process.summary.totalBalance,
-
-    rupiah
-
-);
    
 }                
 
@@ -517,14 +497,8 @@ function renderDistributionList(){
         }
        
               );
-
-    Animation.play(
-
-        "#summary-page"
-
-    );
-
-}
+   
+         }
 
 /* =====================================================
    HELPER
