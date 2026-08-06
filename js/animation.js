@@ -306,3 +306,20 @@ Animation.observe = function(){
         );
 
 };
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    ()=>{
+
+        Animation.observe();
+
+    }
+
+);
