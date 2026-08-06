@@ -130,10 +130,8 @@ async function init(){
    await Profile.render({
 
     container :
-        "#profile-page",
 
-    app :
-        "saving"
+        "#profile-page"
 
 });
 
