@@ -164,6 +164,8 @@
 
 .distribution-fill{
 
+    width:0;
+
     height:100%;
 
     border-radius:999px;
@@ -173,6 +175,14 @@
         #4f7cff,
         #6fa4ff
     );
+
+    transition:
+
+        width
+
+        .8s
+
+        ease;
 
 }
 
