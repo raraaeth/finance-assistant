@@ -137,7 +137,15 @@ async function init(){
 
             "saving"
 
-    );
+    await Profile.render({
+
+    container :
+        "#profile-page",
+
+    app :
+        "saving"
+
+});
 
 }
 
