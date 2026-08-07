@@ -272,7 +272,7 @@ removeCodeVerifier();
 console.log("Redirecting...");
 
 location.replace(
-    "../pages/dashboard/index.html"
+    "../pages/index.html"
 );
 
 }
@@ -353,7 +353,7 @@ export function logout(){
 
     location.replace(
 
-        "/finance-assistant/pages/profile/"
+        "/finance-assistant/pages/"
 
     );
 
