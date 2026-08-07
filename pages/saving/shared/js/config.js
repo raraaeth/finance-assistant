@@ -52,16 +52,23 @@ export const CONFIG = {
 
     api : {
 
-        saving :
+    saving :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving",
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving",
 
-        bank :
+    savingBank :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank"
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank",
 
-    },
+    kas :
 
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas",
+
+    kasMember :
+
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas_member"
+
+},
 
     /* =============================================
        CURRENCY
