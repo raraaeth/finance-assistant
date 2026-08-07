@@ -3,16 +3,17 @@
  * Finance Assistant
  * Module      : Dashboard
  * File        : script.js
- * Version     : 1.0.0
+ * Version     : 2.0.0
  *
  * Description :
- * Dashboard Platform
+ * Dashboard Learning Center
  * ==============================================
  */
 
-//==================================
-// Import
-//==================================
+
+/* ==========================================
+   IMPORT
+========================================== */
 
 import {
 
@@ -21,36 +22,40 @@ import {
 } from "../../js/storage.js";
 
 
-//==================================
-// Constant
-//==================================
+/* ==========================================
+   CONSTANT
+========================================== */
 
 const HERO_IMAGE =
+
     "../../assets/images/hero/hero-dashboard.png";
 
 
-//==================================
-// State
-//==================================
+/* ==========================================
+   STATE
+========================================== */
 
 const user =
+
     loadUser();
 
 
-//==================================
-// DOM
-//==================================
+/* ==========================================
+   DOM
+========================================== */
 
 const dashboard =
 
     document.getElementById(
+
         "dashboard"
+
     );
 
 
-//==================================
-// Component
-//==================================
+/* ==========================================
+   COMPONENT
+========================================== */
 
 function createHero(){
 
@@ -70,18 +75,27 @@ function createHero(){
 
                     Halo,
 
-                    ${user?.displayName ?? "Guest"}
+                    ${
+
+                        user?.displayName ??
+
+                        "Guest"
+
+                    }
 
                 </h1>
 
                 <p>
 
-    Workspace milikmu sudah siap digunakan.
-    Sekarang pelajari setiap modul agar kamu
-    memahami cara menggunakan aplikasi
-    sebelum mulai mencatat keuangan.
+                    Workspace milikmu sudah siap digunakan.
 
-</p>
+                    Pelajari setiap modul terlebih dahulu
+
+                    agar lebih memahami cara menggunakan
+
+                    Finance Assistant.
+
+                </p>
 
             </div>
 
@@ -98,6 +112,7 @@ function createHero(){
     `;
 
 }
+
 
 function createModuleCard({
 
@@ -151,7 +166,12 @@ function createModuleCard({
 
 }
 
-function createSectionTitle(title){
+
+function createSectionTitle(
+
+    title
+
+){
 
     return `
 
@@ -165,10 +185,9 @@ function createSectionTitle(title){
 
 }
 
-
-//==================================
-// Render
-//==================================
+/* ==========================================
+   RENDER
+========================================== */
 
 function render(){
 
@@ -177,8 +196,10 @@ function render(){
         ${createHero()}
 
         ${createSectionTitle(
-    "📚 Panduan Memulai"
-)}
+
+            "📚 Panduan Memulai"
+
+        )}
 
         <section class="modules">
 
@@ -191,7 +212,8 @@ function render(){
                 title : "Financial",
 
                 description :
-    "Pelajari cara mengelola pemasukan, pengeluaran, dan laporan keuangan."
+
+                    "Pelajari cara mengelola pemasukan, pengeluaran, dan laporan keuangan."
 
             })}
 
@@ -204,7 +226,8 @@ function render(){
                 title : "Saving",
 
                 description :
-    "Pahami cara mengatur tabungan dan mencapai target keuanganmu."
+
+                    "Pelajari cara mengatur tabungan dan mencapai target keuangan."
 
             })}
 
@@ -217,60 +240,68 @@ function render(){
                 title : "Payroll",
 
                 description :
-    "Pelajari sistem absensi dan pengelolaan gaji pribadi dan tahu besaran gaji sejak dini."
+
+                    "Pelajari sistem absensi, payroll, dan penggajian."
+
             })}
 
         </section>
-        
-       ${createSectionTitle(
-    "📲 Install Finance Assistant"
-)}
-
-<section class="install-card">
-
-    <h3>
-
-        Semua sudah siap.
-        Tinggal satu langkah lagi.
-
-    </h3>
-
-    <p>
-
-        Install Finance Assistant ke perangkatmu agar dapat diakses lebih cepat dan memberikan pengalaman terbaik dalam mengelola keuanganmu setiap hari.
-    </p>
-
-    <button
-
-        id="installApp"
-
-        class="install-button"
-
-    >
-
-        📲 Install Finance Assistant
-
-    </button>
-
-</section>
-
 
         ${createSectionTitle(
-            "Akun"
+
+            "📲 Install Finance Assistant"
+
+        )}
+
+        <section class="install-card">
+
+            <h3>
+
+                Semua sudah siap.
+
+                Tinggal satu langkah lagi.
+
+            </h3>
+
+            <p>
+
+                Install Finance Assistant ke perangkatmu agar dapat diakses lebih cepat dan memberikan pengalaman terbaik.
+
+            </p>
+
+            <button
+
+                id="installApp"
+
+                class="install-button"
+
+            >
+
+                📲 Install Finance Assistant
+
+            </button>
+
+        </section>
+
+        ${createSectionTitle(
+
+            "🚀 Mulai"
+
         )}
 
         <section class="modules">
 
             ${createModuleCard({
 
-                id : "profile",
+                id : "app",
 
-                icon : "👤",
+                icon : "🚀",
 
-                title : "Profile",
+                title : "Mulai Finance Assistant",
 
                 description :
-                    "Kelola akun dan pengaturan aplikasi."
+
+                    "Masuk ke aplikasi Finance Assistant dan mulai mengelola keuanganmu."
 
             })}
 
@@ -282,37 +313,52 @@ function render(){
 
 }
 
-//==================================
-// Navigation
-//==================================
+/* ==========================================
+   NAVIGATION
+========================================== */
 
 function openFinancial(){
 
-    window.location.href =
-        "../financial/";
+    alert(
+
+        "Panduan Financial akan segera hadir."
+
+    );
 
 }
 
 function openSaving(){
 
-    window.location.href =
-        "../saving/";
+    alert(
+
+        "Panduan Saving akan segera hadir."
+
+    );
 
 }
 
 function openPayroll(){
 
-    window.location.href =
-        "../payroll/";
+    alert(
+
+        "Panduan Payroll akan segera hadir."
+
+    );
 
 }
 
-function openProfile(){
+function openApp(){
 
     window.location.href =
-        "../profile/";
+
+        "../index.html";
 
 }
+
+
+/* ==========================================
+   INSTALL APP
+========================================== */
 
 let deferredPrompt = null;
 
@@ -320,7 +366,7 @@ window.addEventListener(
 
     "beforeinstallprompt",
 
-    event => {
+    event=>{
 
         event.preventDefault();
 
@@ -332,7 +378,11 @@ window.addEventListener(
 
 async function installApp(){
 
-    if(!deferredPrompt){
+    if(
+
+        !deferredPrompt
+
+    ){
 
         alert(
 
@@ -353,67 +403,83 @@ async function installApp(){
 }
 
 
-//==================================
-// Event
-//==================================
+/* ==========================================
+   EVENT
+========================================== */
 
 function bindModuleEvents(){
 
     document
 
         .querySelectorAll(
+
             ".module-card"
+
         )
 
-        .forEach(card => {
+        .forEach(
 
-            card.addEventListener(
+            card=>{
 
-                "click",
+                card.addEventListener(
 
-                () => {
+                    "click",
 
-                    switch(card.id){
+                    ()=>{
 
-                        case "financial":
+                        switch(
 
-                            openFinancial();
+                            card.id
 
-                            break;
+                        ){
 
-                        case "saving":
+                            case "financial":
 
-                            openSaving();
+                                openFinancial();
 
-                            break;
+                                break;
 
-                        case "payroll":
+                            case "saving":
 
-                            openPayroll();
+                                openSaving();
 
-                            break;
+                                break;
 
-                        case "profile":
+                            case "payroll":
 
-                            openProfile();
+                                openPayroll();
 
-                            break;
+                                break;
+
+                            case "app":
+
+                                openApp();
+
+                                break;
+
+                        }
 
                     }
 
-                }
+                );
 
-            );
+            }
 
-        });
+        );
 
     const installButton =
 
         document.getElementById(
+
             "installApp"
+
         );
 
-    if(installButton){
+    if(
+
+        installButton
+
+    ){
 
         installButton.addEventListener(
 
@@ -428,8 +494,9 @@ function bindModuleEvents(){
 }
 
 
-//==================================
-// Init
-//==================================
+/* ==========================================
+   INIT
+========================================== */
 
 render();
+
