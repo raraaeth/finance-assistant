@@ -1,12 +1,11 @@
 /* =====================================================
    Finance Assistant
-   Workspace   : Saving
    Module      : API
    File        : api.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
-   OpenSheet API Engine
+   Shared OpenSheet API Engine
 ===================================================== */
 
 
@@ -18,7 +17,11 @@ export const API = {
 
     raw : [],
 
-    bank : []
+    master : [],
+
+    bank : [],
+
+    member : []
 
 };
 
@@ -29,29 +32,29 @@ export const API = {
 
 API.load = async function(
 
-    savingUrl,
+    rawUrl,
 
-    bankUrl
+    masterUrl
 
 ){
 
     const [
 
-        saving,
+        raw,
 
-        bank
+        master
 
     ] = await Promise.all([
 
         fetch(
 
-            savingUrl
+            rawUrl
 
         ),
 
         fetch(
 
-            bankUrl
+            masterUrl
 
         )
 
@@ -59,10 +62,18 @@ API.load = async function(
 
     API.raw =
 
-        await saving.json();
+        await raw.json();
+
+    API.master =
+
+        await master.json();
 
     API.bank =
 
-        await bank.json();
+        API.master;
+
+    API.member =
+
+        API.master;
 
 };
