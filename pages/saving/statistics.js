@@ -68,9 +68,9 @@ export const Statistics = {
 
     data : [],
 
-    limit : 5,
+    page : 1,
 
-    expanded : false
+    perPage : 5
 
 };
 
@@ -212,7 +212,6 @@ Statistics.renderChart = function(){
 
 };
 
-
 /* =====================================================
    RENDER TRANSACTION
 ===================================================== */
@@ -240,31 +239,24 @@ Statistics.renderTransaction = function(){
     list.innerHTML =
 
         "";
-   console.log(
 
-    "Render Limit :",
+    const start =
 
-    Statistics.limit
+        (
 
-);
-
-console.log(
-
-    "Slice :",
-
-    Statistics.data
-
-        .slice(
-
-            0,
-
-            Statistics.limit
+            Statistics.page - 1
 
         )
 
-        .length
+        *
 
-);
+        Statistics.perPage;
+
+    const end =
+
+        start +
+
+        Statistics.perPage;
 
     Statistics.data
 
@@ -286,9 +278,9 @@ console.log(
 
         .slice(
 
-            0,
+            start,
 
-            Statistics.limit
+            end
 
         )
 
@@ -318,7 +310,9 @@ console.log(
 
                         ${
 
-                            item.keterangan ?
+                            item.keterangan
+
+                            ?
 
                             `
 
@@ -364,7 +358,7 @@ console.log(
 
         );
 
-    const button =
+    const pagination =
 
         document.getElementById(
 
@@ -374,7 +368,7 @@ console.log(
 
     if(
 
-        !button
+        !pagination
 
     ){
 
@@ -382,24 +376,92 @@ console.log(
 
     }
 
-    button.style.display =
+    const totalPage =
 
-    Statistics.limit >=
+        Math.max(
 
-    Statistics.data.length
+            1,
 
-    ?
+            Math.ceil(
 
-    "none"
+                Statistics.data.length /
 
-    :
+                Statistics.perPage
 
-    "block";
+            )
 
-button.innerHTML =
+        );
 
-    'Tampilkan 5 Lagi <span>▼</span>';
-   
+    pagination.innerHTML =
+
+    `
+
+        <div class="statistics-pagination">
+
+            <button
+
+                id="statistics-prev"
+
+                ${
+
+                    Statistics.page === 1
+
+                    ?
+
+                    "disabled"
+
+                    :
+
+                    ""
+
+                }
+
+            >
+
+                ◀ Sebelumnya
+
+            </button>
+
+            <span>
+
+                ${Statistics.page}
+
+                /
+
+                ${totalPage}
+
+            </span>
+
+            <button
+
+                id="statistics-next"
+
+                ${
+
+                    Statistics.page >=
+
+                    totalPage
+
+                    ?
+
+                    "disabled"
+
+                    :
+
+                    ""
+
+                }
+
+            >
+
+                Berikutnya ▶
+
+            </button>
+
+        </div>
+
+    `;
+
 };
 
 
@@ -409,15 +471,9 @@ button.innerHTML =
 
 Statistics.refresh = function(){
 
+    Statistics.page = 1;
+
     Statistics.applyFilter();
-
-    console.log(
-
-        "Jumlah Data :",
-
-        Statistics.data.length
-
-    );
 
     Statistics.renderChart();
 
@@ -673,7 +729,7 @@ Statistics.openDatePicker = function(){
 
 
 /* =====================================================
-   SHOW MORE
+   PAGINATION
 ===================================================== */
 
 document.addEventListener(
@@ -682,47 +738,81 @@ document.addEventListener(
 
     event=>{
 
-        const button =
+        const prev =
 
             event.target.closest(
 
-                "#statistics-show-more"
+                "#statistics-prev"
 
             );
 
         if(
 
-            !button
+            prev
 
         ){
+
+            if(
+
+                Statistics.page > 1
+
+            ){
+
+                Statistics.page--;
+
+                Statistics.renderTransaction();
+
+            }
 
             return;
 
         }
 
-        Statistics.limit += 5;
+        const next =
 
-        console.log(
+            event.target.closest(
 
-            "Limit :",
+                "#statistics-next"
 
-            Statistics.limit
+            );
 
-        );
+        if(
 
-        console.log(
+            next
 
-            "Data :",
+        ){
 
-            Statistics.data.length
+            const totalPage =
 
-        );
+                Math.ceil(
 
-        Statistics.renderTransaction();
+                    Statistics.data.length /
+
+                    Statistics.perPage
+
+                );
+
+            if(
+
+                Statistics.page <
+
+                totalPage
+
+            ){
+
+                Statistics.page++;
+
+                Statistics.renderTransaction();
+
+            }
+
+        }
 
     }
 
 );
+
+
 /* =====================================================
    HELPER
 ===================================================== */
