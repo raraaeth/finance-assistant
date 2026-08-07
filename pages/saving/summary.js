@@ -36,6 +36,12 @@ import {
 
 import {
 
+    Animation
+
+} from "../../js/animation.js";
+
+import {
+
     rupiah,
 
     shortRupiah
@@ -107,21 +113,9 @@ function renderOverview(){
             </p>
 
             <h2
-                id="summary-overview-total">
+    id="summary-overview-total">
 
-                ${
-
-                    rupiah(
-
-                        Process.summary
-
-                        .totalBalance
-
-                    )
-
-                }
-
-            </h2>
+</h2>
 
         </div>
 
@@ -233,7 +227,31 @@ function renderOverview(){
 
         </div>
 
-    `;
+        `;
+
+    Animation.counter({
+
+        element :
+
+            document.getElementById(
+
+                "summary-overview-total"
+
+            ),
+
+        value :
+
+            Process.summary
+
+            .totalBalance,
+
+        formatter :
+
+            rupiah,
+
+        duration : 1800
+
+    });
 
 }
 
