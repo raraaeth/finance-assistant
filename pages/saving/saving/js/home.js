@@ -70,6 +70,14 @@ import {
 
 } from "../../../../js/utils.js";
 
+import {
+
+    initWorkspace
+
+} from
+
+"../../shared/js/workspace.js";
+
 
 /* =====================================================
    INIT DATA
@@ -161,6 +169,8 @@ async function init(){
     renderHero();
 
     renderSummary();
+
+   initWorkspace();
     
    await Profile.render({
 
