@@ -247,3 +247,107 @@ window.rupiah =
 window.shortRupiah =
 
     shortRupiah;
+
+/* =====================================================
+   ANIMATE NUMBER
+===================================================== */
+
+export function animateNumber(
+
+    element,
+
+    target,
+
+    formatter = value => value
+
+){
+
+    if(
+
+        !element
+
+    ){
+
+        return;
+
+    }
+
+    const start = 0;
+
+    const duration = 800;
+
+    const startTime = performance.now();
+
+    function update(
+
+        currentTime
+
+    ){
+
+        const progress = Math.min(
+
+            (
+
+                currentTime -
+
+                startTime
+
+            ) /
+
+            duration,
+
+            1
+
+        );
+
+        const value =
+
+            Math.floor(
+
+                start +
+
+                (
+
+                    target -
+
+                    start
+
+                ) *
+
+                progress
+
+            );
+
+        element.textContent =
+
+            formatter(
+
+                value
+
+            );
+
+        if(
+
+            progress < 1
+
+        ){
+
+            requestAnimationFrame(
+
+                update
+
+            );
+
+        }
+
+    }
+
+    requestAnimationFrame(
+
+        update
+
+    );
+
+}
+
+
