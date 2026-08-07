@@ -229,29 +229,21 @@ function renderOverview(){
 
         `;
 
-    Animation.counter({
+Animation.number(
 
-        element :
+    document.getElementById(
 
-            document.getElementById(
+        "summary-overview-total"
 
-                "summary-overview-total"
+    ),
 
-            ),
+    Process.summary.totalBalance,
 
-        value :
+    rupiah,
 
-            Process.summary
+    1800
 
-            .totalBalance,
-
-        formatter :
-
-            rupiah,
-
-        duration : 1800
-
-    });
+);
 
 }
 
