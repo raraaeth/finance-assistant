@@ -1,1 +1,537 @@
+/* =====================================================
+   Finance Assistant
+   Workspace   : Kas
+   Module      : Process
+   File        : process.js
+   Version     : 2.0.0
+
+   Description :
+   Business Engine Kas
+
+   Sections :
+   - State
+   - Init
+   - Normalize
+   - Data
+   - Balance
+   - Summary
+   - Chart
+   - Helper
+===================================================== */
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+export const Process = {
+
+    raw : [],
+
+    member : [],
+
+    data : [],
+
+    balance : {},
+
+    summary : {},
+
+    chart : []
+
+};
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+Process.init = function(
+
+    raw,
+
+    member
+
+){
+
+    Process.raw =
+
+        raw;
+
+    Process.member =
+
+        member;
+
+    normalize();
+
+    processData();
+
+    processBalance();
+
+    processSummary();
+
+    processChart();
+
+};
+
+
+/* =====================================================
+   NORMALIZE
+===================================================== */
+
+function normalize(){
+
+    Process.raw =
+
+        Process.raw
+
+        .map(item=>{
+
+            const date =
+
+                new Date(
+
+                    item.tanggal
+
+                );
+
+            return {
+
+                ...item,
+
+                nominal :
+
+                    Number(
+
+                        item.nominal
+
+                    ),
+
+                date,
+
+                month :
+
+                    date.getMonth() + 1,
+
+                year :
+
+                    date.getFullYear()
+
+            };
+
+        })
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            )=>
+
+                a.date -
+
+                b.date
+
+        );
+
+              }
+
+/* =====================================================
+   DATA
+===================================================== */
+
+function processData(){
+
+    Process.data =
+
+        Process.raw.map(item=>({
+
+            id :
+
+                item.id,
+
+            tanggal :
+
+                item.tanggal,
+
+            date :
+
+                item.date,
+
+            month :
+
+                item.month,
+
+            year :
+
+                item.year,
+
+            jenis :
+
+                item.jenis,
+
+            kategori :
+
+                item.kategori,
+
+            nama :
+
+                item.nama,
+
+            nominal :
+
+                item.nominal,
+
+            keterangan :
+
+                item.keterangan ??
+
+                ""
+
+        }));
+
+}
+
+/* =====================================================
+   BALANCE
+===================================================== */
+
+function processBalance(){
+
+    Process.balance = {};
+
+    Process.member.forEach(
+
+        item=>{
+
+            Process.balance[
+
+                item.nama
+
+            ] = {
+
+                income : 0,
+
+                expense : 0,
+
+                balance : 0
+
+            };
+
+        }
+
+    );
+
+    Process.data.forEach(
+
+        calculateBalance
+
+    );
+
+}
+
+/* =====================================================
+   HELPER
+===================================================== */
+
+function calculateBalance(
+
+    item
+
+){
+
+    const member =
+
+        item.nama;
+
+    const amount =
+
+        item.nominal;
+
+    if(
+
+        !Process.balance[
+
+            member
+
+        ]
+
+    ){
+
+        Process.balance[
+
+            member
+
+        ] = {
+
+            income : 0,
+
+            expense : 0,
+
+            balance : 0
+
+        };
+
+    }
+
+    switch(
+
+        item.jenis
+
+    ){
+
+        case "masuk":
+
+            Process.balance[
+
+                member
+
+            ].income +=
+
+                amount;
+
+            Process.balance[
+
+                member
+
+            ].balance +=
+
+                amount;
+
+            break;
+
+        case "keluar":
+
+            Process.balance[
+
+                member
+
+            ].expense +=
+
+                amount;
+
+            Process.balance[
+
+                member
+
+            ].balance -=
+
+                amount;
+
+            break;
+
+    }
+
+}
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+function processSummary(){
+
+    let totalBalance = 0;
+
+    let totalIncome = 0;
+
+    let totalExpense = 0;
+
+    let weeklyIncome = 0;
+
+    let weeklyExpense = 0;
+
+    Object.values(
+
+        Process.balance
+
+    ).forEach(item=>{
+
+        totalBalance +=
+
+            item.balance;
+
+        totalIncome +=
+
+            item.income;
+
+        totalExpense +=
+
+            item.expense;
+
+    });
+
+    const weekAgo =
+
+        new Date();
+
+    weekAgo.setDate(
+
+        weekAgo.getDate() - 7
+
+    );
+
+    Process.data.forEach(
+
+        item=>{
+
+            if(
+
+                item.date < weekAgo
+
+            ){
+
+                return;
+
+            }
+
+            switch(
+
+                item.jenis
+
+            ){
+
+                case "masuk":
+
+                    weeklyIncome +=
+
+                        item.nominal;
+
+                    break;
+
+                case "keluar":
+
+                    weeklyExpense +=
+
+                        item.nominal;
+
+                    break;
+
+            }
+
+        }
+
+    );
+
+    Process.summary = {
+
+        totalBalance,
+
+        totalIncome,
+
+        totalExpense,
+
+        weeklyIncome,
+
+        weeklyExpense,
+
+        totalMember :
+
+            Process.member.length,
+
+        totalTransaction :
+
+            Process.data.length
+
+    };
+
+}
+
+/* =====================================================
+   CHART
+===================================================== */
+
+function processChart(){
+
+    const chart = {};
+
+    Process.data.forEach(
+
+        item=>{
+
+            const date =
+
+                item.tanggal;
+
+            if(
+
+                !chart[
+
+                    date
+
+                ]
+
+            ){
+
+                chart[
+
+                    date
+
+                ] = 0;
+
+            }
+
+            switch(
+
+                item.jenis
+
+            ){
+
+                case "masuk":
+
+                    chart[
+
+                        date
+
+                    ] +=
+
+                        item.nominal;
+
+                    break;
+
+                case "keluar":
+
+                    chart[
+
+                        date
+
+                    ] -=
+
+                        item.nominal;
+
+                    break;
+
+            }
+
+        }
+
+    );
+
+    Process.chart =
+
+        Object.entries(
+
+            chart
+
+        ).map(
+
+            ([
+
+                date,
+
+                total
+
+            ])=>({
+
+                date,
+
+                total
+
+            })
+
+        );
+
+}
+
 
