@@ -49,7 +49,7 @@ const workspace =
 
 export async function initWorkspace(){
 
-    toggleHome();
+    toggleWorkspace();
 
     if(
 
@@ -69,18 +69,17 @@ export async function initWorkspace(){
 
 }
 
-
 /* =====================================================
-   HOME
+   WORKSPACE
 ===================================================== */
 
-function toggleHome(){
+function toggleWorkspace(){
 
     const saving =
 
         document.getElementById(
 
-            "home-page"
+            "saving-home"
 
         );
 
@@ -104,39 +103,27 @@ function toggleHome(){
 
     }
 
-    if(
+    const active =
 
-        workspace.workspace ===
+        workspace.workspace;
+
+    saving.classList.toggle(
+
+        "hidden",
+
+        active !==
 
         "saving"
 
-    ){
-
-        saving.classList.remove(
-
-            "hidden"
-
-        );
-
-        kas.classList.add(
-
-            "hidden"
-
-        );
-
-        return;
-
-    }
-
-    saving.classList.add(
-
-        "hidden"
-
     );
 
-    kas.classList.remove(
+    kas.classList.toggle(
 
-        "hidden"
+        "hidden",
+
+        active !==
+
+        "kas"
 
     );
 
