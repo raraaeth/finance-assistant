@@ -1,9 +1,8 @@
 /* =====================================================
    Finance Assistant
-   Workspace   : Saving
    Module      : Workspace
    File        : workspace.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Workspace Controller
@@ -12,6 +11,7 @@
    - Import
    - State
    - Init
+   - Workspace
 ===================================================== */
 
 
@@ -23,15 +23,27 @@ import {
 
     loadWorkspace
 
-} from "../../../../js/storage.js";
+} from "./storage.js";
 
 import * as Saving from
 
-    "../../saving/js/home.js";
+    "../pages/saving/home.js";
 
 import * as Kas from
 
-    "../../kas/js/home.js";
+    "../pages/kas/home.js";
+
+import * as Financial from
+
+    "../pages/financial/home.js";
+
+import * as PayrollMonthly from
+
+    "../pages/payroll-monthly/home.js";
+
+import * as PayrollDaily from
+
+    "../pages/payroll-daily/home.js";
 
 
 /* =====================================================
@@ -43,6 +55,31 @@ const workspace =
     loadWorkspace();
 
 
+const WORKSPACE = {
+
+    saving :
+
+        Saving,
+
+    kas :
+
+        Kas,
+
+    financial :
+
+        Financial,
+
+    "payroll-monthly" :
+
+        PayrollMonthly,
+
+    "payroll-daily" :
+
+        PayrollDaily
+
+};
+
+
 /* =====================================================
    INIT
 ===================================================== */
@@ -51,23 +88,28 @@ export async function initWorkspace(){
 
     toggleWorkspace();
 
+    const module =
+
+        WORKSPACE[
+
+            workspace.workspace
+
+        ];
+
     if(
 
-        workspace.workspace ===
-
-        "saving"
+        !module
 
     ){
-
-        await Saving.init();
 
         return;
 
     }
 
-    await Kas.init();
+    await module.init();
 
 }
+
 
 /* =====================================================
    WORKSPACE
@@ -75,59 +117,48 @@ export async function initWorkspace(){
 
 function toggleWorkspace(){
 
-    const saving =
+    Object.keys(
 
-        document.getElementById(
+        WORKSPACE
 
-            "saving-home"
+    ).forEach(
 
-        );
+        name=>{
 
-    const kas =
+            const element =
 
-        document.getElementById(
+                document.getElementById(
 
-            "kas-home"
+                    `${name}-home`
 
-        );
+                );
 
-    if(
+            if(
 
-        !saving ||
+                !element
 
-        !kas
+            ){
 
-    ){
+                return;
 
-        return;
+            }
 
-    }
+            element.classList.toggle(
 
-    const active =
+                "hidden",
 
-        workspace.workspace;
+                workspace.workspace !==
 
-    saving.classList.toggle(
+                name
 
-        "hidden",
+            );
 
-        active !==
-
-        "saving"
-
-    );
-
-    kas.classList.toggle(
-
-        "hidden",
-
-        active !==
-
-        "kas"
+        }
 
     );
 
 }
+
 
 /* =====================================================
    START
