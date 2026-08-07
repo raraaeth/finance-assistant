@@ -107,7 +107,7 @@ async function init(){
 
         CONFIG.api.saving,
 
-        CONFIG.api.bank
+        CONFIG.api.savingBank
 
     );
 
