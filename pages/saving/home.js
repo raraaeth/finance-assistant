@@ -62,7 +62,9 @@ import {
 
     rupiah,
 
-    shortRupiah
+    shortRupiah,
+
+    animateNumber
 
 } from "../../js/utils.js";
 
@@ -230,21 +232,9 @@ function renderSummary(){
 
             </p>
 
-            <h2>
+            <h2 id="summary-total-value">
 
-                ${
-
-                    rupiah(
-
-                        Process.summary
-
-                        .totalBalance
-
-                    )
-
-                }
-
-            </h2>
+</h2>
 
         </div>
 
