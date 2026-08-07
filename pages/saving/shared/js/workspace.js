@@ -25,6 +25,14 @@ import {
 
 } from "../../../../js/storage.js";
 
+import * as Saving from
+
+    "../../saving/js/home.js";
+
+import * as Kas from
+
+    "../../kas/js/home.js";
+
 
 /* =====================================================
    STATE
@@ -39,7 +47,23 @@ const workspace =
    INIT
 ===================================================== */
 
-export function initWorkspace(){
+export async function initWorkspace(){
+
+    if(
+
+        workspace.workspace ===
+
+        "saving"
+
+    ){
+
+        await Saving.init();
+
+    }else{
+
+        await Kas.init();
+
+    }
 
     toggleHome();
 
