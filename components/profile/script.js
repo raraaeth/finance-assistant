@@ -661,12 +661,27 @@ function loadWorkspaceList(
 
                 "saving"
 
+        },
+
+        {
+
+            id : "kas",
+
+            icon : "👥",
+
+            title : "Kas",
+
+            active :
+
+                current.workspace ===
+
+                "kas"
+
         }
 
     ];
 
 }
-
 
 /* =====================================================
    INIT WORKSPACE
