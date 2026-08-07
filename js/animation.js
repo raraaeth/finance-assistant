@@ -33,7 +33,7 @@ Animation.number = function(
 
     formatter = value => value,
 
-    duration = 800
+    duration = 1200
 
 ){
 
