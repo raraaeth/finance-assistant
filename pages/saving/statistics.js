@@ -359,24 +359,22 @@ Statistics.renderTransaction = function(){
 
     button.style.display =
 
-        Statistics.data.length > 5 ?
+    Statistics.limit >=
 
-        "block"
+    Statistics.data.length
 
-        :
+    ?
 
-        "none";
+    "none"
 
-    button.innerHTML =
+    :
 
-        Statistics.expanded ?
+    "block";
 
-        'Sembunyikan <span>▲</span>'
+button.innerHTML =
 
-        :
-
-        'Tampilkan Semua <span>▼</span>';
-
+    'Tampilkan 5 Lagi <span>▼</span>';
+   
 };
 
 
@@ -651,11 +649,17 @@ document.addEventListener(
 
     event=>{
 
+        const button =
+
+            event.target.closest(
+
+                "#statistics-show-more"
+
+            );
+
         if(
 
-            event.target.id !==
-
-            "statistics-show-more"
+            !button
 
         ){
 
@@ -663,26 +667,13 @@ document.addEventListener(
 
         }
 
-        Statistics.expanded =
-
-            !Statistics.expanded;
-
-        Statistics.limit =
-
-            Statistics.expanded ?
-
-            Infinity
-
-            :
-
-            5;
+        Statistics.limit += 5;
 
         Statistics.renderTransaction();
 
     }
 
 );
-
 
 /* =====================================================
    HELPER
