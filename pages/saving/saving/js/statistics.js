@@ -352,7 +352,7 @@ Statistics.renderTransaction = function(){
         "statistics-show-more"
 
     );
-   console.log(button);
+   
 
 if(
 
@@ -430,29 +430,7 @@ Statistics.applyFilter = function(){
             }
 
         );
-   console.log(
-
-    "Transaction :",
-
-    Process.transaction.length
-
-);
-
-console.log(
-
-    "Filtered :",
-
-    Statistics.data.length
-
-);
-
-console.log(
-
-    Statistics.filter.start,
-
-    Statistics.filter.end
-
-);
+   
 
 };
 
@@ -751,17 +729,6 @@ function formatPeriod(
 }
 
 
-/* =====================================================
-   START
-===================================================== */
-
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    Statistics.init
-
-);
 
 
 
