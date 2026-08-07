@@ -386,6 +386,14 @@ Statistics.refresh = function(){
 
     Statistics.applyFilter();
 
+    console.log(
+
+        "Jumlah Data :",
+
+        Statistics.data.length
+
+    );
+
     Statistics.renderChart();
 
     Statistics.renderTransaction();
@@ -669,12 +677,27 @@ document.addEventListener(
 
         Statistics.limit += 5;
 
+        console.log(
+
+            "Limit :",
+
+            Statistics.limit
+
+        );
+
+        console.log(
+
+            "Data :",
+
+            Statistics.data.length
+
+        );
+
         Statistics.renderTransaction();
 
     }
 
 );
-
 /* =====================================================
    HELPER
 ===================================================== */
