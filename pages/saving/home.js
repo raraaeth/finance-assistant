@@ -200,47 +200,111 @@ function renderHero(){
 
 function renderSummary(){
 
-    document.getElementById(
+    const card =
 
-        "summary-total"
+        document.getElementById(
 
-    ).textContent =
-
-        rupiah(
-
-            Process.summary
-
-            .totalBalance
+            "summary-card"
 
         );
 
-    document.getElementById(
+    if(
 
-        "summary-income"
+        !card
 
-    ).textContent =
+    ){
 
-        shortRupiah(
+        return;
 
-            Process.summary
+    }
 
-            .weeklyIncome
+    card.innerHTML =
 
-        );
+    `
 
-    document.getElementById(
+        <div class="summary-total">
 
-        "summary-expense"
+            <p>
 
-    ).textContent =
+                Total Saldo
 
-        shortRupiah(
+            </p>
 
-            Process.summary
+            <h2>
 
-            .weeklyExpense
+                ${
 
-        );
+                    rupiah(
+
+                        Process.summary
+
+                        .totalBalance
+
+                    )
+
+                }
+
+            </h2>
+
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-item">
+
+                <span>
+
+                    Masuk Minggu Ini
+
+                </span>
+
+                <strong>
+
+                    ${
+
+                        shortRupiah(
+
+                            Process.summary
+
+                            .weeklyIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            <div class="summary-item">
+
+                <span>
+
+                    Keluar Minggu Ini
+
+                </span>
+
+                <strong>
+
+                    ${
+
+                        shortRupiah(
+
+                            Process.summary
+
+                            .weeklyExpense
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    `;
 
 }
 
