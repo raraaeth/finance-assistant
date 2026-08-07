@@ -49,6 +49,8 @@ const workspace =
 
 export async function initWorkspace(){
 
+    toggleHome();
+
     if(
 
         workspace.workspace ===
@@ -59,13 +61,11 @@ export async function initWorkspace(){
 
         await Saving.init();
 
-    }else{
-
-        await Kas.init();
+        return;
 
     }
 
-    toggleHome();
+    await Kas.init();
 
 }
 
