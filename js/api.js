@@ -2,10 +2,14 @@
    Finance Assistant
    Module      : API
    File        : api.js
-   Version     : 2.0.0
+   Version     : 3.0.0
 
    Description :
-   Shared OpenSheet API Engine
+   OpenSheet API Engine
+
+   Sections :
+   - State
+   - Load
 ===================================================== */
 
 
@@ -17,11 +21,7 @@ export const API = {
 
     raw : [],
 
-    master : [],
-
-    bank : [],
-
-    member : []
+    data : []
 
 };
 
@@ -34,7 +34,7 @@ API.load = async function(
 
     rawUrl,
 
-    masterUrl
+    dataUrl
 
 ){
 
@@ -42,7 +42,7 @@ API.load = async function(
 
         raw,
 
-        master
+        data
 
     ] = await Promise.all([
 
@@ -54,7 +54,7 @@ API.load = async function(
 
         fetch(
 
-            masterUrl
+            dataUrl
 
         )
 
@@ -64,16 +64,8 @@ API.load = async function(
 
         await raw.json();
 
-    API.master =
+    API.data =
 
-        await master.json();
-
-    API.bank =
-
-        API.master;
-
-    API.member =
-
-        API.master;
+        await data.json();
 
 };
