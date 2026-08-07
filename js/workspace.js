@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Workspace
    File        : workspace.js
-   Version     : 2.0.0
+   Version     : 3.0.0
 
    Description :
    Workspace Controller
@@ -11,7 +11,6 @@
    - Import
    - State
    - Init
-   - Workspace
 ===================================================== */
 
 
@@ -33,18 +32,6 @@ import * as Kas from
 
     "../pages/kas/home.js";
 
-import * as Financial from
-
-    "../pages/financial/home.js";
-
-import * as PayrollMonthly from
-
-    "../pages/payroll-monthly/home.js";
-
-import * as PayrollDaily from
-
-    "../pages/payroll-daily/home.js";
-
 
 /* =====================================================
    STATE
@@ -54,7 +41,6 @@ const workspace =
 
     loadWorkspace();
 
-
 const WORKSPACE = {
 
     saving :
@@ -63,19 +49,7 @@ const WORKSPACE = {
 
     kas :
 
-        Kas,
-
-    financial :
-
-        Financial,
-
-    "payroll-monthly" :
-
-        PayrollMonthly,
-
-    "payroll-daily" :
-
-        PayrollDaily
+        Kas
 
 };
 
@@ -86,15 +60,15 @@ const WORKSPACE = {
 
 export async function initWorkspace(){
 
-    toggleWorkspace();
+    const active =
+
+        workspace?.workspace ??
+
+        "saving";
 
     const module =
 
-        WORKSPACE[
-
-            workspace.workspace
-
-        ];
+        WORKSPACE[active];
 
     if(
 
@@ -102,60 +76,25 @@ export async function initWorkspace(){
 
     ){
 
+        console.warn(
+
+            `Workspace "${active}" tidak ditemukan.`
+
+        );
+
         return;
 
     }
 
-    await module.init();
+    console.log(
 
-}
+        "Workspace aktif:",
 
-
-/* =====================================================
-   WORKSPACE
-===================================================== */
-
-function toggleWorkspace(){
-
-    Object.keys(
-
-        WORKSPACE
-
-    ).forEach(
-
-        name=>{
-
-            const element =
-
-                document.getElementById(
-
-                    `${name}-home`
-
-                );
-
-            if(
-
-                !element
-
-            ){
-
-                return;
-
-            }
-
-            element.classList.toggle(
-
-                "hidden",
-
-                workspace.workspace !==
-
-                name
-
-            );
-
-        }
+        active
 
     );
+
+    await module.init();
 
 }
 
