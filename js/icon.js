@@ -3,15 +3,31 @@
    Global
    Module      : Icon
    File        : icon.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Global Icon Helper
 
    Sections :
+   - State
    - Icon
    - Bank
 ===================================================== */
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+const BASE =
+
+    new URL(
+
+        "../assets/icons/",
+
+        import.meta.url
+
+    ).href;
 
 
 /* =====================================================
@@ -47,51 +63,73 @@ Icon.bank = function(
 
         case "mandiri":
 
-            return "../../assets/icons/mandiri.webp";
+            return BASE +
+
+                "mandiri.webp";
 
         case "bri":
 
-            return "../../assets/icons/bri.webp";
+            return BASE +
+
+                "bri.webp";
 
         case "bca":
 
-            return "../../assets/icons/bca.webp";
+            return BASE +
+
+                "bca.webp";
 
         case "bni":
 
-            return "../../assets/icons/bni.webp";
+            return BASE +
+
+                "bni.webp";
 
         case "dana":
 
-            return "../../assets/icons/dana.webp";
+            return BASE +
+
+                "dana.webp";
 
         case "ovo":
 
-            return "../../assets/icons/ovo.webp";
+            return BASE +
+
+                "ovo.webp";
 
         case "gopay":
 
-            return "../../assets/icons/gopay.webp";
+            return BASE +
+
+                "gopay.webp";
 
         case "shopee":
 
         case "shopeepay":
 
-            return "../../assets/icons/shopee.webp";
+            return BASE +
+
+                "shopee.webp";
 
         case "crypto":
 
         case "wallet_crypto":
 
-            return "../../assets/icons/crypto.webp";
+            return BASE +
+
+                "crypto.webp";
 
         case "seabank":
 
-            return "../../assets/icons/seabank.webp";
+            return BASE +
+
+                "seabank.webp";
 
         default:
 
-            return "../../assets/icons/defaultbank.webp";
+            return BASE +
+
+                "defaultbank.webp";
 
     }
 
