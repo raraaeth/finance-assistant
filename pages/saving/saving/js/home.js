@@ -11,10 +11,11 @@
 
 import {
 
-    loadUser
+    loadUser,
+
+    loadWorkspace
 
 } from "../../../../js/storage.js";
-
 import {
 
     CONFIG
@@ -76,6 +77,10 @@ import {
 
 const user = loadUser();
 
+const workspace =
+
+    loadWorkspace();
+
 
 /* =====================================================
    INIT
@@ -99,9 +104,17 @@ async function init(){
 
         theme :
 
-            "saving"
+            workspace.workspace
 
     });
+
+    if(
+
+    workspace.workspace ===
+
+    "saving"
+
+){
 
     await API.load(
 
@@ -111,13 +124,35 @@ async function init(){
 
     );
 
-    Process.init(
+}else{
 
-        API.raw,
+    await API.load(
 
-        API.bank
+        CONFIG.api.kas,
+
+        CONFIG.api.kasMember
 
     );
+
+}
+
+    Process.init(
+
+    API.raw,
+
+    workspace.workspace ===
+
+    "saving"
+
+    ?
+
+    API.bank
+
+    :
+
+    API.member
+
+);
 
     Statistics.init();
 
