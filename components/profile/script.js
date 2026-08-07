@@ -1152,11 +1152,19 @@ function onWorkspace(
 
 ){
 
-    console.log(
+    const current =
 
-        id
+        loadWorkspace();
 
-    );
+    saveWorkspace({
+
+        ...current,
+
+        workspace : id
+
+    });
+
+    location.reload();
 
 }
 
