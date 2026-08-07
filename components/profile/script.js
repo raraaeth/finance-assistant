@@ -53,7 +53,13 @@ const State = {
 
 const BASE =
 
-    "../../components/profile/";
+    new URL(
+
+        "./",
+
+        import.meta.url
+
+    ).href;
 
 
 export const Profile = {
@@ -88,7 +94,9 @@ const response =
 
     await fetch(
 
-        `${BASE}index.html`
+        BASE +
+
+        "index.html"
 
     );
 
@@ -144,7 +152,9 @@ async function loadStyle(){
 
     link.href =
 
-        `${BASE}style.css`;
+    BASE +
+
+    "style.css";
 
     document.head.appendChild(
 
