@@ -66,6 +66,13 @@ import {
 
 } from "../../js/utils.js";
 
+import {
+
+    Animation
+
+} from "../../js/animation.js";
+
+
 
 /* =====================================================
    INIT DATA
@@ -230,17 +237,11 @@ function renderSummary(){
 
             </p>
 
-            <h2>
+            <h2
 
-    ${
+    id="summary-total-value"
 
-        rupiah(
-
-            Process.summary.totalBalance
-
-        )
-
-    }
+>
 
 </h2>
 
@@ -303,6 +304,22 @@ function renderSummary(){
         </div>
 
     `;
+
+   Animation.number(
+
+    document.getElementById(
+
+        "summary-total-value"
+
+    ),
+
+    Process.summary
+
+    .totalBalance,
+
+    rupiah
+
+);
 
 }
 
