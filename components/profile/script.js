@@ -639,7 +639,11 @@ function renderWorkspaceCard(){
    LOAD WORKSPACE
 ===================================================== */
 
-function loadWorkspaceList(){
+function loadWorkspaceList(
+
+    current
+
+){
 
     return [
 
@@ -651,7 +655,11 @@ function loadWorkspaceList(){
 
             title : "Saving",
 
-            active : true
+            active :
+
+                current.workspace ===
+
+                "saving"
 
         }
 
@@ -666,11 +674,17 @@ function loadWorkspaceList(){
 
 function initWorkspace(){
 
+    const current =
+
+        loadWorkspace();
+
     State.workspace =
 
-    loadWorkspace();
+    loadWorkspaceList(
 
-}
+        current
+
+    );
 
 
 
