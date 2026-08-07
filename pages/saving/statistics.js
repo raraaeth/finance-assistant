@@ -240,6 +240,31 @@ Statistics.renderTransaction = function(){
     list.innerHTML =
 
         "";
+   console.log(
+
+    "Render Limit :",
+
+    Statistics.limit
+
+);
+
+console.log(
+
+    "Slice :",
+
+    Statistics.data
+
+        .slice(
+
+            0,
+
+            Statistics.limit
+
+        )
+
+        .length
+
+);
 
     Statistics.data
 
