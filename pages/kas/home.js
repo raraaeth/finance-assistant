@@ -216,17 +216,17 @@ function renderSummary(){
 
     document.getElementById(
 
-        "summary-income"
+    "summary-expense"
 
-    ).textContent =
+).textContent =
 
-        shortRupiah(
+    shortRupiah(
 
-            Process.summary
+        Process.summary
 
-            .weeklyIncome
+        .totalIncome
 
-        );
+    );
 
     document.getElementById(
 
