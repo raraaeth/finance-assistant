@@ -87,15 +87,7 @@ const user =
    INIT
 ===================================================== */
 
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    init
-
-);
-
-async function init(){
+export async function init(){
 
     await Header.render({
 
