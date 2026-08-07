@@ -3,26 +3,98 @@
  * Finance Assistant
  * Module      : App
  * File        : app.js
+ * Version     : 2.0.0
+ *
+ * Description :
+ * Landing Page Controller
  * ==============================================
  */
 
-import { loadUser } from "./storage.js";
 
-const user = loadUser();
+/* ==========================================
+   IMPORT
+========================================== */
 
-if (user?.onboardingCompleted) {
+import {
 
-    location.replace(
-        "pages/dashboard/index.html"
+    loadUser
+
+} from "./storage.js";
+
+
+/* ==========================================
+   START
+========================================== */
+
+const user =
+
+    loadUser();
+
+
+/* ==========================================
+   BUTTON
+========================================== */
+
+const startButton =
+
+    document.getElementById(
+
+        "start-app"
+
     );
 
-} else {
+const registerButton =
 
-    location.replace(
-        "pages/onboarding/index.html"
+    document.getElementById(
+
+        "register-app"
+
     );
+
+
+/* ==========================================
+   OPEN APP
+========================================== */
+
+function openApp(){
+
+    if(
+
+        user?.onboardingCompleted
+
+    ){
+
+        location.href =
+
+            "pages/dashboard/";
+
+        return;
+
+    }
+
+    location.href =
+
+        "pages/onboarding/";
 
 }
 
 
+/* ==========================================
+   EVENT
+========================================== */
 
+startButton?.addEventListener(
+
+    "click",
+
+    openApp
+
+);
+
+registerButton?.addEventListener(
+
+    "click",
+
+    openApp
+
+);
