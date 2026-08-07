@@ -12,7 +12,11 @@
 
 import {
 
-    loadUser
+    loadUser,
+
+    loadWorkspace,
+
+    saveWorkspace
 
 } from "../../js/storage.js";
 
@@ -635,7 +639,7 @@ function renderWorkspaceCard(){
    LOAD WORKSPACE
 ===================================================== */
 
-function loadWorkspace(){
+function loadWorkspaceList(){
 
     return [
 
@@ -664,7 +668,7 @@ function initWorkspace(){
 
     State.workspace =
 
-        loadWorkspace();
+    loadWorkspace();
 
 }
 
