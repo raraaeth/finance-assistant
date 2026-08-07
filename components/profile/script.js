@@ -1074,6 +1074,30 @@ function onClick(
 
 ){
 
+    const workspace =
+
+        event.target.closest(
+
+            ".workspace-item"
+
+        );
+
+    if(
+
+        workspace
+
+    ){
+
+        onWorkspace(
+
+            workspace.dataset.id
+
+        );
+
+        return;
+
+    }
+
     const menu =
 
         event.target.closest(
@@ -1115,6 +1139,24 @@ function onClick(
         onLogout();
 
     }
+
+}
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+function onWorkspace(
+
+    id
+
+){
+
+    console.log(
+
+        id
+
+    );
 
 }
 
