@@ -141,3 +141,15 @@ function toggleHome(){
     );
 
 }
+
+/* =====================================================
+   START
+===================================================== */
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    initWorkspace
+
+);
