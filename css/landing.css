@@ -1,0 +1,369 @@
+/* =====================================================
+   Finance Assistant
+   FILE : landing.css
+   DESCRIPTION : Landing Page
+   VERSION : 1.0.0
+===================================================== */
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+body{
+
+    margin:0;
+
+    background:#F6F8FC;
+
+    color:#1F2937;
+
+    font-family:Inter,sans-serif;
+
+    line-height:1.7;
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+section,
+
+header{
+
+    width:min(
+
+        1100px,
+
+        calc(100% - 40px)
+
+    );
+
+    margin:auto;
+
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero{
+
+    min-height:100vh;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+}
+
+
+.hero-content{
+
+    max-width:760px;
+
+}
+
+
+/* =====================================================
+   BADGE
+===================================================== */
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:8px 18px;
+
+    border-radius:999px;
+
+    background:#EAF2FF;
+
+    color:#2563EB;
+
+    font-weight:600;
+
+    font-size:14px;
+
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.hero h1{
+
+    margin:24px 0 20px;
+
+    font-size:clamp(
+
+        40px,
+
+        8vw,
+
+        64px
+
+    );
+
+    line-height:1.1;
+
+    font-weight:800;
+
+}
+
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
+
+.hero p{
+
+    color:#6B7280;
+
+    font-size:18px;
+
+    margin-bottom:20px;
+
+}
+
+
+.hero-note{
+
+    font-size:15px;
+
+    color:#94A3B8;
+
+}
+
+
+/* =====================================================
+   BUTTON
+===================================================== */
+
+button{
+
+    margin-top:20px;
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:16px 34px;
+
+    background:#2563EB;
+
+    color:#fff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+
+button:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+
+    0 12px 25px
+
+    rgba(
+
+        37,
+
+        99,
+
+        235,
+
+        .25
+
+    );
+
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+section{
+
+    margin-bottom:80px;
+
+}
+
+
+section h2{
+
+    margin-bottom:18px;
+
+    font-size:34px;
+
+}
+
+
+section p{
+
+    color:#6B7280;
+
+}
+
+
+/* =====================================================
+   LIST
+===================================================== */
+
+ul{
+
+    margin:0;
+
+    padding:0;
+
+    list-style:none;
+
+    display:grid;
+
+    gap:14px;
+
+}
+
+
+li{
+
+    background:#fff;
+
+    padding:18px 22px;
+
+    border-radius:18px;
+
+    box-shadow:
+
+        0 5px 18px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .05
+
+        );
+
+}
+
+
+/* =====================================================
+   CTA
+===================================================== */
+
+section:last-of-type{
+
+    text-align:center;
+
+    padding:70px 40px;
+
+    background:#fff;
+
+    border-radius:28px;
+
+    box-shadow:
+
+        0 10px 30px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .05
+
+        );
+
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer{
+
+    padding:50px 20px;
+
+    text-align:center;
+
+    color:#94A3B8;
+
+}
+
+
+footer small{
+
+    display:block;
+
+    margin-top:10px;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(
+
+max-width:768px
+
+){
+
+.hero{
+
+    min-height:auto;
+
+    padding:90px 0;
+
+}
+
+.hero h1{
+
+    font-size:42px;
+
+}
+
+section h2{
+
+    font-size:28px;
+
+}
+
+button{
+
+    width:100%;
+
+}
+
+}
