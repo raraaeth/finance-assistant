@@ -1,0 +1,787 @@
+/* =====================================================
+   PAGE
+===================================================== */
+
+.page{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+    padding:20px;
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+.section{
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.card{
+
+    background:#ffffff;
+
+    border-radius:20px;
+
+    padding:18px;
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(
+
+            0,
+
+            0,
+
+            0,
+
+            .05
+
+        );
+
+}
+
+
+.card-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:16px;
+
+}
+
+
+.card-title{
+
+    font-size:16px;
+
+    font-weight:700;
+
+}
+
+
+.card-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+.filter{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+.filter-grid{
+
+    display:grid;
+
+    gap:12px;
+
+}
+
+
+.filter-label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#666;
+
+}
+
+
+.filter-select{
+
+    width:100%;
+
+    height:44px;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:0 14px;
+
+    background:#f4f5f7;
+
+    font-size:14px;
+
+}
+
+
+/* =====================================================
+   LIST
+===================================================== */
+
+.list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+.list-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+
+/* =====================================================
+   BADGE
+===================================================== */
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   UTILITY
+===================================================== */
+
+.hidden{
+
+    display:none;
+
+}
+
+/* =====================================================
+   LIST
+===================================================== */
+
+.list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+.list-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+}
+
+/* =====================================================
+   FLEX
+===================================================== */
+
+.flex{
+
+    display:flex;
+
+}
+
+.flex-column{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.flex-center{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+.flex-between{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.grid{
+
+    display:grid;
+
+    gap:16px;
+
+}
+
+/* =====================================================
+   SCROLL
+===================================================== */
+
+.scroll-y{
+
+    overflow-y:auto;
+
+}
+
+.scroll-x{
+
+    overflow-x:auto;
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty{
+
+    padding:32px 20px;
+
+    text-align:center;
+
+    color:#9CA3AF;
+
+}
+
+/* =====================================================
+   FILTER BAR
+===================================================== */
+
+.filter-bar{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:12px;
+
+}
+
+.filter-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+.filter-label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:var(--text-secondary);
+
+}
+
+.filter-select{
+
+    width:100%;
+
+    height:44px;
+
+    padding:0 14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#F5F7FB;
+
+    font-size:14px;
+
+    outline:none;
+
+}
+
+.filter-input{
+
+    width:100%;
+
+    height:44px;
+
+    padding:0 14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#F5F7FB;
+
+    font-size:14px;
+
+    color:var(--text-primary);
+
+    outline:none;
+
+    cursor:pointer;
+
+}
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+.filter-wrapper{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+
+/* =====================================================
+   FILTER PERIOD
+===================================================== */
+
+.filter-period{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    padding:14px 16px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#f8fafc;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.filter-period:hover{
+
+    background:#eef4ff;
+
+}
+
+.filter-period-text{
+
+    flex:1;
+
+    text-align:left;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:#1f2937;
+
+}
+
+
+/* =====================================================
+   FILTER CHIP
+===================================================== */
+
+.filter-chip-group{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+.filter-chip{
+
+    padding:10px 18px;
+
+    border:1px solid #dbe3f0;
+
+    border-radius:999px;
+
+    background:#ffffff;
+
+    color:#475569;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+
+/* =====================================================
+   FILTER ACTIVE
+===================================================== */
+
+.filter-chip.active{
+
+    border-color:#2563eb;
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+}
+
+.filter-chip:active{
+
+    transform:scale(.96);
+
+}
+
+
+/* =====================================================
+   FILTER SHEET
+===================================================== */
+
+.filter-sheet{
+
+    position:fixed;
+
+    top:0;
+
+    right:0;
+
+    bottom:0;
+
+    width:100%;
+
+    background:#ffffff;
+
+    z-index:999;
+
+    display:flex;
+
+    flex-direction:column;
+
+    transform:
+
+        translateX(
+
+            100%
+
+        );
+
+    animation:
+
+        filterSlideLeft
+
+        .3s
+
+        ease
+
+        forwards;
+
+}
+
+/* =====================================================
+   FILTER SLIDE LEFT
+===================================================== */
+
+@keyframes filterSlideLeft{
+
+    from{
+
+        transform:
+
+            translateX(
+
+                100%
+
+            );
+
+    }
+
+    to{
+
+        transform:
+
+            translateX(
+
+                0
+
+            );
+
+    }
+
+}
+
+
+/* =====================================================
+   FILTER HANDLE
+===================================================== */
+
+.filter-sheet-handle{
+
+    width:48px;
+
+    height:5px;
+
+    margin:16px auto;
+
+    border-radius:999px;
+
+    background:#d1d5db;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET HEADER
+===================================================== */
+
+.filter-sheet-header{
+
+    padding:0 24px 20px;
+
+    text-align:center;
+
+    border-bottom:
+
+        1px solid
+
+        #eef2f7;
+
+}
+
+.filter-sheet-header h3{
+
+    margin:0;
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+.filter-sheet-header p{
+
+    margin-top:8px;
+
+    font-size:14px;
+
+    color:#64748b;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET BODY
+===================================================== */
+
+.filter-sheet-body{
+
+    padding:24px;
+
+    overflow-y:auto;
+
+}
+
+.filter-input{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    margin-bottom:20px;
+
+}
+
+.filter-input label{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#475569;
+
+}
+
+.filter-input input{
+
+    width:100%;
+
+    height:52px;
+
+    padding:0 16px;
+
+    border:1px solid #dbe3f0;
+
+    border-radius:14px;
+
+    font-size:15px;
+
+    background:#ffffff;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET FOOTER
+===================================================== */
+
+.filter-sheet-footer{
+
+    display:flex;
+
+    gap:12px;
+
+    padding:20px;
+
+    border-top:
+
+        1px solid
+
+        #eef2f7;
+
+    background:#ffffff;
+
+}
+
+.filter-sheet-footer button{
+
+    flex:1;
+
+    height:52px;
+
+    border:none;
+
+    border-radius:14px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+}
+
+#filter-cancel{
+
+    background:#f1f5f9;
+
+    color:#334155;
+
+}
+
+#filter-apply{
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+}
+
+/* =====================================================
+   FILTER ANIMATION
+===================================================== */
+
+@keyframes filterSheetUp{
+
+    from{
+
+        transform:
+
+            translateY(
+
+                100%
+
+            );
+
+    }
+
+    to{
+
+        transform:
+
+            translateY(
+
+                0
+
+            );
+
+    }
+
+}
