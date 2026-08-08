@@ -649,3 +649,34 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{
     background:#6B7280;
 
 }
+
+/* =====================================================
+   STATISTICS PAGINATION — DARK
+===================================================== */
+
+.statistics-pagination button{
+
+    background:#374151;
+
+    color:#ffffff;
+
+    border:1px solid #4b5563;
+
+}
+
+
+/* =====================================================
+   DISABLED
+===================================================== */
+
+.statistics-pagination button:disabled{
+
+    background:#252f3f;
+
+    color:#9ca3af;
+
+    border-color:#374151;
+
+    opacity:1;
+
+}
