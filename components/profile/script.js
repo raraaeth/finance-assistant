@@ -1,8 +1,8 @@
 /* =====================================================
    GLOBAL PROFILE
-   FILE : script.js
-   DESCRIPTION : Profile Component
-   VERSION : 2.0.0
+   FILE        : script.js
+   DESCRIPTION : Global Profile Component
+   VERSION     : 3.0.0
 ===================================================== */
 
 
@@ -43,12 +43,15 @@ const State = {
 
     workspace : [],
 
-    container : null
+    container : null,
+
+    eventsBound : false
 
 };
 
+
 /* =====================================================
-   COMPONENT
+   BASE
 ===================================================== */
 
 const BASE =
@@ -61,6 +64,10 @@ const BASE =
 
     ).href;
 
+
+/* =====================================================
+   COMPONENT
+===================================================== */
 
 export const Profile = {
 
@@ -90,25 +97,44 @@ export const Profile = {
 
         await loadStyle();
 
-const response =
+        const response =
 
-    await fetch(
+            await fetch(
 
-        BASE +
+                BASE +
 
-        "index.html"
+                "index.html"
 
-    );
+            );
 
-State.container.innerHTML =
+        if(
 
-    await response.text();
+            !response.ok
 
-init();
+        ){
+
+            console.error(
+
+                "Profile HTML gagal dimuat:",
+
+                response.status
+
+            );
+
+            return;
+
+        }
+
+        State.container.innerHTML =
+
+            await response.text();
+
+        init();
 
     }
 
 };
+
 
 /* =====================================================
    LOAD STYLE
@@ -152,9 +178,9 @@ async function loadStyle(){
 
     link.href =
 
-    BASE +
+        BASE +
 
-    "style.css";
+        "style.css";
 
     document.head.appendChild(
 
@@ -163,6 +189,7 @@ async function loadStyle(){
     );
 
 }
+
 
 /* =====================================================
    INIT
@@ -224,6 +251,7 @@ function render(){
 
 }
 
+
 /* =====================================================
    LOGIN
 ===================================================== */
@@ -277,10 +305,14 @@ function renderLogin(){
         <div class="profile-login">
 
             <img
-    class="profile-login-image"
-    src="${getAvatar()}"
-    alt="Guest"
->
+
+                class="profile-login-image"
+
+                src="${getAvatar()}"
+
+                alt="Guest"
+
+            >
 
             <h2 class="profile-login-title">
 
@@ -311,22 +343,6 @@ function renderLogin(){
         </div>
 
     `;
-
-    document
-
-        .getElementById(
-
-            "profile-login-button"
-
-        )
-
-        .addEventListener(
-
-            "click",
-
-            onGoogleLogin
-
-        );
 
 }
 
@@ -390,6 +406,18 @@ function renderUserCard(){
 
         );
 
+    if(
+
+        !login ||
+
+        !dashboard
+
+    ){
+
+        return;
+
+    }
+
     login.classList.add(
 
         "hidden"
@@ -414,11 +442,25 @@ function renderUserCard(){
 
         "-";
 
-    document.getElementById(
+    const user =
 
-        "profile-user"
+        document.getElementById(
 
-    ).innerHTML =
+            "profile-user"
+
+        );
+
+    if(
+
+        !user
+
+    ){
+
+        return;
+
+    }
+
+    user.innerHTML =
 
     `
 
@@ -512,7 +554,13 @@ function getAvatar(){
 
     }
 
-    return `${BASE}assets/avatar.webp`;
+    return (
+
+        BASE +
+
+        "assets/avatar.webp"
+
+    );
 
 }
 
@@ -562,6 +610,7 @@ function getGreeting(){
     return "🌙 Selamat Malam";
 
 }
+
 
 /* =====================================================
    WORKSPACE
@@ -619,23 +668,35 @@ function renderWorkspaceCard(){
 
             <div class="profile-workspace">
 
-                ${renderWorkspaceGroup(
+                ${
 
-                    "🟢 Active",
+                    renderWorkspaceGroup(
 
-                    active
+                        "🟢 Active",
 
-                )}
+                        active
 
-                ${renderWorkspaceGroup(
+                    )
 
-                    "🟡 Inactive",
+                }
 
-                    inactive
+                ${
 
-                )}
+                    renderWorkspaceGroup(
 
-                ${renderCreateWorkspace()}
+                        "🟡 Inactive",
+
+                        inactive
+
+                    )
+
+                }
+
+                ${
+
+                    renderCreateWorkspace()
+
+                }
 
             </div>
 
@@ -644,6 +705,7 @@ function renderWorkspaceCard(){
     `;
 
 }
+
 
 /* =====================================================
    LOAD WORKSPACE
@@ -667,7 +729,7 @@ function loadWorkspaceList(
 
             active :
 
-                current.workspace ===
+                current?.workspace ===
 
                 "saving"
 
@@ -683,7 +745,7 @@ function loadWorkspaceList(
 
             active :
 
-                current.workspace ===
+                current?.workspace ===
 
                 "kas"
 
@@ -692,6 +754,7 @@ function loadWorkspaceList(
     ];
 
 }
+
 
 /* =====================================================
    INIT WORKSPACE
@@ -705,13 +768,14 @@ function initWorkspace(){
 
     State.workspace =
 
-    loadWorkspaceList(
+        loadWorkspaceList(
 
-        current
+            current
 
-    );
+        );
 
-       }
+}
+
 
 /* =====================================================
    GROUP
@@ -741,11 +805,15 @@ function renderWorkspaceGroup(
 
                 ?
 
-                items.map(
+                items
 
-                    createWorkspaceItem
+                    .map(
 
-                ).join("")
+                        createWorkspaceItem
+
+                    )
+
+                    .join("")
 
                 :
 
@@ -850,7 +918,7 @@ function createWorkspaceItem(
 
 
 /* =====================================================
-   CREATE
+   CREATE WORKSPACE
 ===================================================== */
 
 function renderCreateWorkspace(){
@@ -871,7 +939,8 @@ function renderCreateWorkspace(){
 
     `;
 
-               }
+}
+
 
 /* =====================================================
    MENU
@@ -1051,6 +1120,8 @@ function renderLogoutCard(){
 
             class="profile-logout-button"
 
+            type="button"
+
         >
 
             🚪 Keluar dari Akun
@@ -1068,6 +1139,16 @@ function renderLogoutCard(){
 
 function initEvent(){
 
+    if(
+
+        State.eventsBound
+
+    ){
+
+        return;
+
+    }
+
     document.addEventListener(
 
         "click",
@@ -1076,13 +1157,43 @@ function initEvent(){
 
     );
 
+    State.eventsBound =
+
+        true;
+
 }
+
+
+/* =====================================================
+   CLICK
+===================================================== */
 
 function onClick(
 
     event
 
 ){
+
+    const loginButton =
+
+        event.target.closest(
+
+            "#profile-login-button"
+
+        );
+
+    if(
+
+        loginButton
+
+    ){
+
+        onGoogleLogin();
+
+        return;
+
+    }
+
 
     const workspace =
 
@@ -1108,6 +1219,7 @@ function onClick(
 
     }
 
+
     const menu =
 
         event.target.closest(
@@ -1132,6 +1244,7 @@ function onClick(
 
     }
 
+
     const logoutButton =
 
         event.target.closest(
@@ -1152,8 +1265,9 @@ function onClick(
 
 }
 
+
 /* =====================================================
-   WORKSPACE
+   CHANGE WORKSPACE
 ===================================================== */
 
 function onWorkspace(
@@ -1165,6 +1279,18 @@ function onWorkspace(
     const current =
 
         loadWorkspace();
+
+    if(
+
+        current?.workspace ===
+
+        id
+
+    ){
+
+        return;
+
+    }
 
     saveWorkspace({
 
