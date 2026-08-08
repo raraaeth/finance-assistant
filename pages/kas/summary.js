@@ -1,17 +1,21 @@
 /* =====================================================
    Finance Assistant
-   Page        : Kas
+   Page        : Saving / Kas
    Module      : Summary
    File        : summary.js
-   Version     : 2.0.0
+   Version     : 3.0.0
 
    Description :
    Summary Controller
 
    Sections :
    - Import
+   - State
    - Init
    - Overview
+   - Debt
+   - Active Debt
+   - Debt History
    - Distribution
    - Distribution List
    - Helper
@@ -36,6 +40,12 @@ import {
 
 import {
 
+    Animation
+
+} from "../../js/animation.js";
+
+import {
+
     rupiah,
 
     shortRupiah
@@ -50,10 +60,16 @@ import {
 
 
 /* =====================================================
-   SUMMARY
+   STATE
 ===================================================== */
 
-export const Summary = {};
+export const Summary = {
+
+    debtPage : 1,
+
+    debtPerPage : 3
+
+};
 
 
 /* =====================================================
@@ -71,6 +87,7 @@ Summary.init = function(){
     renderDistributionList();
 
 };
+
 
 /* =====================================================
    OVERVIEW
@@ -96,6 +113,7 @@ function renderOverview(){
 
     }
 
+
     card.innerHTML =
 
     `
@@ -109,25 +127,16 @@ function renderOverview(){
             </p>
 
             <h2
+
                 id="summary-overview-total">
-
-                ${
-
-                    rupiah(
-
-                        Process.summary
-
-                        .totalBalance
-
-                    )
-
-                }
 
             </h2>
 
         </div>
 
+
         <div class="summary-grid">
+
 
             <div class="summary-item">
 
@@ -155,6 +164,7 @@ function renderOverview(){
 
             </div>
 
+
             <div class="summary-item">
 
                 <span>
@@ -180,6 +190,7 @@ function renderOverview(){
                 </strong>
 
             </div>
+
 
             <div class="summary-item">
 
@@ -207,6 +218,7 @@ function renderOverview(){
 
             </div>
 
+
             <div class="summary-item">
 
                 <span>
@@ -233,11 +245,39 @@ function renderOverview(){
 
             </div>
 
+
         </div>
 
     `;
 
+
+    /* ==============================================
+       ANIMATION TOTAL SALDO
+    ============================================== */
+
+    const totalElement =
+
+        document.getElementById(
+
+            "summary-overview-total"
+
+        );
+
+
+    Animation.number(
+
+        totalElement,
+
+        Process.summary.totalBalance,
+
+        value => rupiah(value),
+
+        1800
+
+    );
+
 }
+
 
 /* =====================================================
    DEBT
@@ -245,7 +285,840 @@ function renderOverview(){
 
 function renderDebt(){
 
+    const section =
+
+        document.getElementById(
+
+            "summary-debt"
+
+        );
+
+    const container =
+
+        document.getElementById(
+
+            "summary-debt-card"
+
+        );
+
+
+    if(
+
+        !section ||
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    /* ==============================================
+       NO DEBT FEATURE
+    ============================================== */
+
+    if(
+
+        !Process.debtHistory ||
+
+        Process.debtHistory.length === 0
+
+    ){
+
+        section.classList.add(
+
+            "hidden"
+
+        );
+
+        return;
+
+    }
+
+
+    /* ==============================================
+       SHOW DEBT SECTION
+    ============================================== */
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    renderDebtCards();
+
 }
+
+
+/* =====================================================
+   DEBT CARDS
+===================================================== */
+
+function renderDebtCards(){
+
+    const container =
+
+        document.getElementById(
+
+            "summary-debt-card"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+
+    `
+
+        <!-- ==========================================
+             ACTIVE DEBT
+        ========================================== -->
+
+        <div class="debt-card">
+
+            <div class="debt-card-header">
+
+                <div>
+
+                    <h3>
+
+                        Hutang Aktif
+
+                    </h3>
+
+                    <p>
+
+                        Anggota yang masih memiliki hutang
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+
+                id="summary-active-debt"
+
+                class="debt-list">
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             DEBT HISTORY
+        ========================================== -->
+
+        <div class="debt-card">
+
+            <div class="debt-card-header">
+
+                <div>
+
+                    <h3>
+
+                        Riwayat Hutang
+
+                    </h3>
+
+                    <p>
+
+                        Riwayat pinjam dan pembayaran
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+
+                id="summary-debt-history"
+
+                class="debt-list">
+
+            </div>
+
+
+            <div
+
+                id="summary-debt-pagination"
+
+                class="debt-pagination">
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    renderActiveDebt();
+
+    renderDebtHistory();
+
+}
+
+
+/* =====================================================
+   ACTIVE DEBT
+===================================================== */
+
+function renderActiveDebt(){
+
+    const container =
+
+        document.getElementById(
+
+            "summary-active-debt"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const activeDebt =
+
+        Object.entries(
+
+            Process.debt || {}
+
+        )
+
+        .filter(
+
+            ([
+
+                name,
+
+                item
+
+            ])=>
+
+                item.balance > 0
+
+        );
+
+
+    if(
+
+        activeDebt.length === 0
+
+    ){
+
+        container.innerHTML =
+
+        `
+
+            <div class="debt-empty">
+
+                <span>
+
+                    ✅
+
+                </span>
+
+                <p>
+
+                    Tidak ada anggota yang masih memiliki hutang.
+
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+
+        activeDebt
+
+        .map(
+
+            ([
+
+                name,
+
+                item
+
+            ])=>`
+
+                <div class="debt-member">
+
+                    <div class="debt-member-info">
+
+                        <strong>
+
+                            ${name}
+
+                        </strong>
+
+                        <small>
+
+                            Hutang aktif
+
+                        </small>
+
+                    </div>
+
+                    <strong class="debt-active-amount">
+
+                        ${
+
+                            rupiah(
+
+                                item.balance
+
+                            )
+
+                        }
+
+                    </strong>
+
+                </div>
+
+            `
+
+        )
+
+        .join("");
+
+}
+
+
+/* =====================================================
+   DEBT HISTORY
+===================================================== */
+
+function renderDebtHistory(){
+
+    const container =
+
+        document.getElementById(
+
+            "summary-debt-history"
+
+        );
+
+    const pagination =
+
+        document.getElementById(
+
+            "summary-debt-pagination"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const history =
+
+        Process.debtHistory || [];
+
+
+    const total =
+
+        history.length;
+
+
+    const totalPage =
+
+        Math.ceil(
+
+            total /
+
+            Summary.debtPerPage
+
+        );
+
+
+    if(
+
+        Summary.debtPage > totalPage
+
+    ){
+
+        Summary.debtPage =
+
+            totalPage || 1;
+
+    }
+
+
+    const start =
+
+        (
+
+            Summary.debtPage - 1
+
+        ) *
+
+        Summary.debtPerPage;
+
+
+    const end =
+
+        start +
+
+        Summary.debtPerPage;
+
+
+    const pageData =
+
+        history.slice(
+
+            start,
+
+            end
+
+        );
+
+
+    /* ==============================================
+       EMPTY
+    ============================================== */
+
+    if(
+
+        pageData.length === 0
+
+    ){
+
+        container.innerHTML =
+
+        `
+
+            <div class="debt-empty">
+
+                <span>
+
+                    📄
+
+                </span>
+
+                <p>
+
+                    Belum ada riwayat hutang.
+
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+    else{
+
+        container.innerHTML =
+
+            pageData
+
+            .map(
+
+                createDebtHistoryItem
+
+            )
+
+            .join("");
+
+    }
+
+
+    renderDebtPagination(
+
+        pagination,
+
+        totalPage
+
+    );
+
+}
+
+
+/* =====================================================
+   DEBT HISTORY ITEM
+===================================================== */
+
+function createDebtHistoryItem(
+
+    item
+
+){
+
+    const isBorrow =
+
+        item.jenis === "pinjam";
+
+
+    const typeText =
+
+        isBorrow
+
+        ?
+
+        "Pinjam"
+
+        :
+
+        "Bayar";
+
+
+    const icon =
+
+        isBorrow
+
+        ?
+
+        "📤"
+
+        :
+
+        "💰";
+
+
+    const className =
+
+        isBorrow
+
+        ?
+
+        "debt-borrow"
+
+        :
+
+        "debt-paid";
+
+
+    return `
+
+        <div class="debt-history-item">
+
+
+            <div class="debt-history-icon">
+
+                ${icon}
+
+            </div>
+
+
+            <div class="debt-history-info">
+
+                <strong>
+
+                    ${item.nama}
+
+                </strong>
+
+
+                <small>
+
+                    ${typeText}
+
+                    ·
+
+                    ${item.tanggal}
+
+                </small>
+
+
+                ${
+
+                    item.keterangan
+
+                    ?
+
+                    `
+
+                    <p>
+
+                        ${item.keterangan}
+
+                    </p>
+
+                    `
+
+                    :
+
+                    ""
+
+                }
+
+
+            </div>
+
+
+            <strong
+
+                class="debt-history-amount ${className}">
+
+                ${
+
+                    rupiah(
+
+                        item.nominal
+
+                    )
+
+                }
+
+            </strong>
+
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   DEBT PAGINATION
+===================================================== */
+
+function renderDebtPagination(
+
+    container,
+
+    totalPage
+
+){
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    if(
+
+        totalPage <= 1
+
+    ){
+
+        container.innerHTML =
+
+            "";
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+
+    `
+
+        <button
+
+            type="button"
+
+            class="debt-page-button"
+
+            data-debt-page="prev"
+
+            ${
+
+                Summary.debtPage <= 1
+
+                ?
+
+                "disabled"
+
+                :
+
+                ""
+
+            }
+
+        >
+
+            ← Sebelumnya
+
+        </button>
+
+
+        <span class="debt-page-info">
+
+            ${
+
+                Summary.debtPage
+
+            }
+
+            /
+
+            ${
+
+                totalPage
+
+            }
+
+        </span>
+
+
+        <button
+
+            type="button"
+
+            class="debt-page-button"
+
+            data-debt-page="next"
+
+            ${
+
+                Summary.debtPage >= totalPage
+
+                ?
+
+                "disabled"
+
+                :
+
+                ""
+
+            }
+
+        >
+
+            Berikutnya →
+
+        </button>
+
+    `;
+
+}
+
+
+/* =====================================================
+   DEBT PAGINATION EVENT
+===================================================== */
+
+document.addEventListener(
+
+    "click",
+
+    event=>{
+
+        const button =
+
+            event.target.closest(
+
+                "[data-debt-page]"
+
+            );
+
+
+        if(
+
+            !button
+
+        ){
+
+            return;
+
+        }
+
+
+        const action =
+
+            button.dataset.debtPage;
+
+
+        const totalPage =
+
+            Math.ceil(
+
+                (
+
+                    Process.debtHistory ||
+
+                    []
+
+                ).length /
+
+                Summary.debtPerPage
+
+            );
+
+
+        if(
+
+            action === "prev" &&
+
+            Summary.debtPage > 1
+
+        ){
+
+            Summary.debtPage--;
+
+        }
+
+
+        if(
+
+            action === "next" &&
+
+            Summary.debtPage < totalPage
+
+        ){
+
+            Summary.debtPage++;
+
+        }
+
+
+        renderDebtHistory();
+
+    }
+
+);
+
 
 /* =====================================================
    DISTRIBUTION
@@ -261,6 +1134,7 @@ function renderDistribution(){
 
         );
 
+
     if(
 
         !canvas
@@ -271,6 +1145,7 @@ function renderDistribution(){
 
     }
 
+
     const labels =
 
         Object.keys(
@@ -279,19 +1154,23 @@ function renderDistribution(){
 
         );
 
+
     const values =
 
         Object.values(
 
             Process.balance
 
-        ).map(
+        )
+
+        .map(
 
             item=>
 
                 item.balance
 
         );
+
 
     Chart.renderDoughnut({
 
@@ -346,6 +1225,7 @@ function renderDistributionList(){
 
         );
 
+
     if(
 
         !list
@@ -356,9 +1236,11 @@ function renderDistributionList(){
 
     }
 
+
     list.innerHTML =
 
         "";
+
 
     const total =
 
@@ -366,11 +1248,14 @@ function renderDistributionList(){
 
         .totalBalance;
 
+
     Object.entries(
 
         Process.balance
 
-    ).forEach(
+    )
+
+    .forEach(
 
         ([
 
@@ -379,6 +1264,7 @@ function renderDistributionList(){
             item
 
         ])=>{
+
 
             const percent =
 
@@ -396,97 +1282,112 @@ function renderDistributionList(){
 
                     total
 
-                ) * 100;
+                ) *
+
+                100;
+
 
             list.innerHTML +=
 
             `
 
-            <div class="distribution-item">
+                <div class="distribution-item">
 
-                <div class="distribution-header">
 
-                    <div class="distribution-bank">
+                    <div class="distribution-header">
 
-                        <img
 
-                            class="distribution-icon"
+                        <div class="distribution-bank">
 
-                            src="${
 
-                                Icon.bank(
+                            <img
 
-                                    name
+                                class="distribution-icon"
 
-                                )
+                                src="${
 
-                            }"
+                                    Icon.bank(
 
-                            alt="${name}"
+                                        name
 
-                        >
+                                    )
 
-                        <span>
+                                }"
+
+                                alt="${name}"
+
+                            >
+
+
+                            <span>
+
+                                ${
+
+                                    formatBankName(
+
+                                        name
+
+                                    )
+
+                                }
+
+                            </span>
+
+
+                        </div>
+
+
+                        <strong>
 
                             ${
 
-                                formatBankName(
+                                rupiah(
 
-                                    name
+                                    item.balance
 
                                 )
 
                             }
 
-                        </span>
+                        </strong>
+
 
                     </div>
 
-                    <strong>
+
+                    <div class="distribution-bar">
+
+
+                        <div
+
+                            class="distribution-fill"
+
+                            style="width:${percent}%"
+
+                        >
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="distribution-percent">
 
                         ${
 
-                            rupiah(
+                            percent.toFixed(
 
-                                item.balance
+                                1
 
                             )
 
-                        }
-
-                    </strong>
-
-                </div>
-
-                <div class="distribution-bar">
-
-                    <div
-
-                        class="distribution-fill"
-
-                        style="width:${percent}%"
-
-                    >
+                        }%
 
                     </div>
 
-                </div>
-
-                <div class="distribution-percent">
-
-                    ${
-
-                        percent.toFixed(
-
-                            1
-
-                        )
-
-                    }%
 
                 </div>
-
-            </div>
 
             `;
 
