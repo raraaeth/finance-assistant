@@ -680,3 +680,33 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{
     opacity:1;
 
 }
+
+/* =====================================================
+   STATISTICS PAGINATION — DARK THEME
+   Override page pagination
+===================================================== */
+
+.statistics-pagination button{
+
+    background:#374151 !important;
+
+    color:#ffffff !important;
+
+    border:1px solid #4b5563 !important;
+
+}
+
+
+/* DISABLED */
+
+.statistics-pagination button:disabled{
+
+    background:#252f3f !important;
+
+    color:#9ca3af !important;
+
+    border-color:#374151 !important;
+
+    opacity:1 !important;
+
+}
