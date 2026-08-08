@@ -15,6 +15,7 @@
    - Filter
    - Chart
    - Transaction
+   - Pagination
    - Helper
 ===================================================== */
 
@@ -68,7 +69,7 @@ export const Statistics = {
 
     data : [],
 
-    page : 0,
+    page : 1,
 
     perPage : 5
 
@@ -166,6 +167,7 @@ function initializeFilter(){
 
 }
 
+
 /* =====================================================
    RENDER CHART
 ===================================================== */
@@ -237,46 +239,24 @@ Statistics.renderTransaction = function(){
 
     }
 
-
     list.innerHTML =
 
         "";
 
 
-    /* ==========================================
-       SORT
-    ========================================== */
-
-    const data =
-
-        [
-
-            ...Statistics.data
-
-        ].sort(
-
-            (
-
-                a,
-
-                b
-
-            ) =>
-
-                b.date -
-
-                a.date
-
-        );
-
-
-    /* ==========================================
-       PAGINATION
-    ========================================== */
+    /* ==============================================
+       PAGINATION RANGE
+    ============================================== */
 
     const start =
 
-        Statistics.page *
+        (
+
+            Statistics.page - 1
+
+        )
+
+        *
 
         Statistics.perPage;
 
@@ -286,101 +266,118 @@ Statistics.renderTransaction = function(){
 
         Statistics.perPage;
 
-    const pageData =
 
-        data.slice(
+    /* ==============================================
+       RENDER 5 TRANSACTIONS
+    ============================================== */
+
+    Statistics.data
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            )=>
+
+                b.date -
+
+                a.date
+
+        )
+
+        .slice(
 
             start,
 
             end
 
+        )
+
+        .forEach(
+
+            item=>{
+
+                list.innerHTML +=
+
+                `
+
+                <div class="transaction-item">
+
+                    <div class="transaction-info">
+
+                        <strong>
+
+                            ${item.kategori}
+
+                        </strong>
+
+                        <small>
+
+                            ${item.tanggal}
+
+                        </small>
+
+                        ${
+
+                            item.keterangan
+
+                            ?
+
+                            `
+
+                            <p>
+
+                                ${item.keterangan}
+
+                            </p>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+                    </div>
+
+
+                    <div
+
+                        class="transaction-amount transaction-${item.jenis}"
+
+                    >
+
+                        ${
+
+                            rupiah(
+
+                                item.nominal
+
+                            )
+
+                        }
+
+                    </div>
+
+                </div>
+
+                `;
+
+            }
+
         );
 
 
-    /* ==========================================
-       TRANSACTION
-    ========================================== */
+    /* ==============================================
+       PAGINATION
+    ============================================== */
 
-    pageData.forEach(
-
-        item=>{
-
-            list.innerHTML +=
-
-            `
-
-            <div class="transaction-item">
-
-                <div class="transaction-info">
-
-                    <strong>
-
-                        ${item.kategori}
-
-                    </strong>
-
-                    <small>
-
-                        ${item.tanggal}
-
-                    </small>
-
-                    ${
-
-                        item.keterangan
-
-                        ?
-
-                        `
-
-                        <p>
-
-                            ${item.keterangan}
-
-                        </p>
-
-                        `
-
-                        :
-
-                        ""
-
-                    }
-
-                </div>
-
-                <div
-
-                    class="transaction-amount transaction-${item.jenis}"
-
-                >
-
-                    ${
-
-                        rupiah(
-
-                            item.nominal
-
-                        )
-
-                    }
-
-                </div>
-
-            </div>
-
-            `;
-
-        }
-
-    );
-
-
-    /* ==========================================
-       PAGINATION BUTTON
-    ========================================== */
-
-    const button =
+    const pagination =
 
         document.getElementById(
 
@@ -390,7 +387,7 @@ Statistics.renderTransaction = function(){
 
     if(
 
-        !button
+        !pagination
 
     ){
 
@@ -399,85 +396,96 @@ Statistics.renderTransaction = function(){
     }
 
 
-    const totalPages =
+    const totalPage =
 
-        Math.ceil(
+        Math.max(
 
-            data.length /
+            1,
 
-            Statistics.perPage
+            Math.ceil(
+
+                Statistics.data.length /
+
+                Statistics.perPage
+
+            )
 
         );
 
 
-    /* ==========================================
-       NO DATA
-    ========================================== */
-
-    if(
-
-        totalPages === 0
-
-    ){
-
-        button.style.display =
-
-            "none";
-
-        return;
-
-    }
-
-
-    /* ==========================================
-       BUTTON
-    ========================================== */
-
-    button.style.display =
-
-        "flex";
-
-    button.innerHTML =
+    pagination.innerHTML =
 
     `
 
-        <span>
+        <div class="statistics-pagination">
 
-            ${
+            <button
 
-                Statistics.page > 0
+                id="statistics-prev"
 
-                ?
+                type="button"
 
-                "← Back"
+                ${
 
-                :
+                    Statistics.page === 1
 
-                ""
+                    ?
 
-            }
+                    "disabled"
 
-        </span>
+                    :
 
-        <span>
+                    ""
 
-            ${
+                }
 
-                Statistics.page <
+            >
 
-                totalPages - 1
+                ◀ Sebelumnya
 
-                ?
+            </button>
 
-                "Next →"
 
-                :
+            <span>
 
-                ""
+                ${Statistics.page}
 
-            }
+                /
 
-        </span>
+                ${totalPage}
+
+            </span>
+
+
+            <button
+
+                id="statistics-next"
+
+                type="button"
+
+                ${
+
+                    Statistics.page >=
+
+                    totalPage
+
+                    ?
+
+                    "disabled"
+
+                    :
+
+                    ""
+
+                }
+
+            >
+
+                Berikutnya ▶
+
+            </button>
+
+        </div>
 
     `;
 
@@ -490,6 +498,8 @@ Statistics.renderTransaction = function(){
 
 Statistics.refresh = function(){
 
+    Statistics.page = 1;
+
     Statistics.applyFilter();
 
     Statistics.renderChart();
@@ -497,6 +507,7 @@ Statistics.refresh = function(){
     Statistics.renderTransaction();
 
 };
+
 
 /* =====================================================
    APPLY FILTER
@@ -506,19 +517,19 @@ Statistics.applyFilter = function(){
 
     Statistics.data =
 
-    Process.data.filter(
+        Process.data.filter(
 
-        item=>
+            item=>
 
-            item.date >=
+                item.date >=
 
-            Statistics.filter.start &&
+                Statistics.filter.start &&
 
-            item.date <=
+                item.date <=
 
-            Statistics.filter.end
+                Statistics.filter.end
 
-    );
+        );
 
 };
 
@@ -632,7 +643,13 @@ function handleRange(
 
             today.getFullYear(),
 
-            today.getMonth() - (value - 1),
+            today.getMonth() -
+
+            (
+
+                value - 1
+
+            ),
 
             1
 
@@ -746,7 +763,7 @@ Statistics.openDatePicker = function(){
 
 
 /* =====================================================
-   SHOW MORE
+   PAGINATION
 ===================================================== */
 
 document.addEventListener(
@@ -755,33 +772,76 @@ document.addEventListener(
 
     event=>{
 
+        const prev =
+
+            event.target.closest(
+
+                "#statistics-prev"
+
+            );
+
         if(
 
-            event.target.id !==
-
-            "statistics-show-more"
+            prev
 
         ){
+
+            if(
+
+                Statistics.page > 1
+
+            ){
+
+                Statistics.page--;
+
+                Statistics.renderTransaction();
+
+            }
 
             return;
 
         }
 
-        Statistics.expanded =
 
-            !Statistics.expanded;
+        const next =
 
-        Statistics.limit =
+            event.target.closest(
 
-            Statistics.expanded ?
+                "#statistics-next"
 
-            Infinity
+            );
 
-            :
+        if(
 
-            5;
+            next
 
-        Statistics.renderTransaction();
+        ){
+
+            const totalPage =
+
+                Math.ceil(
+
+                    Statistics.data.length /
+
+                    Statistics.perPage
+
+                );
+
+            if(
+
+                Statistics.page <
+
+                totalPage
+
+            ){
+
+                Statistics.page++;
+
+                Statistics.renderTransaction();
+
+            }
+
+        }
 
     }
 
