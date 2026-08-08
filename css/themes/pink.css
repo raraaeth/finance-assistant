@@ -964,3 +964,60 @@ html[data-theme="pink"] ::-webkit-scrollbar-thumb:hover{
     background:#C98199;
 
 }
+
+/* =====================================================
+   STATISTICS PAGINATION — PINK
+===================================================== */
+
+html[data-theme="pink"] .statistics-pagination button{
+
+    background:#E8B6C7 !important;
+
+    color:#5A3B47 !important;
+
+    border:1px solid #D99CAF !important;
+
+    box-shadow:none !important;
+
+}
+
+
+/* =====================================================
+   HOVER
+===================================================== */
+
+html[data-theme="pink"] .statistics-pagination button:hover{
+
+    background:#DFA7BB !important;
+
+    color:#4B303B !important;
+
+}
+
+
+/* =====================================================
+   DISABLED
+===================================================== */
+
+html[data-theme="pink"] .statistics-pagination button:disabled{
+
+    background:#F1D9E1 !important;
+
+    color:#B99AA5 !important;
+
+    border-color:#E7C8D2 !important;
+
+    opacity:1 !important;
+
+}
+
+
+/* =====================================================
+   PAGE INFO
+===================================================== */
+
+html[data-theme="pink"] .statistics-pagination span{
+
+    color:#8C6F79 !important;
+
+}
