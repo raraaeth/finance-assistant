@@ -3,7 +3,7 @@
    Workspace   : Kas
    Module      : Process
    File        : process.js
-   Version     : 2.1.0
+   Version     : 3.0.0
 
    Description :
    Business Engine Kas
@@ -60,11 +60,11 @@ Process.init = function(
 
     Process.raw =
 
-        raw;
+        raw || [];
 
     Process.member =
 
-        member;
+        member || [];
 
     normalize();
 
@@ -91,41 +91,45 @@ function normalize(){
 
         Process.raw
 
-        .map(item=>{
+        .map(
 
-            const date =
+            item=>{
 
-                new Date(
+                const date =
 
-                    item.tanggal
+                    new Date(
 
-                );
+                        item.tanggal
 
-            return {
+                    );
 
-                ...item,
+                return {
 
-                nominal :
+                    ...item,
 
-                    Number(
+                    nominal :
 
-                        item.nominal
+                        Number(
 
-                    ),
+                            item.nominal
 
-                date,
+                        ) || 0,
 
-                month :
+                    date,
 
-                    date.getMonth() + 1,
+                    month :
 
-                year :
+                        date.getMonth() + 1,
 
-                    date.getFullYear()
+                    year :
 
-            };
+                        date.getFullYear()
 
-        })
+                };
+
+            }
+
+        )
 
         .sort(
 
@@ -154,51 +158,55 @@ function processData(){
 
     Process.data =
 
-        Process.raw.map(item=>({
+        Process.raw.map(
 
-            id :
+            item=>({
 
-                item.id,
+                id :
 
-            tanggal :
+                    item.id,
 
-                item.tanggal,
+                tanggal :
 
-            date :
+                    item.tanggal,
 
-                item.date,
+                date :
 
-            month :
+                    item.date,
 
-                item.month,
+                month :
 
-            year :
+                    item.month,
 
-                item.year,
+                year :
 
-            jenis :
+                    item.year,
 
-                item.jenis,
+                jenis :
 
-            kategori :
+                    item.jenis,
 
-                item.kategori,
+                kategori :
 
-            nama :
+                    item.kategori,
 
-                item.nama,
+                nama :
 
-            nominal :
+                    item.nama,
 
-                item.nominal,
+                nominal :
 
-            keterangan :
+                    item.nominal,
 
-                item.keterangan ??
+                keterangan :
 
-                ""
+                    item.keterangan ??
 
-        }));
+                    ""
+
+            })
+
+        );
 
 }
 
@@ -243,237 +251,7 @@ function processBalance(){
 
 
 /* =====================================================
-   DEBT
-===================================================== */
-
-function processDebt(){
-
-    Process.debt = {};
-
-    Process.debtHistory = [];
-
-
-    /* ==============================================
-       INIT MEMBER
-    ============================================== */
-
-    Process.member.forEach(
-
-        item=>{
-
-            Process.debt[
-
-                item.nama
-
-            ] = {
-
-                borrowed : 0,
-
-                paid : 0,
-
-                balance : 0
-
-            };
-
-        }
-
-    );
-
-
-    /* ==============================================
-       PROCESS TRANSACTION
-    ============================================== */
-
-    Process.data.forEach(
-
-        item=>{
-
-            if(
-
-                item.jenis !== "pinjam" &&
-
-                item.jenis !== "bayar"
-
-            ){
-
-                return;
-
-            }
-
-
-            const member =
-
-                item.nama;
-
-            const amount =
-
-                Math.abs(
-
-                    item.nominal
-
-                );
-
-
-            /* ======================================
-               CREATE MEMBER IF NOT EXIST
-            ====================================== */
-
-            if(
-
-                !Process.debt[
-
-                    member
-
-                ]
-
-            ){
-
-                Process.debt[
-
-                    member
-
-                ] = {
-
-                    borrowed : 0,
-
-                    paid : 0,
-
-                    balance : 0
-
-                };
-
-            }
-
-
-            /* ======================================
-               PINJAM
-            ====================================== */
-
-            if(
-
-                item.jenis ===
-
-                "pinjam"
-
-            ){
-
-                Process.debt[
-
-                    member
-
-                ].borrowed +=
-
-                    amount;
-
-                Process.debt[
-
-                    member
-
-                ].balance +=
-
-                    amount;
-
-            }
-
-
-            /* ======================================
-               BAYAR
-            ====================================== */
-
-            if(
-
-                item.jenis ===
-
-                "bayar"
-
-            ){
-
-                Process.debt[
-
-                    member
-
-                ].paid +=
-
-                    amount;
-
-                Process.debt[
-
-                    member
-
-                ].balance -=
-
-                    amount;
-
-            }
-
-
-            /* ======================================
-               HISTORY
-            ====================================== */
-
-            Process.debtHistory.push({
-
-                id :
-
-                    item.id,
-
-                tanggal :
-
-                    item.tanggal,
-
-                date :
-
-                    item.date,
-
-                jenis :
-
-                    item.jenis,
-
-                nama :
-
-                    member,
-
-                nominal :
-
-                    amount,
-
-                keterangan :
-
-                    item.keterangan
-
-            });
-
-        }
-
-    );
-
-
-    /* ==============================================
-       SORT HISTORY
-       Terbaru → Terlama
-    ============================================== */
-
-    Process.debtHistory.sort(
-
-        (
-
-            a,
-
-            b
-
-        )=>
-
-            b.date -
-
-            a.date
-
-    );
-
-}
-
-
-/* =====================================================
-   HELPER
+   BALANCE HELPER
 ===================================================== */
 
 function calculateBalance(
@@ -489,6 +267,7 @@ function calculateBalance(
     const amount =
 
         item.nominal;
+
 
     if(
 
@@ -515,6 +294,7 @@ function calculateBalance(
         };
 
     }
+
 
     switch(
 
@@ -569,6 +349,326 @@ function calculateBalance(
 
 
 /* =====================================================
+   DEBT
+===================================================== */
+
+function processDebt(){
+
+    Process.debt = {};
+
+    Process.debtHistory = [];
+
+
+    /* ==============================================
+       INIT MEMBER
+    ============================================== */
+
+    Process.member.forEach(
+
+        item=>{
+
+            Process.debt[
+
+                item.nama
+
+            ] = {
+
+                borrowed : 0,
+
+                paid : 0,
+
+                balance : 0
+
+            };
+
+        }
+
+    );
+
+
+    /* ==============================================
+       PROCESS TRANSACTION
+    ============================================== */
+
+    Process.data.forEach(
+
+        item=>{
+
+            const jenis =
+
+                String(
+
+                    item.jenis ??
+
+                    ""
+
+                )
+
+                .trim()
+
+                .toLowerCase();
+
+
+            const kategori =
+
+                String(
+
+                    item.kategori ??
+
+                    ""
+
+                )
+
+                .trim()
+
+                .toLowerCase();
+
+
+            /* ======================================
+               DETECT DEBT TYPE
+
+               keluar + hutang
+               = PINJAM
+
+               masuk + bayar
+               = BAYAR
+            ====================================== */
+
+            const isBorrow =
+
+                jenis === "keluar" &&
+
+                kategori === "hutang";
+
+
+            const isPaid =
+
+                jenis === "masuk" &&
+
+                kategori === "bayar";
+
+
+            if(
+
+                !isBorrow &&
+
+                !isPaid
+
+            ){
+
+                return;
+
+            }
+
+
+            const member =
+
+                item.nama;
+
+
+            const amount =
+
+                Math.abs(
+
+                    Number(
+
+                        item.nominal
+
+                    ) || 0
+
+                );
+
+
+            /* ======================================
+               CREATE MEMBER IF NOT EXIST
+            ====================================== */
+
+            if(
+
+                !Process.debt[
+
+                    member
+
+                ]
+
+            ){
+
+                Process.debt[
+
+                    member
+
+                ] = {
+
+                    borrowed : 0,
+
+                    paid : 0,
+
+                    balance : 0
+
+                };
+
+            }
+
+
+            /* ======================================
+               PINJAM
+            ====================================== */
+
+            if(
+
+                isBorrow
+
+            ){
+
+                Process.debt[
+
+                    member
+
+                ].borrowed +=
+
+                    amount;
+
+                Process.debt[
+
+                    member
+
+                ].balance +=
+
+                    amount;
+
+            }
+
+
+            /* ======================================
+               BAYAR
+            ====================================== */
+
+            if(
+
+                isPaid
+
+            ){
+
+                Process.debt[
+
+                    member
+
+                ].paid +=
+
+                    amount;
+
+                Process.debt[
+
+                    member
+
+                ].balance -=
+
+                    amount;
+
+            }
+
+
+            /* ======================================
+               HISTORY
+            ====================================== */
+
+            Process.debtHistory.push({
+
+                id :
+
+                    item.id,
+
+                tanggal :
+
+                    item.tanggal,
+
+                date :
+
+                    item.date,
+
+                jenis :
+
+                    isBorrow
+
+                    ?
+
+                    "pinjam"
+
+                    :
+
+                    "bayar",
+
+                nama :
+
+                    member,
+
+                nominal :
+
+                    amount,
+
+                keterangan :
+
+                    item.keterangan
+
+            });
+
+        }
+
+    );
+
+
+    /* ==============================================
+       PREVENT NEGATIVE ACTIVE DEBT
+    ============================================== */
+
+    Object.values(
+
+        Process.debt
+
+    ).forEach(
+
+        item=>{
+
+            if(
+
+                item.balance < 0
+
+            ){
+
+                item.balance = 0;
+
+            }
+
+        }
+
+    );
+
+
+    /* ==============================================
+       SORT HISTORY
+       Terbaru → Terlama
+    ============================================== */
+
+    Process.debtHistory.sort(
+
+        (
+
+            a,
+
+            b
+
+        )=>
+
+            b.date -
+
+            a.date
+
+    );
+
+}
+
+
+/* =====================================================
    SUMMARY
 ===================================================== */
 
@@ -590,7 +690,7 @@ function processSummary(){
 
 
     /* ==============================================
-       TOTAL
+       TOTAL BALANCE
     ============================================== */
 
     Object.values(
@@ -627,18 +727,8 @@ function processSummary(){
         new Date();
 
 
-    const currentMonth =
-
-        today.getMonth() + 1;
-
-
-    const currentYear =
-
-        today.getFullYear();
-
-
     /* ==============================================
-       7 DAYS AGO
+       WEEK
     ============================================== */
 
     const weekAgo =
@@ -651,19 +741,31 @@ function processSummary(){
 
     weekAgo.setDate(
 
-        weekAgo.getDate() - 7
+        today.getDate() - 7
 
     );
 
 
     /* ==============================================
-       PERIODIC SUMMARY
+       CURRENT MONTH
+    ============================================== */
+
+    const currentMonth =
+
+        today.getMonth() + 1;
+
+    const currentYear =
+
+        today.getFullYear();
+
+
+    /* ==============================================
+       PROCESS TRANSACTION
     ============================================== */
 
     Process.data.forEach(
 
         item=>{
-
 
             /* ======================================
                WEEKLY
@@ -673,11 +775,7 @@ function processSummary(){
 
                 item.date >=
 
-                weekAgo &&
-
-                item.date <=
-
-                today
+                weekAgo
 
             ){
 
@@ -694,7 +792,6 @@ function processSummary(){
                             item.nominal;
 
                         break;
-
 
                     case "keluar":
 
@@ -738,7 +835,6 @@ function processSummary(){
                             item.nominal;
 
                         break;
-
 
                     case "keluar":
 
@@ -798,6 +894,7 @@ function processChart(){
 
     const chart = {};
 
+
     Process.data.forEach(
 
         item=>{
@@ -805,6 +902,7 @@ function processChart(){
             const date =
 
                 item.tanggal;
+
 
             if(
 
@@ -823,6 +921,7 @@ function processChart(){
                 ] = 0;
 
             }
+
 
             switch(
 
@@ -868,7 +967,9 @@ function processChart(){
 
             chart
 
-        ).map(
+        )
+
+        .map(
 
             ([
 
