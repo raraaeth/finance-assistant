@@ -1,0 +1,871 @@
+/* =====================================================
+   Finance Assistant
+   Global Theme
+   File        : green.css
+   Theme       : Green
+   Version     : 1.0.0
+
+   Description :
+   Soft Elegant Green Theme
+===================================================== */
+
+
+/* =====================================================
+   THEME VARIABLES
+===================================================== */
+
+html[data-theme="green"]{
+
+    color-scheme:light;
+
+    --primary:#4FAF7B;
+
+    --background:#F6FBF8;
+
+    --card:#FFFFFF;
+
+    --text:#34443B;
+
+    --text-secondary:#7C8C83;
+
+    --border:#D8EADF;
+
+    --shadow:
+        0 2px 10px
+        rgba(60,130,90,.08);
+
+    --surface:#EAF7F0;
+
+    --text-primary:#34443B;
+
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+html[data-theme="green"] body{
+
+    background:var(--background);
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+html[data-theme="green"] .card{
+
+    background:var(--card);
+
+    color:var(--text);
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(60,130,90,.08);
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+html[data-theme="green"] .section{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   TEXT
+===================================================== */
+
+html[data-theme="green"] .text-primary{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .text-secondary{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+html[data-theme="green"] input,
+html[data-theme="green"] select,
+html[data-theme="green"] textarea{
+
+    background:#FAFDFC;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] input::placeholder{
+
+    color:#A5B3AA;
+
+}
+
+
+/* =====================================================
+   BUTTON OUTLINE
+===================================================== */
+
+html[data-theme="green"] .button-outline{
+
+    background:#FAFDFC;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+html[data-theme="green"] .filter-select{
+
+    background:#FAFDFC;
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .filter-input{
+
+    background:#FAFDFC;
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .filter-period{
+
+    background:#FAFDFC;
+
+}
+
+html[data-theme="green"] .filter-period:hover{
+
+    background:#EAF7F0;
+
+}
+
+html[data-theme="green"] .filter-period-text{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .filter-chip{
+
+    background:#F1F9F4;
+
+    color:#62776A;
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .filter-chip.active{
+
+    background:var(--primary);
+
+    border-color:var(--primary);
+
+    color:#ffffff;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET
+===================================================== */
+
+html[data-theme="green"] .filter-sheet{
+
+    background:#F6FBF8;
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .filter-sheet-header{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .filter-sheet-header p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .filter-sheet-handle{
+
+    background:#B5D5C2;
+
+}
+
+html[data-theme="green"] .filter-input label{
+
+    color:#5F7167;
+
+}
+
+html[data-theme="green"] .filter-input input{
+
+    background:#FAFDFC;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .filter-sheet-footer{
+
+    background:#F6FBF8;
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] #filter-cancel{
+
+    background:#E6F1EB;
+
+    color:#5F7167;
+
+}
+
+
+/* =====================================================
+   HOME
+===================================================== */
+
+html[data-theme="green"] .section-badge{
+
+    background:#E5F5EC;
+
+    color:#397B58;
+
+}
+
+html[data-theme="green"] #summary-label{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] #summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] #summary-week{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .summary-item strong{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+html[data-theme="green"] .statistics-pagination button{
+
+    background:#E1EEE7;
+
+    color:#34443B;
+
+    border:1px solid #C9DED2;
+
+}
+
+html[data-theme="green"] .statistics-pagination button:disabled{
+
+    background:#F0F6F2;
+
+    color:#A1AEA6;
+
+    border-color:#DCE9E1;
+
+    opacity:1;
+
+}
+
+html[data-theme="green"] .statistics-pagination span{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .transaction-item{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .transaction-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .transaction-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .transaction-info p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .transaction-amount{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+html[data-theme="green"] .summary-item{
+
+    background:#EAF7F0;
+
+}
+
+html[data-theme="green"] .summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .distribution-header{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .distribution-percent{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .distribution-bar{
+
+    background:#DCEDE4;
+
+}
+
+
+/* =====================================================
+   SUMMARY — DEBT
+===================================================== */
+
+html[data-theme="green"] .debt-card{
+
+    background:var(--card);
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .debt-card-header h3{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .debt-card-header p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .debt-member{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .debt-member-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .debt-member-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .debt-history-item{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .debt-history-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .debt-history-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .debt-history-info p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .debt-history-icon{
+
+    background:#EAF7F0;
+
+}
+
+
+/* =====================================================
+   SUMMARY — DEBT PAGINATION
+===================================================== */
+
+html[data-theme="green"] .debt-page-button{
+
+    background:#E1EEE7;
+
+    color:#34443B;
+
+    border:1px solid #C9DED2;
+
+}
+
+html[data-theme="green"] .debt-page-button:hover{
+
+    background:#D6E9DE;
+
+}
+
+html[data-theme="green"] .debt-page-button:disabled{
+
+    background:#F0F6F2;
+
+    color:#A1AEA6;
+
+    border-color:#DCE9E1;
+
+    opacity:1;
+
+}
+
+html[data-theme="green"] .debt-page-info{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+html[data-theme="green"] #profile-component{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .profile-card{
+
+    background:var(--card);
+
+    color:var(--text);
+
+    box-shadow:
+
+        0 8px 24px
+
+        rgba(60,130,90,.08);
+
+}
+
+html[data-theme="green"] .profile-menu-item{
+
+    background:var(--card);
+
+    color:var(--text);
+
+    box-shadow:none;
+
+}
+
+html[data-theme="green"] .profile-menu-title{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .profile-menu-description{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .profile-menu-arrow{
+
+    color:#9AAA9F;
+
+}
+
+html[data-theme="green"] .profile-avatar{
+
+    border-color:#E0F0E7;
+
+}
+
+html[data-theme="green"] .profile-greeting{
+
+    background:#E5F5EC;
+
+}
+
+html[data-theme="green"] .profile-email{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .profile-description{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   PROFILE MENU ICON
+===================================================== */
+
+html[data-theme="green"] .profile-menu-icon{
+
+    background:#E5F5EC;
+
+}
+
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+html[data-theme="green"] .workspace-item{
+
+    background:var(--card);
+
+    border-color:var(--border);
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .workspace-item:hover{
+
+    border-color:var(--primary);
+
+}
+
+html[data-theme="green"] .workspace-icon{
+
+    background:#E5F5EC;
+
+}
+
+html[data-theme="green"] .workspace-name{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .workspace-group-title{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .workspace-create{
+
+    color:var(--primary);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .workspace-create:hover{
+
+    background:#EAF7F0;
+
+}
+
+
+/* =====================================================
+   PROFILE SETTINGS
+===================================================== */
+
+html[data-theme="green"] .profile-settings-overlay{
+
+    background:var(--background);
+
+}
+
+html[data-theme="green"] .profile-settings-header{
+
+    background:var(--card);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="green"] .profile-settings-back{
+
+    background:#EAF7F0;
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .profile-settings-header h2{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .profile-settings-header p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .profile-settings-section-title{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .profile-settings-card{
+
+    background:var(--card);
+
+    border-color:var(--border);
+
+    box-shadow:var(--shadow);
+
+}
+
+
+/* =====================================================
+   THEME OPTIONS
+===================================================== */
+
+html[data-theme="green"] .profile-theme-option{
+
+    background:var(--surface);
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .profile-theme-option.active{
+
+    background:#E5F5EC;
+
+    border-color:var(--primary);
+
+}
+
+html[data-theme="green"] .profile-theme-icon{
+
+    background:#FAFDFC;
+
+}
+
+html[data-theme="green"] .profile-theme-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .profile-theme-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="green"] .profile-theme-check{
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+html[data-theme="green"] #bottom-navigation{
+
+    background:#FAFDFC;
+
+    border-top-color:var(--border);
+
+    box-shadow:
+
+        0 -8px 24px
+
+        rgba(60,130,90,.08);
+
+}
+
+html[data-theme="green"] .nav-icon{
+
+    color:#A5B3AA;
+
+}
+
+html[data-theme="green"] .nav-label{
+
+    color:#A5B3AA;
+
+}
+
+html[data-theme="green"] .nav-item.active{
+
+    background:#E5F5EC;
+
+}
+
+html[data-theme="green"] .nav-item:hover .nav-icon{
+
+    background:#DFF1E7;
+
+    color:var(--primary);
+
+}
+
+html[data-theme="green"] .nav-item:hover .nav-label{
+
+    color:var(--primary);
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+html[data-theme="green"] #global-header{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] #header-banner{
+
+    box-shadow:
+
+        0 8px 24px
+
+        rgba(60,130,90,.08);
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+html[data-theme="green"] .empty{
+
+    color:#A5B3AA;
+
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+html[data-theme="green"]{
+
+    scrollbar-color:#A8CDB7 #F6FBF8;
+
+}
+
+html[data-theme="green"] ::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+html[data-theme="green"] ::-webkit-scrollbar-track{
+
+    background:#F6FBF8;
+
+}
+
+html[data-theme="green"] ::-webkit-scrollbar-thumb{
+
+    background:#A8CDB7;
+
+    border-radius:999px;
+
+}
+
+html[data-theme="green"] ::-webkit-scrollbar-thumb:hover{
+
+    background:#82B397;
+
+}
