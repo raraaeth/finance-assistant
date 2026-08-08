@@ -721,3 +721,209 @@
     }
 
   }
+
+/* =====================================================
+   PROFILE SETTINGS OVERLAY
+===================================================== */
+
+.profile-settings-overlay{
+
+    position:fixed;
+
+    top:0;
+
+    right:0;
+
+    bottom:0;
+
+    width:100%;
+
+    background:var(--background);
+
+    z-index:9999;
+
+    display:flex;
+
+    flex-direction:column;
+
+    transform:translateX(100%);
+
+    animation:
+
+        profileSettingsSlideLeft
+
+        .3s
+
+        ease
+
+        forwards;
+
+}
+
+
+/* =====================================================
+   SETTINGS HEADER
+===================================================== */
+
+.profile-settings-header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:20px 20px 18px;
+
+    background:var(--card);
+
+    border-bottom:
+
+        1px solid
+
+        var(--border);
+
+}
+
+
+.profile-settings-back{
+
+    width:42px;
+
+    height:42px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:14px;
+
+    background:var(--background);
+
+    color:var(--text);
+
+    font-size:22px;
+
+}
+
+
+.profile-settings-header h2{
+
+    margin:0;
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+.profile-settings-header p{
+
+    margin:4px 0 0;
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   SETTINGS BODY
+===================================================== */
+
+.profile-settings-body{
+
+    flex:1;
+
+    padding:24px 20px;
+
+    overflow-y:auto;
+
+}
+
+
+/* =====================================================
+   SETTINGS SECTION
+===================================================== */
+
+.profile-settings-section{
+
+    margin-bottom:28px;
+
+}
+
+
+.profile-settings-section-title{
+
+    margin-bottom:10px;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   SETTINGS CARD
+===================================================== */
+
+.profile-settings-card{
+
+    background:var(--card);
+
+    border-radius:18px;
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   HIDDEN
+===================================================== */
+
+.profile-settings-overlay.hidden{
+
+    display:none;
+
+}
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes profileSettingsSlideLeft{
+
+    from{
+
+        transform:
+
+            translateX(100%);
+
+    }
+
+    to{
+
+        transform:
+
+            translateX(0);
+
+    }
+
+}
