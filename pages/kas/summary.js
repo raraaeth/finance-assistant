@@ -857,7 +857,7 @@ function createDebtHistoryItem(
 
                 <strong>
 
-                    ${item.nama}
+               ${capitalizeName(item.nama)}
 
                 </strong>
 
