@@ -48,6 +48,261 @@ const State = {
     eventsBound : false
 
 };
+/* =====================================================
+   THEME
+===================================================== */
+
+const THEMES = [
+
+    {
+        id : "light",
+        icon : "☀️",
+        title : "Light",
+        description : "Tampilan terang"
+    },
+
+    {
+        id : "dark",
+        icon : "🌙",
+        title : "Dark",
+        description : "Tampilan gelap"
+    },
+
+    {
+        id : "green",
+        icon : "🌿",
+        title : "Green",
+        description : "Tampilan hijau"
+    },
+
+    {
+        id : "pink",
+        icon : "🌸",
+        title : "Pink",
+        description : "Tampilan pink"
+    }
+
+];
+
+/* =====================================================
+   RENDER THEME
+===================================================== */
+
+function renderTheme(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-theme-options"
+
+        );
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+    const current =
+
+        localStorage.getItem(
+
+            "finance-theme"
+
+        ) ||
+
+        "light";
+
+    container.innerHTML =
+
+        THEMES
+
+        .map(
+
+            theme => `
+
+                <button
+
+                    type="button"
+
+                    class="profile-theme-option
+
+                    ${
+                        current === theme.id
+
+                        ?
+
+                        "active"
+
+                        :
+
+                        ""
+
+                    }"
+
+                    data-theme="${theme.id}"
+
+                >
+
+                    <span
+
+                        class="profile-theme-icon">
+
+                        ${theme.icon}
+
+                    </span>
+
+                    <span
+
+                        class="profile-theme-info">
+
+                        <strong>
+
+                            ${theme.title}
+
+                        </strong>
+
+                        <small>
+
+                            ${theme.description}
+
+                        </small>
+
+                    </span>
+
+                    <span
+
+                        class="profile-theme-check">
+
+                        ✓
+
+                    </span>
+
+                </button>
+
+            `
+
+        )
+
+        .join("");
+
+}
+
+/* =====================================================
+   THEME EVENT
+===================================================== */
+
+function initThemeEvent(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-theme-options"
+
+        );
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+    container.addEventListener(
+
+        "click",
+
+        event=>{
+
+            const button =
+
+                event.target.closest(
+
+                    "[data-theme]"
+
+                );
+
+            if(
+
+                !button
+
+            ){
+
+                return;
+
+            }
+
+            const theme =
+
+                button.dataset.theme;
+
+            applyTheme(
+
+                theme
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   APPLY THEME
+===================================================== */
+
+function applyTheme(
+
+    theme
+
+){
+
+    /* ==============================================
+       SAVE THEME
+    ============================================== */
+
+    localStorage.setItem(
+
+        "finance-theme",
+
+        theme
+
+    );
+
+
+    /* ==============================================
+       APPLY TO DOCUMENT
+    ============================================== */
+
+    document.documentElement
+
+        .setAttribute(
+
+            "data-theme",
+
+            theme
+
+        );
+
+
+    /* ==============================================
+       UPDATE UI
+    ============================================== */
+
+    renderTheme();
+
+}
 
 
 /* =====================================================
@@ -202,6 +457,10 @@ function init(){
     initEvent();
 
     render();
+
+    renderTheme();
+
+    initThemeEvent();
 
 }
 
