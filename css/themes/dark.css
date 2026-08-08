@@ -1,0 +1,651 @@
+/* =====================================================
+   Finance Assistant
+   Global Theme
+   File        : dark.css
+   Theme       : Dark
+   Version     : 1.0.0
+
+   Description :
+   Dark Theme Override
+===================================================== */
+
+
+/* =====================================================
+   THEME VARIABLES
+===================================================== */
+
+html[data-theme="dark"]{
+
+    color-scheme:dark;
+
+    --primary:#6F96FF;
+
+    --background:#111827;
+
+    --card:#1F2937;
+
+    --text:#F3F4F6;
+
+    --text-secondary:#9CA3AF;
+
+    --border:#374151;
+
+    --shadow:
+        0 2px 10px
+        rgba(0,0,0,.30);
+
+    --surface:#1F2937;
+
+    --text-primary:#F3F4F6;
+
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+html[data-theme="dark"] body{
+
+    background:var(--background);
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+html[data-theme="dark"] .card{
+
+    background:var(--card);
+
+    color:var(--text);
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(0,0,0,.25);
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+html[data-theme="dark"] .section{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   TEXT
+===================================================== */
+
+html[data-theme="dark"] .text-primary{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .text-secondary{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{
+
+    background:#273244;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="dark"] input::placeholder{
+
+    color:#6B7280;
+
+}
+
+
+/* =====================================================
+   BUTTON OUTLINE
+===================================================== */
+
+html[data-theme="dark"] .button-outline{
+
+    background:#273244;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+html[data-theme="dark"] .filter-select{
+
+    background:#273244;
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .filter-input{
+
+    background:#273244;
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .filter-period{
+
+    background:#273244;
+
+}
+
+html[data-theme="dark"] .filter-period:hover{
+
+    background:#303D52;
+
+}
+
+html[data-theme="dark"] .filter-period-text{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .filter-chip{
+
+    background:#273244;
+
+    color:#D1D5DB;
+
+    border-color:#374151;
+
+}
+
+html[data-theme="dark"] .filter-chip.active{
+
+    background:var(--primary);
+
+    border-color:var(--primary);
+
+    color:#ffffff;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET
+===================================================== */
+
+html[data-theme="dark"] .filter-sheet{
+
+    background:#111827;
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .filter-sheet-header{
+
+    border-color:#374151;
+
+}
+
+html[data-theme="dark"] .filter-sheet-header p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .filter-sheet-handle{
+
+    background:#4B5563;
+
+}
+
+html[data-theme="dark"] .filter-input label{
+
+    color:#D1D5DB;
+
+}
+
+html[data-theme="dark"] .filter-input input{
+
+    background:#273244;
+
+    color:var(--text);
+
+    border-color:#374151;
+
+}
+
+html[data-theme="dark"] .filter-sheet-footer{
+
+    background:#111827;
+
+    border-color:#374151;
+
+}
+
+html[data-theme="dark"] #filter-cancel{
+
+    background:#273244;
+
+    color:#D1D5DB;
+
+}
+
+
+/* =====================================================
+   HOME
+===================================================== */
+
+html[data-theme="dark"] .section-badge{
+
+    background:#273244;
+
+    color:#E5E7EB;
+
+}
+
+html[data-theme="dark"] #summary-label{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] #summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] #summary-week{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="dark"] .summary-item strong{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+html[data-theme="dark"] .statistics-pagination button{
+
+    color:var(--primary);
+
+}
+
+html[data-theme="dark"] .statistics-pagination button:disabled{
+
+    color:#6B7280;
+
+}
+
+html[data-theme="dark"] .statistics-pagination span{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .transaction-item{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="dark"] .transaction-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .transaction-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .transaction-info p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .transaction-amount{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+html[data-theme="dark"] .summary-item{
+
+    background:#273244;
+
+}
+
+html[data-theme="dark"] .summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .distribution-header{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .distribution-percent{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .distribution-bar{
+
+    background:#374151;
+
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+html[data-theme="dark"] #profile-component{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .profile-card{
+
+    background:#1F2937;
+
+    color:var(--text);
+
+    box-shadow:
+
+        0 8px 24px
+
+        rgba(0,0,0,.30);
+
+}
+
+html[data-theme="dark"] .profile-menu-item{
+
+    background:#1F2937;
+
+    color:var(--text);
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(0,0,0,.25);
+
+}
+
+html[data-theme="dark"] .profile-menu-title{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .profile-menu-description{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .profile-menu-arrow{
+
+    color:#6B7280;
+
+}
+
+html[data-theme="dark"] .profile-avatar{
+
+    border-color:#374151;
+
+}
+
+html[data-theme="dark"] .profile-greeting{
+
+    background:#263657;
+
+}
+
+html[data-theme="dark"] .profile-email{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .profile-description{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+html[data-theme="dark"] .workspace-item{
+
+    background:#1F2937;
+
+    border-color:var(--border);
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .workspace-item:hover{
+
+    border-color:var(--primary);
+
+}
+
+html[data-theme="dark"] .workspace-icon{
+
+    background:#263657;
+
+}
+
+html[data-theme="dark"] .workspace-name{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] .workspace-group-title{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="dark"] .workspace-create{
+
+    color:var(--primary);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="dark"] .workspace-create:hover{
+
+    background:#1D2939;
+
+}
+
+
+/* =====================================================
+   PROFILE MENU ICON
+===================================================== */
+
+html[data-theme="dark"] .profile-menu-icon{
+
+    background:#263657;
+
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+html[data-theme="dark"] #bottom-navigation{
+
+    background:#151C27;
+
+    border-top-color:#374151;
+
+    box-shadow:
+
+        0 -8px 24px
+
+        rgba(0,0,0,.35);
+
+}
+
+html[data-theme="dark"] .nav-icon{
+
+    color:#6B7280;
+
+}
+
+html[data-theme="dark"] .nav-label{
+
+    color:#6B7280;
+
+}
+
+html[data-theme="dark"] .nav-item.active{
+
+    background:#1F2937;
+
+}
+
+html[data-theme="dark"] .nav-item:hover .nav-icon{
+
+    background:#273244;
+
+    color:var(--primary);
+
+}
+
+html[data-theme="dark"] .nav-item:hover .nav-label{
+
+    color:var(--primary);
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+html[data-theme="dark"] #global-header{
+
+    color:var(--text);
+
+}
+
+html[data-theme="dark"] #header-banner{
+
+    box-shadow:
+
+        0 8px 24px
+
+        rgba(0,0,0,.30);
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+html[data-theme="dark"] .empty{
+
+    color:#6B7280;
+
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+html[data-theme="dark"]{
+
+    scrollbar-color:#4B5563 #111827;
+
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-track{
+
+    background:#111827;
+
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{
+
+    background:#4B5563;
+
+    border-radius:999px;
+
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{
+
+    background:#6B7280;
+
+}
