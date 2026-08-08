@@ -66,6 +66,12 @@ import {
 
 } from "../../js/utils.js";
 
+import {
+
+    Animation
+
+} from "../../js/animation.js";
+
 
 /* =====================================================
    INIT DATA
@@ -241,17 +247,37 @@ function renderHero(){
 
 function renderSummary(){
 
-    const card =
+    const total =
 
         document.getElementById(
 
-            "summary-card"
+            "summary-total"
+
+        );
+
+    const weeklyIncome =
+
+        document.getElementById(
+
+            "summary-weekly-income"
+
+        );
+
+    const monthlyIncome =
+
+        document.getElementById(
+
+            "summary-monthly-income"
 
         );
 
     if(
 
-        !card
+        !total ||
+
+        !weeklyIncome ||
+
+        !monthlyIncome
 
     ){
 
@@ -259,93 +285,48 @@ function renderSummary(){
 
     }
 
-    card.innerHTML =
 
-    `
+    /* ==========================================
+       TOTAL SALDO
+    ========================================== */
 
-        <div class="summary-total">
+    Animation.number(
 
-            <p id="summary-label">
+        total,
 
-                Total Saldo Kas
+        Process.summary.totalBalance,
 
-            </p>
+        value => rupiah(value),
 
-            <h2 id="summary-total">
+        1800
 
-                ${
+    );
 
-                    rupiah(
 
-                        Process.summary
+    /* ==========================================
+       PEMASUKAN MINGGU INI
+    ========================================== */
 
-                        .totalBalance
+    weeklyIncome.textContent =
 
-                    )
+        shortRupiah(
 
-                }
+            Process.summary.weeklyIncome
 
-            </h2>
+        );
 
-        </div>
 
-        <div class="summary-grid">
+    /* ==========================================
+       PEMASUKAN BULAN INI
+    ========================================== */
 
-            <div class="summary-item">
+    monthlyIncome.textContent =
 
-                <span>
+        shortRupiah(
 
-                    Pemasukan
+            Process.summary.totalIncome
 
-                </span>
-
-                <strong id="summary-income">
-
-                    ${
-
-                        shortRupiah(
-
-                            Process.summary
-
-                            .totalIncome
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            <div class="summary-item">
-
-                <span>
-
-                    Pengeluaran
-
-                </span>
-
-                <strong id="summary-expense">
-
-                    ${
-
-                        shortRupiah(
-
-                            Process.summary
-
-                            .totalExpense
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-        </div>
-
-    `;
+        );
 
 }
 
