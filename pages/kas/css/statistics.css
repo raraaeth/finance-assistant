@@ -336,7 +336,7 @@
 
     background:var(--primary);
 
-    color:#fff;
+    color:#000;
 
     font-size:14px;
 
@@ -361,18 +361,9 @@
 
     opacity:.35;
 
+    color:#000;
+
     cursor:not-allowed;
-
-}
-
-
-/* =====================================================
-   ACTIVE PRESS
-===================================================== */
-
-.statistics-pagination button:not(:disabled):active{
-
-    transform:scale(.97);
 
 }
 
@@ -390,5 +381,16 @@
     font-weight:600;
 
     white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   PRESS
+===================================================== */
+
+.statistics-pagination button:not(:disabled):active{
+
+    transform:scale(.97);
 
 }
