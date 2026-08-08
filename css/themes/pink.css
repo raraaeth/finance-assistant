@@ -6,7 +6,7 @@
    Version     : 1.0.0
 
    Description :
-   Soft Elegant Pink Theme
+   Soft Elegant Dominant Pink Theme
 ===================================================== */
 
 
@@ -20,23 +20,23 @@ html[data-theme="pink"]{
 
     --primary:#D97898;
 
-    --background:#FFF7FA;
+    --background:#F8E5EC;
 
-    --card:#FFFFFF;
+    --card:#FBEAF0;
 
-    --text:#40343B;
+    --text:#49353D;
 
-    --text-secondary:#8C7D84;
+    --text-secondary:#8C6F79;
 
-    --border:#F0DCE4;
+    --border:#E9C7D3;
 
     --shadow:
-        0 2px 10px
-        rgba(180,100,130,.08);
+        0 4px 18px
+        rgba(180,90,120,.12);
 
-    --surface:#FFF0F5;
+    --surface:#F3D5DF;
 
-    --text-primary:#40343B;
+    --text-primary:#49353D;
 
 }
 
@@ -64,11 +64,13 @@ html[data-theme="pink"] .card{
 
     color:var(--text);
 
+    border-color:var(--border);
+
     box-shadow:
 
         0 4px 16px
 
-        rgba(180,100,130,.08);
+        rgba(180,90,120,.10);
 
 }
 
@@ -109,7 +111,7 @@ html[data-theme="pink"] input,
 html[data-theme="pink"] select,
 html[data-theme="pink"] textarea{
 
-    background:#FFF9FB;
+    background:#FCEFF3;
 
     color:var(--text);
 
@@ -119,7 +121,7 @@ html[data-theme="pink"] textarea{
 
 html[data-theme="pink"] input::placeholder{
 
-    color:#B5A5AC;
+    color:#B99AA5;
 
 }
 
@@ -130,7 +132,7 @@ html[data-theme="pink"] input::placeholder{
 
 html[data-theme="pink"] .button-outline{
 
-    background:#FFF9FB;
+    background:#F6DDE6;
 
     color:var(--text);
 
@@ -145,7 +147,7 @@ html[data-theme="pink"] .button-outline{
 
 html[data-theme="pink"] .filter-select{
 
-    background:#FFF9FB;
+    background:#FCEFF3;
 
     color:var(--text);
 
@@ -153,7 +155,7 @@ html[data-theme="pink"] .filter-select{
 
 html[data-theme="pink"] .filter-input{
 
-    background:#FFF9FB;
+    background:#FCEFF3;
 
     color:var(--text);
 
@@ -161,13 +163,13 @@ html[data-theme="pink"] .filter-input{
 
 html[data-theme="pink"] .filter-period{
 
-    background:#FFF9FB;
+    background:#FCEFF3;
 
 }
 
 html[data-theme="pink"] .filter-period:hover{
 
-    background:#FFF0F5;
+    background:#F3D5DF;
 
 }
 
@@ -179,9 +181,9 @@ html[data-theme="pink"] .filter-period-text{
 
 html[data-theme="pink"] .filter-chip{
 
-    background:#FFF5F8;
+    background:#F6DDE6;
 
-    color:#8C6F7A;
+    color:#795764;
 
     border-color:var(--border);
 
@@ -189,11 +191,22 @@ html[data-theme="pink"] .filter-chip{
 
 html[data-theme="pink"] .filter-chip.active{
 
-    background:var(--primary);
+    background:
+        linear-gradient(
+            135deg,
+            #D97898,
+            #E69AB4
+        );
 
-    border-color:var(--primary);
+    border-color:#D97898;
 
     color:#ffffff;
+
+    box-shadow:
+
+        0 4px 12px
+
+        rgba(217,120,152,.25);
 
 }
 
@@ -204,7 +217,7 @@ html[data-theme="pink"] .filter-chip.active{
 
 html[data-theme="pink"] .filter-sheet{
 
-    background:#FFF7FA;
+    background:#F8E5EC;
 
     color:var(--text);
 
@@ -224,19 +237,19 @@ html[data-theme="pink"] .filter-sheet-header p{
 
 html[data-theme="pink"] .filter-sheet-handle{
 
-    background:#D8B7C3;
+    background:#D9A7B8;
 
 }
 
 html[data-theme="pink"] .filter-input label{
 
-    color:#6F5D66;
+    color:#765663;
 
 }
 
 html[data-theme="pink"] .filter-input input{
 
-    background:#FFF9FB;
+    background:#FCEFF3;
 
     color:var(--text);
 
@@ -246,7 +259,7 @@ html[data-theme="pink"] .filter-input input{
 
 html[data-theme="pink"] .filter-sheet-footer{
 
-    background:#FFF7FA;
+    background:#F8E5EC;
 
     border-color:var(--border);
 
@@ -254,9 +267,9 @@ html[data-theme="pink"] .filter-sheet-footer{
 
 html[data-theme="pink"] #filter-cancel{
 
-    background:#F4E7EC;
+    background:#EED1DC;
 
-    color:#6F5D66;
+    color:#725460;
 
 }
 
@@ -267,9 +280,9 @@ html[data-theme="pink"] #filter-cancel{
 
 html[data-theme="pink"] .section-badge{
 
-    background:#FCE8EF;
+    background:#EFC8D5;
 
-    color:#8F526B;
+    color:#914E68;
 
 }
 
@@ -299,26 +312,49 @@ html[data-theme="pink"] .summary-item strong{
 
 
 /* =====================================================
+   HOME PRIMARY
+===================================================== */
+
+html[data-theme="pink"] .summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .summary-total h2{
+
+    color:var(--primary);
+
+}
+
+
+/* =====================================================
    STATISTICS
 ===================================================== */
 
 html[data-theme="pink"] .statistics-pagination button{
 
-    background:#F0DCE4;
+    background:#EBC8D4;
 
-    color:#40343B;
+    color:#49353D;
 
-    border:1px solid #E4C8D3;
+    border:1px solid #DDB5C3;
+
+}
+
+html[data-theme="pink"] .statistics-pagination button:hover{
+
+    background:#E4BAC9;
 
 }
 
 html[data-theme="pink"] .statistics-pagination button:disabled{
 
-    background:#F7EDF1;
+    background:#F1DCE4;
 
-    color:#B8A8AF;
+    color:#A9919A;
 
-    border-color:#EAD9E0;
+    border-color:#E6CCD6;
 
     opacity:1;
 
@@ -367,7 +403,7 @@ html[data-theme="pink"] .transaction-amount{
 
 html[data-theme="pink"] .summary-item{
 
-    background:#FFF0F5;
+    background:var(--surface);
 
 }
 
@@ -391,7 +427,18 @@ html[data-theme="pink"] .distribution-percent{
 
 html[data-theme="pink"] .distribution-bar{
 
-    background:#F2DDE5;
+    background:#E5C3CF;
+
+}
+
+html[data-theme="pink"] .distribution-fill{
+
+    background:
+        linear-gradient(
+            90deg,
+            #D97898,
+            #E69AB4
+        );
 
 }
 
@@ -402,9 +449,11 @@ html[data-theme="pink"] .distribution-bar{
 
 html[data-theme="pink"] .debt-card{
 
-    background:var(--card);
+    background:#FBEAF0;
 
     color:var(--text);
+
+    border-color:var(--border);
 
 }
 
@@ -464,7 +513,7 @@ html[data-theme="pink"] .debt-history-info p{
 
 html[data-theme="pink"] .debt-history-icon{
 
-    background:#FFF0F5;
+    background:#F3D5DF;
 
 }
 
@@ -475,27 +524,27 @@ html[data-theme="pink"] .debt-history-icon{
 
 html[data-theme="pink"] .debt-page-button{
 
-    background:#F0DCE4;
+    background:#EBC8D4;
 
-    color:#40343B;
+    color:#49353D;
 
-    border:1px solid #E4C8D3;
+    border:1px solid #DDB5C3;
 
 }
 
 html[data-theme="pink"] .debt-page-button:hover{
 
-    background:#E8CDD7;
+    background:#E4BAC9;
 
 }
 
 html[data-theme="pink"] .debt-page-button:disabled{
 
-    background:#F7EDF1;
+    background:#F1DCE4;
 
-    color:#B8A8AF;
+    color:#A9919A;
 
-    border-color:#EAD9E0;
+    border-color:#E6CCD6;
 
     opacity:1;
 
@@ -524,11 +573,13 @@ html[data-theme="pink"] .profile-card{
 
     color:var(--text);
 
+    border-color:var(--border);
+
     box-shadow:
 
         0 8px 24px
 
-        rgba(180,100,130,.08);
+        rgba(180,90,120,.12);
 
 }
 
@@ -556,19 +607,21 @@ html[data-theme="pink"] .profile-menu-description{
 
 html[data-theme="pink"] .profile-menu-arrow{
 
-    color:#B49CA6;
+    color:#A88B96;
 
 }
 
 html[data-theme="pink"] .profile-avatar{
 
-    border-color:#F5E2E9;
+    border-color:#F1D5DF;
 
 }
 
 html[data-theme="pink"] .profile-greeting{
 
-    background:#FCE8EF;
+    background:#EFC8D5;
+
+    color:#914E68;
 
 }
 
@@ -591,7 +644,7 @@ html[data-theme="pink"] .profile-description{
 
 html[data-theme="pink"] .profile-menu-icon{
 
-    background:#FCE8EF;
+    background:#F3D5DF;
 
 }
 
@@ -618,7 +671,7 @@ html[data-theme="pink"] .workspace-item:hover{
 
 html[data-theme="pink"] .workspace-icon{
 
-    background:#FCE8EF;
+    background:#F3D5DF;
 
 }
 
@@ -644,7 +697,7 @@ html[data-theme="pink"] .workspace-create{
 
 html[data-theme="pink"] .workspace-create:hover{
 
-    background:#FFF0F5;
+    background:#F3D5DF;
 
 }
 
@@ -669,7 +722,7 @@ html[data-theme="pink"] .profile-settings-header{
 
 html[data-theme="pink"] .profile-settings-back{
 
-    background:#FFF0F5;
+    background:var(--surface);
 
     color:var(--text);
 
@@ -718,15 +771,21 @@ html[data-theme="pink"] .profile-theme-option{
 
 html[data-theme="pink"] .profile-theme-option.active{
 
-    background:#FCE8EF;
+    background:#EFC8D5;
 
     border-color:var(--primary);
+
+    box-shadow:
+
+        0 4px 12px
+
+        rgba(217,120,152,.15);
 
 }
 
 html[data-theme="pink"] .profile-theme-icon{
 
-    background:#FFF9FB;
+    background:#FCEFF3;
 
 }
 
@@ -744,9 +803,20 @@ html[data-theme="pink"] .profile-theme-info small{
 
 html[data-theme="pink"] .profile-theme-check{
 
-    background:var(--primary);
+    background:
+        linear-gradient(
+            135deg,
+            #D97898,
+            #E69AB4
+        );
 
     color:#ffffff;
+
+    box-shadow:
+
+        0 3px 8px
+
+        rgba(217,120,152,.20);
 
 }
 
@@ -757,7 +827,7 @@ html[data-theme="pink"] .profile-theme-check{
 
 html[data-theme="pink"] #bottom-navigation{
 
-    background:#FFF9FB;
+    background:#FCEFF3;
 
     border-top-color:var(--border);
 
@@ -765,31 +835,56 @@ html[data-theme="pink"] #bottom-navigation{
 
         0 -8px 24px
 
-        rgba(180,100,130,.08);
+        rgba(180,90,120,.12);
 
 }
 
 html[data-theme="pink"] .nav-icon{
 
-    color:#B5A5AC;
+    color:#A98D97;
 
 }
 
 html[data-theme="pink"] .nav-label{
 
-    color:#B5A5AC;
+    color:#A98D97;
 
 }
 
 html[data-theme="pink"] .nav-item.active{
 
-    background:#FCE8EF;
+    background:
+        linear-gradient(
+            135deg,
+            #D97898,
+            #E69AB4
+        );
+
+    color:#ffffff;
+
+    box-shadow:
+
+        0 5px 16px
+
+        rgba(217,120,152,.25);
+
+}
+
+html[data-theme="pink"] .nav-item.active .nav-icon{
+
+    color:#ffffff;
+
+}
+
+html[data-theme="pink"] .nav-item.active .nav-label{
+
+    color:#ffffff;
 
 }
 
 html[data-theme="pink"] .nav-item:hover .nav-icon{
 
-    background:#F5E2E9;
+    background:#EFC8D5;
 
     color:var(--primary);
 
@@ -818,7 +913,7 @@ html[data-theme="pink"] #header-banner{
 
         0 8px 24px
 
-        rgba(180,100,130,.08);
+        rgba(180,90,120,.12);
 
 }
 
@@ -829,7 +924,7 @@ html[data-theme="pink"] #header-banner{
 
 html[data-theme="pink"] .empty{
 
-    color:#B5A5AC;
+    color:#A98D97;
 
 }
 
@@ -840,7 +935,7 @@ html[data-theme="pink"] .empty{
 
 html[data-theme="pink"]{
 
-    scrollbar-color:#D8A6B8 #FFF7FA;
+    scrollbar-color:#D99CAF #F8E5EC;
 
 }
 
@@ -852,13 +947,13 @@ html[data-theme="pink"] ::-webkit-scrollbar{
 
 html[data-theme="pink"] ::-webkit-scrollbar-track{
 
-    background:#FFF7FA;
+    background:#F8E5EC;
 
 }
 
 html[data-theme="pink"] ::-webkit-scrollbar-thumb{
 
-    background:#D8A6B8;
+    background:#D99CAF;
 
     border-radius:999px;
 
@@ -866,6 +961,6 @@ html[data-theme="pink"] ::-webkit-scrollbar-thumb{
 
 html[data-theme="pink"] ::-webkit-scrollbar-thumb:hover{
 
-    background:#C98FA5;
+    background:#C98199;
 
 }
