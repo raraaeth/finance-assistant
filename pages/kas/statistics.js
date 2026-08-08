@@ -68,9 +68,9 @@ export const Statistics = {
 
     data : [],
 
-    limit : 5,
+    page : 0,
 
-    expanded : false
+    perPage : 5
 
 };
 
@@ -237,13 +237,23 @@ Statistics.renderTransaction = function(){
 
     }
 
+
     list.innerHTML =
 
         "";
 
-    Statistics.data
 
-        .sort(
+    /* ==========================================
+       SORT
+    ========================================== */
+
+    const data =
+
+        [
+
+            ...Statistics.data
+
+        ].sort(
 
             (
 
@@ -251,93 +261,124 @@ Statistics.renderTransaction = function(){
 
                 b
 
-            )=>
+            ) =>
 
                 b.date -
 
                 a.date
 
-        )
+        );
 
-        .slice(
 
-            0,
+    /* ==========================================
+       PAGINATION
+    ========================================== */
 
-            Statistics.limit
+    const start =
 
-        )
+        Statistics.page *
 
-        .forEach(
+        Statistics.perPage;
 
-            item=>{
+    const end =
 
-                list.innerHTML +=
+        start +
 
-                `
+        Statistics.perPage;
 
-                <div class="transaction-item">
+    const pageData =
 
-                    <div class="transaction-info">
+        data.slice(
 
-                        <strong>
+            start,
 
-                            ${item.kategori}
+            end
 
-                        </strong>
+        );
 
-                        <small>
 
-                            ${item.tanggal}
+    /* ==========================================
+       TRANSACTION
+    ========================================== */
 
-                        </small>
+    pageData.forEach(
 
-                        ${
+        item=>{
 
-                            item.keterangan ?
+            list.innerHTML +=
 
-                            `
+            `
 
-                            <p>
+            <div class="transaction-item">
 
-                                ${item.keterangan}
+                <div class="transaction-info">
 
-                            </p>
+                    <strong>
 
-                            `
+                        ${item.kategori}
 
-                            :
+                    </strong>
 
-                            ""
+                    <small>
 
-                        }
+                        ${item.tanggal}
 
-                    </div>
+                    </small>
 
-                    <div
+                    ${
 
-                        class="transaction-amount transaction-${item.jenis}"
+                        item.keterangan
 
-                    >
+                        ?
 
-                        ${
+                        `
 
-                            rupiah(
+                        <p>
 
-                                item.nominal
+                            ${item.keterangan}
 
-                            )
+                        </p>
 
-                        }
+                        `
 
-                    </div>
+                        :
+
+                        ""
+
+                    }
 
                 </div>
 
-                `;
+                <div
 
-            }
+                    class="transaction-amount transaction-${item.jenis}"
 
-        );
+                >
+
+                    ${
+
+                        rupiah(
+
+                            item.nominal
+
+                        )
+
+                    }
+
+                </div>
+
+            </div>
+
+            `;
+
+        }
+
+    );
+
+
+    /* ==========================================
+       PAGINATION BUTTON
+    ========================================== */
 
     const button =
 
@@ -357,25 +398,88 @@ Statistics.renderTransaction = function(){
 
     }
 
+
+    const totalPages =
+
+        Math.ceil(
+
+            data.length /
+
+            Statistics.perPage
+
+        );
+
+
+    /* ==========================================
+       NO DATA
+    ========================================== */
+
+    if(
+
+        totalPages === 0
+
+    ){
+
+        button.style.display =
+
+            "none";
+
+        return;
+
+    }
+
+
+    /* ==========================================
+       BUTTON
+    ========================================== */
+
     button.style.display =
 
-        Statistics.data.length > 5 ?
-
-        "block"
-
-        :
-
-        "none";
+        "flex";
 
     button.innerHTML =
 
-        Statistics.expanded ?
+    `
 
-        'Sembunyikan <span>▲</span>'
+        <span>
 
-        :
+            ${
 
-        'Tampilkan Semua <span>▼</span>';
+                Statistics.page > 0
+
+                ?
+
+                "← Back"
+
+                :
+
+                ""
+
+            }
+
+        </span>
+
+        <span>
+
+            ${
+
+                Statistics.page <
+
+                totalPages - 1
+
+                ?
+
+                "Next →"
+
+                :
+
+                ""
+
+            }
+
+        </span>
+
+    `;
 
 };
 
