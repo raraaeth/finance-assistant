@@ -1,0 +1,123 @@
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+#summary{
+
+    margin-bottom:32px;
+
+}
+
+
+/* =====================================================
+   SUMMARY CARD
+===================================================== */
+
+#summary-card{
+
+    padding:20px;
+
+}
+
+
+/* =====================================================
+   SUMMARY TOTAL
+===================================================== */
+
+.summary-total{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+
+}
+
+
+#summary-label{
+
+    color:#6B7280;
+
+    font-size:.95rem;
+
+}
+
+
+#summary-total{
+
+    margin:10px 0;
+
+    font-size:2rem;
+
+    font-weight:800;
+
+    color:var(--text-primary);
+
+    line-height:1.2;
+
+}
+
+
+/* =====================================================
+   SUMMARY GRID
+===================================================== */
+
+.summary-grid{
+
+    margin-top:20px;
+
+    padding-top:18px;
+
+    border-top:
+
+        1px solid
+
+        var(--border-color);
+
+    display:grid;
+
+    grid-template-columns:
+
+        1fr 1fr;
+
+    gap:20px;
+
+}
+
+
+/* =====================================================
+   SUMMARY ITEM
+===================================================== */
+
+.summary-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+
+}
+
+
+.summary-item span{
+
+    font-size:12px;
+
+    color:var(--text-secondary);
+
+    line-height:1.4;
+
+}
+
+
+.summary-item strong{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
