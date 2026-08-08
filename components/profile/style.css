@@ -483,7 +483,17 @@
 
     flex-direction:column;
 
-    gap:14px;
+    gap:0;
+
+    overflow:hidden;
+
+    border-radius:18px;
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
 
 }
 
@@ -497,15 +507,11 @@
 
     padding:18px 20px;
 
-    border-radius:18px;
+    background:var(--card);
 
-    background:#ffffff;
+    border-radius:0;
 
-    box-shadow:
-
-        0 4px 16px
-
-        rgba(15,23,42,.04);
+    box-shadow:none;
 
     cursor:pointer;
 
@@ -580,6 +586,20 @@
     font-size:22px;
 
     color:#9ca3af;
+
+}
+
+/* =====================================================
+   PROFILE MENU DIVIDER
+===================================================== */
+
+.profile-menu-item + .profile-menu-item{
+
+    border-top:
+
+        1px solid
+
+        var(--border);
 
 }
 
