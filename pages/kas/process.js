@@ -3,7 +3,7 @@
    Workspace   : Kas
    Module      : Process
    File        : process.js
-   Version     : 2.0.0
+   Version     : 2.1.0
 
    Description :
    Business Engine Kas
@@ -14,6 +14,7 @@
    - Normalize
    - Data
    - Balance
+   - Debt
    - Summary
    - Chart
    - Helper
@@ -142,7 +143,8 @@ function normalize(){
 
         );
 
-              }
+}
+
 
 /* =====================================================
    DATA
@@ -200,6 +202,7 @@ function processData(){
 
 }
 
+
 /* =====================================================
    BALANCE
 ===================================================== */
@@ -237,6 +240,7 @@ function processBalance(){
     );
 
 }
+
 
 /* =====================================================
    DEBT
@@ -467,6 +471,7 @@ function processDebt(){
 
 }
 
+
 /* =====================================================
    HELPER
 ===================================================== */
@@ -537,6 +542,7 @@ function calculateBalance(
 
             break;
 
+
         case "keluar":
 
             Process.balance[
@@ -561,6 +567,7 @@ function calculateBalance(
 
 }
 
+
 /* =====================================================
    SUMMARY
 ===================================================== */
@@ -577,29 +584,70 @@ function processSummary(){
 
     let weeklyExpense = 0;
 
+    let monthlyIncome = 0;
+
+    let monthlyExpense = 0;
+
+
+    /* ==============================================
+       TOTAL
+    ============================================== */
+
     Object.values(
 
         Process.balance
 
-    ).forEach(item=>{
+    ).forEach(
 
-        totalBalance +=
+        item=>{
 
-            item.balance;
+            totalBalance +=
 
-        totalIncome +=
+                item.balance;
 
-            item.income;
+            totalIncome +=
 
-        totalExpense +=
+                item.income;
 
-            item.expense;
+            totalExpense +=
 
-    });
+                item.expense;
+
+        }
+
+    );
+
+
+    /* ==============================================
+       CURRENT DATE
+    ============================================== */
+
+    const today =
+
+        new Date();
+
+
+    const currentMonth =
+
+        today.getMonth() + 1;
+
+
+    const currentYear =
+
+        today.getFullYear();
+
+
+    /* ==============================================
+       7 DAYS AGO
+    ============================================== */
 
     const weekAgo =
 
-        new Date();
+        new Date(
+
+            today
+
+        );
 
     weekAgo.setDate(
 
@@ -607,47 +655,111 @@ function processSummary(){
 
     );
 
+
+    /* ==============================================
+       PERIODIC SUMMARY
+    ============================================== */
+
     Process.data.forEach(
 
         item=>{
 
+
+            /* ======================================
+               WEEKLY
+            ====================================== */
+
             if(
 
-                item.date < weekAgo
+                item.date >=
+
+                weekAgo &&
+
+                item.date <=
+
+                today
 
             ){
 
-                return;
+                switch(
+
+                    item.jenis
+
+                ){
+
+                    case "masuk":
+
+                        weeklyIncome +=
+
+                            item.nominal;
+
+                        break;
+
+
+                    case "keluar":
+
+                        weeklyExpense +=
+
+                            item.nominal;
+
+                        break;
+
+                }
 
             }
 
-            switch(
 
-                item.jenis
+            /* ======================================
+               MONTHLY
+            ====================================== */
+
+            if(
+
+                item.month ===
+
+                currentMonth &&
+
+                item.year ===
+
+                currentYear
 
             ){
 
-                case "masuk":
+                switch(
 
-                    weeklyIncome +=
+                    item.jenis
 
-                        item.nominal;
+                ){
 
-                    break;
+                    case "masuk":
 
-                case "keluar":
+                        monthlyIncome +=
 
-                    weeklyExpense +=
+                            item.nominal;
 
-                        item.nominal;
+                        break;
 
-                    break;
+
+                    case "keluar":
+
+                        monthlyExpense +=
+
+                            item.nominal;
+
+                        break;
+
+                }
 
             }
 
         }
 
     );
+
+
+    /* ==============================================
+       SUMMARY
+    ============================================== */
 
     Process.summary = {
 
@@ -661,6 +773,10 @@ function processSummary(){
 
         weeklyExpense,
 
+        monthlyIncome,
+
+        monthlyExpense,
+
         totalMember :
 
             Process.member.length,
@@ -672,6 +788,7 @@ function processSummary(){
     };
 
 }
+
 
 /* =====================================================
    CHART
@@ -725,6 +842,7 @@ function processChart(){
 
                     break;
 
+
                 case "keluar":
 
                     chart[
@@ -742,6 +860,7 @@ function processChart(){
         }
 
     );
+
 
     Process.chart =
 
@@ -768,4 +887,3 @@ function processChart(){
         );
 
 }
-
