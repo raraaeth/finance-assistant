@@ -1,0 +1,871 @@
+/* =====================================================
+   Finance Assistant
+   Global Theme
+   File        : pink.css
+   Theme       : Pink
+   Version     : 1.0.0
+
+   Description :
+   Soft Elegant Pink Theme
+===================================================== */
+
+
+/* =====================================================
+   THEME VARIABLES
+===================================================== */
+
+html[data-theme="pink"]{
+
+    color-scheme:light;
+
+    --primary:#D97898;
+
+    --background:#FFF7FA;
+
+    --card:#FFFFFF;
+
+    --text:#40343B;
+
+    --text-secondary:#8C7D84;
+
+    --border:#F0DCE4;
+
+    --shadow:
+        0 2px 10px
+        rgba(180,100,130,.08);
+
+    --surface:#FFF0F5;
+
+    --text-primary:#40343B;
+
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+html[data-theme="pink"] body{
+
+    background:var(--background);
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+html[data-theme="pink"] .card{
+
+    background:var(--card);
+
+    color:var(--text);
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(180,100,130,.08);
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+html[data-theme="pink"] .section{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   TEXT
+===================================================== */
+
+html[data-theme="pink"] .text-primary{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .text-secondary{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+html[data-theme="pink"] input,
+html[data-theme="pink"] select,
+html[data-theme="pink"] textarea{
+
+    background:#FFF9FB;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] input::placeholder{
+
+    color:#B5A5AC;
+
+}
+
+
+/* =====================================================
+   BUTTON OUTLINE
+===================================================== */
+
+html[data-theme="pink"] .button-outline{
+
+    background:#FFF9FB;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+html[data-theme="pink"] .filter-select{
+
+    background:#FFF9FB;
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .filter-input{
+
+    background:#FFF9FB;
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .filter-period{
+
+    background:#FFF9FB;
+
+}
+
+html[data-theme="pink"] .filter-period:hover{
+
+    background:#FFF0F5;
+
+}
+
+html[data-theme="pink"] .filter-period-text{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .filter-chip{
+
+    background:#FFF5F8;
+
+    color:#8C6F7A;
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .filter-chip.active{
+
+    background:var(--primary);
+
+    border-color:var(--primary);
+
+    color:#ffffff;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET
+===================================================== */
+
+html[data-theme="pink"] .filter-sheet{
+
+    background:#FFF7FA;
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .filter-sheet-header{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .filter-sheet-header p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .filter-sheet-handle{
+
+    background:#D8B7C3;
+
+}
+
+html[data-theme="pink"] .filter-input label{
+
+    color:#6F5D66;
+
+}
+
+html[data-theme="pink"] .filter-input input{
+
+    background:#FFF9FB;
+
+    color:var(--text);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .filter-sheet-footer{
+
+    background:#FFF7FA;
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] #filter-cancel{
+
+    background:#F4E7EC;
+
+    color:#6F5D66;
+
+}
+
+
+/* =====================================================
+   HOME
+===================================================== */
+
+html[data-theme="pink"] .section-badge{
+
+    background:#FCE8EF;
+
+    color:#8F526B;
+
+}
+
+html[data-theme="pink"] #summary-label{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] #summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] #summary-week{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .summary-item strong{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+html[data-theme="pink"] .statistics-pagination button{
+
+    background:#F0DCE4;
+
+    color:#40343B;
+
+    border:1px solid #E4C8D3;
+
+}
+
+html[data-theme="pink"] .statistics-pagination button:disabled{
+
+    background:#F7EDF1;
+
+    color:#B8A8AF;
+
+    border-color:#EAD9E0;
+
+    opacity:1;
+
+}
+
+html[data-theme="pink"] .statistics-pagination span{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .transaction-item{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .transaction-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .transaction-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .transaction-info p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .transaction-amount{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+html[data-theme="pink"] .summary-item{
+
+    background:#FFF0F5;
+
+}
+
+html[data-theme="pink"] .summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .distribution-header{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .distribution-percent{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .distribution-bar{
+
+    background:#F2DDE5;
+
+}
+
+
+/* =====================================================
+   SUMMARY — DEBT
+===================================================== */
+
+html[data-theme="pink"] .debt-card{
+
+    background:var(--card);
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .debt-card-header h3{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .debt-card-header p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .debt-member{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .debt-member-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .debt-member-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .debt-history-item{
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .debt-history-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .debt-history-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .debt-history-info p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .debt-history-icon{
+
+    background:#FFF0F5;
+
+}
+
+
+/* =====================================================
+   SUMMARY — DEBT PAGINATION
+===================================================== */
+
+html[data-theme="pink"] .debt-page-button{
+
+    background:#F0DCE4;
+
+    color:#40343B;
+
+    border:1px solid #E4C8D3;
+
+}
+
+html[data-theme="pink"] .debt-page-button:hover{
+
+    background:#E8CDD7;
+
+}
+
+html[data-theme="pink"] .debt-page-button:disabled{
+
+    background:#F7EDF1;
+
+    color:#B8A8AF;
+
+    border-color:#EAD9E0;
+
+    opacity:1;
+
+}
+
+html[data-theme="pink"] .debt-page-info{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+html[data-theme="pink"] #profile-component{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .profile-card{
+
+    background:var(--card);
+
+    color:var(--text);
+
+    box-shadow:
+
+        0 8px 24px
+
+        rgba(180,100,130,.08);
+
+}
+
+html[data-theme="pink"] .profile-menu-item{
+
+    background:var(--card);
+
+    color:var(--text);
+
+    box-shadow:none;
+
+}
+
+html[data-theme="pink"] .profile-menu-title{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .profile-menu-description{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .profile-menu-arrow{
+
+    color:#B49CA6;
+
+}
+
+html[data-theme="pink"] .profile-avatar{
+
+    border-color:#F5E2E9;
+
+}
+
+html[data-theme="pink"] .profile-greeting{
+
+    background:#FCE8EF;
+
+}
+
+html[data-theme="pink"] .profile-email{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .profile-description{
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   PROFILE MENU ICON
+===================================================== */
+
+html[data-theme="pink"] .profile-menu-icon{
+
+    background:#FCE8EF;
+
+}
+
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+html[data-theme="pink"] .workspace-item{
+
+    background:var(--card);
+
+    border-color:var(--border);
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .workspace-item:hover{
+
+    border-color:var(--primary);
+
+}
+
+html[data-theme="pink"] .workspace-icon{
+
+    background:#FCE8EF;
+
+}
+
+html[data-theme="pink"] .workspace-name{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .workspace-group-title{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .workspace-create{
+
+    color:var(--primary);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .workspace-create:hover{
+
+    background:#FFF0F5;
+
+}
+
+
+/* =====================================================
+   PROFILE SETTINGS
+===================================================== */
+
+html[data-theme="pink"] .profile-settings-overlay{
+
+    background:var(--background);
+
+}
+
+html[data-theme="pink"] .profile-settings-header{
+
+    background:var(--card);
+
+    border-color:var(--border);
+
+}
+
+html[data-theme="pink"] .profile-settings-back{
+
+    background:#FFF0F5;
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .profile-settings-header h2{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .profile-settings-header p{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .profile-settings-section-title{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .profile-settings-card{
+
+    background:var(--card);
+
+    border-color:var(--border);
+
+    box-shadow:var(--shadow);
+
+}
+
+
+/* =====================================================
+   THEME OPTIONS
+===================================================== */
+
+html[data-theme="pink"] .profile-theme-option{
+
+    background:var(--surface);
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .profile-theme-option.active{
+
+    background:#FCE8EF;
+
+    border-color:var(--primary);
+
+}
+
+html[data-theme="pink"] .profile-theme-icon{
+
+    background:#FFF9FB;
+
+}
+
+html[data-theme="pink"] .profile-theme-info strong{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] .profile-theme-info small{
+
+    color:var(--text-secondary);
+
+}
+
+html[data-theme="pink"] .profile-theme-check{
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+html[data-theme="pink"] #bottom-navigation{
+
+    background:#FFF9FB;
+
+    border-top-color:var(--border);
+
+    box-shadow:
+
+        0 -8px 24px
+
+        rgba(180,100,130,.08);
+
+}
+
+html[data-theme="pink"] .nav-icon{
+
+    color:#B5A5AC;
+
+}
+
+html[data-theme="pink"] .nav-label{
+
+    color:#B5A5AC;
+
+}
+
+html[data-theme="pink"] .nav-item.active{
+
+    background:#FCE8EF;
+
+}
+
+html[data-theme="pink"] .nav-item:hover .nav-icon{
+
+    background:#F5E2E9;
+
+    color:var(--primary);
+
+}
+
+html[data-theme="pink"] .nav-item:hover .nav-label{
+
+    color:var(--primary);
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+html[data-theme="pink"] #global-header{
+
+    color:var(--text);
+
+}
+
+html[data-theme="pink"] #header-banner{
+
+    box-shadow:
+
+        0 8px 24px
+
+        rgba(180,100,130,.08);
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+html[data-theme="pink"] .empty{
+
+    color:#B5A5AC;
+
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+html[data-theme="pink"]{
+
+    scrollbar-color:#D8A6B8 #FFF7FA;
+
+}
+
+html[data-theme="pink"] ::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+html[data-theme="pink"] ::-webkit-scrollbar-track{
+
+    background:#FFF7FA;
+
+}
+
+html[data-theme="pink"] ::-webkit-scrollbar-thumb{
+
+    background:#D8A6B8;
+
+    border-radius:999px;
+
+}
+
+html[data-theme="pink"] ::-webkit-scrollbar-thumb:hover{
+
+    background:#C98FA5;
+
+}
