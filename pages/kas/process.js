@@ -36,7 +36,11 @@ export const Process = {
 
     summary : {},
 
-    chart : []
+    chart : [],
+
+    debt : {},
+
+    debtHistory : []
 
 };
 
@@ -66,6 +70,8 @@ Process.init = function(
     processData();
 
     processBalance();
+
+    processDebt();
 
     processSummary();
 
@@ -227,6 +233,235 @@ function processBalance(){
     Process.data.forEach(
 
         calculateBalance
+
+    );
+
+}
+
+/* =====================================================
+   DEBT
+===================================================== */
+
+function processDebt(){
+
+    Process.debt = {};
+
+    Process.debtHistory = [];
+
+
+    /* ==============================================
+       INIT MEMBER
+    ============================================== */
+
+    Process.member.forEach(
+
+        item=>{
+
+            Process.debt[
+
+                item.nama
+
+            ] = {
+
+                borrowed : 0,
+
+                paid : 0,
+
+                balance : 0
+
+            };
+
+        }
+
+    );
+
+
+    /* ==============================================
+       PROCESS TRANSACTION
+    ============================================== */
+
+    Process.data.forEach(
+
+        item=>{
+
+            if(
+
+                item.jenis !== "pinjam" &&
+
+                item.jenis !== "bayar"
+
+            ){
+
+                return;
+
+            }
+
+
+            const member =
+
+                item.nama;
+
+            const amount =
+
+                Math.abs(
+
+                    item.nominal
+
+                );
+
+
+            /* ======================================
+               CREATE MEMBER IF NOT EXIST
+            ====================================== */
+
+            if(
+
+                !Process.debt[
+
+                    member
+
+                ]
+
+            ){
+
+                Process.debt[
+
+                    member
+
+                ] = {
+
+                    borrowed : 0,
+
+                    paid : 0,
+
+                    balance : 0
+
+                };
+
+            }
+
+
+            /* ======================================
+               PINJAM
+            ====================================== */
+
+            if(
+
+                item.jenis ===
+
+                "pinjam"
+
+            ){
+
+                Process.debt[
+
+                    member
+
+                ].borrowed +=
+
+                    amount;
+
+                Process.debt[
+
+                    member
+
+                ].balance +=
+
+                    amount;
+
+            }
+
+
+            /* ======================================
+               BAYAR
+            ====================================== */
+
+            if(
+
+                item.jenis ===
+
+                "bayar"
+
+            ){
+
+                Process.debt[
+
+                    member
+
+                ].paid +=
+
+                    amount;
+
+                Process.debt[
+
+                    member
+
+                ].balance -=
+
+                    amount;
+
+            }
+
+
+            /* ======================================
+               HISTORY
+            ====================================== */
+
+            Process.debtHistory.push({
+
+                id :
+
+                    item.id,
+
+                tanggal :
+
+                    item.tanggal,
+
+                date :
+
+                    item.date,
+
+                jenis :
+
+                    item.jenis,
+
+                nama :
+
+                    member,
+
+                nominal :
+
+                    amount,
+
+                keterangan :
+
+                    item.keterangan
+
+            });
+
+        }
+
+    );
+
+
+    /* ==============================================
+       SORT HISTORY
+       Terbaru → Terlama
+    ============================================== */
+
+    Process.debtHistory.sort(
+
+        (
+
+            a,
+
+            b
+
+        )=>
+
+            b.date -
+
+            a.date
 
     );
 
