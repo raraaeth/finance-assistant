@@ -314,10 +314,14 @@
 }
 
 /* =====================================================
-   PAGINATION
+   STATISTICS PAGINATION
 ===================================================== */
 
 .statistics-pagination{
+
+    margin-top:20px;
+
+    padding:12px;
 
     display:flex;
 
@@ -325,19 +329,30 @@
 
     justify-content:space-between;
 
-    gap:16px;
+    gap:12px;
 
-    margin-top:20px;
+    border-radius:16px;
+
+    background:var(--surface);
 
 }
 
+
+/* =====================================================
+   PAGINATION BUTTON
+===================================================== */
+
 .statistics-pagination button{
+
+    padding:10px 14px;
 
     border:none;
 
-    background:none;
+    border-radius:12px;
 
-    color:#2563EB;
+    background:var(--primary);
+
+    color:#fff;
 
     font-size:14px;
 
@@ -345,34 +360,52 @@
 
     cursor:pointer;
 
-    transition:.2s;
+    transition:
+
+        opacity .2s ease,
+
+        transform .15s ease;
 
 }
 
-.statistics-pagination button:hover{
 
-    opacity:.8;
-
-}
+/* =====================================================
+   DISABLED
+===================================================== */
 
 .statistics-pagination button:disabled{
 
-    color:#9CA3AF;
+    opacity:.35;
 
     cursor:not-allowed;
 
-    opacity:.6;
+}
+
+
+/* =====================================================
+   ACTIVE PRESS
+===================================================== */
+
+.statistics-pagination button:not(:disabled):active{
+
+    transform:scale(.97);
 
 }
 
+
+/* =====================================================
+   PAGE INFO
+===================================================== */
+
 .statistics-pagination span{
+
+    color:var(--text);
 
     font-size:14px;
 
     font-weight:600;
 
-    color:var(--text-secondary);
+    white-space:nowrap;
 
 }
-
 
