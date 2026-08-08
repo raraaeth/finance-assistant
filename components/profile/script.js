@@ -1244,7 +1244,27 @@ function onClick(
 
     }
 
+const settingsBack =
 
+    event.target.closest(
+
+        "#profile-settings-back"
+
+    );
+
+if(
+
+    settingsBack
+
+){
+
+    closeSettings();
+
+    return;
+
+}
+
+   
     const logoutButton =
 
         event.target.closest(
@@ -1315,6 +1335,18 @@ function openMenu(
 
 ){
 
+    if(
+
+        id === "settings"
+
+    ){
+
+        openSettings();
+
+        return;
+
+    }
+
     console.log(
 
         "Open",
@@ -1325,6 +1357,70 @@ function openMenu(
 
 }
 
+/* =====================================================
+   SETTINGS OVERLAY
+===================================================== */
+
+function openSettings(){
+
+    const overlay =
+
+        document.getElementById(
+
+            "profile-settings-overlay"
+
+        );
+
+    if(
+
+        !overlay
+
+    ){
+
+        return;
+
+    }
+
+    overlay.classList.remove(
+
+        "hidden"
+
+    );
+
+}
+
+
+/* =====================================================
+   CLOSE SETTINGS
+===================================================== */
+
+function closeSettings(){
+
+    const overlay =
+
+        document.getElementById(
+
+            "profile-settings-overlay"
+
+        );
+
+    if(
+
+        !overlay
+
+    ){
+
+        return;
+
+    }
+
+    overlay.classList.add(
+
+        "hidden"
+
+    );
+
+}
 
 /* =====================================================
    LOGOUT
