@@ -6,7 +6,7 @@
    Version     : 1.0.0
 
    Description :
-   Soft Elegant Green Theme
+   Premium Soft Turquoise / Teal Theme
 ===================================================== */
 
 
@@ -18,25 +18,25 @@ html[data-theme="green"]{
 
     color-scheme:light;
 
-    --primary:#4FAF7B;
+    --primary:#18BFA3;
 
-    --background:#F6FBF8;
+    --background:#F4FBFA;
 
     --card:#FFFFFF;
 
-    --text:#34443B;
+    --text:#263C38;
 
-    --text-secondary:#7C8C83;
+    --text-secondary:#71827E;
 
-    --border:#D8EADF;
+    --border:#C7E9E2;
 
     --shadow:
-        0 2px 10px
-        rgba(60,130,90,.08);
+        0 4px 18px
+        rgba(24,191,163,.10);
 
-    --surface:#EAF7F0;
+    --surface:#E4F8F4;
 
-    --text-primary:#34443B;
+    --text-primary:#263C38;
 
 }
 
@@ -68,7 +68,7 @@ html[data-theme="green"] .card{
 
         0 4px 16px
 
-        rgba(60,130,90,.08);
+        rgba(24,191,163,.08);
 
 }
 
@@ -109,7 +109,7 @@ html[data-theme="green"] input,
 html[data-theme="green"] select,
 html[data-theme="green"] textarea{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
     color:var(--text);
 
@@ -119,7 +119,7 @@ html[data-theme="green"] textarea{
 
 html[data-theme="green"] input::placeholder{
 
-    color:#A5B3AA;
+    color:#9AAEA9;
 
 }
 
@@ -130,7 +130,7 @@ html[data-theme="green"] input::placeholder{
 
 html[data-theme="green"] .button-outline{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
     color:var(--text);
 
@@ -145,7 +145,7 @@ html[data-theme="green"] .button-outline{
 
 html[data-theme="green"] .filter-select{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
     color:var(--text);
 
@@ -153,7 +153,7 @@ html[data-theme="green"] .filter-select{
 
 html[data-theme="green"] .filter-input{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
     color:var(--text);
 
@@ -161,13 +161,13 @@ html[data-theme="green"] .filter-input{
 
 html[data-theme="green"] .filter-period{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
 }
 
 html[data-theme="green"] .filter-period:hover{
 
-    background:#EAF7F0;
+    background:#E4F8F4;
 
 }
 
@@ -179,9 +179,9 @@ html[data-theme="green"] .filter-period-text{
 
 html[data-theme="green"] .filter-chip{
 
-    background:#F1F9F4;
+    background:#EFFAF7;
 
-    color:#62776A;
+    color:#54756E;
 
     border-color:var(--border);
 
@@ -189,11 +189,22 @@ html[data-theme="green"] .filter-chip{
 
 html[data-theme="green"] .filter-chip.active{
 
-    background:var(--primary);
+    background:
+        linear-gradient(
+            135deg,
+            #18BFA3,
+            #39D6BC
+        );
 
-    border-color:var(--primary);
+    border-color:#18BFA3;
 
     color:#ffffff;
+
+    box-shadow:
+
+        0 4px 12px
+
+        rgba(24,191,163,.18);
 
 }
 
@@ -204,7 +215,7 @@ html[data-theme="green"] .filter-chip.active{
 
 html[data-theme="green"] .filter-sheet{
 
-    background:#F6FBF8;
+    background:#F4FBFA;
 
     color:var(--text);
 
@@ -224,19 +235,19 @@ html[data-theme="green"] .filter-sheet-header p{
 
 html[data-theme="green"] .filter-sheet-handle{
 
-    background:#B5D5C2;
+    background:#9BD9CC;
 
 }
 
 html[data-theme="green"] .filter-input label{
 
-    color:#5F7167;
+    color:#526C66;
 
 }
 
 html[data-theme="green"] .filter-input input{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
     color:var(--text);
 
@@ -246,7 +257,7 @@ html[data-theme="green"] .filter-input input{
 
 html[data-theme="green"] .filter-sheet-footer{
 
-    background:#F6FBF8;
+    background:#F4FBFA;
 
     border-color:var(--border);
 
@@ -254,9 +265,9 @@ html[data-theme="green"] .filter-sheet-footer{
 
 html[data-theme="green"] #filter-cancel{
 
-    background:#E6F1EB;
+    background:#E1F3EF;
 
-    color:#5F7167;
+    color:#52716A;
 
 }
 
@@ -267,9 +278,9 @@ html[data-theme="green"] #filter-cancel{
 
 html[data-theme="green"] .section-badge{
 
-    background:#E5F5EC;
+    background:#DDF7F1;
 
-    color:#397B58;
+    color:#087D6A;
 
 }
 
@@ -299,26 +310,49 @@ html[data-theme="green"] .summary-item strong{
 
 
 /* =====================================================
+   HOME PRIMARY ELEMENTS
+===================================================== */
+
+html[data-theme="green"] .summary-total{
+
+    color:var(--text);
+
+}
+
+html[data-theme="green"] .summary-total h2{
+
+    color:var(--primary);
+
+}
+
+
+/* =====================================================
    STATISTICS
 ===================================================== */
 
 html[data-theme="green"] .statistics-pagination button{
 
-    background:#E1EEE7;
+    background:#E1F1ED;
 
-    color:#34443B;
+    color:#263C38;
 
-    border:1px solid #C9DED2;
+    border:1px solid #BFE3DB;
+
+}
+
+html[data-theme="green"] .statistics-pagination button:hover{
+
+    background:#D5ECE7;
 
 }
 
 html[data-theme="green"] .statistics-pagination button:disabled{
 
-    background:#F0F6F2;
+    background:#EFF7F5;
 
-    color:#A1AEA6;
+    color:#9AAEA9;
 
-    border-color:#DCE9E1;
+    border-color:#D7EAE6;
 
     opacity:1;
 
@@ -367,7 +401,7 @@ html[data-theme="green"] .transaction-amount{
 
 html[data-theme="green"] .summary-item{
 
-    background:#EAF7F0;
+    background:#E4F8F4;
 
 }
 
@@ -391,7 +425,23 @@ html[data-theme="green"] .distribution-percent{
 
 html[data-theme="green"] .distribution-bar{
 
-    background:#DCEDE4;
+    background:#D4EEE8;
+
+}
+
+
+/* =====================================================
+   SUMMARY — DISTRIBUTION
+===================================================== */
+
+html[data-theme="green"] .distribution-fill{
+
+    background:
+        linear-gradient(
+            90deg,
+            #18BFA3,
+            #39D6BC
+        );
 
 }
 
@@ -464,7 +514,7 @@ html[data-theme="green"] .debt-history-info p{
 
 html[data-theme="green"] .debt-history-icon{
 
-    background:#EAF7F0;
+    background:#E4F8F4;
 
 }
 
@@ -475,27 +525,27 @@ html[data-theme="green"] .debt-history-icon{
 
 html[data-theme="green"] .debt-page-button{
 
-    background:#E1EEE7;
+    background:#E1F1ED;
 
-    color:#34443B;
+    color:#263C38;
 
-    border:1px solid #C9DED2;
+    border:1px solid #BFE3DB;
 
 }
 
 html[data-theme="green"] .debt-page-button:hover{
 
-    background:#D6E9DE;
+    background:#D5ECE7;
 
 }
 
 html[data-theme="green"] .debt-page-button:disabled{
 
-    background:#F0F6F2;
+    background:#EFF7F5;
 
-    color:#A1AEA6;
+    color:#9AAEA9;
 
-    border-color:#DCE9E1;
+    border-color:#D7EAE6;
 
     opacity:1;
 
@@ -528,7 +578,7 @@ html[data-theme="green"] .profile-card{
 
         0 8px 24px
 
-        rgba(60,130,90,.08);
+        rgba(24,191,163,.10);
 
 }
 
@@ -556,19 +606,21 @@ html[data-theme="green"] .profile-menu-description{
 
 html[data-theme="green"] .profile-menu-arrow{
 
-    color:#9AAA9F;
+    color:#8FA59F;
 
 }
 
 html[data-theme="green"] .profile-avatar{
 
-    border-color:#E0F0E7;
+    border-color:#DDF3EE;
 
 }
 
 html[data-theme="green"] .profile-greeting{
 
-    background:#E5F5EC;
+    background:#DDF7F1;
+
+    color:#087D6A;
 
 }
 
@@ -591,7 +643,7 @@ html[data-theme="green"] .profile-description{
 
 html[data-theme="green"] .profile-menu-icon{
 
-    background:#E5F5EC;
+    background:#DDF7F1;
 
 }
 
@@ -618,7 +670,7 @@ html[data-theme="green"] .workspace-item:hover{
 
 html[data-theme="green"] .workspace-icon{
 
-    background:#E5F5EC;
+    background:#DDF7F1;
 
 }
 
@@ -644,7 +696,7 @@ html[data-theme="green"] .workspace-create{
 
 html[data-theme="green"] .workspace-create:hover{
 
-    background:#EAF7F0;
+    background:#E4F8F4;
 
 }
 
@@ -669,7 +721,7 @@ html[data-theme="green"] .profile-settings-header{
 
 html[data-theme="green"] .profile-settings-back{
 
-    background:#EAF7F0;
+    background:#E4F8F4;
 
     color:var(--text);
 
@@ -718,15 +770,21 @@ html[data-theme="green"] .profile-theme-option{
 
 html[data-theme="green"] .profile-theme-option.active{
 
-    background:#E5F5EC;
+    background:#DDF7F1;
 
     border-color:var(--primary);
+
+    box-shadow:
+
+        0 4px 12px
+
+        rgba(24,191,163,.12);
 
 }
 
 html[data-theme="green"] .profile-theme-icon{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
 }
 
@@ -744,9 +802,20 @@ html[data-theme="green"] .profile-theme-info small{
 
 html[data-theme="green"] .profile-theme-check{
 
-    background:var(--primary);
+    background:
+        linear-gradient(
+            135deg,
+            #18BFA3,
+            #39D6BC
+        );
 
     color:#ffffff;
+
+    box-shadow:
+
+        0 3px 8px
+
+        rgba(24,191,163,.20);
 
 }
 
@@ -757,7 +826,7 @@ html[data-theme="green"] .profile-theme-check{
 
 html[data-theme="green"] #bottom-navigation{
 
-    background:#FAFDFC;
+    background:#FAFEFD;
 
     border-top-color:var(--border);
 
@@ -765,31 +834,56 @@ html[data-theme="green"] #bottom-navigation{
 
         0 -8px 24px
 
-        rgba(60,130,90,.08);
+        rgba(24,191,163,.08);
 
 }
 
 html[data-theme="green"] .nav-icon{
 
-    color:#A5B3AA;
+    color:#9AAEA9;
 
 }
 
 html[data-theme="green"] .nav-label{
 
-    color:#A5B3AA;
+    color:#9AAEA9;
 
 }
 
 html[data-theme="green"] .nav-item.active{
 
-    background:#E5F5EC;
+    background:
+        linear-gradient(
+            135deg,
+            #18BFA3,
+            #39D6BC
+        );
+
+    color:#ffffff;
+
+    box-shadow:
+
+        0 5px 16px
+
+        rgba(24,191,163,.22);
+
+}
+
+html[data-theme="green"] .nav-item.active .nav-icon{
+
+    color:#ffffff;
+
+}
+
+html[data-theme="green"] .nav-item.active .nav-label{
+
+    color:#ffffff;
 
 }
 
 html[data-theme="green"] .nav-item:hover .nav-icon{
 
-    background:#DFF1E7;
+    background:#DDF7F1;
 
     color:var(--primary);
 
@@ -818,7 +912,7 @@ html[data-theme="green"] #header-banner{
 
         0 8px 24px
 
-        rgba(60,130,90,.08);
+        rgba(24,191,163,.10);
 
 }
 
@@ -829,7 +923,7 @@ html[data-theme="green"] #header-banner{
 
 html[data-theme="green"] .empty{
 
-    color:#A5B3AA;
+    color:#9AAEA9;
 
 }
 
@@ -840,7 +934,7 @@ html[data-theme="green"] .empty{
 
 html[data-theme="green"]{
 
-    scrollbar-color:#A8CDB7 #F6FBF8;
+    scrollbar-color:#7FCDBD #F4FBFA;
 
 }
 
@@ -852,13 +946,13 @@ html[data-theme="green"] ::-webkit-scrollbar{
 
 html[data-theme="green"] ::-webkit-scrollbar-track{
 
-    background:#F6FBF8;
+    background:#F4FBFA;
 
 }
 
 html[data-theme="green"] ::-webkit-scrollbar-thumb{
 
-    background:#A8CDB7;
+    background:#7FCDBD;
 
     border-radius:999px;
 
@@ -866,6 +960,6 @@ html[data-theme="green"] ::-webkit-scrollbar-thumb{
 
 html[data-theme="green"] ::-webkit-scrollbar-thumb:hover{
 
-    background:#82B397;
+    background:#4FBCA6;
 
 }
