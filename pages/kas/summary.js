@@ -181,7 +181,7 @@ function renderOverview(){
 
                             Process.summary
 
-                            .totalIncome
+                            .monthlyIncome
 
                         )
 
@@ -284,6 +284,17 @@ function renderOverview(){
 ===================================================== */
 
 function renderDebt(){
+
+console.log(
+    "DEBT CHECK:",
+    Process.debt
+);
+
+console.log(
+    "DEBT HISTORY:",
+    Process.debtHistory
+);
+   
 
     const section =
 
