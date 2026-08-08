@@ -16,7 +16,11 @@ import {
 
     loadWorkspace,
 
-    saveWorkspace
+    saveWorkspace,
+
+    loadTheme,
+
+    saveTheme
 
 } from "../../js/storage.js";
 
@@ -110,13 +114,7 @@ function renderTheme(){
 
     const current =
 
-        localStorage.getItem(
-
-            "finance-theme"
-
-        ) ||
-
-        "light";
+    loadTheme();
 
     container.innerHTML =
 
@@ -272,13 +270,11 @@ function applyTheme(
        SAVE THEME
     ============================================== */
 
-    localStorage.setItem(
+    saveTheme(
 
-        "finance-theme",
+    theme
 
-        theme
-
-    );
+);
 
 
     /* ==============================================
@@ -301,6 +297,48 @@ function applyTheme(
     ============================================== */
 
     renderTheme();
+
+}
+
+/* =====================================================
+   INIT THEME
+===================================================== */
+
+function initTheme(){
+
+    const theme =
+
+        loadTheme();
+
+
+    if(
+
+        theme === "light"
+
+    ){
+
+        document.documentElement
+
+            .removeAttribute(
+
+                "data-theme"
+
+            );
+
+        return;
+
+    }
+
+
+    document.documentElement
+
+        .setAttribute(
+
+            "data-theme",
+
+            theme
+
+        );
 
 }
 
@@ -451,6 +489,8 @@ async function loadStyle(){
 ===================================================== */
 
 function init(){
+
+    initTheme();
 
     initSession();
 
