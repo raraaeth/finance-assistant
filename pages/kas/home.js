@@ -321,19 +321,19 @@ function renderSummary(){
 
                 <strong id="summary-monthly-income">
 
-                    ${
+    ${
 
-                        shortRupiah(
+        shortRupiah(
 
-                            Process.summary
+            Process.summary
 
-                            .totalIncome
+                .monthlyIncome
 
-                        )
+        )
 
-                    }
+    }
 
-                </strong>
+</strong>
 
             </div>
 
