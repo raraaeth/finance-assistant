@@ -2,7 +2,7 @@
    HOME
    FILE : home.js
    DESCRIPTION : Home Controller
-   VERSION : 2.0.0
+   VERSION : 3.0.0
 ===================================================== */
 
 
@@ -90,15 +90,15 @@ export async function init(){
 
         theme :
 
-             "kas"
+            "kas"
 
     });
 
     await API.load(
 
-    CONFIG.api.transaction,
+        CONFIG.api.transaction,
 
-    CONFIG.api.member
+        CONFIG.api.member
 
     );
 
@@ -117,6 +117,10 @@ export async function init(){
     renderHero();
 
     renderSummary();
+
+    renderInput();
+
+    renderSetting();
 
     await Profile.render({
 
@@ -143,7 +147,7 @@ function capitalize(
 
         /\b\w/g,
 
-        letter=>
+        letter =>
 
             letter.toUpperCase()
 
@@ -151,11 +155,36 @@ function capitalize(
 
 }
 
+
 /* =====================================================
    HERO
 ===================================================== */
 
 function renderHero(){
+
+    const title =
+
+        document.getElementById(
+
+            "hero-title"
+
+        );
+
+    const description =
+
+        document.getElementById(
+
+            "hero-description"
+
+        );
+
+    const banner =
+
+        document.getElementById(
+
+            "hero-banner"
+
+        );
 
     const name =
 
@@ -167,29 +196,41 @@ function renderHero(){
 
         );
 
-    document.getElementById(
+    if(
 
-        "hero-title"
+        title
 
-    ).innerHTML =
+    ){
 
-        `Halo, ${name} 👋`;
+        title.innerHTML =
 
-    document.getElementById(
+            `Halo, ${name} 👋`;
 
-        "hero-description"
+    }
 
-    ).textContent =
+    if(
 
-        CONFIG.hero.description;
+        description
 
-    document.getElementById(
+    ){
 
-        "hero-banner"
+        description.textContent =
 
-    ).src =
+            CONFIG.hero.description;
 
-        CONFIG.hero.image;
+    }
+
+    if(
+
+        banner
+
+    ){
+
+        banner.src =
+
+            CONFIG.hero.image;
+
+    }
 
 }
 
@@ -200,46 +241,221 @@ function renderHero(){
 
 function renderSummary(){
 
-    document.getElementById(
+    const card =
 
-        "summary-total"
+        document.getElementById(
 
-    ).textContent =
-
-        rupiah(
-
-            Process.summary
-
-            .totalBalance
+            "summary-card"
 
         );
 
-    document.getElementById(
+    if(
 
-    "summary-expense"
+        !card
 
-).textContent =
+    ){
 
-    shortRupiah(
+        return;
 
-        Process.summary
+    }
 
-        .totalIncome
+    card.innerHTML =
 
-    );
+    `
 
-    document.getElementById(
+        <div class="summary-total">
 
-        "summary-expense"
+            <p id="summary-label">
 
-    ).textContent =
+                Total Saldo Kas
 
-        shortRupiah(
+            </p>
 
-            Process.summary
+            <h2 id="summary-total">
 
-            .weeklyExpense
+                ${
+
+                    rupiah(
+
+                        Process.summary
+
+                        .totalBalance
+
+                    )
+
+                }
+
+            </h2>
+
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-item">
+
+                <span>
+
+                    Pemasukan
+
+                </span>
+
+                <strong id="summary-income">
+
+                    ${
+
+                        shortRupiah(
+
+                            Process.summary
+
+                            .totalIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            <div class="summary-item">
+
+                <span>
+
+                    Pengeluaran
+
+                </span>
+
+                <strong id="summary-expense">
+
+                    ${
+
+                        shortRupiah(
+
+                            Process.summary
+
+                            .totalExpense
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+function renderInput(){
+
+    const card =
+
+        document.getElementById(
+
+            "input-card"
 
         );
 
-  }
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+    card.innerHTML =
+
+    `
+
+        <div class="card-header">
+
+            <span class="card-title">
+
+                Tambah Transaksi
+
+            </span>
+
+        </div>
+
+        <div class="card-body">
+
+            <p>
+
+                Gunakan modul Kas untuk
+                mencatat pemasukan,
+                pengeluaran, atau transaksi
+                lainnya.
+
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   SETTING
+===================================================== */
+
+function renderSetting(){
+
+    const card =
+
+        document.getElementById(
+
+            "setting-card"
+
+        );
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+    card.innerHTML =
+
+    `
+
+        <div class="card-header">
+
+            <span class="card-title">
+
+                Pengaturan Kas
+
+            </span>
+
+        </div>
+
+        <div class="card-body">
+
+            <p>
+
+                Pengaturan workspace Kas
+                dapat dikelola melalui
+                Profile.
+
+            </p>
+
+        </div>
+
+    `;
+
+}
