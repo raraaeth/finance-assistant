@@ -106,3 +106,55 @@ export function saveWorkspace(
     );
 
 }
+
+/* =====================================================
+   THEME
+===================================================== */
+
+const THEME_KEY =
+
+    `${KEY}-theme`;
+
+
+/* =====================================================
+   LOAD THEME
+===================================================== */
+
+export function loadTheme(){
+
+    return (
+
+        localStorage.getItem(
+
+            THEME_KEY
+
+        )
+
+        ||
+
+        "light"
+
+    );
+
+}
+
+
+/* =====================================================
+   SAVE THEME
+===================================================== */
+
+export function saveTheme(
+
+    theme
+
+){
+
+    localStorage.setItem(
+
+        THEME_KEY,
+
+        theme
+
+    );
+
+}
