@@ -350,9 +350,9 @@
 
     border-radius:12px;
 
-    background:var(--primary);
+    background:#9ca3af;
 
-    color:#fff;
+    color:#ffffff;
 
     font-size:14px;
 
@@ -375,22 +375,15 @@
 
 .statistics-pagination button:disabled{
 
-    opacity:.35;
+    opacity:.45;
+
+    background:#9ca3af;
+
+    color:#ffffff;
 
     cursor:not-allowed;
 
-}
-
-
-/* =====================================================
-   ACTIVE PRESS
-===================================================== */
-
-.statistics-pagination button:not(:disabled):active{
-
-    transform:scale(.97);
-
-}
+   }
 
 
 /* =====================================================
@@ -409,3 +402,13 @@
 
 }
 
+
+/* =====================================================
+   PRESS
+===================================================== */
+
+.statistics-pagination button:not(:disabled):active{
+
+    transform:scale(.97);
+
+}
