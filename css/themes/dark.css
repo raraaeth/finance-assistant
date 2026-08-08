@@ -710,3 +710,44 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{
     opacity:1 !important;
 
 }
+
+/* =====================================================
+   SUMMARY — DEBT PAGINATION
+===================================================== */
+
+.debt-page-button{
+
+    background:#374151;
+
+    color:#ffffff;
+
+    border:1px solid #4b5563;
+
+}
+
+
+.debt-page-button:hover{
+
+    background:#4b5563;
+
+}
+
+
+.debt-page-button:disabled{
+
+    background:#263244;
+
+    color:#9ca3af;
+
+    border-color:#344054;
+
+    opacity:1;
+
+}
+
+
+.debt-page-info{
+
+    color:#d1d5db;
+
+}
