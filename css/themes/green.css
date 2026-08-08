@@ -6,7 +6,7 @@
    Version     : 1.0.0
 
    Description :
-   Premium Soft Turquoise / Teal Theme
+   Premium Green / Teal Theme Override
 ===================================================== */
 
 
@@ -18,25 +18,27 @@ html[data-theme="green"]{
 
     color-scheme:light;
 
-    --primary:#18BFA3;
+    --primary:#159A8C;
 
-    --background:#F4FBFA;
+    --background:#EEF8F6;
 
     --card:#FFFFFF;
 
-    --text:#263C38;
+    --text:#183A36;
 
-    --text-secondary:#71827E;
+    --text-secondary:#6B8580;
 
-    --border:#C7E9E2;
+    --border:#CFE5E1;
 
     --shadow:
-        0 4px 18px
-        rgba(24,191,163,.10);
+        0 8px 24px
+        rgba(21,154,140,.10);
 
-    --surface:#E4F8F4;
+    --surface:#F7FCFB;
 
-    --text-primary:#263C38;
+    --text-primary:#183A36;
+
+    --primary-soft:#DDF3EF;
 
 }
 
@@ -47,7 +49,12 @@ html[data-theme="green"]{
 
 html[data-theme="green"] body{
 
-    background:var(--background);
+    background:
+        linear-gradient(
+            180deg,
+            #EEF8F6 0%,
+            #E8F5F2 100%
+        );
 
     color:var(--text);
 
@@ -66,9 +73,9 @@ html[data-theme="green"] .card{
 
     box-shadow:
 
-        0 4px 16px
+        0 8px 24px
 
-        rgba(24,191,163,.08);
+        rgba(21,154,140,.10);
 
 }
 
@@ -109,7 +116,7 @@ html[data-theme="green"] input,
 html[data-theme="green"] select,
 html[data-theme="green"] textarea{
 
-    background:#FAFEFD;
+    background:#FFFFFF;
 
     color:var(--text);
 
@@ -119,7 +126,7 @@ html[data-theme="green"] textarea{
 
 html[data-theme="green"] input::placeholder{
 
-    color:#9AAEA9;
+    color:#8AA7A2;
 
 }
 
@@ -130,9 +137,9 @@ html[data-theme="green"] input::placeholder{
 
 html[data-theme="green"] .button-outline{
 
-    background:#FAFEFD;
+    background:#F5FBFA;
 
-    color:var(--text);
+    color:var(--primary);
 
     border-color:var(--border);
 
@@ -145,7 +152,7 @@ html[data-theme="green"] .button-outline{
 
 html[data-theme="green"] .filter-select{
 
-    background:#FAFEFD;
+    background:#FFFFFF;
 
     color:var(--text);
 
@@ -153,7 +160,7 @@ html[data-theme="green"] .filter-select{
 
 html[data-theme="green"] .filter-input{
 
-    background:#FAFEFD;
+    background:#FFFFFF;
 
     color:var(--text);
 
@@ -161,13 +168,13 @@ html[data-theme="green"] .filter-input{
 
 html[data-theme="green"] .filter-period{
 
-    background:#FAFEFD;
+    background:#F5FBFA;
 
 }
 
 html[data-theme="green"] .filter-period:hover{
 
-    background:#E4F8F4;
+    background:#E3F4F0;
 
 }
 
@@ -179,9 +186,9 @@ html[data-theme="green"] .filter-period-text{
 
 html[data-theme="green"] .filter-chip{
 
-    background:#EFFAF7;
+    background:#F5FBFA;
 
-    color:#54756E;
+    color:#5E7772;
 
     border-color:var(--border);
 
@@ -189,22 +196,11 @@ html[data-theme="green"] .filter-chip{
 
 html[data-theme="green"] .filter-chip.active{
 
-    background:
-        linear-gradient(
-            135deg,
-            #18BFA3,
-            #39D6BC
-        );
+    background:var(--primary);
 
-    border-color:#18BFA3;
+    border-color:var(--primary);
 
-    color:#ffffff;
-
-    box-shadow:
-
-        0 4px 12px
-
-        rgba(24,191,163,.18);
+    color:#FFFFFF;
 
 }
 
@@ -215,7 +211,7 @@ html[data-theme="green"] .filter-chip.active{
 
 html[data-theme="green"] .filter-sheet{
 
-    background:#F4FBFA;
+    background:#FFFFFF;
 
     color:var(--text);
 
@@ -235,19 +231,19 @@ html[data-theme="green"] .filter-sheet-header p{
 
 html[data-theme="green"] .filter-sheet-handle{
 
-    background:#9BD9CC;
+    background:#A8C9C3;
 
 }
 
 html[data-theme="green"] .filter-input label{
 
-    color:#526C66;
+    color:#526E68;
 
 }
 
 html[data-theme="green"] .filter-input input{
 
-    background:#FAFEFD;
+    background:#F7FCFB;
 
     color:var(--text);
 
@@ -257,7 +253,7 @@ html[data-theme="green"] .filter-input input{
 
 html[data-theme="green"] .filter-sheet-footer{
 
-    background:#F4FBFA;
+    background:#FFFFFF;
 
     border-color:var(--border);
 
@@ -265,9 +261,9 @@ html[data-theme="green"] .filter-sheet-footer{
 
 html[data-theme="green"] #filter-cancel{
 
-    background:#E1F3EF;
+    background:#EDF6F4;
 
-    color:#52716A;
+    color:#5E7772;
 
 }
 
@@ -278,9 +274,9 @@ html[data-theme="green"] #filter-cancel{
 
 html[data-theme="green"] .section-badge{
 
-    background:#DDF7F1;
+    background:#DDF3EF;
 
-    color:#087D6A;
+    color:#16796F;
 
 }
 
@@ -310,51 +306,18 @@ html[data-theme="green"] .summary-item strong{
 
 
 /* =====================================================
-   HOME PRIMARY ELEMENTS
-===================================================== */
-
-html[data-theme="green"] .summary-total{
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .summary-total h2{
-
-    color:var(--primary);
-
-}
-
-
-/* =====================================================
    STATISTICS
 ===================================================== */
 
 html[data-theme="green"] .statistics-pagination button{
 
-    background:#E1F1ED;
-
-    color:#263C38;
-
-    border:1px solid #BFE3DB;
-
-}
-
-html[data-theme="green"] .statistics-pagination button:hover{
-
-    background:#D5ECE7;
+    color:var(--primary);
 
 }
 
 html[data-theme="green"] .statistics-pagination button:disabled{
 
-    background:#EFF7F5;
-
-    color:#9AAEA9;
-
-    border-color:#D7EAE6;
-
-    opacity:1;
+    color:#91AAA5;
 
 }
 
@@ -401,7 +364,7 @@ html[data-theme="green"] .transaction-amount{
 
 html[data-theme="green"] .summary-item{
 
-    background:#E4F8F4;
+    background:#F5FBFA;
 
 }
 
@@ -425,96 +388,23 @@ html[data-theme="green"] .distribution-percent{
 
 html[data-theme="green"] .distribution-bar{
 
-    background:#D4EEE8;
+    background:#DCEEEA;
 
 }
-
-
-/* =====================================================
-   SUMMARY — DISTRIBUTION
-===================================================== */
 
 html[data-theme="green"] .distribution-fill{
 
     background:
+
         linear-gradient(
+
             90deg,
-            #18BFA3,
-            #39D6BC
+
+            #159A8C,
+
+            #43B9A9
+
         );
-
-}
-
-
-/* =====================================================
-   SUMMARY — DEBT
-===================================================== */
-
-html[data-theme="green"] .debt-card{
-
-    background:var(--card);
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .debt-card-header h3{
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .debt-card-header p{
-
-    color:var(--text-secondary);
-
-}
-
-html[data-theme="green"] .debt-member{
-
-    border-color:var(--border);
-
-}
-
-html[data-theme="green"] .debt-member-info strong{
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .debt-member-info small{
-
-    color:var(--text-secondary);
-
-}
-
-html[data-theme="green"] .debt-history-item{
-
-    border-color:var(--border);
-
-}
-
-html[data-theme="green"] .debt-history-info strong{
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .debt-history-info small{
-
-    color:var(--text-secondary);
-
-}
-
-html[data-theme="green"] .debt-history-info p{
-
-    color:var(--text-secondary);
-
-}
-
-html[data-theme="green"] .debt-history-icon{
-
-    background:#E4F8F4;
 
 }
 
@@ -525,27 +415,27 @@ html[data-theme="green"] .debt-history-icon{
 
 html[data-theme="green"] .debt-page-button{
 
-    background:#E1F1ED;
+    background:#DCEEEA;
 
-    color:#263C38;
+    color:#155E57;
 
-    border:1px solid #BFE3DB;
+    border:1px solid #BFDCD6;
 
 }
 
 html[data-theme="green"] .debt-page-button:hover{
 
-    background:#D5ECE7;
+    background:#CBE6E0;
 
 }
 
 html[data-theme="green"] .debt-page-button:disabled{
 
-    background:#EFF7F5;
+    background:#E8F2F0;
 
-    color:#9AAEA9;
+    color:#9AAFA9;
 
-    border-color:#D7EAE6;
+    border-color:#D5E6E2;
 
     opacity:1;
 
@@ -553,7 +443,7 @@ html[data-theme="green"] .debt-page-button:disabled{
 
 html[data-theme="green"] .debt-page-info{
 
-    color:var(--text-secondary);
+    color:#66817B;
 
 }
 
@@ -570,7 +460,7 @@ html[data-theme="green"] #profile-component{
 
 html[data-theme="green"] .profile-card{
 
-    background:var(--card);
+    background:#FFFFFF;
 
     color:var(--text);
 
@@ -578,17 +468,21 @@ html[data-theme="green"] .profile-card{
 
         0 8px 24px
 
-        rgba(24,191,163,.10);
+        rgba(21,154,140,.10);
 
 }
 
 html[data-theme="green"] .profile-menu-item{
 
-    background:var(--card);
+    background:#FFFFFF;
 
     color:var(--text);
 
-    box-shadow:none;
+    box-shadow:
+
+        0 6px 18px
+
+        rgba(21,154,140,.08);
 
 }
 
@@ -606,21 +500,19 @@ html[data-theme="green"] .profile-menu-description{
 
 html[data-theme="green"] .profile-menu-arrow{
 
-    color:#8FA59F;
+    color:#8AA7A2;
 
 }
 
 html[data-theme="green"] .profile-avatar{
 
-    border-color:#DDF3EE;
+    border-color:#DCEEEA;
 
 }
 
 html[data-theme="green"] .profile-greeting{
 
-    background:#DDF7F1;
-
-    color:#087D6A;
+    background:#DDF3EF;
 
 }
 
@@ -638,23 +530,12 @@ html[data-theme="green"] .profile-description{
 
 
 /* =====================================================
-   PROFILE MENU ICON
-===================================================== */
-
-html[data-theme="green"] .profile-menu-icon{
-
-    background:#DDF7F1;
-
-}
-
-
-/* =====================================================
    WORKSPACE
 ===================================================== */
 
 html[data-theme="green"] .workspace-item{
 
-    background:var(--card);
+    background:#FFFFFF;
 
     border-color:var(--border);
 
@@ -670,7 +551,7 @@ html[data-theme="green"] .workspace-item:hover{
 
 html[data-theme="green"] .workspace-icon{
 
-    background:#DDF7F1;
+    background:#DDF3EF;
 
 }
 
@@ -696,126 +577,18 @@ html[data-theme="green"] .workspace-create{
 
 html[data-theme="green"] .workspace-create:hover{
 
-    background:#E4F8F4;
+    background:#F0FAF8;
 
 }
 
 
 /* =====================================================
-   PROFILE SETTINGS
+   PROFILE MENU ICON
 ===================================================== */
 
-html[data-theme="green"] .profile-settings-overlay{
+html[data-theme="green"] .profile-menu-icon{
 
-    background:var(--background);
-
-}
-
-html[data-theme="green"] .profile-settings-header{
-
-    background:var(--card);
-
-    border-color:var(--border);
-
-}
-
-html[data-theme="green"] .profile-settings-back{
-
-    background:#E4F8F4;
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .profile-settings-header h2{
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .profile-settings-header p{
-
-    color:var(--text-secondary);
-
-}
-
-html[data-theme="green"] .profile-settings-section-title{
-
-    color:var(--text-secondary);
-
-}
-
-html[data-theme="green"] .profile-settings-card{
-
-    background:var(--card);
-
-    border-color:var(--border);
-
-    box-shadow:var(--shadow);
-
-}
-
-
-/* =====================================================
-   THEME OPTIONS
-===================================================== */
-
-html[data-theme="green"] .profile-theme-option{
-
-    background:var(--surface);
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .profile-theme-option.active{
-
-    background:#DDF7F1;
-
-    border-color:var(--primary);
-
-    box-shadow:
-
-        0 4px 12px
-
-        rgba(24,191,163,.12);
-
-}
-
-html[data-theme="green"] .profile-theme-icon{
-
-    background:#FAFEFD;
-
-}
-
-html[data-theme="green"] .profile-theme-info strong{
-
-    color:var(--text);
-
-}
-
-html[data-theme="green"] .profile-theme-info small{
-
-    color:var(--text-secondary);
-
-}
-
-html[data-theme="green"] .profile-theme-check{
-
-    background:
-        linear-gradient(
-            135deg,
-            #18BFA3,
-            #39D6BC
-        );
-
-    color:#ffffff;
-
-    box-shadow:
-
-        0 3px 8px
-
-        rgba(24,191,163,.20);
+    background:#DDF3EF;
 
 }
 
@@ -826,64 +599,39 @@ html[data-theme="green"] .profile-theme-check{
 
 html[data-theme="green"] #bottom-navigation{
 
-    background:#FAFEFD;
+    background:#FFFFFF;
 
-    border-top-color:var(--border);
+    border-top-color:#D5E7E3;
 
     box-shadow:
 
         0 -8px 24px
 
-        rgba(24,191,163,.08);
+        rgba(21,154,140,.08);
 
 }
 
 html[data-theme="green"] .nav-icon{
 
-    color:#9AAEA9;
+    color:#91AAA5;
 
 }
 
 html[data-theme="green"] .nav-label{
 
-    color:#9AAEA9;
+    color:#91AAA5;
 
 }
 
 html[data-theme="green"] .nav-item.active{
 
-    background:
-        linear-gradient(
-            135deg,
-            #18BFA3,
-            #39D6BC
-        );
-
-    color:#ffffff;
-
-    box-shadow:
-
-        0 5px 16px
-
-        rgba(24,191,163,.22);
-
-}
-
-html[data-theme="green"] .nav-item.active .nav-icon{
-
-    color:#ffffff;
-
-}
-
-html[data-theme="green"] .nav-item.active .nav-label{
-
-    color:#ffffff;
+    background:#E2F3F0;
 
 }
 
 html[data-theme="green"] .nav-item:hover .nav-icon{
 
-    background:#DDF7F1;
+    background:#DDF3EF;
 
     color:var(--primary);
 
@@ -912,7 +660,7 @@ html[data-theme="green"] #header-banner{
 
         0 8px 24px
 
-        rgba(24,191,163,.10);
+        rgba(21,154,140,.12);
 
 }
 
@@ -923,7 +671,7 @@ html[data-theme="green"] #header-banner{
 
 html[data-theme="green"] .empty{
 
-    color:#9AAEA9;
+    color:#8AA7A2;
 
 }
 
@@ -934,7 +682,7 @@ html[data-theme="green"] .empty{
 
 html[data-theme="green"]{
 
-    scrollbar-color:#7FCDBD #F4FBFA;
+    scrollbar-color:#8FC9BF #EEF8F6;
 
 }
 
@@ -946,13 +694,13 @@ html[data-theme="green"] ::-webkit-scrollbar{
 
 html[data-theme="green"] ::-webkit-scrollbar-track{
 
-    background:#F4FBFA;
+    background:#EEF8F6;
 
 }
 
 html[data-theme="green"] ::-webkit-scrollbar-thumb{
 
-    background:#7FCDBD;
+    background:#8FC9BF;
 
     border-radius:999px;
 
@@ -960,6 +708,64 @@ html[data-theme="green"] ::-webkit-scrollbar-thumb{
 
 html[data-theme="green"] ::-webkit-scrollbar-thumb:hover{
 
-    background:#4FBCA6;
+    background:#5FB3A6;
+
+}
+
+
+/* =====================================================
+   STATISTICS PAGINATION — GREEN
+===================================================== */
+
+html[data-theme="green"] .statistics-pagination button{
+
+    background:#DCEEEA !important;
+
+    color:#155E57 !important;
+
+    border:1px solid #BFDCD6 !important;
+
+    box-shadow:none !important;
+
+}
+
+
+/* =====================================================
+   PAGINATION HOVER
+===================================================== */
+
+html[data-theme="green"] .statistics-pagination button:hover{
+
+    background:#CBE6E0 !important;
+
+    color:#124F49 !important;
+
+}
+
+
+/* =====================================================
+   PAGINATION DISABLED
+===================================================== */
+
+html[data-theme="green"] .statistics-pagination button:disabled{
+
+    background:#E8F2F0 !important;
+
+    color:#9AAFA9 !important;
+
+    border-color:#D5E6E2 !important;
+
+    opacity:1 !important;
+
+}
+
+
+/* =====================================================
+   PAGINATION INFO
+===================================================== */
+
+html[data-theme="green"] .statistics-pagination span{
+
+    color:#66817B !important;
 
 }
