@@ -334,9 +334,9 @@
 
     border-radius:12px;
 
-    background:var(--primary);
+    background:#9ca3af;
 
-    color:#000;
+    color:#ffffff;
 
     font-size:14px;
 
@@ -359,13 +359,15 @@
 
 .statistics-pagination button:disabled{
 
-    opacity:.35;
+    opacity:.45;
 
-    color:#000;
+    background:#9ca3af;
+
+    color:#ffffff;
 
     cursor:not-allowed;
 
-}
+   }
 
 
 /* =====================================================
