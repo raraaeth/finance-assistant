@@ -591,7 +591,7 @@ function renderActiveDebt(){
 
                         <strong>
 
-                            ${name}
+                       ${capitalizeName(name)}
 
                         </strong>
 
@@ -1434,6 +1434,28 @@ function formatBankName(
             /\b\w/g,
 
             letter=>
+
+                letter.toUpperCase()
+
+        );
+
+}
+
+function capitalizeName(
+
+    name
+
+){
+
+    return name
+
+        .toLowerCase()
+
+        .replace(
+
+            /\b\w/g,
+
+            letter =>
 
                 letter.toUpperCase()
 
