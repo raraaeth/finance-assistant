@@ -247,37 +247,17 @@ function renderHero(){
 
 function renderSummary(){
 
-    const total =
+    const card =
 
         document.getElementById(
 
-            "summary-total"
-
-        );
-
-    const weeklyIncome =
-
-        document.getElementById(
-
-            "summary-weekly-income"
-
-        );
-
-    const monthlyIncome =
-
-        document.getElementById(
-
-            "summary-monthly-income"
+            "summary-card"
 
         );
 
     if(
 
-        !total ||
-
-        !weeklyIncome ||
-
-        !monthlyIncome
+        !card
 
     ){
 
@@ -285,48 +265,102 @@ function renderSummary(){
 
     }
 
+    card.innerHTML =
+
+    `
+
+        <div class="summary-total">
+
+            <p id="summary-label">
+
+                Total Saldo Kas
+
+            </p>
+
+            <h2 id="summary-total">
+
+            </h2>
+
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-item">
+
+                <span>
+
+                    Pemasukan Minggu Ini
+
+                </span>
+
+                <strong id="summary-weekly-income">
+
+                    ${
+
+                        shortRupiah(
+
+                            Process.summary
+
+                            .weeklyIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            <div class="summary-item">
+
+                <span>
+
+                    Pemasukan Bulan Ini
+
+                </span>
+
+                <strong id="summary-monthly-income">
+
+                    ${
+
+                        shortRupiah(
+
+                            Process.summary
+
+                            .totalIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    `;
+
 
     /* ==========================================
-       TOTAL SALDO
+       TOTAL SALDO ANIMATION
     ========================================== */
 
     Animation.number(
 
-        total,
+        document.getElementById(
+
+            "summary-total"
+
+        ),
 
         Process.summary.totalBalance,
 
-        value => rupiah(value),
+        rupiah,
 
         1800
 
     );
-
-
-    /* ==========================================
-       PEMASUKAN MINGGU INI
-    ========================================== */
-
-    weeklyIncome.textContent =
-
-        shortRupiah(
-
-            Process.summary.weeklyIncome
-
-        );
-
-
-    /* ==========================================
-       PEMASUKAN BULAN INI
-    ========================================== */
-
-    monthlyIncome.textContent =
-
-        shortRupiah(
-
-            Process.summary.totalIncome
-
-        );
 
 }
 
