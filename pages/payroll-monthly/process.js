@@ -512,31 +512,47 @@ function processAttendance(){
 
                 return {
 
-                    ...item,
+    ...item,
 
-                    period,
+    period,
 
-                    shift :
+    shift :
 
-                        shift?.nama ??
+        shift?.nama ??
 
-                        "",
+        "",
 
-                    shiftStart :
+    shiftStart :
 
-                        shift?.start ??
+        shift?.start ??
 
-                        null,
+        null,
 
-                    shiftEnd :
+    shiftEnd :
 
-                        shift?.end ??
+        shift?.end ??
 
-                        null,
+        null,
+   
+    shiftOvernight :
 
-                    lateMinutes
+    shift?.overnight ??
 
-                };
+    false,              
+
+    pulangAdjustedMinutes :
+
+        adjustPulangTime(
+
+            item.pulangMinutes,
+
+            shift
+
+        ),
+
+    lateMinutes
+
+};
 
             }
 
@@ -1341,9 +1357,13 @@ function calculateOvertime(
 
     let overtimeMinutes =
 
-        item.pulangMinutes -
+    item.pulangAdjustedMinutes -
 
-        item.shiftEnd;
+    getAdjustedShiftEnd(
+
+        item
+
+    );
 
     if(
 
@@ -1483,9 +1503,13 @@ function calculateEarlyLeave(
 
     const earlyMinutes =
 
-        item.shiftEnd -
+    getAdjustedShiftEnd(
 
-        item.pulangMinutes;
+        item
+
+    ) -
+
+    item.pulangAdjustedMinutes;
 
     if(
 
@@ -1688,9 +1712,19 @@ function findShift(
 
                 );
 
+            const end =
+
+                timeToMinutes(
+
+                    rule.nilaiEnd
+
+                );
+
             if(
 
-                start === null
+                start === null ||
+
+                end === null
 
             ){
 
@@ -1698,15 +1732,63 @@ function findShift(
 
             }
 
-            let difference =
+            let difference;
 
-                Math.abs(
+            const overnight =
 
-                    checkinMinutes -
+                end <= start;
 
-                    start
+            if(
 
-                );
+                overnight
+
+            ){
+
+                if(
+
+                    checkinMinutes >= start
+
+                ){
+
+                    difference =
+
+                        checkinMinutes -
+
+                        start;
+
+                }
+
+                else{
+
+                    difference =
+
+                        (
+
+                            24 * 60 -
+
+                            start
+
+                        ) +
+
+                        checkinMinutes;
+
+                }
+
+            }
+
+            else{
+
+                difference =
+
+                    Math.abs(
+
+                        checkinMinutes -
+
+                        start
+
+                    );
+
+            }
 
             if(
 
@@ -1728,13 +1810,9 @@ function findShift(
 
                     start,
 
-                    end :
+                    end,
 
-                        timeToMinutes(
-
-                            rule.nilaiEnd
-
-                        )
+                    overnight
 
                 };
 
@@ -1752,7 +1830,6 @@ function findShift(
 /* =====================================================
    CALCULATE LATE
 ===================================================== */
-
 function calculateLate(
 
     item,
@@ -1789,6 +1866,20 @@ function calculateLate(
 
     if(
 
+        shift.overnight &&
+
+        late < 0
+
+    ){
+
+        late +=
+
+            24 * 60;
+
+    }
+
+    if(
+
         late < 0
 
     ){
@@ -1801,6 +1892,57 @@ function calculateLate(
 
 }
 
+/* =====================================================
+   ADJUST PULANG TIME
+===================================================== */
+
+function adjustPulangTime(
+
+    pulangMinutes,
+
+    shift
+
+){
+
+    if(
+
+        pulangMinutes === null ||
+
+        !shift
+
+    ){
+
+        return null;
+
+    }
+
+    if(
+
+        shift.overnight &&
+
+        pulangMinutes <
+
+        shift.start
+
+    ){
+
+        return (
+
+            pulangMinutes +
+
+            (
+
+                24 * 60
+
+            )
+
+        );
+
+    }
+
+    return pulangMinutes;
+
+}
 
 /* =====================================================
    FIND LATE RULE
@@ -2328,5 +2470,49 @@ function toNumber(
         :
 
         0;
+
+}
+
+/* =====================================================
+   ADJUST SHIFT END
+===================================================== */
+
+function getAdjustedShiftEnd(
+
+    item
+
+){
+
+    if(
+
+        item.shiftEnd === null
+
+    ){
+
+        return null;
+
+    }
+
+    if(
+
+        item.shiftOvernight
+
+    ){
+
+        return (
+
+            item.shiftEnd +
+
+            (
+
+                24 * 60
+
+            )
+
+        );
+
+    }
+
+    return item.shiftEnd;
 
 }
