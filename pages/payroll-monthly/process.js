@@ -812,21 +812,37 @@ function calculatePeriod(
 
                 case "lembur":
 
-                    totalHariLembur++;
+    totalHariLembur++;
 
-                    if(
+    if(
 
-                        lembur
+        lembur
 
-                    ){
+    ){
 
-                        totalLembur +=
+        totalLembur +=
 
-                            lembur.nominal;
+            lembur.nominal;
 
-                    }
+    }
 
-                    break;
+    const overtime =
+
+        calculateOvertime(
+
+            item
+
+        );
+
+    totalLemburJamPertama +=
+
+        overtime.jamPertama;
+
+    totalLemburJamKedua +=
+
+        overtime.jamKedua;
+
+    break;
 
                 case "cuti":
 
@@ -871,6 +887,18 @@ function calculatePeriod(
                     item.lateMinutes
 
                 );
+           const earlyLeave =
+
+    calculateEarlyLeave(
+
+        item
+
+    );
+
+totalIzinPulang +=
+
+    earlyLeave;
+           
 
             if(
 
@@ -1288,6 +1316,237 @@ function processChart(){
 
 }
 
+/* =====================================================
+   CALCULATE OVERTIME
+===================================================== */
+
+function calculateOvertime(
+
+    item
+
+){
+
+    if(
+
+        item.status !==
+
+        "lembur"
+
+        ||
+
+        !item.shiftEnd
+
+        ||
+
+        item.pulangMinutes === null
+
+    ){
+
+        return {
+
+            jamPertama : 0,
+
+            jamKedua : 0
+
+        };
+
+    }
+
+    let overtimeMinutes =
+
+        item.pulangMinutes -
+
+        item.shiftEnd;
+
+    if(
+
+        overtimeMinutes <= 0
+
+    ){
+
+        return {
+
+            jamPertama : 0,
+
+            jamKedua : 0
+
+        };
+
+    }
+
+    const firstRule =
+
+        findRule(
+
+            "rule_lembur",
+
+            "lembur_kesatu"
+
+        );
+
+    const secondRule =
+
+        findRule(
+
+            "rule_lembur",
+
+            "lembur_kedua"
+
+        );
+
+    const overtimeHours =
+
+        Math.floor(
+
+            overtimeMinutes / 60
+
+        );
+
+    const firstHour =
+
+        Math.min(
+
+            overtimeHours,
+
+            1
+
+        );
+
+    const secondHours =
+
+        Math.max(
+
+            overtimeHours - 1,
+
+            0
+
+        );
+
+    return {
+
+        jamPertama :
+
+            firstHour *
+
+            (
+
+                firstRule
+
+                ?
+
+                firstRule.nominal
+
+                :
+
+                0
+
+            ),
+
+        jamKedua :
+
+            secondHours *
+
+            (
+
+                secondRule
+
+                ?
+
+                secondRule.nominal
+
+                :
+
+                0
+
+            )
+
+    };
+
+}
+
+/* =====================================================
+   CALCULATE EARLY LEAVE
+===================================================== */
+
+function calculateEarlyLeave(
+
+    item
+
+){
+
+    if(
+
+        item.status !==
+
+        "masuk"
+
+        ||
+
+        item.pulangMinutes === null
+
+        ||
+
+        item.shiftEnd === null
+
+    ){
+
+        return 0;
+
+    }
+
+    const earlyMinutes =
+
+        item.shiftEnd -
+
+        item.pulangMinutes;
+
+    if(
+
+        earlyMinutes <= 0
+
+    ){
+
+        return 0;
+
+    }
+
+    const rule =
+
+        findRule(
+
+            "rule_potong",
+
+            "izin_pulang"
+
+        );
+
+    if(
+
+        !rule
+
+    ){
+
+        return 0;
+
+    }
+
+    const hours =
+
+        Math.ceil(
+
+            earlyMinutes / 60
+
+        );
+
+    return (
+
+        hours *
+
+        rule.nominal
+
+    );
+
+}
 
 /* =====================================================
    FIND PERIOD BY DATE
