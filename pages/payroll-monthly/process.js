@@ -1530,4 +1530,493 @@ function findLateRule(
 
             &&
 
-            rule.nilaiStart !== "
+            rule.nilaiStart !== ""
+
+            &&
+
+            rule.nilaiEnd !== ""
+
+            &&
+
+            minutes >=
+
+                Number(
+
+                    rule.nilaiStart
+
+                )
+
+            &&
+
+            minutes <=
+
+                Number(
+
+                    rule.nilaiEnd
+
+                )
+
+    ) || null;
+
+}
+
+
+/* =====================================================
+   FIND RULE
+===================================================== */
+
+function findRule(
+
+    type,
+
+    name
+
+){
+
+    return Process.rules.find(
+
+        rule=>
+
+            rule.type_rule ===
+
+            type
+
+            &&
+
+            rule.nama ===
+
+            name
+
+    ) || null;
+
+}
+
+
+/* =====================================================
+   RULE ACTIVE
+===================================================== */
+
+function isRuleActive(
+
+    rule,
+
+    period
+
+){
+
+    if(
+
+        !period.start
+
+    ){
+
+        return false;
+
+    }
+
+    if(
+
+        rule.berlakuStart
+
+        &&
+
+        period.end <
+
+        rule.berlakuStart
+
+    ){
+
+        return false;
+
+    }
+
+    if(
+
+        rule.berlakuEnd
+
+        &&
+
+        period.start >
+
+        rule.berlakuEnd
+
+    ){
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+
+/* =====================================================
+   CREATE EMPTY CALCULATION
+===================================================== */
+
+function createEmptyCalculation(){
+
+    return {
+
+        period : {},
+
+        gajiPokok : 0,
+
+        penambahan : {
+
+            uangMakan : 0,
+
+            lembur : 0,
+
+            lemburJamPertama : 0,
+
+            lemburJamKedua : 0,
+
+            periode : 0,
+
+            total : 0
+
+        },
+
+        potongan : {
+
+            periode : 0,
+
+            absen : 0,
+
+            telat : 0,
+
+            izinTerlambat : 0,
+
+            izinPulang : 0,
+
+            total : 0
+
+        },
+
+        attendance : {
+
+            masuk : 0,
+
+            lembur : 0,
+
+            cuti : 0,
+
+            sakit : 0,
+
+            liburNasional : 0,
+
+            absen : 0,
+
+            durasiKerja : 0
+
+        },
+
+        gajiBersih : 0
+
+    };
+
+}
+
+
+/* =====================================================
+   DATE HELPER
+===================================================== */
+
+function parseDate(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return null;
+
+    }
+
+    const date =
+
+        new Date(
+
+            value
+
+        );
+
+    if(
+
+        Number.isNaN(
+
+            date.getTime()
+
+        )
+
+    ){
+
+        return null;
+
+    }
+
+    date.setHours(
+
+        0,
+
+        0,
+
+        0,
+
+        0
+
+    );
+
+    return date;
+
+}
+
+
+/* =====================================================
+   TIME HELPER
+===================================================== */
+
+function parseTime(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return {
+
+            minutes : null,
+
+            hours : null,
+
+            seconds : null
+
+        };
+
+    }
+
+    const parts =
+
+        String(
+
+            value
+
+        )
+
+        .split(".")
+
+        .map(Number);
+
+    const hours =
+
+        parts[0] || 0;
+
+    const minutes =
+
+        parts[1] || 0;
+
+    const seconds =
+
+        parts[2] || 0;
+
+    return {
+
+        minutes :
+
+            (
+
+                hours * 60
+
+            ) +
+
+            minutes +
+
+            (
+
+                seconds / 60
+
+            ),
+
+        hours,
+
+        minutes,
+
+        seconds
+
+    };
+
+}
+
+
+/* =====================================================
+   TIME TO MINUTES
+===================================================== */
+
+function timeToMinutes(
+
+    value
+
+){
+
+    const parsed =
+
+        parseTime(
+
+            value
+
+        );
+
+    if(
+
+        parsed.minutes === null
+
+    ){
+
+        return null;
+
+    }
+
+    return parsed.minutes;
+
+}
+
+
+/* =====================================================
+   DURATION
+===================================================== */
+
+function calculateDuration(
+
+    start,
+
+    end
+
+){
+
+    if(
+
+        start === null ||
+
+        end === null
+
+    ){
+
+        return 0;
+
+    }
+
+    let duration =
+
+        end -
+
+        start;
+
+    if(
+
+        duration < 0
+
+    ){
+
+        duration +=
+
+            24 * 60;
+
+    }
+
+    return duration;
+
+}
+
+
+/* =====================================================
+   DATE KEY
+===================================================== */
+
+function formatDateKey(
+
+    date
+
+){
+
+    const year =
+
+        date.getFullYear();
+
+    const month =
+
+        String(
+
+            date.getMonth() + 1
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        );
+
+    const day =
+
+        String(
+
+            date.getDate()
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        );
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+/* =====================================================
+   NUMBER
+===================================================== */
+
+function toNumber(
+
+    value
+
+){
+
+    const number =
+
+        Number(
+
+            value
+
+        );
+
+    return Number.isFinite(
+
+        number
+
+    )
+
+        ?
+
+        number
+
+        :
+
+        0;
+
+}
