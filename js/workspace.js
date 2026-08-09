@@ -32,6 +32,9 @@ import * as Kas from
 
     "../pages/kas/home.js";
 
+import * as PayrollMonthly from
+    "../pages/payroll-monthly/home.js";
+
 
 /* =====================================================
    STATE
@@ -44,12 +47,13 @@ const workspace =
 const WORKSPACE = {
 
     saving :
-
         Saving,
 
     kas :
+        Kas,
 
-        Kas
+    "payroll-monthly" :
+        PayrollMonthly
 
 };
 
