@@ -502,13 +502,21 @@ function processAttendance(){
 
                 const lateMinutes =
 
-                    calculateLate(
+    item.status === "masuk"
 
-                        item,
+    ?
 
-                        shift
+    calculateLate(
 
-                    );
+        item,
+
+        shift
+
+    )
+
+    :
+
+    0;
 
                 return {
 
