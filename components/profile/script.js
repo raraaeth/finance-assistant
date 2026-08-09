@@ -1048,12 +1048,59 @@ function loadWorkspaceList(
 
                 "kas"
 
+        },
+
+        {
+
+            id : "payroll-monthly",
+
+            icon : "💼",
+
+            title : "Payroll Monthly",
+
+            active :
+
+                current?.workspace ===
+
+                "payroll-monthly"
+
+        },
+
+        {
+
+            id : "payroll-daily",
+
+            icon : "💰",
+
+            title : "Payroll Daily",
+
+            active :
+
+                current?.workspace ===
+
+                "payroll-daily"
+
+        },
+
+        {
+
+            id : "financial",
+
+            icon : "📊",
+
+            title : "Financial",
+
+            active :
+
+                current?.workspace ===
+
+                "financial"
+
         }
 
     ];
 
 }
-
 
 /* =====================================================
    INIT WORKSPACE
