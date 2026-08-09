@@ -72,7 +72,6 @@ const user =
 /* =====================================================
    INIT
 ===================================================== */
-
 export async function init(){
 
     /* =============================================
@@ -82,48 +81,18 @@ export async function init(){
     await Header.render({
 
         container :
-
             "#header-container",
 
         theme :
-
             "payroll"
 
     });
 
 
     /* =============================================
-       LOAD DATA
-       Untuk tahap awal kita tetap load kedua sheet,
-       tetapi belum menggunakan calculation.
-    ============================================= */
-
-    await API.load(
-
-        CONFIG.api.attendance,
-
-        CONFIG.api.rules
-
-    );
-
-
-    /* =============================================
-       PROCESS
-       Process hanya kita hidupkan terlebih dahulu
-       untuk memastikan data dapat diproses.
-    ============================================= */
-
-    Process.init(
-
-        API.raw,
-
-        API.data
-
-    );
-
-
-    /* =============================================
        HERO
+       Render terlebih dahulu agar UI tidak
+       bergantung pada proses data.
     ============================================= */
 
     renderHero();
@@ -131,6 +100,7 @@ export async function init(){
 
     /* =============================================
        HOME CARD
+       Render skeleton terlebih dahulu.
     ============================================= */
 
     renderPreviousSalary();
@@ -145,10 +115,65 @@ export async function init(){
     await Profile.render({
 
         container :
-
             "#profile-page"
 
     });
+
+
+    /* =============================================
+       LOAD DATA
+    ============================================= */
+
+    try{
+
+        await API.load(
+
+            CONFIG.api.attendance,
+
+            CONFIG.api.rules
+
+        );
+
+    }catch(error){
+
+        console.error(
+
+            "Payroll API Error:",
+
+            error
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       PROCESS
+    ============================================= */
+
+    try{
+
+        Process.init(
+
+            API.raw,
+
+            API.data
+
+        );
+
+    }catch(error){
+
+        console.error(
+
+            "Payroll Process Error:",
+
+            error
+
+        );
+
+    }
 
 }
 
