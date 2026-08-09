@@ -914,39 +914,26 @@ totalIzinPulang +=
 
             if(
 
-                item.status ===
+    item.status ===
 
-                "masuk"
+    "masuk"
 
-                &&
+    &&
 
-                item.lateMinutes > 45
+    item.lateMinutes > 45
 
-            ){
+){
 
-                const rule =
+    totalIzinTerlambat +=
 
-                    findRule(
+        calculateLateHourPenalty(
 
-                        "rule_potong",
+            item
 
-                        "izin_terlambat"
-
-                    );
-
-                if(
-
-                    rule
-
-                ){
-
-                    totalIzinTerlambat +=
-
-                        rule.nominal;
-
-                }
+        );
 
             }
+              
 
         }
 
@@ -1535,6 +1522,70 @@ function calculateEarlyLeave(
         Math.ceil(
 
             earlyMinutes / 60
+
+        );
+
+    return (
+
+        hours *
+
+        rule.nominal
+
+    );
+
+}
+
+/* =====================================================
+   CALCULATE LATE HOUR PENALTY
+===================================================== */
+
+function calculateLateHourPenalty(
+
+    item
+
+){
+
+    if(
+
+        item.status !==
+
+        "masuk"
+
+        ||
+
+        item.lateMinutes <= 45
+
+    ){
+
+        return 0;
+
+    }
+
+    const rule =
+
+        findRule(
+
+            "rule_potong",
+
+            "izin_terlambat"
+
+        );
+
+    if(
+
+        !rule
+
+    ){
+
+        return 0;
+
+    }
+
+    const hours =
+
+        Math.ceil(
+
+            item.lateMinutes / 60
 
         );
 
