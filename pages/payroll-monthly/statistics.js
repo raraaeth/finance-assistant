@@ -57,7 +57,11 @@ export const Statistics = {
 
     },
 
-    data : []
+    data : [],
+
+    page : 1,
+
+    perPage : 5
 
 };
 
@@ -555,6 +559,26 @@ Statistics.renderTransaction = function(){
     list.innerHTML = "";
 
 
+    const start =
+
+        (
+
+            Statistics.page - 1
+
+        )
+
+        *
+
+        Statistics.perPage;
+
+
+    const end =
+
+        start +
+
+        Statistics.perPage;
+
+
     Statistics.data
 
         .sort(
@@ -570,6 +594,14 @@ Statistics.renderTransaction = function(){
                 b.dateObject -
 
                 a.dateObject
+
+        )
+
+        .slice(
+
+            start,
+
+            end
 
         )
 
@@ -589,9 +621,11 @@ Statistics.renderTransaction = function(){
 
                             ${
 
-                                item.status ??
+                                capitalize(
 
-                                "-"
+                                    item.status
+
+                                )
 
                             }
 
@@ -601,61 +635,45 @@ Statistics.renderTransaction = function(){
 
                             ${
 
-                                item.date ??
-
-                                "-"
+                                item.date
 
                             }
 
                         </small>
 
-                        ${
+                    </div>
 
-                            item.checkin
 
-                            ?
+                    <div class="transaction-amount">
 
-                            `
+                        <span>
 
-                            <p>
+                            Masuk :
 
-                                Masuk :
+                            ${
 
-                                ${item.checkin}
+                                item.checkin ??
 
-                            </p>
+                                "-"
 
-                            `
+                            }
 
-                            :
+                        </span>
 
-                            ""
 
-                        }
+                        <span>
 
-                        ${
+                            Pulang :
 
-                            item.pulang
+                            ${
 
-                            ?
+                                item.pulang ??
 
-                            `
+                                "-"
 
-                            <p>
+                            }
 
-                                Pulang :
-
-                                ${item.pulang}
-
-                            </p>
-
-                            `
-
-                            :
-
-                            ""
-
-                        }
+                        </span>
 
                     </div>
 
@@ -667,7 +685,117 @@ Statistics.renderTransaction = function(){
 
         );
 
-};
+
+    const pagination =
+
+        document.getElementById(
+
+            "statistics-show-more"
+
+        );
+
+
+    if(
+
+        !pagination
+
+    ){
+
+        return;
+
+    }
+
+
+    const totalPage =
+
+        Math.max(
+
+            1,
+
+            Math.ceil(
+
+                Statistics.data.length /
+
+                Statistics.perPage
+
+            )
+
+        );
+
+
+    pagination.innerHTML =
+
+    `
+
+        <div class="statistics-pagination">
+
+            <button
+
+                id="statistics-prev"
+
+                ${
+
+                    Statistics.page === 1
+
+                    ?
+
+                    "disabled"
+
+                    :
+
+                    ""
+
+                }
+
+            >
+
+                ◀ Sebelumnya
+
+            </button>
+
+
+            <span>
+
+                ${Statistics.page}
+
+                /
+
+                ${totalPage}
+
+            </span>
+
+
+            <button
+
+                id="statistics-next"
+
+                ${
+
+                    Statistics.page >=
+
+                    totalPage
+
+                    ?
+
+                    "disabled"
+
+                    :
+
+                    ""
+
+                }
+
+            >
+
+                Berikutnya ▶
+
+            </button>
+
+        </div>
+
+    `;
+
+};                        
     
 
 /* =====================================================
@@ -701,6 +829,35 @@ function formatPeriod(
             end
 
         )
+
+    );
+
+}
+
+function capitalize(
+
+    text
+
+){
+
+    if(
+
+        !text
+
+    ){
+
+        return "-";
+
+    }
+
+
+    return text.replace(
+
+        /\b\w/g,
+
+        letter =>
+
+            letter.toUpperCase()
 
     );
 
