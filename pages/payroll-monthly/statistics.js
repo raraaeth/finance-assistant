@@ -532,21 +532,14 @@ function handleRange(
 
 Statistics.renderTransaction = function(){
 
-   console.log(
-
-    "PAYROLL ATTENDANCE ITEM:",
-
-    Statistics.data[0]
-
-);
-   
-   const list =
+    const list =
 
         document.getElementById(
 
             "statistics-transaction-list"
 
         );
+
 
     if(
 
@@ -558,7 +551,9 @@ Statistics.renderTransaction = function(){
 
     }
 
+
     list.innerHTML = "";
+
 
     Statistics.data
 
@@ -572,9 +567,9 @@ Statistics.renderTransaction = function(){
 
             ) =>
 
-                new Date(b.date) -
+                b.dateObject -
 
-                new Date(a.date)
+                a.dateObject
 
         )
 
@@ -614,6 +609,54 @@ Statistics.renderTransaction = function(){
 
                         </small>
 
+                        ${
+
+                            item.checkin
+
+                            ?
+
+                            `
+
+                            <p>
+
+                                Masuk :
+
+                                ${item.checkin}
+
+                            </p>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+                        ${
+
+                            item.pulang
+
+                            ?
+
+                            `
+
+                            <p>
+
+                                Pulang :
+
+                                ${item.pulang}
+
+                            </p>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
                     </div>
 
                 </div>
@@ -625,6 +668,7 @@ Statistics.renderTransaction = function(){
         );
 
 };
+    
 
 /* =====================================================
    HELPER
