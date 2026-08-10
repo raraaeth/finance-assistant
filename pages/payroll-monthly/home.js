@@ -405,7 +405,7 @@ function renderAttendance(){
 
 
     /* =============================================
-       SHOW ATTENDANCE SECTION
+       SHOW ATTENDANCE
     ============================================= */
 
     section.classList.remove(
@@ -416,27 +416,38 @@ function renderAttendance(){
 
 
     /* =============================================
-       GET PERIOD
+       CURRENT MONTH
     ============================================= */
 
-    const period =
+    const today =
 
-        Process.period;
+        new Date();
 
 
-    if(
+    const monthStart =
 
-        !period ||
+        new Date(
 
-        !period.start ||
+            today.getFullYear(),
 
-        !period.end
+            today.getMonth(),
 
-    ){
+            1
 
-        return;
+        );
 
-    }
+
+    const monthEnd =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth() + 1,
+
+            0
+
+        );
 
 
     /* =============================================
@@ -460,43 +471,44 @@ function renderAttendance(){
 
 
     /* =============================================
-       FILTER CURRENT PAYROLL PERIOD
+       FILTER CURRENT MONTH
     ============================================= */
 
     const periodAttendance =
 
-    attendance.filter(
+        attendance.filter(
 
-        item=>{
+            item=>{
 
-            const date =
+                const date =
 
-                new Date(
+                    new Date(
 
-                    item.date
+                        item.date
+
+                    );
+
+                return (
+
+                    date >=
+
+                    monthStart
+
+                    &&
+
+                    date <=
+
+                    monthEnd
 
                 );
 
-            return (
+            }
 
-                date >=
+        );
 
-                period.start
-
-                &&
-
-                date <=
-
-                period.end
-
-            );
-
-        }
-
-    );
 
     /* =============================================
-       COUNT ATTENDANCE
+       COUNT
     ============================================= */
 
     const summary = {
@@ -561,7 +573,7 @@ function renderAttendance(){
 
                 formatDate(
 
-                    period.start
+                    monthStart
 
                 )
 
@@ -573,7 +585,7 @@ function renderAttendance(){
 
                 formatDate(
 
-                    period.end
+                    monthEnd
 
                 )
 
