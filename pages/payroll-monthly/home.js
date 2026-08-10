@@ -368,6 +368,14 @@ function renderPreviousSalary(){
 
 function renderAttendance(){
 
+    const section =
+
+        document.getElementById(
+
+            "attendance"
+
+        );
+
     const card =
 
         document.getElementById(
@@ -376,7 +384,10 @@ function renderAttendance(){
 
         );
 
+
     if(
+
+        !section ||
 
         !card
 
@@ -386,6 +397,21 @@ function renderAttendance(){
 
     }
 
+
+    /* =============================================
+       SHOW PAYROLL ATTENDANCE
+    ============================================= */
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    /* =============================================
+       GET ATTENDANCE SUMMARY
+    ============================================= */
 
     const summary =
 
@@ -403,11 +429,16 @@ function renderAttendance(){
     }
 
 
+    /* =============================================
+       RENDER CARD
+    ============================================= */
+
     card.innerHTML =
 
     `
 
         <div class="attendance-grid">
+
 
             <div class="attendance-item">
 
@@ -421,7 +452,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.masuk
+                        summary.masuk ?? 0
 
                     }
 
@@ -442,7 +473,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.cuti
+                        summary.cuti ?? 0
 
                     }
 
@@ -463,7 +494,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.sakit
+                        summary.sakit ?? 0
 
                     }
 
@@ -484,7 +515,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.lembur
+                        summary.lembur ?? 0
 
                     }
 
@@ -505,7 +536,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.liburNasional
+                        summary.liburNasional ?? 0
 
                     }
 
@@ -526,13 +557,14 @@ function renderAttendance(){
 
                     ${
 
-                        summary.absen
+                        summary.absen ?? 0
 
                     }
 
                 </strong>
 
             </div>
+
 
         </div>
 
