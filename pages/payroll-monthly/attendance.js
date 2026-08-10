@@ -137,7 +137,16 @@ function normalize(){
         null,
 
     lateMinutes :
-        0
+        0,
+
+    earlyLeaveMinutes :
+    0,
+
+earlyLeaveHours :
+    0,
+
+earlyLeaveRule :
+    null              
 
 };
 
@@ -237,7 +246,52 @@ function processAttendanceStatus(){
 
                 result.lateMinutes;
 
-           
+           const earlyLeave =
+
+    calculateEarlyLeave(
+
+        item,
+
+        shift
+
+    );
+
+
+item.earlyLeaveMinutes =
+
+    earlyLeave.minutes;
+
+
+item.earlyLeaveHours =
+
+    earlyLeave.hours;
+
+
+item.earlyLeaveRule =
+
+    earlyLeave.rule;
+
+console.log(
+
+    "EARLY LEAVE:",
+
+    item.date,
+
+    "| Pulang:", item.pulang,
+
+    "| Shift:", shift.nama,
+
+    "| Pulang Shift:", shift.nilai_end,
+
+    "| Izin:", earlyLeave.minutes,
+
+    "menit",
+
+    "| Jam:", earlyLeave.hours,
+
+    "| Rule:", earlyLeave.rule
+
+);           
 
         }
 
@@ -964,6 +1018,271 @@ function calculateLate(
         lateRule :
 
             hourRule.nama
+
+    };
+
+}
+
+/* =====================================================
+   CALCULATE EARLY LEAVE
+===================================================== */
+
+function calculateEarlyLeave(
+
+    item,
+
+    shift
+
+){
+
+    /*
+       Untuk sementara kita hitung:
+
+       jam selesai shift
+       dikurangi
+       jam pulang aktual
+
+       Contoh:
+
+       Shift 1
+       06.00 - 15.00
+
+       Pulang:
+       14.00
+
+       Hasil:
+       60 menit
+    */
+
+
+    const shiftEnd =
+
+        timeToMinutes(
+
+            shift.nilai_end
+
+        );
+
+
+    const actualLeave =
+
+        timeToMinutes(
+
+            item.pulang
+
+        );
+
+
+    if(
+
+        shiftEnd === null ||
+
+        actualLeave === null
+
+    ){
+
+        return {
+
+            minutes : 0,
+
+            hours : 0,
+
+            rule : null
+
+        };
+
+    }
+
+
+    let earlyMinutes =
+
+        shiftEnd -
+
+        actualLeave;
+
+
+    /*
+       Shift melewati tengah malam.
+
+       Contoh:
+
+       Shift 3
+       22.00 - 06.00
+
+       Pulang:
+       05.00
+
+       Maka:
+
+       06.00 - 05.00
+       = 60 menit
+    */
+
+    if(
+
+        earlyMinutes < 0
+
+    ){
+
+        earlyMinutes +=
+
+            1440;
+
+    }
+
+
+    /*
+       Pulang tepat waktu
+       atau lebih lambat
+    */
+
+    if(
+
+        earlyMinutes <= 0
+
+    ){
+
+        return {
+
+            minutes : 0,
+
+            hours : 0,
+
+            rule : null
+
+        };
+
+    }
+
+
+    const rules =
+
+        Rules.data.izin ?? [];
+
+
+    /*
+       Cari rule izin yang berlaku
+       untuk kondisi pulang.
+    */
+
+    const applicableRules =
+
+        rules.filter(
+
+            rule =>
+
+                rule.kondisi ===
+
+                "pulang"
+
+        );
+
+
+    let matchedRule =
+
+        null;
+
+
+    applicableRules.forEach(
+
+        rule => {
+
+            if(
+
+                rule.waktu ===
+
+                "menit"
+
+            ){
+
+                const start =
+
+                    Number(
+
+                        rule.nilai_start
+
+                    );
+
+
+                const end =
+
+                    Number(
+
+                        rule.nilai_end
+
+                    );
+
+
+                if(
+
+                    earlyMinutes >= start &&
+
+                    earlyMinutes <= end
+
+                ){
+
+                    matchedRule =
+
+                        rule;
+
+                }
+
+            }
+
+        }
+
+    );
+
+
+    /*
+       Untuk rule waktu "jam",
+       sementara kita simpan
+       hasil jamnya.
+    */
+
+    let hours =
+
+        0;
+
+
+    if(
+
+        earlyMinutes > 0
+
+    ){
+
+        hours =
+
+            Math.floor(
+
+                earlyMinutes / 60
+
+            );
+
+    }
+
+
+    return {
+
+        minutes :
+
+            earlyMinutes,
+
+        hours :
+
+            hours,
+
+        rule :
+
+            matchedRule
+
+            ?
+
+            matchedRule.nama
+
+            :
+
+            null
 
     };
 
