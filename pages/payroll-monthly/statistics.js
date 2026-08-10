@@ -31,10 +31,15 @@ import {
 
 import {
 
+    Chart
+
+} from "../../js/chart.js";
+
+import {
+
     formatDate
 
 } from "../../js/utils.js";
-
 
 /* =====================================================
    STATE
@@ -64,6 +69,10 @@ export const Statistics = {
 Statistics.init = function(){
 
     initializeFilter();
+
+    Statistics.applyFilter();
+
+    Statistics.renderChart();
 
 };
 
@@ -220,6 +229,189 @@ Statistics.applyPeriod = function(
         Statistics.filter.end
 
     );
+
+};
+
+/* =====================================================
+   APPLY FILTER
+===================================================== */
+
+Statistics.applyFilter = function(){
+
+    const attendance =
+
+        Process.attendance?.data ?? [];
+
+
+    Statistics.data =
+
+        attendance.filter(
+
+            item=>{
+
+                const date =
+
+                    new Date(
+
+                        item.date
+
+                    );
+
+
+                return (
+
+                    date >=
+
+                    Statistics.filter.start
+
+                    &&
+
+                    date <=
+
+                    Statistics.filter.end
+
+                );
+
+            }
+
+        );
+
+};
+
+/* =====================================================
+   RENDER CHART
+===================================================== */
+
+Statistics.renderChart = function(){
+
+    const summary = {
+
+        masuk : 0,
+
+        cuti : 0,
+
+        sakit : 0,
+
+        lembur : 0,
+
+        liburNasional : 0,
+
+        absen : 0
+
+    };
+
+
+    Statistics.data.forEach(
+
+        item=>{
+
+            switch(
+
+                item.status
+
+            ){
+
+                case "masuk":
+
+                    summary.masuk++;
+
+                    break;
+
+
+                case "cuti":
+
+                    summary.cuti++;
+
+                    break;
+
+
+                case "sakit":
+
+                    summary.sakit++;
+
+                    break;
+
+
+                case "lembur":
+
+                    summary.lembur++;
+
+                    break;
+
+
+                case "libur_nasional":
+
+                    summary.liburNasional++;
+
+                    break;
+
+
+                case "absen":
+
+                    summary.absen++;
+
+                    break;
+
+            }
+
+        }
+
+    );
+
+
+    Chart.renderBar({
+
+        canvas :
+
+            "#statistics-chart-canvas",
+
+        labels : [
+
+            "Masuk",
+
+            "Cuti",
+
+            "Sakit",
+
+            "Lembur",
+
+            "Libur Nasional",
+
+            "Absen"
+
+        ],
+
+        datasets : [
+
+            {
+
+                label :
+
+                    "Attendance",
+
+                data : [
+
+                    summary.masuk,
+
+                    summary.cuti,
+
+                    summary.sakit,
+
+                    summary.lembur,
+
+                    summary.liburNasional,
+
+                    summary.absen
+
+                ],
+
+                borderWidth : 1
+
+            }
+
+        ]
+
+    });
 
 };
 
