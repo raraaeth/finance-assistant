@@ -613,71 +613,31 @@ Statistics.renderTransaction = function(){
 
                 `
 
-                <div class="transaction-item">
-<div class="transaction-item">
+<div class="transaction-item status-masuk">
 
     <div class="transaction-header">
 
-        <strong>
+        <strong>Masuk</strong>
 
-            ${
-
-                capitalize(
-
-                    item.status
-
-                )
-
-            }
-
-        </strong>
-
-        <small>
-
-            ${
-
-                item.date
-
-            }
-
-        </small>
+        <small>2026-08-07</small>
 
     </div>
-
 
     <div class="transaction-time">
 
         <span>
-
-            Masuk :
-
-            ${
-
-                item.checkin ??
-
-                "-"
-
-            }
-
+            Masuk : <strong>05.41.39</strong>
         </span>
 
         <span>
-
-            Pulang :
-
-            ${
-
-                item.pulang ??
-
-                "-"
-
-            }
-
+            Pulang : <strong>16.00.00</strong>
         </span>
 
     </div>
 
 </div>
+
+    
 
                 `;
 
