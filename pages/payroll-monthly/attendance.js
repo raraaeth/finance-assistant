@@ -103,47 +103,6 @@ function normalize(){
 
                     );
 
-
-                return {
-
-                    date :
-
-                        item.date ?? "",
-
-                    dateObject :
-
-                        date,
-
-                    status :
-
-                        normalizeStatus(
-
-                            item.status
-
-                        ),
-
-                    checkin :
-
-                        item.checkin ?? "",
-
-                    pulang :
-
-                        item.pulang ?? "",
-
-                    month :
-
-                        item.Month ?? "",
-
-                    year :
-
-                        Number(
-
-                            item.Year || 0
-
-                        )
-
-                };
-
                return {
 
     date :
@@ -235,11 +194,26 @@ function processAttendanceStatus(){
 
             const shift =
 
-                findShift(
+    findShift(
 
-                    item
+        item
 
-                );
+    );
+
+
+console.log(
+
+    "FIND SHIFT:",
+
+    item.date,
+
+    item.checkin,
+
+    "→",
+
+    shift?.nama ?? "TIDAK DITEMUKAN"
+
+);
 
 
             if(
