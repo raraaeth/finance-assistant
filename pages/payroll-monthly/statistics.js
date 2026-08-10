@@ -74,6 +74,8 @@ Statistics.init = function(){
 
     Statistics.renderChart();
 
+    Statistics.renderTransaction();
+
 };
 
 
@@ -222,6 +224,8 @@ Statistics.applyPeriod = function(
    Statistics.applyFilter();
 
    Statistics.renderChart();
+   
+   Statistics.renderTransaction();
 
     console.log(
 
@@ -522,6 +526,97 @@ function handleRange(
 
 }
 
+/* =====================================================
+   RENDER ATTENDANCE
+===================================================== */
+
+Statistics.renderTransaction = function(){
+
+    const list =
+
+        document.getElementById(
+
+            "statistics-transaction-list"
+
+        );
+
+    if(
+
+        !list
+
+    ){
+
+        return;
+
+    }
+
+    list.innerHTML = "";
+
+    Statistics.data
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            ) =>
+
+                new Date(b.date) -
+
+                new Date(a.date)
+
+        )
+
+        .forEach(
+
+            item=>{
+
+                list.innerHTML +=
+
+                `
+
+                <div class="transaction-item">
+
+                    <div class="transaction-info">
+
+                        <strong>
+
+                            ${
+
+                                item.status ??
+
+                                "-"
+
+                            }
+
+                        </strong>
+
+                        <small>
+
+                            ${
+
+                                item.date ??
+
+                                "-"
+
+                            }
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                `;
+
+            }
+
+        );
+
+};
 
 /* =====================================================
    HELPER
