@@ -1,1 +1,166 @@
+/* =====================================================
+   PAYROLL MONTHLY
+   MODULE : STATISTICS
+   FILE   : statistics.css
+===================================================== */
 
+
+/* =====================================================
+   TRANSACTION ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+    padding:20px 0;
+
+}
+
+
+/* =====================================================
+   TRANSACTION HEADER
+   STATUS + DATE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-header{
+
+    display:grid;
+
+    grid-template-columns:1fr auto;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+#statistics-transaction-list
+.transaction-header strong{
+
+    font-size:17px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-header small{
+
+    font-size:14px;
+
+    color:var(--text-secondary);
+
+    text-align:right;
+
+}
+
+
+/* =====================================================
+   TIME ROW
+===================================================== */
+
+#statistics-transaction-list
+.transaction-time{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   TIME ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-time span{
+
+    display:block;
+
+    padding:12px;
+
+    border-radius:14px;
+
+    background:var(--surface-secondary);
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+.statistics-pagination{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:18px;
+
+    margin-top:18px;
+
+}
+
+
+.statistics-pagination button{
+
+    padding:10px 16px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:var(--surface-secondary);
+
+    color:var(--text-primary);
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+
+.statistics-pagination button:disabled{
+
+    opacity:.45;
+
+}
+
+
+.statistics-pagination span{
+
+    font-size:14px;
+
+    color:var(--text-secondary);
+
+}
