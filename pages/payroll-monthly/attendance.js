@@ -16,6 +16,16 @@
    - Helper
 ===================================================== */
 
+/* =====================================================
+   IMPORT
+===================================================== */
+
+import {
+
+    Rules
+
+} from "./rules.js";
+
 
 /* =====================================================
    STATE
@@ -60,11 +70,13 @@ Attendance.init = function(
 
     Attendance.raw =
 
-        raw ?? [];
+    raw ?? [];
 
-    normalize();
+normalize();
 
-    processSummary();
+processAttendanceStatus();
+
+processSummary();
 
 };
 
@@ -132,6 +144,44 @@ function normalize(){
 
                 };
 
+               return {
+
+    date :
+        item.date ?? "",
+
+    dateObject :
+        date,
+
+    status :
+        normalizeStatus(
+            item.status
+        ),
+
+    checkin :
+        item.checkin ?? "",
+
+    pulang :
+        item.pulang ?? "",
+
+    month :
+        item.Month ?? "",
+
+    year :
+        Number(
+            item.Year || 0
+        ),
+
+    shift :
+        null,
+
+    attendanceStatus :
+        null,
+
+    lateMinutes :
+        0
+
+};
+
             }
 
         )
@@ -159,6 +209,146 @@ function normalize(){
                 b.dateObject
 
         );
+
+}
+
+/* =====================================================
+   ATTENDANCE STATUS
+===================================================== */
+
+function processAttendanceStatus(){
+
+    Attendance.data.forEach(
+
+        item => {
+
+            if(
+
+                item.status !== "masuk"
+
+            ){
+
+                return;
+
+            }
+
+
+            const shift =
+
+                findShift(
+
+                    item
+
+                );
+
+
+            if(
+
+                !shift
+
+            ){
+
+                return;
+
+            }
+
+
+            item.shift =
+
+                shift.nama;
+
+
+            const result =
+
+                calculateLate(
+
+                    item,
+
+                    shift
+
+                );
+
+
+            item.attendanceStatus =
+
+                result.status;
+
+
+            item.lateMinutes =
+
+                result.lateMinutes;
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   FIND SHIFT
+===================================================== */
+
+function findShift(
+
+    item
+
+){
+
+    const rules =
+
+        Rules.data.masuk ?? [];
+
+
+    return rules.find(
+
+        rule =>
+
+            rule.nama?.startsWith(
+
+                "masuk_shift"
+
+            )
+
+    );
+
+}
+
+
+/* =====================================================
+   CALCULATE LATE
+===================================================== */
+
+function calculateLate(
+
+    item,
+
+    shift
+
+){
+
+    /*
+       Logic berikutnya akan membaca:
+
+       shift.nilai_start
+       shift.nilai_end
+       Rules.data.telat
+
+       Untuk sementara kita siapkan
+       struktur hasilnya.
+    */
+
+    return {
+
+        status :
+
+            "ontime",
+
+        lateMinutes :
+
+            0
+
+    };
 
 }
 
