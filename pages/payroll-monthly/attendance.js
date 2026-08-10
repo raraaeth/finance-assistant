@@ -1035,24 +1035,13 @@ function calculateEarlyLeave(
 
 ){
 
-    /*
-       Untuk sementara kita hitung:
+    const shiftStart =
 
-       jam selesai shift
-       dikurangi
-       jam pulang aktual
+        timeToMinutes(
 
-       Contoh:
+            shift.nilai_start
 
-       Shift 1
-       06.00 - 15.00
-
-       Pulang:
-       14.00
-
-       Hasil:
-       60 menit
-    */
+        );
 
 
     const shiftEnd =
@@ -1075,6 +1064,8 @@ function calculateEarlyLeave(
 
     if(
 
+        shiftStart === null ||
+
         shiftEnd === null ||
 
         actualLeave === null
@@ -1094,46 +1085,122 @@ function calculateEarlyLeave(
     }
 
 
-    let earlyMinutes =
-
-        shiftEnd -
-
-        actualLeave;
-
-
     /*
        Shift melewati tengah malam.
 
        Contoh:
 
-       Shift 3
        22.00 - 06.00
-
-       Pulang:
-       05.00
-
-       Maka:
-
-       06.00 - 05.00
-       = 60 menit
     */
+
+    const overnight =
+
+        shiftStart >
+
+        shiftEnd;
+
+
+    let earlyMinutes;
+
 
     if(
 
-        earlyMinutes < 0
+        overnight
 
     ){
 
-        earlyMinutes +=
+        /*
+           Pulang setelah tengah malam.
 
-            1440;
+           Contoh:
+
+           Shift 22.00 - 06.00
+           Pulang 04.00
+
+           06.00 - 04.00
+           = 120 menit
+        */
+
+        earlyMinutes =
+
+            shiftEnd -
+
+            actualLeave;
+
+
+        /*
+           Jika actualLeave ternyata
+           masih berada di malam hari,
+           sesuaikan ke hari berikutnya.
+        */
+
+        if(
+
+            actualLeave >
+
+            shiftEnd
+
+        ){
+
+            earlyMinutes +=
+
+                1440;
+
+        }
+
+    }
+
+    else {
+
+        /*
+           Shift normal.
+
+           Contoh:
+
+           06.00 - 15.00
+           Pulang 14.00
+
+           = 60 menit
+        */
+
+        earlyMinutes =
+
+            shiftEnd -
+
+            actualLeave;
+
+
+        /*
+           Pulang tepat waktu
+           atau lebih lambat.
+
+           Tidak dianggap izin pulang.
+        */
+
+        if(
+
+            earlyMinutes <= 0
+
+        ){
+
+            return {
+
+                minutes : 0,
+
+                hours : 0,
+
+                rule : null
+
+            };
+
+        }
 
     }
 
 
     /*
-       Pulang tepat waktu
-       atau lebih lambat
+       Pastikan tidak menghasilkan
+       nilai negatif.
     */
 
     if(
@@ -1155,15 +1222,14 @@ function calculateEarlyLeave(
     }
 
 
+    /*
+       Cari rule izin pulang
+    */
+
     const rules =
 
         Rules.data.izin ?? [];
 
-
-    /*
-       Cari rule izin yang berlaku
-       untuk kondisi pulang.
-    */
 
     const applicableRules =
 
@@ -1235,31 +1301,18 @@ function calculateEarlyLeave(
 
 
     /*
-       Untuk rule waktu "jam",
-       sementara kita simpan
-       hasil jamnya.
+       Hitung jam izin pulang.
     */
 
-    let hours =
+    const hours =
 
-        0;
+        Math.floor(
 
+            earlyMinutes /
 
-    if(
+            60
 
-        earlyMinutes > 0
-
-    ){
-
-        hours =
-
-            Math.floor(
-
-                earlyMinutes / 60
-
-            );
-
-    }
+        );
 
 
     return {
@@ -1287,7 +1340,8 @@ function calculateEarlyLeave(
     };
 
 }
-
+    
+                    
 
 /* =====================================================
    SUMMARY
