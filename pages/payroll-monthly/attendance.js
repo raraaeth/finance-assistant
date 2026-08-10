@@ -284,7 +284,6 @@ function processAttendanceStatus(){
 
 }
 
-
 /* =====================================================
    FIND SHIFT
 ===================================================== */
@@ -300,19 +299,290 @@ function findShift(
         Rules.data.masuk ?? [];
 
 
-    return rules.find(
+    const shifts =
 
-        rule =>
+        rules.filter(
 
-            rule.nama?.startsWith(
+            rule =>
 
-                "masuk_shift"
+                rule.nama?.startsWith(
 
-            )
+                    "masuk_shift"
+
+                )
+
+        );
+
+
+    const checkinMinutes =
+
+        timeToMinutes(
+
+            item.checkin
+
+        );
+
+
+    if(
+
+        checkinMinutes === null
+
+    ){
+
+        return null;
+
+    }
+
+
+    let bestShift =
+
+        null;
+
+
+    let smallestDistance =
+
+        Infinity;
+
+
+    shifts.forEach(
+
+        shift => {
+
+            const start =
+
+                timeToMinutes(
+
+                    shift.nilai_start
+
+                );
+
+
+            const end =
+
+                timeToMinutes(
+
+                    shift.nilai_end
+
+                );
+
+
+            if(
+
+                start === null ||
+
+                end === null
+
+            ){
+
+                return;
+
+            }
+
+
+            let distance =
+
+                Math.abs(
+
+                    checkinMinutes -
+
+                    start
+
+                );
+
+
+            /*
+               Shift melewati tengah malam.
+
+               Contoh:
+
+               Shift 3
+               22:00 - 06:00
+
+               Check-in:
+               21:40
+
+               Tetap dianggap dekat
+               dengan jam mulai 22:00.
+            */
+
+            if(
+
+                start > end
+
+            ){
+
+                const distanceFromPreviousDay =
+
+                    Math.abs(
+
+                        checkinMinutes +
+
+                        1440 -
+
+                        start
+
+                    );
+
+
+                const distanceFromNextDay =
+
+                    Math.abs(
+
+                        checkinMinutes -
+
+                        start +
+
+                        1440
+
+                    );
+
+
+                distance =
+
+                    Math.min(
+
+                        distance,
+
+                        distanceFromPreviousDay,
+
+                        distanceFromNextDay
+
+                    );
+
+            }
+
+
+            if(
+
+                distance <
+
+                smallestDistance
+
+            ){
+
+                smallestDistance =
+
+                    distance;
+
+
+                bestShift =
+
+                    shift;
+
+            }
+
+        }
 
     );
 
+
+    return bestShift;
+
 }
+
+
+/* =====================================================
+   TIME TO MINUTES
+===================================================== */
+
+function timeToMinutes(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return null;
+
+    }
+
+
+    const parts =
+
+        String(
+
+            value
+
+        )
+
+        .split(".")
+
+        .map(Number);
+
+
+    if(
+
+        parts.length !== 3 ||
+
+        parts.some(
+
+            Number.isNaN
+
+        )
+
+    ){
+
+        return null;
+
+    }
+
+
+    const [
+
+        hour,
+
+        minute,
+
+        second
+
+    ] = parts;
+
+
+    if(
+
+        hour < 0 ||
+
+        hour > 23 ||
+
+        minute < 0 ||
+
+        minute > 59 ||
+
+        second < 0 ||
+
+        second > 59
+
+    ){
+
+        return null;
+
+    }
+
+
+    return (
+
+        hour * 60
+
+    )
+
+    +
+
+    minute
+
+    +
+
+    (
+
+        second / 60
+
+    );
+
+       }
 
 
 /* =====================================================
