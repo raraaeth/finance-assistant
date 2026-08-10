@@ -465,32 +465,35 @@ function renderAttendance(){
 
     const periodAttendance =
 
-        attendance.filter(
+    attendance.filter(
 
-            item=>{
+        item=>{
 
-                const date =
+            const date =
 
-                    item.date;
+                new Date(
 
-                return (
-
-                    date >=
-
-                    period.start
-
-                    &&
-
-                    date <=
-
-                    period.end
+                    item.date
 
                 );
 
-            }
+            return (
 
-        );
+                date >=
 
+                period.start
+
+                &&
+
+                date <=
+
+                period.end
+
+            );
+
+        }
+
+    );
 
     /* =============================================
        COUNT ATTENDANCE
