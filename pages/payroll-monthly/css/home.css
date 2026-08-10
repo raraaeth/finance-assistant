@@ -375,3 +375,106 @@
     margin-bottom:32px;
 
 }
+
+/* =====================================================
+   ATTENDANCE
+===================================================== */
+
+#attendance{
+
+    margin-bottom:32px;
+
+}
+
+
+/* =====================================================
+   ATTENDANCE PERIOD
+===================================================== */
+
+.attendance-period{
+
+    margin-bottom:14px;
+
+    text-align:center;
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+}
+
+
+/* =====================================================
+   ATTENDANCE GRID
+===================================================== */
+
+.attendance-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(3, 1fr);
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   ATTENDANCE ITEM
+===================================================== */
+
+.attendance-item{
+
+    min-width:0;
+
+    padding:16px 8px;
+
+    border-radius:18px;
+
+    background:#F5FAFA;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:7px;
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   ATTENDANCE LABEL
+===================================================== */
+
+.attendance-item span{
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   ATTENDANCE VALUE
+===================================================== */
+
+.attendance-item strong{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    color:var(--text-primary);
+
+}
