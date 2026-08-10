@@ -358,7 +358,7 @@ function renderPreviousSalary(){
     `;
 
 }
-
+       
 
 /* =====================================================
    ATTENDANCE
@@ -366,7 +366,7 @@ function renderPreviousSalary(){
 
 function renderAttendance(){
 
-    const section =
+    const card =
 
         document.getElementById(
 
@@ -374,10 +374,9 @@ function renderAttendance(){
 
         );
 
-
     if(
 
-        !section
+        !card
 
     ){
 
@@ -386,19 +385,29 @@ function renderAttendance(){
     }
 
 
-    /*
-       SKELETON
+    const summary =
 
-       Calculation attendance belum digunakan.
-    */
+        Process.attendance?.summary;
 
-    section.innerHTML =
+
+    if(
+
+        !summary
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
 
     `
 
-        <div class="summary-grid">
+        <div class="attendance-grid">
 
-            <div class="summary-item">
+            <div class="attendance-item">
 
                 <span>
 
@@ -408,31 +417,18 @@ function renderAttendance(){
 
                 <strong>
 
-                    -
+                    ${
+
+                        summary.masuk
+
+                    }
 
                 </strong>
 
             </div>
 
 
-            <div class="summary-item">
-
-                <span>
-
-                    Lembur
-
-                </span>
-
-                <strong>
-
-                    -
-
-                </strong>
-
-            </div>
-
-
-            <div class="summary-item">
+            <div class="attendance-item">
 
                 <span>
 
@@ -442,14 +438,18 @@ function renderAttendance(){
 
                 <strong>
 
-                    -
+                    ${
+
+                        summary.cuti
+
+                    }
 
                 </strong>
 
             </div>
 
 
-            <div class="summary-item">
+            <div class="attendance-item">
 
                 <span>
 
@@ -459,31 +459,39 @@ function renderAttendance(){
 
                 <strong>
 
-                    -
+                    ${
+
+                        summary.sakit
+
+                    }
 
                 </strong>
 
             </div>
 
 
-            <div class="summary-item">
+            <div class="attendance-item">
 
                 <span>
 
-                    Absen
+                    Lembur
 
                 </span>
 
                 <strong>
 
-                    -
+                    ${
+
+                        summary.lembur
+
+                    }
 
                 </strong>
 
             </div>
 
 
-            <div class="summary-item">
+            <div class="attendance-item">
 
                 <span>
 
@@ -493,7 +501,32 @@ function renderAttendance(){
 
                 <strong>
 
-                    -
+                    ${
+
+                        summary.liburNasional
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <div class="attendance-item">
+
+                <span>
+
+                    Absen
+
+                </span>
+
+                <strong>
+
+                    ${
+
+                        summary.absen
+
+                    }
 
                 </strong>
 
