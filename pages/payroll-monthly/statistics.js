@@ -219,6 +219,9 @@ Statistics.applyPeriod = function(
 
     );
 
+   Statistics.applyFilter();
+
+   Statistics.renderChart();
 
     console.log(
 
@@ -487,6 +490,10 @@ function handleRange(
         value
 
     );
+
+   Statistics.applyFilter();
+
+   Statistics.renderChart();
 
 
     console.log(
