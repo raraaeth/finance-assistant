@@ -59,6 +59,12 @@ import {
 
 } from "../../components/profile/script.js";
 
+import {
+
+    formatDate
+
+} from "../../js/utils.js";
+
 
 /* =====================================================
    STATE
@@ -399,7 +405,7 @@ function renderAttendance(){
 
 
     /* =============================================
-       SHOW PAYROLL ATTENDANCE
+       SHOW ATTENDANCE SECTION
     ============================================= */
 
     section.classList.remove(
@@ -410,17 +416,21 @@ function renderAttendance(){
 
 
     /* =============================================
-       GET ATTENDANCE SUMMARY
+       GET PERIOD
     ============================================= */
 
-    const summary =
+    const period =
 
-        Process.attendance?.summary;
+        Process.period;
 
 
     if(
 
-        !summary
+        !period ||
+
+        !period.start ||
+
+        !period.end
 
     ){
 
@@ -430,12 +440,144 @@ function renderAttendance(){
 
 
     /* =============================================
-       RENDER CARD
+       GET ATTENDANCE DATA
+    ============================================= */
+
+    const attendance =
+
+        Process.attendance?.data;
+
+
+    if(
+
+        !attendance
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       FILTER CURRENT PAYROLL PERIOD
+    ============================================= */
+
+    const periodAttendance =
+
+        attendance.filter(
+
+            item=>{
+
+                const date =
+
+                    item.date;
+
+                return (
+
+                    date >=
+
+                    period.start
+
+                    &&
+
+                    date <=
+
+                    period.end
+
+                );
+
+            }
+
+        );
+
+
+    /* =============================================
+       COUNT ATTENDANCE
+    ============================================= */
+
+    const summary = {
+
+        masuk : 0,
+
+        cuti : 0,
+
+        lembur : 0
+
+    };
+
+
+    periodAttendance.forEach(
+
+        item=>{
+
+            switch(
+
+                item.status
+
+            ){
+
+                case "masuk":
+
+                    summary.masuk++;
+
+                    break;
+
+
+                case "cuti":
+
+                    summary.cuti++;
+
+                    break;
+
+
+                case "lembur":
+
+                    summary.lembur++;
+
+                    break;
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       RENDER
     ============================================= */
 
     card.innerHTML =
 
     `
+
+        <div class="attendance-period">
+
+            ${
+
+                formatDate(
+
+                    period.start
+
+                )
+
+            }
+
+            -
+
+            ${
+
+                formatDate(
+
+                    period.end
+
+                )
+
+            }
+
+        </div>
+
 
         <div class="attendance-grid">
 
@@ -444,7 +586,7 @@ function renderAttendance(){
 
                 <span>
 
-                    Masuk
+                    🟢 Masuk
 
                 </span>
 
@@ -452,7 +594,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.masuk ?? 0
+                        summary.masuk
 
                     }
 
@@ -465,7 +607,7 @@ function renderAttendance(){
 
                 <span>
 
-                    Cuti
+                    🟡 Cuti
 
                 </span>
 
@@ -473,7 +615,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.cuti ?? 0
+                        summary.cuti
 
                     }
 
@@ -486,7 +628,7 @@ function renderAttendance(){
 
                 <span>
 
-                    Sakit
+                    🔵 Lembur
 
                 </span>
 
@@ -494,70 +636,7 @@ function renderAttendance(){
 
                     ${
 
-                        summary.sakit ?? 0
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <div class="attendance-item">
-
-                <span>
-
-                    Lembur
-
-                </span>
-
-                <strong>
-
-                    ${
-
-                        summary.lembur ?? 0
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <div class="attendance-item">
-
-                <span>
-
-                    Libur Nasional
-
-                </span>
-
-                <strong>
-
-                    ${
-
-                        summary.liburNasional ?? 0
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <div class="attendance-item">
-
-                <span>
-
-                    Absen
-
-                </span>
-
-                <strong>
-
-                    ${
-
-                        summary.absen ?? 0
+                        summary.lembur
 
                     }
 
