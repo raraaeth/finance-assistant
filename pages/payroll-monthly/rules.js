@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Rules
    File        : rules.js
-   Version     : 2.0.0
+   Version     : 1.1.0
 
    Description :
    Payroll Rules Engine
@@ -13,8 +13,6 @@
    - Init
    - Normalize
    - Group Rules
-   - Active Rules
-   - Helper
 ===================================================== */
 
 
@@ -28,8 +26,6 @@ export const Rules = {
 
     data : {
 
-        periode : [],
-
         gaji : [],
 
         libur : [],
@@ -37,6 +33,8 @@ export const Rules = {
         masuk : [],
 
         telat : [],
+
+        izin : [],
 
         lembur : [],
 
@@ -62,7 +60,6 @@ Rules.init = function(
     Rules.raw =
 
         rules ?? [];
-
 
     normalize();
 
@@ -156,18 +153,9 @@ function groupRules(){
 
     Rules.data = {
 
-        periode :
-
-            Rules.raw.filter(
-
-                item =>
-
-                    item.type_rule ===
-
-                    "rule_periode"
-
-            ),
-
+        /* ---------------------------------------------
+           GAJI
+        --------------------------------------------- */
 
         gaji :
 
@@ -182,6 +170,10 @@ function groupRules(){
             ),
 
 
+        /* ---------------------------------------------
+           LIBUR
+        --------------------------------------------- */
+
         libur :
 
             Rules.raw.filter(
@@ -194,6 +186,10 @@ function groupRules(){
 
             ),
 
+
+        /* ---------------------------------------------
+           MASUK / SHIFT
+        --------------------------------------------- */
 
         masuk :
 
@@ -208,6 +204,10 @@ function groupRules(){
             ),
 
 
+        /* ---------------------------------------------
+           TELAT
+        --------------------------------------------- */
+
         telat :
 
             Rules.raw.filter(
@@ -220,6 +220,27 @@ function groupRules(){
 
             ),
 
+
+        /* ---------------------------------------------
+           IZIN
+        --------------------------------------------- */
+
+        izin :
+
+            Rules.raw.filter(
+
+                item =>
+
+                    item.type_rule ===
+
+                    "rule_izin"
+
+            ),
+
+
+        /* ---------------------------------------------
+           LEMBUR
+        --------------------------------------------- */
 
         lembur :
 
@@ -234,6 +255,10 @@ function groupRules(){
             ),
 
 
+        /* ---------------------------------------------
+           TAMBAHAN
+        --------------------------------------------- */
+
         tambah :
 
             Rules.raw.filter(
@@ -246,6 +271,10 @@ function groupRules(){
 
             ),
 
+
+        /* ---------------------------------------------
+           POTONGAN
+        --------------------------------------------- */
 
         potong :
 
@@ -260,213 +289,5 @@ function groupRules(){
             )
 
     };
-
-}
-
-
-/* =====================================================
-   ACTIVE RULES
-===================================================== */
-
-Rules.active = function(
-
-    type,
-
-    date = new Date()
-
-){
-
-    const rules =
-
-        Rules.data[
-
-            type
-
-        ] ?? [];
-
-
-    return rules.filter(
-
-        item =>
-
-            isActive(
-
-                item,
-
-                date
-
-            )
-
-    );
-
-}
-
-
-/* =====================================================
-   HELPER
-===================================================== */
-
-function isActive(
-
-    rule,
-
-    date
-
-){
-
-    const start =
-
-        parseDate(
-
-            rule.berlaku_start
-
-        );
-
-
-    const end =
-
-        parseDate(
-
-            rule.berlaku_end
-
-        );
-
-
-    if(
-
-        start &&
-
-        date < start
-
-    ){
-
-        return false;
-
-    }
-
-
-    if(
-
-        end
-
-    ){
-
-        /*
-           Berlaku sampai akhir tanggal.
-        */
-
-        const endDate =
-
-            new Date(
-
-                end.getFullYear(),
-
-                end.getMonth(),
-
-                end.getDate(),
-
-                23,
-
-                59,
-
-                59,
-
-                999
-
-            );
-
-
-        if(
-
-            date > endDate
-
-        ){
-
-            return false;
-
-        }
-
-    }
-
-
-    return true;
-
-}
-
-
-/* =====================================================
-   PARSE DATE
-===================================================== */
-
-function parseDate(
-
-    value
-
-){
-
-    if(
-
-        !value
-
-    ){
-
-        return null;
-
-    }
-
-
-    const [
-
-        year,
-
-        month,
-
-        day
-
-    ] =
-
-        String(
-
-            value
-
-        )
-
-        .split(
-
-            "-"
-
-        )
-
-        .map(
-
-            Number
-
-        );
-
-
-    if(
-
-        !year ||
-
-        !month ||
-
-        !day
-
-    ){
-
-        return null;
-
-    }
-
-
-    return new Date(
-
-        year,
-
-        month - 1,
-
-        day
-
-    );
 
 }
