@@ -3,13 +3,20 @@
    Page        : Payroll Monthly
    Module      : Statistics
    File        : statistics.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Payroll Monthly Statistics Controller
 
-   Tahap :
+   Sections :
+   - Import
+   - State
+   - Init
    - Filter
+   - Chart
+   - Attendance
+   - Pagination
+   - Helper
 ===================================================== */
 
 
@@ -40,6 +47,7 @@ import {
     formatDate
 
 } from "../../js/utils.js";
+
 
 /* =====================================================
    STATE
@@ -94,11 +102,10 @@ function initializeFilter(){
         new Date();
 
 
-    /*
+    /* =============================================
        DEFAULT :
-
-       Bulan berjalan
-    */
+       BULAN BERJALAN
+    ============================================= */
 
     Statistics.filter.start =
 
@@ -206,6 +213,17 @@ Statistics.applyPeriod = function(
         null;
 
 
+    /* =============================================
+       RESET PAGE
+    ============================================= */
+
+    Statistics.page = 1;
+
+
+    /* =============================================
+       UPDATE FILTER UI
+    ============================================= */
+
     Filter.setRange(
 
         null
@@ -225,11 +243,17 @@ Statistics.applyPeriod = function(
 
     );
 
-   Statistics.applyFilter();
 
-   Statistics.renderChart();
-   
-   Statistics.renderTransaction();
+    /* =============================================
+       REFRESH
+    ============================================= */
+
+    Statistics.applyFilter();
+
+    Statistics.renderChart();
+
+    Statistics.renderTransaction();
+
 
     console.log(
 
@@ -242,6 +266,7 @@ Statistics.applyPeriod = function(
     );
 
 };
+
 
 /* =====================================================
    APPLY FILTER
@@ -288,6 +313,7 @@ Statistics.applyFilter = function(){
         );
 
 };
+
 
 /* =====================================================
    RENDER CHART
@@ -394,49 +420,49 @@ Statistics.renderChart = function(){
 
         datasets : [
 
-    {
+            {
 
-        label :
+                label :
 
-            "Attendance",
+                    "Attendance",
 
-        data : [
+                data : [
 
-            summary.masuk,
+                    summary.masuk,
 
-            summary.cuti,
+                    summary.cuti,
 
-            summary.sakit,
+                    summary.sakit,
 
-            summary.lembur,
+                    summary.lembur,
 
-            summary.liburNasional,
+                    summary.liburNasional,
 
-            summary.absen
+                    summary.absen
 
-        ],
+                ],
 
-        backgroundColor : [
+                backgroundColor : [
 
-            "#4CAF50",  // Masuk - hijau
+                    "#4CAF50",
 
-            "#EC4899",  // Cuti - pink
+                    "#EC4899",
 
-            "#3B82F6",  // Sakit - biru
+                    "#3B82F6",
 
-            "#8B5CF6",  // Lembur - ungu
+                    "#8B5CF6",
 
-            "#EF4444",  // Libur Nasional - merah
+                    "#EF4444",
 
-            "#F59E0B"   // Absen - kuning
+                    "#F59E0B"
 
-        ],
+                ],
 
-        borderWidth : 1
+                borderWidth : 1
 
-    }
+            }
 
-]
+        ]
 
     });
 
@@ -487,6 +513,17 @@ function handleRange(
         value;
 
 
+    /* =============================================
+       RESET PAGE
+    ============================================= */
+
+    Statistics.page = 1;
+
+
+    /* =============================================
+       UPDATE FILTER UI
+    ============================================= */
+
     Filter.setDate(
 
         Statistics.filter.start,
@@ -515,9 +552,16 @@ function handleRange(
 
     );
 
-   Statistics.applyFilter();
 
-   Statistics.renderChart();
+    /* =============================================
+       REFRESH
+    ============================================= */
+
+    Statistics.applyFilter();
+
+    Statistics.renderChart();
+
+    Statistics.renderTransaction();
 
 
     console.log(
@@ -529,6 +573,7 @@ function handleRange(
     );
 
 }
+
 
 /* =====================================================
    RENDER ATTENDANCE
@@ -559,6 +604,10 @@ Statistics.renderTransaction = function(){
     list.innerHTML = "";
 
 
+    /* =============================================
+       PAGINATION RANGE
+    ============================================= */
+
     const start =
 
         (
@@ -579,7 +628,13 @@ Statistics.renderTransaction = function(){
         Statistics.perPage;
 
 
+    /* =============================================
+       SORT + RENDER
+    ============================================= */
+
     Statistics.data
+
+        .slice()
 
         .sort(
 
@@ -609,35 +664,108 @@ Statistics.renderTransaction = function(){
 
             item=>{
 
+                const status =
+
+                    item.status ??
+
+                    "absen";
+
+
+                const date =
+
+                    item.date ??
+
+                    "-";
+
+
+                const checkin =
+
+                    item.checkin ??
+
+                    "-";
+
+
+                const pulang =
+
+                    item.pulang ??
+
+                    "-";
+
+
                 list.innerHTML +=
 
                 `
 
-<div class="transaction-item status-masuk">
+                <div
 
-    <div class="transaction-header">
+                    class="transaction-item status-${status}"
 
-        <strong>Masuk</strong>
+                >
 
-        <small>2026-08-07</small>
+                    <div
 
-    </div>
+                        class="transaction-header"
 
-    <div class="transaction-time">
+                    >
 
-        <span>
-            Masuk : <strong>05.41.39</strong>
-        </span>
+                        <strong>
 
-        <span>
-            Pulang : <strong>16.00.00</strong>
-        </span>
+                            ${
 
-    </div>
+                                capitalize(
 
-</div>
+                                    status
 
-    
+                                )
+
+                            }
+
+                        </strong>
+
+
+                        <small>
+
+                            ${date}
+
+                        </small>
+
+                    </div>
+
+
+                    <div
+
+                        class="transaction-time"
+
+                    >
+
+                        <span>
+
+                            Masuk :
+
+                            <strong>
+
+                                ${checkin}
+
+                            </strong>
+
+                        </span>
+
+
+                        <span>
+
+                            Pulang :
+
+                            <strong>
+
+                                ${pulang}
+
+                            </strong>
+
+                        </span>
+
+                    </div>
+
+                </div>
 
                 `;
 
@@ -645,6 +773,21 @@ Statistics.renderTransaction = function(){
 
         );
 
+
+    /* =============================================
+       PAGINATION
+    ============================================= */
+
+    renderPagination();
+
+};
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+function renderPagination(){
 
     const pagination =
 
@@ -755,8 +898,97 @@ Statistics.renderTransaction = function(){
 
     `;
 
-};                        
-    
+}
+
+
+/* =====================================================
+   PAGINATION EVENT
+===================================================== */
+
+document.addEventListener(
+
+    "click",
+
+    event=>{
+
+        const prev =
+
+            event.target.closest(
+
+                "#statistics-prev"
+
+            );
+
+
+        if(
+
+            prev
+
+        ){
+
+            if(
+
+                Statistics.page > 1
+
+            ){
+
+                Statistics.page--;
+
+                Statistics.renderTransaction();
+
+            }
+
+            return;
+
+        }
+
+
+        const next =
+
+            event.target.closest(
+
+                "#statistics-next"
+
+            );
+
+
+        if(
+
+            next
+
+        ){
+
+            const totalPage =
+
+                Math.ceil(
+
+                    Statistics.data.length /
+
+                    Statistics.perPage
+
+                );
+
+
+            if(
+
+                Statistics.page <
+
+                totalPage
+
+            ){
+
+                Statistics.page++;
+
+                Statistics.renderTransaction();
+
+            }
+
+        }
+
+    }
+
+);
+
 
 /* =====================================================
    HELPER
@@ -794,6 +1026,11 @@ function formatPeriod(
 
 }
 
+
+/* =====================================================
+   CAPITALIZE
+===================================================== */
+
 function capitalize(
 
     text
@@ -815,10 +1052,10 @@ function capitalize(
 
         /\b\w/g,
 
-        letter =>
+        letter=>
 
             letter.toUpperCase()
 
     );
 
-}
+   }
