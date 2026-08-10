@@ -201,21 +201,6 @@ function processAttendanceStatus(){
     );
 
 
-console.log(
-
-    "FIND SHIFT:",
-
-    item.date,
-
-    item.checkin,
-
-    "→",
-
-    shift?.nama ?? "TIDAK DITEMUKAN"
-
-);
-
-
             if(
 
                 !shift
@@ -251,6 +236,40 @@ console.log(
             item.lateMinutes =
 
                 result.lateMinutes;
+
+           console.log(
+
+    "CALCULATE LATE:",
+
+    item.date,
+
+    "| Check-in:",
+
+    item.checkin,
+
+    "| Shift:",
+
+    shift.nama,
+
+    "| Status:",
+
+    result.status,
+
+    "| Telat:",
+
+    result.lateMinutes,
+
+    "menit",
+
+    "| Jam:",
+
+    result.lateHours,
+
+    "| Rule:",
+
+    result.lateRule
+
+);
 
         }
 
@@ -558,7 +577,6 @@ function timeToMinutes(
 
        }
 
-
 /* =====================================================
    CALCULATE LATE
 ===================================================== */
@@ -571,26 +589,413 @@ function calculateLate(
 
 ){
 
+    /* =============================================
+       CHECKIN
+    ============================================= */
+
+    const checkinMinutes =
+
+        timeToMinutes(
+
+            item.checkin
+
+        );
+
+
+    const shiftStartMinutes =
+
+        timeToMinutes(
+
+            shift.nilai_start
+
+        );
+
+
     /*
-       Logic berikutnya akan membaca:
-
-       shift.nilai_start
-       shift.nilai_end
-       Rules.data.telat
-
-       Untuk sementara kita siapkan
-       struktur hasilnya.
+       Jika waktu tidak valid,
+       jangan dianggap telat.
     */
+
+    if(
+
+        checkinMinutes === null ||
+
+        shiftStartMinutes === null
+
+    ){
+
+        return {
+
+            status :
+
+                "ontime",
+
+            lateMinutes :
+
+                0,
+
+            lateHours :
+
+                0,
+
+            lateRule :
+
+                null
+
+        };
+
+    }
+
+
+    /* =============================================
+       HITUNG KETERLAMBATAN
+    ============================================= */
+
+    let lateMinutes =
+
+        checkinMinutes -
+
+        shiftStartMinutes;
+
+
+    /*
+       Datang sebelum / tepat jam shift
+       = ON TIME
+    */
+
+    if(
+
+        lateMinutes <= 0
+
+    ){
+
+        return {
+
+            status :
+
+                "ontime",
+
+            lateMinutes :
+
+                0,
+
+            lateHours :
+
+                0,
+
+            lateRule :
+
+                null
+
+        };
+
+    }
+
+
+    /*
+       Detik dibulatkan ke atas.
+
+       Contoh:
+
+       06:20:01
+       menjadi 21 menit
+    */
+
+    lateMinutes =
+
+        Math.ceil(
+
+            lateMinutes
+
+        );
+
+
+    /* =============================================
+       AMBIL RULE TELAT
+    ============================================= */
+
+    const telatRules =
+
+        Rules.data.telat ?? [];
+
+
+    /* =============================================
+       RULE MENIT
+    ============================================= */
+
+    const minuteRules =
+
+        telatRules.filter(
+
+            rule =>
+
+                rule.waktu ===
+
+                "menit"
+
+        );
+
+
+    /*
+       Cari rule menit yang cocok
+       berdasarkan start dan end.
+    */
+
+    const minuteRule =
+
+        minuteRules.find(
+
+            rule => {
+
+                const start =
+
+                    Number(
+
+                        rule.nilai_start
+
+                    );
+
+
+                const end =
+
+                    Number(
+
+                        rule.nilai_end
+
+                    );
+
+
+                if(
+
+                    Number.isNaN(
+
+                        start
+
+                    )
+
+                    ||
+
+                    Number.isNaN(
+
+                        end
+
+                    )
+
+                ){
+
+                    return false;
+
+                }
+
+
+                return (
+
+                    lateMinutes >=
+
+                    start
+
+                )
+
+                &&
+
+                (
+
+                    lateMinutes <=
+
+                    end
+
+                );
+
+            }
+
+        );
+
+
+    /*
+       Kalau cocok dengan rule menit,
+       selesai di sini.
+    */
+
+    if(
+
+        minuteRule
+
+    ){
+
+        return {
+
+            status :
+
+                "telat",
+
+            lateMinutes :
+
+                lateMinutes,
+
+            lateHours :
+
+                0,
+
+            lateRule :
+
+                minuteRule.nama
+
+        };
+
+    }
+
+
+    /* =============================================
+       RULE JAM
+    ============================================= */
+
+    const hourRule =
+
+        telatRules.find(
+
+            rule =>
+
+                rule.waktu ===
+
+                "jam"
+
+        );
+
+
+    /*
+       Jika tidak ada rule jam,
+       tetap tandai sebagai telat.
+    */
+
+    if(
+
+        !hourRule
+
+    ){
+
+        return {
+
+            status :
+
+                "telat",
+
+            lateMinutes :
+
+                lateMinutes,
+
+            lateHours :
+
+                0,
+
+            lateRule :
+
+                null
+
+        };
+
+    }
+
+
+    /* =============================================
+       BATAS RULE MENIT
+    ============================================= */
+
+    const minuteEnds =
+
+        minuteRules
+
+        .map(
+
+            rule =>
+
+                Number(
+
+                    rule.nilai_end
+
+                )
+
+        )
+
+        .filter(
+
+            value =>
+
+                !Number.isNaN(
+
+                    value
+
+                )
+
+        );
+
+
+    const minuteLimit =
+
+        minuteEnds.length
+
+        ?
+
+        Math.max(
+
+            ...minuteEnds
+
+        )
+
+        :
+
+        0;
+
+
+    /* =============================================
+       HITUNG JAM
+    ============================================= */
+
+    const minutesAfterLimit =
+
+        lateMinutes -
+
+        minuteLimit;
+
+
+    /*
+       Setiap 60 menit setelah
+       batas rule menit = 1 jam.
+
+       Contoh jika batas = 60:
+
+       61–119  → 1 jam
+       120–179 → 2 jam
+       180–239 → 3 jam
+    */
+
+    const lateHours =
+
+        Math.ceil(
+
+            minutesAfterLimit /
+
+            60
+
+        );
+
 
     return {
 
         status :
 
-            "ontime",
+            "telat",
 
         lateMinutes :
 
-            0
+            lateMinutes,
+
+        lateHours :
+
+            lateHours,
+
+        lateRule :
+
+            hourRule.nama
 
     };
 
