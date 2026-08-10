@@ -157,11 +157,13 @@ export async function init(){
 
         Process.init(
 
-            API.raw,
+    API.raw,
 
-            API.data
+    API.data
 
-        );
+);
+
+renderAttendance();
 
     }catch(error){
 
