@@ -237,39 +237,7 @@ function processAttendanceStatus(){
 
                 result.lateMinutes;
 
-           console.log(
-
-    "CALCULATE LATE:",
-
-    item.date,
-
-    "| Check-in:",
-
-    item.checkin,
-
-    "| Shift:",
-
-    shift.nama,
-
-    "| Status:",
-
-    result.status,
-
-    "| Telat:",
-
-    result.lateMinutes,
-
-    "menit",
-
-    "| Jam:",
-
-    result.lateHours,
-
-    "| Rule:",
-
-    result.lateRule
-
-);
+           
 
         }
 
