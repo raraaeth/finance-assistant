@@ -386,33 +386,49 @@ Statistics.renderChart = function(){
 
         datasets : [
 
-            {
+    {
 
-                label :
+        label :
 
-                    "Attendance",
+            "Attendance",
 
-                data : [
+        data : [
 
-                    summary.masuk,
+            summary.masuk,
 
-                    summary.cuti,
+            summary.cuti,
 
-                    summary.sakit,
+            summary.sakit,
 
-                    summary.lembur,
+            summary.lembur,
 
-                    summary.liburNasional,
+            summary.liburNasional,
 
-                    summary.absen
+            summary.absen
 
-                ],
+        ],
 
-                borderWidth : 1
+        backgroundColor : [
 
-            }
+            "#4CAF50",  // Masuk - hijau
 
-        ]
+            "#EC4899",  // Cuti - pink
+
+            "#3B82F6",  // Sakit - biru
+
+            "#8B5CF6",  // Lembur - ungu
+
+            "#EF4444",  // Libur Nasional - merah
+
+            "#F59E0B"   // Absen - kuning
+
+        ],
+
+        borderWidth : 1
+
+    }
+
+]
 
     });
 
