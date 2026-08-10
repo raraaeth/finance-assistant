@@ -1,8 +1,140 @@
 /* =====================================================
-   PAYROLL MONTHLY
-   MODULE : STATISTICS
-   FILE   : statistics.css
+   Finance Assistant
+   Page        : Payroll Monthly
+   Module      : Statistics
+   File        : statistics.css
+   Version     : 2.0.0
+
+   Description :
+   Payroll Statistics Page
 ===================================================== */
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+#statistics-page{
+
+    padding-bottom:40px;
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+#statistics-page .section{
+
+    margin-bottom:32px;
+
+}
+
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+#statistics-page .section-header{
+
+    margin-bottom:16px;
+
+}
+
+
+/* =====================================================
+   SECTION BADGE
+===================================================== */
+
+#statistics-page .section-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:#E1F5F2;
+
+    color:#197A72;
+
+    font-size:1.15rem;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+#statistics-filter-list{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   CHART CARD
+===================================================== */
+
+#statistics-chart .card{
+
+    padding:20px;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   CHART
+===================================================== */
+
+#statistics-chart-canvas{
+
+    width:100% !important;
+
+    max-width:100%;
+
+}
+
+
+/* =====================================================
+   TRANSACTION CARD
+===================================================== */
+
+#statistics-transaction .card{
+
+    padding:18px 20px;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   TRANSACTION LIST
+===================================================== */
+
+#statistics-transaction-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
 
 
 /* =====================================================
@@ -16,16 +148,29 @@
 
     flex-direction:column;
 
-    gap:14px;
+    gap:12px;
 
-    padding:20px 0;
+    padding:16px 10px;
+
+    border-bottom:1px solid var(--border-color);
+
+}
+
+
+/* =====================================================
+   LAST ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item:last-child{
+
+    border-bottom:none;
 
 }
 
 
 /* =====================================================
    TRANSACTION HEADER
-   STATUS + DATE
 ===================================================== */
 
 #statistics-transaction-list
@@ -71,6 +216,8 @@
 
     text-align:right;
 
+    white-space:nowrap;
+
 }
 
 
@@ -85,7 +232,7 @@
 
     grid-template-columns:1fr 1fr;
 
-    gap:12px;
+    gap:10px;
 
 }
 
@@ -97,11 +244,17 @@
 #statistics-transaction-list
 .transaction-time span{
 
-    display:block;
+    display:flex;
 
-    padding:12px;
+    align-items:center;
 
-    border-radius:14px;
+    justify-content:center;
+
+    min-height:40px;
+
+    padding:9px 10px;
+
+    border-radius:12px;
 
     background:var(--surface-secondary);
 
@@ -113,7 +266,92 @@
 
 
 /* =====================================================
+   TIME VALUE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-time strong{
+
+    color:var(--text-primary);
+
+    font-weight:600;
+
+    margin-left:4px;
+
+}
+
+
+/* =====================================================
+   STATUS COLORS
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item.status-masuk
+.transaction-header strong{
+
+    color:#3FAE4D;
+
+}
+
+
+#statistics-transaction-list
+.transaction-item.status-cuti
+.transaction-header strong{
+
+    color:#D94B9B;
+
+}
+
+
+#statistics-transaction-list
+.transaction-item.status-sakit
+.transaction-header strong{
+
+    color:#3286D4;
+
+}
+
+
+#statistics-transaction-list
+.transaction-item.status-lembur
+.transaction-header strong{
+
+    color:#7B4DDB;
+
+}
+
+
+#statistics-transaction-list
+.transaction-item.status-libur_nasional
+.transaction-header strong{
+
+    color:#E04B4B;
+
+}
+
+
+#statistics-transaction-list
+.transaction-item.status-absen
+.transaction-header strong{
+
+    color:#6B7280;
+
+}
+
+
+/* =====================================================
    PAGINATION
+===================================================== */
+
+#statistics-show-more{
+
+    margin-top:14px;
+
+}
+
+
+/* =====================================================
+   PAGINATION CONTAINER
 ===================================================== */
 
 .statistics-pagination{
@@ -124,18 +362,24 @@
 
     justify-content:center;
 
-    gap:18px;
+    gap:16px;
 
-    margin-top:18px;
+    padding:14px 0 4px;
 
 }
 
 
+/* =====================================================
+   PAGINATION BUTTON
+===================================================== */
+
 .statistics-pagination button{
 
-    padding:10px 16px;
+    min-width:110px;
 
-    border:none;
+    padding:10px 14px;
+
+    border:1px solid var(--border-color);
 
     border-radius:14px;
 
@@ -147,20 +391,131 @@
 
     font-weight:600;
 
+    cursor:pointer;
+
 }
 
+
+/* =====================================================
+   DISABLED
+===================================================== */
 
 .statistics-pagination button:disabled{
 
     opacity:.45;
 
+    cursor:not-allowed;
+
 }
 
 
+/* =====================================================
+   PAGE NUMBER
+===================================================== */
+
 .statistics-pagination span{
+
+    min-width:40px;
+
+    text-align:center;
+
+    color:var(--text-secondary);
 
     font-size:14px;
 
-    color:var(--text-secondary);
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    #statistics-transaction .card{
+
+        padding:16px 12px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        padding:15px 8px;
+
+        gap:10px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-header{
+
+        grid-template-columns:1fr auto;
+
+        gap:8px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-header strong{
+
+        font-size:16px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-header small{
+
+        font-size:13px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-time{
+
+        gap:8px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-time span{
+
+        min-height:38px;
+
+        padding:8px 6px;
+
+        font-size:13px;
+
+    }
+
+
+    .statistics-pagination{
+
+        gap:8px;
+
+    }
+
+
+    .statistics-pagination button{
+
+        min-width:95px;
+
+        padding:9px 10px;
+
+        font-size:13px;
+
+    }
 
 }
