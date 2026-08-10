@@ -614,70 +614,70 @@ Statistics.renderTransaction = function(){
                 `
 
                 <div class="transaction-item">
+<div class="transaction-item">
 
-                    <div class="transaction-info">
+    <div class="transaction-header">
 
-                        <strong>
+        <strong>
 
-                            ${
+            ${
 
-                                capitalize(
+                capitalize(
 
-                                    item.status
+                    item.status
 
-                                )
+                )
 
-                            }
+            }
 
-                        </strong>
+        </strong>
 
-                        <small>
+        <small>
 
-                            ${
+            ${
 
-                                item.date
+                item.date
 
-                            }
+            }
 
-                        </small>
+        </small>
 
-                    </div>
-
-
-                    <div class="transaction-amount">
-
-                        <span>
-
-                            Masuk :
-
-                            ${
-
-                                item.checkin ??
-
-                                "-"
-
-                            }
-
-                        </span>
+    </div>
 
 
-                        <span>
+    <div class="transaction-time">
 
-                            Pulang :
+        <span>
 
-                            ${
+            Masuk :
 
-                                item.pulang ??
+            ${
 
-                                "-"
+                item.checkin ??
 
-                            }
+                "-"
 
-                        </span>
+            }
 
-                    </div>
+        </span>
 
-                </div>
+        <span>
+
+            Pulang :
+
+            ${
+
+                item.pulang ??
+
+                "-"
+
+            }
+
+        </span>
+
+    </div>
+
+</div>
 
                 `;
 
