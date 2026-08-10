@@ -49,6 +49,12 @@ import {
 
 import {
 
+    Statistics
+
+} from "./statistics.js";
+
+import {
+
     Header
 
 } from "../../components/header/script.js";
@@ -170,6 +176,8 @@ export async function init(){
 );
 
 renderAttendance();
+
+Statistics.init();       
 
     }catch(error){
 
