@@ -532,7 +532,15 @@ function handleRange(
 
 Statistics.renderTransaction = function(){
 
-    const list =
+   console.log(
+
+    "PAYROLL ATTENDANCE ITEM:",
+
+    Statistics.data[0]
+
+);
+   
+   const list =
 
         document.getElementById(
 
