@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Rules
    File        : rules.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Payroll Rules Engine
@@ -13,6 +13,8 @@
    - Init
    - Normalize
    - Group Rules
+   - Active Rules
+   - Helper
 ===================================================== */
 
 
@@ -26,11 +28,15 @@ export const Rules = {
 
     data : {
 
+        periode : [],
+
         gaji : [],
 
         libur : [],
 
         masuk : [],
+
+        telat : [],
 
         lembur : [],
 
@@ -56,6 +62,7 @@ Rules.init = function(
     Rules.raw =
 
         rules ?? [];
+
 
     normalize();
 
@@ -149,6 +156,19 @@ function groupRules(){
 
     Rules.data = {
 
+        periode :
+
+            Rules.raw.filter(
+
+                item =>
+
+                    item.type_rule ===
+
+                    "rule_periode"
+
+            ),
+
+
         gaji :
 
             Rules.raw.filter(
@@ -160,6 +180,7 @@ function groupRules(){
                     "rule_gaji"
 
             ),
+
 
         libur :
 
@@ -173,6 +194,7 @@ function groupRules(){
 
             ),
 
+
         masuk :
 
             Rules.raw.filter(
@@ -184,6 +206,20 @@ function groupRules(){
                     "rule_masuk"
 
             ),
+
+
+        telat :
+
+            Rules.raw.filter(
+
+                item =>
+
+                    item.type_rule ===
+
+                    "rule_telat"
+
+            ),
+
 
         lembur :
 
@@ -197,6 +233,7 @@ function groupRules(){
 
             ),
 
+
         tambah :
 
             Rules.raw.filter(
@@ -208,6 +245,7 @@ function groupRules(){
                     "rule_tambah"
 
             ),
+
 
         potong :
 
@@ -222,5 +260,213 @@ function groupRules(){
             )
 
     };
+
+}
+
+
+/* =====================================================
+   ACTIVE RULES
+===================================================== */
+
+Rules.active = function(
+
+    type,
+
+    date = new Date()
+
+){
+
+    const rules =
+
+        Rules.data[
+
+            type
+
+        ] ?? [];
+
+
+    return rules.filter(
+
+        item =>
+
+            isActive(
+
+                item,
+
+                date
+
+            )
+
+    );
+
+}
+
+
+/* =====================================================
+   HELPER
+===================================================== */
+
+function isActive(
+
+    rule,
+
+    date
+
+){
+
+    const start =
+
+        parseDate(
+
+            rule.berlaku_start
+
+        );
+
+
+    const end =
+
+        parseDate(
+
+            rule.berlaku_end
+
+        );
+
+
+    if(
+
+        start &&
+
+        date < start
+
+    ){
+
+        return false;
+
+    }
+
+
+    if(
+
+        end
+
+    ){
+
+        /*
+           Berlaku sampai akhir tanggal.
+        */
+
+        const endDate =
+
+            new Date(
+
+                end.getFullYear(),
+
+                end.getMonth(),
+
+                end.getDate(),
+
+                23,
+
+                59,
+
+                59,
+
+                999
+
+            );
+
+
+        if(
+
+            date > endDate
+
+        ){
+
+            return false;
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   PARSE DATE
+===================================================== */
+
+function parseDate(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return null;
+
+    }
+
+
+    const [
+
+        year,
+
+        month,
+
+        day
+
+    ] =
+
+        String(
+
+            value
+
+        )
+
+        .split(
+
+            "-"
+
+        )
+
+        .map(
+
+            Number
+
+        );
+
+
+    if(
+
+        !year ||
+
+        !month ||
+
+        !day
+
+    ){
+
+        return null;
+
+    }
+
+
+    return new Date(
+
+        year,
+
+        month - 1,
+
+        day
+
+    );
 
 }
