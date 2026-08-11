@@ -8,6 +8,12 @@
    Description :
    Payroll Process Orchestrator
 
+   Flow :
+   - Period
+   - Rules
+   - Attendance
+   - Calculation
+
    Sections :
    - Import
    - State
@@ -25,17 +31,26 @@ import {
 
 } from "./period.js";
 
+
 import {
 
     Rules
 
 } from "./rules.js";
 
+
 import {
 
     Attendance
 
 } from "./attendance.js";
+
+
+import {
+
+    Calculation
+
+} from "./calculation.js";
 
 
 /* =====================================================
@@ -49,6 +64,8 @@ export const Process = {
     rules : {},
 
     attendance : {},
+
+    calculation : {},
 
     summary : {}
 
@@ -68,10 +85,10 @@ Process.init = function(
 ){
 
     /* =============================================
-       RULES
+       PERIOD
     ============================================= */
 
-    Rules.init(
+    Period.init(
 
         rulesRaw
 
@@ -79,12 +96,12 @@ Process.init = function(
 
 
     /* =============================================
-       PERIOD
+       RULES
     ============================================= */
 
-    Period.init(
+    Rules.init(
 
-        Rules.data.periode
+        rulesRaw
 
     );
 
@@ -101,7 +118,14 @@ Process.init = function(
 
 
     /* =============================================
-       EXPOSE RESULT
+       CALCULATION
+    ============================================= */
+
+    Calculation.init();
+
+
+    /* =============================================
+       EXPOSE PERIOD
     ============================================= */
 
     Process.period =
@@ -109,10 +133,18 @@ Process.init = function(
         Period.data;
 
 
+    /* =============================================
+       EXPOSE RULES
+    ============================================= */
+
     Process.rules =
 
         Rules.data;
 
+
+    /* =============================================
+       EXPOSE ATTENDANCE
+    ============================================= */
 
     Process.attendance = {
 
@@ -128,6 +160,15 @@ Process.init = function(
 
 
     /* =============================================
+       EXPOSE CALCULATION
+    ============================================= */
+
+    Process.calculation =
+
+        Calculation.data;
+
+
+    /* =============================================
        SUMMARY
     ============================================= */
 
@@ -139,20 +180,45 @@ Process.init = function(
 
         attendance :
 
-            Process.attendance.summary
+            Process.attendance.summary,
+
+        calculation : {
+
+            gajiPokok :
+
+                Process.calculation.gajiPokok,
+
+            totalEarnings :
+
+                Process.calculation.totalEarnings,
+
+            totalDeductions :
+
+                Process.calculation.totalDeductions,
+
+            grossSalary :
+
+                Process.calculation.grossSalary,
+
+            netSalary :
+
+                Process.calculation.netSalary
+
+        }
 
     };
 
 
-        /* =============================================
+    /* =============================================
        DEBUG PROCESS
     ============================================= */
 
     console.log(
 
-        "========== PROCESS =========="
+        "========== PAYROLL PROCESS =========="
 
     );
+
 
     console.log(
 
@@ -162,6 +228,7 @@ Process.init = function(
 
     );
 
+
     console.log(
 
         "PROCESS RULES:",
@@ -169,6 +236,7 @@ Process.init = function(
         Process.rules
 
     );
+
 
     console.log(
 
@@ -179,7 +247,16 @@ Process.init = function(
     );
 
 
-       console.log(
+    console.log(
+
+        "PROCESS CALCULATION:",
+
+        Process.calculation
+
+    );
+
+
+    console.log(
 
         "PROCESS SUMMARY:",
 
