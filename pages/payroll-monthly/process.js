@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Process
    File        : process.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Payroll Process Orchestrator
@@ -68,10 +68,10 @@ Process.init = function(
 ){
 
     /* =============================================
-       PERIOD
+       RULES
     ============================================= */
 
-    Period.init(
+    Rules.init(
 
         rulesRaw
 
@@ -79,12 +79,12 @@ Process.init = function(
 
 
     /* =============================================
-       RULES
+       PERIOD
     ============================================= */
 
-    Rules.init(
+    Period.init(
 
-        rulesRaw
+        Rules.data.periode
 
     );
 
@@ -143,6 +143,10 @@ Process.init = function(
 
     };
 
+
+    /* =============================================
+       DEBUG
+    ============================================= */
 
     console.log(
 
