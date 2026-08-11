@@ -342,16 +342,6 @@ Statistics.applyPeriod = function(
     refresh();
 
 
-    console.log(
-
-        "Payroll Statistics Period:",
-
-        Statistics.filter.start,
-
-        Statistics.filter.end
-
-    );
-
 };
 
 
@@ -457,13 +447,7 @@ function handleRange(
     refresh();
 
 
-    console.log(
-
-        "Payroll Statistics Range:",
-
-        value
-
-    );
+    
 
 }
 
