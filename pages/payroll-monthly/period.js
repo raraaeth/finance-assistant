@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Period
    File        : period.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Payroll Period Engine
@@ -72,12 +72,6 @@ function processPeriod(){
         Period.raw.find(
 
             item =>
-
-                item.type_rule ===
-
-                    "rule_periode"
-
-                &&
 
                 item.nama ===
 
@@ -188,6 +182,21 @@ function parseDate(
         .split("-")
 
         .map(Number);
+
+
+    if(
+
+        !year ||
+
+        !month ||
+
+        !day
+
+    ){
+
+        return null;
+
+    }
 
 
     return new Date(
