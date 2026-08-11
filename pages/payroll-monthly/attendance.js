@@ -92,6 +92,33 @@ Attendance.init = function(
 
     processSummary();
 
+
+    /* =============================================
+       DEBUG ATTENDANCE
+    ============================================= */
+
+    console.log(
+
+        "========== ATTENDANCE =========="
+
+    );
+
+    console.log(
+
+        "ATTENDANCE DATA:",
+
+        Attendance.data
+
+    );
+
+    console.log(
+
+        "ATTENDANCE SUMMARY:",
+
+        Attendance.summary
+
+    );
+
 };
 
 
