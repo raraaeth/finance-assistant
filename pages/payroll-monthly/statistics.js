@@ -13,9 +13,7 @@
    - State
    - Init
    - Filter
-   - Motivation
    - Summary
-   - Insight
    - Chart
    - Transaction
    - Pagination
@@ -111,23 +109,29 @@ Statistics.init = function(){
 
 
     /* =============================================
-       APPLY DATA
+       APPLY FILTER
     ============================================= */
 
     Statistics.applyFilter();
 
 
     /* =============================================
-       RENDER
+       SUMMARY
     ============================================= */
-
-    Statistics.renderMotivation();
 
     Statistics.renderSummary();
 
-    Statistics.renderInsight();
+
+    /* =============================================
+       CHART
+    ============================================= */
 
     Statistics.renderChart();
+
+
+    /* =============================================
+       TRANSACTION
+    ============================================= */
 
     Statistics.renderTransaction();
 
@@ -135,14 +139,6 @@ Statistics.init = function(){
     console.log(
 
         "========== STATISTICS =========="
-
-    );
-
-    console.log(
-
-        "STATISTICS FILTER:",
-
-        Statistics.filter
 
     );
 
@@ -231,7 +227,7 @@ function initializeFilter(){
 
         onPeriod :
 
-            value=>{
+            value => {
 
                 Statistics.applyPeriod(
 
@@ -244,7 +240,7 @@ function initializeFilter(){
 
         onRange :
 
-            value=>{
+            value => {
 
                 handleRange(
 
@@ -287,16 +283,32 @@ Statistics.applyPeriod = function(
         );
 
 
+    /* =============================================
+       END OF DAY
+       Supaya tanggal terakhir ikut terhitung.
+    ============================================= */
+
+    Statistics.filter.end.setHours(
+
+        23,
+
+        59,
+
+        59,
+
+        999
+
+    );
+
+
     Statistics.filter.range =
 
         null;
 
 
-    /* =============================================
-       RESET PAGE
-    ============================================= */
+    Statistics.page =
 
-    Statistics.page = 1;
+        1;
 
 
     /* =============================================
@@ -324,21 +336,10 @@ Statistics.applyPeriod = function(
 
 
     /* =============================================
-       REFRESH DATA
+       REFRESH
     ============================================= */
 
-    Statistics.applyFilter();
-
-
-    /* =============================================
-       REFRESH UI
-    ============================================= */
-
-    Statistics.renderSummary();
-
-    Statistics.renderChart();
-
-    Statistics.renderTransaction();
+    refresh();
 
 
     console.log(
@@ -352,6 +353,119 @@ Statistics.applyPeriod = function(
     );
 
 };
+
+
+/* =====================================================
+   HANDLE RANGE
+===================================================== */
+
+function handleRange(
+
+    value
+
+){
+
+    const today =
+
+        new Date();
+
+
+    Statistics.filter.start =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth() -
+
+            (
+
+                value - 1
+
+            ),
+
+            1
+
+        );
+
+
+    Statistics.filter.end =
+
+        today;
+
+
+    Statistics.filter.end.setHours(
+
+        23,
+
+        59,
+
+        59,
+
+        999
+
+    );
+
+
+    Statistics.filter.range =
+
+        value;
+
+
+    Statistics.page =
+
+        1;
+
+
+    /* =============================================
+       UPDATE FILTER UI
+    ============================================= */
+
+    Filter.setDate(
+
+        Statistics.filter.start,
+
+        Statistics.filter.end
+
+    );
+
+
+    Filter.setPeriod(
+
+        formatPeriod(
+
+            Statistics.filter.start,
+
+            Statistics.filter.end
+
+        )
+
+    );
+
+
+    Filter.setRange(
+
+        value
+
+    );
+
+
+    /* =============================================
+       REFRESH
+    ============================================= */
+
+    refresh();
+
+
+    console.log(
+
+        "Payroll Statistics Range:",
+
+        value
+
+    );
+
+}
 
 
 /* =====================================================
@@ -375,11 +489,26 @@ Statistics.applyFilter = function(){
         Statistics.filter.end;
 
 
+    if(
+
+        !start ||
+
+        !end
+
+    ){
+
+        Statistics.data = [];
+
+        return;
+
+    }
+
+
     Statistics.data =
 
         attendance.filter(
 
-            item=>{
+            item => {
 
                 const date =
 
@@ -391,7 +520,7 @@ Statistics.applyFilter = function(){
 
                     :
 
-                    new Date(
+                    parseLocalDate(
 
                         item.date
 
@@ -402,14 +531,6 @@ Statistics.applyFilter = function(){
 
                     !date
 
-                    ||
-
-                    Number.isNaN(
-
-                        date.getTime()
-
-                    )
-
                 ){
 
                     return false;
@@ -419,9 +540,7 @@ Statistics.applyFilter = function(){
 
                 return (
 
-                    date >= start
-
-                    &&
+                    date >= start &&
 
                     date <= end
 
@@ -435,66 +554,20 @@ Statistics.applyFilter = function(){
 
 
 /* =====================================================
-   MOTIVATION
+   REFRESH
 ===================================================== */
 
-Statistics.renderMotivation = function(){
+function refresh(){
 
-    const section =
+    Statistics.applyFilter();
 
-        document.getElementById(
+    Statistics.renderSummary();
 
-            "statistics-motivation"
+    Statistics.renderChart();
 
-        );
+    Statistics.renderTransaction();
 
-
-    const card =
-
-        document.getElementById(
-
-            "statistics-motivation-card"
-
-        );
-
-
-    if(
-
-        !section ||
-
-        !card
-
-    ){
-
-        return;
-
-    }
-
-
-    section.classList.remove(
-
-        "hidden"
-
-    );
-
-
-    card.innerHTML =
-
-    `
-
-        <div class="statistics-motivation-text">
-
-            ${
-
-                Insight.getMotivation()
-
-            }
-
-        </div>
-
-    `;
-
-};
+}
 
 
 /* =====================================================
@@ -534,8 +607,29 @@ Statistics.renderSummary = function(){
     }
 
 
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
     /* =============================================
-       SUMMARY STATE
+       GET INSIGHT
+    ============================================= */
+
+    const motivation =
+
+        Insight.getMotivation();
+
+
+    const periodInsight =
+
+        Insight.getPeriodInsight();
+
+
+    /* =============================================
+       BUILD SUMMARY
     ============================================= */
 
     const summary = {
@@ -567,13 +661,9 @@ Statistics.renderSummary = function(){
     };
 
 
-    /* =============================================
-       PROCESS DATA
-    ============================================= */
-
     Statistics.data.forEach(
 
-        item=>{
+        item => {
 
             switch(
 
@@ -604,6 +694,8 @@ Statistics.renderSummary = function(){
 
                 case "libur":
 
+                case "libur_nasional":
+
                     summary.libur++;
 
                     break;
@@ -625,10 +717,6 @@ Statistics.renderSummary = function(){
             }
 
 
-            /* =====================================
-               ONTIME
-            ===================================== */
-
             if(
 
                 item.attendanceStatus ===
@@ -641,10 +729,6 @@ Statistics.renderSummary = function(){
 
             }
 
-
-            /* =====================================
-               TELAT
-            ===================================== */
 
             if(
 
@@ -659,54 +743,38 @@ Statistics.renderSummary = function(){
             }
 
 
-            /* =====================================
-               TELAT MENIT
-            ===================================== */
-
             summary.lateMinutes +=
 
-                Number(
+                toNumber(
 
-                    item.lateMinutes || 0
+                    item.lateMinutes
 
                 );
 
-
-            /* =====================================
-               IZIN TELAT
-            ===================================== */
 
             summary.izinTelatHours +=
 
-                Number(
+                toNumber(
 
-                    item.izinTelatHours || 0
+                    item.izinTelatHours
 
                 );
 
-
-            /* =====================================
-               IZIN PULANG
-            ===================================== */
 
             summary.izinPulangHours +=
 
-                Number(
+                toNumber(
 
-                    item.izinPulangHours || 0
+                    item.izinPulangHours
 
                 );
 
 
-            /* =====================================
-               LEMBUR JAM
-            ===================================== */
-
             summary.lemburHours +=
 
-                Number(
+                toNumber(
 
-                    item.overtimeHours || 0
+                    item.overtimeHours
 
                 );
 
@@ -716,12 +784,16 @@ Statistics.renderSummary = function(){
 
 
     /* =============================================
-       ITEM SUMMARY
+       SUMMARY ITEMS
     ============================================= */
 
     const items = [
 
         {
+
+            key :
+
+                "masuk",
 
             label :
 
@@ -729,16 +801,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.masuk} kali`,
+                formatCount(
 
-            show :
+                    summary.masuk
 
-                summary.masuk > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "ontime",
 
             label :
 
@@ -746,16 +822,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.ontime} kali`,
+                formatCount(
 
-            show :
+                    summary.ontime
 
-                summary.ontime > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "lateMinutes",
 
             label :
 
@@ -763,16 +843,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.lateMinutes} menit`,
+                formatMinutes(
 
-            show :
+                    summary.lateMinutes
 
-                summary.lateMinutes > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "izinTelatHours",
 
             label :
 
@@ -780,16 +864,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.izinTelatHours} jam`,
+                formatHours(
 
-            show :
+                    summary.izinTelatHours
 
-                summary.izinTelatHours > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "izinPulangHours",
 
             label :
 
@@ -797,16 +885,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.izinPulangHours} jam`,
+                formatHours(
 
-            show :
+                    summary.izinPulangHours
 
-                summary.izinPulangHours > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "cuti",
 
             label :
 
@@ -814,16 +906,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.cuti} kali`,
+                formatCount(
 
-            show :
+                    summary.cuti
 
-                summary.cuti > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "sakit",
 
             label :
 
@@ -831,16 +927,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.sakit} kali`,
+                formatCount(
 
-            show :
+                    summary.sakit
 
-                summary.sakit > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "libur",
 
             label :
 
@@ -848,16 +948,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.libur} kali`,
+                formatCount(
 
-            show :
+                    summary.libur
 
-                summary.libur > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "lembur",
 
             label :
 
@@ -865,16 +969,20 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.lembur} kali`,
+                formatCount(
 
-            show :
+                    summary.lembur
 
-                summary.lembur > 0
+                )
 
         },
 
 
         {
+
+            key :
+
+                "lemburHours",
 
             label :
 
@@ -882,28 +990,32 @@ Statistics.renderSummary = function(){
 
             value :
 
-                `${summary.lemburHours} jam`,
+                formatHours(
 
-            show :
+                    summary.lemburHours
 
-                summary.lemburHours > 0
+                )
 
         },
 
 
         {
 
+            key :
+
+                "absen",
+
             label :
 
-                "⚠️ Absen",
+                "❌ Absen",
 
             value :
 
-                `${summary.absen} kali`,
+                formatCount(
 
-            show :
+                    summary.absen
 
-                summary.absen > 0
+                )
 
         }
 
@@ -911,165 +1023,129 @@ Statistics.renderSummary = function(){
 
 
     /* =============================================
-       ONLY NON ZERO
+       HANYA TAMPILKAN NILAI > 0
     ============================================= */
 
     const visibleItems =
 
         items.filter(
 
-            item =>
+            item => {
 
-                item.show
+                return hasValue(
+
+                    item.key,
+
+                    summary
+
+                );
+
+            }
 
         );
 
 
     /* =============================================
-       SHOW SECTION
+       RENDER
     ============================================= */
-
-    section.classList.remove(
-
-        "hidden"
-
-    );
-
-
-    /* =============================================
-       EMPTY
-    ============================================= */
-
-    if(
-
-        visibleItems.length === 0
-
-    ){
-
-        card.innerHTML =
-
-        `
-
-            <div class="attendance-empty">
-
-                Belum ada aktivitas
-                pada periode ini.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    /* =============================================
-       RENDER CARDS
-    ============================================= */
-
-    card.innerHTML =
-
-        visibleItems
-
-        .map(
-
-            item =>
-
-            `
-
-                <div
-                    class="statistics-summary-item"
-                >
-
-                    <span>
-
-                        ${item.label}
-
-                    </span>
-
-
-                    <strong>
-
-                        ${item.value}
-
-                    </strong>
-
-                </div>
-
-            `
-
-        )
-
-        .join("");
-
-};
-
-
-/* =====================================================
-   INSIGHT
-===================================================== */
-
-Statistics.renderInsight = function(){
-
-    const section =
-
-        document.getElementById(
-
-            "statistics-insight"
-
-        );
-
-
-    const card =
-
-        document.getElementById(
-
-            "statistics-insight-card"
-
-        );
-
-
-    if(
-
-        !section ||
-
-        !card
-
-    ){
-
-        return;
-
-    }
-
-
-    const insight =
-
-        Insight.getPeriodInsight();
-
-
-    section.classList.remove(
-
-        "hidden"
-
-    );
-
 
     card.innerHTML =
 
     `
 
-        <div class="statistics-insight-text">
+        <div class="statistics-insight-content">
+
+            <div class="statistics-motivation-text">
+
+                ${motivation}
+
+            </div>
+
+
+            <div class="statistics-period-insight">
+
+                ${periodInsight.text}
+
+            </div>
+
+        </div>
+
+
+        <div class="statistics-summary-grid">
 
             ${
 
-                insight.text
+                visibleItems.length
+
+                ?
+
+                visibleItems
+
+                    .map(
+
+                        item =>
+
+                        `
+
+                        <div
+
+                            class="statistics-summary-item"
+
+                        >
+
+                            <span>
+
+                                ${item.label}
+
+                            </span>
+
+
+                            <strong>
+
+                                ${item.value}
+
+                            </strong>
+
+                        </div>
+
+                        `
+
+                    )
+
+                    .join("")
+
+                :
+
+                `
+
+                <div
+
+                    class="statistics-summary-empty"
+
+                >
+
+                    Belum ada data attendance
+
+                    pada periode ini.
+
+                </div>
+
+                `
 
             }
 
         </div>
 
     `;
+
+
+    console.log(
+
+        "STATISTICS SUMMARY:",
+
+        summary
+
+    );
 
 };
 
@@ -1099,7 +1175,7 @@ Statistics.renderChart = function(){
 
     Statistics.data.forEach(
 
-        item=>{
+        item => {
 
             switch(
 
@@ -1134,6 +1210,8 @@ Statistics.renderChart = function(){
 
                     break;
 
+
+                case "libur":
 
                 case "libur_nasional":
 
@@ -1217,7 +1295,9 @@ Statistics.renderChart = function(){
 
                 ],
 
-                borderWidth : 1
+                borderWidth :
+
+                    1
 
             }
 
@@ -1226,119 +1306,6 @@ Statistics.renderChart = function(){
     });
 
 };
-
-
-/* =====================================================
-   HANDLE RANGE
-===================================================== */
-
-function handleRange(
-
-    value
-
-){
-
-    const today =
-
-        new Date();
-
-
-    Statistics.filter.start =
-
-        new Date(
-
-            today.getFullYear(),
-
-            today.getMonth() -
-
-            (
-
-                value - 1
-
-            ),
-
-            1
-
-        );
-
-
-    Statistics.filter.end =
-
-        today;
-
-
-    Statistics.filter.range =
-
-        value;
-
-
-    /* =============================================
-       RESET PAGE
-    ============================================= */
-
-    Statistics.page = 1;
-
-
-    /* =============================================
-       UPDATE FILTER UI
-    ============================================= */
-
-    Filter.setDate(
-
-        Statistics.filter.start,
-
-        Statistics.filter.end
-
-    );
-
-
-    Filter.setPeriod(
-
-        formatPeriod(
-
-            Statistics.filter.start,
-
-            Statistics.filter.end
-
-        )
-
-    );
-
-
-    Filter.setRange(
-
-        value
-
-    );
-
-
-    /* =============================================
-       REFRESH DATA
-    ============================================= */
-
-    Statistics.applyFilter();
-
-
-    /* =============================================
-       REFRESH UI
-    ============================================= */
-
-    Statistics.renderSummary();
-
-    Statistics.renderChart();
-
-    Statistics.renderTransaction();
-
-
-    console.log(
-
-        "Payroll Statistics Range:",
-
-        value
-
-    );
-
-}
 
 
 /* =====================================================
@@ -1371,41 +1338,83 @@ Statistics.renderTransaction = function(){
 
 
     /* =============================================
-       SORT
+       SORT TERBARU
     ============================================= */
 
     const sortedData =
 
         Statistics.data
 
-        .slice()
+            .slice()
 
-        .sort(
+            .sort(
 
-            (
+                (
 
-                a,
+                    a,
 
-                b
+                    b
 
-            ) =>
+                ) => {
 
-                b.dateObject -
+                    const dateA =
 
-                a.dateObject
+                        a.dateObject
 
-        );
+                        ?
+
+                        a.dateObject
+
+                        :
+
+                        parseLocalDate(
+
+                            a.date
+
+                        );
+
+
+                    const dateB =
+
+                        b.dateObject
+
+                        ?
+
+                        b.dateObject
+
+                        :
+
+                        parseLocalDate(
+
+                            b.date
+
+                        );
+
+
+                    return (
+
+                        dateB -
+
+                        dateA
+
+                    );
+
+                }
+
+            );
 
 
     /* =============================================
-       PAGINATION RANGE
+       PAGINATION
     ============================================= */
 
     const start =
 
         (
 
-            Statistics.page - 1
+            Statistics.page -
+
+            1
 
         )
 
@@ -1421,439 +1430,190 @@ Statistics.renderTransaction = function(){
         Statistics.perPage;
 
 
-    /* =============================================
-       RENDER
-    ============================================= */
+    const pageData =
 
-    sortedData
-
-        .slice(
+        sortedData.slice(
 
             start,
 
             end
 
-        )
-
-        .forEach(
-
-            item=>{
-
-                const status =
-
-                    item.status ??
-
-                    "absen";
+        );
 
 
-                const date =
+    /* =============================================
+       RENDER
+    ============================================= */
 
-                    item.date ??
+    pageData.forEach(
 
-                    "-";
+        item => {
 
+            const status =
 
-                const shift =
+                item.status ??
 
-                    item.shift ??
-
-                    "-";
-
-
-                const checkin =
-
-                    item.checkin ??
-
-                    "-";
+                "absen";
 
 
-                const pulang =
+            const date =
 
-                    item.pulang ??
+                item.date ??
 
-                    "-";
-
-
-                let detail = "";
+                "-";
 
 
-                /* =================================
-                   MASUK
-                ================================= */
+            const shift =
 
-                if(
+                item.shift ??
 
-                    status ===
+                "";
 
-                    "masuk"
 
-                ){
+            const statusText =
 
-                    detail +=
+                getAttendanceStatus(
 
-                    `
+                    item
 
-                        <span>
+                );
+
+
+            const detail =
+
+                buildTransactionDetail(
+
+                    item
+
+                );
+
+
+            list.innerHTML +=
+
+            `
+
+            <div
+
+                class="transaction-item status-${status}"
+
+            >
+
+                <div
+
+                    class="transaction-header"
+
+                >
+
+                    <strong>
+
+                        ${
+
+                            getStatusIcon(
+
+                                status
+
+                            )
+
+                        }
+
+                        ${
+
+                            getStatusLabel(
+
+                                status
+
+                            )
+
+                        }
+
+                    </strong>
+
+
+                    <small>
+
+                        ${date}
+
+                    </small>
+
+                </div>
+
+
+                <div
+
+                    class="transaction-detail"
+
+                >
+
+                    ${
+
+                        shift
+
+                        ?
+
+                        `
+
+                        <div>
 
                             Shift
 
                             <strong>
 
-                                ${capitalize(
-
-                                    shift
-
-                                )}
+                                ${shift}
 
                             </strong>
 
-                        </span>
-
-                    `;
-
-
-                    if(
-
-                        item.attendanceStatus
-
-                    ){
-
-                        detail +=
+                        </div>
 
                         `
 
-                            <span>
+                        :
 
-                                Status
-
-                                <strong>
-
-                                    ${capitalize(
-
-                                        item.attendanceStatus
-
-                                    )}
-
-                                </strong>
-
-                            </span>
-
-                        `;
+                        ""
 
                     }
 
 
-                    if(
+                    ${
 
-                        item.lateMinutes >
+                        statusText
 
-                        0
-
-                    ){
-
-                        detail +=
+                        ?
 
                         `
 
-                            <span>
-
-                                Telat
-
-                                <strong>
-
-                                    ${
-
-                                        item.lateMinutes
-
-                                    }
-
-                                    menit
-
-                                </strong>
-
-                            </span>
-
-                        `;
-
-                    }
-
-
-                    if(
-
-                        item.izinTelatHours >
-
-                        0
-
-                    ){
-
-                        detail +=
-
-                        `
-
-                            <span>
-
-                                Izin Telat
-
-                                <strong>
-
-                                    ${
-
-                                        item.izinTelatHours
-
-                                    }
-
-                                    jam
-
-                                </strong>
-
-                            </span>
-
-                        `;
-
-                    }
-
-
-                    if(
-
-                        item.izinPulangHours >
-
-                        0
-
-                    ){
-
-                        detail +=
-
-                        `
-
-                            <span>
-
-                                Izin Pulang
-
-                                <strong>
-
-                                    ${
-
-                                        item.izinPulangHours
-
-                                    }
-
-                                    jam
-
-                                </strong>
-
-                            </span>
-
-                        `;
-
-                    }
-
-                }
-
-
-                /* =================================
-                   LEMBUR
-                ================================= */
-
-                else if(
-
-                    status ===
-
-                    "lembur"
-
-                ){
-
-                    detail +=
-
-                    `
-
-                        <span>
-
-                            Shift
-
-                            <strong>
-
-                                ${capitalize(
-
-                                    shift
-
-                                )}
-
-                            </strong>
-
-                        </span>
-
-
-                        <span>
-
-                            Jenis
-
-                            <strong>
-
-                                Lembur Harian
-
-                            </strong>
-
-                        </span>
-
-                    `;
-
-
-                    if(
-
-                        item.overtimeHours >
-
-                        0
-
-                    ){
-
-                        detail +=
-
-                        `
-
-                            <span>
-
-                                Lembur Jam
-
-                                <strong>
-
-                                    ${
-
-                                        item.overtimeHours
-
-                                    }
-
-                                    jam
-
-                                </strong>
-
-                            </span>
-
-                        `;
-
-                    }
-
-                }
-
-
-                /* =================================
-                   STATUS LAIN
-                ================================= */
-
-                else {
-
-                    detail +=
-
-                    `
-
-                        <span>
+                        <div>
 
                             Status
 
                             <strong>
 
-                                ${capitalize(
-
-                                    status
-
-                                )}
+                                ${statusText}
 
                             </strong>
 
-                        </span>
-
-                    `;
-
-                }
-
-
-                list.innerHTML +=
-
-                `
-
-                    <div
-
-                        class="transaction-item status-${status}"
-
-                    >
-
-                        <div
-
-                            class="transaction-header"
-
-                        >
-
-                            <strong>
-
-                                ${
-
-                                    statusLabel(
-
-                                        status
-
-                                    )
-
-                                }
-
-                            </strong>
-
-
-                            <small>
-
-                                ${date}
-
-                            </small>
-
                         </div>
 
+                        `
 
-                        <div
+                        :
 
-                            class="transaction-time"
+                        ""
 
-                        >
-
-                            ${detail}
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            }
-
-        );
+                    }
 
 
-    /* =============================================
-       EMPTY
-    ============================================= */
+                    ${detail}
 
-    if(
-
-        sortedData.length === 0
-
-    ){
-
-        list.innerHTML =
-
-        `
-
-            <div class="attendance-empty">
-
-                Tidak ada aktivitas
-                pada periode ini.
+                </div>
 
             </div>
 
-        `;
+            `;
 
-    }
+        }
 
+    );
 
-    /* =============================================
-       PAGINATION
-    ============================================= */
 
     renderPagination(
 
@@ -1862,6 +1622,380 @@ Statistics.renderTransaction = function(){
     );
 
 };
+
+
+/* =====================================================
+   TRANSACTION DETAIL
+===================================================== */
+
+function buildTransactionDetail(
+
+    item
+
+){
+
+    const parts = [];
+
+
+    /* =============================================
+       TELAT
+    ============================================= */
+
+    if(
+
+        item.lateMinutes >
+
+        0
+
+    ){
+
+        parts.push(
+
+            `
+
+            <div>
+
+                Telat
+
+                <strong>
+
+                    ${
+
+                        formatMinutes(
+
+                            item.lateMinutes
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* =============================================
+       IZIN TELAT
+    ============================================= */
+
+    if(
+
+        item.izinTelatHours >
+
+        0
+
+    ){
+
+        parts.push(
+
+            `
+
+            <div>
+
+                Izin Telat
+
+                <strong>
+
+                    ${
+
+                        formatHours(
+
+                            item.izinTelatHours
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* =============================================
+       IZIN PULANG
+    ============================================= */
+
+    if(
+
+        item.izinPulangHours >
+
+        0
+
+    ){
+
+        parts.push(
+
+            `
+
+            <div>
+
+                Izin Pulang
+
+                <strong>
+
+                    ${
+
+                        formatHours(
+
+                            item.izinPulangHours
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* =============================================
+       LEMBUR HARIAN
+    ============================================= */
+
+    if(
+
+        item.status ===
+
+        "lembur"
+
+    ){
+
+        parts.push(
+
+            `
+
+            <div>
+
+                Jenis
+
+                <strong>
+
+                    Lembur Harian
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* =============================================
+       LEMBUR JAM
+    ============================================= */
+
+    if(
+
+        item.overtimeHours >
+
+        0
+
+    ){
+
+        parts.push(
+
+            `
+
+            <div>
+
+                Lembur Jam
+
+                <strong>
+
+                    ${
+
+                        formatHours(
+
+                            item.overtimeHours
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    return parts.join("");
+
+}
+
+
+/* =====================================================
+   ATTENDANCE STATUS
+===================================================== */
+
+function getAttendanceStatus(
+
+    item
+
+){
+
+    if(
+
+        item.attendanceStatus ===
+
+        "ontime"
+
+    ){
+
+        return "Ontime";
+
+    }
+
+
+    if(
+
+        item.attendanceStatus ===
+
+        "telat"
+
+    ){
+
+        return "Telat";
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =====================================================
+   STATUS LABEL
+===================================================== */
+
+function getStatusLabel(
+
+    status
+
+){
+
+    const labels = {
+
+        masuk :
+
+            "Masuk",
+
+        cuti :
+
+            "Cuti",
+
+        sakit :
+
+            "Sakit",
+
+        lembur :
+
+            "Lembur",
+
+        libur :
+
+            "Libur",
+
+        libur_nasional :
+
+            "Libur Nasional",
+
+        absen :
+
+            "Absen"
+
+    };
+
+
+    return (
+
+        labels[status] ??
+
+        capitalize(status)
+
+    );
+
+}
+
+
+/* =====================================================
+   STATUS ICON
+===================================================== */
+
+function getStatusIcon(
+
+    status
+
+){
+
+    const icons = {
+
+        masuk :
+
+            "🟢",
+
+        cuti :
+
+            "🌸",
+
+        sakit :
+
+            "🔵",
+
+        lembur :
+
+            "🔵",
+
+        libur :
+
+            "🏖️",
+
+        libur_nasional :
+
+            "🔴",
+
+        absen :
+
+            "⚪"
+
+    };
+
+
+    return (
+
+        icons[status] ??
+
+        "⚪"
+
+    );
+
+}
 
 
 /* =====================================================
@@ -1911,11 +2045,30 @@ function renderPagination(
         );
 
 
+    if(
+
+        Statistics.page >
+
+        totalPage
+
+    ){
+
+        Statistics.page =
+
+            totalPage;
+
+    }
+
+
     pagination.innerHTML =
 
     `
 
-        <div class="statistics-pagination">
+        <div
+
+            class="statistics-pagination"
+
+        >
 
             <button
 
@@ -1959,9 +2112,7 @@ function renderPagination(
 
                 ${
 
-                    Statistics.page >=
-
-                    totalPage
+                    Statistics.page >= totalPage
 
                     ?
 
@@ -1994,7 +2145,7 @@ document.addEventListener(
 
     "click",
 
-    event=>{
+    event => {
 
         const prev =
 
@@ -2013,7 +2164,9 @@ document.addEventListener(
 
             if(
 
-                Statistics.page > 1
+                Statistics.page >
+
+                1
 
             ){
 
@@ -2076,7 +2229,110 @@ document.addEventListener(
 
 
 /* =====================================================
-   HELPER : FORMAT PERIOD
+   HAS VALUE
+===================================================== */
+
+function hasValue(
+
+    key,
+
+    summary
+
+){
+
+    return (
+
+        toNumber(
+
+            summary[key]
+
+        ) > 0
+
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT COUNT
+===================================================== */
+
+function formatCount(
+
+    value
+
+){
+
+    return `${value} kali`;
+
+}
+
+
+/* =====================================================
+   FORMAT MINUTES
+===================================================== */
+
+function formatMinutes(
+
+    value
+
+){
+
+    if(
+
+        value <= 0
+
+    ){
+
+        return "";
+
+    }
+
+
+    return `${value} menit`;
+
+}
+
+
+/* =====================================================
+   FORMAT HOURS
+===================================================== */
+
+function formatHours(
+
+    value
+
+){
+
+    if(
+
+        value <= 0
+
+    ){
+
+        return "";
+
+    }
+
+
+    if(
+
+        Number.isInteger(value)
+
+    ){
+
+        return `${value} jam`;
+
+    }
+
+
+    return `${value} jam`;
+
+}
+
+
+/* =====================================================
+   FORMAT PERIOD
 ===================================================== */
 
 function formatPeriod(
@@ -2113,67 +2369,129 @@ function formatPeriod(
 
 
 /* =====================================================
-   HELPER : STATUS LABEL
+   PARSE LOCAL DATE
 ===================================================== */
 
-function statusLabel(
+function parseLocalDate(
 
-    status
+    value
 
 ){
 
-    const labels = {
+    if(
 
-        masuk :
+        !value
 
-            "🟢 Masuk",
+    ){
 
-        cuti :
+        return null;
 
-            "🌸 Cuti",
-
-        sakit :
-
-            "🔵 Sakit",
-
-        lembur :
-
-            "🔵 Lembur",
-
-        libur :
-
-            "🏖️ Libur",
-
-        libur_nasional :
-
-            "🔴 Libur Nasional",
-
-        absen :
-
-            "⚠️ Absen"
-
-    };
+    }
 
 
-    return (
+    const parts =
 
-        labels[status]
+        String(
 
-        ??
-
-        capitalize(
-
-            status
+            value
 
         )
 
-    );
+        .split("-")
+
+        .map(Number);
+
+
+    if(
+
+        parts.length !== 3
+
+    ){
+
+        return null;
+
+    }
+
+
+    const [
+
+        year,
+
+        month,
+
+        day
+
+    ] = parts;
+
+
+    const date =
+
+        new Date(
+
+            year,
+
+            month - 1,
+
+            day
+
+        );
+
+
+    return Number.isNaN(
+
+        date.getTime()
+
+    )
+
+        ?
+
+        null
+
+        :
+
+        date;
 
 }
 
 
 /* =====================================================
-   HELPER : CAPITALIZE
+   HELPER : NUMBER
+===================================================== */
+
+function toNumber(
+
+    value
+
+){
+
+    const number =
+
+        Number(
+
+            value
+
+        );
+
+
+    return Number.isFinite(
+
+        number
+
+    )
+
+        ?
+
+        number
+
+        :
+
+        0;
+
+}
+
+
+/* =====================================================
+   CAPITALIZE
 ===================================================== */
 
 function capitalize(
@@ -2197,9 +2515,7 @@ function capitalize(
 
         text
 
-    )
-
-    .replace(
+    ).replace(
 
         /\b\w/g,
 
