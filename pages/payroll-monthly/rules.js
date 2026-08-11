@@ -66,56 +66,6 @@ Rules.init = function(
     groupRules();
 
 
-    /* =============================================
-       DEBUG RULES
-    ============================================= */
-
-    console.log(
-
-        "========== RULES =========="
-
-    );
-
-    console.log(
-
-        "RULES DATA:",
-
-        Rules.data
-
-    );
-
-    console.log(
-
-        "RULE PERIODE:",
-
-        Rules.data.periode
-
-    );
-
-    console.log(
-
-        "RULE TELAT:",
-
-        Rules.data.telat
-
-    );
-
-    console.log(
-
-        "RULE IZIN:",
-
-        Rules.data.izin
-
-    );
-
-    console.log(
-
-        "RULE LEMBUR:",
-
-        Rules.data.lembur
-
-    );
-
 };
 
 
