@@ -95,30 +95,6 @@ Insight.init = function(){
     processRandomMotivation();
 
 
-    console.log(
-
-        "========== INSIGHT =========="
-
-    );
-
-
-    console.log(
-
-        "SHORT MOTIVATION:",
-
-        Insight.short
-
-    );
-
-
-    console.log(
-
-        "RANDOM MOTIVATION:",
-
-        Insight.long.text
-
-    );
-
 };
 
 
