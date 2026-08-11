@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Statistics
    File        : statistics.js
-   Version     : 2.1.0
+   Version     : 3.0.0
 
    Description :
    Payroll Monthly Statistics Controller
@@ -13,6 +13,8 @@
    - State
    - Init
    - Filter
+   - Summary
+   - Insight
    - Chart
    - Transaction
    - Pagination
@@ -47,6 +49,13 @@ import {
 
 import {
 
+    Insight
+
+} from "./insight.js";
+
+
+import {
+
     formatDate
 
 } from "../../js/utils.js";
@@ -68,12 +77,37 @@ export const Statistics = {
 
     },
 
-
     data : [],
 
+    summary : {
+
+        masuk : 0,
+
+        ontime : 0,
+
+        telat : 0,
+
+        lateMinutes : 0,
+
+        izinTelatHours : 0,
+
+        izinPulangHours : 0,
+
+        cuti : 0,
+
+        sakit : 0,
+
+        libur : 0,
+
+        lembur : 0,
+
+        lemburHours : 0,
+
+        absen : 0
+
+    },
 
     page : 1,
-
 
     perPage : 5
 
@@ -88,12 +122,13 @@ Statistics.init = function(){
 
     initializeFilter();
 
-
     Statistics.applyFilter();
 
+    Statistics.renderSummary();
+
+    Statistics.renderInsight();
 
     Statistics.renderChart();
-
 
     Statistics.renderTransaction();
 
@@ -111,11 +146,6 @@ function initializeFilter(){
         new Date();
 
 
-    /* =============================================
-       DEFAULT :
-       BULAN BERJALAN
-    ============================================= */
-
     Statistics.filter.start =
 
         new Date(
@@ -132,6 +162,11 @@ function initializeFilter(){
     Statistics.filter.end =
 
         today;
+
+
+    Statistics.filter.range =
+
+        null;
 
 
     Filter.render({
@@ -152,7 +187,7 @@ function initializeFilter(){
 
         range :
 
-            Statistics.filter.range
+            null
 
     });
 
@@ -161,7 +196,7 @@ function initializeFilter(){
 
         onPeriod :
 
-            value=>{
+            value => {
 
                 Statistics.applyPeriod(
 
@@ -174,7 +209,7 @@ function initializeFilter(){
 
         onRange :
 
-            value=>{
+            value => {
 
                 handleRange(
 
@@ -245,13 +280,7 @@ Statistics.applyPeriod = function(
     );
 
 
-    Statistics.applyFilter();
-
-
-    Statistics.renderChart();
-
-
-    Statistics.renderTransaction();
+    refresh();
 
 
     console.log(
@@ -282,16 +311,11 @@ Statistics.applyFilter = function(){
 
         attendance.filter(
 
-            item=>{
-
-                const date =
-
-                    item.dateObject;
-
+            item => {
 
                 if(
 
-                    !date
+                    !item.dateObject
 
                 ){
 
@@ -300,17 +324,18 @@ Statistics.applyFilter = function(){
                 }
 
 
+                const date =
+
+                    item.dateObject;
+
+
                 return (
 
                     date >=
 
                     Statistics.filter.start
 
-                )
-
-                &&
-
-                (
+                    &&
 
                     date <=
 
@@ -322,26 +347,41 @@ Statistics.applyFilter = function(){
 
         );
 
+
+    processSummary();
+
 };
 
 
 /* =====================================================
-   RENDER CHART
+   SUMMARY
 ===================================================== */
 
-Statistics.renderChart = function(){
+function processSummary(){
 
     const summary = {
 
         masuk : 0,
 
+        ontime : 0,
+
+        telat : 0,
+
+        lateMinutes : 0,
+
+        izinTelatHours : 0,
+
+        izinPulangHours : 0,
+
         cuti : 0,
 
         sakit : 0,
 
+        libur : 0,
+
         lembur : 0,
 
-        libur : 0,
+        lemburHours : 0,
 
         absen : 0
 
@@ -350,7 +390,7 @@ Statistics.renderChart = function(){
 
     Statistics.data.forEach(
 
-        item=>{
+        item => {
 
             switch(
 
@@ -379,16 +419,16 @@ Statistics.renderChart = function(){
                     break;
 
 
-                case "lembur":
+                case "libur":
 
-                    summary.lembur++;
+                    summary.libur++;
 
                     break;
 
 
-                case "libur":
+                case "lembur":
 
-                    summary.libur++;
+                    summary.lembur++;
 
                     break;
 
@@ -401,9 +441,513 @@ Statistics.renderChart = function(){
 
             }
 
+
+            if(
+
+                item.attendanceStatus ===
+
+                "ontime"
+
+            ){
+
+                summary.ontime++;
+
+            }
+
+
+            if(
+
+                item.attendanceStatus ===
+
+                "telat"
+
+            ){
+
+                summary.telat++;
+
+            }
+
+
+            summary.lateMinutes +=
+
+                Number(
+
+                    item.lateMinutes || 0
+
+                );
+
+
+            summary.izinTelatHours +=
+
+                Number(
+
+                    item.izinTelatHours || 0
+
+                );
+
+
+            summary.izinPulangHours +=
+
+                Number(
+
+                    item.izinPulangHours || 0
+
+                );
+
+
+            summary.lemburHours +=
+
+                Number(
+
+                    item.overtimeHours || 0
+
+                );
+
         }
 
     );
+
+
+    Statistics.summary =
+
+        summary;
+
+}
+
+
+/* =====================================================
+   RENDER SUMMARY
+===================================================== */
+
+Statistics.renderSummary = function(){
+
+    const section =
+
+        document.getElementById(
+
+            "statistics-summary"
+
+        );
+
+
+    const card =
+
+        document.getElementById(
+
+            "statistics-summary-card"
+
+        );
+
+
+    if(
+
+        !section ||
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    const summary =
+
+        Statistics.summary;
+
+
+    const items = [];
+
+
+    /*
+       Hanya tampilkan nilai
+       yang lebih dari 0.
+    */
+
+    if(
+
+        summary.masuk > 0
+
+    ){
+
+        items.push({
+
+            label : "Masuk",
+
+            value :
+
+                summary.masuk +
+
+                " kali"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.ontime > 0
+
+    ){
+
+        items.push({
+
+            label : "Ontime",
+
+            value :
+
+                summary.ontime +
+
+                " kali"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.telat > 0
+
+    ){
+
+        items.push({
+
+            label : "Telat",
+
+            value :
+
+                summary.lateMinutes +
+
+                " menit"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.izinTelatHours > 0
+
+    ){
+
+        items.push({
+
+            label : "Izin Telat",
+
+            value :
+
+                summary.izinTelatHours +
+
+                " jam"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.izinPulangHours > 0
+
+    ){
+
+        items.push({
+
+            label : "Izin Pulang",
+
+            value :
+
+                summary.izinPulangHours +
+
+                " jam"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.cuti > 0
+
+    ){
+
+        items.push({
+
+            label : "Cuti",
+
+            value :
+
+                summary.cuti +
+
+                " kali"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.sakit > 0
+
+    ){
+
+        items.push({
+
+            label : "Sakit",
+
+            value :
+
+                summary.sakit +
+
+                " kali"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.libur > 0
+
+    ){
+
+        items.push({
+
+            label : "Libur",
+
+            value :
+
+                summary.libur +
+
+                " kali"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.lembur > 0
+
+    ){
+
+        items.push({
+
+            label : "Lembur",
+
+            value :
+
+                summary.lembur +
+
+                " kali"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.lemburHours > 0
+
+    ){
+
+        items.push({
+
+            label : "Lembur Per Jam",
+
+            value :
+
+                summary.lemburHours +
+
+                " jam"
+
+        });
+
+    }
+
+
+    if(
+
+        summary.absen > 0
+
+    ){
+
+        items.push({
+
+            label : "Absen",
+
+            value :
+
+                summary.absen +
+
+                " kali"
+
+        });
+
+    }
+
+
+    /*
+       Tidak ada data.
+    */
+
+    if(
+
+        items.length === 0
+
+    ){
+
+        section.classList.remove(
+
+            "hidden"
+
+        );
+
+
+        card.innerHTML =
+
+        `
+
+            <div class="statistics-empty">
+
+                Belum ada aktivitas
+
+                pada periode ini.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+       Render summary.
+    */
+
+    card.innerHTML =
+
+        `
+
+        <div class="statistics-summary-grid">
+
+            ${
+
+                items.map(
+
+                    item => `
+
+                    <div class="statistics-summary-item">
+
+                        <span>
+
+                            ${item.label}
+
+                        </span>
+
+                        <strong>
+
+                            ${item.value}
+
+                        </strong>
+
+                    </div>
+
+                    `
+
+                ).join("")
+
+            }
+
+        </div>
+
+        `;
+
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER INSIGHT
+===================================================== */
+
+Statistics.renderInsight = function(){
+
+    Insight.init();
+
+
+    const motivation =
+
+        document.getElementById(
+
+            "statistics-motivation"
+
+        );
+
+
+    const periodInsight =
+
+        document.getElementById(
+
+            "statistics-period-insight"
+
+        );
+
+
+    if(
+
+        motivation
+
+    ){
+
+        motivation.textContent =
+
+            Insight.getMotivation();
+
+    }
+
+
+    if(
+
+        periodInsight
+
+    ){
+
+        periodInsight.textContent =
+
+            Insight.getPeriodInsight().text;
+
+    }
+
+};
+
+
+/* =====================================================
+   RENDER CHART
+===================================================== */
+
+Statistics.renderChart = function(){
+
+    const summary =
+
+        Statistics.summary;
 
 
     Chart.renderBar({
@@ -555,13 +1099,7 @@ function handleRange(
     );
 
 
-    Statistics.applyFilter();
-
-
-    Statistics.renderChart();
-
-
-    Statistics.renderTransaction();
+    refresh();
 
 
     console.log(
@@ -571,6 +1109,25 @@ function handleRange(
         value
 
     );
+
+}
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+function refresh(){
+
+    Statistics.applyFilter();
+
+    Statistics.renderSummary();
+
+    Statistics.renderInsight();
+
+    Statistics.renderChart();
+
+    Statistics.renderTransaction();
 
 }
 
@@ -604,38 +1161,6 @@ Statistics.renderTransaction = function(){
     list.innerHTML = "";
 
 
-    /* =============================================
-       SORT
-       Terbaru → terlama
-    ============================================= */
-
-    const sortedData =
-
-        Statistics.data
-
-        .slice()
-
-        .sort(
-
-            (
-
-                a,
-
-                b
-
-            ) =>
-
-                b.dateObject -
-
-                a.dateObject
-
-        );
-
-
-    /* =============================================
-       PAGINATION RANGE
-    ============================================= */
-
     const start =
 
         (
@@ -656,574 +1181,491 @@ Statistics.renderTransaction = function(){
         Statistics.perPage;
 
 
-    const pageData =
+    Statistics.data
 
-        sortedData.slice(
+        .slice()
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            ) =>
+
+                b.dateObject -
+
+                a.dateObject
+
+        )
+
+        .slice(
 
             start,
 
             end
 
+        )
+
+        .forEach(
+
+            item => {
+
+                const status =
+
+                    item.status ??
+
+                    "-";
+
+
+                const date =
+
+                    item.date ??
+
+                    "-";
+
+
+                let detail = "";
+
+
+                if(
+
+                    status === "masuk"
+
+                ){
+
+                    detail = `
+
+                        <div class="transaction-detail">
+
+                            <span>
+
+                                Shift
+
+                            </span>
+
+                            <strong>
+
+                                ${
+
+                                    item.shift ||
+
+                                    "-"
+
+                                }
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="transaction-detail">
+
+                            <span>
+
+                                Kehadiran
+
+                            </span>
+
+                            <strong>
+
+                                ${
+
+                                    item.attendanceStatus ||
+
+                                    "-"
+
+                                }
+
+                            </strong>
+
+                        </div>
+
+
+                        ${
+
+                            item.lateMinutes > 0
+
+                            ?
+
+                            `
+
+                            <div class="transaction-detail">
+
+                                <span>
+
+                                    Telat
+
+                                </span>
+
+                                <strong>
+
+                                    ${
+
+                                        item.lateMinutes
+
+                                    }
+
+                                    menit
+
+                                </strong>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+
+                        ${
+
+                            item.izinTelatHours > 0
+
+                            ?
+
+                            `
+
+                            <div class="transaction-detail">
+
+                                <span>
+
+                                    Izin Telat
+
+                                </span>
+
+                                <strong>
+
+                                    ${
+
+                                        item.izinTelatHours
+
+                                    }
+
+                                    jam
+
+                                </strong>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+
+                        ${
+
+                            item.izinPulangHours > 0
+
+                            ?
+
+                            `
+
+                            <div class="transaction-detail">
+
+                                <span>
+
+                                    Izin Pulang
+
+                                </span>
+
+                                <strong>
+
+                                    ${
+
+                                        item.izinPulangHours
+
+                                    }
+
+                                    jam
+
+                                </strong>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+
+                        ${
+
+                            item.overtimeHours > 0
+
+                            ?
+
+                            `
+
+                            <div class="transaction-detail">
+
+                                <span>
+
+                                    Lembur
+
+                                </span>
+
+                                <strong>
+
+                                    ${
+
+                                        item.overtimeHours
+
+                                    }
+
+                                    jam
+
+                                </strong>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+                    `;
+
+                }
+
+
+                else if(
+
+                    status === "lembur"
+
+                ){
+
+                    detail = `
+
+                        <div class="transaction-detail">
+
+                            <span>
+
+                                Jenis
+
+                            </span>
+
+                            <strong>
+
+                                Lembur Harian
+
+                            </strong>
+
+                        </div>
+
+
+                        ${
+
+                            item.shift
+
+                            ?
+
+                            `
+
+                            <div class="transaction-detail">
+
+                                <span>
+
+                                    Shift
+
+                                </span>
+
+                                <strong>
+
+                                    ${item.shift}
+
+                                </strong>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+
+                        ${
+
+                            item.overtimeHours > 0
+
+                            ?
+
+                            `
+
+                            <div class="transaction-detail">
+
+                                <span>
+
+                                    Lembur
+
+                                </span>
+
+                                <strong>
+
+                                    ${
+
+                                        item.overtimeHours
+
+                                    }
+
+                                    jam
+
+                                </strong>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+
+                        ${
+
+                            item.izinTelatHours > 0
+
+                            ?
+
+                            `
+
+                            <div class="transaction-detail">
+
+                                <span>
+
+                                    Izin Telat
+
+                                </span>
+
+                                <strong>
+
+                                    ${
+
+                                        item.izinTelatHours
+
+                                    }
+
+                                    jam
+
+                                </strong>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            ""
+
+                        }
+
+                    `;
+
+                }
+
+
+                else {
+
+                    detail = `
+
+                        <div class="transaction-detail">
+
+                            <span>
+
+                                Status
+
+                            </span>
+
+                            <strong>
+
+                                ${
+
+                                    capitalize(
+
+                                        status
+
+                                    )
+
+                                }
+
+                            </strong>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                list.innerHTML +=
+
+                `
+
+                <div class="transaction-item status-${status}">
+
+                    <div class="transaction-header">
+
+                        <strong>
+
+                            ${
+
+                                capitalize(
+
+                                    status
+
+                                )
+
+                            }
+
+                        </strong>
+
+                        <small>
+
+                            ${date}
+
+                        </small>
+
+                    </div>
+
+
+                    <div class="transaction-details">
+
+                        ${detail}
+
+                    </div>
+
+                </div>
+
+                `;
+
+            }
+
         );
 
-
-    /* =============================================
-       RENDER
-    ============================================= */
-
-    pageData.forEach(
-
-        item=>{
-
-            list.innerHTML +=
-
-                createTransaction(
-
-                    item
-
-                );
-
-        }
-
-    );
-
-
-    /* =============================================
-       PAGINATION
-    ============================================= */
 
     renderPagination();
 
 };
-
-
-/* =====================================================
-   CREATE TRANSACTION
-===================================================== */
-
-function createTransaction(
-
-    item
-
-){
-
-    const status =
-
-        item.status ??
-
-        "absen";
-
-
-    const date =
-
-        item.dateObject
-
-        ?
-
-        formatDate(
-
-            item.dateObject
-
-        )
-
-        :
-
-        "-";
-
-
-    const icon =
-
-        getStatusIcon(
-
-            status
-
-        );
-
-
-    const statusLabel =
-
-        getStatusLabel(
-
-            status
-
-        );
-
-
-    /* =============================================
-       DETAIL
-    ============================================= */
-
-    const details = [];
-
-
-    /* ---------------------------------------------
-       SHIFT
-    --------------------------------------------- */
-
-    if(
-
-        item.shift
-
-    ){
-
-        details.push(
-
-            `
-
-            <div class="transaction-detail">
-
-                <span>Shift</span>
-
-                <strong>
-
-                    ${capitalize(item.shift)}
-
-                </strong>
-
-            </div>
-
-            `
-
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       ATTENDANCE STATUS
-    --------------------------------------------- */
-
-    if(
-
-        status === "masuk"
-
-        &&
-
-        item.attendanceStatus
-
-    ){
-
-        const label =
-
-            item.attendanceStatus ===
-
-            "ontime"
-
-            ?
-
-            "Ontime"
-
-            :
-
-            "Telat";
-
-
-        details.push(
-
-            `
-
-            <div class="transaction-detail">
-
-                <span>Status</span>
-
-                <strong>
-
-                    ${label}
-
-                </strong>
-
-            </div>
-
-            `
-
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       TELAT
-    --------------------------------------------- */
-
-    if(
-
-        toNumber(
-
-            item.lateMinutes
-
-        ) > 0
-
-    ){
-
-        details.push(
-
-            `
-
-            <div class="transaction-detail">
-
-                <span>Telat</span>
-
-                <strong>
-
-                    ${item.lateMinutes} menit
-
-                </strong>
-
-            </div>
-
-            `
-
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       IZIN TELAT
-    --------------------------------------------- */
-
-    if(
-
-        toNumber(
-
-            item.izinTelatHours
-
-        ) > 0
-
-    ){
-
-        details.push(
-
-            `
-
-            <div class="transaction-detail">
-
-                <span>Izin Telat</span>
-
-                <strong>
-
-                    ${item.izinTelatHours} jam
-
-                </strong>
-
-            </div>
-
-            `
-
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       IZIN PULANG
-    --------------------------------------------- */
-
-    if(
-
-        toNumber(
-
-            item.izinPulangHours
-
-        ) > 0
-
-    ){
-
-        details.push(
-
-            `
-
-            <div class="transaction-detail">
-
-                <span>Izin Pulang</span>
-
-                <strong>
-
-                    ${item.izinPulangHours} jam
-
-                </strong>
-
-            </div>
-
-            `
-
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       LEMBUR HARIAN
-    --------------------------------------------- */
-
-    if(
-
-        status === "lembur"
-
-    ){
-
-        details.push(
-
-            `
-
-            <div class="transaction-detail">
-
-                <span>Jenis</span>
-
-                <strong>
-
-                    Lembur Harian
-
-                </strong>
-
-            </div>
-
-            `
-
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       LEMBUR JAM
-    --------------------------------------------- */
-
-    if(
-
-        toNumber(
-
-            item.overtimeHours
-
-        ) > 0
-
-    ){
-
-        details.push(
-
-            `
-
-            <div class="transaction-detail">
-
-                <span>Lembur Jam</span>
-
-                <strong>
-
-                    ${item.overtimeHours} jam
-
-                </strong>
-
-            </div>
-
-            `
-
-        );
-
-    }
-
-
-    return `
-
-        <div
-
-            class="transaction-item status-${status}"
-
-        >
-
-
-            <div
-
-                class="transaction-header"
-
-            >
-
-
-                <div
-
-                    class="transaction-title"
-
-                >
-
-                    <span
-
-                        class="transaction-icon"
-
-                    >
-
-                        ${icon}
-
-                    </span>
-
-
-                    <strong>
-
-                        ${statusLabel}
-
-                    </strong>
-
-                </div>
-
-
-                <small>
-
-                    ${date}
-
-                </small>
-
-
-            </div>
-
-
-            ${
-
-                details.length
-
-                ?
-
-                `
-
-                <div
-
-                    class="transaction-details"
-
-                >
-
-                    ${
-
-                        details.join("")
-
-                    }
-
-                </div>
-
-                `
-
-                :
-
-                ""
-
-            }
-
-
-        </div>
-
-    `;
-
-}
-
-
-/* =====================================================
-   STATUS ICON
-===================================================== */
-
-function getStatusIcon(
-
-    status
-
-){
-
-    switch(
-
-        status
-
-    ){
-
-        case "masuk":
-
-            return "🟢";
-
-
-        case "lembur":
-
-            return "🔵";
-
-
-        case "cuti":
-
-            return "🏖️";
-
-
-        case "sakit":
-
-            return "🤒";
-
-
-        case "libur":
-
-            return "📅";
-
-
-        case "absen":
-
-            return "❌";
-
-
-        default:
-
-            return "📌";
-
-    }
-
-}
-
-
-/* =====================================================
-   STATUS LABEL
-===================================================== */
-
-function getStatusLabel(
-
-    status
-
-){
-
-    switch(
-
-        status
-
-    ){
-
-        case "masuk":
-
-            return "Masuk";
-
-
-        case "lembur":
-
-            return "Lembur";
-
-
-        case "cuti":
-
-            return "Cuti";
-
-
-        case "sakit":
-
-            return "Sakit";
-
-
-        case "libur":
-
-            return "Libur";
-
-
-        case "absen":
-
-            return "Absen";
-
-
-        default:
-
-            return capitalize(
-
-                status
-
-            );
-
-    }
-
-}
 
 
 /* =====================================================
@@ -1274,7 +1716,6 @@ function renderPagination(){
     `
 
         <div class="statistics-pagination">
-
 
             <button
 
@@ -1338,7 +1779,6 @@ function renderPagination(){
 
             </button>
 
-
         </div>
 
     `;
@@ -1354,7 +1794,7 @@ document.addEventListener(
 
     "click",
 
-    event=>{
+    event => {
 
         const prev =
 
@@ -1473,67 +1913,6 @@ function formatPeriod(
 
 
 /* =====================================================
-   HELPER : NUMBER
-===================================================== */
-
-function toNumber(
-
-    value
-
-){
-
-    if(
-
-        value ===
-
-        null
-
-        ||
-
-        value ===
-
-        undefined
-
-        ||
-
-        value ===
-
-        ""
-
-    ){
-
-        return 0;
-
-    }
-
-
-    const number =
-
-        Number(
-
-            value
-
-        );
-
-
-    return Number.isFinite(
-
-        number
-
-    )
-
-        ?
-
-        number
-
-        :
-
-        0;
-
-}
-
-
-/* =====================================================
    HELPER : CAPITALIZE
 ===================================================== */
 
@@ -1568,4 +1947,4 @@ function capitalize(
 
     );
 
-       }
+}
