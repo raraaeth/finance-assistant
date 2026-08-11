@@ -748,61 +748,6 @@ function renderAttendance(){
     `;
 
 
-    /* =============================================
-       DEBUG
-    ============================================= */
-
-    console.log(
-
-        "HOME ATTENDANCE:",
-
-        {
-
-            period :
-
-                `${
-
-                    currentYear
-
-                }-${
-
-                    String(
-
-                        currentMonth + 1
-
-                    )
-
-                    .padStart(
-
-                        2,
-
-                        "0"
-
-                    )
-
-                }`,
-
-            totalData :
-
-                currentMonthAttendance.length,
-
-            masuk :
-
-                summary.masuk,
-
-            telat :
-
-                summary.telat,
-
-            lembur :
-
-                summary.lembur
-
-        }
-
-    );
-
-}
 
 
 /* =====================================================
