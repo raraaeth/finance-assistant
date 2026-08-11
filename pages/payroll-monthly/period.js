@@ -58,6 +58,25 @@ Period.init = function(
 
     processPeriod();
 
+
+    /* =============================================
+       DEBUG PERIOD
+    ============================================= */
+
+    console.log(
+
+        "========== PERIOD =========="
+
+    );
+
+    console.log(
+
+        "PERIOD DATA:",
+
+        Period.data
+
+    );
+
 };
 
 
