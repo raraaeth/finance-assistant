@@ -135,21 +135,6 @@ Statistics.init = function(){
 
     Statistics.renderTransaction();
 
-
-    console.log(
-
-        "========== STATISTICS =========="
-
-    );
-
-    console.log(
-
-        "STATISTICS DATA:",
-
-        Statistics.data
-
-    );
-
 };
 
 
