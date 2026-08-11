@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Attendance
    File        : attendance.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Attendance Processing Engine
@@ -12,9 +12,11 @@
    - State
    - Init
    - Normalize
+   - Process Attendance
    - Summary
    - Helper
 ===================================================== */
+
 
 /* =====================================================
    IMPORT
@@ -43,13 +45,25 @@ export const Attendance = {
 
         masuk : 0,
 
+        ontime : 0,
+
+        telat : 0,
+
+        lateMinutes : 0,
+
+        izinTelatHours : 0,
+
+        izinPulangHours : 0,
+
         cuti : 0,
 
         sakit : 0,
 
-        liburNasional : 0,
+        libur : 0,
 
         lembur : 0,
+
+        lemburHours : 0,
 
         absen : 0
 
@@ -70,13 +84,13 @@ Attendance.init = function(
 
     Attendance.raw =
 
-    raw ?? [];
+        raw ?? [];
 
-normalize();
+    normalize();
 
-processAttendanceStatus();
+    processAttendance();
 
-processSummary();
+    processSummary();
 
 };
 
@@ -103,52 +117,153 @@ function normalize(){
 
                     );
 
-               return {
 
-    date :
-        item.date ?? "",
+                const status =
 
-    dateObject :
-        date,
+                    normalizeStatus(
 
-    status :
-        normalizeStatus(
-            item.status
-        ),
+                        item.status
 
-    checkin :
-        item.checkin ?? "",
+                    );
 
-    pulang :
-        item.pulang ?? "",
 
-    month :
-        item.Month ?? "",
+                const lateMinutes =
 
-    year :
-        Number(
-            item.Year || 0
-        ),
+                    toNumber(
 
-    shift :
-        null,
+                        item.telat
 
-    attendanceStatus :
-        null,
+                    );
 
-    lateMinutes :
-        0,
 
-    earlyLeaveMinutes :
-    0,
+                const izinTelatHours =
 
-earlyLeaveHours :
-    0,
+                    toNumber(
 
-earlyLeaveRule :
-    null              
+                        item.izin_telat
 
-};
+                    );
+
+
+                const izinPulangHours =
+
+                    toNumber(
+
+                        item.izin_pulang
+
+                    );
+
+
+                const overtimeHours =
+
+                    toNumber(
+
+                        item.lembur_jam
+
+                    );
+
+
+                return {
+
+                    /* ---------------------------------
+                       BASIC
+                    --------------------------------- */
+
+                    id :
+
+                        item.id ?? "",
+
+                    date :
+
+                        item.date ?? "",
+
+                    dateObject :
+
+                        date,
+
+                    status :
+
+
+                        status,
+
+
+                    shift :
+
+                        item.shift ?? "",
+
+
+                    month :
+
+                        item.Month ?? "",
+
+
+                    year :
+
+                        Number(
+
+                            item.Year || 0
+
+                        ),
+
+
+                    /* ---------------------------------
+                       INPUT ATTENDANCE
+                    --------------------------------- */
+
+                    lateMinutes :
+
+                        lateMinutes,
+
+
+                    izinTelatHours :
+
+                        izinTelatHours,
+
+
+                    izinPulangHours :
+
+                        izinPulangHours,
+
+
+                    overtimeHours :
+
+                        overtimeHours,
+
+
+                    /* ---------------------------------
+                       PROCESSED ATTENDANCE
+                    --------------------------------- */
+
+                    attendanceStatus :
+
+                        null,
+
+
+                    overtimeDaily :
+
+                        0,
+
+
+                    lateRule :
+
+                        null,
+
+
+                    izinTelatRule :
+
+                        null,
+
+
+                    izinPulangRule :
+
+                        null,
+
+
+                    lemburRule :
+
+                        null
+
+                };
 
             }
 
@@ -180,118 +295,72 @@ earlyLeaveRule :
 
 }
 
+
 /* =====================================================
-   ATTENDANCE STATUS
+   PROCESS ATTENDANCE
 ===================================================== */
 
-function processAttendanceStatus(){
+function processAttendance(){
 
     Attendance.data.forEach(
 
         item => {
 
-            if(
-
-                item.status !== "masuk"
-
-            ){
-
-                return;
-
-            }
-
-
-            const shift =
-
-    findShift(
-
-        item
-
-    );
-
+            /* -----------------------------------------
+               STATUS MASUK
+            ----------------------------------------- */
 
             if(
 
-                !shift
+                item.status ===
+
+                "masuk"
 
             ){
 
-                return;
+                processMasuk(
 
-            }
-
-
-            item.shift =
-
-                shift.nama;
-
-
-            const result =
-
-                calculateLate(
-
-                    item,
-
-                    shift
+                    item
 
                 );
 
+                return;
 
-            item.attendanceStatus =
-
-                result.status;
-
-
-            item.lateMinutes =
-
-                result.lateMinutes;
-
-           const earlyLeave =
-
-    calculateEarlyLeave(
-
-        item,
-
-        shift
-
-    );
+            }
 
 
-item.earlyLeaveMinutes =
+            /* -----------------------------------------
+               STATUS LEMBUR
+            ----------------------------------------- */
 
-    earlyLeave.minutes;
+            if(
+
+                item.status ===
+
+                "lembur"
+
+            ){
+
+                processLembur(
+
+                    item
+
+                );
+
+                return;
+
+            }
 
 
-item.earlyLeaveHours =
+            /* -----------------------------------------
+               STATUS LAIN
+            ----------------------------------------- */
 
-    earlyLeave.hours;
+            processOtherStatus(
 
+                item
 
-item.earlyLeaveRule =
-
-    earlyLeave.rule;
-
-console.log(
-
-    "EARLY LEAVE:",
-
-    item.date,
-
-    "| Pulang:", item.pulang,
-
-    "| Shift:", shift.nama,
-
-    "| Pulang Shift:", shift.nilai_end,
-
-    "| Izin:", earlyLeave.minutes,
-
-    "menit",
-
-    "| Jam:", earlyLeave.hours,
-
-    "| Rule:", earlyLeave.rule
-
-);           
+            );
 
         }
 
@@ -299,455 +368,246 @@ console.log(
 
 }
 
+
 /* =====================================================
-   FIND SHIFT
+   PROCESS MASUK
 ===================================================== */
 
-function findShift(
+function processMasuk(
 
     item
 
 ){
 
-    const rules =
+    /*
+       Tidak ada check-in,
+       check-out atau shift calculation.
 
-        Rules.data.masuk ?? [];
-
-
-    const shifts =
-
-        rules.filter(
-
-            rule =>
-
-                rule.nama?.startsWith(
-
-                    "masuk_shift"
-
-                )
-
-        );
+       Semua nilai sudah diberikan
+       langsung oleh Attendance Sheet.
+    */
 
 
-    const checkinMinutes =
-
-        timeToMinutes(
-
-            item.checkin
-
-        );
-
+    /* ---------------------------------------------
+       ATTENDANCE STATUS
+    --------------------------------------------- */
 
     if(
 
-        checkinMinutes === null
+        item.lateMinutes >
+
+        0
 
     ){
 
-        return null;
+        item.attendanceStatus =
+
+            "telat";
+
+    }
+
+    else {
+
+        item.attendanceStatus =
+
+            "ontime";
 
     }
 
 
-    let bestShift =
+    /* ---------------------------------------------
+       RULE TELAT
+    --------------------------------------------- */
 
-        null;
+    item.lateRule =
 
+        findLateRule(
 
-    let smallestDistance =
+            item.lateMinutes
 
-        Infinity;
+        );
 
 
-    shifts.forEach(
+    /* ---------------------------------------------
+       RULE IZIN TELAT
+    --------------------------------------------- */
 
-        shift => {
+    item.izinTelatRule =
 
-            const start =
+        findIzinRule(
 
-                timeToMinutes(
+            "izin_telat"
 
-                    shift.nilai_start
+        );
 
-                );
 
+    /* ---------------------------------------------
+       RULE IZIN PULANG
+    --------------------------------------------- */
 
-            const end =
+    item.izinPulangRule =
 
-                timeToMinutes(
+        findIzinRule(
 
-                    shift.nilai_end
+            "izin_pulang"
 
-                );
+        );
 
 
-            if(
+    /* ---------------------------------------------
+       RULE LEMBUR JAM
+    --------------------------------------------- */
 
-                start === null ||
+    if(
 
-                end === null
+        item.overtimeHours >
 
-            ){
+        0
 
-                return;
+    ){
 
-            }
+        item.lemburRule =
 
+            findOvertimeRule();
 
-            let distance =
-
-                Math.abs(
-
-                    checkinMinutes -
-
-                    start
-
-                );
-
-
-            /*
-               Shift melewati tengah malam.
-
-               Contoh:
-
-               Shift 3
-               22:00 - 06:00
-
-               Check-in:
-               21:40
-
-               Tetap dianggap dekat
-               dengan jam mulai 22:00.
-            */
-
-            if(
-
-                start > end
-
-            ){
-
-                const distanceFromPreviousDay =
-
-                    Math.abs(
-
-                        checkinMinutes +
-
-                        1440 -
-
-                        start
-
-                    );
-
-
-                const distanceFromNextDay =
-
-                    Math.abs(
-
-                        checkinMinutes -
-
-                        start +
-
-                        1440
-
-                    );
-
-
-                distance =
-
-                    Math.min(
-
-                        distance,
-
-                        distanceFromPreviousDay,
-
-                        distanceFromNextDay
-
-                    );
-
-            }
-
-
-            if(
-
-                distance <
-
-                smallestDistance
-
-            ){
-
-                smallestDistance =
-
-                    distance;
-
-
-                bestShift =
-
-                    shift;
-
-            }
-
-        }
-
-    );
-
-
-    return bestShift;
+    }
 
 }
 
 
 /* =====================================================
-   TIME TO MINUTES
+   PROCESS LEMBUR
 ===================================================== */
 
-function timeToMinutes(
+function processLembur(
 
-    value
+    item
 
 ){
 
+    /*
+       Status lembur berarti:
+
+       1 hari lembur harian.
+
+       Tidak peduli apakah:
+
+       - Sabtu
+       - Minggu
+       - Libur nasional
+
+       Status Attendance sudah
+       menjadi sumber kebenaran.
+    */
+
+    item.overtimeDaily =
+
+        1;
+
+
+    /*
+       Lembur tetap dapat mempunyai
+       tambahan lembur per jam.
+    */
+
     if(
 
-        !value
+        item.overtimeHours >
+
+        0
 
     ){
 
-        return null;
+        item.lemburRule =
+
+            findOvertimeRule();
 
     }
 
 
-    const parts =
-
-        String(
-
-            value
-
-        )
-
-        .split(".")
-
-        .map(Number);
-
+    /*
+       Lembur tetap dapat mempunyai
+       izin telat.
+    */
 
     if(
 
-        parts.length !== 3 ||
+        item.izinTelatHours >
 
-        parts.some(
-
-            Number.isNaN
-
-        )
+        0
 
     ){
 
-        return null;
+        item.izinTelatRule =
+
+            findIzinRule(
+
+                "izin_telat"
+
+            );
 
     }
 
 
-    const [
+    item.attendanceStatus =
 
-        hour,
+        "lembur";
 
-        minute,
+}
 
-        second
-
-    ] = parts;
-
-
-    if(
-
-        hour < 0 ||
-
-        hour > 23 ||
-
-        minute < 0 ||
-
-        minute > 59 ||
-
-        second < 0 ||
-
-        second > 59
-
-    ){
-
-        return null;
-
-    }
-
-
-    return (
-
-        hour * 60
-
-    )
-
-    +
-
-    minute
-
-    +
-
-    (
-
-        second / 60
-
-    );
-
-       }
 
 /* =====================================================
-   CALCULATE LATE
+   PROCESS OTHER STATUS
 ===================================================== */
 
-function calculateLate(
+function processOtherStatus(
 
-    item,
-
-    shift
+    item
 
 ){
 
-    /* =============================================
-       CHECKIN
-    ============================================= */
-
-    const checkinMinutes =
-
-        timeToMinutes(
-
-            item.checkin
-
-        );
-
-
-    const shiftStartMinutes =
-
-        timeToMinutes(
-
-            shift.nilai_start
-
-        );
-
-
     /*
-       Jika waktu tidak valid,
-       jangan dianggap telat.
+       Cuti, sakit, libur,
+       dan absen tidak membutuhkan
+       proses attendance tambahan.
     */
+
+    item.attendanceStatus =
+
+        item.status;
+
+}
+
+
+/* =====================================================
+   FIND LATE RULE
+===================================================== */
+
+function findLateRule(
+
+    minutes
+
+){
 
     if(
 
-        checkinMinutes === null ||
-
-        shiftStartMinutes === null
+        minutes <= 0
 
     ){
 
-        return {
-
-            status :
-
-                "ontime",
-
-            lateMinutes :
-
-                0,
-
-            lateHours :
-
-                0,
-
-            lateRule :
-
-                null
-
-        };
+        return null;
 
     }
 
 
-    /* =============================================
-       HITUNG KETERLAMBATAN
-    ============================================= */
-
-    let lateMinutes =
-
-        checkinMinutes -
-
-        shiftStartMinutes;
-
-
-    /*
-       Datang sebelum / tepat jam shift
-       = ON TIME
-    */
-
-    if(
-
-        lateMinutes <= 0
-
-    ){
-
-        return {
-
-            status :
-
-                "ontime",
-
-            lateMinutes :
-
-                0,
-
-            lateHours :
-
-                0,
-
-            lateRule :
-
-                null
-
-        };
-
-    }
-
-
-    /*
-       Detik dibulatkan ke atas.
-
-       Contoh:
-
-       06:20:01
-       menjadi 21 menit
-    */
-
-    lateMinutes =
-
-        Math.ceil(
-
-            lateMinutes
-
-        );
-
-
-    /* =============================================
-       AMBIL RULE TELAT
-    ============================================= */
-
-    const telatRules =
+    const rules =
 
         Rules.data.telat ?? [];
 
 
-    /* =============================================
-       RULE MENIT
-    ============================================= */
-
     const minuteRules =
 
-        telatRules.filter(
+        rules.filter(
 
             rule =>
 
@@ -759,11 +619,11 @@ function calculateLate(
 
 
     /*
-       Cari rule menit yang cocok
-       berdasarkan start dan end.
+       Cari rule yang mencakup
+       jumlah menit keterlambatan.
     */
 
-    const minuteRule =
+    const matchedRule =
 
         minuteRules.find(
 
@@ -812,7 +672,7 @@ function calculateLate(
 
                 return (
 
-                    lateMinutes >=
+                    minutes >=
 
                     start
 
@@ -822,7 +682,7 @@ function calculateLate(
 
                 (
 
-                    lateMinutes <=
+                    minutes <=
 
                     end
 
@@ -833,515 +693,96 @@ function calculateLate(
         );
 
 
-    /*
-       Kalau cocok dengan rule menit,
-       selesai di sini.
-    */
-
-    if(
-
-        minuteRule
-
-    ){
-
-        return {
-
-            status :
-
-                "telat",
-
-            lateMinutes :
-
-                lateMinutes,
-
-            lateHours :
-
-                0,
-
-            lateRule :
-
-                minuteRule.nama
-
-        };
-
-    }
-
-
-    /* =============================================
-       RULE JAM
-    ============================================= */
-
-    const hourRule =
-
-        telatRules.find(
-
-            rule =>
-
-                rule.waktu ===
-
-                "jam"
-
-        );
-
-
-    /*
-       Jika tidak ada rule jam,
-       tetap tandai sebagai telat.
-    */
-
-    if(
-
-        !hourRule
-
-    ){
-
-        return {
-
-            status :
-
-                "telat",
-
-            lateMinutes :
-
-                lateMinutes,
-
-            lateHours :
-
-                0,
-
-            lateRule :
-
-                null
-
-        };
-
-    }
-
-
-    /* =============================================
-       BATAS RULE MENIT
-    ============================================= */
-
-    const minuteEnds =
-
-        minuteRules
-
-        .map(
-
-            rule =>
-
-                Number(
-
-                    rule.nilai_end
-
-                )
-
-        )
-
-        .filter(
-
-            value =>
-
-                !Number.isNaN(
-
-                    value
-
-                )
-
-        );
-
-
-    const minuteLimit =
-
-        minuteEnds.length
+    return matchedRule
 
         ?
 
-        Math.max(
-
-            ...minuteEnds
-
-        )
+        matchedRule.nama
 
         :
 
-        0;
-
-
-    /* =============================================
-       HITUNG JAM
-    ============================================= */
-
-    const minutesAfterLimit =
-
-        lateMinutes -
-
-        minuteLimit;
-
-
-    /*
-       Setiap 60 menit setelah
-       batas rule menit = 1 jam.
-
-       Contoh jika batas = 60:
-
-       61–119  → 1 jam
-       120–179 → 2 jam
-       180–239 → 3 jam
-    */
-
-    const lateHours =
-
-        Math.ceil(
-
-            minutesAfterLimit /
-
-            60
-
-        );
-
-
-    return {
-
-        status :
-
-            "telat",
-
-        lateMinutes :
-
-            lateMinutes,
-
-        lateHours :
-
-            lateHours,
-
-        lateRule :
-
-            hourRule.nama
-
-    };
+        null;
 
 }
 
+
 /* =====================================================
-   CALCULATE EARLY LEAVE
+   FIND IZIN RULE
 ===================================================== */
 
-function calculateEarlyLeave(
+function findIzinRule(
 
-    item,
-
-    shift
+    name
 
 ){
-
-    const shiftStart =
-
-        timeToMinutes(
-
-            shift.nilai_start
-
-        );
-
-
-    const shiftEnd =
-
-        timeToMinutes(
-
-            shift.nilai_end
-
-        );
-
-
-    const actualLeave =
-
-        timeToMinutes(
-
-            item.pulang
-
-        );
-
-
-    if(
-
-        shiftStart === null ||
-
-        shiftEnd === null ||
-
-        actualLeave === null
-
-    ){
-
-        return {
-
-            minutes : 0,
-
-            hours : 0,
-
-            rule : null
-
-        };
-
-    }
-
-
-    /*
-       Shift melewati tengah malam.
-
-       Contoh:
-
-       22.00 - 06.00
-    */
-
-    const overnight =
-
-        shiftStart >
-
-        shiftEnd;
-
-
-    let earlyMinutes;
-
-
-    if(
-
-        overnight
-
-    ){
-
-        /*
-           Pulang setelah tengah malam.
-
-           Contoh:
-
-           Shift 22.00 - 06.00
-           Pulang 04.00
-
-           06.00 - 04.00
-           = 120 menit
-        */
-
-        earlyMinutes =
-
-            shiftEnd -
-
-            actualLeave;
-
-
-        /*
-           Jika actualLeave ternyata
-           masih berada di malam hari,
-           sesuaikan ke hari berikutnya.
-        */
-
-        if(
-
-            actualLeave >
-
-            shiftEnd
-
-        ){
-
-            earlyMinutes +=
-
-                1440;
-
-        }
-
-    }
-
-    else {
-
-        /*
-           Shift normal.
-
-           Contoh:
-
-           06.00 - 15.00
-           Pulang 14.00
-
-           = 60 menit
-        */
-
-        earlyMinutes =
-
-            shiftEnd -
-
-            actualLeave;
-
-
-        /*
-           Pulang tepat waktu
-           atau lebih lambat.
-
-           Tidak dianggap izin pulang.
-        */
-
-        if(
-
-            earlyMinutes <= 0
-
-        ){
-
-            return {
-
-                minutes : 0,
-
-                hours : 0,
-
-                rule : null
-
-            };
-
-        }
-
-    }
-
-
-    /*
-       Pastikan tidak menghasilkan
-       nilai negatif.
-    */
-
-    if(
-
-        earlyMinutes <= 0
-
-    ){
-
-        return {
-
-            minutes : 0,
-
-            hours : 0,
-
-            rule : null
-
-        };
-
-    }
-
-
-    /*
-       Cari rule izin pulang
-    */
 
     const rules =
 
         Rules.data.izin ?? [];
 
 
-    const applicableRules =
+    const rule =
 
-        rules.filter(
+        rules.find(
 
-            rule =>
+            item =>
 
-                rule.kondisi ===
+                item.nama ===
 
-                "pulang"
+                name
 
         );
 
 
-    let matchedRule =
+    return rule
+
+        ?
+
+        rule.nama
+
+        :
 
         null;
 
-
-    applicableRules.forEach(
-
-        rule => {
-
-            if(
-
-                rule.waktu ===
-
-                "menit"
-
-            ){
-
-                const start =
-
-                    Number(
-
-                        rule.nilai_start
-
-                    );
+}
 
 
-                const end =
+/* =====================================================
+   FIND OVERTIME RULE
+===================================================== */
 
-                    Number(
+function findOvertimeRule(){
 
-                        rule.nilai_end
+    const rules =
 
-                    );
-
-
-                if(
-
-                    earlyMinutes >= start &&
-
-                    earlyMinutes <= end
-
-                ){
-
-                    matchedRule =
-
-                        rule;
-
-                }
-
-            }
-
-        }
-
-    );
+        Rules.data.lembur ?? [];
 
 
-    /*
-       Hitung jam izin pulang.
-    */
+    const rule =
 
-    const hours =
+        rules.find(
 
-        Math.floor(
+            item =>
 
-            earlyMinutes /
+                item.nama ===
 
-            60
+                "lembur_jam"
 
         );
 
 
-    return {
+    return rule
 
-        minutes :
+        ?
 
-            earlyMinutes,
+        rule.nama
 
-        hours :
+        :
 
-            hours,
-
-        rule :
-
-            matchedRule
-
-            ?
-
-            matchedRule.nama
-
-            :
-
-            null
-
-    };
+        null;
 
 }
-    
-                    
+
 
 /* =====================================================
    SUMMARY
@@ -1355,13 +796,25 @@ function processSummary(){
 
         masuk : 0,
 
+        ontime : 0,
+
+        telat : 0,
+
+        lateMinutes : 0,
+
+        izinTelatHours : 0,
+
+        izinPulangHours : 0,
+
         cuti : 0,
 
         sakit : 0,
 
-        liburNasional : 0,
+        libur : 0,
 
         lembur : 0,
+
+        lemburHours : 0,
 
         absen : 0
 
@@ -1374,6 +827,10 @@ function processSummary(){
 
             summary.total++;
 
+
+            /* -------------------------------------
+               STATUS
+            ------------------------------------- */
 
             switch(
 
@@ -1402,9 +859,9 @@ function processSummary(){
                     break;
 
 
-                case "libur_nasional":
+                case "libur":
 
-                    summary.liburNasional++;
+                    summary.libur++;
 
                     break;
 
@@ -1424,6 +881,72 @@ function processSummary(){
 
             }
 
+
+            /* -------------------------------------
+               ONTIME / TELAT
+            ------------------------------------- */
+
+            if(
+
+                item.attendanceStatus ===
+
+                "ontime"
+
+            ){
+
+                summary.ontime++;
+
+            }
+
+
+            if(
+
+                item.attendanceStatus ===
+
+                "telat"
+
+            ){
+
+                summary.telat++;
+
+            }
+
+
+            /* -------------------------------------
+               TELAT MENIT
+            ------------------------------------- */
+
+            summary.lateMinutes +=
+
+                item.lateMinutes;
+
+
+            /* -------------------------------------
+               IZIN TELAT
+            ------------------------------------- */
+
+            summary.izinTelatHours +=
+
+                item.izinTelatHours;
+
+
+            /* -------------------------------------
+               IZIN PULANG
+            ------------------------------------- */
+
+            summary.izinPulangHours +=
+
+                item.izinPulangHours;
+
+
+            /* -------------------------------------
+               LEMBUR JAM
+            ------------------------------------- */
+
+            summary.lemburHours +=
+
+                item.overtimeHours;
+
         }
 
     );
@@ -1437,7 +960,68 @@ function processSummary(){
 
 
 /* =====================================================
-   HELPER
+   HELPER : NUMBER
+===================================================== */
+
+function toNumber(
+
+    value
+
+){
+
+    if(
+
+        value ===
+
+        null
+
+        ||
+
+        value ===
+
+        undefined
+
+        ||
+
+        value ===
+
+        ""
+
+    ){
+
+        return 0;
+
+    }
+
+
+    const number =
+
+        Number(
+
+            value
+
+        );
+
+
+    return Number.isFinite(
+
+        number
+
+    )
+
+        ?
+
+        number
+
+        :
+
+        0;
+
+}
+
+
+/* =====================================================
+   HELPER : DATE
 ===================================================== */
 
 function parseDate(
@@ -1467,7 +1051,11 @@ function parseDate(
 
     ] =
 
-        value
+        String(
+
+            value
+
+        )
 
         .split("-")
 
@@ -1489,21 +1077,41 @@ function parseDate(
     }
 
 
-    return new Date(
+    const date =
 
-        year,
+        new Date(
 
-        month - 1,
+            year,
 
-        day
+            month - 1,
 
-    );
+            day
+
+        );
+
+
+    if(
+
+        Number.isNaN(
+
+            date.getTime()
+
+        )
+
+    ){
+
+        return null;
+
+    }
+
+
+    return date;
 
 }
 
 
 /* =====================================================
-   NORMALIZE STATUS
+   HELPER : STATUS
 ===================================================== */
 
 function normalizeStatus(
