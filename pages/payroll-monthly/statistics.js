@@ -618,15 +618,14 @@ Statistics.renderSummary = function(){
        GET INSIGHT
     ============================================= */
 
-    const motivation =
+    const shortMotivation =
 
-        Insight.getMotivation();
+    Insight.getShortMotivation();
 
 
-    const periodInsight =
+    const longMotivation =
 
-        Insight.getPeriodInsight();
-
+    Insight.getMotivation();
 
     /* =============================================
        BUILD SUMMARY
@@ -1055,20 +1054,20 @@ Statistics.renderSummary = function(){
 
         <div class="statistics-insight-content">
 
-            <div class="statistics-motivation-text">
+    <div class="statistics-short-motivation">
 
-                ${motivation}
+        ${shortMotivation.text}
 
-            </div>
+    </div>
 
 
-            <div class="statistics-period-insight">
+    <div class="statistics-long-motivation">
 
-                ${periodInsight.text}
+        ${longMotivation}
 
-            </div>
+    </div>
 
-        </div>
+</div>
 
 
         <div class="statistics-summary-grid">
