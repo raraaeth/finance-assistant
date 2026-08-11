@@ -13,6 +13,7 @@
    - State
    - Init
    - Filter
+   - Motivation
    - Summary
    - Insight
    - Chart
@@ -35,6 +36,13 @@ import {
 
 import {
 
+    Insight
+
+} from "./insight.js";
+
+
+import {
+
     Filter
 
 } from "../../js/filter.js";
@@ -45,13 +53,6 @@ import {
     Chart
 
 } from "../../js/chart.js";
-
-
-import {
-
-    Insight
-
-} from "./insight.js";
 
 
 import {
@@ -77,37 +78,12 @@ export const Statistics = {
 
     },
 
+
     data : [],
 
-    summary : {
-
-        masuk : 0,
-
-        ontime : 0,
-
-        telat : 0,
-
-        lateMinutes : 0,
-
-        izinTelatHours : 0,
-
-        izinPulangHours : 0,
-
-        cuti : 0,
-
-        sakit : 0,
-
-        libur : 0,
-
-        lembur : 0,
-
-        lemburHours : 0,
-
-        absen : 0
-
-    },
 
     page : 1,
+
 
     perPage : 5
 
@@ -120,9 +96,32 @@ export const Statistics = {
 
 Statistics.init = function(){
 
+    /* =============================================
+       INSIGHT
+    ============================================= */
+
+    Insight.init();
+
+
+    /* =============================================
+       FILTER
+    ============================================= */
+
     initializeFilter();
 
+
+    /* =============================================
+       APPLY DATA
+    ============================================= */
+
     Statistics.applyFilter();
+
+
+    /* =============================================
+       RENDER
+    ============================================= */
+
+    Statistics.renderMotivation();
 
     Statistics.renderSummary();
 
@@ -131,6 +130,29 @@ Statistics.init = function(){
     Statistics.renderChart();
 
     Statistics.renderTransaction();
+
+
+    console.log(
+
+        "========== STATISTICS =========="
+
+    );
+
+    console.log(
+
+        "STATISTICS FILTER:",
+
+        Statistics.filter
+
+    );
+
+    console.log(
+
+        "STATISTICS DATA:",
+
+        Statistics.data
+
+    );
 
 };
 
@@ -145,6 +167,11 @@ function initializeFilter(){
 
         new Date();
 
+
+    /* =============================================
+       DEFAULT :
+       BULAN BERJALAN
+    ============================================= */
 
     Statistics.filter.start =
 
@@ -169,6 +196,10 @@ function initializeFilter(){
         null;
 
 
+    /* =============================================
+       RENDER FILTER
+    ============================================= */
+
     Filter.render({
 
         container :
@@ -187,16 +218,20 @@ function initializeFilter(){
 
         range :
 
-            null
+            Statistics.filter.range
 
     });
 
+
+    /* =============================================
+       REGISTER FILTER
+    ============================================= */
 
     Filter.register({
 
         onPeriod :
 
-            value => {
+            value=>{
 
                 Statistics.applyPeriod(
 
@@ -209,7 +244,7 @@ function initializeFilter(){
 
         onRange :
 
-            value => {
+            value=>{
 
                 handleRange(
 
@@ -257,8 +292,16 @@ Statistics.applyPeriod = function(
         null;
 
 
+    /* =============================================
+       RESET PAGE
+    ============================================= */
+
     Statistics.page = 1;
 
+
+    /* =============================================
+       UPDATE FILTER UI
+    ============================================= */
 
     Filter.setRange(
 
@@ -280,7 +323,22 @@ Statistics.applyPeriod = function(
     );
 
 
-    refresh();
+    /* =============================================
+       REFRESH DATA
+    ============================================= */
+
+    Statistics.applyFilter();
+
+
+    /* =============================================
+       REFRESH UI
+    ============================================= */
+
+    Statistics.renderSummary();
+
+    Statistics.renderChart();
+
+    Statistics.renderTransaction();
 
 
     console.log(
@@ -307,15 +365,50 @@ Statistics.applyFilter = function(){
         Process.attendance?.data ?? [];
 
 
+    const start =
+
+        Statistics.filter.start;
+
+
+    const end =
+
+        Statistics.filter.end;
+
+
     Statistics.data =
 
         attendance.filter(
 
-            item => {
+            item=>{
+
+                const date =
+
+                    item.dateObject
+
+                    ?
+
+                    item.dateObject
+
+                    :
+
+                    new Date(
+
+                        item.date
+
+                    );
+
 
                 if(
 
-                    !item.dateObject
+                    !date
+
+                    ||
+
+                    Number.isNaN(
+
+                        date.getTime()
+
+                    )
 
                 ){
 
@@ -324,22 +417,13 @@ Statistics.applyFilter = function(){
                 }
 
 
-                const date =
-
-                    item.dateObject;
-
-
                 return (
 
-                    date >=
-
-                    Statistics.filter.start
+                    date >= start
 
                     &&
 
-                    date <=
-
-                    Statistics.filter.end
+                    date <= end
 
                 );
 
@@ -347,8 +431,68 @@ Statistics.applyFilter = function(){
 
         );
 
+};
 
-    processSummary();
+
+/* =====================================================
+   MOTIVATION
+===================================================== */
+
+Statistics.renderMotivation = function(){
+
+    const section =
+
+        document.getElementById(
+
+            "statistics-motivation"
+
+        );
+
+
+    const card =
+
+        document.getElementById(
+
+            "statistics-motivation-card"
+
+        );
+
+
+    if(
+
+        !section ||
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    card.innerHTML =
+
+    `
+
+        <div class="statistics-motivation-text">
+
+            ${
+
+                Insight.getMotivation()
+
+            }
+
+        </div>
+
+    `;
 
 };
 
@@ -357,7 +501,42 @@ Statistics.applyFilter = function(){
    SUMMARY
 ===================================================== */
 
-function processSummary(){
+Statistics.renderSummary = function(){
+
+    const section =
+
+        document.getElementById(
+
+            "statistics-summary"
+
+        );
+
+
+    const card =
+
+        document.getElementById(
+
+            "statistics-summary-card"
+
+        );
+
+
+    if(
+
+        !section ||
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       SUMMARY STATE
+    ============================================= */
 
     const summary = {
 
@@ -388,9 +567,13 @@ function processSummary(){
     };
 
 
+    /* =============================================
+       PROCESS DATA
+    ============================================= */
+
     Statistics.data.forEach(
 
-        item => {
+        item=>{
 
             switch(
 
@@ -442,6 +625,10 @@ function processSummary(){
             }
 
 
+            /* =====================================
+               ONTIME
+            ===================================== */
+
             if(
 
                 item.attendanceStatus ===
@@ -454,6 +641,10 @@ function processSummary(){
 
             }
 
+
+            /* =====================================
+               TELAT
+            ===================================== */
 
             if(
 
@@ -468,6 +659,10 @@ function processSummary(){
             }
 
 
+            /* =====================================
+               TELAT MENIT
+            ===================================== */
+
             summary.lateMinutes +=
 
                 Number(
@@ -476,6 +671,10 @@ function processSummary(){
 
                 );
 
+
+            /* =====================================
+               IZIN TELAT
+            ===================================== */
 
             summary.izinTelatHours +=
 
@@ -486,6 +685,10 @@ function processSummary(){
                 );
 
 
+            /* =====================================
+               IZIN PULANG
+            ===================================== */
+
             summary.izinPulangHours +=
 
                 Number(
@@ -494,6 +697,10 @@ function processSummary(){
 
                 );
 
+
+            /* =====================================
+               LEMBUR JAM
+            ===================================== */
 
             summary.lemburHours +=
 
@@ -508,24 +715,308 @@ function processSummary(){
     );
 
 
-    Statistics.summary =
+    /* =============================================
+       ITEM SUMMARY
+    ============================================= */
 
-        summary;
+    const items = [
 
-}
+        {
+
+            label :
+
+                "🟢 Masuk",
+
+            value :
+
+                `${summary.masuk} kali`,
+
+            show :
+
+                summary.masuk > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "✅ Ontime",
+
+            value :
+
+                `${summary.ontime} kali`,
+
+            show :
+
+                summary.ontime > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "🟠 Telat",
+
+            value :
+
+                `${summary.lateMinutes} menit`,
+
+            show :
+
+                summary.lateMinutes > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "📝 Izin Telat",
+
+            value :
+
+                `${summary.izinTelatHours} jam`,
+
+            show :
+
+                summary.izinTelatHours > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "🚪 Izin Pulang",
+
+            value :
+
+                `${summary.izinPulangHours} jam`,
+
+            show :
+
+                summary.izinPulangHours > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "🌸 Cuti",
+
+            value :
+
+                `${summary.cuti} kali`,
+
+            show :
+
+                summary.cuti > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "🔵 Sakit",
+
+            value :
+
+                `${summary.sakit} kali`,
+
+            show :
+
+                summary.sakit > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "🏖️ Libur",
+
+            value :
+
+                `${summary.libur} kali`,
+
+            show :
+
+                summary.libur > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "🔵 Lembur",
+
+            value :
+
+                `${summary.lembur} kali`,
+
+            show :
+
+                summary.lembur > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "⏰ Lembur Jam",
+
+            value :
+
+                `${summary.lemburHours} jam`,
+
+            show :
+
+                summary.lemburHours > 0
+
+        },
+
+
+        {
+
+            label :
+
+                "⚠️ Absen",
+
+            value :
+
+                `${summary.absen} kali`,
+
+            show :
+
+                summary.absen > 0
+
+        }
+
+    ];
+
+
+    /* =============================================
+       ONLY NON ZERO
+    ============================================= */
+
+    const visibleItems =
+
+        items.filter(
+
+            item =>
+
+                item.show
+
+        );
+
+
+    /* =============================================
+       SHOW SECTION
+    ============================================= */
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    /* =============================================
+       EMPTY
+    ============================================= */
+
+    if(
+
+        visibleItems.length === 0
+
+    ){
+
+        card.innerHTML =
+
+        `
+
+            <div class="attendance-empty">
+
+                Belum ada aktivitas
+                pada periode ini.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* =============================================
+       RENDER CARDS
+    ============================================= */
+
+    card.innerHTML =
+
+        visibleItems
+
+        .map(
+
+            item =>
+
+            `
+
+                <div
+                    class="statistics-summary-item"
+                >
+
+                    <span>
+
+                        ${item.label}
+
+                    </span>
+
+
+                    <strong>
+
+                        ${item.value}
+
+                    </strong>
+
+                </div>
+
+            `
+
+        )
+
+        .join("");
+
+};
 
 
 /* =====================================================
-   RENDER SUMMARY
+   INSIGHT
 ===================================================== */
 
-Statistics.renderSummary = function(){
+Statistics.renderInsight = function(){
 
     const section =
 
         document.getElementById(
 
-            "statistics-summary"
+            "statistics-insight"
 
         );
 
@@ -534,7 +1025,7 @@ Statistics.renderSummary = function(){
 
         document.getElementById(
 
-            "statistics-summary-card"
+            "statistics-insight-card"
 
         );
 
@@ -552,327 +1043,9 @@ Statistics.renderSummary = function(){
     }
 
 
-    const summary =
+    const insight =
 
-        Statistics.summary;
-
-
-    const items = [];
-
-
-    /*
-       Hanya tampilkan nilai
-       yang lebih dari 0.
-    */
-
-    if(
-
-        summary.masuk > 0
-
-    ){
-
-        items.push({
-
-            label : "Masuk",
-
-            value :
-
-                summary.masuk +
-
-                " kali"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.ontime > 0
-
-    ){
-
-        items.push({
-
-            label : "Ontime",
-
-            value :
-
-                summary.ontime +
-
-                " kali"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.telat > 0
-
-    ){
-
-        items.push({
-
-            label : "Telat",
-
-            value :
-
-                summary.lateMinutes +
-
-                " menit"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.izinTelatHours > 0
-
-    ){
-
-        items.push({
-
-            label : "Izin Telat",
-
-            value :
-
-                summary.izinTelatHours +
-
-                " jam"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.izinPulangHours > 0
-
-    ){
-
-        items.push({
-
-            label : "Izin Pulang",
-
-            value :
-
-                summary.izinPulangHours +
-
-                " jam"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.cuti > 0
-
-    ){
-
-        items.push({
-
-            label : "Cuti",
-
-            value :
-
-                summary.cuti +
-
-                " kali"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.sakit > 0
-
-    ){
-
-        items.push({
-
-            label : "Sakit",
-
-            value :
-
-                summary.sakit +
-
-                " kali"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.libur > 0
-
-    ){
-
-        items.push({
-
-            label : "Libur",
-
-            value :
-
-                summary.libur +
-
-                " kali"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.lembur > 0
-
-    ){
-
-        items.push({
-
-            label : "Lembur",
-
-            value :
-
-                summary.lembur +
-
-                " kali"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.lemburHours > 0
-
-    ){
-
-        items.push({
-
-            label : "Lembur Per Jam",
-
-            value :
-
-                summary.lemburHours +
-
-                " jam"
-
-        });
-
-    }
-
-
-    if(
-
-        summary.absen > 0
-
-    ){
-
-        items.push({
-
-            label : "Absen",
-
-            value :
-
-                summary.absen +
-
-                " kali"
-
-        });
-
-    }
-
-
-    /*
-       Tidak ada data.
-    */
-
-    if(
-
-        items.length === 0
-
-    ){
-
-        section.classList.remove(
-
-            "hidden"
-
-        );
-
-
-        card.innerHTML =
-
-        `
-
-            <div class="statistics-empty">
-
-                Belum ada aktivitas
-
-                pada periode ini.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    /*
-       Render summary.
-    */
-
-    card.innerHTML =
-
-        `
-
-        <div class="statistics-summary-grid">
-
-            ${
-
-                items.map(
-
-                    item => `
-
-                    <div class="statistics-summary-item">
-
-                        <span>
-
-                            ${item.label}
-
-                        </span>
-
-                        <strong>
-
-                            ${item.value}
-
-                        </strong>
-
-                    </div>
-
-                    `
-
-                ).join("")
-
-            }
-
-        </div>
-
-        `;
+        Insight.getPeriodInsight();
 
 
     section.classList.remove(
@@ -881,73 +1054,105 @@ Statistics.renderSummary = function(){
 
     );
 
-}
 
+    card.innerHTML =
 
-/* =====================================================
-   RENDER INSIGHT
-===================================================== */
+    `
 
-Statistics.renderInsight = function(){
+        <div class="statistics-insight-text">
 
-    Insight.init();
+            ${
 
+                insight.text
 
-    const motivation =
+            }
 
-        document.getElementById(
+        </div>
 
-            "statistics-motivation"
-
-        );
-
-
-    const periodInsight =
-
-        document.getElementById(
-
-            "statistics-period-insight"
-
-        );
-
-
-    if(
-
-        motivation
-
-    ){
-
-        motivation.textContent =
-
-            Insight.getMotivation();
-
-    }
-
-
-    if(
-
-        periodInsight
-
-    ){
-
-        periodInsight.textContent =
-
-            Insight.getPeriodInsight().text;
-
-    }
+    `;
 
 };
 
 
 /* =====================================================
-   RENDER CHART
+   CHART
 ===================================================== */
 
 Statistics.renderChart = function(){
 
-    const summary =
+    const summary = {
 
-        Statistics.summary;
+        masuk : 0,
+
+        cuti : 0,
+
+        sakit : 0,
+
+        lembur : 0,
+
+        liburNasional : 0,
+
+        absen : 0
+
+    };
+
+
+    Statistics.data.forEach(
+
+        item=>{
+
+            switch(
+
+                item.status
+
+            ){
+
+                case "masuk":
+
+                    summary.masuk++;
+
+                    break;
+
+
+                case "cuti":
+
+                    summary.cuti++;
+
+                    break;
+
+
+                case "sakit":
+
+                    summary.sakit++;
+
+                    break;
+
+
+                case "lembur":
+
+                    summary.lembur++;
+
+                    break;
+
+
+                case "libur_nasional":
+
+                    summary.liburNasional++;
+
+                    break;
+
+
+                case "absen":
+
+                    summary.absen++;
+
+                    break;
+
+            }
+
+        }
+
+    );
 
 
     Chart.renderBar({
@@ -966,7 +1171,7 @@ Statistics.renderChart = function(){
 
             "Lembur",
 
-            "Libur",
+            "Libur Nasional",
 
             "Absen"
 
@@ -990,7 +1195,7 @@ Statistics.renderChart = function(){
 
                     summary.lembur,
 
-                    summary.libur,
+                    summary.liburNasional,
 
                     summary.absen
 
@@ -1067,8 +1272,16 @@ function handleRange(
         value;
 
 
+    /* =============================================
+       RESET PAGE
+    ============================================= */
+
     Statistics.page = 1;
 
+
+    /* =============================================
+       UPDATE FILTER UI
+    ============================================= */
 
     Filter.setDate(
 
@@ -1099,7 +1312,22 @@ function handleRange(
     );
 
 
-    refresh();
+    /* =============================================
+       REFRESH DATA
+    ============================================= */
+
+    Statistics.applyFilter();
+
+
+    /* =============================================
+       REFRESH UI
+    ============================================= */
+
+    Statistics.renderSummary();
+
+    Statistics.renderChart();
+
+    Statistics.renderTransaction();
 
 
     console.log(
@@ -1114,26 +1342,7 @@ function handleRange(
 
 
 /* =====================================================
-   REFRESH
-===================================================== */
-
-function refresh(){
-
-    Statistics.applyFilter();
-
-    Statistics.renderSummary();
-
-    Statistics.renderInsight();
-
-    Statistics.renderChart();
-
-    Statistics.renderTransaction();
-
-}
-
-
-/* =====================================================
-   RENDER TRANSACTION
+   TRANSACTION
 ===================================================== */
 
 Statistics.renderTransaction = function(){
@@ -1161,6 +1370,37 @@ Statistics.renderTransaction = function(){
     list.innerHTML = "";
 
 
+    /* =============================================
+       SORT
+    ============================================= */
+
+    const sortedData =
+
+        Statistics.data
+
+        .slice()
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            ) =>
+
+                b.dateObject -
+
+                a.dateObject
+
+        );
+
+
+    /* =============================================
+       PAGINATION RANGE
+    ============================================= */
+
     const start =
 
         (
@@ -1181,25 +1421,11 @@ Statistics.renderTransaction = function(){
         Statistics.perPage;
 
 
-    Statistics.data
+    /* =============================================
+       RENDER
+    ============================================= */
 
-        .slice()
-
-        .sort(
-
-            (
-
-                a,
-
-                b
-
-            ) =>
-
-                b.dateObject -
-
-                a.dateObject
-
-        )
+    sortedData
 
         .slice(
 
@@ -1211,13 +1437,13 @@ Statistics.renderTransaction = function(){
 
         .forEach(
 
-            item => {
+            item=>{
 
                 const status =
 
                     item.status ??
 
-                    "-";
+                    "absen";
 
 
                 const date =
@@ -1227,78 +1453,111 @@ Statistics.renderTransaction = function(){
                     "-";
 
 
+                const shift =
+
+                    item.shift ??
+
+                    "-";
+
+
+                const checkin =
+
+                    item.checkin ??
+
+                    "-";
+
+
+                const pulang =
+
+                    item.pulang ??
+
+                    "-";
+
+
                 let detail = "";
 
 
+                /* =================================
+                   MASUK
+                ================================= */
+
                 if(
 
-                    status === "masuk"
+                    status ===
+
+                    "masuk"
 
                 ){
 
-                    detail = `
+                    detail +=
 
-                        <div class="transaction-detail">
+                    `
 
-                            <span>
+                        <span>
 
-                                Shift
-
-                            </span>
+                            Shift
 
                             <strong>
 
-                                ${
+                                ${capitalize(
 
-                                    item.shift ||
+                                    shift
 
-                                    "-"
-
-                                }
+                                )}
 
                             </strong>
 
-                        </div>
+                        </span>
+
+                    `;
 
 
-                        <div class="transaction-detail">
+                    if(
+
+                        item.attendanceStatus
+
+                    ){
+
+                        detail +=
+
+                        `
 
                             <span>
 
-                                Kehadiran
+                                Status
+
+                                <strong>
+
+                                    ${capitalize(
+
+                                        item.attendanceStatus
+
+                                    )}
+
+                                </strong>
 
                             </span>
 
-                            <strong>
+                        `;
 
-                                ${
-
-                                    item.attendanceStatus ||
-
-                                    "-"
-
-                                }
-
-                            </strong>
-
-                        </div>
+                    }
 
 
-                        ${
+                    if(
 
-                            item.lateMinutes > 0
+                        item.lateMinutes >
 
-                            ?
+                        0
 
-                            `
+                    ){
 
-                            <div class="transaction-detail">
+                        detail +=
 
-                                <span>
+                        `
 
-                                    Telat
+                            <span>
 
-                                </span>
+                                Telat
 
                                 <strong>
 
@@ -1312,32 +1571,28 @@ Statistics.renderTransaction = function(){
 
                                 </strong>
 
-                            </div>
+                            </span>
 
-                            `
+                        `;
 
-                            :
-
-                            ""
-
-                        }
+                    }
 
 
-                        ${
+                    if(
 
-                            item.izinTelatHours > 0
+                        item.izinTelatHours >
 
-                            ?
+                        0
 
-                            `
+                    ){
 
-                            <div class="transaction-detail">
+                        detail +=
 
-                                <span>
+                        `
 
-                                    Izin Telat
+                            <span>
 
-                                </span>
+                                Izin Telat
 
                                 <strong>
 
@@ -1351,32 +1606,28 @@ Statistics.renderTransaction = function(){
 
                                 </strong>
 
-                            </div>
+                            </span>
 
-                            `
+                        `;
 
-                            :
-
-                            ""
-
-                        }
+                    }
 
 
-                        ${
+                    if(
 
-                            item.izinPulangHours > 0
+                        item.izinPulangHours >
 
-                            ?
+                        0
 
-                            `
+                    ){
 
-                            <div class="transaction-detail">
+                        detail +=
 
-                                <span>
+                        `
 
-                                    Izin Pulang
+                            <span>
 
-                                </span>
+                                Izin Pulang
 
                                 <strong>
 
@@ -1390,75 +1641,51 @@ Statistics.renderTransaction = function(){
 
                                 </strong>
 
-                            </div>
+                            </span>
 
-                            `
+                        `;
 
-                            :
-
-                            ""
-
-                        }
-
-
-                        ${
-
-                            item.overtimeHours > 0
-
-                            ?
-
-                            `
-
-                            <div class="transaction-detail">
-
-                                <span>
-
-                                    Lembur
-
-                                </span>
-
-                                <strong>
-
-                                    ${
-
-                                        item.overtimeHours
-
-                                    }
-
-                                    jam
-
-                                </strong>
-
-                            </div>
-
-                            `
-
-                            :
-
-                            ""
-
-                        }
-
-                    `;
+                    }
 
                 }
 
 
+                /* =================================
+                   LEMBUR
+                ================================= */
+
                 else if(
 
-                    status === "lembur"
+                    status ===
+
+                    "lembur"
 
                 ){
 
-                    detail = `
+                    detail +=
 
-                        <div class="transaction-detail">
+                    `
 
-                            <span>
+                        <span>
 
-                                Jenis
+                            Shift
 
-                            </span>
+                            <strong>
+
+                                ${capitalize(
+
+                                    shift
+
+                                )}
+
+                            </strong>
+
+                        </span>
+
+
+                        <span>
+
+                            Jenis
 
                             <strong>
 
@@ -1466,57 +1693,26 @@ Statistics.renderTransaction = function(){
 
                             </strong>
 
-                        </div>
+                        </span>
+
+                    `;
 
 
-                        ${
+                    if(
 
-                            item.shift
+                        item.overtimeHours >
 
-                            ?
+                        0
 
-                            `
+                    ){
 
-                            <div class="transaction-detail">
+                        detail +=
 
-                                <span>
+                        `
 
-                                    Shift
+                            <span>
 
-                                </span>
-
-                                <strong>
-
-                                    ${item.shift}
-
-                                </strong>
-
-                            </div>
-
-                            `
-
-                            :
-
-                            ""
-
-                        }
-
-
-                        ${
-
-                            item.overtimeHours > 0
-
-                            ?
-
-                            `
-
-                            <div class="transaction-detail">
-
-                                <span>
-
-                                    Lembur
-
-                                </span>
+                                Lembur Jam
 
                                 <strong>
 
@@ -1530,87 +1726,40 @@ Statistics.renderTransaction = function(){
 
                                 </strong>
 
-                            </div>
+                            </span>
 
-                            `
+                        `;
 
-                            :
-
-                            ""
-
-                        }
-
-
-                        ${
-
-                            item.izinTelatHours > 0
-
-                            ?
-
-                            `
-
-                            <div class="transaction-detail">
-
-                                <span>
-
-                                    Izin Telat
-
-                                </span>
-
-                                <strong>
-
-                                    ${
-
-                                        item.izinTelatHours
-
-                                    }
-
-                                    jam
-
-                                </strong>
-
-                            </div>
-
-                            `
-
-                            :
-
-                            ""
-
-                        }
-
-                    `;
+                    }
 
                 }
 
 
+                /* =================================
+                   STATUS LAIN
+                ================================= */
+
                 else {
 
-                    detail = `
+                    detail +=
 
-                        <div class="transaction-detail">
+                    `
 
-                            <span>
+                        <span>
 
-                                Status
-
-                            </span>
+                            Status
 
                             <strong>
 
-                                ${
+                                ${capitalize(
 
-                                    capitalize(
+                                    status
 
-                                        status
-
-                                    )
-
-                                }
+                                )}
 
                             </strong>
 
-                        </div>
+                        </span>
 
                     `;
 
@@ -1621,40 +1770,53 @@ Statistics.renderTransaction = function(){
 
                 `
 
-                <div class="transaction-item status-${status}">
+                    <div
 
-                    <div class="transaction-header">
+                        class="transaction-item status-${status}"
 
-                        <strong>
+                    >
 
-                            ${
+                        <div
 
-                                capitalize(
+                            class="transaction-header"
 
-                                    status
+                        >
 
-                                )
+                            <strong>
 
-                            }
+                                ${
 
-                        </strong>
+                                    statusLabel(
 
-                        <small>
+                                        status
 
-                            ${date}
+                                    )
 
-                        </small>
+                                }
+
+                            </strong>
+
+
+                            <small>
+
+                                ${date}
+
+                            </small>
+
+                        </div>
+
+
+                        <div
+
+                            class="transaction-time"
+
+                        >
+
+                            ${detail}
+
+                        </div>
 
                     </div>
-
-
-                    <div class="transaction-details">
-
-                        ${detail}
-
-                    </div>
-
-                </div>
 
                 `;
 
@@ -1663,7 +1825,41 @@ Statistics.renderTransaction = function(){
         );
 
 
-    renderPagination();
+    /* =============================================
+       EMPTY
+    ============================================= */
+
+    if(
+
+        sortedData.length === 0
+
+    ){
+
+        list.innerHTML =
+
+        `
+
+            <div class="attendance-empty">
+
+                Tidak ada aktivitas
+                pada periode ini.
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =============================================
+       PAGINATION
+    ============================================= */
+
+    renderPagination(
+
+        sortedData.length
+
+    );
 
 };
 
@@ -1672,7 +1868,11 @@ Statistics.renderTransaction = function(){
    PAGINATION
 ===================================================== */
 
-function renderPagination(){
+function renderPagination(
+
+    totalData
+
+){
 
     const pagination =
 
@@ -1702,7 +1902,7 @@ function renderPagination(){
 
             Math.ceil(
 
-                Statistics.data.length /
+                totalData /
 
                 Statistics.perPage
 
@@ -1794,7 +1994,7 @@ document.addEventListener(
 
     "click",
 
-    event => {
+    event=>{
 
         const prev =
 
@@ -1876,7 +2076,7 @@ document.addEventListener(
 
 
 /* =====================================================
-   HELPER : PERIOD
+   HELPER : FORMAT PERIOD
 ===================================================== */
 
 function formatPeriod(
@@ -1913,6 +2113,66 @@ function formatPeriod(
 
 
 /* =====================================================
+   HELPER : STATUS LABEL
+===================================================== */
+
+function statusLabel(
+
+    status
+
+){
+
+    const labels = {
+
+        masuk :
+
+            "🟢 Masuk",
+
+        cuti :
+
+            "🌸 Cuti",
+
+        sakit :
+
+            "🔵 Sakit",
+
+        lembur :
+
+            "🔵 Lembur",
+
+        libur :
+
+            "🏖️ Libur",
+
+        libur_nasional :
+
+            "🔴 Libur Nasional",
+
+        absen :
+
+            "⚠️ Absen"
+
+    };
+
+
+    return (
+
+        labels[status]
+
+        ??
+
+        capitalize(
+
+            status
+
+        )
+
+    );
+
+}
+
+
+/* =====================================================
    HELPER : CAPITALIZE
 ===================================================== */
 
@@ -1937,7 +2197,9 @@ function capitalize(
 
         text
 
-    ).replace(
+    )
+
+    .replace(
 
         /\b\w/g,
 
