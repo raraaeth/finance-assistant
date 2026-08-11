@@ -3,30 +3,18 @@
    Page        : Payroll Monthly
    Module      : Insight
    File        : insight.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
-   Payroll Monthly Insight Engine
+   Payroll Monthly Motivation Engine
 
    Sections :
-   - Import
    - State
    - Init
-   - Motivation
-   - Period Insight
+   - Short Motivation
+   - Random Motivation
    - Helper
 ===================================================== */
-
-
-/* =====================================================
-   IMPORT
-===================================================== */
-
-import {
-
-    Process
-
-} from "./process.js";
 
 
 /* =====================================================
@@ -35,17 +23,20 @@ import {
 
 export const Insight = {
 
-    motivation :
+    short : {
 
-        "💪 Tetap semangat dan jaga konsistensimu!",
+        text : "",
 
-    period : {
+        period : "",
 
         start : null,
 
-        end : null,
+        end : null
 
-        label : "",
+    },
+
+
+    long : {
 
         text : ""
 
@@ -55,32 +46,87 @@ export const Insight = {
 
 
 /* =====================================================
+   MOTIVATION LIST
+===================================================== */
+
+const MOTIVATION_LIST = [
+
+    "💪 Tetap semangat dan jaga konsistensimu. Sedikit demi sedikit, semuanya akan menjadi hasil yang berarti.",
+
+    "🔥 Tetap lanjutkan langkahmu. Tidak harus sempurna setiap hari, yang penting kamu terus bergerak maju.",
+
+    "🌱 Setiap hari adalah kesempatan untuk menjadi sedikit lebih baik dari hari sebelumnya. Tetap konsisten.",
+
+    "🚀 Teruskan perjuanganmu. Apa yang kamu lakukan hari ini sedang membangun hasil yang akan kamu nikmati nanti.",
+
+    "✨ Jangan remehkan kemajuan kecil. Konsistensi dari hal-hal sederhana bisa membawa perubahan besar.",
+
+    "🎯 Tetap fokus pada prosesmu. Satu hari yang baik mungkin terasa kecil, tetapi kumpulan hari yang baik akan menjadi pencapaian besar.",
+
+    "☀️ Jalani hari ini dengan tenang dan lakukan yang terbaik. Tidak perlu terburu-buru, yang penting terus maju.",
+
+    "💚 Kamu tidak harus selalu sempurna. Cukup terus belajar, memperbaiki diri, dan menjaga langkahmu tetap berjalan.",
+
+    "🔥 Pertahankan ritmemu. Setiap usaha yang kamu lakukan hari ini adalah bagian dari perjalanan menuju hasil yang lebih baik.",
+
+    "🌟 Tetap percaya pada proses. Hasil besar sering kali dimulai dari kebiasaan kecil yang dilakukan berulang kali.",
+
+    "💪 Jangan berhenti hanya karena progres terasa lambat. Selama kamu masih bergerak, kamu masih menuju ke depan.",
+
+    "🌱 Terus jaga kebiasaan baikmu. Apa yang dilakukan secara konsisten akan jauh lebih berarti daripada usaha besar yang hanya sesekali.",
+
+    "🎯 Fokus pada apa yang bisa kamu lakukan hari ini. Selesaikan satu per satu, dan biarkan hasilnya mengikuti.",
+
+    "✨ Kamu sudah berjalan sejauh ini. Teruskan langkahmu dan jadikan setiap hari sebagai kesempatan untuk berkembang.",
+
+    "🚀 Tidak perlu membandingkan perjalananmu dengan orang lain. Fokus pada progresmu sendiri dan terus tingkatkan sedikit demi sedikit."
+
+];
+
+
+/* =====================================================
    INIT
 ===================================================== */
 
 Insight.init = function(){
 
-    processPeriodInsight();
+    processShortMotivation();
+
+    processRandomMotivation();
+
+
+    console.log(
+
+        "========== INSIGHT =========="
+
+    );
+
+
+    console.log(
+
+        "SHORT MOTIVATION:",
+
+        Insight.short
+
+    );
+
+
+    console.log(
+
+        "RANDOM MOTIVATION:",
+
+        Insight.long.text
+
+    );
 
 };
 
 
 /* =====================================================
-   MOTIVATION
+   SHORT MOTIVATION
 ===================================================== */
 
-Insight.getMotivation = function(){
-
-    return Insight.motivation;
-
-};
-
-
-/* =====================================================
-   PERIOD INSIGHT
-===================================================== */
-
-function processPeriodInsight(){
+function processShortMotivation(){
 
     const today =
 
@@ -102,14 +148,16 @@ function processPeriodInsight(){
         today.getDate();
 
 
-    /* =============================================
-       TENTUKAN PERIODE
-    ============================================= */
-
     let startDay;
 
     let endDay;
 
+    let text;
+
+
+    /* =============================================
+       PERIODE 1 - 10
+    ============================================= */
 
     if(
 
@@ -121,7 +169,17 @@ function processPeriodInsight(){
 
         endDay = 10;
 
+
+        text =
+
+            "Awal periode, saatnya membangun ritme yang baik.";
+
     }
+
+
+    /* =============================================
+       PERIODE 11 - 20
+    ============================================= */
 
     else if(
 
@@ -133,11 +191,22 @@ function processPeriodInsight(){
 
         endDay = 20;
 
+
+        text =
+
+            "Pertahankan ritmemu, perjalanan masih terus berjalan.";
+
     }
+
+
+    /* =============================================
+       PERIODE 21 - AKHIR BULAN
+    ============================================= */
 
     else {
 
         startDay = 21;
+
 
         endDay =
 
@@ -150,6 +219,11 @@ function processPeriodInsight(){
                 0
 
             ).getDate();
+
+
+        text =
+
+            "Sudah mendekati akhir bulan, tetap konsisten sampai selesai.";
 
     }
 
@@ -180,527 +254,97 @@ function processPeriodInsight(){
         );
 
 
-    Insight.period.start =
+    Insight.short.start =
 
         start;
 
 
-    Insight.period.end =
+    Insight.short.end =
 
         end;
 
 
-    Insight.period.label =
+    Insight.short.period =
 
         `${startDay}-${endDay}`;
 
 
-    /* =============================================
-       AMBIL ATTENDANCE
-    ============================================= */
+    Insight.short.text =
 
-    const attendance =
-
-        Process.attendance?.data ?? [];
-
-
-    const data =
-
-        attendance.filter(
-
-            item => {
-
-                if(
-
-                    !item.dateObject
-
-                ){
-
-                    return false;
-
-                }
-
-
-                const date =
-
-                    item.dateObject;
-
-
-                return (
-
-                    date >= start &&
-
-                    date <= end
-
-                );
-
-            }
-
-        );
-
-
-    /* =============================================
-       HITUNG
-    ============================================= */
-
-    const summary = {
-
-        masuk : 0,
-
-        ontime : 0,
-
-        telat : 0,
-
-        lateMinutes : 0,
-
-        izinTelatHours : 0,
-
-        izinPulangHours : 0,
-
-        cuti : 0,
-
-        sakit : 0,
-
-        libur : 0,
-
-        lembur : 0,
-
-        lemburHours : 0,
-
-        absen : 0
-
-    };
-
-
-    data.forEach(
-
-        item => {
-
-            switch(
-
-                item.status
-
-            ){
-
-                case "masuk":
-
-                    summary.masuk++;
-
-                    break;
-
-
-                case "cuti":
-
-                    summary.cuti++;
-
-                    break;
-
-
-                case "sakit":
-
-                    summary.sakit++;
-
-                    break;
-
-
-                case "libur":
-
-                    summary.libur++;
-
-                    break;
-
-
-                case "lembur":
-
-                    summary.lembur++;
-
-                    break;
-
-
-                case "absen":
-
-                    summary.absen++;
-
-                    break;
-
-            }
-
-
-            if(
-
-                item.attendanceStatus ===
-
-                "ontime"
-
-            ){
-
-                summary.ontime++;
-
-            }
-
-
-            if(
-
-                item.attendanceStatus ===
-
-                "telat"
-
-            ){
-
-                summary.telat++;
-
-            }
-
-
-            summary.lateMinutes +=
-
-                Number(
-
-                    item.lateMinutes || 0
-
-                );
-
-
-            summary.izinTelatHours +=
-
-                Number(
-
-                    item.izinTelatHours || 0
-
-                );
-
-
-            summary.izinPulangHours +=
-
-                Number(
-
-                    item.izinPulangHours || 0
-
-                );
-
-
-            summary.lemburHours +=
-
-                Number(
-
-                    item.overtimeHours || 0
-
-                );
-
-        }
-
-    );
-
-
-    /* =============================================
-       BUAT KALIMAT
-    ============================================= */
-
-    Insight.period.text =
-
-        buildInsight(
-
-            summary
-
-        );
-
-
-    Insight.period.summary =
-
-        summary;
+        text;
 
 }
 
 
 /* =====================================================
-   BUILD INSIGHT
+   RANDOM MOTIVATION
 ===================================================== */
 
-function buildInsight(
+function processRandomMotivation(){
 
-    summary
+    const index =
 
-){
+        Math.floor(
 
-    const parts = [];
+            Math.random() *
 
-
-    /* =============================================
-       MASUK
-    ============================================= */
-
-    if(
-
-        summary.masuk > 0
-
-    ){
-
-        let text =
-
-            `Kamu sudah masuk ${summary.masuk} kali`;
-
-
-        if(
-
-            summary.ontime > 0
-
-        ){
-
-            text +=
-
-                `, dengan ${summary.ontime} kali ontime`;
-
-        }
-
-
-        if(
-
-            summary.telat > 0
-
-        ){
-
-            text +=
-
-                ` dan ${summary.telat} kali telat`;
-
-        }
-
-
-        parts.push(
-
-            text
+            MOTIVATION_LIST.length
 
         );
 
-    }
 
+    Insight.long.text =
 
-    /* =============================================
-       TELAT
-    ============================================= */
-
-    if(
-
-        summary.lateMinutes > 0
-
-    ){
-
-        parts.push(
-
-            `total keterlambatan ${summary.lateMinutes} menit`
-
-        );
-
-    }
-
-
-    /* =============================================
-       IZIN TELAT
-    ============================================= */
-
-    if(
-
-        summary.izinTelatHours > 0
-
-    ){
-
-        parts.push(
-
-            `izin telat ${summary.izinTelatHours} jam`
-
-        );
-
-    }
-
-
-    /* =============================================
-       IZIN PULANG
-    ============================================= */
-
-    if(
-
-        summary.izinPulangHours > 0
-
-    ){
-
-        parts.push(
-
-            `izin pulang ${summary.izinPulangHours} jam`
-
-        );
-
-    }
-
-
-    /* =============================================
-       CUTI
-    ============================================= */
-
-    if(
-
-        summary.cuti > 0
-
-    ){
-
-        parts.push(
-
-            `cuti ${summary.cuti} kali`
-
-        );
-
-    }
-
-
-    /* =============================================
-       SAKIT
-    ============================================= */
-
-    if(
-
-        summary.sakit > 0
-
-    ){
-
-        parts.push(
-
-            `sakit ${summary.sakit} kali`
-
-        );
-
-    }
-
-
-    /* =============================================
-       LIBUR
-    ============================================= */
-
-    if(
-
-        summary.libur > 0
-
-    ){
-
-        parts.push(
-
-            `libur ${summary.libur} kali`
-
-        );
-
-    }
-
-
-    /* =============================================
-       LEMBUR
-    ============================================= */
-
-    if(
-
-        summary.lembur > 0
-
-    ){
-
-        let text =
-
-            `lembur ${summary.lembur} kali`;
-
-
-        if(
-
-            summary.lemburHours > 0
-
-        ){
-
-            text +=
-
-                ` dengan total ${summary.lemburHours} jam`;
-
-        }
-
-
-        parts.push(
-
-            text
-
-        );
-
-    }
-
-
-    /* =============================================
-       ABSEN
-    ============================================= */
-
-    if(
-
-        summary.absen > 0
-
-    ){
-
-        parts.push(
-
-            `absen ${summary.absen} kali`
-
-        );
-
-    }
-
-
-    /* =============================================
-       TIDAK ADA DATA
-    ============================================= */
-
-    if(
-
-        parts.length === 0
-
-    ){
-
-        return (
-
-            "Belum ada aktivitas attendance " +
-
-            "pada periode ini."
-
-        );
-
-    }
-
-
-    /* =============================================
-       GABUNGKAN
-    ============================================= */
-
-    const sentence =
-
-        parts.join(
-
-            ", "
-
-        );
-
-
-    return (
-
-        `Pada periode ${Insight.period.label}, ` +
-
-        sentence +
-
-        "."
-
-    );
+        MOTIVATION_LIST[index];
 
 }
 
 
 /* =====================================================
-   HELPER : GET PERIOD INSIGHT
+   GET SHORT MOTIVATION
 ===================================================== */
 
-Insight.getPeriodInsight = function(){
+Insight.getShortMotivation = function(){
 
     return {
 
-        ...Insight.period
+        ...Insight.short
+
+    };
+
+};
+
+
+/* =====================================================
+   GET RANDOM MOTIVATION
+===================================================== */
+
+Insight.getMotivation = function(){
+
+    return Insight.long.text;
+
+};
+
+
+/* =====================================================
+   GET COMPLETE INSIGHT
+===================================================== */
+
+Insight.getInsight = function(){
+
+    return {
+
+        short :
+
+            {
+
+                ...Insight.short
+
+            },
+
+        long :
+
+            Insight.long.text
 
     };
 
