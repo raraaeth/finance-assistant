@@ -121,6 +121,49 @@
 
 }
 
+/* =====================================================
+   INSIGHT CONTENT
+===================================================== */
+
+.statistics-insight-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   SHORT MOTIVATION
+===================================================== */
+
+.statistics-short-motivation{
+
+    font-weight:700;
+
+    line-height:1.5;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   LONG MOTIVATION
+===================================================== */
+
+.statistics-long-motivation{
+
+    font-style:italic;
+
+    line-height:1.6;
+
+    color:var(--text-secondary);
+
+}
 
 /* =====================================================
    SUMMARY GRID
