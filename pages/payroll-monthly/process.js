@@ -144,16 +144,44 @@ Process.init = function(
     };
 
 
-    /* =============================================
-       DEBUG
+        /* =============================================
+       DEBUG PROCESS
     ============================================= */
 
     console.log(
 
-        "Payroll Process:",
-
-        Process
+        "========== PROCESS =========="
 
     );
 
-};
+    console.log(
+
+        "PROCESS PERIOD:",
+
+        Process.period
+
+    );
+
+    console.log(
+
+        "PROCESS RULES:",
+
+        Process.rules
+
+    );
+
+    console.log(
+
+        "PROCESS ATTENDANCE:",
+
+        Process.attendance
+
+    );
+
+    console.log(
+
+        "PROCESS SUMMARY:",
+
+        Process.summary
+
+    );
