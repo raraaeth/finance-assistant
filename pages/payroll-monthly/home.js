@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Home
    File        : home.js
-   Version     : 2.0.0
+   Version     : 1.1.0
 
    Description :
    Payroll Monthly Home Controller
@@ -118,7 +118,6 @@ export async function init(){
 
     /* =============================================
        HOME CARD
-       Render skeleton terlebih dahulu.
     ============================================= */
 
     renderPreviousSalary();
@@ -184,16 +183,16 @@ export async function init(){
         );
 
 
-        /* =========================================
-           RENDER ATTENDANCE
-        ========================================= */
+        /* -----------------------------------------
+           Refresh Attendance
+        ----------------------------------------- */
 
         renderAttendance();
 
 
-        /* =========================================
-           STATISTICS
-        ========================================= */
+        /* -----------------------------------------
+           Statistics
+        ----------------------------------------- */
 
         Statistics.init();
 
@@ -326,10 +325,13 @@ function renderPreviousSalary(){
 
 
     /*
-       PAYROLL CALCULATION
-       belum dibuat.
+       SKELETON
 
-       Untuk sementara tetap skeleton.
+       Perhitungan gaji belum menjadi
+       bagian dari Home.
+
+       Untuk sekarang tetap tampil
+       sebagai placeholder.
     */
 
     card.innerHTML =
@@ -343,6 +345,7 @@ function renderPreviousSalary(){
                 Gaji Periode Sebelumnya
 
             </p>
+
 
             <h2>
 
@@ -363,6 +366,7 @@ function renderPreviousSalary(){
 
                 </span>
 
+
                 <strong>
 
                     -
@@ -379,6 +383,7 @@ function renderPreviousSalary(){
                     Gaji Bersih
 
                 </span>
+
 
                 <strong>
 
@@ -444,44 +449,7 @@ function renderAttendance(){
 
 
     /* =============================================
-       GET ATTENDANCE
-    ============================================= */
-
-    const attendance =
-
-        Process.attendance?.data ?? [];
-
-
-    /*
-       Jika Process belum selesai,
-       jangan tampilkan angka palsu.
-    */
-
-    if(
-
-        !attendance.length
-
-    ){
-
-        card.innerHTML =
-
-        `
-
-            <div class="attendance-empty">
-
-                Memuat data attendance...
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    /* =============================================
-       CURRENT MONTH
+       CURRENT DATE
     ============================================= */
 
     const today =
@@ -499,6 +467,10 @@ function renderAttendance(){
         today.getMonth();
 
 
+    /* =============================================
+       MONTH START
+    ============================================= */
+
     const monthStart =
 
         new Date(
@@ -512,43 +484,40 @@ function renderAttendance(){
         );
 
 
-    const monthEnd =
+    /* =============================================
+       GET ATTENDANCE DATA
+    ============================================= */
 
-        new Date(
+    const attendance =
 
-            currentYear,
-
-            currentMonth + 1,
-
-            0
-
-        );
+        Process.attendance?.data ?? [];
 
 
     /* =============================================
-       FILTER CURRENT MONTH
+       FILTER :
+       CURRENT MONTH → TODAY
     ============================================= */
 
-    const periodAttendance =
+    const currentMonthAttendance =
 
         attendance.filter(
 
             item => {
 
-                const date =
-
-                    item.dateObject;
-
-
                 if(
 
-                    !date
+                    !item.dateObject
 
                 ){
 
                     return false;
 
                 }
+
+
+                const date =
+
+                    item.dateObject;
 
 
                 return (
@@ -567,6 +536,16 @@ function renderAttendance(){
 
                     currentMonth
 
+                )
+
+                &&
+
+                (
+
+                    date <=
+
+                    today
+
                 );
 
             }
@@ -578,443 +557,49 @@ function renderAttendance(){
        SUMMARY
     ============================================= */
 
-    const summary =
-
-        calculateAttendanceSummary(
-
-            periodAttendance
-
-        );
-
-
-    /* =============================================
-       RENDER
-    ============================================= */
-
-    const items = [];
-
-
-    /* ---------------------------------------------
-       MASUK
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "🟢",
-
-        "Masuk",
-
-        summary.masuk
-
-    );
-
-
-    /* ---------------------------------------------
-       ONTIME
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "✅",
-
-        "Ontime",
-
-        summary.ontime
-
-    );
-
-
-    /* ---------------------------------------------
-       TELAT
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "🟠",
-
-        "Telat",
-
-        summary.telat
-
-    );
-
-
-    /* ---------------------------------------------
-       TOTAL MENIT TELAT
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "⏱️",
-
-        "Telat",
-
-        summary.lateMinutes,
-
-        "menit"
-
-    );
-
-
-    /* ---------------------------------------------
-       IZIN TELAT
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "📝",
-
-        "Izin Telat",
-
-        summary.izinTelatHours,
-
-        "jam"
-
-    );
-
-
-    /* ---------------------------------------------
-       IZIN PULANG
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "🚪",
-
-        "Izin Pulang",
-
-        summary.izinPulangHours,
-
-        "jam"
-
-    );
-
-
-    /* ---------------------------------------------
-       CUTI
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "🏖️",
-
-        "Cuti",
-
-        summary.cuti
-
-    );
-
-
-    /* ---------------------------------------------
-       SAKIT
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "🤒",
-
-        "Sakit",
-
-        summary.sakit
-
-    );
-
-
-    /* ---------------------------------------------
-       LIBUR
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "📅",
-
-        "Libur",
-
-        summary.libur
-
-    );
-
-
-    /* ---------------------------------------------
-       LEMBUR HARIAN
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "🔵",
-
-        "Lembur",
-
-        summary.lembur
-
-    );
-
-
-    /* ---------------------------------------------
-       LEMBUR JAM
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "⏰",
-
-        "Lembur",
-
-        summary.lemburHours,
-
-        "jam"
-
-    );
-
-
-    /* ---------------------------------------------
-       ABSEN
-    --------------------------------------------- */
-
-    addSummaryItem(
-
-        items,
-
-        "❌",
-
-        "Absen",
-
-        summary.absen
-
-    );
-
-
-    /* =============================================
-       EMPTY
-    ============================================= */
-
-    if(
-
-        items.length === 0
-
-    ){
-
-        card.innerHTML =
-
-        `
-
-            <div class="attendance-empty">
-
-                Belum ada data attendance bulan ini.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    /* =============================================
-       PERIOD TEXT
-    ============================================= */
-
-    const periodText =
-
-        `
-
-        ${
-
-            formatDate(
-
-                monthStart
-
-            )
-
-        }
-
-        -
-
-        ${
-
-            formatDate(
-
-                monthEnd
-
-            )
-
-        }
-
-        `;
-
-
-    /* =============================================
-       FINAL HTML
-    ============================================= */
-
-    card.innerHTML =
-
-    `
-
-        <div class="attendance-period">
-
-            ${
-
-                periodText
-
-            }
-
-        </div>
-
-
-        <div class="attendance-grid">
-
-            ${
-
-                items.join("")
-
-            }
-
-        </div>
-
-    `;
-
-}
-
-
-/* =====================================================
-   CALCULATE ATTENDANCE SUMMARY
-===================================================== */
-
-function calculateAttendanceSummary(
-
-    attendance
-
-){
-
     const summary = {
 
         masuk : 0,
 
-        ontime : 0,
-
         telat : 0,
 
-        lateMinutes : 0,
-
-        izinTelatHours : 0,
-
-        izinPulangHours : 0,
-
-        cuti : 0,
-
-        sakit : 0,
-
-        libur : 0,
-
-        lembur : 0,
-
-        lemburHours : 0,
-
-        absen : 0
+        lembur : 0
 
     };
 
 
-    attendance.forEach(
+    currentMonthAttendance.forEach(
 
         item => {
 
-            /* -----------------------------------------
-               STATUS
-            ----------------------------------------- */
+            /* -------------------------------------
+               MASUK
+            ------------------------------------- */
 
-            switch(
+            if(
 
-                item.status
+                item.status ===
+
+                "masuk"
 
             ){
 
-                case "masuk":
-
-                    summary.masuk++;
-
-                    break;
-
-
-                case "cuti":
-
-                    summary.cuti++;
-
-                    break;
-
-
-                case "sakit":
-
-                    summary.sakit++;
-
-                    break;
-
-
-                case "libur":
-
-                    summary.libur++;
-
-                    break;
-
-
-                case "lembur":
-
-                    summary.lembur++;
-
-                    break;
-
-
-                case "absen":
-
-                    summary.absen++;
-
-                    break;
+                summary.masuk++;
 
             }
 
 
-            /* -----------------------------------------
-               ATTENDANCE STATUS
-            ----------------------------------------- */
+            /* -------------------------------------
+               TELAT
+            ------------------------------------- */
 
             if(
 
-                item.attendanceStatus ===
+                item.status ===
 
-                "ontime"
+                "masuk"
 
-            ){
-
-                summary.ontime++;
-
-            }
-
-
-            if(
+                &&
 
                 item.attendanceStatus ===
 
@@ -1027,145 +612,193 @@ function calculateAttendanceSummary(
             }
 
 
-            /* -----------------------------------------
-               TELAT MENIT
-            ----------------------------------------- */
+            /* -------------------------------------
+               LEMBUR
+            ------------------------------------- */
 
-            summary.lateMinutes +=
+            if(
 
-                toNumber(
+                item.status ===
 
-                    item.lateMinutes
+                "lembur"
 
-                );
+            ){
 
+                summary.lembur++;
 
-            /* -----------------------------------------
-               IZIN TELAT
-            ----------------------------------------- */
-
-            summary.izinTelatHours +=
-
-                toNumber(
-
-                    item.izinTelatHours
-
-                );
-
-
-            /* -----------------------------------------
-               IZIN PULANG
-            ----------------------------------------- */
-
-            summary.izinPulangHours +=
-
-                toNumber(
-
-                    item.izinPulangHours
-
-                );
-
-
-            /* -----------------------------------------
-               LEMBUR JAM
-            ----------------------------------------- */
-
-            summary.lemburHours +=
-
-                toNumber(
-
-                    item.overtimeHours
-
-                );
+            }
 
         }
 
     );
 
 
-    return summary;
+    /* =============================================
+       RENDER
+    ============================================= */
 
-}
+    card.innerHTML =
 
+    `
 
-/* =====================================================
-   ADD SUMMARY ITEM
-===================================================== */
+        <div class="attendance-period">
 
-function addSummaryItem(
+            ${
 
-    items,
+                formatDate(
 
-    icon,
+                    monthStart
 
-    label,
+                )
 
-    value,
+            }
 
-    unit = ""
+            -
 
-){
+            ${
 
-    const number =
+                formatDate(
 
-        toNumber(
+                    today
 
-            value
+                )
 
-        );
-
-
-    /*
-       Nilai 0 tidak ditampilkan.
-    */
-
-    if(
-
-        number <= 0
-
-    ){
-
-        return;
-
-    }
-
-
-    const displayValue =
-
-        unit
-
-        ?
-
-        `${number} ${unit}`
-
-        :
-
-        number;
-
-
-    items.push(
-
-        `
-
-        <div class="attendance-item">
-
-            <span>
-
-                ${icon}
-
-                ${label}
-
-            </span>
-
-            <strong>
-
-                ${displayValue}
-
-            </strong>
+            }
 
         </div>
 
-        `
+
+        <div class="attendance-grid">
+
+
+            <!-- MASUK -->
+
+            <div class="attendance-item">
+
+                <span>
+
+                    🟢 Masuk
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        summary.masuk
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <!-- TELAT -->
+
+            <div class="attendance-item">
+
+                <span>
+
+                    🟠 Telat
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        summary.telat
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <!-- LEMBUR -->
+
+            <div class="attendance-item">
+
+                <span>
+
+                    🔵 Lembur
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        summary.lembur
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /* =============================================
+       DEBUG
+    ============================================= */
+
+    console.log(
+
+        "HOME ATTENDANCE:",
+
+        {
+
+            period :
+
+                `${
+
+                    currentYear
+
+                }-${
+
+                    String(
+
+                        currentMonth + 1
+
+                    )
+
+                    .padStart(
+
+                        2,
+
+                        "0"
+
+                    )
+
+                }`,
+
+            totalData :
+
+                currentMonthAttendance.length,
+
+            masuk :
+
+                summary.masuk,
+
+            telat :
+
+                summary.telat,
+
+            lembur :
+
+                summary.lembur
+
+        }
 
     );
 
@@ -1173,68 +806,7 @@ function addSummaryItem(
 
 
 /* =====================================================
-   HELPER : NUMBER
-===================================================== */
-
-function toNumber(
-
-    value
-
-){
-
-    if(
-
-        value ===
-
-        null
-
-        ||
-
-        value ===
-
-        undefined
-
-        ||
-
-        value ===
-
-        ""
-
-    ){
-
-        return 0;
-
-    }
-
-
-    const number =
-
-        Number(
-
-            value
-
-        );
-
-
-    return Number.isFinite(
-
-        number
-
-    )
-
-        ?
-
-        number
-
-        :
-
-        0;
-
-}
-
-
-/* =====================================================
-   HELPER : CAPITALIZE
+   HELPER
 ===================================================== */
 
 function capitalize(
@@ -1257,4 +829,4 @@ function capitalize(
 
     );
 
-       }
+}
