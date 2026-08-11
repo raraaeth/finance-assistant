@@ -300,7 +300,6 @@
 
 }
 
-
 /* =====================================================
    ATTENDANCE GRID
 ===================================================== */
@@ -309,9 +308,10 @@
 
     display:grid;
 
-    grid-template-columns:1fr;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
 
-    gap:12px;
+    gap:10px;
 
 }
 
@@ -322,11 +322,11 @@
 
 .attendance-item{
 
-    width:100%;
+    min-width:0;
 
-    min-height:88px;
+    min-height:82px;
 
-    padding:16px 18px;
+    padding:14px 12px;
 
     border-radius:20px;
 
@@ -357,7 +357,7 @@
 
     width:100%;
 
-    font-size:15px;
+    font-size:14px;
 
     line-height:1.3;
 
@@ -378,7 +378,7 @@
 
     width:100%;
 
-    font-size:26px;
+    font-size:24px;
 
     line-height:1.1;
 
@@ -386,30 +386,11 @@
 
     color:#173c3a;
 
-    word-break:break-word;
-
 }
 
 
 /* =====================================================
-   EMPTY
-===================================================== */
-
-.attendance-empty{
-
-    text-align:center;
-
-    padding:26px 20px;
-
-    color:#71817f;
-
-    font-size:15px;
-
-}
-
-
-/* =====================================================
-   SMALL MOBILE
+   MOBILE
 ===================================================== */
 
 @media(
@@ -420,18 +401,19 @@
 
     .attendance-grid{
 
-        grid-template-columns:1fr;
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
 
-        gap:10px;
+        gap:8px;
 
     }
 
 
     .attendance-item{
 
-        min-height:82px;
+        min-height:78px;
 
-        padding:14px 16px;
+        padding:12px 10px;
 
         border-radius:18px;
 
@@ -440,30 +422,18 @@
 
     .attendance-item span{
 
-        font-size:14px;
+        font-size:13px;
 
     }
 
 
     .attendance-item strong{
 
-        font-size:24px;
-
-    }
-
-
-    .attendance-period{
-
-        margin-bottom:16px;
-
-        font-size:14px;
+        font-size:23px;
 
     }
 
 }
-
-
-
 
 /* =====================================================
    INPUT
