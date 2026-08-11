@@ -178,10 +178,13 @@ Process.init = function(
 
     );
 
-    console.log(
+
+       console.log(
 
         "PROCESS SUMMARY:",
 
         Process.summary
 
     );
+
+};
