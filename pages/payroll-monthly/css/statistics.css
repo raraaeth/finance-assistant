@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Statistics
    File        : statistics.css
-   Version     : 2.0.0
+   Version     : 2.1.0
 
    Description :
    Payroll Statistics Page
@@ -148,13 +148,13 @@
 
     flex-direction:column;
 
-    gap:12px;
+    gap:8px;
 
-    padding: 24px 0;
+    padding:18px 0;
 
     border-bottom:
-        2px solid
-        rgba(45, 55, 72, 0.12);
+        1px solid
+        rgba(45,55,72,.12);
 
 }
 
@@ -184,13 +184,13 @@
 
     align-items:center;
 
-    gap:12px;
+    gap:10px;
 
 }
 
 
 /* =====================================================
-   STATUS
+   STATUS / TITLE
 ===================================================== */
 
 #statistics-transaction-list
@@ -224,61 +224,65 @@
 
 
 /* =====================================================
-   TIME ROW
+   TRANSACTION DETAILS
 ===================================================== */
 
 #statistics-transaction-list
-.transaction-time{
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:10px;
-
-}
-
-
-/* =====================================================
-   TIME ITEM
-===================================================== */
-
-#statistics-transaction-list
-.transaction-time span{
+.transaction-details{
 
     display:flex;
 
-    align-items:center;
+    flex-direction:column;
 
-    justify-content:center;
-
-    min-height:40px;
-
-    padding:9px 10px;
-
-    border-radius:12px;
-
-    background:var(--surface-secondary);
-
-    color:var(--text-secondary);
-
-    font-size:14px;
+    gap:3px;
 
 }
 
 
 /* =====================================================
-   TIME VALUE
+   DETAIL ROW
 ===================================================== */
 
 #statistics-transaction-list
-.transaction-time strong{
+.transaction-detail{
+
+    display:flex;
+
+    align-items:baseline;
+
+    gap:5px;
+
+    line-height:1.35;
+
+}
+
+
+/* =====================================================
+   DETAIL LABEL
+===================================================== */
+
+#statistics-transaction-list
+.transaction-detail span{
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+}
+
+
+/* =====================================================
+   DETAIL VALUE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-detail strong{
 
     color:var(--text-primary);
 
-    font-weight:600;
+    font-size:14px;
 
-    margin-left:4px;
+    font-weight:600;
 
 }
 
@@ -319,6 +323,15 @@
 .transaction-header strong{
 
     color:#7B4DDB;
+
+}
+
+
+#statistics-transaction-list
+.transaction-item.status-libur
+.transaction-header strong{
+
+    color:#E04B4B;
 
 }
 
@@ -450,9 +463,9 @@
     #statistics-transaction-list
     .transaction-item{
 
-        padding:15px 8px;
+        padding:14px 8px;
 
-        gap:10px;
+        gap:7px;
 
     }
 
@@ -467,6 +480,11 @@
     }
 
 
+    /*
+       Nama status tetap seperti
+       screenshot karena sudah pas.
+    */
+
     #statistics-transaction-list
     .transaction-header strong{
 
@@ -474,6 +492,11 @@
 
     }
 
+
+    /*
+       Tanggal juga tetap nyaman
+       dibaca.
+    */
 
     #statistics-transaction-list
     .transaction-header small{
@@ -483,25 +506,47 @@
     }
 
 
-    #statistics-transaction-list
-    .transaction-time{
+    /* ---------------------------------------------
+       DETAIL TRANSAKSI
+    --------------------------------------------- */
 
-        gap:8px;
+    #statistics-transaction-list
+    .transaction-details{
+
+        gap:2px;
 
     }
 
 
     #statistics-transaction-list
-    .transaction-time span{
+    .transaction-detail{
 
-        min-height:38px;
+        gap:4px;
 
-        padding:8px 6px;
+        line-height:1.3;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-detail span{
+
+        font-size:12px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-detail strong{
 
         font-size:13px;
 
     }
 
+
+    /* ---------------------------------------------
+       PAGINATION
+    --------------------------------------------- */
 
     .statistics-pagination{
 
@@ -520,4 +565,4 @@
 
     }
 
-}
+   }
