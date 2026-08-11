@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Statistics
    File        : statistics.js
-   Version     : 2.0.0
+   Version     : 2.1.0
 
    Description :
    Payroll Monthly Statistics Controller
@@ -14,7 +14,7 @@
    - Init
    - Filter
    - Chart
-   - Attendance
+   - Transaction
    - Pagination
    - Helper
 ===================================================== */
@@ -30,17 +30,20 @@ import {
 
 } from "./process.js";
 
+
 import {
 
     Filter
 
 } from "../../js/filter.js";
 
+
 import {
 
     Chart
 
 } from "../../js/chart.js";
+
 
 import {
 
@@ -65,9 +68,12 @@ export const Statistics = {
 
     },
 
+
     data : [],
 
+
     page : 1,
+
 
     perPage : 5
 
@@ -82,9 +88,12 @@ Statistics.init = function(){
 
     initializeFilter();
 
+
     Statistics.applyFilter();
 
+
     Statistics.renderChart();
+
 
     Statistics.renderTransaction();
 
@@ -213,16 +222,8 @@ Statistics.applyPeriod = function(
         null;
 
 
-    /* =============================================
-       RESET PAGE
-    ============================================= */
-
     Statistics.page = 1;
 
-
-    /* =============================================
-       UPDATE FILTER UI
-    ============================================= */
 
     Filter.setRange(
 
@@ -244,13 +245,11 @@ Statistics.applyPeriod = function(
     );
 
 
-    /* =============================================
-       REFRESH
-    ============================================= */
-
     Statistics.applyFilter();
 
+
     Statistics.renderChart();
+
 
     Statistics.renderTransaction();
 
@@ -287,11 +286,18 @@ Statistics.applyFilter = function(){
 
                 const date =
 
-                    new Date(
+                    item.dateObject;
 
-                        item.date
 
-                    );
+                if(
+
+                    !date
+
+                ){
+
+                    return false;
+
+                }
 
 
                 return (
@@ -300,7 +306,11 @@ Statistics.applyFilter = function(){
 
                     Statistics.filter.start
 
-                    &&
+                )
+
+                &&
+
+                (
 
                     date <=
 
@@ -331,7 +341,7 @@ Statistics.renderChart = function(){
 
         lembur : 0,
 
-        liburNasional : 0,
+        libur : 0,
 
         absen : 0
 
@@ -376,9 +386,9 @@ Statistics.renderChart = function(){
                     break;
 
 
-                case "libur_nasional":
+                case "libur":
 
-                    summary.liburNasional++;
+                    summary.libur++;
 
                     break;
 
@@ -412,7 +422,7 @@ Statistics.renderChart = function(){
 
             "Lembur",
 
-            "Libur Nasional",
+            "Libur",
 
             "Absen"
 
@@ -436,7 +446,7 @@ Statistics.renderChart = function(){
 
                     summary.lembur,
 
-                    summary.liburNasional,
+                    summary.libur,
 
                     summary.absen
 
@@ -513,16 +523,8 @@ function handleRange(
         value;
 
 
-    /* =============================================
-       RESET PAGE
-    ============================================= */
-
     Statistics.page = 1;
 
-
-    /* =============================================
-       UPDATE FILTER UI
-    ============================================= */
 
     Filter.setDate(
 
@@ -553,13 +555,11 @@ function handleRange(
     );
 
 
-    /* =============================================
-       REFRESH
-    ============================================= */
-
     Statistics.applyFilter();
 
+
     Statistics.renderChart();
+
 
     Statistics.renderTransaction();
 
@@ -576,7 +576,7 @@ function handleRange(
 
 
 /* =====================================================
-   RENDER ATTENDANCE
+   RENDER TRANSACTION
 ===================================================== */
 
 Statistics.renderTransaction = function(){
@@ -605,6 +605,34 @@ Statistics.renderTransaction = function(){
 
 
     /* =============================================
+       SORT
+       Terbaru → terlama
+    ============================================= */
+
+    const sortedData =
+
+        Statistics.data
+
+        .slice()
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            ) =>
+
+                b.dateObject -
+
+                a.dateObject
+
+        );
+
+
+    /* =============================================
        PAGINATION RANGE
     ============================================= */
 
@@ -628,150 +656,36 @@ Statistics.renderTransaction = function(){
         Statistics.perPage;
 
 
-    /* =============================================
-       SORT + RENDER
-    ============================================= */
+    const pageData =
 
-    Statistics.data
-
-        .slice()
-
-        .sort(
-
-            (
-
-                a,
-
-                b
-
-            ) =>
-
-                b.dateObject -
-
-                a.dateObject
-
-        )
-
-        .slice(
+        sortedData.slice(
 
             start,
 
             end
 
-        )
-
-        .forEach(
-
-            item=>{
-
-                const status =
-
-                    item.status ??
-
-                    "absen";
-
-
-                const date =
-
-                    item.date ??
-
-                    "-";
-
-
-                const checkin =
-
-                    item.checkin ??
-
-                    "-";
-
-
-                const pulang =
-
-                    item.pulang ??
-
-                    "-";
-
-
-                list.innerHTML +=
-
-                `
-
-                <div
-
-                    class="transaction-item status-${status}"
-
-                >
-
-                    <div
-
-                        class="transaction-header"
-
-                    >
-
-                        <strong>
-
-                            ${
-
-                                capitalize(
-
-                                    status
-
-                                )
-
-                            }
-
-                        </strong>
-
-
-                        <small>
-
-                            ${date}
-
-                        </small>
-
-                    </div>
-
-
-                    <div
-
-                        class="transaction-time"
-
-                    >
-
-                        <span>
-
-                            Masuk :
-
-                            <strong>
-
-                                ${checkin}
-
-                            </strong>
-
-                        </span>
-
-
-                        <span>
-
-                            Pulang :
-
-                            <strong>
-
-                                ${pulang}
-
-                            </strong>
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-                `;
-
-            }
-
         );
+
+
+    /* =============================================
+       RENDER
+    ============================================= */
+
+    pageData.forEach(
+
+        item=>{
+
+            list.innerHTML +=
+
+                createTransaction(
+
+                    item
+
+                );
+
+        }
+
+    );
 
 
     /* =============================================
@@ -781,6 +695,535 @@ Statistics.renderTransaction = function(){
     renderPagination();
 
 };
+
+
+/* =====================================================
+   CREATE TRANSACTION
+===================================================== */
+
+function createTransaction(
+
+    item
+
+){
+
+    const status =
+
+        item.status ??
+
+        "absen";
+
+
+    const date =
+
+        item.dateObject
+
+        ?
+
+        formatDate(
+
+            item.dateObject
+
+        )
+
+        :
+
+        "-";
+
+
+    const icon =
+
+        getStatusIcon(
+
+            status
+
+        );
+
+
+    const statusLabel =
+
+        getStatusLabel(
+
+            status
+
+        );
+
+
+    /* =============================================
+       DETAIL
+    ============================================= */
+
+    const details = [];
+
+
+    /* ---------------------------------------------
+       SHIFT
+    --------------------------------------------- */
+
+    if(
+
+        item.shift
+
+    ){
+
+        details.push(
+
+            `
+
+            <div class="transaction-detail">
+
+                <span>Shift</span>
+
+                <strong>
+
+                    ${capitalize(item.shift)}
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* ---------------------------------------------
+       ATTENDANCE STATUS
+    --------------------------------------------- */
+
+    if(
+
+        status === "masuk"
+
+        &&
+
+        item.attendanceStatus
+
+    ){
+
+        const label =
+
+            item.attendanceStatus ===
+
+            "ontime"
+
+            ?
+
+            "Ontime"
+
+            :
+
+            "Telat";
+
+
+        details.push(
+
+            `
+
+            <div class="transaction-detail">
+
+                <span>Status</span>
+
+                <strong>
+
+                    ${label}
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* ---------------------------------------------
+       TELAT
+    --------------------------------------------- */
+
+    if(
+
+        toNumber(
+
+            item.lateMinutes
+
+        ) > 0
+
+    ){
+
+        details.push(
+
+            `
+
+            <div class="transaction-detail">
+
+                <span>Telat</span>
+
+                <strong>
+
+                    ${item.lateMinutes} menit
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* ---------------------------------------------
+       IZIN TELAT
+    --------------------------------------------- */
+
+    if(
+
+        toNumber(
+
+            item.izinTelatHours
+
+        ) > 0
+
+    ){
+
+        details.push(
+
+            `
+
+            <div class="transaction-detail">
+
+                <span>Izin Telat</span>
+
+                <strong>
+
+                    ${item.izinTelatHours} jam
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* ---------------------------------------------
+       IZIN PULANG
+    --------------------------------------------- */
+
+    if(
+
+        toNumber(
+
+            item.izinPulangHours
+
+        ) > 0
+
+    ){
+
+        details.push(
+
+            `
+
+            <div class="transaction-detail">
+
+                <span>Izin Pulang</span>
+
+                <strong>
+
+                    ${item.izinPulangHours} jam
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* ---------------------------------------------
+       LEMBUR HARIAN
+    --------------------------------------------- */
+
+    if(
+
+        status === "lembur"
+
+    ){
+
+        details.push(
+
+            `
+
+            <div class="transaction-detail">
+
+                <span>Jenis</span>
+
+                <strong>
+
+                    Lembur Harian
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    /* ---------------------------------------------
+       LEMBUR JAM
+    --------------------------------------------- */
+
+    if(
+
+        toNumber(
+
+            item.overtimeHours
+
+        ) > 0
+
+    ){
+
+        details.push(
+
+            `
+
+            <div class="transaction-detail">
+
+                <span>Lembur Jam</span>
+
+                <strong>
+
+                    ${item.overtimeHours} jam
+
+                </strong>
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    return `
+
+        <div
+
+            class="transaction-item status-${status}"
+
+        >
+
+
+            <div
+
+                class="transaction-header"
+
+            >
+
+
+                <div
+
+                    class="transaction-title"
+
+                >
+
+                    <span
+
+                        class="transaction-icon"
+
+                    >
+
+                        ${icon}
+
+                    </span>
+
+
+                    <strong>
+
+                        ${statusLabel}
+
+                    </strong>
+
+                </div>
+
+
+                <small>
+
+                    ${date}
+
+                </small>
+
+
+            </div>
+
+
+            ${
+
+                details.length
+
+                ?
+
+                `
+
+                <div
+
+                    class="transaction-details"
+
+                >
+
+                    ${
+
+                        details.join("")
+
+                    }
+
+                </div>
+
+                `
+
+                :
+
+                ""
+
+            }
+
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   STATUS ICON
+===================================================== */
+
+function getStatusIcon(
+
+    status
+
+){
+
+    switch(
+
+        status
+
+    ){
+
+        case "masuk":
+
+            return "🟢";
+
+
+        case "lembur":
+
+            return "🔵";
+
+
+        case "cuti":
+
+            return "🏖️";
+
+
+        case "sakit":
+
+            return "🤒";
+
+
+        case "libur":
+
+            return "📅";
+
+
+        case "absen":
+
+            return "❌";
+
+
+        default:
+
+            return "📌";
+
+    }
+
+}
+
+
+/* =====================================================
+   STATUS LABEL
+===================================================== */
+
+function getStatusLabel(
+
+    status
+
+){
+
+    switch(
+
+        status
+
+    ){
+
+        case "masuk":
+
+            return "Masuk";
+
+
+        case "lembur":
+
+            return "Lembur";
+
+
+        case "cuti":
+
+            return "Cuti";
+
+
+        case "sakit":
+
+            return "Sakit";
+
+
+        case "libur":
+
+            return "Libur";
+
+
+        case "absen":
+
+            return "Absen";
+
+
+        default:
+
+            return capitalize(
+
+                status
+
+            );
+
+    }
+
+}
 
 
 /* =====================================================
@@ -831,6 +1274,7 @@ function renderPagination(){
     `
 
         <div class="statistics-pagination">
+
 
             <button
 
@@ -893,6 +1337,7 @@ function renderPagination(){
                 Berikutnya ▶
 
             </button>
+
 
         </div>
 
@@ -991,7 +1436,7 @@ document.addEventListener(
 
 
 /* =====================================================
-   HELPER
+   HELPER : PERIOD
 ===================================================== */
 
 function formatPeriod(
@@ -1002,7 +1447,7 @@ function formatPeriod(
 
 ){
 
-    return(
+    return (
 
         formatDate(
 
@@ -1028,7 +1473,68 @@ function formatPeriod(
 
 
 /* =====================================================
-   CAPITALIZE
+   HELPER : NUMBER
+===================================================== */
+
+function toNumber(
+
+    value
+
+){
+
+    if(
+
+        value ===
+
+        null
+
+        ||
+
+        value ===
+
+        undefined
+
+        ||
+
+        value ===
+
+        ""
+
+    ){
+
+        return 0;
+
+    }
+
+
+    const number =
+
+        Number(
+
+            value
+
+        );
+
+
+    return Number.isFinite(
+
+        number
+
+    )
+
+        ?
+
+        number
+
+        :
+
+        0;
+
+}
+
+
+/* =====================================================
+   HELPER : CAPITALIZE
 ===================================================== */
 
 function capitalize(
@@ -1048,14 +1554,18 @@ function capitalize(
     }
 
 
-    return text.replace(
+    return String(
+
+        text
+
+    ).replace(
 
         /\b\w/g,
 
-        letter=>
+        letter =>
 
             letter.toUpperCase()
 
     );
 
-   }
+       }
