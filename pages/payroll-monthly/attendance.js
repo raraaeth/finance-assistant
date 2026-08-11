@@ -111,6 +111,8 @@ Attendance.init = function(
 
     processSummary();
 
+   };
+
 
 
 /* =====================================================
