@@ -3,7 +3,7 @@
    Page        : Payroll Monthly
    Module      : Rules
    File        : rules.js
-   Version     : 1.1.0
+   Version     : 2.0.0
 
    Description :
    Payroll Rules Engine
@@ -28,7 +28,7 @@ export const Rules = {
 
         gaji : [],
 
-        libur : [],
+        periode : [],
 
         masuk : [],
 
@@ -171,10 +171,10 @@ function groupRules(){
 
 
         /* ---------------------------------------------
-           LIBUR
+           PERIODE
         --------------------------------------------- */
 
-        libur :
+        periode :
 
             Rules.raw.filter(
 
@@ -182,13 +182,13 @@ function groupRules(){
 
                     item.type_rule ===
 
-                    "rule_libur"
+                    "rule_periode"
 
             ),
 
 
         /* ---------------------------------------------
-           MASUK / SHIFT
+           MASUK
         --------------------------------------------- */
 
         masuk :
