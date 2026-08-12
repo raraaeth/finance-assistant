@@ -513,12 +513,11 @@
 </section>     
 
 <!-- ==========================================
-     PAYROLL PERIOD
-     (Payroll Only)
+     PAYROLL : LAST COMPLETED PERIOD
 ========================================== -->
 
 <section
-    id="summary-payroll-period"
+    id="summary-payroll-last"
     class="section hidden">
 
     <div class="section-header">
@@ -526,27 +525,27 @@
         <span
             class="section-badge">
 
-            📅 Periode Gaji
+            💰 Gaji Periode Terakhir
 
         </span>
 
     </div>
 
     <div
-        id="summary-payroll-period-card"
+        id="summary-payroll-last-card"
         class="card">
 
     </div>
 
 </section>
 
+
 <!-- ==========================================
-     PAYROLL CALCULATION
-     (Payroll Only)
+     PAYROLL : CURRENT PERIOD
 ========================================== -->
 
 <section
-    id="summary-payroll-calculation"
+    id="summary-payroll-current"
     class="section hidden">
 
     <div class="section-header">
@@ -554,44 +553,92 @@
         <span
             class="section-badge">
 
-            💰 Rincian Perhitungan Gaji
+            📅 Gaji Bulan Berjalan
 
         </span>
 
     </div>
 
     <div
-        id="summary-payroll-calculation-card"
+        id="summary-payroll-current-card"
         class="card">
 
     </div>
 
 </section>
 
+
 <!-- ==========================================
-     PAYROLL EXPORT
-     (Payroll Only)
+     PAYROLL : DETAIL OVERLAY
 ========================================== -->
 
-<section
-    id="summary-payroll-export"
-    class="section hidden">
+<div
+    id="summary-payroll-overlay"
+    class="summary-payroll-overlay hidden">
+
+
+    <!-- BACKDROP -->
 
     <div
-        id="summary-payroll-export-card"
-        class="card">
-
-        <button
-            id="summary-payroll-export-button">
-
-            📤 Export
-
-        </button>
+        class="summary-payroll-overlay-backdrop"
+        data-close-payroll-overlay>
 
     </div>
 
-</section>        
-        
+
+    <!-- PANEL -->
+
+    <div
+        class="summary-payroll-overlay-panel">
+
+
+        <!-- HEADER -->
+
+        <div
+            class="summary-payroll-overlay-header">
+
+            <div>
+
+                <strong
+                    id="summary-payroll-overlay-title">
+
+                    Rincian Gaji
+
+                </strong>
+
+                <small
+                    id="summary-payroll-overlay-period">
+
+                </small>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="summary-payroll-overlay-close"
+                class="summary-payroll-overlay-close">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <!-- CONTENT -->
+
+        <div
+            id="summary-payroll-overlay-content"
+            class="summary-payroll-overlay-content">
+
+        </div>
+
+
+    </div>
+
+</div>
+
 
     </section>
 
