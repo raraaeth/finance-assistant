@@ -482,7 +482,6 @@ function renderSummary(){
 
 }
 
-
 /* =====================================================
    CURRENT PERIOD
 ===================================================== */
@@ -491,20 +490,20 @@ function renderCurrentPeriod(){
 
     const section =
 
-    document.getElementById(
+        document.getElementById(
 
-        "summary-payroll-current"
+            "summary-payroll-current"
 
-    );
+        );
 
 
     const card =
 
-    document.getElementById(
+        document.getElementById(
 
-        "summary-payroll-current-card"
+            "summary-payroll-current-card"
 
-    );
+        );
 
 
     if(
@@ -520,6 +519,10 @@ function renderCurrentPeriod(){
     }
 
 
+    /* =============================================
+       SHOW SECTION
+    ============================================= */
+
     section.classList.remove(
 
         "hidden"
@@ -527,10 +530,18 @@ function renderCurrentPeriod(){
     );
 
 
+    /* =============================================
+       CURRENT PERIOD
+    ============================================= */
+
     const period =
 
         Summary.currentPeriod;
 
+
+    /* =============================================
+       CALCULATION
+    ============================================= */
 
     const result =
 
@@ -543,16 +554,130 @@ function renderCurrentPeriod(){
         );
 
 
+    /* =============================================
+       HELPER DATA
+    ============================================= */
+
+    const attendance =
+
+        result.attendance ?? [];
+
+
+    const countStatus =
+
+        status =>
+
+            attendance.filter(
+
+                item =>
+
+                    item.status === status
+
+            ).length;
+
+
+    const countLate =
+
+        attendance.filter(
+
+            item =>
+
+                Number(
+
+                    item.lateMinutes ??
+
+                    item.telat ??
+
+                    0
+
+                ) > 0
+
+        ).length;
+
+
+    const countIzinTelat =
+
+        attendance.filter(
+
+            item =>
+
+                Number(
+
+                    item.izinTelatHours ??
+
+                    item.izin_telat ??
+
+                    0
+
+                ) > 0
+
+        ).length;
+
+
+    const countIzinPulang =
+
+        attendance.filter(
+
+            item =>
+
+                Number(
+
+                    item.izinPulangHours ??
+
+                    item.izin_pulang ??
+
+                    0
+
+                ) > 0
+
+        ).length;
+
+
+    const uangMakanDays =
+
+        attendance.filter(
+
+            item =>
+
+                item.status === "masuk" ||
+
+                item.status === "lembur"
+
+        ).length;
+
+
+    const lemburHours =
+
+        attendance.reduce(
+
+            (total, item) =>
+
+                total +
+
+                Number(
+
+                    item.overtimeHours ??
+
+                    item.lembur_jam ??
+
+                    item.lemburJam ??
+
+                    0
+
+                ),
+
+            0
+
+        );
+
+
+    /* =============================================
+       RENDER
+    ============================================= */
+
     card.innerHTML =
 
     `
-
-        <div class="payroll-current-title">
-
-            Periode Berjalan
-
-        </div>
-
 
         <div class="payroll-current-period">
 
@@ -581,96 +706,521 @@ function renderCurrentPeriod(){
         </div>
 
 
-        <div class="payroll-current-grid">
+        <div class="payroll-estimate-total">
+
+            <span>
+
+                Estimasi Total Gaji
+
+            </span>
 
 
-            <div class="payroll-current-item">
+            <strong>
 
-                <span>
+                ${
 
-                    Gaji Pokok
+                    formatRupiah(
 
-                </span>
+                        result.grossSalary
 
-                <strong>
+                    )
 
-                    ${
+                }
 
-                        formatRupiah(
-
-                            result.gajiPokok
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <div class="payroll-current-item">
-
-                <span>
-
-                    Tambahan
-
-                </span>
-
-                <strong>
-
-                    ${
-
-                        formatRupiah(
-
-                            result.totalEarnings
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <div class="payroll-current-item">
-
-                <span>
-
-                    Potongan
-
-                </span>
-
-                <strong>
-
-                    -
-
-                    ${
-
-                        formatRupiah(
-
-                            result.totalDeductions
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
+            </strong>
 
         </div>
 
 
-        <div class="payroll-current-net">
+        <div class="payroll-divider"></div>
+
+
+        <!-- GAJI POKOK -->
+
+        <div class="payroll-row">
 
             <span>
 
-                Estimasi Gaji Bersih
+                Gaji Pokok
 
             </span>
+
+
+            <strong>
+
+                ${
+
+                    formatRupiah(
+
+                        result.gajiPokok
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <!-- PENAMBAHAN -->
+
+        <div class="payroll-subtitle">
+
+            Penambahan
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Uang Makan
+
+                ${
+
+                    uangMakanDays
+
+                        ? `${uangMakanDays} hari`
+
+                        : ""
+
+                }
+
+            </span>
+
+
+            <strong>
+
+                ${
+
+                    formatRupiah(
+
+                        result.earnings.uangMakan
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Uang Transport
+
+            </span>
+
+
+            <strong>
+
+                ${
+
+                    formatRupiah(
+
+                        result.earnings.transport
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Tunjangan
+
+            </span>
+
+
+            <strong>
+
+                ${
+
+                    formatRupiah(
+
+                        result.earnings.tunjangan
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Lembur
+
+                ${
+
+                    lemburHours
+
+                        ? `${lemburHours} jam`
+
+                        : ""
+
+                }
+
+            </span>
+
+
+            <strong>
+
+                ${
+
+                    formatRupiah(
+
+                        result.earnings.lemburJam1 +
+
+                        result.earnings.lemburJam2
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-divider"></div>
+
+
+        <!-- POTONGAN -->
+
+        <div class="payroll-subtitle">
+
+            Potongan
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                BPJS
+
+            </span>
+
+
+            <strong>
+
+                -${
+
+                    formatRupiah(
+
+                        result.deductions.bpjs
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Tabungan
+
+            </span>
+
+
+            <strong>
+
+                -${
+
+                    formatRupiah(
+
+                        result.deductions.tabungan
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Jamsostek
+
+            </span>
+
+
+            <strong>
+
+                -${
+
+                    formatRupiah(
+
+                        result.deductions.jamsostek
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Koperasi
+
+            </span>
+
+
+            <strong>
+
+                -${
+
+                    formatRupiah(
+
+                        result.deductions.koperasi
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="payroll-row">
+
+            <span>
+
+                Lain-lain
+
+            </span>
+
+
+            <strong>
+
+                -${
+
+                    formatRupiah(
+
+                        result.deductions.lainLain
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        ${
+            countLate > 0
+
+                ?
+
+            `
+
+            <div class="payroll-row">
+
+                <span>
+
+                    Pot. Telat ${countLate}x
+
+                </span>
+
+
+                <strong>
+
+                    -${
+
+                        formatRupiah(
+
+                            result.deductions.potonganTelat
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+                :
+
+            ""
+
+        }
+
+
+        ${
+            countIzinTelat > 0
+
+                ?
+
+            `
+
+            <div class="payroll-row">
+
+                <span>
+
+                    Pot. Izin Telat ${countIzinTelat}x
+
+                </span>
+
+
+                <strong>
+
+                    -${
+
+                        formatRupiah(
+
+                            result.deductions.potonganIzinTelat
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+                :
+
+            ""
+
+        }
+
+
+        ${
+            countIzinPulang > 0
+
+                ?
+
+            `
+
+            <div class="payroll-row">
+
+                <span>
+
+                    Pot. Izin Pulang ${countIzinPulang}x
+
+                </span>
+
+
+                <strong>
+
+                    -${
+
+                        formatRupiah(
+
+                            result.deductions.potonganIzinPulang
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+                :
+
+            ""
+
+        }
+
+
+        ${
+            countStatus("absen") > 0
+
+                ?
+
+            `
+
+            <div class="payroll-row">
+
+                <span>
+
+                    Pot. Absen ${
+
+                        countStatus("absen")
+
+                    }x
+
+                </span>
+
+
+                <strong>
+
+                    -${
+
+                        formatRupiah(
+
+                            result.deductions.potonganAbsen
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+                :
+
+            ""
+
+        }
+
+
+        <div class="payroll-divider"></div>
+
+
+        <!-- GAJI BERSIH -->
+
+        <div class="payroll-net">
+
+            <span>
+
+                Gaji Bersih
+
+            </span>
+
 
             <strong>
 
@@ -691,7 +1241,7 @@ function renderCurrentPeriod(){
     `;
 
 }
-
+            
 
 /* =====================================================
    CALCULATE PAYROLL
