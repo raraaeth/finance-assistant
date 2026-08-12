@@ -920,3 +920,103 @@
     }
 
 }
+
+/* =====================================================
+   PAYROLL : LAST PERIOD
+===================================================== */
+
+.payroll-last-period{
+
+    font-size:14px;
+
+    color:#7d8988;
+
+    text-align:left;
+
+    margin-bottom:22px;
+
+}
+
+
+/* =====================================================
+   SALARY
+===================================================== */
+
+.payroll-last-salary{
+
+    font-size:30px;
+
+    font-weight:700;
+
+    color:#243f3e;
+
+    text-align:center;
+
+    margin-bottom:28px;
+
+}
+
+
+/* =====================================================
+   PERIOD NAVIGATION
+===================================================== */
+
+.payroll-period-navigation{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    width:100%;
+
+    margin-top:8px;
+
+}
+
+
+.payroll-period-navigation button{
+
+    border:none;
+
+    background:none;
+
+    padding:6px 0;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    color:#334b4a;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   DETAIL BUTTON
+===================================================== */
+
+.payroll-period-detail{
+
+    display:block;
+
+    margin:10px auto 0;
+
+    padding:6px 12px;
+
+    border:none;
+
+    background:none;
+
+    font-size:14px;
+
+    font-weight:500;
+
+    color:#5f7775;
+
+    cursor:pointer;
+
+}
