@@ -2,18 +2,21 @@
    Finance Assistant
    Component    : Global Overlay
    File         : script.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Global reusable overlay component
 
+   Animation :
+   Right → Left
+
    Features :
-   - Open overlay
-   - Close overlay
+   - Open
+   - Close
    - Dynamic title
    - Dynamic period
    - Dynamic content
-   - User display name
+   - User name
    - Footer branding
 ===================================================== */
 
@@ -51,12 +54,12 @@ Overlay.init = function(){
     createOverlay();
 
 
+    registerEvents();
+
+
     Overlay.initialized =
 
         true;
-
-
-    registerEvents();
 
 };
 
@@ -141,13 +144,35 @@ function createOverlay(){
 
                 <div
 
-                    class="global-overlay-user">
+                    class="global-overlay-header-info">
+
+
+                    <strong
+
+                        id="global-overlay-title"
+
+                        class="global-overlay-title">
+
+                    </strong>
+
+
+                    <small
+
+                        id="global-overlay-period"
+
+                        class="global-overlay-period">
+
+                    </small>
+
 
                     <span
 
-                        id="global-overlay-user-name">
+                        id="global-overlay-user"
+
+                        class="global-overlay-user">
 
                     </span>
+
 
                 </div>
 
@@ -163,30 +188,6 @@ function createOverlay(){
                     ✕
 
                 </button>
-
-
-            </div>
-
-
-            <!-- TITLE -->
-
-            <div
-
-                class="global-overlay-title">
-
-
-                <strong
-
-                    id="global-overlay-title">
-
-                </strong>
-
-
-                <small
-
-                    id="global-overlay-period">
-
-                </small>
 
 
             </div>
@@ -209,7 +210,13 @@ function createOverlay(){
 
                 class="global-overlay-footer">
 
-                — Finance Assistant App —
+
+                <small>
+
+                    — Finance Assistant App —
+
+                </small>
+
 
             </div>
 
@@ -239,65 +246,62 @@ function createOverlay(){
 
 function registerEvents(){
 
-    const closeButton =
+    document.addEventListener(
 
-        document.getElementById(
+        "click",
 
-            "global-overlay-close"
-
-        );
+        event => {
 
 
-    if(
+            /* -----------------------------------------
+               CLOSE BUTTON
+            ----------------------------------------- */
 
-        closeButton
+            if(
 
-    ){
+                event.target.closest(
 
-        closeButton.addEventListener(
+                    "#global-overlay-close"
 
-            "click",
+                )
 
-            () => {
-
-                Overlay.close();
-
-            }
-
-        );
-
-    }
-
-
-    const backdrop =
-
-        document.querySelector(
-
-            "[data-overlay-close]"
-
-        );
-
-
-    if(
-
-        backdrop
-
-    ){
-
-        backdrop.addEventListener(
-
-            "click",
-
-            () => {
+            ){
 
                 Overlay.close();
 
+                return;
+
             }
 
-        );
 
-    }
+            /* -----------------------------------------
+               BACKDROP
+            ----------------------------------------- */
 
+            if(
+
+                event.target.closest(
+
+                    "[data-overlay-close]"
+
+                )
+
+            ){
+
+                Overlay.close();
+
+                return;
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       ESCAPE
+    ============================================= */
 
     document.addEventListener(
 
@@ -368,6 +372,15 @@ Overlay.open = function({
         );
 
 
+    const userElement =
+
+        document.getElementById(
+
+            "global-overlay-user"
+
+        );
+
+
     const contentElement =
 
         document.getElementById(
@@ -377,14 +390,9 @@ Overlay.open = function({
         );
 
 
-    const userElement =
-
-        document.getElementById(
-
-            "global-overlay-user-name"
-
-        );
-
+    /* =============================================
+       DATA
+    ============================================= */
 
     if(
 
@@ -414,19 +422,6 @@ Overlay.open = function({
 
     if(
 
-        contentElement
-
-    ){
-
-        contentElement.innerHTML =
-
-            content;
-
-    }
-
-
-    if(
-
         userElement
 
     ){
@@ -438,9 +433,47 @@ Overlay.open = function({
     }
 
 
+    if(
+
+        contentElement
+
+    ){
+
+        contentElement.innerHTML =
+
+            content;
+
+    }
+
+
+    /* =============================================
+       SHOW
+    ============================================= */
+
     Overlay.element.classList.remove(
 
         "hidden"
+
+    );
+
+
+    /*
+       Tunggu satu frame supaya browser
+       sempat membaca posisi awal
+       translateX(100%).
+    */
+
+    requestAnimationFrame(
+
+        () => {
+
+            Overlay.element.classList.add(
+
+                "active"
+
+            );
+
+        }
 
     );
 
@@ -471,9 +504,39 @@ Overlay.close = function(){
     }
 
 
-    Overlay.element.classList.add(
+    Overlay.element.classList.remove(
 
-        "hidden"
+        "active"
+
+    );
+
+
+    /*
+       Tunggu animasi selesai,
+       baru benar-benar hidden.
+    */
+
+    setTimeout(
+
+        () => {
+
+            if(
+
+                Overlay.element
+
+            ){
+
+                Overlay.element.classList.add(
+
+                    "hidden"
+
+                );
+
+            }
+
+        },
+
+        300
 
     );
 
@@ -596,3 +659,41 @@ Overlay.setPeriod = function(
         period;
 
 };
+
+
+/* =====================================================
+   SET USER
+===================================================== */
+
+Overlay.setUser = function(
+
+    userName
+
+){
+
+    const element =
+
+        document.getElementById(
+
+            "global-overlay-user"
+
+        );
+
+
+    if(
+
+        !element
+
+    ){
+
+        return;
+
+    }
+
+
+    element.textContent =
+
+        userName;
+
+};
+
