@@ -2,22 +2,13 @@
    Finance Assistant
    Component    : Global Overlay
    File         : script.js
-   Version      : 1.1.0
+   Version      : 1.0.0
 
    Description :
-   Global reusable overlay component
+   Reusable Global Overlay
 
-   Animation :
+   Direction :
    Right → Left
-
-   Features :
-   - Open
-   - Close
-   - Dynamic title
-   - Dynamic period
-   - Dynamic content
-   - User name
-   - Footer branding
 ===================================================== */
 
 
@@ -25,270 +16,132 @@
    STATE
 ===================================================== */
 
+let initialized = false;
+
+
+/* =====================================================
+   OVERLAY
+===================================================== */
+
 export const Overlay = {
 
-    element : null,
 
-    initialized : false
+    /* =================================================
+       INIT
+    ================================================= */
 
-};
+    async init(){
 
+        if(
 
-/* =====================================================
-   INIT
-===================================================== */
+            initialized
 
-Overlay.init = function(){
+        ){
 
-    if(
+            return;
 
-        Overlay.initialized
+        }
 
-    ){
 
-        return;
+        /* =============================================
+           CHECK EXISTING
+        ============================================= */
 
-    }
+        let overlay =
 
+            document.getElementById(
 
-    createOverlay();
+                "global-overlay"
 
+            );
 
-    registerEvents();
 
+        /* =============================================
+           LOAD HTML
+        ============================================= */
 
-    Overlay.initialized =
+        if(
 
-        true;
+            !overlay
 
-};
+        ){
 
+            try{
 
-/* =====================================================
-   CREATE OVERLAY
-===================================================== */
+                const response =
 
-function createOverlay(){
+                    await fetch(
 
-    const existing =
+                        new URL(
 
-        document.getElementById(
+                            "./index.html",
 
-            "global-overlay"
+                            import.meta.url
 
-        );
+                        )
 
+                    );
 
-    if(
 
-        existing
+                if(
 
-    ){
+                    !response.ok
 
-        Overlay.element =
+                ){
 
-            existing;
+                    throw new Error(
 
-        return;
+                        "Overlay HTML gagal dimuat"
 
-    }
+                    );
 
+                }
 
-    const overlay =
 
-        document.createElement(
+                const html =
 
-            "div"
+                    await response.text();
 
-        );
 
+                const wrapper =
 
-    overlay.id =
+                    document.createElement(
 
-        "global-overlay";
+                        "div"
 
+                    );
 
-    overlay.className =
 
-        "global-overlay hidden";
+                wrapper.innerHTML =
 
+                    html;
 
-    overlay.innerHTML =
 
-    `
+                const element =
 
-        <!-- BACKDROP -->
+                    wrapper.firstElementChild;
 
-        <div
 
-            class="global-overlay-backdrop"
+                document.body.appendChild(
 
-            data-overlay-close>
+                    element
 
-        </div>
+                );
 
 
-        <!-- PANEL -->
-
-        <div
-
-            class="global-overlay-panel">
-
-
-            <!-- HEADER -->
-
-            <div
-
-                class="global-overlay-header">
-
-
-                <div
-
-                    class="global-overlay-header-info">
-
-
-                    <strong
-
-                        id="global-overlay-title"
-
-                        class="global-overlay-title">
-
-                    </strong>
-
-
-                    <small
-
-                        id="global-overlay-period"
-
-                        class="global-overlay-period">
-
-                    </small>
-
-
-                    <span
-
-                        id="global-overlay-user"
-
-                        class="global-overlay-user">
-
-                    </span>
-
-
-                </div>
-
-
-                <button
-
-                    type="button"
-
-                    id="global-overlay-close"
-
-                    class="global-overlay-close">
-
-                    ✕
-
-                </button>
-
-
-            </div>
-
-
-            <!-- CONTENT -->
-
-            <div
-
-                id="global-overlay-content"
-
-                class="global-overlay-content">
-
-            </div>
-
-
-            <!-- FOOTER -->
-
-            <div
-
-                class="global-overlay-footer">
-
-
-                <small>
-
-                    — Finance Assistant App —
-
-                </small>
-
-
-            </div>
-
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(
-
-        overlay
-
-    );
-
-
-    Overlay.element =
-
-        overlay;
-
-}
-
-
-/* =====================================================
-   EVENTS
-===================================================== */
-
-function registerEvents(){
-
-    document.addEventListener(
-
-        "click",
-
-        event => {
-
-
-            /* -----------------------------------------
-               CLOSE BUTTON
-            ----------------------------------------- */
-
-            if(
-
-                event.target.closest(
-
-                    "#global-overlay-close"
-
-                )
-
-            ){
-
-                Overlay.close();
-
-                return;
+                overlay = element;
 
             }
 
+            catch(error){
 
-            /* -----------------------------------------
-               BACKDROP
-            ----------------------------------------- */
+                console.error(
 
-            if(
+                    "Global Overlay Error:",
 
-                event.target.closest(
+                    error
 
-                    "[data-overlay-close]"
-
-                )
-
-            ){
-
-                Overlay.close();
+                );
 
                 return;
 
@@ -296,404 +149,270 @@ function registerEvents(){
 
         }
 
-    );
 
+        /* =============================================
+           EVENTS
+        ============================================= */
 
-    /* =============================================
-       ESCAPE
-    ============================================= */
+        const closeButton =
 
-    document.addEventListener(
+            document.getElementById(
 
-        "keydown",
+                "global-overlay-close"
 
-        event => {
+            );
 
-            if(
 
-                event.key === "Escape"
+        const backdrop =
 
-            ){
+            document.getElementById(
 
-                Overlay.close();
+                "global-overlay-backdrop"
 
-            }
+            );
 
-        }
 
-    );
+        if(
 
-}
+            closeButton
 
+        ){
 
-/* =====================================================
-   OPEN
-===================================================== */
+            closeButton.addEventListener(
 
-Overlay.open = function({
+                "click",
 
-    title = "",
+                () => {
 
-    period = "",
+                    Overlay.close();
 
-    content = "",
-
-    userName = ""
-
-} = {}){
-
-
-    if(
-
-        !Overlay.initialized
-
-    ){
-
-        Overlay.init();
-
-    }
-
-
-    const titleElement =
-
-        document.getElementById(
-
-            "global-overlay-title"
-
-        );
-
-
-    const periodElement =
-
-        document.getElementById(
-
-            "global-overlay-period"
-
-        );
-
-
-    const userElement =
-
-        document.getElementById(
-
-            "global-overlay-user"
-
-        );
-
-
-    const contentElement =
-
-        document.getElementById(
-
-            "global-overlay-content"
-
-        );
-
-
-    /* =============================================
-       DATA
-    ============================================= */
-
-    if(
-
-        titleElement
-
-    ){
-
-        titleElement.textContent =
-
-            title;
-
-    }
-
-
-    if(
-
-        periodElement
-
-    ){
-
-        periodElement.textContent =
-
-            period;
-
-    }
-
-
-    if(
-
-        userElement
-
-    ){
-
-        userElement.textContent =
-
-            userName;
-
-    }
-
-
-    if(
-
-        contentElement
-
-    ){
-
-        contentElement.innerHTML =
-
-            content;
-
-    }
-
-
-    /* =============================================
-       SHOW
-    ============================================= */
-
-    Overlay.element.classList.remove(
-
-        "hidden"
-
-    );
-
-
-    /*
-       Tunggu satu frame supaya browser
-       sempat membaca posisi awal
-       translateX(100%).
-    */
-
-    requestAnimationFrame(
-
-        () => {
-
-            Overlay.element.classList.add(
-
-                "active"
+                }
 
             );
 
         }
 
-    );
+
+        if(
+
+            backdrop
+
+        ){
+
+            backdrop.addEventListener(
+
+                "click",
+
+                () => {
+
+                    Overlay.close();
+
+                }
+
+            );
+
+        }
 
 
-    document.body.classList.add(
+        /* =============================================
+           ESC
+        ============================================= */
 
-        "overlay-open"
+        document.addEventListener(
 
-    );
+            "keydown",
 
-};
+            event => {
 
+                if(
 
-/* =====================================================
-   CLOSE
-===================================================== */
+                    event.key === "Escape"
 
-Overlay.close = function(){
+                ){
 
-    if(
+                    Overlay.close();
 
-        !Overlay.element
-
-    ){
-
-        return;
-
-    }
-
-
-    Overlay.element.classList.remove(
-
-        "active"
-
-    );
-
-
-    /*
-       Tunggu animasi selesai,
-       baru benar-benar hidden.
-    */
-
-    setTimeout(
-
-        () => {
-
-            if(
-
-                Overlay.element
-
-            ){
-
-                Overlay.element.classList.add(
-
-                    "hidden"
-
-                );
+                }
 
             }
 
-        },
-
-        300
-
-    );
+        );
 
 
-    document.body.classList.remove(
+        initialized =
 
-        "overlay-open"
+            true;
 
-    );
-
-};
+    },
 
 
-/* =====================================================
-   SET CONTENT
-===================================================== */
+    /* =================================================
+       OPEN
+    ================================================= */
 
-Overlay.setContent = function(
+    async open({
 
-    content
+        title = "Rincian",
 
-){
+        period = "",
 
-    const element =
+        content = ""
 
-        document.getElementById(
+    } = {}){
 
-            "global-overlay-content"
+
+        await Overlay.init();
+
+
+        const overlay =
+
+            document.getElementById(
+
+                "global-overlay"
+
+            );
+
+
+        const titleElement =
+
+            document.getElementById(
+
+                "global-overlay-title"
+
+            );
+
+
+        const periodElement =
+
+            document.getElementById(
+
+                "global-overlay-period"
+
+            );
+
+
+        const contentElement =
+
+            document.getElementById(
+
+                "global-overlay-content"
+
+            );
+
+
+        if(
+
+            !overlay
+
+        ){
+
+            return;
+
+        }
+
+
+        /* =============================================
+           CONTENT
+        ============================================= */
+
+        if(
+
+            titleElement
+
+        ){
+
+            titleElement.textContent =
+
+                title;
+
+        }
+
+
+        if(
+
+            periodElement
+
+        ){
+
+            periodElement.textContent =
+
+                period;
+
+        }
+
+
+        if(
+
+            contentElement
+
+        ){
+
+            contentElement.innerHTML =
+
+                content;
+
+        }
+
+
+        /* =============================================
+           SHOW
+        ============================================= */
+
+        overlay.classList.add(
+
+            "is-open"
 
         );
 
 
-    if(
+        document.body.classList.add(
 
-        !element
+            "overlay-open"
 
-    ){
+        );
 
-        return;
-
-    }
+    },
 
 
-    element.innerHTML =
+    /* =================================================
+       CLOSE
+    ================================================= */
 
-        content;
+    close(){
 
-};
+        const overlay =
+
+            document.getElementById(
+
+                "global-overlay"
+
+            );
 
 
-/* =====================================================
-   SET TITLE
-===================================================== */
+        if(
 
-Overlay.setTitle = function(
+            !overlay
 
-    title
+        ){
 
-){
+            return;
 
-    const element =
+        }
 
-        document.getElementById(
 
-            "global-overlay-title"
+        overlay.classList.remove(
+
+            "is-open"
 
         );
 
 
-    if(
+        document.body.classList.remove(
 
-        !element
-
-    ){
-
-        return;
-
-    }
-
-
-    element.textContent =
-
-        title;
-
-};
-
-
-/* =====================================================
-   SET PERIOD
-===================================================== */
-
-Overlay.setPeriod = function(
-
-    period
-
-){
-
-    const element =
-
-        document.getElementById(
-
-            "global-overlay-period"
+            "overlay-open"
 
         );
 
-
-    if(
-
-        !element
-
-    ){
-
-        return;
-
     }
 
-
-    element.textContent =
-
-        period;
-
 };
-
-
-/* =====================================================
-   SET USER
-===================================================== */
-
-Overlay.setUser = function(
-
-    userName
-
-){
-
-    const element =
-
-        document.getElementById(
-
-            "global-overlay-user"
-
-        );
-
-
-    if(
-
-        !element
-
-    ){
-
-        return;
-
-    }
-
-
-    element.textContent =
-
-        userName;
-
-};
-
