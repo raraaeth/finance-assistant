@@ -3,18 +3,20 @@
    Page        : Payroll Monthly
    Module      : Summary
    File        : summary.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
-   Payroll Monthly Salary Summary Controller
+   Payroll Summary / Salary History
 
    Sections :
    - Import
    - State
    - Init
-   - Last Completed Period
-   - Current Period
+   - Payroll Period
+   - Payroll Calculation
+   - Pagination
    - Detail Overlay
+   - Export
    - Helper
 ===================================================== */
 
@@ -29,12 +31,6 @@ import {
 
 } from "./process.js";
 
-import {
-
-    formatDate
-
-} from "../../js/utils.js";
-
 
 /* =====================================================
    STATE
@@ -42,11 +38,31 @@ import {
 
 export const Summary = {
 
+    currentPeriod : {
+
+        start : null,
+
+        end : null
+
+    },
+
+
+    selectedPeriod : {
+
+        start : null,
+
+        end : null
+
+    },
+
+
     periodOffset : 0,
 
-    lastPeriod : null,
 
-    currentPeriod : null
+    historyData : null,
+
+
+    initialized : false
 
 };
 
@@ -57,26 +73,206 @@ export const Summary = {
 
 Summary.init = function(){
 
-    renderLastPeriod();
+    if(
 
-    renderCurrentPeriod();
+        Summary.initialized
+
+    ){
+
+        return;
+
+    }
+
+
+    Summary.initialized =
+
+        true;
+
 
     registerEvents();
+
+
+    processPayrollSummary();
 
 };
 
 
 /* =====================================================
-   LAST COMPLETED PERIOD
+   PROCESS PAYROLL SUMMARY
 ===================================================== */
 
-function renderLastPeriod(){
+function processPayrollSummary(){
+
+    const today =
+
+        new Date();
+
+
+    /*
+       Tentukan periode payroll
+       yang sedang berjalan.
+
+       Jika hari >= 26 :
+
+       26 bulan ini
+       -
+       25 bulan berikutnya
+
+       Jika hari < 26 :
+
+       26 bulan sebelumnya
+       -
+       25 bulan ini
+    */
+
+    let currentStart;
+
+    let currentEnd;
+
+
+    if(
+
+        today.getDate() >= 26
+
+    ){
+
+        currentStart =
+
+            new Date(
+
+                today.getFullYear(),
+
+                today.getMonth(),
+
+                26
+
+            );
+
+
+        currentEnd =
+
+            new Date(
+
+                today.getFullYear(),
+
+                today.getMonth() + 1,
+
+                25
+
+            );
+
+    }
+
+    else {
+
+        currentStart =
+
+            new Date(
+
+                today.getFullYear(),
+
+                today.getMonth() - 1,
+
+                26
+
+            );
+
+
+        currentEnd =
+
+            new Date(
+
+                today.getFullYear(),
+
+                today.getMonth(),
+
+                25
+
+            );
+
+    }
+
+
+    Summary.currentPeriod = {
+
+        start :
+
+            currentStart,
+
+        end :
+
+            currentEnd
+
+    };
+
+
+    /*
+       Periode terakhir yang sudah selesai
+    */
+
+    const lastStart =
+
+        new Date(
+
+            currentStart.getFullYear(),
+
+            currentStart.getMonth() - 1,
+
+            26
+
+        );
+
+
+    const lastEnd =
+
+        new Date(
+
+            currentStart.getFullYear(),
+
+            currentStart.getMonth(),
+
+            25
+
+        );
+
+
+    Summary.selectedPeriod = {
+
+        start :
+
+            lastStart,
+
+        end :
+
+            lastEnd
+
+    };
+
+
+    Summary.periodOffset =
+
+        -1;
+
+
+    renderSummary();
+
+
+    renderCurrentPeriod();
+
+}
+
+
+/* =====================================================
+   RENDER SUMMARY
+===================================================== */
+
+function renderSummary(){
 
     const section =
 
         document.getElementById(
 
-            "summary-payroll-last"
+            "summary-payroll-period"
 
         );
 
@@ -85,7 +281,7 @@ function renderLastPeriod(){
 
         document.getElementById(
 
-            "summary-payroll-last-card"
+            "summary-payroll-period-card"
 
         );
 
@@ -110,94 +306,88 @@ function renderLastPeriod(){
     );
 
 
-    const calculation =
-
-        Process.calculation ?? {};
-
-
     const period =
 
-        Process.period ?? {};
+        Summary.selectedPeriod;
 
 
-    Summary.lastPeriod = {
+    const result =
 
-        start :
+        calculatePayroll(
 
             period.start,
 
-        end :
+            period.end
 
-            period.end,
+        );
 
-        startText :
 
-            period.startText,
+    Summary.historyData =
 
-        endText :
-
-            period.endText
-
-    };
+        result;
 
 
     card.innerHTML =
 
     `
 
-        <div class="payroll-summary-period">
+        <div class="payroll-period-title">
 
-            <span>
-
-                Periode Gaji
-
-            </span>
-
-            <strong>
-
-                ${
-
-                    formatPeriod(
-
-                        period.start,
-
-                        period.end
-
-                    )
-
-                }
-
-            </strong>
+            Gaji Periode
 
         </div>
 
 
-        <div class="payroll-summary-net">
+        <div class="payroll-period-date">
 
-            <span>
+            ${
 
-                Gaji Bersih
+                formatDate(
 
-            </span>
+                    period.start
 
-            <strong>
+                )
 
-                ${
+            }
 
-                    formatRupiah(
+            -
 
-                        calculation.netSalary
+            ${
 
-                    )
+                formatDate(
 
-                }
+                    period.end
 
-            </strong>
+                )
+
+            }
 
         </div>
 
 
-        <div class="payroll-summary-navigation">
+        <div class="payroll-net-label">
+
+            Gaji Bersih
+
+        </div>
+
+
+        <div class="payroll-net-value">
+
+            ${
+
+                formatRupiah(
+
+                    result.netSalary
+
+                )
+
+            }
+
+        </div>
+
+
+        <div class="payroll-period-navigation">
 
             <button
                 type="button"
@@ -219,7 +409,16 @@ function renderLastPeriod(){
 
             <button
                 type="button"
-                id="payroll-period-next">
+                id="payroll-period-next"
+                ${
+
+                    Summary.periodOffset >= 0
+
+                        ? "disabled"
+
+                        : ""
+
+                }>
 
                 ▶
 
@@ -242,7 +441,7 @@ function renderCurrentPeriod(){
 
         document.getElementById(
 
-            "summary-payroll-current"
+            "summary-payroll-calculation"
 
         );
 
@@ -251,7 +450,7 @@ function renderCurrentPeriod(){
 
         document.getElementById(
 
-            "summary-payroll-current-card"
+            "summary-payroll-calculation-card"
 
         );
 
@@ -278,242 +477,66 @@ function renderCurrentPeriod(){
 
     const period =
 
-        Process.period ?? {};
+        Summary.currentPeriod;
 
 
-    /*
-       Process.period adalah
-       periode gaji penuh terakhir.
+    const result =
 
-       Periode berjalan dihitung
-       berdasarkan periode tersebut.
-    */
+        calculatePayroll(
 
-    if(
+            period.start,
 
-        !period.start ||
-
-        !period.end
-
-    ){
-
-        card.innerHTML =
-
-            `
-
-            <div class="payroll-empty">
-
-                Periode gaji belum tersedia.
-
-            </div>
-
-            `;
-
-        return;
-
-    }
-
-
-    const currentStart =
-
-        new Date(
-
-            period.start.getFullYear(),
-
-            period.start.getMonth() + 1,
-
-            period.start.getDate()
+            period.end
 
         );
-
-
-    const currentEnd =
-
-        new Date(
-
-            period.end.getFullYear(),
-
-            period.end.getMonth() + 1,
-
-            period.end.getDate()
-
-        );
-
-
-    Summary.currentPeriod = {
-
-        start :
-
-            currentStart,
-
-        end :
-
-            currentEnd
-
-    };
-
-
-    const attendance =
-
-        Process.attendance?.data ?? [];
-
-
-    const currentAttendance =
-
-        attendance.filter(
-
-            item => {
-
-                if(
-
-                    !item.dateObject
-
-                ){
-
-                    return false;
-
-                }
-
-
-                return (
-
-                    item.dateObject >=
-
-                    currentStart
-
-                )
-
-                &&
-
-                (
-
-                    item.dateObject <=
-
-                    currentEnd
-
-                );
-
-            }
-
-        );
-
-
-    const summary =
-
-        calculateCurrentSummary(
-
-            currentAttendance
-
-        );
-
-
-    const gajiPokok =
-
-        findRuleNominal(
-
-            "gaji"
-
-        );
-
-
-    const tunjangan =
-
-        findRuleNominal(
-
-            "tunjangan"
-
-        );
-
-
-    const transport =
-
-        findRuleNominal(
-
-            "uang_transport"
-
-        );
-
-
-    const uangMakan =
-
-        summary.masukMakan *
-
-        findRuleNominal(
-
-            "uang_makan"
-
-        );
-
-
-    const lemburHarian =
-
-        summary.lembur *
-
-        0;
-
-
-    const lemburJam =
-
-        calculateOvertimePay(
-
-            currentAttendance
-
-        );
-
-
-    const gross =
-
-        gajiPokok +
-
-        tunjangan +
-
-        transport +
-
-        uangMakan +
-
-        lemburHarian +
-
-        lemburJam;
 
 
     card.innerHTML =
 
     `
 
-        <div class="payroll-summary-period">
+        <div class="payroll-current-title">
 
-            <span>
+            Periode Berjalan
 
-                Periode Berjalan
+        </div>
 
-            </span>
 
-            <strong>
+        <div class="payroll-current-period">
 
-                ${
+            ${
 
-                    formatPeriod(
+                formatDate(
 
-                        currentStart,
+                    period.start
 
-                        currentEnd
+                )
 
-                    )
+            }
 
-                }
+            -
 
-            </strong>
+            ${
+
+                formatDate(
+
+                    period.end
+
+                )
+
+            }
 
         </div>
 
 
         <div class="payroll-current-grid">
 
+
             <div class="payroll-current-item">
 
                 <span>
 
-                    Masuk
+                    Gaji Pokok
 
                 </span>
 
@@ -521,7 +544,11 @@ function renderCurrentPeriod(){
 
                     ${
 
-                        summary.masuk
+                        formatRupiah(
+
+                            result.gajiPokok
+
+                        )
 
                     }
 
@@ -534,7 +561,7 @@ function renderCurrentPeriod(){
 
                 <span>
 
-                    Lembur
+                    Tambahan
 
                 </span>
 
@@ -542,7 +569,11 @@ function renderCurrentPeriod(){
 
                     ${
 
-                        summary.lembur
+                        formatRupiah(
+
+                            result.totalEarnings
+
+                        )
 
                     }
 
@@ -555,30 +586,37 @@ function renderCurrentPeriod(){
 
                 <span>
 
-                    Lembur Jam
+                    Potongan
 
                 </span>
 
                 <strong>
 
+                    -
+
                     ${
 
-                        summary.lemburHours
+                        formatRupiah(
+
+                            result.totalDeductions
+
+                        )
 
                     }
 
                 </strong>
 
             </div>
+
 
         </div>
 
 
-        <div class="payroll-current-estimate">
+        <div class="payroll-current-net">
 
             <span>
 
-                Estimasi Penghasilan
+                Estimasi Gaji Bersih
 
             </span>
 
@@ -588,7 +626,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        gross
+                        result.netSalary
 
                     )
 
@@ -604,141 +642,191 @@ function renderCurrentPeriod(){
 
 
 /* =====================================================
-   CURRENT SUMMARY
+   CALCULATE PAYROLL
 ===================================================== */
 
-function calculateCurrentSummary(
+function calculatePayroll(
 
-    attendance
+    start,
+
+    end
 
 ){
 
-    const summary = {
+    const attendance =
 
-        masuk : 0,
+        Process.attendance?.data ??
 
-        masukMakan : 0,
+        [];
 
-        lembur : 0,
-
-        lemburHours : 0
-
-    };
-
-
-    attendance.forEach(
-
-        item => {
-
-            if(
-
-                item.status ===
-
-                "masuk"
-
-            ){
-
-                summary.masuk++;
-
-                summary.masukMakan++;
-
-            }
-
-
-            if(
-
-                item.status ===
-
-                "lembur"
-
-            ){
-
-                summary.lembur++;
-
-            }
-
-
-            summary.lemburHours +=
-
-                Number(
-
-                    item.overtimeHours || 0
-
-                );
-
-        }
-
-    );
-
-
-    return summary;
-
-}
-
-
-/* =====================================================
-   OVERTIME PAY
-===================================================== */
-
-function calculateOvertimePay(
-
-    attendance
-
-){
 
     const rules =
 
-        Process.rules?.tambah ?? [];
+        Process.rules ??
+
+        {};
 
 
-    const ruleOne =
+    const rows =
 
-        rules.find(
+        attendance.filter(
+
+            item => {
+
+                const date =
+
+                    getAttendanceDate(
+
+                        item
+
+                    );
+
+
+                if(
+
+                    !date
+
+                ){
+
+                    return false;
+
+                }
+
+
+                return (
+
+                    date >= start &&
+
+                    date <= end
+
+                );
+
+            }
+
+        );
+
+
+    const allRules =
+
+        flattenRules(
+
+            rules
+
+        );
+
+
+    const gajiRule =
+
+        allRules.find(
 
             rule =>
 
                 rule.nama ===
 
-                "lembur_jam_1"
+                "gaji"
 
         );
 
 
-    const ruleTwo =
+    const gajiPokok =
 
-        rules.find(
+        Number(
+
+            gajiRule?.nominal || 0
+
+        );
+
+
+    let uangMakan = 0;
+
+    let lemburJam1 = 0;
+
+    let lemburJam2 = 0;
+
+    let tunjangan = 0;
+
+    let transport = 0;
+
+
+    let bpjs = 0;
+
+    let tabungan = 0;
+
+    let jamsostek = 0;
+
+    let koperasi = 0;
+
+    let lainLain = 0;
+
+
+    let potonganTelat = 0;
+
+    let potonganIzinTelat = 0;
+
+    let potonganIzinPulang = 0;
+
+    let potonganAbsen = 0;
+
+
+    /*
+       UANG MAKAN
+
+       Kondisi:
+
+       masuk, lembur
+
+       nominal:
+
+       8.000 / hari
+    */
+
+    const uangMakanRule =
+
+        allRules.find(
 
             rule =>
 
                 rule.nama ===
 
-                "lembur_jam_2"
+                "uang_makan"
 
         );
 
 
-    const nominalOne =
+    const makanNominal =
 
         Number(
 
-            ruleOne?.nominal || 0
+            uangMakanRule?.nominal || 0
 
         );
 
 
-    const nominalTwo =
+    const makanCount =
 
-        Number(
+        rows.filter(
 
-            ruleTwo?.nominal || 0
+            item =>
 
-        );
+                item.status === "masuk" ||
+
+                item.status === "lembur"
+
+        ).length;
 
 
-    let total = 0;
+    uangMakan =
+
+        makanCount *
+
+        makanNominal;
 
 
-    attendance.forEach(
+    /*
+       LEMBUR JAM
+    */
+
+    rows.forEach(
 
         item => {
 
@@ -746,7 +834,13 @@ function calculateOvertimePay(
 
                 Number(
 
-                    item.overtimeHours || 0
+                    item.overtimeHours ??
+
+                    item.lembur_jam ??
+
+                    item.lemburJam ??
+
+                    0
 
                 );
 
@@ -768,37 +862,58 @@ function calculateOvertimePay(
 
             ){
 
-                total +=
+                const rule =
 
-                    nominalOne;
+                    allRules.find(
 
-                return;
+                        r =>
+
+                            r.nama ===
+
+                            "lembur_jam_1"
+
+                    );
+
+
+                lemburJam1 +=
+
+                    Number(
+
+                        rule?.nominal || 0
+
+                    );
 
             }
 
 
-            total +=
+            else if(
 
-                nominalOne;
-
-
-            if(
-
-                hours > 1
+                hours >= 2
 
             ){
 
-                total +=
+                const rule =
 
-                    (
+                    allRules.find(
 
-                        hours - 1
+                        r =>
 
-                    )
+                            r.nama ===
 
-                    *
+                            "lembur_jam_2"
 
-                    nominalTwo;
+                    );
+
+
+                lemburJam2 +=
+
+                    hours *
+
+                    Number(
+
+                        rule?.nominal || 0
+
+                    );
 
             }
 
@@ -807,7 +922,578 @@ function calculateOvertimePay(
     );
 
 
-    return total;
+    /*
+       TUNJANGAN
+    */
+
+    const tunjanganRule =
+
+        allRules.find(
+
+            rule =>
+
+                rule.nama ===
+
+                "tunjangan"
+
+        );
+
+
+    tunjangan =
+
+        Number(
+
+            tunjanganRule?.nominal || 0
+
+        );
+
+
+    /*
+       TRANSPORT
+    */
+
+    const transportRule =
+
+        allRules.find(
+
+            rule =>
+
+                rule.nama ===
+
+                "uang_transport"
+
+        );
+
+
+    transport =
+
+        Number(
+
+            transportRule?.nominal || 0
+
+        );
+
+
+    /*
+       FIXED DEDUCTIONS
+    */
+
+    bpjs =
+
+        getRuleNominal(
+
+            allRules,
+
+            "BPJS"
+
+        );
+
+
+    tabungan =
+
+        getRuleNominal(
+
+            allRules,
+
+            "tabungan"
+
+        );
+
+
+    jamsostek =
+
+        getRuleNominal(
+
+            allRules,
+
+            "Jamsostek"
+
+        );
+
+
+    koperasi =
+
+        getRuleNominal(
+
+            allRules,
+
+            "koperasi"
+
+        );
+
+
+    lainLain =
+
+        getRuleNominal(
+
+            allRules,
+
+            "lain-lain"
+
+        );
+
+
+    /*
+       TELAT
+    */
+
+    rows.forEach(
+
+        item => {
+
+            const minutes =
+
+                Number(
+
+                    item.lateMinutes ??
+
+                    item.telat ??
+
+                    0
+
+                );
+
+
+            if(
+
+                minutes <= 0
+
+            ){
+
+                return;
+
+            }
+
+
+            const rule =
+
+                allRules.find(
+
+                    r => {
+
+                        if(
+
+                            r.type_rule !==
+
+                            "rule_potong"
+
+                        ){
+
+                            return false;
+
+                        }
+
+
+                        if(
+
+                            r.kondisi !==
+
+                            "telat"
+
+                        ){
+
+                            return false;
+
+                        }
+
+
+                        const min =
+
+                            Number(
+
+                                r.nilai_start || 0
+
+                            );
+
+
+                        const max =
+
+                            Number(
+
+                                r.nilai_end || Infinity
+
+                            );
+
+
+                        return (
+
+                            minutes >= min &&
+
+                            minutes <= max
+
+                        );
+
+                    }
+
+                );
+
+
+            potonganTelat +=
+
+                Number(
+
+                    rule?.nominal || 0
+
+                );
+
+        }
+
+    );
+
+
+    /*
+       IZIN TELAT
+    */
+
+    const izinTelatRule =
+
+        allRules.find(
+
+            rule =>
+
+                rule.nama ===
+
+                "izin_telat" &&
+
+                rule.type_rule ===
+
+                "rule_potong"
+
+        );
+
+
+    rows.forEach(
+
+        item => {
+
+            const hours =
+
+                Number(
+
+                    item.izinTelatHours ??
+
+                    item.izin_telat ??
+
+                    0
+
+                );
+
+
+            potonganIzinTelat +=
+
+                hours *
+
+                Number(
+
+                    izinTelatRule?.nominal || 0
+
+                );
+
+        }
+
+    );
+
+
+    /*
+       IZIN PULANG
+    */
+
+    const izinPulangRule =
+
+        allRules.find(
+
+            rule =>
+
+                rule.nama ===
+
+                "izin_pulang" &&
+
+                rule.type_rule ===
+
+                "rule_potong"
+
+        );
+
+
+    rows.forEach(
+
+        item => {
+
+            const hours =
+
+                Number(
+
+                    item.izinPulangHours ??
+
+                    item.izin_pulang ??
+
+                    0
+
+                );
+
+
+            potonganIzinPulang +=
+
+                hours *
+
+                Number(
+
+                    izinPulangRule?.nominal || 0
+
+                );
+
+        }
+
+    );
+
+
+    /*
+       ABSEN
+    */
+
+    const absenRule =
+
+        allRules.find(
+
+            rule =>
+
+                rule.nama ===
+
+                "absen"
+
+        );
+
+
+    const absenCount =
+
+        rows.filter(
+
+            item =>
+
+                item.status ===
+
+                "absen"
+
+        ).length;
+
+
+    potonganAbsen =
+
+        absenCount *
+
+        Number(
+
+            absenRule?.nominal || 0
+
+        );
+
+
+    /*
+       TOTAL
+    */
+
+    const totalEarnings =
+
+        uangMakan +
+
+        lemburJam1 +
+
+        lemburJam2 +
+
+        tunjangan +
+
+        transport;
+
+
+    const totalDeductions =
+
+        bpjs +
+
+        tabungan +
+
+        jamsostek +
+
+        koperasi +
+
+        lainLain +
+
+        potonganTelat +
+
+        potonganIzinTelat +
+
+        potonganIzinPulang +
+
+        potonganAbsen;
+
+
+    const grossSalary =
+
+        gajiPokok +
+
+        totalEarnings;
+
+
+    const netSalary =
+
+        grossSalary -
+
+        totalDeductions;
+
+
+    return {
+
+        period : {
+
+            start,
+
+            end
+
+        },
+
+        attendance :
+
+            rows,
+
+        gajiPokok,
+
+        earnings : {
+
+            uangMakan,
+
+            lemburJam1,
+
+            lemburJam2,
+
+            tunjangan,
+
+            transport
+
+        },
+
+        deductions : {
+
+            bpjs,
+
+            tabungan,
+
+            jamsostek,
+
+            koperasi,
+
+            lainLain,
+
+            potonganTelat,
+
+            potonganIzinTelat,
+
+            potonganIzinPulang,
+
+            potonganAbsen
+
+        },
+
+        totalEarnings,
+
+        totalDeductions,
+
+        grossSalary,
+
+        netSalary
+
+    };
+
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+function changePeriod(
+
+    direction
+
+){
+
+    const newOffset =
+
+        Summary.periodOffset +
+
+        direction;
+
+
+    /*
+       Tidak boleh melewati
+       periode berjalan.
+    */
+
+    if(
+
+        newOffset >= 0
+
+    ){
+
+        return;
+
+    }
+
+
+    const base =
+
+        Summary.currentPeriod;
+
+
+    const start =
+
+        new Date(
+
+            base.start
+
+        );
+
+
+    const end =
+
+        new Date(
+
+            base.end
+
+        );
+
+
+    start.setMonth(
+
+        start.getMonth() +
+
+        newOffset
+
+    );
+
+
+    end.setMonth(
+
+        end.getMonth() +
+
+        newOffset
+
+    );
+
+
+    Summary.periodOffset =
+
+        newOffset;
+
+
+    Summary.selectedPeriod = {
+
+        start,
+
+        end
+
+    };
+
+
+    renderSummary();
 
 }
 
@@ -818,47 +1504,14 @@ function calculateOvertimePay(
 
 function openDetailOverlay(){
 
-    const overlay =
+    const data =
 
-        document.getElementById(
-
-            "summary-payroll-overlay"
-
-        );
-
-
-    const content =
-
-        document.getElementById(
-
-            "summary-payroll-overlay-content"
-
-        );
-
-
-    const title =
-
-        document.getElementById(
-
-            "summary-payroll-overlay-title"
-
-        );
-
-
-    const period =
-
-        document.getElementById(
-
-            "summary-payroll-overlay-period"
-
-        );
+        Summary.historyData;
 
 
     if(
 
-        !overlay ||
-
-        !content
+        !data
 
     ){
 
@@ -867,198 +1520,431 @@ function openDetailOverlay(){
     }
 
 
-    const calculation =
+    let overlay =
 
-        Process.calculation ?? {};
+        document.getElementById(
 
-
-    title.textContent =
-
-        "Rincian Gaji";
-
-
-    period.textContent =
-
-        formatPeriod(
-
-            Process.period?.start,
-
-            Process.period?.end
+            "summary-payroll-overlay"
 
         );
 
 
-    content.innerHTML =
+    if(
+
+        !overlay
+
+    ){
+
+        overlay =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+        overlay.id =
+
+            "summary-payroll-overlay";
+
+
+        document.body.appendChild(
+
+            overlay
+
+        );
+
+    }
+
+
+    overlay.innerHTML =
 
     `
 
-        ${
+        <div
+            class="payroll-overlay-backdrop"
+            data-close-payroll-overlay>
 
-            renderMoneyGroup(
-
-                "Penghasilan",
-
-                calculation.earnings ?? [],
-
-                false
-
-            )
-
-        }
+        </div>
 
 
-        ${
+        <div class="payroll-overlay-card">
 
-            renderMoneyGroup(
+            <button
+                type="button"
+                id="summary-payroll-overlay-close">
 
-                "Potongan",
+                ✕
 
-                calculation.deductions ?? [],
-
-                true
-
-            )
-
-        }
+            </button>
 
 
-        <div class="payroll-detail-total">
+            <h2>
 
-            <span>
+                Rincian Gaji
 
-                Gaji Bersih
+            </h2>
 
-            </span>
 
-            <strong>
+            <p class="overlay-period">
 
                 ${
 
-                    formatRupiah(
+                    formatDate(
 
-                        calculation.netSalary
+                        data.period.start
 
                     )
 
                 }
 
-            </strong>
+                -
 
-        </div>
+                ${
 
-    `;
+                    formatDate(
 
+                        data.period.end
 
-    overlay.classList.remove(
+                    )
 
-        "hidden"
+                }
 
-    );
-
-}
-
-
-/* =====================================================
-   MONEY GROUP
-===================================================== */
-
-function renderMoneyGroup(
-
-    title,
-
-    items,
-
-    negative
-
-){
-
-    if(
-
-        !items.length
-
-    ){
-
-        return "";
-
-    }
+            </p>
 
 
-    return `
+            <div class="overlay-row">
 
-        <div class="payroll-detail-group">
+                <span>
 
-            <h3>
+                    Gaji Pokok
 
-                ${title}
+                </span>
 
-            </h3>
+                <strong>
+
+                    ${
+
+                        formatRupiah(
+
+                            data.gajiPokok
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <div class="overlay-title">
+
+                Pendapatan
+
+            </div>
 
 
             ${
 
-                items.map(
+                renderOverlayRow(
 
-                    item => `
+                    "Uang Makan",
 
-                        <div class="payroll-detail-row">
+                    data.earnings.uangMakan
 
-                            <span>
-
-                                ${
-
-                                    item.nama ??
-
-                                    item.name ??
-
-                                    "-"
-
-                                }
-
-                            </span>
-
-                            <strong>
-
-                                ${
-
-                                    negative
-
-                                    ?
-
-                                    "- "
-
-                                    :
-
-                                    ""
-
-                                }
-
-                                ${
-
-                                    formatRupiah(
-
-                                        item.total ??
-
-                                        item.nominal ??
-
-                                        0
-
-                                    )
-
-                                }
-
-                            </strong>
-
-                        </div>
-
-                    `
-
-                ).join("")
+                )
 
             }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Lembur Jam 1",
+
+                    data.earnings.lemburJam1
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Lembur Jam 2",
+
+                    data.earnings.lemburJam2
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Tunjangan",
+
+                    data.earnings.tunjangan
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Uang Transport",
+
+                    data.earnings.transport
+
+                )
+
+            }
+
+
+            <div class="overlay-total">
+
+                <span>
+
+                    Total Pendapatan
+
+                </span>
+
+                <strong>
+
+                    ${
+
+                        formatRupiah(
+
+                            data.totalEarnings
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <div class="overlay-title">
+
+                Potongan
+
+            </div>
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "BPJS",
+
+                    data.deductions.bpjs,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Tabungan",
+
+                    data.deductions.tabungan,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Jamsostek",
+
+                    data.deductions.jamsostek,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Koperasi",
+
+                    data.deductions.koperasi,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Lain-lain",
+
+                    data.deductions.lainLain,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Potongan Telat",
+
+                    data.deductions.potonganTelat,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Izin Telat",
+
+                    data.deductions.potonganIzinTelat,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Izin Pulang",
+
+                    data.deductions.potonganIzinPulang,
+
+                    true
+
+                )
+
+            }
+
+
+            ${
+
+                renderOverlayRow(
+
+                    "Absen",
+
+                    data.deductions.potonganAbsen,
+
+                    true
+
+                )
+
+            }
+
+
+            <div class="overlay-total">
+
+                <span>
+
+                    Total Potongan
+
+                </span>
+
+                <strong>
+
+                    ${
+
+                        formatRupiah(
+
+                            data.totalDeductions
+
+                        )
+
+                }
+
+                </strong>
+
+            </div>
+
+
+            <div class="overlay-net">
+
+                <span>
+
+                    Gaji Bersih
+
+                </span>
+
+                <strong>
+
+                    ${
+
+                        formatRupiah(
+
+                            data.netSalary
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
 
         </div>
 
     `;
+
+
+    requestAnimationFrame(
+
+        () => {
+
+            overlay.classList.add(
+
+                "active"
+
+            );
+
+        }
+
+    );
 
 }
 
@@ -1080,17 +1966,154 @@ function closeDetailOverlay(){
 
     if(
 
-        overlay
+        !overlay
 
     ){
 
-        overlay.classList.add(
+        return;
 
-            "hidden"
+    }
+
+
+    overlay.classList.remove(
+
+        "active"
+
+    );
+
+
+    setTimeout(
+
+        () => {
+
+            overlay.remove();
+
+        },
+
+        250
+
+    );
+
+}
+
+
+/* =====================================================
+   EXPORT
+===================================================== */
+
+function exportPayroll(){
+
+    /*
+       PNG export kita sambungkan
+       setelah layout export final.
+    */
+
+    const data =
+
+        Summary.historyData;
+
+
+    if(
+
+        !data
+
+    ){
+
+        return;
+
+    }
+
+
+    const target =
+
+        document.getElementById(
+
+            "summary-payroll-period-card"
 
         );
 
+
+    if(
+
+        !target
+
+    ){
+
+        return;
+
     }
+
+
+    /*
+       html2canvas harus tersedia
+       sebelum fitur export digunakan.
+    */
+
+    if(
+
+        typeof html2canvas !==
+
+        "function"
+
+    ){
+
+        return;
+
+    }
+
+
+    html2canvas(
+
+        target
+
+    )
+
+    .then(
+
+        canvas => {
+
+            const link =
+
+                document.createElement(
+
+                    "a"
+
+                );
+
+
+            link.download =
+
+                `gaji-${
+
+                    data.period.start
+
+                    .toISOString()
+
+                    .slice(
+
+                        0,
+
+                        10
+
+                    )
+
+                }.png`;
+
+
+            link.href =
+
+                canvas.toDataURL(
+
+                    "image/png"
+
+                );
+
+
+            link.click();
+
+        }
+
+    );
 
 }
 
@@ -1106,6 +2129,49 @@ function registerEvents(){
         "click",
 
         event => {
+
+
+            if(
+
+                event.target.closest(
+
+                    "#payroll-period-prev"
+
+                )
+
+            ){
+
+                changePeriod(
+
+                    -1
+
+                );
+
+                return;
+
+            }
+
+
+            if(
+
+                event.target.closest(
+
+                    "#payroll-period-next"
+
+                )
+
+            ){
+
+                changePeriod(
+
+                    1
+
+                );
+
+                return;
+
+            }
+
 
             if(
 
@@ -1153,6 +2219,23 @@ function registerEvents(){
 
                 closeDetailOverlay();
 
+                return;
+
+            }
+
+
+            if(
+
+                event.target.closest(
+
+                    "#summary-payroll-export-button"
+
+                )
+
+            ){
+
+                exportPayroll();
+
             }
 
         }
@@ -1163,19 +2246,58 @@ function registerEvents(){
 
 
 /* =====================================================
-   FIND RULE NOMINAL
+   HELPER : FLATTEN RULES
 ===================================================== */
 
-function findRuleNominal(
+function flattenRules(
+
+    rules
+
+){
+
+    if(
+
+        Array.isArray(
+
+            rules
+
+        )
+
+    ){
+
+        return rules;
+
+    }
+
+
+    return Object.values(
+
+        rules ?? {}
+
+    )
+
+    .flat()
+
+    .filter(
+
+        Boolean
+
+    );
+
+}
+
+
+/* =====================================================
+   HELPER : RULE NOMINAL
+===================================================== */
+
+function getRuleNominal(
+
+    rules,
 
     name
 
 ){
-
-    const rules =
-
-        Process.rules?.tambah ?? [];
-
 
     const rule =
 
@@ -1183,9 +2305,7 @@ function findRuleNominal(
 
             item =>
 
-                item.nama ===
-
-                name
+                item.nama === name
 
         );
 
@@ -1200,7 +2320,149 @@ function findRuleNominal(
 
 
 /* =====================================================
-   FORMAT RUPIAH
+   HELPER : ATTENDANCE DATE
+===================================================== */
+
+function getAttendanceDate(
+
+    item
+
+){
+
+    if(
+
+        item.dateObject instanceof Date
+
+    ){
+
+        return new Date(
+
+            item.dateObject
+
+        );
+
+    }
+
+
+    if(
+
+        item.date
+
+    ){
+
+        const [
+
+            year,
+
+            month,
+
+            day
+
+        ] =
+
+            item.date
+
+            .split("-")
+
+            .map(Number);
+
+
+        if(
+
+            year &&
+
+            month &&
+
+            day
+
+        ){
+
+            return new Date(
+
+                year,
+
+                month - 1,
+
+                day
+
+            );
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   HELPER : OVERLAY ROW
+===================================================== */
+
+function renderOverlayRow(
+
+    label,
+
+    value,
+
+    negative = false
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return "";
+
+    }
+
+
+    return `
+
+        <div class="overlay-row">
+
+            <span>
+
+                ${label}
+
+            </span>
+
+            <strong>
+
+                ${
+
+                    negative
+
+                        ? "- "
+
+                        : ""
+
+                }${
+
+                    formatRupiah(
+
+                        value
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   HELPER : FORMAT RUPIAH
 ===================================================== */
 
 function formatRupiah(
@@ -1209,19 +2471,33 @@ function formatRupiah(
 
 ){
 
-    return (
+    return new Intl.NumberFormat(
 
-        "Rp" +
+        "id-ID",
+
+        {
+
+            style :
+
+                "currency",
+
+            currency :
+
+                "IDR",
+
+            maximumFractionDigits :
+
+                0
+
+        }
+
+    )
+
+    .format(
 
         Number(
 
             value || 0
-
-        )
-
-        .toLocaleString(
-
-            "id-ID"
 
         )
 
@@ -1231,22 +2507,18 @@ function formatRupiah(
 
 
 /* =====================================================
-   FORMAT PERIOD
+   HELPER : FORMAT DATE
 ===================================================== */
 
-function formatPeriod(
+function formatDate(
 
-    start,
-
-    end
+    date
 
 ){
 
     if(
 
-        !start ||
-
-        !end
+        !date
 
     ){
 
@@ -1255,26 +2527,66 @@ function formatPeriod(
     }
 
 
+    const months = [
+
+        "Januari",
+
+        "Februari",
+
+        "Maret",
+
+        "April",
+
+        "Mei",
+
+        "Juni",
+
+        "Juli",
+
+        "Agustus",
+
+        "September",
+
+        "Oktober",
+
+        "November",
+
+        "Desember"
+
+    ];
+
+
     return (
 
-        formatDate(
+        String(
 
-            start
+            date.getDate()
+
+        )
+
+        .padStart(
+
+            2,
+
+            "0"
 
         )
 
         +
 
-        " - "
+        " " +
 
-        +
+        months[
 
-        formatDate(
+            date.getMonth()
 
-            end
+        ] +
 
-        )
+        " " +
+
+        date.getFullYear()
 
     );
 
 }
+
