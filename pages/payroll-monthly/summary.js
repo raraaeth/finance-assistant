@@ -1415,6 +1415,19 @@ function openDetailOverlay(){
 
     );
 
+   rows.push(
+
+        `
+
+        <div class="global-overlay-subtitle">
+
+            Penambahan
+
+        </div>
+
+        `
+
+    );
 
     if(
 
@@ -1544,6 +1557,11 @@ function openDetailOverlay(){
         `
 
         <div class="global-overlay-divider"></div>
+        <div class="global-overlay-subtitle">
+
+        Potongan
+
+    </div>
 
         `
 
