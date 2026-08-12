@@ -205,11 +205,20 @@ export async function init(){
 
         Statistics.init();
        
-       /* -----------------------------------------
-           Summary
-        ----------------------------------------- */
+       Statistics.init();
 
-        Summary.init();
+/* -----------------------------------------
+   Summary
+----------------------------------------- */
+
+Summary.init();
+
+
+/* -----------------------------------------
+   Refresh Previous Salary
+----------------------------------------- */
+
+renderPreviousSalary();
 
     }
 
@@ -339,74 +348,274 @@ function renderPreviousSalary(){
     }
 
 
-    /*
-       SKELETON
+    /* =============================================
+       GET PREVIOUS PAYROLL
+    ============================================= */
 
-       Perhitungan gaji belum menjadi
-       bagian dari Home.
+    const period =
 
-       Untuk sekarang tetap tampil
-       sebagai placeholder.
-    */
+        Summary.selectedPeriod;
+
+
+    const result =
+
+        Summary.historyData;
+
+
+    if(
+
+        !period ||
+
+        !result
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       ATTENDANCE
+       PREVIOUS PAYROLL PERIOD
+    ============================================= */
+
+    const attendance =
+
+        result.attendance ?? [];
+
+
+    const summary = {
+
+        masuk : 0,
+
+        telat : 0,
+
+        lembur : 0
+
+    };
+
+
+    attendance.forEach(
+
+        item => {
+
+            /* -------------------------------------
+               MASUK
+            ------------------------------------- */
+
+            if(
+
+                item.status ===
+
+                "masuk"
+
+            ){
+
+                summary.masuk++;
+
+            }
+
+
+            /* -------------------------------------
+               TELAT
+            ------------------------------------- */
+
+            if(
+
+                item.status ===
+
+                "masuk"
+
+                &&
+
+                item.attendanceStatus ===
+
+                "telat"
+
+            ){
+
+                summary.telat++;
+
+            }
+
+
+            /* -------------------------------------
+               LEMBUR
+            ------------------------------------- */
+
+            if(
+
+                item.status ===
+
+                "lembur"
+
+            ){
+
+                summary.lembur++;
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       RENDER
+    ============================================= */
 
     card.innerHTML =
 
     `
 
-        <div class="summary-total">
+        <div class="home-payroll-title">
 
-            <p>
-
-                Gaji Periode Sebelumnya
-
-            </p>
-
-
-            <h2>
-
-                -
-
-            </h2>
+            Gaji Periode Sebelumnya
 
         </div>
 
 
-        <div class="summary-grid">
+        <div class="home-payroll-period">
 
-            <div class="summary-item">
+            ${
+
+                formatDate(
+
+                    period.start
+
+                )
+
+            }
+
+            -
+
+            ${
+
+                formatDate(
+
+                    period.end
+
+                )
+
+            }
+
+        </div>
+
+
+        <div class="home-payroll-salary">
+
+            ${
+
+                new Intl.NumberFormat(
+
+                    "id-ID",
+
+                    {
+
+                        style :
+
+                            "currency",
+
+                        currency :
+
+                            "IDR",
+
+                        maximumFractionDigits :
+
+                            0
+
+                    }
+
+                ).format(
+
+                    Number(
+
+                        result.netSalary || 0
+
+                    )
+
+                )
+
+            }
+
+        </div>
+
+
+        <div class="home-attendance-grid">
+
+
+            <!-- MASUK -->
+
+            <div class="home-attendance-item">
 
                 <span>
 
-                    Periode
+                    🟢 Masuk
 
                 </span>
 
 
                 <strong>
 
-                    -
+                    ${
+
+                        summary.masuk
+
+                    }
 
                 </strong>
 
             </div>
 
 
-            <div class="summary-item">
+            <!-- TELAT -->
+
+            <div class="home-attendance-item">
 
                 <span>
 
-                    Gaji Bersih
+                    🟠 Telat
 
                 </span>
 
 
                 <strong>
 
-                    -
+                    ${
+
+                        summary.telat
+
+                    }
 
                 </strong>
 
             </div>
+
+
+            <!-- LEMBUR -->
+
+            <div class="home-attendance-item">
+
+                <span>
+
+                    🔵 Lembur
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        summary.lembur
+
+                    }
+
+                </strong>
+
+            </div>
+
 
         </div>
 
