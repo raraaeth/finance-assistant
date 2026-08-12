@@ -31,6 +31,13 @@ import {
 
 } from "./process.js";
 
+import {
+
+    Overlay
+
+} from "../../components/overlay/script.js";
+
+
 
 /* =====================================================
    STATE
@@ -499,7 +506,172 @@ function renderSummary(){
 
         </button>
 
-    `;
+        `;
+
+
+    /* =============================================
+       DETAIL OVERLAY TEST
+    ============================================= */
+
+    const detailButton =
+
+        document.getElementById(
+
+            "payroll-period-detail"
+
+        );
+
+
+    if(
+
+        detailButton
+
+    ){
+
+        detailButton.onclick = function(){
+
+            Overlay.open({
+
+                title :
+
+                    "Rincian Gaji",
+
+                period :
+
+                    formatDate(
+
+                        period.start
+
+                    )
+
+                    +
+
+                    " - "
+
+                    +
+
+                    formatDate(
+
+                        period.end
+
+                    ),
+
+                userName :
+
+                    Process.user?.displayName ??
+
+                    "Raraa",
+
+                content :
+
+                `
+
+                    <div class="global-overlay-row">
+
+                        <span>
+
+                            Gaji Pokok
+
+                        </span>
+
+                        <strong>
+
+                            ${
+
+                                formatRupiah(
+
+                                    result.gajiPokok
+
+                                )
+
+                            }
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="global-overlay-row">
+
+                        <span>
+
+                            Total Penambahan
+
+                        </span>
+
+                        <strong>
+
+                            ${
+
+                                formatRupiah(
+
+                                    result.totalEarnings
+
+                                )
+
+                            }
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="global-overlay-row">
+
+                        <span>
+
+                            Total Potongan
+
+                        </span>
+
+                        <strong>
+
+                            -${
+
+                                formatRupiah(
+
+                                    result.totalDeductions
+
+                                )
+
+                            }
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="global-overlay-row">
+
+                        <span>
+
+                            Gaji Bersih
+
+                        </span>
+
+                        <strong>
+
+                            ${
+
+                                formatRupiah(
+
+                                    result.netSalary
+
+                                )
+
+                            }
+
+                        </strong>
+
+                    </div>
+
+                `
+
+            });
+
+        };
+
+    }
 
        }
 
