@@ -2588,15 +2588,24 @@ function calculatePayroll(
 
     const absenRule =
 
-        allRules.find(
+    allRules.find(
 
-            rule =>
+        rule =>
 
-                rule.nama ===
+            rule.type_rule ===
+                "rule_potong"
 
+            &&
+
+            rule.kondisi ===
                 "absen"
 
-        );
+            &&
+
+            rule.waktu ===
+                "harian"
+
+    );
 
 
     const absenCount =
