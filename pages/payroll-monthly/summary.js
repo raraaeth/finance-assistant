@@ -89,6 +89,9 @@ Summary.init = function(){
         true;
 
 
+    hideNonPayrollSections();
+
+
     registerEvents();
 
 
@@ -96,6 +99,55 @@ Summary.init = function(){
 
 };
 
+/* =====================================================
+   HIDE NON PAYROLL SECTIONS
+===================================================== */
+
+function hideNonPayrollSections(){
+
+    const sections = [
+
+        "summary-overview",
+
+        "summary-debt",
+
+        "summary-distribution"
+
+    ];
+
+
+    sections.forEach(
+
+        id => {
+
+            const section =
+
+                document.getElementById(
+
+                    id
+
+                );
+
+
+            if(
+
+                section
+
+            ){
+
+                section.classList.add(
+
+                    "hidden"
+
+                );
+
+            }
+
+        }
+
+    );
+
+}
 
 /* =====================================================
    PROCESS PAYROLL SUMMARY
