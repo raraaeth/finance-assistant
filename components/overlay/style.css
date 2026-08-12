@@ -1,8 +1,14 @@
 /* =====================================================
-   Finance Assistant
-   Component : Global Overlay
-   File      : style.css
-   Version   : 1.0.0
+   FINANCE ASSISTANT
+   COMPONENT   : Global Overlay
+   FILE        : style.css
+   VERSION     : 1.0.0
+
+   Description :
+   Global reusable overlay component
+
+   Animation :
+   Right → Left
 ===================================================== */
 
 
@@ -18,22 +24,26 @@
 
     z-index:9999;
 
-    display:flex;
+    visibility:hidden;
 
-    align-items:flex-end;
+    opacity:0;
 
-    justify-content:center;
+    transition:
+        opacity .25s ease,
+        visibility .25s ease;
 
 }
 
 
 /* =====================================================
-   HIDDEN
+   ACTIVE
 ===================================================== */
 
-.global-overlay.hidden{
+.global-overlay.active{
 
-    display:none;
+    visibility:visible;
+
+    opacity:1;
 
 }
 
@@ -51,16 +61,13 @@
     background:
 
         rgba(
-
             0,
-
             0,
-
             0,
-
             .45
-
         );
+
+    cursor:pointer;
 
 }
 
@@ -71,55 +78,59 @@
 
 .global-overlay-panel{
 
-    position:relative;
+    position:absolute;
 
-    z-index:1;
+    top:0;
 
-    width:100%;
+    right:0;
+
+    width:90%;
 
     max-width:520px;
 
-    max-height:90vh;
-
-    overflow-y:auto;
+    height:100%;
 
     box-sizing:border-box;
 
-    padding:22px;
+    display:flex;
 
-    border-radius:
-
-        26px
-
-        26px
-
-        0
-
-        0;
+    flex-direction:column;
 
     background:
-
         var(--surface-primary);
 
     box-shadow:
 
-        0
-
         -8px
-
+        0
         30px
-
         rgba(
-
             0,
-
             0,
-
             0,
-
             .12
-
         );
+
+    transform:
+        translateX(100%);
+
+    transition:
+        transform .3s ease;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   PANEL ACTIVE
+===================================================== */
+
+.global-overlay.active
+.global-overlay-panel{
+
+    transform:
+        translateX(0);
 
 }
 
@@ -134,9 +145,71 @@
 
     align-items:flex-start;
 
-    justify-content:flex-end;
+    justify-content:space-between;
 
-    min-height:30px;
+    gap:16px;
+
+    padding:
+
+        20px;
+
+    border-bottom:
+
+        1px solid
+        var(--border-color);
+
+}
+
+
+/* =====================================================
+   HEADER INFO
+===================================================== */
+
+.global-overlay-header-info{
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.global-overlay-title{
+
+    margin:0;
+
+    font-size:20px;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+    color:
+        var(--text-primary);
+
+}
+
+
+/* =====================================================
+   PERIOD
+===================================================== */
+
+.global-overlay-period{
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    color:
+        var(--text-secondary);
 
 }
 
@@ -147,23 +220,11 @@
 
 .global-overlay-user{
 
-    position:absolute;
-
-    top:20px;
-
-    right:22px;
-
-}
-
-
-.global-overlay-user span{
-
     font-size:12px;
 
-    font-weight:600;
+    font-weight:500;
 
     color:
-
         var(--text-secondary);
 
 }
@@ -175,81 +236,42 @@
 
 .global-overlay-close{
 
-    width:36px;
+    flex-shrink:0;
 
-    height:36px;
+    width:38px;
 
-    padding:0;
+    height:38px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
 
     border:none;
 
     border-radius:50%;
 
     background:
-
         var(--surface-secondary);
 
     color:
-
         var(--text-primary);
 
-    font-size:16px;
+    font-size:18px;
 
     cursor:pointer;
 
 }
 
 
+/* =====================================================
+   CLOSE HOVER
+===================================================== */
+
 .global-overlay-close:hover{
 
     opacity:.8;
-
-}
-
-
-/* =====================================================
-   TITLE
-===================================================== */
-
-.global-overlay-title{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
-    margin-top:8px;
-
-    margin-bottom:20px;
-
-}
-
-
-.global-overlay-title strong{
-
-    font-size:20px;
-
-    line-height:1.3;
-
-    font-weight:700;
-
-    color:
-
-        var(--text-primary);
-
-}
-
-
-.global-overlay-title small{
-
-    font-size:13px;
-
-    line-height:1.4;
-
-    color:
-
-        var(--text-secondary);
 
 }
 
@@ -260,11 +282,111 @@
 
 .global-overlay-content{
 
+    flex:1;
+
+    min-height:0;
+
+    overflow-y:auto;
+
+    padding:
+
+        20px;
+
+}
+
+
+/* =====================================================
+   CONTENT SCROLLBAR
+===================================================== */
+
+.global-overlay-content::-webkit-scrollbar{
+
+    width:5px;
+
+}
+
+
+.global-overlay-content::-webkit-scrollbar-thumb{
+
+    background:
+
+        rgba(
+            80,
+            100,
+            100,
+            .25
+        );
+
+    border-radius:10px;
+
+}
+
+
+/* =====================================================
+   CONTENT ROW
+===================================================== */
+
+.global-overlay-row{
+
     display:flex;
 
-    flex-direction:column;
+    align-items:center;
 
-    gap:0;
+    justify-content:space-between;
+
+    gap:20px;
+
+    padding:
+
+        11px
+        0;
+
+    border-bottom:
+
+        1px solid
+        var(--border-color);
+
+}
+
+
+/* =====================================================
+   ROW LABEL
+===================================================== */
+
+.global-overlay-row span{
+
+    flex:1;
+
+    min-width:0;
+
+    text-align:left;
+
+    font-size:14px;
+
+    color:
+        var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   ROW VALUE
+===================================================== */
+
+.global-overlay-row strong{
+
+    flex-shrink:0;
+
+    text-align:right;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:
+        var(--text-primary);
+
+    white-space:nowrap;
 
 }
 
@@ -275,34 +397,33 @@
 
 .global-overlay-footer{
 
-    margin-top:28px;
+    padding:
 
-    padding-top:16px;
+        14px
+        20px;
+
+    text-align:center;
 
     border-top:
 
         1px solid
-
         var(--border-color);
-
-    text-align:center;
-
-    font-size:11px;
-
-    color:
-
-        var(--text-secondary);
 
 }
 
 
 /* =====================================================
-   BODY LOCK
+   FOOTER TEXT
 ===================================================== */
 
-body.overlay-open{
+.global-overlay-footer small{
 
-    overflow:hidden;
+    font-size:11px;
+
+    color:
+        var(--text-secondary);
+
+    opacity:.75;
 
 }
 
@@ -319,51 +440,68 @@ body.overlay-open{
 
     .global-overlay-panel{
 
-        max-height:92vh;
-
-        padding:20px;
-
-        border-radius:
-
-            24px
-
-            24px
-
-            0
-
-            0;
+        width:92%;
 
     }
 
 
-    .global-overlay-user{
+    .global-overlay-header{
 
-        top:18px;
+        padding:
 
-        right:20px;
+            18px;
 
     }
 
 
     .global-overlay-title{
 
-        margin-top:6px;
-
-        margin-bottom:18px;
+        font-size:18px;
 
     }
 
 
-    .global-overlay-title strong{
+    .global-overlay-content{
 
-        font-size:19px;
+        padding:
+
+            18px;
 
     }
 
 
-    .global-overlay-title small{
+    .global-overlay-footer{
 
-        font-size:12px;
+        padding:
+
+            13px
+            18px;
+
+    }
+
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media(
+
+    prefers-reduced-motion:reduce
+
+){
+
+    .global-overlay{
+
+        transition:none;
+
+    }
+
+
+    .global-overlay-panel{
+
+        transition:none;
 
     }
 
