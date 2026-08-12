@@ -1,1 +1,370 @@
+/* =====================================================
+   Finance Assistant
+   Component : Global Overlay
+   File      : style.css
+   Version   : 1.0.0
+===================================================== */
 
+
+/* =====================================================
+   OVERLAY
+===================================================== */
+
+.global-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:center;
+
+}
+
+
+/* =====================================================
+   HIDDEN
+===================================================== */
+
+.global-overlay.hidden{
+
+    display:none;
+
+}
+
+
+/* =====================================================
+   BACKDROP
+===================================================== */
+
+.global-overlay-backdrop{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+        rgba(
+
+            0,
+
+            0,
+
+            0,
+
+            .45
+
+        );
+
+}
+
+
+/* =====================================================
+   PANEL
+===================================================== */
+
+.global-overlay-panel{
+
+    position:relative;
+
+    z-index:1;
+
+    width:100%;
+
+    max-width:520px;
+
+    max-height:90vh;
+
+    overflow-y:auto;
+
+    box-sizing:border-box;
+
+    padding:22px;
+
+    border-radius:
+
+        26px
+
+        26px
+
+        0
+
+        0;
+
+    background:
+
+        var(--surface-primary);
+
+    box-shadow:
+
+        0
+
+        -8px
+
+        30px
+
+        rgba(
+
+            0,
+
+            0,
+
+            0,
+
+            .12
+
+        );
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.global-overlay-header{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    justify-content:flex-end;
+
+    min-height:30px;
+
+}
+
+
+/* =====================================================
+   USER NAME
+===================================================== */
+
+.global-overlay-user{
+
+    position:absolute;
+
+    top:20px;
+
+    right:22px;
+
+}
+
+
+.global-overlay-user span{
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:
+
+        var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   CLOSE BUTTON
+===================================================== */
+
+.global-overlay-close{
+
+    width:36px;
+
+    height:36px;
+
+    padding:0;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:
+
+        var(--surface-secondary);
+
+    color:
+
+        var(--text-primary);
+
+    font-size:16px;
+
+    cursor:pointer;
+
+}
+
+
+.global-overlay-close:hover{
+
+    opacity:.8;
+
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.global-overlay-title{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+    margin-top:8px;
+
+    margin-bottom:20px;
+
+}
+
+
+.global-overlay-title strong{
+
+    font-size:20px;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+    color:
+
+        var(--text-primary);
+
+}
+
+
+.global-overlay-title small{
+
+    font-size:13px;
+
+    line-height:1.4;
+
+    color:
+
+        var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.global-overlay-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:0;
+
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.global-overlay-footer{
+
+    margin-top:28px;
+
+    padding-top:16px;
+
+    border-top:
+
+        1px solid
+
+        var(--border-color);
+
+    text-align:center;
+
+    font-size:11px;
+
+    color:
+
+        var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   BODY LOCK
+===================================================== */
+
+body.overlay-open{
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    .global-overlay-panel{
+
+        max-height:92vh;
+
+        padding:20px;
+
+        border-radius:
+
+            24px
+
+            24px
+
+            0
+
+            0;
+
+    }
+
+
+    .global-overlay-user{
+
+        top:18px;
+
+        right:20px;
+
+    }
+
+
+    .global-overlay-title{
+
+        margin-top:6px;
+
+        margin-bottom:18px;
+
+    }
+
+
+    .global-overlay-title strong{
+
+        font-size:19px;
+
+    }
+
+
+    .global-overlay-title small{
+
+        font-size:12px;
+
+    }
+
+}
