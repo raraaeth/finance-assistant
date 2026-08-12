@@ -322,20 +322,20 @@ function renderSummary(){
 
     const section =
 
-    document.getElementById(
+        document.getElementById(
 
-        "summary-payroll-last"
+            "summary-payroll-last"
 
-    );
+        );
 
 
     const card =
 
-    document.getElementById(
+        document.getElementById(
 
-        "summary-payroll-last-card"
+            "summary-payroll-last-card"
 
-    );
+        );
 
 
     if(
@@ -351,6 +351,10 @@ function renderSummary(){
     }
 
 
+    /* =============================================
+       SHOW SECTION
+    ============================================= */
+
     section.classList.remove(
 
         "hidden"
@@ -358,10 +362,18 @@ function renderSummary(){
     );
 
 
+    /* =============================================
+       SELECTED PERIOD
+    ============================================= */
+
     const period =
 
         Summary.selectedPeriod;
 
+
+    /* =============================================
+       CALCULATION
+    ============================================= */
 
     const result =
 
@@ -379,16 +391,15 @@ function renderSummary(){
         result;
 
 
+    /* =============================================
+       RENDER
+    ============================================= */
+
     card.innerHTML =
 
     `
 
-        <div class="payroll-period-title">
-
-            Gaji Periode
-
-        </div>
-
+        <!-- PERIODE -->
 
         <div class="payroll-period-date">
 
@@ -417,12 +428,7 @@ function renderSummary(){
         </div>
 
 
-        <div class="payroll-net-label">
-
-            Gaji Bersih
-
-        </div>
-
+        <!-- GAJI BERSIH -->
 
         <div class="payroll-net-value">
 
@@ -439,29 +445,28 @@ function renderSummary(){
         </div>
 
 
+        <!-- NAVIGATION -->
+
         <div class="payroll-period-navigation">
 
+
             <button
+
                 type="button"
+
                 id="payroll-period-prev">
 
-                ◀
+                &lt; Back
 
             </button>
 
 
             <button
+
                 type="button"
-                id="payroll-period-detail">
 
-                Tampilkan Rincian
-
-            </button>
-
-
-            <button
-                type="button"
                 id="payroll-period-next"
+
                 ${
 
                     Summary.periodOffset >= 0
@@ -472,15 +477,32 @@ function renderSummary(){
 
                 }>
 
-                ▶
+                Next &gt;
 
             </button>
 
+
         </div>
+
+
+        <!-- DETAIL -->
+
+        <button
+
+            type="button"
+
+            id="payroll-period-detail"
+
+            class="payroll-period-detail">
+
+            Tampilkan Rincian
+
+        </button>
 
     `;
 
-}
+       }
+
 
 /* =====================================================
    CURRENT PERIOD
