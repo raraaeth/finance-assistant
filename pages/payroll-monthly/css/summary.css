@@ -1,8 +1,12 @@
 /* =====================================================
-   PAYROLL MONTHLY
-   FILE : summary.css
-   DESCRIPTION : Payroll Monthly Summary
-   VERSION : 1.0.0
+   FINANCE ASSISTANT
+   PAGE    : Payroll Monthly
+   MODULE  : Summary
+   FILE    : summary.css
+   VERSION : 2.0.0
+
+   DESCRIPTION :
+   Payroll Summary / Salary History
 ===================================================== */
 
 
@@ -27,42 +31,24 @@
 
     flex-direction:column;
 
-    gap:20px;
+    gap:18px;
 
 }
 
 
 /* =====================================================
-   PERIOD
+   PERIOD DATE
 ===================================================== */
 
-.payroll-summary-period{
+.payroll-period-date{
 
-    display:flex;
+    font-size:14px;
 
-    flex-direction:column;
+    line-height:1.4;
 
-    gap:6px;
+    color:#7d8988;
 
-}
-
-
-.payroll-summary-period span{
-
-    font-size:13px;
-
-    color:var(--text-secondary);
-
-}
-
-
-.payroll-summary-period strong{
-
-    font-size:16px;
-
-    font-weight:600;
-
-    color:var(--text-primary);
+    text-align:left;
 
 }
 
@@ -71,45 +57,19 @@
    NET SALARY
 ===================================================== */
 
-.payroll-summary-net{
+.payroll-net-value{
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
-    padding:18px 0;
-
-    border-top:
-        1px solid
-        var(--border-color);
-
-    border-bottom:
-        1px solid
-        var(--border-color);
-
-}
-
-
-.payroll-summary-net span{
-
-    font-size:13px;
-
-    color:var(--text-secondary);
-
-}
-
-
-.payroll-summary-net strong{
-
-    font-size:28px;
+    font-size:30px;
 
     line-height:1.2;
 
-    font-weight:800;
+    font-weight:700;
 
-    color:var(--text-primary);
+    color:#243f3e;
+
+    text-align:left;
+
+    margin-top:8px;
 
 }
 
@@ -118,17 +78,17 @@
    PERIOD NAVIGATION
 ===================================================== */
 
-.payroll-summary-navigation{
+.payroll-period-navigation{
 
-    display:grid;
+    display:flex;
 
-    grid-template-columns:
+    align-items:center;
 
-        48px
-        1fr
-        48px;
+    justify-content:space-between;
 
-    gap:8px;
+    width:100%;
+
+    margin-top:4px;
 
 }
 
@@ -137,42 +97,65 @@
    NAVIGATION BUTTON
 ===================================================== */
 
-.payroll-summary-navigation button{
+.payroll-period-navigation button{
 
-    min-height:42px;
+    border:none;
 
-    padding:9px 10px;
+    background:none;
 
-    border:
-        1px solid
-        var(--border-color);
+    padding:8px 4px;
 
-    border-radius:12px;
-
-    background:
-        var(--surface-secondary);
-
-    color:
-        var(--text-primary);
-
-    font-size:13px;
+    font-size:16px;
 
     font-weight:600;
+
+    color:#334b4a;
 
     cursor:pointer;
 
 }
 
 
-.payroll-summary-navigation button:hover{
+.payroll-period-navigation button:disabled{
 
-    opacity:.85;
+    opacity:.35;
+
+    cursor:default;
 
 }
 
 
 /* =====================================================
-   CURRENT PERIOD
+   DETAIL BUTTON
+===================================================== */
+
+.payroll-period-detail{
+
+    display:block;
+
+    align-self:center;
+
+    margin-top:0;
+
+    padding:6px 12px;
+
+    border:none;
+
+    background:none;
+
+    font-size:14px;
+
+    font-weight:500;
+
+    color:#5f7775;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   PAYROLL CURRENT PERIOD
 ===================================================== */
 
 #summary-payroll-current{
@@ -198,120 +181,201 @@
 
 
 /* =====================================================
-   CURRENT GRID
+   CURRENT PERIOD DATE
 ===================================================== */
 
-.payroll-current-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap:10px;
-
-}
-
-
-/* =====================================================
-   CURRENT ITEM
-===================================================== */
-
-.payroll-current-item{
-
-    min-width:0;
-
-    padding:14px 10px;
-
-    border-radius:16px;
-
-    background:#f4fafa;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
-}
-
-
-.payroll-current-item span{
-
-    font-size:12px;
-
-    color:#71817f;
-
-}
-
-
-.payroll-current-item strong{
-
-    font-size:20px;
-
-    line-height:1.15;
-
-    font-weight:700;
-
-    color:#173c3a;
-
-}
-
-
-/* =====================================================
-   CURRENT ESTIMATE
-===================================================== */
-
-.payroll-current-estimate{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
-    padding-top:16px;
-
-    border-top:
-        1px solid
-        var(--border-color);
-
-}
-
-
-.payroll-current-estimate span{
+.payroll-current-period{
 
     font-size:13px;
 
-    color:var(--text-secondary);
+    line-height:1.4;
 
-}
+    color:#81908f;
 
-
-.payroll-current-estimate strong{
-
-    font-size:22px;
-
-    font-weight:800;
-
-    color:var(--text-primary);
+    margin-bottom:2px;
 
 }
 
 
 /* =====================================================
-   EMPTY
+   ESTIMATED TOTAL
 ===================================================== */
 
-.payroll-empty{
+.payroll-estimate-total{
 
-    padding:20px;
+    display:flex;
 
-    text-align:center;
+    justify-content:space-between;
 
-    color:var(--text-secondary);
+    align-items:center;
 
-    font-size:14px;
+    gap:20px;
+
+}
+
+
+.payroll-estimate-total span{
+
+    font-size:16px;
+
+    color:#354846;
+
+}
+
+
+.payroll-estimate-total strong{
+
+    font-size:22px;
+
+    line-height:1.2;
+
+    font-weight:700;
+
+    color:#234845;
+
+    text-align:right;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   DIVIDER
+===================================================== */
+
+.payroll-divider{
+
+    height:1px;
+
+    width:100%;
+
+    background:rgba(50,80,78,.15);
+
+    margin:12px 0;
+
+}
+
+
+/* =====================================================
+   PAYROLL ROW
+===================================================== */
+
+.payroll-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:20px;
+
+    min-height:26px;
+
+}
+
+
+.payroll-row span{
+
+    flex:1;
+
+    min-width:0;
+
+    text-align:left;
+
+    font-size:15px;
+
+    color:#405351;
+
+}
+
+
+.payroll-row strong{
+
+    flex-shrink:0;
+
+    min-width:110px;
+
+    text-align:right;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:#294845;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   SUBTITLE
+   Penambahan / Potongan
+===================================================== */
+
+.payroll-subtitle{
+
+    margin:
+
+        8px
+
+        0
+
+        2px;
+
+
+    font-size:13px;
+
+    font-weight:500;
+
+    color:#82908f;
+
+}
+
+
+/* =====================================================
+   NET SALARY
+===================================================== */
+
+.payroll-net{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:20px;
+
+    padding-top:4px;
+
+}
+
+
+.payroll-net span{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#253f3d;
+
+}
+
+
+.payroll-net strong{
+
+    font-size:21px;
+
+    font-weight:700;
+
+    color:#234845;
+
+    text-align:right;
+
+    white-space:nowrap;
 
 }
 
@@ -373,6 +437,8 @@
 
     padding:20px;
 
+    box-sizing:border-box;
+
     border-radius:
         24px
         24px
@@ -381,8 +447,6 @@
 
     background:
         var(--surface-primary);
-
-    box-sizing:border-box;
 
 }
 
@@ -438,7 +502,7 @@
 
 
 /* =====================================================
-   CLOSE BUTTON
+   OVERLAY CLOSE BUTTON
 ===================================================== */
 
 .summary-payroll-overlay-close{
@@ -446,6 +510,8 @@
     width:36px;
 
     height:36px;
+
+    padding:0;
 
     border:none;
 
@@ -480,35 +546,7 @@
 
 
 /* =====================================================
-   DETAIL GROUP
-===================================================== */
-
-.payroll-detail-group{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:0;
-
-}
-
-
-.payroll-detail-group h3{
-
-    margin:0 0 10px;
-
-    font-size:14px;
-
-    font-weight:700;
-
-    color:var(--text-primary);
-
-}
-
-
-/* =====================================================
-   DETAIL ROW
+   OVERLAY DETAIL ROW
 ===================================================== */
 
 .payroll-detail-row{
@@ -560,7 +598,7 @@
 
 
 /* =====================================================
-   DETAIL TOTAL
+   OVERLAY DETAIL TOTAL
 ===================================================== */
 
 .payroll-detail-total{
@@ -614,264 +652,62 @@
 
 ){
 
-    .payroll-summary-net strong{
+    /* ---------------------------------------------
+       LAST PERIOD
+    --------------------------------------------- */
 
-        font-size:25px;
+    .payroll-period-date{
 
-    }
-
-
-    .payroll-current-grid{
-
-        gap:8px;
+        font-size:13px;
 
     }
 
 
-    .payroll-current-item{
+    .payroll-net-value{
 
-        padding:13px 9px;
-
-    }
-
-
-    .payroll-current-item strong{
-
-        font-size:18px;
+        font-size:27px;
 
     }
 
 
-    .summary-payroll-overlay-panel{
+    .payroll-period-navigation{
 
-        max-height:90vh;
+        padding:
 
-        padding:18px;
+            0
+
+            4px;
+
+    }
+
+
+    .payroll-period-navigation button{
+
+        padding:
+
+            8px
+
+            10px;
+
+        font-size:15px;
 
     }
 
 
-    .payroll-detail-row{
+    .payroll-period-detail{
 
-        padding:10px 0;
+        font-size:14px;
 
     }
 
-  }
 
-/* =====================================================
-   PAYROLL CURRENT
-===================================================== */
+    /* ---------------------------------------------
+       CURRENT PERIOD
+    --------------------------------------------- */
 
-.payroll-current-title{
+    .payroll-estimate-total{
 
-    font-size:22px;
-
-    font-weight:700;
-
-    color:#253f3d;
-
-    margin-bottom:4px;
-
-}
-
-
-.payroll-current-period{
-
-    font-size:13px;
-
-    color:#81908f;
-
-    margin-bottom:24px;
-
-}
-
-
-/* =====================================================
-   ESTIMATED TOTAL
-===================================================== */
-
-.payroll-estimate-total{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:flex-end;
-
-    gap:20px;
-
-    margin-bottom:20px;
-
-}
-
-
-.payroll-estimate-total span{
-
-    font-size:16px;
-
-    color:#354846;
-
-}
-
-
-.payroll-estimate-total strong{
-
-    font-size:22px;
-
-    font-weight:700;
-
-    color:#234845;
-
-    text-align:right;
-
-}
-
-
-/* =====================================================
-   DIVIDER
-===================================================== */
-
-.payroll-divider{
-
-    height:1px;
-
-    background:rgba(50,80,78,.15);
-
-    margin:18px 0;
-
-}
-
-
-/* =====================================================
-   PAYROLL ROW
-===================================================== */
-
-.payroll-row{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    gap:20px;
-
-    min-height:26px;
-
-}
-
-
-.payroll-row span{
-
-    flex:1;
-
-    min-width:0;
-
-    text-align:left;
-
-    font-size:15px;
-
-    color:#405351;
-
-}
-
-
-.payroll-row strong{
-
-    flex-shrink:0;
-
-    min-width:110px;
-
-    text-align:right;
-
-    font-size:15px;
-
-    font-weight:600;
-
-    color:#294845;
-
-}
-
-
-/* =====================================================
-   SUBTITLE
-===================================================== */
-
-.payroll-subtitle{
-
-    margin:
-
-        12px
-
-        0
-
-        6px;
-
-
-    font-size:13px;
-
-    font-weight:500;
-
-    color:#82908f;
-
-}
-
-
-/* =====================================================
-   NET SALARY
-===================================================== */
-
-.payroll-net{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    gap:20px;
-
-}
-
-
-.payroll-net span{
-
-    font-size:18px;
-
-    font-weight:700;
-
-    color:#253f3d;
-
-}
-
-
-.payroll-net strong{
-
-    font-size:21px;
-
-    font-weight:700;
-
-    color:#234845;
-
-    text-align:right;
-
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media(
-
-    max-width:480px
-
-){
-
-    .payroll-current-title{
-
-        font-size:20px;
+        gap:12px;
 
     }
 
@@ -899,9 +735,9 @@
 
     .payroll-row strong{
 
-        font-size:14px;
-
         min-width:100px;
+
+        font-size:14px;
 
     }
 
@@ -919,104 +755,24 @@
 
     }
 
-}
 
-/* =====================================================
-   PAYROLL : LAST PERIOD
-===================================================== */
+    /* ---------------------------------------------
+       OVERLAY
+    --------------------------------------------- */
 
-.payroll-last-period{
+    .summary-payroll-overlay-panel{
 
-    font-size:14px;
+        max-height:90vh;
 
-    color:#7d8988;
+        padding:18px;
 
-    text-align:left;
-
-    margin-bottom:22px;
-
-}
+    }
 
 
-/* =====================================================
-   SALARY
-===================================================== */
+    .payroll-detail-row{
 
-.payroll-last-salary{
+        padding:10px 0;
 
-    font-size:30px;
-
-    font-weight:700;
-
-    color:#243f3e;
-
-    text-align:center;
-
-    margin-bottom:28px;
-
-}
-
-
-/* =====================================================
-   PERIOD NAVIGATION
-===================================================== */
-
-.payroll-period-navigation{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    width:100%;
-
-    margin-top:8px;
-
-}
-
-
-.payroll-period-navigation button{
-
-    border:none;
-
-    background:none;
-
-    padding:6px 0;
-
-    font-size:16px;
-
-    font-weight:600;
-
-    color:#334b4a;
-
-    cursor:pointer;
-
-}
-
-
-/* =====================================================
-   DETAIL BUTTON
-===================================================== */
-
-.payroll-period-detail{
-
-    display:block;
-
-    margin:10px auto 0;
-
-    padding:6px 12px;
-
-    border:none;
-
-    background:none;
-
-    font-size:14px;
-
-    font-weight:500;
-
-    color:#5f7775;
-
-    cursor:pointer;
+    }
 
 }
