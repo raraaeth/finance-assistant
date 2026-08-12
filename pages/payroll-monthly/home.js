@@ -84,11 +84,6 @@ import {
 
 } from "../../js/utils.js";
 
-import {
-
-    Overlay
-
-} from "../../components/overlay/script.js";
 
 
 /* =====================================================
@@ -120,41 +115,7 @@ export async function init(){
 
     });
 
-   Overlay.init();
-   Overlay.open({
-
-    title :
-        "Test Global Overlay",
-
-    period :
-        "26 Juli 2026 - 25 Agustus 2026",
-
-    userName :
-        user?.displayName ?? "Guest",
-
-    content :
-
-        `
-
-        <div class="payroll-row">
-
-            <span>
-
-                Test Item
-
-            </span>
-
-            <strong>
-
-                Rp 100.000
-
-            </strong>
-
-        </div>
-
-        `
-
-});
+   
 
 
     /* =============================================
