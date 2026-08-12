@@ -333,7 +333,7 @@ function renderSummary(){
 
     document.getElementById(
 
-        "summary-payroll-current-card"
+        "summary-payroll-last-card"
 
     );
 
@@ -491,20 +491,20 @@ function renderCurrentPeriod(){
 
     const section =
 
-        document.getElementById(
+    document.getElementById(
 
-            "summary-payroll-calculation"
+        "summary-payroll-current"
 
-        );
+    );
 
 
     const card =
 
-        document.getElementById(
+    document.getElementById(
 
-            "summary-payroll-calculation-card"
+        "summary-payroll-current-card"
 
-        );
+    );
 
 
     if(
