@@ -508,171 +508,6 @@ function renderSummary(){
 
         `;
 
-
-    /* =============================================
-       DETAIL OVERLAY TEST
-    ============================================= */
-
-    const detailButton =
-
-        document.getElementById(
-
-            "payroll-period-detail"
-
-        );
-
-
-    if(
-
-        detailButton
-
-    ){
-
-        detailButton.onclick = function(){
-
-            Overlay.open({
-
-                title :
-
-                    "Rincian Gaji",
-
-                period :
-
-                    formatDate(
-
-                        period.start
-
-                    )
-
-                    +
-
-                    " - "
-
-                    +
-
-                    formatDate(
-
-                        period.end
-
-                    ),
-
-                userName :
-
-                    Process.user?.displayName ??
-
-                    "Raraa",
-
-                content :
-
-                `
-
-                    <div class="global-overlay-row">
-
-                        <span>
-
-                            Gaji Pokok
-
-                        </span>
-
-                        <strong>
-
-                            ${
-
-                                formatRupiah(
-
-                                    result.gajiPokok
-
-                                )
-
-                            }
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="global-overlay-row">
-
-                        <span>
-
-                            Total Penambahan
-
-                        </span>
-
-                        <strong>
-
-                            ${
-
-                                formatRupiah(
-
-                                    result.totalEarnings
-
-                                )
-
-                            }
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="global-overlay-row">
-
-                        <span>
-
-                            Total Potongan
-
-                        </span>
-
-                        <strong>
-
-                            -${
-
-                                formatRupiah(
-
-                                    result.totalDeductions
-
-                                )
-
-                            }
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="global-overlay-row">
-
-                        <span>
-
-                            Gaji Bersih
-
-                        </span>
-
-                        <strong>
-
-                            ${
-
-                                formatRupiah(
-
-                                    result.netSalary
-
-                                )
-
-                            }
-
-                        </strong>
-
-                    </div>
-
-                `
-
-            });
-
-        };
-
-    }
-
        }
 
 
@@ -2301,14 +2136,11 @@ function changePeriod(
 function openDetailOverlay(){
 
     const data =
-
         Summary.historyData;
 
 
     if(
-
         !data
-
     ){
 
         return;
@@ -2316,435 +2148,110 @@ function openDetailOverlay(){
     }
 
 
-    let overlay =
+    Overlay.open({
 
-        document.getElementById(
+        title :
 
-            "summary-payroll-overlay"
+            "Rincian Gaji",
 
-        );
+        period :
 
+            formatDate(
+                data.period.start
+            )
 
-    if(
+            +
 
-        !overlay
+            " - "
 
-    ){
+            +
 
-        overlay =
+            formatDate(
+                data.period.end
+            ),
 
-            document.createElement(
+        userName :
 
-                "div"
+            "Test User",
 
-            );
+        content :
 
+        `
 
-        overlay.id =
-
-            "summary-payroll-overlay";
-
-
-        document.body.appendChild(
-
-            overlay
-
-        );
-
-    }
-
-
-    overlay.innerHTML =
-
-    `
-
-        <div
-            class="payroll-overlay-backdrop"
-            data-close-payroll-overlay>
-
-        </div>
-
-
-        <div class="payroll-overlay-card">
-
-            <button
-                type="button"
-                id="summary-payroll-overlay-close">
-
-                ✕
-
-            </button>
-
-
-            <h2>
-
-                Rincian Gaji
-
-            </h2>
-
-
-            <p class="overlay-period">
-
-                ${
-
-                    formatDate(
-
-                        data.period.start
-
-                    )
-
-                }
-
-                -
-
-                ${
-
-                    formatDate(
-
-                        data.period.end
-
-                    )
-
-                }
-
-            </p>
-
-
-            <div class="overlay-row">
+            <div class="global-overlay-row">
 
                 <span>
-
                     Gaji Pokok
-
                 </span>
 
                 <strong>
-
                     ${
-
                         formatRupiah(
-
                             data.gajiPokok
-
                         )
-
                     }
-
                 </strong>
 
             </div>
 
 
-            <div class="overlay-title">
-
-                Pendapatan
-
-            </div>
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Uang Makan",
-
-                    data.earnings.uangMakan
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Lembur Jam 1",
-
-                    data.earnings.lemburJam1
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Lembur Jam 2",
-
-                    data.earnings.lemburJam2
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Tunjangan",
-
-                    data.earnings.tunjangan
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Uang Transport",
-
-                    data.earnings.transport
-
-                )
-
-            }
-
-
-            <div class="overlay-total">
+            <div class="global-overlay-row">
 
                 <span>
-
-                    Total Pendapatan
-
+                    Total Penambahan
                 </span>
 
                 <strong>
-
                     ${
-
                         formatRupiah(
-
                             data.totalEarnings
-
                         )
-
                     }
-
                 </strong>
 
             </div>
 
 
-            <div class="overlay-title">
-
-                Potongan
-
-            </div>
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "BPJS",
-
-                    data.deductions.bpjs,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Tabungan",
-
-                    data.deductions.tabungan,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Jamsostek",
-
-                    data.deductions.jamsostek,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Koperasi",
-
-                    data.deductions.koperasi,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Lain-lain",
-
-                    data.deductions.lainLain,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Potongan Telat",
-
-                    data.deductions.potonganTelat,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Izin Telat",
-
-                    data.deductions.potonganIzinTelat,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Izin Pulang",
-
-                    data.deductions.potonganIzinPulang,
-
-                    true
-
-                )
-
-            }
-
-
-            ${
-
-                renderOverlayRow(
-
-                    "Absen",
-
-                    data.deductions.potonganAbsen,
-
-                    true
-
-                )
-
-            }
-
-
-            <div class="overlay-total">
+            <div class="global-overlay-row">
 
                 <span>
-
                     Total Potongan
-
                 </span>
 
                 <strong>
-
-                    ${
-
+                    -${
                         formatRupiah(
-
                             data.totalDeductions
-
                         )
-
-                }
-
+                    }
                 </strong>
 
             </div>
 
 
-            <div class="overlay-net">
+            <div class="global-overlay-row">
 
                 <span>
-
                     Gaji Bersih
-
                 </span>
 
                 <strong>
-
                     ${
-
                         formatRupiah(
-
                             data.netSalary
-
                         )
-
                     }
-
                 </strong>
 
             </div>
 
-        </div>
-
-    `;
-
-
-    requestAnimationFrame(
-
-        () => {
-
-            overlay.classList.add(
-
-                "active"
-
-            );
-
-        }
+        `
 
     );
 
 }
-
-
+            
+                  
 /* =====================================================
    CLOSE OVERLAY
 ===================================================== */
