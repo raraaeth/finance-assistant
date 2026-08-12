@@ -1,49 +1,32 @@
 /* =====================================================
-   FINANCE ASSISTANT
-   COMPONENT   : Global Overlay
-   FILE        : style.css
-   VERSION     : 1.0.0
+   Finance Assistant
+   Payroll Monthly
+   Component  : Salary Detail Overlay
+   File       : overlay.css
+   Version    : 1.0.0
 
    Description :
-   Global reusable overlay component
-
-   Animation :
-   Right → Left
+   Salary detail side overlay
 ===================================================== */
 
 
 /* =====================================================
-   OVERLAY
+   OVERLAY ROOT
 ===================================================== */
 
-.global-overlay{
+.payroll-overlay{
 
     position:fixed;
 
     inset:0;
 
-    z-index:9999;
+    z-index:10000;
 
-    visibility:hidden;
+    display:flex;
 
-    opacity:0;
-
-    transition:
-        opacity .25s ease,
-        visibility .25s ease;
-
-}
-
-
-/* =====================================================
-   ACTIVE
-===================================================== */
-
-.global-overlay.active{
+    justify-content:flex-end;
 
     visibility:visible;
-
-    opacity:1;
 
 }
 
@@ -52,22 +35,17 @@
    BACKDROP
 ===================================================== */
 
-.global-overlay-backdrop{
+.payroll-overlay-backdrop{
 
     position:absolute;
 
     inset:0;
 
-    background:
+    background:rgba(15,23,42,.62);
 
-        rgba(
-            0,
-            0,
-            0,
-            .45
-        );
+    backdrop-filter:blur(2px);
 
-    cursor:pointer;
+    -webkit-backdrop-filter:blur(2px);
 
 }
 
@@ -76,61 +54,43 @@
    PANEL
 ===================================================== */
 
-.global-overlay-panel{
+.payroll-overlay-panel{
 
-    position:absolute;
+    position:relative;
 
-    top:0;
+    z-index:2;
 
-    right:0;
+    width:100%;
 
-    width:90%;
-
-    max-width:520px;
+    max-width:560px;
 
     height:100%;
 
-    box-sizing:border-box;
+    overflow-y:auto;
 
-    display:flex;
+    overflow-x:hidden;
 
-    flex-direction:column;
+    background:var(--card);
 
-    background:
-        var(--surface-primary);
+    color:var(--text);
 
     box-shadow:
 
-        -8px
-        0
-        30px
-        rgba(
-            0,
-            0,
-            0,
-            .12
-        );
+        -12px 0 40px
 
-    transform:
-        translateX(100%);
+        rgba(0,0,0,.18);
 
-    transition:
-        transform .3s ease;
+    transform:translateX(0);
 
-    overflow:hidden;
+    animation:
 
-}
+        payrollOverlaySlideIn
 
+        .3s
 
-/* =====================================================
-   PANEL ACTIVE
-===================================================== */
+        ease
 
-.global-overlay.active
-.global-overlay-panel{
-
-    transform:
-        translateX(0);
+        forwards;
 
 }
 
@@ -139,7 +99,13 @@
    HEADER
 ===================================================== */
 
-.global-overlay-header{
+.payroll-overlay-header{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:5;
 
     display:flex;
 
@@ -149,23 +115,24 @@
 
     gap:16px;
 
-    padding:
+    padding:22px 20px 18px;
 
-        20px;
+    background:var(--card);
 
     border-bottom:
 
         1px solid
-        var(--border-color);
+
+        var(--border);
 
 }
 
 
 /* =====================================================
-   HEADER INFO
+   HEADER CONTENT
 ===================================================== */
 
-.global-overlay-header-info{
+.payroll-overlay-header-content{
 
     min-width:0;
 
@@ -173,59 +140,35 @@
 
     flex-direction:column;
 
-    gap:5px;
+    gap:4px;
 
 }
 
 
-/* =====================================================
-   TITLE
-===================================================== */
-
-.global-overlay-title{
+.payroll-overlay-title{
 
     margin:0;
 
-    font-size:20px;
+    font-size:22px;
 
-    line-height:1.3;
+    font-weight:800;
 
-    font-weight:700;
+    line-height:1.25;
 
-    color:
-        var(--text-primary);
-
-}
-
-
-/* =====================================================
-   PERIOD
-===================================================== */
-
-.global-overlay-period{
-
-    font-size:12px;
-
-    line-height:1.4;
-
-    color:
-        var(--text-secondary);
+    color:var(--text);
 
 }
 
 
-/* =====================================================
-   USER NAME
-===================================================== */
+.payroll-overlay-subtitle{
 
-.global-overlay-user{
+    margin:0;
 
-    font-size:12px;
+    font-size:13px;
 
-    font-weight:500;
+    line-height:1.5;
 
-    color:
-        var(--text-secondary);
+    color:var(--text-secondary);
 
 }
 
@@ -234,13 +177,13 @@
    CLOSE BUTTON
 ===================================================== */
 
-.global-overlay-close{
+.payroll-overlay-close{
+
+    width:42px;
+
+    height:42px;
 
     flex-shrink:0;
-
-    width:38px;
-
-    height:38px;
 
     display:flex;
 
@@ -250,83 +193,193 @@
 
     border:none;
 
-    border-radius:50%;
+    border-radius:14px;
 
-    background:
-        var(--surface-secondary);
+    background:var(--background);
 
-    color:
-        var(--text-primary);
+    color:var(--text);
 
-    font-size:18px;
+    font-size:28px;
+
+    line-height:1;
 
     cursor:pointer;
 
-}
+    transition:
 
+        background .2s ease,
 
-/* =====================================================
-   CLOSE HOVER
-===================================================== */
-
-.global-overlay-close:hover{
-
-    opacity:.8;
+        transform .15s ease;
 
 }
 
 
-/* =====================================================
-   CONTENT
-===================================================== */
+.payroll-overlay-close:hover{
 
-.global-overlay-content{
+    background:var(--border);
 
-    flex:1;
+}
 
-    min-height:0;
 
-    overflow-y:auto;
+.payroll-overlay-close:active{
 
-    padding:
-
-        20px;
+    transform:scale(.94);
 
 }
 
 
 /* =====================================================
-   CONTENT SCROLLBAR
+   BODY
 ===================================================== */
 
-.global-overlay-content::-webkit-scrollbar{
+.payroll-overlay-body{
 
-    width:5px;
-
-}
-
-
-.global-overlay-content::-webkit-scrollbar-thumb{
-
-    background:
-
-        rgba(
-            80,
-            100,
-            100,
-            .25
-        );
-
-    border-radius:10px;
+    padding:20px;
 
 }
 
 
 /* =====================================================
-   CONTENT ROW
+   PERIOD
 ===================================================== */
 
-.global-overlay-row{
+.payroll-overlay-period{
+
+    margin-bottom:18px;
+
+    padding:16px;
+
+    border-radius:18px;
+
+    background:var(--background);
+
+    border:
+
+        1px solid
+
+        var(--border);
+
+}
+
+
+.payroll-overlay-period-label{
+
+    margin-bottom:5px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:var(--text-secondary);
+
+}
+
+
+.payroll-overlay-period-value{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   TOTAL SALARY
+===================================================== */
+
+.payroll-overlay-total{
+
+    margin-bottom:18px;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+    box-shadow:
+
+        0 10px 24px
+
+        rgba(37,99,235,.18);
+
+}
+
+
+.payroll-overlay-total-label{
+
+    margin-bottom:6px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    opacity:.9;
+
+}
+
+
+.payroll-overlay-total-value{
+
+    font-size:28px;
+
+    font-weight:800;
+
+    line-height:1.2;
+
+}
+
+
+/* =====================================================
+   SECTION CARD
+===================================================== */
+
+.payroll-overlay-card{
+
+    margin-bottom:16px;
+
+    padding:18px;
+
+    border-radius:20px;
+
+    background:var(--background);
+
+    border:
+
+        1px solid
+
+        var(--border);
+
+}
+
+
+/* =====================================================
+   SECTION TITLE
+===================================================== */
+
+.payroll-overlay-card-title{
+
+    margin:0 0 16px;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   ROW
+===================================================== */
+
+.payroll-overlay-row{
 
     display:flex;
 
@@ -334,17 +387,31 @@
 
     justify-content:space-between;
 
-    gap:20px;
+    gap:16px;
 
-    padding:
-
-        11px
-        0;
+    padding:12px 0;
 
     border-bottom:
 
         1px solid
-        var(--border-color);
+
+        var(--border);
+
+}
+
+
+.payroll-overlay-row:first-child{
+
+    padding-top:0;
+
+}
+
+
+.payroll-overlay-row:last-child{
+
+    padding-bottom:0;
+
+    border-bottom:none;
 
 }
 
@@ -353,18 +420,35 @@
    ROW LABEL
 ===================================================== */
 
-.global-overlay-row span{
-
-    flex:1;
+.payroll-overlay-row-label{
 
     min-width:0;
 
-    text-align:left;
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+}
+
+
+.payroll-overlay-row-label strong{
 
     font-size:14px;
 
-    color:
-        var(--text-secondary);
+    font-weight:600;
+
+    color:var(--text);
+
+}
+
+
+.payroll-overlay-row-label small{
+
+    font-size:12px;
+
+    color:var(--text-secondary);
 
 }
 
@@ -373,20 +457,71 @@
    ROW VALUE
 ===================================================== */
 
-.global-overlay-row strong{
+.payroll-overlay-row-value{
 
     flex-shrink:0;
 
-    text-align:right;
+    white-space:nowrap;
 
     font-size:14px;
 
-    font-weight:600;
+    font-weight:700;
 
-    color:
-        var(--text-primary);
+    color:var(--text);
 
-    white-space:nowrap;
+}
+
+
+/* =====================================================
+   ADDITION
+===================================================== */
+
+.payroll-overlay-addition{
+
+    color:#16A34A;
+
+}
+
+
+/* =====================================================
+   DEDUCTION
+===================================================== */
+
+.payroll-overlay-deduction{
+
+    color:#EF4444;
+
+}
+
+
+/* =====================================================
+   DIVIDER
+===================================================== */
+
+.payroll-overlay-divider{
+
+    height:1px;
+
+    margin:18px 0;
+
+    background:var(--border);
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.payroll-overlay-empty{
+
+    padding:24px 10px;
+
+    text-align:center;
+
+    font-size:13px;
+
+    color:var(--text-secondary);
 
 }
 
@@ -395,35 +530,115 @@
    FOOTER
 ===================================================== */
 
-.global-overlay-footer{
+.payroll-overlay-footer{
 
-    padding:
-
-        14px
-        20px;
-
-    text-align:center;
-
-    border-top:
-
-        1px solid
-        var(--border-color);
+    padding:18px 20px 24px;
 
 }
 
 
 /* =====================================================
-   FOOTER TEXT
+   CLOSE FOOTER BUTTON
 ===================================================== */
 
-.global-overlay-footer small{
+.payroll-overlay-footer-button{
 
-    font-size:11px;
+    width:100%;
 
-    color:
-        var(--text-secondary);
+    height:52px;
 
-    opacity:.75;
+    border:none;
+
+    border-radius:16px;
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:
+
+        transform .15s ease,
+
+        filter .2s ease;
+
+}
+
+
+.payroll-overlay-footer-button:hover{
+
+    filter:brightness(1.05);
+
+}
+
+
+.payroll-overlay-footer-button:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes payrollOverlaySlideIn{
+
+    from{
+
+        transform:translateX(100%);
+
+    }
+
+    to{
+
+        transform:translateX(0);
+
+    }
+
+}
+
+
+/* =====================================================
+   CLOSING
+===================================================== */
+
+.payroll-overlay.closing
+
+.payroll-overlay-panel{
+
+    animation:
+
+        payrollOverlaySlideOut
+
+        .25s
+
+        ease
+
+        forwards;
+
+}
+
+
+@keyframes payrollOverlaySlideOut{
+
+    from{
+
+        transform:translateX(0);
+
+    }
+
+    to{
+
+        transform:translateX(100%);
+
+    }
 
 }
 
@@ -434,48 +649,49 @@
 
 @media(
 
-    max-width:480px
+    max-width:767px
 
 ){
 
-    .global-overlay-panel{
+    .payroll-overlay-panel{
 
-        width:92%;
+        width:100%;
+
+        max-width:none;
 
     }
 
 
-    .global-overlay-header{
+    .payroll-overlay-header{
 
         padding:
 
-            18px;
+            18px
+
+            18px
+
+            16px;
 
     }
 
 
-    .global-overlay-title{
+    .payroll-overlay-body{
 
-        font-size:18px;
-
-    }
-
-
-    .global-overlay-content{
-
-        padding:
-
-            18px;
+        padding:18px;
 
     }
 
 
-    .global-overlay-footer{
+    .payroll-overlay-title{
 
-        padding:
+        font-size:20px;
 
-            13px
-            18px;
+    }
+
+
+    .payroll-overlay-total-value{
+
+        font-size:26px;
 
     }
 
@@ -483,7 +699,93 @@
 
 
 /* =====================================================
-   REDUCED MOTION
+   DESKTOP
+===================================================== */
+
+@media(
+
+    min-width:768px
+
+){
+
+    .payroll-overlay-panel{
+
+        border-radius:
+
+            24px
+
+            0
+
+            0
+
+            24px;
+
+    }
+
+}
+
+
+/* =====================================================
+   DARK THEME
+===================================================== */
+
+html[data-theme="dark"]
+
+.payroll-overlay-backdrop{
+
+    background:rgba(0,0,0,.68);
+
+}
+
+
+html[data-theme="dark"]
+
+.payroll-overlay-panel{
+
+    background:var(--card);
+
+    color:var(--text);
+
+}
+
+
+html[data-theme="dark"]
+
+.payroll-overlay-header{
+
+    background:var(--card);
+
+}
+
+
+/* =====================================================
+   PINK THEME
+===================================================== */
+
+html[data-theme="pink"]
+
+.payroll-overlay-backdrop{
+
+    background:rgba(88,35,58,.48);
+
+}
+
+
+/* =====================================================
+   GREEN THEME
+===================================================== */
+
+html[data-theme="green"]
+
+.payroll-overlay-backdrop{
+
+    background:rgba(6,52,43,.50);
+
+}
+
+
+/* =====================================================
+   REDUCE MOTION
 ===================================================== */
 
 @media(
@@ -492,16 +794,11 @@
 
 ){
 
-    .global-overlay{
+    .payroll-overlay-panel{
 
-        transition:none;
+        animation:none;
 
-    }
-
-
-    .global-overlay-panel{
-
-        transition:none;
+        transform:translateX(0);
 
     }
 
