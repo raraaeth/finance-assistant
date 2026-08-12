@@ -270,20 +270,20 @@ function renderSummary(){
 
     const section =
 
-        document.getElementById(
+    document.getElementById(
 
-            "summary-payroll-period"
+        "summary-payroll-last"
 
-        );
+    );
 
 
     const card =
 
-        document.getElementById(
+    document.getElementById(
 
-            "summary-payroll-period-card"
+        "summary-payroll-current-card"
 
-        );
+    );
 
 
     if(
@@ -2026,11 +2026,11 @@ function exportPayroll(){
 
     const target =
 
-        document.getElementById(
+    document.getElementById(
 
-            "summary-payroll-period-card"
+        "summary-payroll-last-card"
 
-        );
+    );
 
 
     if(
