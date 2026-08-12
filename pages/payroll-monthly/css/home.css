@@ -2,7 +2,7 @@
    PAYROLL MONTHLY
    FILE : home.css
    DESCRIPTION : Payroll Monthly Home Page
-   VERSION : 1.1.0
+   VERSION : 1.2.0
 ===================================================== */
 
 
@@ -25,20 +25,12 @@
 }
 
 
-/* =====================================================
-   HERO CONTENT
-===================================================== */
-
 #hero-content{
 
     flex:1.4;
 
 }
 
-
-/* =====================================================
-   HERO TITLE
-===================================================== */
 
 #hero-title{
 
@@ -55,10 +47,6 @@
 }
 
 
-/* =====================================================
-   HERO DESCRIPTION
-===================================================== */
-
 #hero-description{
 
     margin-top:12px;
@@ -73,10 +61,6 @@
 
 }
 
-
-/* =====================================================
-   HERO IMAGE
-===================================================== */
 
 #hero-image{
 
@@ -154,7 +138,7 @@
 
 
 /* =====================================================
-   SUMMARY
+   PREVIOUS PAYROLL
 ===================================================== */
 
 #summary{
@@ -164,115 +148,168 @@
 }
 
 
-.summary-total{
+/* =====================================================
+   PREVIOUS PAYROLL TITLE
+===================================================== */
 
-    display:flex;
+#summary-card .home-payroll-title{
 
-    flex-direction:column;
+    margin:0;
 
-    gap:6px;
-
-}
-
-
-#summary-label{
-
-    color:#6B7280;
-
-    font-size:.95rem;
-
-}
-
-
-#summary-total{
-
-    margin:10px 0;
-
-    font-size:2rem;
-
-    font-weight:800;
-
-}
-
-
-#summary-change{
-
-    color:#16A34A;
+    font-size:21px;
 
     font-weight:600;
+
+    line-height:1.3;
+
+    text-align:center;
+
+    color:#253f3d;
 
 }
 
 
 /* =====================================================
-   SUMMARY GRID
+   PREVIOUS PAYROLL PERIOD
 ===================================================== */
 
-.summary-grid{
+#summary-card .home-payroll-period{
+
+    margin-top:7px;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    text-align:center;
+
+    color:#899593;
+
+}
+
+
+/* =====================================================
+   PREVIOUS PAYROLL SALARY
+===================================================== */
+
+#summary-card .home-payroll-salary{
 
     margin-top:20px;
 
-    padding-top:18px;
+    font-size:28px;
 
-    border-top:1px solid var(--border-color);
+    line-height:1.2;
+
+    font-weight:800;
+
+    text-align:center;
+
+    color:#253f3d;
+
+}
+
+
+/* =====================================================
+   PREVIOUS ATTENDANCE GRID
+===================================================== */
+
+#summary-card .home-attendance-grid{
 
     display:grid;
 
     grid-template-columns:
-
         repeat(
-
-            2,
-
+            3,
             minmax(
-
                 0,
-
                 1fr
-
             )
-
         );
 
-    gap:18px;
+    gap:8px;
+
+    width:100%;
+
+    margin-top:22px;
 
 }
 
 
-.summary-item{
+/* =====================================================
+   PREVIOUS ATTENDANCE ITEM
+===================================================== */
 
-    flex:1;
+#summary-card .home-attendance-item{
+
+    min-width:0;
+
+    min-height:78px;
+
+    padding:13px 8px;
+
+    box-sizing:border-box;
+
+    border-radius:18px;
+
+    background:#F4FAFA;
 
     display:flex;
 
     flex-direction:column;
 
-    gap:6px;
+    align-items:flex-start;
+
+    justify-content:center;
+
+    gap:5px;
 
 }
 
 
-.summary-item span{
+/* =====================================================
+   PREVIOUS ATTENDANCE LABEL
+===================================================== */
 
-    font-size:12px;
+#summary-card .home-attendance-item span{
 
-    color:var(--text-secondary);
+    display:block;
+
+    width:100%;
+
+    font-size:13px;
+
+    line-height:1.3;
+
+    color:#71817f;
+
+    white-space:nowrap;
 
 }
 
 
-.summary-item strong{
+/* =====================================================
+   PREVIOUS ATTENDANCE VALUE
+===================================================== */
 
-    font-size:18px;
+#summary-card .home-attendance-item strong{
+
+    display:block;
+
+    width:100%;
+
+    font-size:23px;
+
+    line-height:1.1;
 
     font-weight:700;
 
-    color:var(--text-primary);
+    color:#173c3a;
 
 }
 
+
 /* =====================================================
-   ATTENDANCE
+   ATTENDANCE CURRENT MONTH
 ===================================================== */
 
 #attendance{
@@ -283,7 +320,7 @@
 
 
 /* =====================================================
-   ATTENDANCE PERIOD
+   CURRENT ATTENDANCE PERIOD
 ===================================================== */
 
 .attendance-period{
@@ -300,8 +337,9 @@
 
 }
 
+
 /* =====================================================
-   ATTENDANCE GRID
+   CURRENT ATTENDANCE GRID
 ===================================================== */
 
 .attendance-grid{
@@ -309,26 +347,34 @@
     display:grid;
 
     grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
 
-    gap:10px;
+    gap:8px;
 
 }
 
 
 /* =====================================================
-   ATTENDANCE ITEM
+   CURRENT ATTENDANCE ITEM
 ===================================================== */
 
 .attendance-item{
 
     min-width:0;
 
-    min-height:82px;
+    min-height:78px;
 
-    padding:14px 12px;
+    padding:12px 10px;
 
-    border-radius:20px;
+    box-sizing:border-box;
+
+    border-radius:18px;
 
     background:#F4FAFA;
 
@@ -342,13 +388,11 @@
 
     gap:5px;
 
-    box-sizing:border-box;
-
 }
 
 
 /* =====================================================
-   ATTENDANCE LABEL
+   CURRENT ATTENDANCE LABEL
 ===================================================== */
 
 .attendance-item span{
@@ -357,7 +401,7 @@
 
     width:100%;
 
-    font-size:14px;
+    font-size:13px;
 
     line-height:1.3;
 
@@ -369,7 +413,7 @@
 
 
 /* =====================================================
-   ATTENDANCE VALUE
+   CURRENT ATTENDANCE VALUE
 ===================================================== */
 
 .attendance-item strong{
@@ -378,7 +422,7 @@
 
     width:100%;
 
-    font-size:24px;
+    font-size:23px;
 
     line-height:1.1;
 
@@ -388,52 +432,6 @@
 
 }
 
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media(
-
-    max-width:430px
-
-){
-
-    .attendance-grid{
-
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
-
-        gap:8px;
-
-    }
-
-
-    .attendance-item{
-
-        min-height:78px;
-
-        padding:12px 10px;
-
-        border-radius:18px;
-
-    }
-
-
-    .attendance-item span{
-
-        font-size:13px;
-
-    }
-
-
-    .attendance-item strong{
-
-        font-size:23px;
-
-    }
-
-}
 
 /* =====================================================
    INPUT
@@ -456,168 +454,143 @@
 
 }
 
-/* =====================================================
-   HOME : PREVIOUS PAYROLL
-===================================================== */
-
-.home-payroll-title{
-
-    font-size:22px;
-
-    font-weight:600;
-
-    text-align:center;
-
-    color:#253f3d;
-
-}
-
-
-.home-payroll-period{
-
-    margin-top:8px;
-
-    font-size:12px;
-
-    color:#899593;
-
-    text-align:center;
-
-}
-
-
-.home-payroll-salary{
-
-    margin-top:22px;
-
-    font-size:30px;
-
-    font-weight:800;
-
-    color:#253f3d;
-
-    text-align:center;
-
-}
-
-
-/* =====================================================
-   HOME : PREVIOUS ATTENDANCE
-===================================================== */
-
-.home-attendance-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap:10px;
-
-    margin-top:20px;
-
-}
-
-
-.home-attendance-item{
-
-    min-width:0;
-
-    padding:16px 10px;
-
-    border-radius:18px;
-
-    background:#f4fafa;
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:6px;
-
-}
-
-
-.home-attendance-item span{
-
-    font-size:13px;
-
-    color:#71817f;
-
-    white-space:nowrap;
-
-}
-
-
-.home-attendance-item strong{
-
-    font-size:24px;
-
-    font-weight:700;
-
-    color:#173c3a;
-
-}
-
 
 /* =====================================================
    MOBILE
 ===================================================== */
 
-@media(max-width:480px){
+@media(
 
-    .home-payroll-title{
+    max-width:480px
 
-        font-size:21px;
+){
 
-    }
+    /* ---------------------------------------------
+       HERO
+    --------------------------------------------- */
 
-
-    .home-payroll-period{
-
-        font-size:12px;
-
-    }
-
-
-    .home-payroll-salary{
-
-        font-size:28px;
-
-    }
-
-
-    .home-attendance-grid{
+    #hero{
 
         gap:8px;
 
     }
 
 
-    .home-attendance-item{
+    #hero-title{
 
-        padding:14px 8px;
+        font-size:22px;
 
     }
 
 
-    .home-attendance-item span{
+    #hero-description{
+
+        font-size:15px;
+
+    }
+
+
+    #hero-image img{
+
+        width:180px;
+
+    }
+
+
+    /* ---------------------------------------------
+       PREVIOUS PAYROLL
+    --------------------------------------------- */
+
+    #summary-card .home-payroll-title{
+
+        font-size:20px;
+
+    }
+
+
+    #summary-card .home-payroll-period{
 
         font-size:12px;
 
     }
 
 
-    .home-attendance-item strong{
+    #summary-card .home-payroll-salary{
+
+        margin-top:18px;
+
+        font-size:28px;
+
+    }
+
+
+    #summary-card .home-attendance-grid{
+
+        gap:8px;
+
+        margin-top:20px;
+
+    }
+
+
+    #summary-card .home-attendance-item{
+
+        min-height:76px;
+
+        padding:12px 8px;
+
+        border-radius:17px;
+
+    }
+
+
+    #summary-card .home-attendance-item span{
+
+        font-size:12px;
+
+    }
+
+
+    #summary-card .home-attendance-item strong{
+
+        font-size:22px;
+
+    }
+
+
+    /* ---------------------------------------------
+       CURRENT ATTENDANCE
+    --------------------------------------------- */
+
+    .attendance-grid{
+
+        gap:8px;
+
+    }
+
+
+    .attendance-item{
+
+        min-height:76px;
+
+        padding:12px 8px;
+
+        border-radius:17px;
+
+    }
+
+
+    .attendance-item span{
+
+        font-size:12px;
+
+    }
+
+
+    .attendance-item strong{
 
         font-size:22px;
 
     }
 
 }
-
-
