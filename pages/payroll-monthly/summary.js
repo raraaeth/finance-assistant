@@ -2247,7 +2247,7 @@ function openDetailOverlay(){
 
         `
 
-    );
+    });
 
 }
             
