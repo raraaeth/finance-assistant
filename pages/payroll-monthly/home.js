@@ -84,6 +84,12 @@ import {
 
 } from "../../js/utils.js";
 
+import {
+
+    Overlay
+
+} from "../../components/overlay/script.js";
+
 
 /* =====================================================
    STATE
@@ -113,6 +119,8 @@ export async function init(){
             "payroll"
 
     });
+
+   Overlay.init();
 
 
     /* =============================================
