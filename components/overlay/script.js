@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Overlay
    File         : script.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Reusable Global Overlay
@@ -17,6 +17,248 @@
 ===================================================== */
 
 let initialized = false;
+
+let html2canvasLoaded = false;
+
+
+/* =====================================================
+   LOAD HTML2CANVAS
+===================================================== */
+
+async function loadHtml2Canvas(){
+
+    if(
+
+        html2canvasLoaded
+
+        &&
+
+        window.html2canvas
+
+    ){
+
+        return true;
+
+    }
+
+
+    return new Promise(
+
+        resolve => {
+
+            const existing =
+
+                document.querySelector(
+
+                    'script[data-html2canvas]'
+
+                );
+
+
+            if(
+
+                existing
+
+            ){
+
+                existing.addEventListener(
+
+                    "load",
+
+                    () => {
+
+                        html2canvasLoaded = true;
+
+                        resolve(true);
+
+                    }
+
+                );
+
+
+                existing.addEventListener(
+
+                    "error",
+
+                    () => {
+
+                        resolve(false);
+
+                    }
+
+                );
+
+
+                return;
+
+            }
+
+
+            const script =
+
+                document.createElement(
+
+                    "script"
+
+                );
+
+
+            script.src =
+
+                "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+
+
+            script.dataset.html2canvas =
+
+                "true";
+
+
+            script.onload =
+
+                () => {
+
+                    html2canvasLoaded = true;
+
+                    resolve(true);
+
+                };
+
+
+            script.onerror =
+
+                () => {
+
+                    console.error(
+
+                        "html2canvas gagal dimuat"
+
+                    );
+
+                    resolve(false);
+
+                };
+
+
+            document.head.appendChild(
+
+                script
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   CREATE EXPORT BUTTON
+===================================================== */
+
+function createExportButton(){
+
+    const panel =
+
+        document.getElementById(
+
+            "global-overlay-panel"
+
+        );
+
+
+    if(
+
+        !panel
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CHECK EXISTING
+    ============================================= */
+
+    let button =
+
+        document.getElementById(
+
+            "global-overlay-export"
+
+        );
+
+
+    if(
+
+        button
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       BUTTON
+    ============================================= */
+
+    button =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    button.type =
+
+        "button";
+
+
+    button.id =
+
+        "global-overlay-export";
+
+
+    button.className =
+
+        "global-overlay-export";
+
+
+    button.textContent =
+
+        "📤 Export PNG";
+
+
+    button.addEventListener(
+
+        "click",
+
+        () => {
+
+            Overlay.exportPNG();
+
+        }
+
+    );
+
+
+    /* =============================================
+       APPEND
+    ============================================= */
+
+    panel.appendChild(
+
+        button
+
+    );
+
+}
 
 
 /* =====================================================
@@ -239,6 +481,13 @@ export const Overlay = {
         );
 
 
+        /* =============================================
+           EXPORT BUTTON
+        ============================================= */
+
+        createExportButton();
+
+
         initialized =
 
             true;
@@ -355,6 +604,13 @@ export const Overlay = {
 
 
         /* =============================================
+           EXPORT BUTTON
+        ============================================= */
+
+        createExportButton();
+
+
+        /* =============================================
            SHOW
         ============================================= */
 
@@ -370,6 +626,278 @@ export const Overlay = {
             "overlay-open"
 
         );
+
+    },
+
+
+    /* =================================================
+       EXPORT PNG
+    ================================================= */
+
+    async exportPNG(){
+
+        const panel =
+
+            document.querySelector(
+
+                "#global-overlay-panel"
+
+            );
+
+
+        if(
+
+            !panel
+
+        ){
+
+            return;
+
+        }
+
+
+        /* =============================================
+           LOAD LIBRARY
+        ============================================= */
+
+        const ready =
+
+            await loadHtml2Canvas();
+
+
+        if(
+
+            !ready
+
+            ||
+
+            !window.html2canvas
+
+        ){
+
+            alert(
+
+                "Export PNG tidak tersedia saat ini."
+
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           ELEMENTS TO HIDE
+        ============================================= */
+
+        const closeButton =
+
+            document.getElementById(
+
+                "global-overlay-close"
+
+            );
+
+
+        const exportButton =
+
+            document.getElementById(
+
+                "global-overlay-export"
+
+            );
+
+
+        /* =============================================
+           HIDE UI BUTTONS
+        ============================================= */
+
+        if(
+
+            closeButton
+
+        ){
+
+            closeButton.style.visibility =
+
+                "hidden";
+
+        }
+
+
+        if(
+
+            exportButton
+
+        ){
+
+            exportButton.style.display =
+
+                "none";
+
+        }
+
+
+        /* =============================================
+           CAPTURE
+        ============================================= */
+
+        try{
+
+            const canvas =
+
+                await window.html2canvas(
+
+                    panel,
+
+                    {
+
+                        backgroundColor :
+
+                            "#ffffff",
+
+                        scale :
+
+                            2,
+
+                        useCORS :
+
+                            true,
+
+                        logging :
+
+                            false
+
+                    }
+
+                );
+
+
+            /* =========================================
+               DOWNLOAD
+            ========================================= */
+
+            const link =
+
+                document.createElement(
+
+                    "a"
+
+                );
+
+
+            const title =
+
+                document
+
+                    .getElementById(
+
+                        "global-overlay-title"
+
+                    )
+
+                    ?.textContent
+
+                    ||
+
+                    "Rincian-Gaji";
+
+
+            const filename =
+
+                title
+
+                    .trim()
+
+                    .replace(
+
+                        /[^a-z0-9]+/gi,
+
+                        "-"
+
+                    )
+
+                    .replace(
+
+                        /^-+|-+$/g,
+
+                        ""
+
+                    )
+
+                    .toLowerCase();
+
+
+            link.download =
+
+                `${filename || "rincian-gaji"}.png`;
+
+
+            link.href =
+
+                canvas.toDataURL(
+
+                    "image/png"
+
+                );
+
+
+            link.click();
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                "Export PNG Error:",
+
+                error
+
+            );
+
+
+            alert(
+
+                "Gagal membuat PNG."
+
+            );
+
+        }
+
+
+        finally{
+
+            /* =========================================
+               RESTORE UI
+            ========================================= */
+
+            if(
+
+                closeButton
+
+            ){
+
+                closeButton.style.visibility =
+
+                    "";
+
+            }
+
+
+            if(
+
+                exportButton
+
+            ){
+
+                exportButton.style.display =
+
+                    "";
+
+            }
+
+        }
 
     },
 
@@ -416,3 +944,4 @@ export const Overlay = {
     }
 
 };
+
