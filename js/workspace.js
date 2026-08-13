@@ -35,9 +35,8 @@ import * as Kas from
 import * as PayrollMonthly from
     "../pages/payroll-monthly/home.js";
 
-import PayrollDaily
-    from "../pages/payroll-daily/home.js";
-
+import * as PayrollDaily from
+    "../pages/payroll-daily/home.js";
 
 /* =====================================================
    STATE
