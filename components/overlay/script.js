@@ -554,86 +554,381 @@ export const Overlay = {
 
 
     /* =================================================
-       EXPORT PNG
-    ================================================= */
+   EXPORT PNG
+================================================= */
 
-    async exportPNG(){
+async exportPNG(){
 
-        const panel =
+    const panel =
 
-            document.getElementById(
+        document.getElementById(
 
-                "global-overlay-panel"
+            "global-overlay-panel"
+
+        );
+
+
+    if(
+
+        !panel
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       LOAD LIBRARY
+    ============================================= */
+
+    const ready =
+
+        await loadHtml2Canvas();
+
+
+    if(
+
+        !ready
+
+        ||
+
+        !window.html2canvas
+
+    ){
+
+        alert(
+
+            "Export PNG tidak tersedia saat ini."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       ELEMENTS
+    ============================================= */
+
+    const closeButton =
+
+        document.getElementById(
+
+            "global-overlay-close"
+
+        );
+
+
+    const exportButton =
+
+        document.getElementById(
+
+            "global-overlay-export"
+
+        );
+
+
+    /* =============================================
+       SAVE ORIGINAL STYLE
+    ============================================= */
+
+    const original = {
+
+        height :
+
+            panel.style.height,
+
+        maxHeight :
+
+            panel.style.maxHeight,
+
+        overflow :
+
+            panel.style.overflow,
+
+        overflowY :
+
+            panel.style.overflowY,
+
+        scrollTop :
+
+            panel.scrollTop
+
+    };
+
+
+    /* =============================================
+       HIDE UI BUTTONS
+    ============================================= */
+
+    if(
+
+        closeButton
+
+    ){
+
+        closeButton.style.visibility =
+
+            "hidden";
+
+    }
+
+
+    if(
+
+        exportButton
+
+    ){
+
+        exportButton.style.display =
+
+            "none";
+
+    }
+
+
+    /* =============================================
+       EXPAND PANEL
+       
+       Supaya seluruh isi rincian
+       bisa ditangkap html2canvas.
+    ============================================= */
+
+    panel.style.height =
+
+        "auto";
+
+
+    panel.style.maxHeight =
+
+        "none";
+
+
+    panel.style.overflow =
+
+        "visible";
+
+
+    panel.style.overflowY =
+
+        "visible";
+
+
+    panel.scrollTop =
+
+        0;
+
+
+    /* =============================================
+       WAIT FOR LAYOUT
+    ============================================= */
+
+    await new Promise(
+
+        resolve =>
+
+            requestAnimationFrame(
+
+                () =>
+
+                    requestAnimationFrame(
+
+                        resolve
+
+                    )
+
+            )
+
+    );
+
+
+    /* =============================================
+       CAPTURE
+    ============================================= */
+
+    try{
+
+        const canvas =
+
+            await window.html2canvas(
+
+                panel,
+
+                {
+
+                    backgroundColor :
+
+                        "#ffffff",
+
+                    scale :
+
+                        2,
+
+                    useCORS :
+
+                        true,
+
+                    logging :
+
+                        false,
+
+                    width :
+
+                        panel.scrollWidth,
+
+                    height :
+
+                        panel.scrollHeight,
+
+                    windowWidth :
+
+                        panel.scrollWidth,
+
+                    windowHeight :
+
+                        panel.scrollHeight
+
+                }
 
             );
 
 
-        if(
+        /* =========================================
+           DOWNLOAD
+        ========================================= */
 
-            !panel
+        const link =
 
-        ){
+            document.createElement(
 
-            return;
-
-        }
-
-
-        /* =============================================
-           LOAD LIBRARY
-        ============================================= */
-
-        const ready =
-
-            await loadHtml2Canvas();
-
-
-        if(
-
-            !ready
-
-            ||
-
-            !window.html2canvas
-
-        ){
-
-            alert(
-
-                "Export PNG tidak tersedia saat ini."
-
-            );
-
-            return;
-
-        }
-
-
-        /* =============================================
-           UI ELEMENTS
-        ============================================= */
-
-        const closeButton =
-
-            document.getElementById(
-
-                "global-overlay-close"
+                "a"
 
             );
 
 
-        const exportButton =
+        const title =
 
-            document.getElementById(
+            document
 
-                "global-overlay-export"
+                .getElementById(
+
+                    "global-overlay-title"
+
+                )
+
+                ?.textContent
+
+                ||
+
+                "Rincian-Gaji";
+
+
+        const filename =
+
+            title
+
+                .trim()
+
+                .replace(
+
+                    /[^a-z0-9]+/gi,
+
+                    "-"
+
+                )
+
+                .replace(
+
+                    /^-+|-+$/g,
+
+                    ""
+
+                )
+
+                .toLowerCase();
+
+
+        link.download =
+
+            `${
+
+                filename ||
+
+                "rincian-gaji"
+
+            }.png`;
+
+
+        link.href =
+
+            canvas.toDataURL(
+
+                "image/png"
 
             );
 
 
-        /* =============================================
-           HIDE BUTTONS
-        ============================================= */
+        link.click();
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Export PNG Error:",
+
+            error
+
+        );
+
+
+        alert(
+
+            "Gagal membuat PNG."
+
+        );
+
+    }
+
+
+    finally{
+
+        /* =========================================
+           RESTORE PANEL
+        ========================================= */
+
+        panel.style.height =
+
+            original.height;
+
+
+        panel.style.maxHeight =
+
+            original.maxHeight;
+
+
+        panel.style.overflow =
+
+            original.overflow;
+
+
+        panel.style.overflowY =
+
+            original.overflowY;
+
+
+        panel.scrollTop =
+
+            original.scrollTop;
+
+
+        /* =========================================
+           RESTORE BUTTONS
+        ========================================= */
 
         if(
 
@@ -643,7 +938,7 @@ export const Overlay = {
 
             closeButton.style.visibility =
 
-                "hidden";
+                "";
 
         }
 
@@ -656,173 +951,14 @@ export const Overlay = {
 
             exportButton.style.display =
 
-                "none";
+                "";
 
         }
 
+    }
 
-        /* =============================================
-           CAPTURE
-        ============================================= */
-
-        try{
-
-            const canvas =
-
-                await window.html2canvas(
-
-                    panel,
-
-                    {
-
-                        backgroundColor :
-
-                            "#ffffff",
-
-                        scale :
-
-                            2,
-
-                        useCORS :
-
-                            true,
-
-                        logging :
-
-                            false
-
-                    }
-
-                );
-
-
-            /* =========================================
-               DOWNLOAD
-            ========================================= */
-
-            const link =
-
-                document.createElement(
-
-                    "a"
-
-                );
-
-
-            const title =
-
-                document
-
-                    .getElementById(
-
-                        "global-overlay-title"
-
-                    )
-
-                    ?.textContent
-
-                    ||
-
-                    "Rincian-Gaji";
-
-
-            const filename =
-
-                title
-
-                    .trim()
-
-                    .replace(
-
-                        /[^a-z0-9]+/gi,
-
-                        "-"
-
-                    )
-
-                    .replace(
-
-                        /^-+|-+$/g,
-
-                        ""
-
-                    )
-
-                    .toLowerCase();
-
-
-            link.download =
-
-                `${filename || "rincian-gaji"}.png`;
-
-
-            link.href =
-
-                canvas.toDataURL(
-
-                    "image/png"
-
-                );
-
-
-            link.click();
-
-        }
-
-        catch(error){
-
-            console.error(
-
-                "Export PNG Error:",
-
-                error
-
-            );
-
-
-            alert(
-
-                "Gagal membuat PNG."
-
-            );
-
-        }
-
-
-        finally{
-
-            /* =========================================
-               RESTORE BUTTONS
-            ========================================= */
-
-            if(
-
-                closeButton
-
-            ){
-
-                closeButton.style.visibility =
-
-                    "";
-
-            }
-
-
-            if(
-
-                exportButton
-
-            ){
-
-                exportButton.style.display =
-
-                    "";
-
-            }
-
-        }
-
-    },
+}
+            
 
 
     /* =================================================
