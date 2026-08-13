@@ -1,264 +1,160 @@
 /* =====================================================
    Finance Assistant
    Page        : Payroll Daily
-   Module      : Period
+   Module      : Periode
    File        : periode.js
    Version     : 1.0.0
 
    Description :
-   Payroll Daily Salary Period Manager
+   Payroll Daily Salary Period
 
-   RULE :
-   - Periode aktif rule  :
+   Logic :
+   - Periode gaji berjalan : tanggal 28 → 27
+   - Periode sebelumnya     : 28 → 27 sebelumnya
+   - Tidak menggunakan
      periode_start / periode_end
-
-   - Periode gaji :
-     nilai_start / nilai_end
+     sebagai periode gaji
 ===================================================== */
 
 
 /* =====================================================
-   PERIOD
+   PERIODE
 ===================================================== */
 
-export const Period = {
-
-
-    /* =================================================
-       FIND SALARY RULE
-    ================================================= */
-
-    findSalaryRule(
-
-        rules = []
-
-    ){
-
-        if(
-
-            !Array.isArray(rules)
-
-        ){
-
-            return null;
-
-        }
-
-
-        return (
-
-            rules.find(
-
-                rule =>
-
-                    this.normalize(
-
-                        rule?.type_rule
-
-                    )
-
-                    ===
-
-                    "rule_gaji"
-
-            )
-
-            || null
-
-        );
-
-    },
-
-
-    /* =================================================
-       GET INITIAL PERIOD
-    ================================================= */
-
-    getInitialPeriod(
-
-        rules = []
-
-    ){
-
-        const rule =
-
-            this.findSalaryRule(
-
-                rules
-
-            );
-
-
-        if(
-
-            !rule
-
-        ){
-
-            return null;
-
-        }
-
-
-        const start =
-
-            this.parseDate(
-
-                rule.nilai_start
-
-            );
-
-
-        const end =
-
-            this.parseDate(
-
-                rule.nilai_end
-
-            );
-
-
-        if(
-
-            !start ||
-
-            !end
-
-        ){
-
-            return null;
-
-        }
-
-
-        return this.createPeriod(
-
-            start,
-
-            end
-
-        );
-
-    },
+export const Periode = {
 
 
     /* =================================================
        GET CURRENT PERIOD
     ================================================= */
 
-    getCurrent(
-
-        rules = [],
+    current(
 
         date = new Date()
 
     ){
 
-        const initial =
+        const currentDate =
 
-            this.getInitialPeriod(
-
-                rules
-
-            );
-
-
-        if(
-
-            !initial
-
-        ){
-
-            return null;
-
-        }
-
-
-        const target =
-
-            this.startOfDay(
+            this.normalizeDate(
 
                 date
 
             );
 
 
-        let start =
-
-            new Date(
-
-                initial.start
-
-            );
-
-
-        let end =
-
-            new Date(
-
-                initial.end
-
-            );
-
-
         /* ---------------------------------------------
-           BEFORE INITIAL PERIOD
+           Jika tanggal >= 28
+           periode dimulai tanggal 28 bulan ini
+           dan berakhir tanggal 27 bulan berikutnya
         --------------------------------------------- */
 
         if(
 
-            target < start
+            currentDate.getDate() >= 28
 
         ){
 
-            return initial;
+            const start =
 
-        }
+                new Date(
 
+                    currentDate.getFullYear(),
 
-        /* ---------------------------------------------
-           MOVE FORWARD
-        --------------------------------------------- */
+                    currentDate.getMonth(),
 
-        while(
-
-            target > end
-
-        ){
-
-            const next =
-
-                this.next(
-
-                    {
-
-                        start,
-
-                        end
-
-                    }
+                    28
 
                 );
 
 
-            start = next.start;
+            const end =
 
-            end = next.end;
+                new Date(
+
+                    currentDate.getFullYear(),
+
+                    currentDate.getMonth() + 1,
+
+                    27
+
+                );
+
+
+            return {
+
+                start :
+
+                    this.startOfDay(
+
+                        start
+
+                    ),
+
+                end :
+
+                    this.endOfDay(
+
+                        end
+
+                    )
+
+            };
 
         }
 
 
         /* ---------------------------------------------
-           RESULT
+           Jika tanggal < 28
+           periode dimulai tanggal 28 bulan sebelumnya
+           dan berakhir tanggal 27 bulan ini
         --------------------------------------------- */
 
-        return this.createPeriod(
+        const start =
 
-            start,
+            new Date(
 
-            end
+                currentDate.getFullYear(),
 
-        );
+                currentDate.getMonth() - 1,
+
+                28
+
+            );
+
+
+        const end =
+
+            new Date(
+
+                currentDate.getFullYear(),
+
+                currentDate.getMonth(),
+
+                27
+
+            );
+
+
+        return {
+
+            start :
+
+                this.startOfDay(
+
+                    start
+
+                ),
+
+            end :
+
+                this.endOfDay(
+
+                    end
+
+                )
+
+        };
 
     },
 
@@ -267,248 +163,78 @@ export const Period = {
        GET PREVIOUS PERIOD
     ================================================= */
 
-    getPrevious(
-
-        rules = [],
-
-        date = new Date()
-
-    ){
-
-        const current =
-
-            this.getCurrent(
-
-                rules,
-
-                date
-
-            );
-
-
-        if(
-
-            !current
-
-        ){
-
-            return null;
-
-        }
-
-
-        return this.previous(
-
-            current
-
-        );
-
-    },
-
-
-    /* =================================================
-       GET NEXT PERIOD
-    ================================================= */
-
-    getNext(
-
-        rules = [],
-
-        date = new Date()
-
-    ){
-
-        const current =
-
-            this.getCurrent(
-
-                rules,
-
-                date
-
-            );
-
-
-        if(
-
-            !current
-
-        ){
-
-            return null;
-
-        }
-
-
-        return this.next(
-
-            current
-
-        );
-
-    },
-
-
-    /* =================================================
-       NEXT PERIOD
-    ================================================= */
-
-    next(
-
-        period
-
-    ){
-
-        if(
-
-            !period ||
-
-            !period.start ||
-
-            !period.end
-
-        ){
-
-            return null;
-
-        }
-
-
-        const start =
-
-            new Date(
-
-                period.end
-
-            );
-
-
-        start.setDate(
-
-            start.getDate() + 1
-
-        );
-
-
-        const duration =
-
-            this.dayDifference(
-
-                period.start,
-
-                period.end
-
-            );
-
-
-        const end =
-
-            new Date(
-
-                start
-
-            );
-
-
-        end.setDate(
-
-            end.getDate() + duration
-
-        );
-
-
-        return this.createPeriod(
-
-            start,
-
-            end
-
-        );
-
-    },
-
-
-    /* =================================================
-       PREVIOUS PERIOD
-    ================================================= */
-
     previous(
 
-        period
+        date = new Date()
 
     ){
 
-        if(
+        const current =
 
-            !period ||
+            this.current(
 
-            !period.start ||
-
-            !period.end
-
-        ){
-
-            return null;
-
-        }
-
-
-        const duration =
-
-            this.dayDifference(
-
-                period.start,
-
-                period.end
+                date
 
             );
-
-
-        const end =
-
-            new Date(
-
-                period.start
-
-            );
-
-
-        end.setDate(
-
-            end.getDate() - 1
-
-        );
 
 
         const start =
 
             new Date(
 
-                end
+                current.start
 
             );
 
 
-        start.setDate(
+        start.setMonth(
 
-            start.getDate() - duration
+            start.getMonth() - 1
+
+        );
+
+
+        const end =
+
+            new Date(
+
+                current.end
+
+            );
+
+
+        end.setMonth(
+
+            end.getMonth() - 1
 
         );
 
 
-        return this.createPeriod(
+        return {
 
-            start,
+            start :
 
-            end
+                this.startOfDay(
 
-        );
+                    start
+
+                ),
+
+            end :
+
+                this.endOfDay(
+
+                    end
+
+                )
+
+        };
 
     },
 
 
     /* =================================================
-       CONTAINS
+       CHECK DATE IN PERIOD
     ================================================= */
 
     contains(
@@ -521,9 +247,19 @@ export const Period = {
 
         if(
 
-            !date ||
+            !(
 
-            !period
+                date instanceof Date
+
+            )
+
+            ||
+
+            Number.isNaN(
+
+                date.getTime()
+
+            )
 
         ){
 
@@ -532,18 +268,24 @@ export const Period = {
         }
 
 
-        const target =
+        if(
 
-            this.startOfDay(
+            !period ||
 
-                date
+            !period.start ||
 
-            );
+            !period.end
+
+        ){
+
+            return false;
+
+        }
 
 
         return (
 
-            target >= period.start
+            date >= period.start
 
         )
 
@@ -551,119 +293,7 @@ export const Period = {
 
         (
 
-            target <= period.end
-
-        );
-
-    },
-
-
-    /* =================================================
-       CREATE PERIOD
-    ================================================= */
-
-    createPeriod(
-
-        start,
-
-        end
-
-    ){
-
-        const startDate =
-
-            this.startOfDay(
-
-                start
-
-            );
-
-
-        const endDate =
-
-            this.endOfDay(
-
-                end
-
-            );
-
-
-        return {
-
-            start :
-
-                startDate,
-
-            end :
-
-                endDate,
-
-            startValue :
-
-                this.formatValue(
-
-                    startDate
-
-                ),
-
-            endValue :
-
-                this.formatValue(
-
-                    endDate
-
-                )
-
-        };
-
-    },
-
-
-    /* =================================================
-       DAY DIFFERENCE
-    ================================================= */
-
-    dayDifference(
-
-        start,
-
-        end
-
-    ){
-
-        const a =
-
-            this.startOfDay(
-
-                start
-
-            );
-
-
-        const b =
-
-            this.startOfDay(
-
-                end
-
-            );
-
-
-        return Math.round(
-
-            (
-
-                b.getTime()
-
-                -
-
-                a.getTime()
-
-            )
-
-            /
-
-            86400000
+            date <= period.end
 
         );
 
@@ -674,7 +304,7 @@ export const Period = {
        PARSE DATE
     ================================================= */
 
-    parseDate(
+    parse(
 
         value
 
@@ -730,7 +360,11 @@ export const Period = {
 
             .split("-")
 
-            .map(Number);
+            .map(
+
+                Number
+
+            );
 
 
         if(
@@ -768,19 +402,22 @@ export const Period = {
             );
 
 
-        return Number.isNaN(
+        if(
 
-            date.getTime()
+            Number.isNaN(
 
-        )
+                date.getTime()
 
-            ?
+            )
 
-            null
+        ){
 
-            :
+            return null;
 
-            date;
+        }
+
+
+        return date;
 
     },
 
@@ -860,86 +497,41 @@ export const Period = {
 
 
     /* =================================================
-       FORMAT VALUE
+       NORMALIZE DATE
     ================================================= */
 
-    formatValue(
+    normalizeDate(
 
         date
 
     ){
 
-        const year =
+        const parsed =
 
-            date.getFullYear();
+            this.parse(
 
-
-        const month =
-
-            String(
-
-                date.getMonth() + 1
-
-            ).padStart(
-
-                2,
-
-                "0"
+                date
 
             );
 
 
-        const day =
+        return parsed
 
-            String(
+            ?
 
-                date.getDate()
+            this.startOfDay(
 
-            ).padStart(
+                parsed
 
-                2,
+            )
 
-                "0"
+            :
+
+            this.startOfDay(
+
+                new Date()
 
             );
-
-
-        return (
-
-            year +
-
-            "-" +
-
-            month +
-
-            "-" +
-
-            day
-
-        );
-
-    },
-
-
-    /* =================================================
-       NORMALIZE
-    ================================================= */
-
-    normalize(
-
-        value
-
-    ){
-
-        return String(
-
-            value ?? ""
-
-        )
-
-        .trim()
-
-        .toLowerCase();
 
     }
 
