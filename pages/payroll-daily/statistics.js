@@ -905,7 +905,7 @@ Statistics.renderSummary = function(){
        RENDER
     ============================================= */
 
-    card.innerHTML =
+    summaryCard.innerHTML =
 
 `
 
