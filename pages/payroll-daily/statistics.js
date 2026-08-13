@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Statistics
    File        : statistics.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Payroll Daily Statistics Controller
@@ -103,8 +103,6 @@ Statistics.init = function(){
 
     /* =============================================
        SUMMARY
-       
-       SENGAJA DIKOSONGKAN DULU
     ============================================= */
 
     Statistics.renderSummary();
@@ -273,7 +271,6 @@ Statistics.applyPeriod = function(
 
     /* =============================================
        END OF DAY
-       Supaya tanggal terakhir ikut terhitung.
     ============================================= */
 
     Statistics.filter.end.setHours(
@@ -362,8 +359,6 @@ function handleRange(
 
     /* =============================================
        RANGE = JUMLAH BULAN
-       
-       Mengikuti behavior Monthly.
     ============================================= */
 
     Statistics.filter.start =
@@ -549,8 +544,8 @@ function refresh(){
 
     /* =============================================
        SUMMARY
-       Untuk sementara tidak menggunakan filter.
-       Logic akan dibuat setelah bagian utama selesai.
+
+       Tidak mengikuti filter.
     ============================================= */
 
     Statistics.renderSummary();
@@ -617,17 +612,421 @@ Statistics.renderSummary = function(){
 
 
     /* =============================================
-       KOSONG DULU
-       
-       Ringkasan Daily akan dibuat terpisah:
-       - Pendapatan hari ini
-       - Pendapatan minggu ini
-       - Pendapatan minggu lalu
-       
-       Dan tidak mengikuti filter.
+       TODAY
     ============================================= */
 
-    card.innerHTML = "";
+    const today =
+
+        new Date();
+
+
+    const todayStart =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth(),
+
+            today.getDate()
+
+        );
+
+
+    const todayEnd =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth(),
+
+            today.getDate(),
+
+            23,
+
+            59,
+
+            59,
+
+            999
+
+        );
+
+
+    /* =============================================
+       CURRENT WEEK
+
+       SENIN - MINGGU
+    ============================================= */
+
+    const day =
+
+        todayStart.getDay();
+
+
+    const mondayOffset =
+
+        day === 0
+
+            ?
+
+            6
+
+            :
+
+            day - 1;
+
+
+    const currentWeekStart =
+
+        new Date(
+
+            todayStart
+
+        );
+
+
+    currentWeekStart.setDate(
+
+        currentWeekStart.getDate()
+
+        -
+
+        mondayOffset
+
+    );
+
+
+    const currentWeekEnd =
+
+        new Date(
+
+            currentWeekStart
+
+        );
+
+
+    currentWeekEnd.setDate(
+
+        currentWeekEnd.getDate()
+
+        + 6
+
+    );
+
+
+    currentWeekEnd.setHours(
+
+        23,
+
+        59,
+
+        59,
+
+        999
+
+    );
+
+
+    /* =============================================
+       PREVIOUS WEEK
+
+       SENIN - MINGGU PENUH
+    ============================================= */
+
+    const previousWeekStart =
+
+        new Date(
+
+            currentWeekStart
+
+        );
+
+
+    previousWeekStart.setDate(
+
+        previousWeekStart.getDate()
+
+        - 7
+
+    );
+
+
+    const previousWeekEnd =
+
+        new Date(
+
+            currentWeekStart
+
+        );
+
+
+    previousWeekEnd.setDate(
+
+        previousWeekEnd.getDate()
+
+        - 1
+
+    );
+
+
+    previousWeekEnd.setHours(
+
+        23,
+
+        59,
+
+        59,
+
+        999
+
+    );
+
+
+    /* =============================================
+       GET ALL DATA
+
+       Tidak menggunakan Statistics.data
+       karena summary tidak mengikuti filter.
+    ============================================= */
+
+    const allData =
+
+        Process.data ?? [];
+
+
+    /* =============================================
+       CALCULATE
+    ============================================= */
+
+    let todayIncome = 0;
+
+    let currentWeekIncome = 0;
+
+    let previousWeekIncome = 0;
+
+
+    allData.forEach(
+
+        item => {
+
+            const date =
+
+                getItemDate(
+
+                    item
+
+                );
+
+
+            if(
+
+                !date
+
+            ){
+
+                return;
+
+            }
+
+
+            const income =
+
+                getIncome(
+
+                    item
+
+                );
+
+
+            /* -----------------------------------------
+               TODAY
+            ----------------------------------------- */
+
+            if(
+
+                date >= todayStart
+
+                &&
+
+                date <= todayEnd
+
+            ){
+
+                todayIncome += income;
+
+            }
+
+
+            /* -----------------------------------------
+               CURRENT WEEK
+            ----------------------------------------- */
+
+            if(
+
+                date >= currentWeekStart
+
+                &&
+
+                date <= currentWeekEnd
+
+            ){
+
+                currentWeekIncome += income;
+
+            }
+
+
+            /* -----------------------------------------
+               PREVIOUS WEEK
+            ----------------------------------------- */
+
+            if(
+
+                date >= previousWeekStart
+
+                &&
+
+                date <= previousWeekEnd
+
+            ){
+
+                previousWeekIncome += income;
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       RENDER
+    ============================================= */
+
+    card.innerHTML =
+
+    `
+
+        <div class="statistics-insight-content">
+
+
+            <div class="statistics-short-motivation">
+
+                Pendapatan hari ini
+
+            </div>
+
+
+            <div class="statistics-long-motivation">
+
+                ${
+
+                    formatRupiahShort(
+
+                        todayIncome
+
+                    )
+
+                }
+
+            </div>
+
+
+        </div>
+
+
+        <div class="statistics-summary-grid">
+
+
+            <!-- HARI INI -->
+
+            <div class="statistics-summary-item">
+
+                <span>
+
+                    Hari Ini
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        formatRupiahShort(
+
+                            todayIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <!-- MINGGU INI -->
+
+            <div class="statistics-summary-item">
+
+                <span>
+
+                    Minggu Ini
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        formatRupiahShort(
+
+                            currentWeekIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <!-- MINGGU LALU -->
+
+            <div class="statistics-summary-item">
+
+                <span>
+
+                    Minggu Lalu
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        formatRupiahShort(
+
+                            previousWeekIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    `;
 
 };
 
@@ -1582,11 +1981,6 @@ function getIncome(
 
 ){
 
-    /* =============================================
-       NAMA FIELD UTAMA
-       Nanti kita sesuaikan dengan calculation.js
-    ============================================= */
-
     return toNumber(
 
         item.income ??
@@ -1721,6 +2115,181 @@ function formatRupiah(
         toNumber(
 
             value
+
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT RUPIAH SHORT
+===================================================== */
+
+function formatRupiahShort(
+
+    value
+
+){
+
+    const number =
+
+        toNumber(
+
+            value
+
+        );
+
+
+    if(
+
+        Math.abs(number) >=
+
+        1000000000
+
+    ){
+
+        return (
+
+            "Rp" +
+
+            (
+
+                number /
+
+                1000000000
+
+            )
+
+            .toFixed(
+
+                number % 1000000000 === 0
+
+                    ? 0
+
+                    : 1
+
+            )
+
+            .replace(
+
+                ".",
+
+                ","
+
+            )
+
+            +
+
+            " M"
+
+        );
+
+    }
+
+
+    if(
+
+        Math.abs(number) >=
+
+        1000000
+
+    ){
+
+        return (
+
+            "Rp" +
+
+            (
+
+                number /
+
+                1000000
+
+            )
+
+            .toFixed(
+
+                number % 1000000 === 0
+
+                    ? 0
+
+                    : 1
+
+            )
+
+            .replace(
+
+                ".",
+
+                ","
+
+            )
+
+            +
+
+            " jt"
+
+        );
+
+    }
+
+
+    if(
+
+        Math.abs(number) >=
+
+        1000
+
+    ){
+
+        return (
+
+            "Rp" +
+
+            (
+
+                number /
+
+                1000
+
+            )
+
+            .toFixed(
+
+                number % 1000 === 0
+
+                    ? 0
+
+                    : 1
+
+            )
+
+            .replace(
+
+                ".",
+
+                ","
+
+            )
+
+            +
+
+            " rb"
+
+        );
+
+    }
+
+
+    return (
+
+        "Rp" +
+
+        number.toLocaleString(
+
+            "id-ID"
 
         )
 
