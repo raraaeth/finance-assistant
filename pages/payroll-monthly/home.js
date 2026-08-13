@@ -627,6 +627,55 @@ function renderPreviousSalary(){
 
     `;
 
+       const salaryElement =
+
+        card.querySelector(
+
+            ".home-payroll-salary"
+
+        );
+
+
+    Animation.number(
+
+        salaryElement,
+
+        Number(
+
+            result.netSalary || 0
+
+        ),
+
+        value =>
+
+            new Intl.NumberFormat(
+
+                "id-ID",
+
+                {
+
+                    style :
+
+                        "currency",
+
+                    currency :
+
+                        "IDR",
+
+                    maximumFractionDigits :
+
+                        0
+
+                }
+
+            ).format(
+
+                value
+
+            )
+
+    );
+
 }
 
 
