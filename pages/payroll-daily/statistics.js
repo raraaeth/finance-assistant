@@ -92,6 +92,34 @@ export const Statistics = {
 Statistics.init = function(){
 
     /* =============================================
+       SHOW STATISTICS PAGE
+    ============================================= */
+
+    const page =
+
+        document.getElementById(
+
+            "statistics-page"
+
+        );
+
+
+    if(
+
+        page
+
+    ){
+
+        page.classList.remove(
+
+            "hidden"
+
+        );
+
+    }
+
+
+    /* =============================================
        FILTER
     ============================================= */
 
@@ -126,7 +154,6 @@ Statistics.init = function(){
     Statistics.renderTransaction();
 
 };
-
 
 /* =====================================================
    INITIALIZE FILTER
