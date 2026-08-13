@@ -152,92 +152,6 @@ async function loadHtml2Canvas(){
 }
 
 
-
-
-
-    /* =============================================
-       CHECK EXISTING
-    ============================================= */
-
-    let button =
-
-        document.getElementById(
-
-            "global-overlay-export"
-
-        );
-
-
-    if(
-
-        button
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =============================================
-       BUTTON
-    ============================================= */
-
-    button =
-
-        document.createElement(
-
-            "button"
-
-        );
-
-
-    button.type =
-
-        "button";
-
-
-    button.id =
-
-        "global-overlay-export";
-
-
-    button.className =
-
-        "global-overlay-export";
-
-
-    button.textContent =
-
-        "📤 Export PNG";
-
-
-    button.addEventListener(
-
-        "click",
-
-        () => {
-
-            Overlay.exportPNG();
-
-        }
-
-    );
-
-
-    /* =============================================
-       APPEND
-    ============================================= */
-
-    panel.appendChild(
-
-        button
-
-    );
-
-}
-
-
 /* =====================================================
    OVERLAY
 ===================================================== */
@@ -370,7 +284,7 @@ export const Overlay = {
 
 
         /* =============================================
-           EVENTS
+           CLOSE BUTTON
         ============================================= */
 
         const closeButton =
@@ -378,15 +292,6 @@ export const Overlay = {
             document.getElementById(
 
                 "global-overlay-close"
-
-            );
-
-
-        const backdrop =
-
-            document.getElementById(
-
-                "global-overlay-backdrop"
 
             );
 
@@ -412,6 +317,19 @@ export const Overlay = {
         }
 
 
+        /* =============================================
+           BACKDROP
+        ============================================= */
+
+        const backdrop =
+
+            document.getElementById(
+
+                "global-overlay-backdrop"
+
+            );
+
+
         if(
 
             backdrop
@@ -425,6 +343,40 @@ export const Overlay = {
                 () => {
 
                     Overlay.close();
+
+                }
+
+            );
+
+        }
+
+
+        /* =============================================
+           EXPORT BUTTON
+        ============================================= */
+
+        const exportButton =
+
+            document.getElementById(
+
+                "global-overlay-export"
+
+            );
+
+
+        if(
+
+            exportButton
+
+        ){
+
+            exportButton.addEventListener(
+
+                "click",
+
+                () => {
+
+                    Overlay.exportPNG();
 
                 }
 
@@ -456,41 +408,13 @@ export const Overlay = {
             }
 
         );
-       
-
-/* =============================================
-   EXPORT
-============================================= */
-
-const exportButton =
-
-    document.getElementById(
-
-        "global-overlay-export"
-
-    );
 
 
-if(
+        initialized =
 
-    exportButton
+            true;
 
-){
-
-    exportButton.addEventListener(
-
-        "click",
-
-        () => {
-
-            Overlay.exportPNG();
-
-        }
-
-    );
-
-}
-        
+    },
 
 
     /* =================================================
@@ -559,7 +483,7 @@ if(
 
 
         /* =============================================
-           CONTENT
+           TITLE
         ============================================= */
 
         if(
@@ -575,6 +499,10 @@ if(
         }
 
 
+        /* =============================================
+           PERIOD
+        ============================================= */
+
         if(
 
             periodElement
@@ -588,6 +516,10 @@ if(
         }
 
 
+        /* =============================================
+           CONTENT
+        ============================================= */
+
         if(
 
             contentElement
@@ -599,8 +531,6 @@ if(
                 content;
 
         }
-
-
 
 
         /* =============================================
@@ -631,9 +561,9 @@ if(
 
         const panel =
 
-            document.querySelector(
+            document.getElementById(
 
-                "#global-overlay-panel"
+                "global-overlay-panel"
 
             );
 
@@ -680,7 +610,7 @@ if(
 
 
         /* =============================================
-           ELEMENTS TO HIDE
+           UI ELEMENTS
         ============================================= */
 
         const closeButton =
@@ -702,7 +632,7 @@ if(
 
 
         /* =============================================
-           HIDE UI BUTTONS
+           HIDE BUTTONS
         ============================================= */
 
         if(
@@ -862,7 +792,7 @@ if(
         finally{
 
             /* =========================================
-               RESTORE UI
+               RESTORE BUTTONS
             ========================================= */
 
             if(
@@ -937,4 +867,3 @@ if(
     }
 
 };
-
