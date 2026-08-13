@@ -3,13 +3,13 @@
    Page        : Payroll Daily
    Module      : Process
    File        : process.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Payroll Daily Data Processor
 
    Flow :
-   - Receive raw payroll data
+   - Receive payroll data
    - Receive payroll rules
    - Find matching rule
    - Calculate income
@@ -190,7 +190,7 @@ export const Process = {
 
         const calculation =
 
-            Calculation.calculate(
+            Calculation.item(
 
                 item,
 
@@ -221,13 +221,148 @@ export const Process = {
 
             ruleFound :
 
-                calculation.ruleFound,
+                Boolean(
+
+                    rule
+
+                ),
 
             ruleLevel :
 
-                calculation.ruleLevel
+                rule
+
+                    ? this.getRuleLevel(
+
+                        item,
+
+                        rule
+
+                    )
+
+                    : null
 
         };
+
+    },
+
+
+    /* =================================================
+       RULE LEVEL
+    ================================================= */
+
+    getRuleLevel(
+
+        item,
+
+        rule
+
+    ){
+
+        if(
+
+            !rule
+
+        ){
+
+            return null;
+
+        }
+
+
+        /* ---------------------------------------------
+           GRADE 2
+        --------------------------------------------- */
+
+        if(
+
+            item.grade_2 &&
+
+            rule.grade_2 &&
+
+            String(
+
+                item.grade_2
+
+            ).trim().toLowerCase()
+
+            ===
+
+            String(
+
+                rule.grade_2
+
+            ).trim().toLowerCase()
+
+        ){
+
+            return "grade_2";
+
+        }
+
+
+        /* ---------------------------------------------
+           GRADE 1
+        --------------------------------------------- */
+
+        if(
+
+            item.grade_1 &&
+
+            rule.grade_1 &&
+
+            String(
+
+                item.grade_1
+
+            ).trim().toLowerCase()
+
+            ===
+
+            String(
+
+                rule.grade_1
+
+            ).trim().toLowerCase()
+
+        ){
+
+            return "grade_1";
+
+        }
+
+
+        /* ---------------------------------------------
+           NAME
+        --------------------------------------------- */
+
+        if(
+
+            item.nama &&
+
+            rule.nama &&
+
+            String(
+
+                item.nama
+
+            ).trim().toLowerCase()
+
+            ===
+
+            String(
+
+                rule.nama
+
+            ).trim().toLowerCase()
+
+        ){
+
+            return "nama";
+
+        }
+
+
+        return null;
 
     }
 
