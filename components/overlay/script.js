@@ -2,10 +2,11 @@
    Finance Assistant
    Component    : Global Overlay
    File         : script.js
-   Version      : 1.1.0
+   Version      : 1.2.0
 
    Description :
    Reusable Global Overlay
+   With PNG Export
 
    Direction :
    Right → Left
@@ -554,381 +555,86 @@ export const Overlay = {
 
 
     /* =================================================
-   EXPORT PNG
-================================================= */
+       EXPORT PNG
+    ================================================= */
 
-async exportPNG(){
+    async exportPNG(){
 
-    const panel =
+        const panel =
 
-        document.getElementById(
+            document.getElementById(
 
-            "global-overlay-panel"
-
-        );
-
-
-    if(
-
-        !panel
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =============================================
-       LOAD LIBRARY
-    ============================================= */
-
-    const ready =
-
-        await loadHtml2Canvas();
-
-
-    if(
-
-        !ready
-
-        ||
-
-        !window.html2canvas
-
-    ){
-
-        alert(
-
-            "Export PNG tidak tersedia saat ini."
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       ELEMENTS
-    ============================================= */
-
-    const closeButton =
-
-        document.getElementById(
-
-            "global-overlay-close"
-
-        );
-
-
-    const exportButton =
-
-        document.getElementById(
-
-            "global-overlay-export"
-
-        );
-
-
-    /* =============================================
-       SAVE ORIGINAL STYLE
-    ============================================= */
-
-    const original = {
-
-        height :
-
-            panel.style.height,
-
-        maxHeight :
-
-            panel.style.maxHeight,
-
-        overflow :
-
-            panel.style.overflow,
-
-        overflowY :
-
-            panel.style.overflowY,
-
-        scrollTop :
-
-            panel.scrollTop
-
-    };
-
-
-    /* =============================================
-       HIDE UI BUTTONS
-    ============================================= */
-
-    if(
-
-        closeButton
-
-    ){
-
-        closeButton.style.visibility =
-
-            "hidden";
-
-    }
-
-
-    if(
-
-        exportButton
-
-    ){
-
-        exportButton.style.display =
-
-            "none";
-
-    }
-
-
-    /* =============================================
-       EXPAND PANEL
-       
-       Supaya seluruh isi rincian
-       bisa ditangkap html2canvas.
-    ============================================= */
-
-    panel.style.height =
-
-        "auto";
-
-
-    panel.style.maxHeight =
-
-        "none";
-
-
-    panel.style.overflow =
-
-        "visible";
-
-
-    panel.style.overflowY =
-
-        "visible";
-
-
-    panel.scrollTop =
-
-        0;
-
-
-    /* =============================================
-       WAIT FOR LAYOUT
-    ============================================= */
-
-    await new Promise(
-
-        resolve =>
-
-            requestAnimationFrame(
-
-                () =>
-
-                    requestAnimationFrame(
-
-                        resolve
-
-                    )
-
-            )
-
-    );
-
-
-    /* =============================================
-       CAPTURE
-    ============================================= */
-
-    try{
-
-        const canvas =
-
-            await window.html2canvas(
-
-                panel,
-
-                {
-
-                    backgroundColor :
-
-                        "#ffffff",
-
-                    scale :
-
-                        2,
-
-                    useCORS :
-
-                        true,
-
-                    logging :
-
-                        false,
-
-                    width :
-
-                        panel.scrollWidth,
-
-                    height :
-
-                        panel.scrollHeight,
-
-                    windowWidth :
-
-                        panel.scrollWidth,
-
-                    windowHeight :
-
-                        panel.scrollHeight
-
-                }
+                "global-overlay-panel"
 
             );
 
 
-        /* =========================================
-           DOWNLOAD
-        ========================================= */
+        if(
 
-        const link =
+            !panel
 
-            document.createElement(
+        ){
 
-                "a"
+            return;
+
+        }
+
+
+        /* =============================================
+           LOAD LIBRARY
+        ============================================= */
+
+        const ready =
+
+            await loadHtml2Canvas();
+
+
+        if(
+
+            !ready
+
+            ||
+
+            !window.html2canvas
+
+        ){
+
+            alert(
+
+                "Export PNG tidak tersedia saat ini."
+
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           CREATE CLONE
+        ============================================= */
+
+        const clone =
+
+            panel.cloneNode(
+
+                true
 
             );
 
 
-        const title =
+        /* =============================================
+           REMOVE CLOSE BUTTON
+        ============================================= */
 
-            document
+        const closeButton =
 
-                .getElementById(
+            clone.querySelector(
 
-                    "global-overlay-title"
-
-                )
-
-                ?.textContent
-
-                ||
-
-                "Rincian-Gaji";
-
-
-        const filename =
-
-            title
-
-                .trim()
-
-                .replace(
-
-                    /[^a-z0-9]+/gi,
-
-                    "-"
-
-                )
-
-                .replace(
-
-                    /^-+|-+$/g,
-
-                    ""
-
-                )
-
-                .toLowerCase();
-
-
-        link.download =
-
-            `${
-
-                filename ||
-
-                "rincian-gaji"
-
-            }.png`;
-
-
-        link.href =
-
-            canvas.toDataURL(
-
-                "image/png"
+                "#global-overlay-close"
 
             );
 
-
-        link.click();
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "Export PNG Error:",
-
-            error
-
-        );
-
-
-        alert(
-
-            "Gagal membuat PNG."
-
-        );
-
-    }
-
-
-    finally{
-
-        /* =========================================
-           RESTORE PANEL
-        ========================================= */
-
-        panel.style.height =
-
-            original.height;
-
-
-        panel.style.maxHeight =
-
-            original.maxHeight;
-
-
-        panel.style.overflow =
-
-            original.overflow;
-
-
-        panel.style.overflowY =
-
-            original.overflowY;
-
-
-        panel.scrollTop =
-
-            original.scrollTop;
-
-
-        /* =========================================
-           RESTORE BUTTONS
-        ========================================= */
 
         if(
 
@@ -936,11 +642,22 @@ async exportPNG(){
 
         ){
 
-            closeButton.style.visibility =
-
-                "";
+            closeButton.remove();
 
         }
+
+
+        /* =============================================
+           REMOVE EXPORT BUTTON
+        ============================================= */
+
+        const exportButton =
+
+            clone.querySelector(
+
+                "#global-overlay-export"
+
+            );
 
 
         if(
@@ -949,16 +666,326 @@ async exportPNG(){
 
         ){
 
-            exportButton.style.display =
-
-                "";
+            exportButton.remove();
 
         }
 
-    }
 
-}
-            
+        /* =============================================
+           CLONE STYLE
+        ============================================= */
+
+        clone.style.position =
+
+            "absolute";
+
+
+        clone.style.left =
+
+            "0";
+
+
+        clone.style.top =
+
+            "0";
+
+
+        clone.style.right =
+
+            "auto";
+
+
+        clone.style.bottom =
+
+            "auto";
+
+
+        clone.style.width =
+
+            `${panel.offsetWidth}px`;
+
+
+        clone.style.height =
+
+            "auto";
+
+
+        clone.style.maxHeight =
+
+            "none";
+
+
+        clone.style.minHeight =
+
+            "0";
+
+
+        clone.style.overflow =
+
+            "visible";
+
+
+        clone.style.overflowY =
+
+            "visible";
+
+
+        clone.style.transform =
+
+            "none";
+
+
+        clone.style.backgroundColor =
+
+            "#ffffff";
+
+
+        clone.style.boxSizing =
+
+            "border-box";
+
+
+        /* =============================================
+           EXPORT CONTAINER
+        ============================================= */
+
+        const container =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+        container.style.position =
+
+            "absolute";
+
+
+        container.style.left =
+
+            "-100000px";
+
+
+        container.style.top =
+
+            "0";
+
+
+        container.style.width =
+
+            `${panel.offsetWidth}px`;
+
+
+        container.style.backgroundColor =
+
+            "#ffffff";
+
+
+        container.style.zIndex =
+
+            "-1";
+
+
+        container.appendChild(
+
+            clone
+
+        );
+
+
+        document.body.appendChild(
+
+            container
+
+        );
+
+
+        /* =============================================
+           WAIT FOR LAYOUT
+        ============================================= */
+
+        await new Promise(
+
+            resolve =>
+
+                requestAnimationFrame(
+
+                    () =>
+
+                        requestAnimationFrame(
+
+                            resolve
+
+                        )
+
+                )
+
+        );
+
+
+        /* =============================================
+           CAPTURE
+        ============================================= */
+
+        try{
+
+            const canvas =
+
+                await window.html2canvas(
+
+                    clone,
+
+                    {
+
+                        backgroundColor :
+
+                            "#ffffff",
+
+                        scale :
+
+                            2,
+
+                        useCORS :
+
+                            true,
+
+                        logging :
+
+                            false,
+
+                        width :
+
+                            clone.scrollWidth,
+
+                        height :
+
+                            clone.scrollHeight,
+
+                        windowWidth :
+
+                            clone.scrollWidth,
+
+                        windowHeight :
+
+                            clone.scrollHeight
+
+                    }
+
+                );
+
+
+            /* =========================================
+               DOWNLOAD
+            ========================================= */
+
+            const link =
+
+                document.createElement(
+
+                    "a"
+
+                );
+
+
+            const title =
+
+                document
+
+                    .getElementById(
+
+                        "global-overlay-title"
+
+                    )
+
+                    ?.textContent
+
+                    ||
+
+                    "Rincian-Gaji";
+
+
+            const filename =
+
+                title
+
+                    .trim()
+
+                    .replace(
+
+                        /[^a-z0-9]+/gi,
+
+                        "-"
+
+                    )
+
+                    .replace(
+
+                        /^-+|-+$/g,
+
+                        ""
+
+                    )
+
+                    .toLowerCase();
+
+
+            link.download =
+
+                `${
+
+                    filename ||
+
+                    "rincian-gaji"
+
+                }.png`;
+
+
+            link.href =
+
+                canvas.toDataURL(
+
+                    "image/png"
+
+                );
+
+
+            link.click();
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                "Export PNG Error:",
+
+                error
+
+            );
+
+
+            alert(
+
+                "Gagal membuat PNG."
+
+            );
+
+        }
+
+
+        finally{
+
+            /* =========================================
+               REMOVE CLONE
+            ========================================= */
+
+            container.remove();
+
+        }
+
+    },
 
 
     /* =================================================
