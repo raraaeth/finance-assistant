@@ -907,70 +907,51 @@ Statistics.renderSummary = function(){
 
     card.innerHTML =
 
-    `
+`
 
-        <div class="statistics-insight-content">
+    <div class="statistics-summary-content">
 
 
-            <div class="statistics-short-motivation">
+        <!-- =========================================
+             TODAY
+        ========================================== -->
+
+        <div class="statistics-summary-today">
+
+            <span class="statistics-summary-today-label">
 
                 Pendapatan hari ini
 
-            </div>
+            </span>
 
 
-            <div class="statistics-long-motivation">
+            <strong class="statistics-summary-today-value">
 
                 ${
 
-                    formatRupiahShort(
+                    formatShortRupiah(
 
-                        todayIncome
+                        summary.today
 
                     )
 
                 }
 
-            </div>
-
+            </strong>
 
         </div>
 
 
-        <div class="statistics-summary-grid">
+        <!-- =========================================
+             WEEKLY
+        ========================================== -->
 
-
-            <!-- HARI INI -->
-
-            <div class="statistics-summary-item">
-
-                <span>
-
-                    Hari Ini
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        formatRupiahShort(
-
-                            todayIncome
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
+        <div class="statistics-summary-weekly">
 
 
             <!-- MINGGU INI -->
 
-            <div class="statistics-summary-item">
+            <div class="statistics-summary-week-item">
 
                 <span>
 
@@ -983,9 +964,9 @@ Statistics.renderSummary = function(){
 
                     ${
 
-                        formatRupiahShort(
+                        formatShortRupiah(
 
-                            currentWeekIncome
+                            summary.thisWeek
 
                         )
 
@@ -998,7 +979,7 @@ Statistics.renderSummary = function(){
 
             <!-- MINGGU LALU -->
 
-            <div class="statistics-summary-item">
+            <div class="statistics-summary-week-item">
 
                 <span>
 
@@ -1011,9 +992,9 @@ Statistics.renderSummary = function(){
 
                     ${
 
-                        formatRupiahShort(
+                        formatShortRupiah(
 
-                            previousWeekIncome
+                            summary.lastWeek
 
                         )
 
@@ -1026,7 +1007,12 @@ Statistics.renderSummary = function(){
 
         </div>
 
-    `;
+
+    </div>
+
+`;
+        
+              
 
 };
 
