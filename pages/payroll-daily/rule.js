@@ -3,16 +3,17 @@
    Page        : Payroll Daily
    Module      : Rule
    File        : rule.js
-   Version     : 2.0.0
+   Version     : 1.0.0
 
    Description :
-   Payroll Daily Rule Manager
+   Payroll Daily Rule Matcher
 
-   Rule Types :
-   - rule_gaji
-   - rule_work
-   - rule_tambah
-   - rule_potong
+   Logic :
+   - Match berdasarkan nama + grade
+   - Prioritas grade_2 → grade_1 → nama
+   - Memeriksa masa berlaku rule
+   - Tidak melakukan calculation
+   - Tidak menentukan periode payroll
 ===================================================== */
 
 
@@ -31,336 +32,47 @@ export const Rule = {
 
         item,
 
-        rules = [],
-
-        date = null
-
-    ){
-
-        const nama =
-
-            this.normalize(
-
-                item?.nama
-
-            );
-
-
-        const grade1 =
-
-            this.normalize(
-
-                item?.grade_1
-
-            );
-
-
-        const grade2 =
-
-            this.normalize(
-
-                item?.grade_2
-
-            );
-
-
-        const workRules =
-
-            this.activeRules(
-
-                rules,
-
-                "rule_work",
-
-                date
-
-            );
-
-
-        /* ---------------------------------------------
-           NAMA + GRADE 1 + GRADE 2
-        --------------------------------------------- */
-
-        if(
-
-            nama &&
-
-            grade1 &&
-
-            grade2
-
-        ){
-
-            const exact =
-
-                workRules.find(
-
-                    rule =>
-
-                        this.normalize(
-
-                            rule.nama
-
-                        )
-
-                        ===
-
-                        nama
-
-                        &&
-
-                        this.normalize(
-
-                            rule.grade_1
-
-                        )
-
-                        ===
-
-                        grade1
-
-                        &&
-
-                        this.normalize(
-
-                            rule.grade_2
-
-                        )
-
-                        ===
-
-                        grade2
-
-                );
-
-
-            if(
-
-                exact
-
-            ){
-
-                return {
-
-                    ...exact,
-
-                    matchLevel :
-
-                        "grade_2"
-
-                };
-
-            }
-
-        }
-
-
-        /* ---------------------------------------------
-           NAMA + GRADE 1
-        --------------------------------------------- */
-
-        if(
-
-            nama &&
-
-            grade1
-
-        ){
-
-            const grade =
-
-                workRules.find(
-
-                    rule =>
-
-                        this.normalize(
-
-                            rule.nama
-
-                        )
-
-                        ===
-
-                        nama
-
-                        &&
-
-                        this.normalize(
-
-                            rule.grade_1
-
-                        )
-
-                        ===
-
-                        grade1
-
-                        &&
-
-                        !this.normalize(
-
-                            rule.grade_2
-
-                        )
-
-                );
-
-
-            if(
-
-                grade
-
-            ){
-
-                return {
-
-                    ...grade,
-
-                    matchLevel :
-
-                        "grade_1"
-
-                };
-
-            }
-
-        }
-
-
-        /* ---------------------------------------------
-           NAMA ONLY
-        --------------------------------------------- */
-
-        if(
-
-            nama
-
-        ){
-
-            const nameRule =
-
-                workRules.find(
-
-                    rule =>
-
-                        this.normalize(
-
-                            rule.nama
-
-                        )
-
-                        ===
-
-                        nama
-
-                        &&
-
-                        !this.normalize(
-
-                            rule.grade_1
-
-                        )
-
-                        &&
-
-                        !this.normalize(
-
-                            rule.grade_2
-
-                        )
-
-                );
-
-
-            if(
-
-                nameRule
-
-            ){
-
-                return {
-
-                    ...nameRule,
-
-                    matchLevel :
-
-                        "nama"
-
-                };
-
-            }
-
-        }
-
-
-        return null;
-
-    },
-
-
-    /* =================================================
-       FIND ADDITION RULES
-    ================================================= */
-
-    findAdditions(
-
-        rules = [],
-
-        date = null
-
-    ){
-
-        return this.activeRules(
-
-            rules,
-
-            "rule_tambah",
-
-            date
-
-        );
-
-    },
-
-
-    /* =================================================
-       FIND DEDUCTION RULES
-    ================================================= */
-
-    findDeductions(
-
-        rules = [],
-
-        date = null
-
-    ){
-
-        return this.activeRules(
-
-            rules,
-
-            "rule_potong",
-
-            date
-
-        );
-
-    },
-
-
-    /* =================================================
-       FIND SALARY RULE
-    ================================================= */
-
-    findSalary(
-
         rules = []
 
     ){
 
-        return (
+        if(
 
-            rules.find(
+            !item ||
+
+            !Array.isArray(rules)
+
+        ){
+
+            return null;
+
+        }
+
+
+        /* ---------------------------------------------
+           ITEM DATE
+        --------------------------------------------- */
+
+        const itemDate =
+
+            this.parseDate(
+
+                item.dateObject ??
+
+                item.date ??
+
+                item.tanggal
+
+            );
+
+
+        /* ---------------------------------------------
+           WORK RULE ONLY
+        --------------------------------------------- */
+
+        const workRules =
+
+            rules.filter(
 
                 rule =>
 
@@ -372,28 +84,231 @@ export const Rule = {
 
                     ===
 
-                    "rule_gaji"
+                    "rule_work"
 
-            )
+            );
 
-            || null
 
-        );
+        /* ---------------------------------------------
+           RULE YANG MASIH AKTIF
+        --------------------------------------------- */
+
+        const activeRules =
+
+            workRules.filter(
+
+                rule =>
+
+                    this.isActive(
+
+                        rule,
+
+                        itemDate
+
+                    )
+
+            );
+
+
+        /* ---------------------------------------------
+           PRIORITY 1
+           nama + grade_1 + grade_2
+        --------------------------------------------- */
+
+        const exact =
+
+            activeRules.find(
+
+                rule =>
+
+                    this.same(
+
+                        rule?.nama,
+
+                        item?.nama
+
+                    )
+
+                    &&
+
+                    this.same(
+
+                        rule?.grade_1,
+
+                        item?.grade_1
+
+                    )
+
+                    &&
+
+                    this.same(
+
+                        rule?.grade_2,
+
+                        item?.grade_2
+
+                    )
+
+                }
+
+            );
+
+
+        if(
+
+            exact
+
+        ){
+
+            return {
+
+                ...exact,
+
+                matchLevel :
+
+                    "grade_2"
+
+            };
+
+        }
+
+
+        /* ---------------------------------------------
+           PRIORITY 2
+           nama + grade_1
+
+           grade_2 pada rule boleh kosong
+        --------------------------------------------- */
+
+        const grade1 =
+
+            activeRules.find(
+
+                rule =>
+
+                    this.same(
+
+                        rule?.nama,
+
+                        item?.nama
+
+                    )
+
+                    &&
+
+                    this.same(
+
+                        rule?.grade_1,
+
+                        item?.grade_1
+
+                    )
+
+                    &&
+
+                    !this.hasValue(
+
+                        rule?.grade_2
+
+                    )
+
+            );
+
+
+        if(
+
+            grade1
+
+        ){
+
+            return {
+
+                ...grade1,
+
+                matchLevel :
+
+                    "grade_1"
+
+            };
+
+        }
+
+
+        /* ---------------------------------------------
+           PRIORITY 3
+           NAMA SAJA
+
+           grade rule kosong
+        --------------------------------------------- */
+
+        const nameOnly =
+
+            activeRules.find(
+
+                rule =>
+
+                    this.same(
+
+                        rule?.nama,
+
+                        item?.nama
+
+                    )
+
+                    &&
+
+                    !this.hasValue(
+
+                        rule?.grade_1
+
+                    )
+
+                    &&
+
+                    !this.hasValue(
+
+                        rule?.grade_2
+
+                    )
+
+            );
+
+
+        if(
+
+            nameOnly
+
+        ){
+
+            return {
+
+                ...nameOnly,
+
+                matchLevel :
+
+                    "nama"
+
+            };
+
+        }
+
+
+        return null;
 
     },
 
 
     /* =================================================
-       ACTIVE RULES
+       FIND RULE BY TYPE
     ================================================= */
 
-    activeRules(
-
-        rules,
+    findByType(
 
         type,
 
-        date
+        rules = [],
+
+        itemDate = null
 
     ){
 
@@ -408,49 +323,47 @@ export const Rule = {
         }
 
 
+        const normalizedType =
+
+            this.normalize(
+
+                type
+
+            );
+
+
+        const date =
+
+            this.parseDate(
+
+                itemDate
+
+            );
+
+
         return rules.filter(
 
-            rule => {
+            rule =>
 
-                if(
+                this.normalize(
 
-                    this.normalize(
+                    rule?.type_rule
 
-                        rule?.type_rule
+                )
 
-                    )
+                ===
 
-                    !==
+                normalizedType
 
-                    type
+                &&
 
-                ){
-
-                    return false;
-
-                }
-
-
-                if(
-
-                    !date
-
-                ){
-
-                    return true;
-
-                }
-
-
-                return this.isActive(
+                this.isActive(
 
                     rule,
 
                     date
 
-                );
-
-            }
+                )
 
         );
 
@@ -458,7 +371,7 @@ export const Rule = {
 
 
     /* =================================================
-       IS ACTIVE
+       CHECK RULE ACTIVE
     ================================================= */
 
     isActive(
@@ -469,22 +382,29 @@ export const Rule = {
 
     ){
 
-        const target =
-
-            this.parseDate(
-
-                date
-
-            );
-
-
         if(
 
-            !target
+            !rule
 
         ){
 
             return false;
+
+        }
+
+
+        /* ---------------------------------------------
+           Jika tanggal tidak tersedia,
+           jangan menggagalkan rule.
+        --------------------------------------------- */
+
+        if(
+
+            !date
+
+        ){
+
+            return true;
 
         }
 
@@ -507,11 +427,32 @@ export const Rule = {
             );
 
 
+        /* ---------------------------------------------
+           Tidak ada batas tanggal
+        --------------------------------------------- */
+
+        if(
+
+            !start &&
+
+            !end
+
+        ){
+
+            return true;
+
+        }
+
+
+        /* ---------------------------------------------
+           Ada START
+        --------------------------------------------- */
+
         if(
 
             start &&
 
-            target < start
+            date < start
 
         ){
 
@@ -520,15 +461,15 @@ export const Rule = {
         }
 
 
+        /* ---------------------------------------------
+           Ada END
+        --------------------------------------------- */
+
         if(
 
             end &&
 
-            target > this.endOfDay(
-
-                end
-
-            )
+            date > end
 
         ){
 
@@ -543,43 +484,24 @@ export const Rule = {
 
 
     /* =================================================
-       IS WEEKEND RULE
+       SAME VALUE
     ================================================= */
 
-    isWeekendRule(
+    same(
 
-        rule
+        a,
+
+        b
 
     ){
 
-        const waktu =
-
-            this.normalize(
-
-                rule?.waktu
-
-            );
-
-
         return (
 
-            waktu === "sabtu,minggu"
+            this.normalize(a)
 
-        )
+            ===
 
-        ||
-
-        (
-
-            waktu === "sabtu"
-
-        )
-
-        ||
-
-        (
-
-            waktu === "minggu"
+            this.normalize(b)
 
         );
 
@@ -587,104 +509,32 @@ export const Rule = {
 
 
     /* =================================================
-       MATCH ADDITION DAY
+       HAS VALUE
     ================================================= */
 
-    matchesDay(
+    hasValue(
 
-        rule,
-
-        date
+        value
 
     ){
 
-        if(
+        return (
 
-            !date
+            value !== null
 
-        ){
+            &&
 
-            return false;
+            value !== undefined
 
-        }
+            &&
 
+            String(
 
-        const waktu =
+                value
 
-            this.normalize(
+            ).trim() !== ""
 
-                rule?.waktu
-
-            );
-
-
-        const day =
-
-            this.parseDate(
-
-                date
-
-            );
-
-
-        if(
-
-            !day
-
-        ){
-
-            return false;
-
-        }
-
-
-        const dayNumber =
-
-            day.getDay();
-
-
-        if(
-
-            waktu === "sabtu,minggu"
-
-        ){
-
-            return (
-
-                dayNumber === 0
-
-                ||
-
-                dayNumber === 6
-
-            );
-
-        }
-
-
-        if(
-
-            waktu === "sabtu"
-
-        ){
-
-            return dayNumber === 6;
-
-        }
-
-
-        if(
-
-            waktu === "minggu"
-
-        ){
-
-            return dayNumber === 0;
-
-        }
-
-
-        return false;
+        );
 
     },
 
@@ -724,26 +574,41 @@ export const Rule = {
 
         if(
 
-            value instanceof Date
+            !value
 
         ){
 
-            return new Date(
-
-                value
-
-            );
+            return null;
 
         }
 
 
         if(
 
-            !value
+            value instanceof Date
 
         ){
 
-            return null;
+            if(
+
+                Number.isNaN(
+
+                    value.getTime()
+
+                )
+
+            ){
+
+                return null;
+
+            }
+
+
+            return new Date(
+
+                value
+
+            );
 
         }
 
@@ -760,7 +625,11 @@ export const Rule = {
 
             .split("-")
 
-            .map(Number);
+            .map(
+
+                Number
+
+            );
 
 
         if(
@@ -774,15 +643,26 @@ export const Rule = {
         }
 
 
+        const [
+
+            year,
+
+            month,
+
+            day
+
+        ] = parts;
+
+
         const date =
 
             new Date(
 
-                parts[0],
+                year,
 
-                parts[1] - 1,
+                month - 1,
 
-                parts[2]
+                day
 
             );
 
@@ -800,43 +680,6 @@ export const Rule = {
             :
 
             date;
-
-    },
-
-
-    /* =================================================
-       END OF DAY
-    ================================================= */
-
-    endOfDay(
-
-        date
-
-    ){
-
-        const result =
-
-            new Date(
-
-                date
-
-            );
-
-
-        result.setHours(
-
-            23,
-
-            59,
-
-            59,
-
-            999
-
-        );
-
-
-        return result;
 
     }
 
