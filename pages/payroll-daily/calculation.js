@@ -3,13 +3,15 @@
    Page        : Payroll Daily
    Module      : Calculation
    File        : calculation.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Payroll Daily Calculation
 
    Formula :
-   qty × nominal = total
+   Work       = qty × nominal
+   Addition  = rule nominal
+   Deduction = rule nominal
 ===================================================== */
 
 
@@ -21,7 +23,7 @@ export const Calculation = {
 
 
     /* =================================================
-       CALCULATE ITEM
+       CALCULATE WORK ITEM
     ================================================= */
 
     item(
@@ -32,10 +34,6 @@ export const Calculation = {
 
     ){
 
-        /* ---------------------------------------------
-           QTY
-        --------------------------------------------- */
-
         const qty =
 
             this.number(
@@ -44,10 +42,6 @@ export const Calculation = {
 
             );
 
-
-        /* ---------------------------------------------
-           NOMINAL
-        --------------------------------------------- */
 
         const nominal =
 
@@ -58,20 +52,12 @@ export const Calculation = {
             );
 
 
-        /* ---------------------------------------------
-           TOTAL
-        --------------------------------------------- */
-
         const total =
 
             qty *
 
             nominal;
 
-
-        /* ---------------------------------------------
-           RESULT
-        --------------------------------------------- */
 
         return {
 
@@ -83,6 +69,10 @@ export const Calculation = {
 
             total,
 
+            workIncome :
+
+                total,
+
             rule :
 
                 rule || null
@@ -93,22 +83,18 @@ export const Calculation = {
 
 
     /* =================================================
-       CALCULATE COLLECTION
+       CALCULATE ADDITIONS
     ================================================= */
 
-    all(
+    additions(
 
-        data = [],
-
-        rules = [],
-
-        ruleFinder = null
+        rules = []
 
     ){
 
         if(
 
-            !Array.isArray(data)
+            !Array.isArray(rules)
 
         ){
 
@@ -117,40 +103,222 @@ export const Calculation = {
         }
 
 
-        return data.map(
+        return rules.map(
 
-            item => {
+            rule => ({
 
-                const rule =
+                name :
 
-                    ruleFinder
+                    rule?.nama ??
 
-                    ?
+                    "",
 
-                    ruleFinder(
+                nominal :
 
-                        item,
+                    this.number(
 
-                        rules
+                        rule?.nominal
 
-                    )
+                    ),
 
-                    :
+                rule
 
-                    null;
-
-
-                return this.item(
-
-                    item,
-
-                    rule
-
-                );
-
-            }
+            })
 
         );
+
+    },
+
+
+    /* =================================================
+       CALCULATE DEDUCTIONS
+    ================================================= */
+
+    deductions(
+
+        rules = []
+
+    ){
+
+        if(
+
+            !Array.isArray(rules)
+
+        ){
+
+            return [];
+
+        }
+
+
+        return rules.map(
+
+            rule => ({
+
+                name :
+
+                    rule?.nama ??
+
+                    "",
+
+                nominal :
+
+                    this.number(
+
+                        rule?.nominal
+
+                    ),
+
+                rule
+
+            })
+
+        );
+
+    },
+
+
+    /* =================================================
+       SUM RULES
+    ================================================= */
+
+    sumRules(
+
+        rules = []
+
+    ){
+
+        if(
+
+            !Array.isArray(rules)
+
+        ){
+
+            return 0;
+
+        }
+
+
+        return rules.reduce(
+
+            (
+
+                total,
+
+                rule
+
+            ) =>
+
+                total +
+
+                this.number(
+
+                    rule?.nominal
+
+                ),
+
+            0
+
+        );
+
+    },
+
+
+    /* =================================================
+       DAILY TOTAL
+    ================================================= */
+
+    daily(
+
+        workIncome = 0,
+
+        additions = []
+
+    ){
+
+        const additionTotal =
+
+            this.sumRules(
+
+                additions
+
+            );
+
+
+        return {
+
+            workIncome :
+
+                this.number(
+
+                    workIncome
+
+                ),
+
+            additionTotal,
+
+            gross :
+
+                this.number(
+
+                    workIncome
+
+                )
+
+                +
+
+                additionTotal
+
+        };
+
+    },
+
+
+    /* =================================================
+       PAYROLL TOTAL
+    ================================================= */
+
+    payroll(
+
+        gross = 0,
+
+        deductions = []
+
+    ){
+
+        const deductionTotal =
+
+            this.sumRules(
+
+                deductions
+
+            );
+
+
+        const grossNumber =
+
+            this.number(
+
+                gross
+
+            );
+
+
+        return {
+
+            gross :
+
+                grossNumber,
+
+            deductionTotal,
+
+            net :
+
+                grossNumber -
+
+                deductionTotal
+
+        };
 
     },
 
@@ -173,7 +341,9 @@ export const Calculation = {
 
                     value ?? 0
 
-                ).replace(
+                )
+
+                .replace(
 
                     /[^0-9.-]/g,
 
@@ -190,13 +360,13 @@ export const Calculation = {
 
         )
 
-        ?
+            ?
 
-        number
+            number
 
-        :
+            :
 
-        0;
+            0;
 
     }
 
