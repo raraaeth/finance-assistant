@@ -152,30 +152,7 @@ async function loadHtml2Canvas(){
 }
 
 
-/* =====================================================
-   CREATE EXPORT BUTTON
-===================================================== */
 
-function createExportButton(){
-
-    const panel =
-
-        document.getElementById(
-
-            "global-overlay-panel"
-
-        );
-
-
-    if(
-
-        !panel
-
-    ){
-
-        return;
-
-    }
 
 
     /* =============================================
@@ -479,20 +456,41 @@ export const Overlay = {
             }
 
         );
+       
+
+/* =============================================
+   EXPORT
+============================================= */
+
+const exportButton =
+
+    document.getElementById(
+
+        "global-overlay-export"
+
+    );
 
 
-        /* =============================================
-           EXPORT BUTTON
-        ============================================= */
+if(
 
-        createExportButton();
+    exportButton
 
+){
 
-        initialized =
+    exportButton.addEventListener(
 
-            true;
+        "click",
 
-    },
+        () => {
+
+            Overlay.exportPNG();
+
+        }
+
+    );
+
+}
+        
 
 
     /* =================================================
@@ -603,11 +601,6 @@ export const Overlay = {
         }
 
 
-        /* =============================================
-           EXPORT BUTTON
-        ============================================= */
-
-        createExportButton();
 
 
         /* =============================================
