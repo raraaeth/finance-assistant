@@ -148,11 +148,11 @@ export async function init(){
 
         await API.load(
 
-            CONFIG.api.payroll,
+    CONFIG.api.daily,
 
-            CONFIG.api.rules
+    CONFIG.api.rules
 
-        );
+);
 
     }
 
