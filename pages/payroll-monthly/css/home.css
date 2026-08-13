@@ -2,7 +2,13 @@
    PAYROLL MONTHLY
    FILE : home.css
    DESCRIPTION : Payroll Monthly Home Page
-   VERSION : 1.2.0
+   VERSION : 1.3.0
+
+   Theme Aware :
+   - Light
+   - Dark
+   - Green
+   - Pink
 ===================================================== */
 
 
@@ -43,6 +49,8 @@
     line-height:1.35;
 
     letter-spacing:-0.3px;
+
+    color:var(--text);
 
 }
 
@@ -126,9 +134,9 @@
 
     border-radius:999px;
 
-    background:#F5F7FB;
+    background:var(--surface);
 
-    color:#374151;
+    color:var(--text);
 
     font-size:1.15rem;
 
@@ -164,7 +172,7 @@
 
     text-align:center;
 
-    color:#253f3d;
+    color:var(--text);
 
 }
 
@@ -183,7 +191,7 @@
 
     text-align:center;
 
-    color:#899593;
+    color:var(--text-secondary);
 
 }
 
@@ -204,7 +212,7 @@
 
     text-align:center;
 
-    color:#253f3d;
+    color:var(--text);
 
 }
 
@@ -251,7 +259,7 @@
 
     border-radius:18px;
 
-    background:#F4FAFA;
+    background:var(--surface);
 
     display:flex;
 
@@ -280,7 +288,7 @@
 
     line-height:1.3;
 
-    color:#71817f;
+    color:var(--text-secondary);
 
     white-space:nowrap;
 
@@ -303,7 +311,7 @@
 
     font-weight:700;
 
-    color:#173c3a;
+    color:var(--text);
 
 }
 
@@ -329,7 +337,7 @@
 
     text-align:center;
 
-    color:#71817f;
+    color:var(--text-secondary);
 
     font-size:15px;
 
@@ -376,7 +384,7 @@
 
     border-radius:18px;
 
-    background:#F4FAFA;
+    background:var(--surface);
 
     display:flex;
 
@@ -405,7 +413,7 @@
 
     line-height:1.3;
 
-    color:#71817f;
+    color:var(--text-secondary);
 
     white-space:nowrap;
 
@@ -428,7 +436,7 @@
 
     font-weight:700;
 
-    color:#173c3a;
+    color:var(--text);
 
 }
 
