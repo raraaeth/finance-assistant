@@ -3,15 +3,16 @@
    Page        : Payroll Daily
    Module      : Rule
    File        : rule.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
-   Payroll Daily Rule Matcher
+   Payroll Daily Rule Manager
 
-   Priority :
-   1. nama + grade_1 + grade_2
-   2. nama + grade_1
-   3. nama
+   Rule Types :
+   - rule_gaji
+   - rule_work
+   - rule_tambah
+   - rule_potong
 ===================================================== */
 
 
@@ -23,20 +24,18 @@ export const Rule = {
 
 
     /* =================================================
-       FIND
+       FIND WORK RULE
     ================================================= */
 
     find(
 
         item,
 
-        rules = []
+        rules = [],
+
+        date = null
 
     ){
-
-        /* ---------------------------------------------
-           NORMALIZE DATA
-        --------------------------------------------- */
 
         const nama =
 
@@ -65,33 +64,22 @@ export const Rule = {
             );
 
 
-        /* ---------------------------------------------
-           ONLY WORK RULE
-        --------------------------------------------- */
-
         const workRules =
 
-            rules.filter(
+            this.activeRules(
 
-                rule =>
+                rules,
 
-                    this.normalize(
+                "rule_work",
 
-                        rule?.type_rule
-
-                    )
-
-                    ===
-
-                    "rule_work"
+                date
 
             );
 
 
-        /* =================================================
-           LEVEL 1
+        /* ---------------------------------------------
            NAMA + GRADE 1 + GRADE 2
-        ================================================= */
+        --------------------------------------------- */
 
         if(
 
@@ -103,7 +91,7 @@ export const Rule = {
 
         ){
 
-            const exactRule =
+            const exact =
 
                 workRules.find(
 
@@ -148,13 +136,13 @@ export const Rule = {
 
             if(
 
-                exactRule
+                exact
 
             ){
 
                 return {
 
-                    ...exactRule,
+                    ...exact,
 
                     matchLevel :
 
@@ -167,10 +155,9 @@ export const Rule = {
         }
 
 
-        /* =================================================
-           LEVEL 2
+        /* ---------------------------------------------
            NAMA + GRADE 1
-        ================================================= */
+        --------------------------------------------- */
 
         if(
 
@@ -180,7 +167,7 @@ export const Rule = {
 
         ){
 
-            const gradeRule =
+            const grade =
 
                 workRules.find(
 
@@ -221,13 +208,13 @@ export const Rule = {
 
             if(
 
-                gradeRule
+                grade
 
             ){
 
                 return {
 
-                    ...gradeRule,
+                    ...grade,
 
                     matchLevel :
 
@@ -240,10 +227,9 @@ export const Rule = {
         }
 
 
-        /* =================================================
-           LEVEL 3
-           NAMA SAJA
-        ================================================= */
+        /* ---------------------------------------------
+           NAMA ONLY
+        --------------------------------------------- */
 
         if(
 
@@ -307,11 +293,398 @@ export const Rule = {
         }
 
 
-        /* =================================================
-           NO RULE
-        ================================================= */
-
         return null;
+
+    },
+
+
+    /* =================================================
+       FIND ADDITION RULES
+    ================================================= */
+
+    findAdditions(
+
+        rules = [],
+
+        date = null
+
+    ){
+
+        return this.activeRules(
+
+            rules,
+
+            "rule_tambah",
+
+            date
+
+        );
+
+    },
+
+
+    /* =================================================
+       FIND DEDUCTION RULES
+    ================================================= */
+
+    findDeductions(
+
+        rules = [],
+
+        date = null
+
+    ){
+
+        return this.activeRules(
+
+            rules,
+
+            "rule_potong",
+
+            date
+
+        );
+
+    },
+
+
+    /* =================================================
+       FIND SALARY RULE
+    ================================================= */
+
+    findSalary(
+
+        rules = []
+
+    ){
+
+        return (
+
+            rules.find(
+
+                rule =>
+
+                    this.normalize(
+
+                        rule?.type_rule
+
+                    )
+
+                    ===
+
+                    "rule_gaji"
+
+            )
+
+            || null
+
+        );
+
+    },
+
+
+    /* =================================================
+       ACTIVE RULES
+    ================================================= */
+
+    activeRules(
+
+        rules,
+
+        type,
+
+        date
+
+    ){
+
+        if(
+
+            !Array.isArray(rules)
+
+        ){
+
+            return [];
+
+        }
+
+
+        return rules.filter(
+
+            rule => {
+
+                if(
+
+                    this.normalize(
+
+                        rule?.type_rule
+
+                    )
+
+                    !==
+
+                    type
+
+                ){
+
+                    return false;
+
+                }
+
+
+                if(
+
+                    !date
+
+                ){
+
+                    return true;
+
+                }
+
+
+                return this.isActive(
+
+                    rule,
+
+                    date
+
+                );
+
+            }
+
+        );
+
+    },
+
+
+    /* =================================================
+       IS ACTIVE
+    ================================================= */
+
+    isActive(
+
+        rule,
+
+        date
+
+    ){
+
+        const target =
+
+            this.parseDate(
+
+                date
+
+            );
+
+
+        if(
+
+            !target
+
+        ){
+
+            return false;
+
+        }
+
+
+        const start =
+
+            this.parseDate(
+
+                rule?.periode_start
+
+            );
+
+
+        const end =
+
+            this.parseDate(
+
+                rule?.periode_end
+
+            );
+
+
+        if(
+
+            start &&
+
+            target < start
+
+        ){
+
+            return false;
+
+        }
+
+
+        if(
+
+            end &&
+
+            target > this.endOfDay(
+
+                end
+
+            )
+
+        ){
+
+            return false;
+
+        }
+
+
+        return true;
+
+    },
+
+
+    /* =================================================
+       IS WEEKEND RULE
+    ================================================= */
+
+    isWeekendRule(
+
+        rule
+
+    ){
+
+        const waktu =
+
+            this.normalize(
+
+                rule?.waktu
+
+            );
+
+
+        return (
+
+            waktu === "sabtu,minggu"
+
+        )
+
+        ||
+
+        (
+
+            waktu === "sabtu"
+
+        )
+
+        ||
+
+        (
+
+            waktu === "minggu"
+
+        );
+
+    },
+
+
+    /* =================================================
+       MATCH ADDITION DAY
+    ================================================= */
+
+    matchesDay(
+
+        rule,
+
+        date
+
+    ){
+
+        if(
+
+            !date
+
+        ){
+
+            return false;
+
+        }
+
+
+        const waktu =
+
+            this.normalize(
+
+                rule?.waktu
+
+            );
+
+
+        const day =
+
+            this.parseDate(
+
+                date
+
+            );
+
+
+        if(
+
+            !day
+
+        ){
+
+            return false;
+
+        }
+
+
+        const dayNumber =
+
+            day.getDay();
+
+
+        if(
+
+            waktu === "sabtu,minggu"
+
+        ){
+
+            return (
+
+                dayNumber === 0
+
+                ||
+
+                dayNumber === 6
+
+            );
+
+        }
+
+
+        if(
+
+            waktu === "sabtu"
+
+        ){
+
+            return dayNumber === 6;
+
+        }
+
+
+        if(
+
+            waktu === "minggu"
+
+        ){
+
+            return dayNumber === 0;
+
+        }
+
+
+        return false;
 
     },
 
@@ -335,6 +708,135 @@ export const Rule = {
         .trim()
 
         .toLowerCase();
+
+    },
+
+
+    /* =================================================
+       PARSE DATE
+    ================================================= */
+
+    parseDate(
+
+        value
+
+    ){
+
+        if(
+
+            value instanceof Date
+
+        ){
+
+            return new Date(
+
+                value
+
+            );
+
+        }
+
+
+        if(
+
+            !value
+
+        ){
+
+            return null;
+
+        }
+
+
+        const parts =
+
+            String(
+
+                value
+
+            )
+
+            .trim()
+
+            .split("-")
+
+            .map(Number);
+
+
+        if(
+
+            parts.length !== 3
+
+        ){
+
+            return null;
+
+        }
+
+
+        const date =
+
+            new Date(
+
+                parts[0],
+
+                parts[1] - 1,
+
+                parts[2]
+
+            );
+
+
+        return Number.isNaN(
+
+            date.getTime()
+
+        )
+
+            ?
+
+            null
+
+            :
+
+            date;
+
+    },
+
+
+    /* =================================================
+       END OF DAY
+    ================================================= */
+
+    endOfDay(
+
+        date
+
+    ){
+
+        const result =
+
+            new Date(
+
+                date
+
+            );
+
+
+        result.setHours(
+
+            23,
+
+            59,
+
+            59,
+
+            999
+
+        );
+
+
+        return result;
 
     }
 
