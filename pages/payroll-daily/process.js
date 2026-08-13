@@ -3,17 +3,23 @@
    Page        : Payroll Daily
    Module      : Process
    File        : process.js
-   Version     : 1.1.0
+   Version     : 2.0.0
 
    Description :
    Payroll Daily Data Processor
 
    Flow :
-   - Receive payroll data
-   - Receive payroll rules
-   - Find matching rule
-   - Calculate income
-   - Produce processed data
+   RAW
+    ↓
+   Filter status masuk
+    ↓
+   Rule
+    ↓
+   Period
+    ↓
+   Calculation
+    ↓
+   Processed Data
 ===================================================== */
 
 
@@ -33,6 +39,13 @@ import {
     Calculation
 
 } from "./calculation.js";
+
+
+import {
+
+    Period
+
+} from "./periode.js";
 
 
 /* =====================================================
@@ -64,6 +77,44 @@ export const Process = {
 
 
     /* =================================================
+       PERIOD
+    ================================================= */
+
+    period : {
+
+        current : null,
+
+        previous : null,
+
+        next : null
+
+    },
+
+
+    /* =================================================
+       SUMMARY
+    ================================================= */
+
+    summary : {
+
+        currentGross : 0,
+
+        currentNet : 0,
+
+        currentWork : 0,
+
+        currentAddition : 0,
+
+        currentDeduction : 0,
+
+        previousGross : 0,
+
+        previousNet : 0
+
+    },
+
+
+    /* =================================================
        INIT
     ================================================= */
 
@@ -74,10 +125,6 @@ export const Process = {
         rules = []
 
     ){
-
-        /* ---------------------------------------------
-           RESET
-        --------------------------------------------- */
 
         this.raw =
 
@@ -100,11 +147,39 @@ export const Process = {
         this.data = [];
 
 
-        /* ---------------------------------------------
-           PROCESS
-        --------------------------------------------- */
+        this.period = {
+
+            current :
+
+                Period.getCurrent(
+
+                    this.rules
+
+                ),
+
+            previous :
+
+                Period.getPrevious(
+
+                    this.rules
+
+                ),
+
+            next :
+
+                Period.getNext(
+
+                    this.rules
+
+                )
+
+        };
+
 
         this.process();
+
+
+        this.calculateSummary();
 
 
         return this.data;
@@ -128,15 +203,11 @@ export const Process = {
 
                         item &&
 
-                        String(
+                        this.normalize(
 
-                            item.status ?? ""
+                            item.status
 
                         )
-
-                        .trim()
-
-                        .toLowerCase()
 
                         ===
 
@@ -169,24 +240,31 @@ export const Process = {
 
     ){
 
-        /* ---------------------------------------------
-           FIND RULE
-        --------------------------------------------- */
+        const date =
 
-        const rule =
+            this.getDate(
 
-            Rule.find(
-
-                item,
-
-                this.rules
+                item
 
             );
 
 
         /* ---------------------------------------------
-           CALCULATION
+           WORK RULE
         --------------------------------------------- */
+
+        const workRule =
+
+            Rule.find(
+
+                item,
+
+                this.rules,
+
+                date
+
+            );
+
 
         const calculation =
 
@@ -194,7 +272,7 @@ export const Process = {
 
                 item,
 
-                rule
+                workRule
 
             );
 
@@ -207,39 +285,56 @@ export const Process = {
 
             ...item,
 
+            dateObject :
+
+                date,
+
+
             qty :
 
                 calculation.qty,
+
 
             nominal :
 
                 calculation.nominal,
 
+
             total :
 
                 calculation.total,
+
+
+            workIncome :
+
+                calculation.workIncome,
+
 
             ruleFound :
 
                 Boolean(
 
-                    rule
+                    workRule
 
                 ),
 
+
             ruleLevel :
 
-                rule
+                workRule
 
-                    ? this.getRuleLevel(
+                    ?
 
-                        item,
+                    workRule.matchLevel
 
-                        rule
+                    :
 
-                    )
+                    null,
 
-                    : null
+
+            rule :
+
+                workRule || null
 
         };
 
@@ -247,20 +342,514 @@ export const Process = {
 
 
     /* =================================================
-       RULE LEVEL
+       CALCULATE SUMMARY
     ================================================= */
 
-    getRuleLevel(
+    calculateSummary(){
 
-        item,
+        const current =
 
-        rule
+            this.period.current;
+
+
+        const previous =
+
+            this.period.previous;
+
+
+        const currentData =
+
+            this.data.filter(
+
+                item =>
+
+                    Period.contains(
+
+                        item.dateObject,
+
+                        current
+
+                    )
+
+            );
+
+
+        const previousData =
+
+            this.data.filter(
+
+                item =>
+
+                    Period.contains(
+
+                        item.dateObject,
+
+                        previous
+
+                    )
+
+            );
+
+
+        const currentWork =
+
+            currentData.reduce(
+
+                (
+
+                    total,
+
+                    item
+
+                ) =>
+
+                    total +
+
+                    this.number(
+
+                        item.workIncome
+
+                    ),
+
+                0
+
+            );
+
+
+        const previousWork =
+
+            previousData.reduce(
+
+                (
+
+                    total,
+
+                    item
+
+                ) =>
+
+                    total +
+
+                    this.number(
+
+                        item.workIncome
+
+                    ),
+
+                0
+
+            );
+
+
+        /* ---------------------------------------------
+           CURRENT ADDITIONS
+           Tambahan dihitung SEKALI PER HARI.
+        --------------------------------------------- */
+
+        const currentAddition =
+
+            this.calculatePeriodAdditions(
+
+                current
+
+            );
+
+
+        const previousAddition =
+
+            this.calculatePeriodAdditions(
+
+                previous
+
+            );
+
+
+        /* ---------------------------------------------
+           GROSS
+        --------------------------------------------- */
+
+        const currentGross =
+
+            currentWork +
+
+            currentAddition;
+
+
+        const previousGross =
+
+            previousWork +
+
+            previousAddition;
+
+
+        /* ---------------------------------------------
+           DEDUCTIONS
+           Potongan hanya dikenakan satu kali
+           pada periode gaji.
+        --------------------------------------------- */
+
+        const currentDeduction =
+
+            this.calculatePeriodDeductions(
+
+                current
+
+            );
+
+
+        const previousDeduction =
+
+            this.calculatePeriodDeductions(
+
+                previous
+
+            );
+
+
+        const currentNet =
+
+            currentGross -
+
+            currentDeduction;
+
+
+        const previousNet =
+
+            previousGross -
+
+            previousDeduction;
+
+
+        this.summary = {
+
+            currentGross,
+
+            currentNet,
+
+            currentWork,
+
+            currentAddition,
+
+            currentDeduction,
+
+            previousGross,
+
+            previousNet
+
+        };
+
+    },
+
+
+    /* =================================================
+       CALCULATE PERIOD ADDITIONS
+    ================================================= */
+
+    calculatePeriodAdditions(
+
+        period
 
     ){
 
         if(
 
-            !rule
+            !period
+
+        ){
+
+            return 0;
+
+        }
+
+
+        const additions =
+
+            Rule.findAdditions(
+
+                this.rules
+
+            );
+
+
+        if(
+
+            !additions.length
+
+        ){
+
+            return 0;
+
+        }
+
+
+        let total = 0;
+
+
+        const dateMap = {};
+
+
+        this.data.forEach(
+
+            item => {
+
+                if(
+
+                    !item.dateObject
+
+                ){
+
+                    return;
+
+                }
+
+
+                if(
+
+                    !Period.contains(
+
+                        item.dateObject,
+
+                        period
+
+                    )
+
+                ){
+
+                    return;
+
+                }
+
+
+                const key =
+
+                    this.dateKey(
+
+                        item.dateObject
+
+                    );
+
+
+                dateMap[key] =
+
+                    item.dateObject;
+
+            }
+
+        );
+
+
+        Object.values(
+
+            dateMap
+
+        )
+
+        .forEach(
+
+            date => {
+
+                additions.forEach(
+
+                    rule => {
+
+                        if(
+
+                            Rule.matchesDay(
+
+                                rule,
+
+                                date
+
+                            )
+
+                        ){
+
+                            total +=
+
+                                Calculation.number(
+
+                                    rule.nominal
+
+                                );
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+        );
+
+
+        return total;
+
+    },
+
+
+    /* =================================================
+       CALCULATE PERIOD DEDUCTIONS
+    ================================================= */
+
+    calculatePeriodDeductions(
+
+        period
+
+    ){
+
+        if(
+
+            !period
+
+        ){
+
+            return 0;
+
+        }
+
+
+        const deductions =
+
+            Rule.findDeductions(
+
+                this.rules
+
+            );
+
+
+        return Calculation.sumRules(
+
+            deductions
+
+        );
+
+    },
+
+
+    /* =================================================
+       GET DATE
+    ================================================= */
+
+    getDate(
+
+        item
+
+    ){
+
+        if(
+
+            item?.dateObject instanceof Date
+
+            &&
+
+            !Number.isNaN(
+
+                item.dateObject.getTime()
+
+            )
+
+        ){
+
+            return new Date(
+
+                item.dateObject
+
+            );
+
+        }
+
+
+        return this.parseDate(
+
+            item?.tanggal ??
+
+            item?.date
+
+        );
+
+    },
+
+
+    /* =================================================
+       DATE KEY
+    ================================================= */
+
+    dateKey(
+
+        date
+
+    ){
+
+        const year =
+
+            date.getFullYear();
+
+
+        const month =
+
+            String(
+
+                date.getMonth() + 1
+
+            )
+
+            .padStart(
+
+                2,
+
+                "0"
+
+            );
+
+
+        const day =
+
+            String(
+
+                date.getDate()
+
+            )
+
+            .padStart(
+
+                2,
+
+                "0"
+
+            );
+
+
+        return (
+
+            year +
+
+            "-" +
+
+            month +
+
+            "-" +
+
+            day
+
+        );
+
+    },
+
+
+    /* =================================================
+       PARSE DATE
+    ================================================= */
+
+    parseDate(
+
+        value
+
+    ){
+
+        if(
+
+            !value
 
         ){
 
@@ -269,100 +858,111 @@ export const Process = {
         }
 
 
-        /* ---------------------------------------------
-           GRADE 2
-        --------------------------------------------- */
+        const parts =
+
+            String(
+
+                value
+
+            )
+
+            .trim()
+
+            .split("-")
+
+            .map(Number);
+
 
         if(
 
-            item.grade_2 &&
-
-            rule.grade_2 &&
-
-            String(
-
-                item.grade_2
-
-            ).trim().toLowerCase()
-
-            ===
-
-            String(
-
-                rule.grade_2
-
-            ).trim().toLowerCase()
+            parts.length !== 3
 
         ){
 
-            return "grade_2";
+            return null;
 
         }
 
 
-        /* ---------------------------------------------
-           GRADE 1
-        --------------------------------------------- */
+        const [
 
-        if(
+            year,
 
-            item.grade_1 &&
+            month,
 
-            rule.grade_1 &&
+            day
 
-            String(
-
-                item.grade_1
-
-            ).trim().toLowerCase()
-
-            ===
-
-            String(
-
-                rule.grade_1
-
-            ).trim().toLowerCase()
-
-        ){
-
-            return "grade_1";
-
-        }
+        ] = parts;
 
 
-        /* ---------------------------------------------
-           NAME
-        --------------------------------------------- */
+        const date =
 
-        if(
+            new Date(
 
-            item.nama &&
+                year,
 
-            rule.nama &&
+                month - 1,
 
-            String(
+                day
 
-                item.nama
-
-            ).trim().toLowerCase()
-
-            ===
-
-            String(
-
-                rule.nama
-
-            ).trim().toLowerCase()
-
-        ){
-
-            return "nama";
-
-        }
+            );
 
 
-        return null;
+        return Number.isNaN(
+
+            date.getTime()
+
+        )
+
+            ?
+
+            null
+
+            :
+
+            date;
+
+    },
+
+
+    /* =================================================
+       NORMALIZE
+    ================================================= */
+
+    normalize(
+
+        value
+
+    ){
+
+        return String(
+
+            value ?? ""
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+    },
+
+
+    /* =================================================
+       NUMBER
+    ================================================= */
+
+    number(
+
+        value
+
+    ){
+
+        return Calculation.number(
+
+            value
+
+        );
 
     }
 
