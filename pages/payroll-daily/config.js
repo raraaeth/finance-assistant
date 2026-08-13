@@ -1,0 +1,177 @@
+/* =====================================================
+   Finance Assistant
+   Page        : Payroll Daily
+   Module      : Config
+   File        : config.js
+   Version     : 1.0.0
+
+   Description :
+   Payroll Daily Configuration
+===================================================== */
+
+
+/* =====================================================
+   CONFIG
+===================================================== */
+
+export const CONFIG = {
+
+
+    /* =================================================
+       APP
+    ================================================= */
+
+    app : {
+
+        name :
+            "Payroll Daily",
+
+        version :
+            "1.0.0"
+
+    },
+
+
+    /* =================================================
+       API
+    ================================================= */
+
+    api : {
+
+        daily :
+            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_daily",
+
+        rules :
+            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_daily_rules"
+
+    },
+
+
+    /* =================================================
+       SHEET
+    ================================================= */
+
+    sheet : {
+
+        daily :
+            "payroll_daily",
+
+        rules :
+            "payroll_daily_rules"
+
+    },
+
+
+    /* =================================================
+       DATA
+    ================================================= */
+
+    data : {
+
+        statusMasuk :
+            "masuk",
+
+        productionName :
+            "nama",
+
+        grade1 :
+            "grade_1",
+
+        grade2 :
+            "grade_2",
+
+        quantity :
+            "qty"
+
+    },
+
+
+    /* =================================================
+       RULE
+    ================================================= */
+
+    rule : {
+
+        typeWork :
+            "rule_work",
+
+        typeAdd :
+            "rule_tambah",
+
+        typeDeduct :
+            "rule_potong",
+
+        typeSalary :
+            "rule_gaji"
+
+    },
+
+
+    /* =================================================
+       RULE MATCHING
+    ================================================= */
+
+    matching : {
+
+        /* ---------------------------------------------
+           Prioritas pencarian tarif
+           --------------------------------------------- */
+
+        priority : [
+
+            "grade_2",
+
+            "grade_1",
+
+            "nama"
+
+        ]
+
+    },
+
+
+    /* =================================================
+       PERIOD
+    ================================================= */
+
+    period : {
+
+        salary :
+            "bulanan",
+
+        daily :
+            "harian"
+
+    },
+
+
+    /* =================================================
+       CURRENCY
+    ================================================= */
+
+    currency : {
+
+        code :
+            "IDR",
+
+        locale :
+            "id-ID"
+
+    },
+
+
+    /* =================================================
+       HERO
+    ================================================= */
+
+    hero : {
+
+        description :
+            "Lihat hasil kerja dan penghasilan kamu hari ini.",
+
+        image :
+            ""
+
+    }
+
+};
