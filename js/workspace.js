@@ -35,6 +35,9 @@ import * as Kas from
 import * as PayrollMonthly from
     "../pages/payroll-monthly/home.js";
 
+import PayrollDaily
+    from "../pages/payroll-daily/home.js";
+
 
 /* =====================================================
    STATE
@@ -53,7 +56,10 @@ const WORKSPACE = {
         Kas,
 
     "payroll-monthly" :
-        PayrollMonthly
+        PayrollMonthly,
+
+    "payroll-daily" :
+        PayrollDaily
 
 };
 
