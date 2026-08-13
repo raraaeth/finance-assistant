@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Statistics
    File        : statistics.js
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Payroll Daily Statistics Controller
@@ -49,7 +49,7 @@ import {
 import {
 
     formatDate,
-   
+
     rupiah,
 
     shortRupiah
@@ -371,7 +371,9 @@ function handleRange(
 
             today.getFullYear(),
 
-            today.getMonth() -
+            today.getMonth()
+
+            -
 
             (
 
@@ -608,6 +610,10 @@ Statistics.renderSummary = function(){
     }
 
 
+    /* =============================================
+       SHOW SUMMARY
+    ============================================= */
+
     section.classList.remove(
 
         "hidden"
@@ -660,7 +666,6 @@ Statistics.renderSummary = function(){
 
     /* =============================================
        CURRENT WEEK
-
        SENIN - MINGGU
     ============================================= */
 
@@ -735,7 +740,6 @@ Statistics.renderSummary = function(){
 
     /* =============================================
        PREVIOUS WEEK
-
        SENIN - MINGGU PENUH
     ============================================= */
 
@@ -789,10 +793,9 @@ Statistics.renderSummary = function(){
 
 
     /* =============================================
-       GET ALL DATA
+       ALL DATA
 
-       Tidak menggunakan Statistics.data
-       karena summary tidak mengikuti filter.
+       SUMMARY TIDAK MENGIKUTI FILTER
     ============================================= */
 
     const allData =
@@ -801,14 +804,22 @@ Statistics.renderSummary = function(){
 
 
     /* =============================================
-       CALCULATE
+       CALCULATION
     ============================================= */
 
-    let todayIncome = 0;
+    let todayIncome =
 
-    let currentWeekIncome = 0;
+        0;
 
-    let previousWeekIncome = 0;
+
+    let currentWeekIncome =
+
+        0;
+
+
+    let previousWeekIncome =
+
+        0;
 
 
     allData.forEach(
@@ -909,68 +920,33 @@ Statistics.renderSummary = function(){
        RENDER
     ============================================= */
 
-    summaryCard.innerHTML =
+    card.innerHTML =
 
-`
+    `
 
-    <div class="statistics-summary-content">
-
-
-        <!-- =========================================
-             TODAY
-        ========================================== -->
-
-        <div class="statistics-summary-today">
-
-            <span class="statistics-summary-today-label">
-
-                Pendapatan hari ini
-
-            </span>
+        <div class="statistics-summary-content">
 
 
-            <strong class="statistics-summary-today-value">
+            <!-- =====================================
+                 TODAY
+            ====================================== -->
 
-                ${
+            <div class="statistics-summary-today">
 
-                    formatShortRupiah(
+                <span class="statistics-summary-today-label">
 
-                        summary.today
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <!-- =========================================
-             WEEKLY
-        ========================================== -->
-
-        <div class="statistics-summary-weekly">
-
-
-            <!-- MINGGU INI -->
-
-            <div class="statistics-summary-week-item">
-
-                <span>
-
-                    Minggu Ini
+                    Pendapatan hari ini
 
                 </span>
 
 
-                <strong>
+                <strong class="statistics-summary-today-value">
 
                     ${
 
-                        formatShortRupiah(
+                        shortRupiah(
 
-                            summary.thisWeek
+                            todayIncome
 
                         )
 
@@ -981,42 +957,75 @@ Statistics.renderSummary = function(){
             </div>
 
 
-            <!-- MINGGU LALU -->
+            <!-- =====================================
+                 WEEKLY
+            ====================================== -->
 
-            <div class="statistics-summary-week-item">
-
-                <span>
-
-                    Minggu Lalu
-
-                </span>
+            <div class="statistics-summary-weekly">
 
 
-                <strong>
+                <!-- MINGGU INI -->
 
-                    ${
+                <div class="statistics-summary-week-item">
 
-                        formatShortRupiah(
+                    <span>
 
-                            summary.lastWeek
+                        Minggu Ini
 
-                        )
+                    </span>
 
-                    }
 
-                </strong>
+                    <strong>
+
+                        ${
+
+                            shortRupiah(
+
+                                currentWeekIncome
+
+                            )
+
+                        }
+
+                    </strong>
+
+                </div>
+
+
+                <!-- MINGGU LALU -->
+
+                <div class="statistics-summary-week-item">
+
+                    <span>
+
+                        Minggu Lalu
+
+                    </span>
+
+
+                    <strong>
+
+                        ${
+
+                            shortRupiah(
+
+                                previousWeekIncome
+
+                            )
+
+                        }
+
+                    </strong>
+
+                </div>
+
 
             </div>
 
 
         </div>
 
-
-    </div>
-
-`;
-        
-              
+    `;
 
 };
 
@@ -1563,11 +1572,11 @@ Statistics.renderTransaction = function(){
 
                             Pendapatan
 
-                            <strong>
+                            <strong class="transaction-income">
 
                                 ${
 
-                                    formatRupiah(
+                                    rupiah(
 
                                         income
 
@@ -2066,224 +2075,6 @@ function parseChartDate(
         :
 
         parsed.getTime();
-
-}
-
-
-/* =====================================================
-   FORMAT RUPIAH
-===================================================== */
-
-function formatRupiah(
-
-    value
-
-){
-
-    return new Intl.NumberFormat(
-
-        "id-ID",
-
-        {
-
-            style :
-
-                "currency",
-
-            currency :
-
-                "IDR",
-
-            maximumFractionDigits :
-
-                0
-
-        }
-
-    ).format(
-
-        toNumber(
-
-            value
-
-        )
-
-    );
-
-}
-
-
-/* =====================================================
-   FORMAT RUPIAH SHORT
-===================================================== */
-
-function formatRupiahShort(
-
-    value
-
-){
-
-    const number =
-
-        toNumber(
-
-            value
-
-        );
-
-
-    if(
-
-        Math.abs(number) >=
-
-        1000000000
-
-    ){
-
-        return (
-
-            "Rp" +
-
-            (
-
-                number /
-
-                1000000000
-
-            )
-
-            .toFixed(
-
-                number % 1000000000 === 0
-
-                    ? 0
-
-                    : 1
-
-            )
-
-            .replace(
-
-                ".",
-
-                ","
-
-            )
-
-            +
-
-            " M"
-
-        );
-
-    }
-
-
-    if(
-
-        Math.abs(number) >=
-
-        1000000
-
-    ){
-
-        return (
-
-            "Rp" +
-
-            (
-
-                number /
-
-                1000000
-
-            )
-
-            .toFixed(
-
-                number % 1000000 === 0
-
-                    ? 0
-
-                    : 1
-
-            )
-
-            .replace(
-
-                ".",
-
-                ","
-
-            )
-
-            +
-
-            " jt"
-
-        );
-
-    }
-
-
-    if(
-
-        Math.abs(number) >=
-
-        1000
-
-    ){
-
-        return (
-
-            "Rp" +
-
-            (
-
-                number /
-
-                1000
-
-            )
-
-            .toFixed(
-
-                number % 1000 === 0
-
-                    ? 0
-
-                    : 1
-
-            )
-
-            .replace(
-
-                ".",
-
-                ","
-
-            )
-
-            +
-
-            " rb"
-
-        );
-
-    }
-
-
-    return (
-
-        "Rp" +
-
-        number.toLocaleString(
-
-            "id-ID"
-
-        )
-
-    );
 
 }
 
