@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Rule
    File        : rule.js
-   Version     : 1.0.0
+   Version     : 1.0.1
 
    Description :
    Payroll Daily Rule Matcher
@@ -148,8 +148,6 @@ export const Rule = {
                         item?.grade_2
 
                     )
-
-                }
 
             );
 
@@ -314,7 +312,11 @@ export const Rule = {
 
         if(
 
-            !Array.isArray(rules)
+            !Array.isArray(
+
+                rules
+
+            )
 
         ){
 
@@ -497,11 +499,19 @@ export const Rule = {
 
         return (
 
-            this.normalize(a)
+            this.normalize(
+
+                a
+
+            )
 
             ===
 
-            this.normalize(b)
+            this.normalize(
+
+                b
+
+            )
 
         );
 
