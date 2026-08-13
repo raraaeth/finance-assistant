@@ -125,6 +125,18 @@ Icon.bank = function(
 
                 "seabank.webp";
 
+        case "celengan":
+
+    return BASE +
+
+        "toples_brangkas.webp";  
+
+          case "dana_darurat":
+
+    return BASE +
+
+        "dana_darurat.webp";
+
         default:
 
             return BASE +
