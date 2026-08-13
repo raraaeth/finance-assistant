@@ -751,3 +751,89 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{
     color:#d1d5db;
 
 }
+
+/* =====================================================
+   PAYROLL MONTHLY — HOME
+===================================================== */
+
+
+/* =====================================================
+   PREVIOUS PAYROLL
+===================================================== */
+
+html[data-theme="dark"] .home-payroll-title{
+
+    color:var(--text);
+
+}
+
+
+html[data-theme="dark"] .home-payroll-period{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="dark"] .home-payroll-salary{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   PREVIOUS ATTENDANCE
+===================================================== */
+
+html[data-theme="dark"] .home-attendance-item{
+
+    background:#273244;
+
+}
+
+
+html[data-theme="dark"] .home-attendance-item span{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="dark"] .home-attendance-item strong{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   CURRENT ATTENDANCE
+===================================================== */
+
+html[data-theme="dark"] .attendance-period{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="dark"] .attendance-item{
+
+    background:#273244;
+
+}
+
+
+html[data-theme="dark"] .attendance-item span{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="dark"] .attendance-item strong{
+
+    color:var(--text);
+
+}
