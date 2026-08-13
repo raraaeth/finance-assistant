@@ -1,0 +1,901 @@
+/* =====================================================
+   Finance Assistant
+   Page        : Payroll Daily
+   Module      : Statistics
+   File        : statistics.css
+   Version     : 1.0.0
+
+   Description :
+   Payroll Daily Statistics Page
+
+   Theme Aware :
+   - Light
+   - Dark
+   - Green
+   - Pink
+===================================================== */
+
+
+/* =====================================================
+   STATISTICS PAGE
+===================================================== */
+
+#statistics-page{
+
+    padding-bottom:40px;
+
+}
+
+
+#statistics-page .section{
+
+    margin-bottom:32px;
+
+}
+
+
+#statistics-page .section-header{
+
+    margin-bottom:16px;
+
+}
+
+
+/* =====================================================
+   SECTION BADGE
+===================================================== */
+
+#statistics-page .section-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:var(--surface);
+
+    color:var(--text);
+
+    font-size:1.15rem;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   SUMMARY CARD
+===================================================== */
+
+#statistics-summary-card{
+
+    padding:24px;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   INSIGHT CONTENT
+===================================================== */
+
+.statistics-insight-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    margin-bottom:22px;
+
+}
+
+
+/* =====================================================
+   MOTIVATION
+===================================================== */
+
+.statistics-motivation-text{
+
+    color:var(--text);
+
+    font-size:16px;
+
+    line-height:1.5;
+
+}
+
+
+/* =====================================================
+   PERIOD INSIGHT
+===================================================== */
+
+.statistics-period-insight{
+
+    color:var(--text);
+
+    font-size:15px;
+
+    line-height:1.5;
+
+}
+
+
+/* =====================================================
+   SHORT MOTIVATION
+===================================================== */
+
+.statistics-short-motivation{
+
+    font-weight:700;
+
+    line-height:1.5;
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   LONG MOTIVATION
+===================================================== */
+
+.statistics-long-motivation{
+
+    font-style:italic;
+
+    line-height:1.6;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   SUMMARY GRID
+===================================================== */
+
+.statistics-summary-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            3,
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+        );
+
+    gap:14px;
+
+}
+
+
+/* =====================================================
+   SUMMARY ITEM
+===================================================== */
+
+.statistics-summary-item{
+
+    min-width:0;
+
+    min-height:105px;
+
+    padding:16px 14px;
+
+    border-radius:20px;
+
+    background:var(--surface);
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:flex-start;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =====================================================
+   SUMMARY LABEL
+===================================================== */
+
+.statistics-summary-item span{
+
+    display:block;
+
+    width:100%;
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    line-height:1.35;
+
+    margin-bottom:7px;
+
+}
+
+
+/* =====================================================
+   SUMMARY VALUE
+===================================================== */
+
+.statistics-summary-item strong{
+
+    display:block;
+
+    width:100%;
+
+    color:var(--text);
+
+    font-size:24px;
+
+    line-height:1.15;
+
+    font-weight:700;
+
+    word-break:break-word;
+
+}
+
+
+/* =====================================================
+   SUMMARY EMPTY
+===================================================== */
+
+.statistics-summary-empty{
+
+    grid-column:
+
+        1 / -1;
+
+    padding:24px;
+
+    text-align:center;
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+#statistics-filter-list{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   CHART CARD
+===================================================== */
+
+#statistics-chart .card{
+
+    padding:20px;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   CHART
+===================================================== */
+
+#statistics-chart-canvas{
+
+    width:100% !important;
+
+    max-width:100%;
+
+}
+
+
+/* =====================================================
+   TRANSACTION CARD
+===================================================== */
+
+#statistics-transaction .card{
+
+    padding:18px 20px;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   TRANSACTION LIST
+===================================================== */
+
+#statistics-transaction-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+/* =====================================================
+   TRANSACTION ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    padding:18px 0;
+
+    border-bottom:
+
+        2px solid
+
+        var(--border);
+
+}
+
+
+/* =====================================================
+   LAST ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item:last-child{
+
+    border-bottom:none;
+
+}
+
+
+/* =====================================================
+   TRANSACTION HEADER
+===================================================== */
+
+#statistics-transaction-list
+.transaction-header{
+
+    display:grid;
+
+    grid-template-columns:
+
+        1fr auto;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   TRANSACTION TITLE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-header strong{
+
+    font-size:17px;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   TRANSACTION DATE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-header small{
+
+    font-size:14px;
+
+    line-height:1.3;
+
+    color:var(--text-secondary);
+
+    text-align:right;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   TRANSACTION DETAIL
+===================================================== */
+
+#statistics-transaction-list
+.transaction-detail{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:2px;
+
+    color:var(--text);
+
+    font-size:15px;
+
+    line-height:1.45;
+
+}
+
+
+/* =====================================================
+   TRANSACTION DETAIL STRONG
+===================================================== */
+
+#statistics-transaction-list
+.transaction-detail strong{
+
+    color:var(--text);
+
+    font-weight:700;
+
+    margin-left:4px;
+
+}
+
+
+/* =====================================================
+   INCOME VALUE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-income{
+
+    color:var(--primary);
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   TRANSACTION EMPTY
+===================================================== */
+
+#statistics-transaction-list
+.statistics-summary-empty{
+
+    padding:24px 10px;
+
+    text-align:center;
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+#statistics-show-more{
+
+    margin-top:14px;
+
+}
+
+
+/* =====================================================
+   PAGINATION CONTAINER
+===================================================== */
+
+.statistics-pagination{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:16px;
+
+    padding:14px 0 4px;
+
+}
+
+
+/* =====================================================
+   PAGINATION BUTTON
+===================================================== */
+
+.statistics-pagination button{
+
+    min-width:110px;
+
+    padding:10px 14px;
+
+    border:
+
+        1px solid
+
+        var(--border);
+
+    border-radius:14px;
+
+    background:
+
+        var(--surface);
+
+    color:
+
+        var(--text);
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+
+        background .2s ease,
+
+        border-color .2s ease,
+
+        color .2s ease,
+
+        opacity .2s ease;
+
+}
+
+
+/* =====================================================
+   PAGINATION BUTTON HOVER
+===================================================== */
+
+.statistics-pagination button:hover:not(:disabled){
+
+    border-color:
+
+        var(--primary);
+
+    color:
+
+        var(--primary);
+
+}
+
+
+/* =====================================================
+   PAGINATION DISABLED
+===================================================== */
+
+.statistics-pagination button:disabled{
+
+    opacity:.45;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =====================================================
+   PAGE NUMBER
+===================================================== */
+
+.statistics-pagination span{
+
+    min-width:40px;
+
+    text-align:center;
+
+    color:
+
+        var(--text-secondary);
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media(
+
+    max-width:700px
+
+){
+
+    .statistics-summary-grid{
+
+        grid-template-columns:
+
+            repeat(
+
+                3,
+
+                minmax(
+
+                    0,
+
+                    1fr
+
+                )
+
+            );
+
+        gap:12px;
+
+    }
+
+
+    .statistics-summary-item{
+
+        min-height:100px;
+
+        padding:15px 12px;
+
+    }
+
+
+    .statistics-summary-item span{
+
+        font-size:13px;
+
+    }
+
+
+    .statistics-summary-item strong{
+
+        font-size:22px;
+
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    /* ---------------------------------------------
+       SUMMARY
+    --------------------------------------------- */
+
+    #statistics-summary-card{
+
+        padding:18px 14px;
+
+    }
+
+
+    .statistics-insight-content{
+
+        gap:10px;
+
+        margin-bottom:18px;
+
+    }
+
+
+    .statistics-motivation-text{
+
+        font-size:15px;
+
+        line-height:1.45;
+
+    }
+
+
+    .statistics-period-insight{
+
+        font-size:14px;
+
+        line-height:1.45;
+
+    }
+
+
+    .statistics-summary-grid{
+
+        grid-template-columns:
+
+            repeat(
+
+                3,
+
+                minmax(
+
+                    0,
+
+                    1fr
+
+                )
+
+            );
+
+        gap:10px;
+
+    }
+
+
+    .statistics-summary-item{
+
+        min-height:94px;
+
+        padding:13px 10px;
+
+        border-radius:18px;
+
+    }
+
+
+    .statistics-summary-item span{
+
+        font-size:12px;
+
+        line-height:1.3;
+
+        margin-bottom:6px;
+
+    }
+
+
+    .statistics-summary-item strong{
+
+        font-size:20px;
+
+        line-height:1.15;
+
+    }
+
+
+    /* ---------------------------------------------
+       CHART
+    --------------------------------------------- */
+
+    #statistics-chart .card{
+
+        padding:16px 12px;
+
+    }
+
+
+    /* ---------------------------------------------
+       TRANSACTION
+    --------------------------------------------- */
+
+    #statistics-transaction .card{
+
+        padding:16px 12px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        padding:15px 8px;
+
+        gap:7px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-header{
+
+        grid-template-columns:
+
+            1fr auto;
+
+        gap:8px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-header strong{
+
+        font-size:16px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-header small{
+
+        font-size:13px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-detail{
+
+        font-size:14px;
+
+        line-height:1.4;
+
+        gap:2px;
+
+    }
+
+
+    /* ---------------------------------------------
+       PAGINATION
+    --------------------------------------------- */
+
+    .statistics-pagination{
+
+        gap:8px;
+
+    }
+
+
+    .statistics-pagination button{
+
+        min-width:95px;
+
+        padding:9px 10px;
+
+        font-size:13px;
+
+    }
+
+
+    .statistics-pagination span{
+
+        font-size:13px;
+
+    }
+
+  }
