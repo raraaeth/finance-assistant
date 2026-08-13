@@ -3,23 +3,36 @@
    Page        : Payroll Daily
    Module      : Process
    File        : process.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Payroll Daily Data Processor
 
-   Flow :
-   - Receive raw payroll data
-   - Receive payroll rules
-   - Determine salary period
-   - Match work rule
-   - Calculate work income
-   - Produce processed data
+   Responsibility :
+   - Menyatukan Periode
+   - Menyatukan Rule
+   - Menyatukan Calculation
+   - Memproses pekerjaan
+   - Menyiapkan penambahan
+   - Menyiapkan potongan
+   - Menentukan periode gaji berjalan
 
-   Salary Period :
-   - 28 → 27
-   - Tidak menggunakan periode_start / periode_end
-     sebagai periode gaji
+   Flow :
+
+   API
+     ↓
+   Process
+     ↓
+   Periode
+     ↓
+   Rule
+     ↓
+   Calculation
+     ↓
+   Process.data
+
+   Summary / Statistics / Home
+   hanya membaca hasil Process
 ===================================================== */
 
 
@@ -84,6 +97,34 @@ export const Process = {
 
 
     /* =================================================
+       CURRENT PERIOD DATA
+    ================================================= */
+
+    periodData : [],
+
+
+    /* =================================================
+       WORK DATA
+    ================================================= */
+
+    work : [],
+
+
+    /* =================================================
+       ADDITION RULES
+    ================================================= */
+
+    additions : [],
+
+
+    /* =================================================
+       DEDUCTION RULES
+    ================================================= */
+
+    deductions : [],
+
+
+    /* =================================================
        INIT
     ================================================= */
 
@@ -95,9 +136,9 @@ export const Process = {
 
     ){
 
-        /* ---------------------------------------------
-           RESET RAW
-        --------------------------------------------- */
+        /* =============================================
+           RESET
+        ============================================= */
 
         this.raw =
 
@@ -116,10 +157,6 @@ export const Process = {
                 [];
 
 
-        /* ---------------------------------------------
-           RESET RULES
-        --------------------------------------------- */
-
         this.rules =
 
             Array.isArray(
@@ -137,27 +174,42 @@ export const Process = {
                 [];
 
 
-        /* ---------------------------------------------
-           RESET DATA
-        --------------------------------------------- */
-
         this.data = [];
 
 
-        /* ---------------------------------------------
-           CURRENT SALARY PERIOD
-        --------------------------------------------- */
+        this.periodData = [];
+
+
+        this.work = [];
+
+
+        this.additions = [];
+
+
+        this.deductions = [];
+
+
+        /* =============================================
+           SALARY PERIOD
+        ============================================= */
 
         this.period =
 
             Periode.current();
 
 
-        /* ---------------------------------------------
-           PROCESS
-        --------------------------------------------- */
+        /* =============================================
+           PROCESS WORK
+        ============================================= */
 
         this.process();
+
+
+        /* =============================================
+           PROCESS RULE GROUPS
+        ============================================= */
+
+        this.processRuleGroups();
 
 
         return this.data;
@@ -166,7 +218,7 @@ export const Process = {
 
 
     /* =================================================
-       PROCESS DATA
+       PROCESS ATTENDANCE / WORK DATA
     ================================================= */
 
     process(){
@@ -209,6 +261,36 @@ export const Process = {
 
                 );
 
+
+        /* =============================================
+           CURRENT SALARY PERIOD DATA
+        ============================================= */
+
+        this.periodData =
+
+            this.data.filter(
+
+                item =>
+
+                    Periode.contains(
+
+                        item.dateObject,
+
+                        this.period
+
+                    )
+
+            );
+
+
+        /* =============================================
+           WORK DATA
+        ============================================= */
+
+        this.work =
+
+            this.periodData.slice();
+
     },
 
 
@@ -222,9 +304,9 @@ export const Process = {
 
     ){
 
-        /* ---------------------------------------------
+        /* =============================================
            DATE
-        --------------------------------------------- */
+        ============================================= */
 
         const date =
 
@@ -246,9 +328,9 @@ export const Process = {
         }
 
 
-        /* ---------------------------------------------
+        /* =============================================
            FIND WORK RULE
-        --------------------------------------------- */
+        ============================================= */
 
         const rule =
 
@@ -261,9 +343,9 @@ export const Process = {
             );
 
 
-        /* ---------------------------------------------
+        /* =============================================
            CALCULATION
-        --------------------------------------------- */
+        ============================================= */
 
         const calculation =
 
@@ -276,9 +358,9 @@ export const Process = {
             );
 
 
-        /* ---------------------------------------------
+        /* =============================================
            RESULT
-        --------------------------------------------- */
+        ============================================= */
 
         return {
 
@@ -286,7 +368,7 @@ export const Process = {
 
 
             /* -----------------------------------------
-               DATE
+               NORMALIZED DATE
             ----------------------------------------- */
 
             dateObject :
@@ -295,7 +377,7 @@ export const Process = {
 
 
             /* -----------------------------------------
-               PERIOD STATUS
+               SALARY PERIOD
             ----------------------------------------- */
 
             inSalaryPeriod :
@@ -315,7 +397,13 @@ export const Process = {
 
             qty :
 
-                calculation.qty ?? 0,
+                this.toNumber(
+
+                    calculation?.qty ??
+
+                    item?.qty
+
+                ),
 
 
             /* -----------------------------------------
@@ -324,7 +412,11 @@ export const Process = {
 
             nominal :
 
-                calculation.nominal ?? 0,
+                this.toNumber(
+
+                    calculation?.nominal
+
+                ),
 
 
             /* -----------------------------------------
@@ -333,11 +425,15 @@ export const Process = {
 
             total :
 
-                calculation.total ?? 0,
+                this.toNumber(
+
+                    calculation?.total
+
+                ),
 
 
             /* -----------------------------------------
-               RULE
+               RULE INFORMATION
             ----------------------------------------- */
 
             ruleFound :
@@ -351,24 +447,74 @@ export const Process = {
 
             ruleType :
 
-                rule?.type_rule ?? null,
+                rule?.type_rule ??
+
+                null,
 
 
             ruleName :
 
-                rule?.nama ?? null,
+                rule?.nama ??
+
+                null,
 
 
             ruleLevel :
 
-                rule?.matchLevel ?? null,
+                rule?.matchLevel ??
+
+                null,
 
 
             rule :
 
-                rule || null
+                rule ||
+
+                null
 
         };
+
+    },
+
+
+    /* =================================================
+       PROCESS RULE GROUPS
+    ================================================= */
+
+    processRuleGroups(){
+
+        /* =============================================
+           ADDITION
+        ============================================= */
+
+        this.additions =
+
+            Rule.findByType(
+
+                "rule_tambah",
+
+                this.rules,
+
+                this.period?.start
+
+            );
+
+
+        /* =============================================
+           DEDUCTION
+        ============================================= */
+
+        this.deductions =
+
+            Rule.findByType(
+
+                "rule_potong",
+
+                this.rules,
+
+                this.period?.start
+
+            );
 
     },
 
@@ -379,33 +525,47 @@ export const Process = {
 
     getCurrentPeriod(){
 
-        return this.period
+        if(
 
-            ?
+            !this.period
 
-            {
+        ){
 
-                start :
+            return null;
 
-                    new Date(
+        }
 
-                        this.period.start
 
-                    ),
+        return {
 
-                end :
+            start :
 
-                    new Date(
+                new Date(
 
-                        this.period.end
+                    this.period.start
 
-                    )
+                ),
 
-            }
+            end :
 
-            :
+                new Date(
 
-            null;
+                    this.period.end
+
+                )
+
+        };
+
+    },
+
+
+    /* =================================================
+       GET PREVIOUS PERIOD
+    ================================================= */
+
+    getPreviousPeriod(){
+
+        return Periode.previous();
 
     },
 
@@ -449,7 +609,7 @@ export const Process = {
 
 
     /* =================================================
-       GET ALL WORK INCOME
+       GET WORK INCOME
     ================================================= */
 
     getWorkIncome(
@@ -575,7 +735,7 @@ export const Process = {
 
 
     /* =================================================
-       CHECK STATUS MASUK
+       CHECK STATUS
     ================================================= */
 
     isMasuk(
