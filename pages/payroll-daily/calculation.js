@@ -1,340 +1,202 @@
 /* =====================================================
    Finance Assistant
    Page        : Payroll Daily
-   Module      : Rule
-   File        : rule.js
+   Module      : Calculation
+   File        : calculation.js
    Version     : 1.0.0
 
    Description :
-   Payroll Daily Rule Matcher
+   Payroll Daily Calculation
 
-   Priority :
-   1. nama + grade_1 + grade_2
-   2. nama + grade_1
-   3. nama
+   Formula :
+   qty × nominal = total
 ===================================================== */
 
 
 /* =====================================================
-   RULE
+   CALCULATION
 ===================================================== */
 
-export const Rule = {
+export const Calculation = {
 
 
     /* =================================================
-       FIND
+       CALCULATE ITEM
     ================================================= */
 
-    find(
+    item(
 
         item,
 
-        rules = []
+        rule = null
 
     ){
 
         /* ---------------------------------------------
-           NORMALIZE DATA
+           QTY
         --------------------------------------------- */
 
-        const nama =
+        const qty =
 
-            this.normalize(
+            this.number(
 
-                item?.nama
-
-            );
-
-
-        const grade1 =
-
-            this.normalize(
-
-                item?.grade_1
-
-            );
-
-
-        const grade2 =
-
-            this.normalize(
-
-                item?.grade_2
+                item?.qty
 
             );
 
 
         /* ---------------------------------------------
-           ONLY WORK RULE
+           NOMINAL
         --------------------------------------------- */
 
-        const workRules =
+        const nominal =
 
-            rules.filter(
+            this.number(
 
-                rule =>
-
-                    this.normalize(
-
-                        rule?.type_rule
-
-                    )
-
-                    ===
-
-                    "rule_work"
+                rule?.nominal
 
             );
 
 
-        /* =================================================
-           LEVEL 1
-           NAMA + GRADE 1 + GRADE 2
-        ================================================= */
+        /* ---------------------------------------------
+           TOTAL
+        --------------------------------------------- */
 
-        if(
+        const total =
 
-            nama &&
+            qty *
 
-            grade1 &&
+            nominal;
 
-            grade2
 
-        ){
+        /* ---------------------------------------------
+           RESULT
+        --------------------------------------------- */
 
-            const exactRule =
+        return {
 
-                workRules.find(
+            ...item,
 
-                    rule =>
+            qty,
 
-                        this.normalize(
+            nominal,
 
-                            rule.nama
+            total,
 
-                        )
+            rule :
 
-                        ===
+                rule || null
 
-                        nama
-
-                        &&
-
-                        this.normalize(
-
-                            rule.grade_1
-
-                        )
-
-                        ===
-
-                        grade1
-
-                        &&
-
-                        this.normalize(
-
-                            rule.grade_2
-
-                        )
-
-                        ===
-
-                        grade2
-
-                );
-
-
-            if(
-
-                exactRule
-
-            ){
-
-                return {
-
-                    ...exactRule,
-
-                    matchLevel :
-
-                        "grade_2"
-
-                };
-
-            }
-
-        }
-
-
-        /* =================================================
-           LEVEL 2
-           NAMA + GRADE 1
-        ================================================= */
-
-        if(
-
-            nama &&
-
-            grade1
-
-        ){
-
-            const gradeRule =
-
-                workRules.find(
-
-                    rule =>
-
-                        this.normalize(
-
-                            rule.nama
-
-                        )
-
-                        ===
-
-                        nama
-
-                        &&
-
-                        this.normalize(
-
-                            rule.grade_1
-
-                        )
-
-                        ===
-
-                        grade1
-
-                        &&
-
-                        !this.normalize(
-
-                            rule.grade_2
-
-                        )
-
-                );
-
-
-            if(
-
-                gradeRule
-
-            ){
-
-                return {
-
-                    ...gradeRule,
-
-                    matchLevel :
-
-                        "grade_1"
-
-                };
-
-            }
-
-        }
-
-
-        /* =================================================
-           LEVEL 3
-           NAMA SAJA
-        ================================================= */
-
-        if(
-
-            nama
-
-        ){
-
-            const nameRule =
-
-                workRules.find(
-
-                    rule =>
-
-                        this.normalize(
-
-                            rule.nama
-
-                        )
-
-                        ===
-
-                        nama
-
-                        &&
-
-                        !this.normalize(
-
-                            rule.grade_1
-
-                        )
-
-                        &&
-
-                        !this.normalize(
-
-                            rule.grade_2
-
-                        )
-
-                );
-
-
-            if(
-
-                nameRule
-
-            ){
-
-                return {
-
-                    ...nameRule,
-
-                    matchLevel :
-
-                        "nama"
-
-                };
-
-            }
-
-        }
-
-
-        /* =================================================
-           NO RULE
-        ================================================= */
-
-        return null;
+        };
 
     },
 
 
     /* =================================================
-       NORMALIZE
+       CALCULATE COLLECTION
     ================================================= */
 
-    normalize(
+    all(
+
+        data = [],
+
+        rules = [],
+
+        ruleFinder = null
+
+    ){
+
+        if(
+
+            !Array.isArray(data)
+
+        ){
+
+            return [];
+
+        }
+
+
+        return data.map(
+
+            item => {
+
+                const rule =
+
+                    ruleFinder
+
+                    ?
+
+                    ruleFinder(
+
+                        item,
+
+                        rules
+
+                    )
+
+                    :
+
+                    null;
+
+
+                return this.item(
+
+                    item,
+
+                    rule
+
+                );
+
+            }
+
+        );
+
+    },
+
+
+    /* =================================================
+       NUMBER
+    ================================================= */
+
+    number(
 
         value
 
     ){
 
-        return String(
+        const number =
 
-            value ?? ""
+            Number(
+
+                String(
+
+                    value ?? 0
+
+                ).replace(
+
+                    /[^0-9.-]/g,
+
+                    ""
+
+                )
+
+            );
+
+
+        return Number.isFinite(
+
+            number
 
         )
 
-        .trim()
+        ?
 
-        .toLowerCase();
+        number
+
+        :
+
+        0;
 
     }
 
