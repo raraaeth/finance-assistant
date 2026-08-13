@@ -170,7 +170,7 @@ export const CONFIG = {
             "Lihat hasil kerja dan penghasilan kamu hari ini.",
 
         image :
-            ""
+            "../assets/images/hero/hero-payroll.png"
 
     }
 
