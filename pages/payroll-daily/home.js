@@ -14,6 +14,7 @@
    - Init
    - Hero
    - Summary
+   - Statistics
    - Helper
 ===================================================== */
 
@@ -52,16 +53,16 @@ import {
 
 import {
 
-    Statistics
+    Summary
 
-} from "./statistics.js";
+} from "./summary.js";
 
 
 import {
 
-    Summary
+    Statistics
 
-} from "./summary.js";
+} from "./statistics.js";
 
 
 import {
@@ -78,20 +79,6 @@ import {
 } from "../../components/profile/script.js";
 
 
-import {
-
-    formatDate
-
-} from "../../js/utils.js";
-
-
-import {
-
-    Animation
-
-} from "../../js/animation.js";
-
-
 /* =====================================================
    STATE
 ===================================================== */
@@ -106,7 +93,6 @@ const user =
 ===================================================== */
 
 export async function init(){
-
 
     /* =============================================
        HEADER
@@ -128,13 +114,6 @@ export async function init(){
     ============================================= */
 
     renderHero();
-
-
-    /* =============================================
-       SUMMARY
-    ============================================= */
-
-    renderSummary();
 
 
     /* =============================================
@@ -196,24 +175,17 @@ export async function init(){
 
 
         /* -----------------------------------------
-           Refresh Summary
-        ----------------------------------------- */
-
-        renderSummary();
-
-
-        /* -----------------------------------------
-           Statistics
-        ----------------------------------------- */
-
-        Statistics.init();
-
-
-        /* -----------------------------------------
-           Summary Module
+           SUMMARY
         ----------------------------------------- */
 
         Summary.init();
+
+
+        /* -----------------------------------------
+           STATISTICS
+        ----------------------------------------- */
+
+        Statistics.init();
 
     }
 
@@ -237,7 +209,6 @@ export async function init(){
 ===================================================== */
 
 function renderHero(){
-
 
     const name =
 
@@ -277,11 +248,7 @@ function renderHero(){
         );
 
 
-    if(
-
-        title
-
-    ){
+    if(title){
 
         title.innerHTML =
 
@@ -290,11 +257,7 @@ function renderHero(){
     }
 
 
-    if(
-
-        description
-
-    ){
+    if(description){
 
         description.textContent =
 
@@ -303,666 +266,13 @@ function renderHero(){
     }
 
 
-    if(
-
-        banner
-
-    ){
+    if(banner){
 
         banner.src =
 
             CONFIG.hero.image;
 
     }
-
-}
-
-
-/* =====================================================
-   SUMMARY
-===================================================== */
-
-function renderSummary(){
-
-
-    const card =
-
-        document.getElementById(
-
-            "summary-card"
-
-        );
-
-
-    if(
-
-        !card
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =============================================
-       CURRENT DATE
-    ============================================= */
-
-    const today =
-
-        new Date();
-
-
-    today.setHours(
-
-        0,
-
-        0,
-
-        0,
-
-        0
-
-    );
-
-
-    /* =============================================
-       CURRENT PAYROLL PERIOD
-    ============================================= */
-
-    const period =
-
-        Process.currentPeriod;
-
-
-    /* =============================================
-       DATA
-    ============================================= */
-
-    const data =
-
-        Process.data ?? [];
-
-
-    /* =============================================
-       TOTAL PERIOD
-    ============================================= */
-
-    let periodIncome =
-
-        0;
-
-
-    /* =============================================
-       TODAY
-    ============================================= */
-
-    let todayIncome =
-
-        0;
-
-
-    /* =============================================
-       WEEK
-    ============================================= */
-
-    let weekIncome =
-
-        0;
-
-
-    const weekStart =
-
-        getWeekStart(
-
-            today
-
-        );
-
-
-    data.forEach(
-
-        item => {
-
-
-            if(
-
-                !item.dateObject
-
-            ){
-
-                return;
-
-            }
-
-
-            const date =
-
-                new Date(
-
-                    item.dateObject
-
-                );
-
-
-            date.setHours(
-
-                0,
-
-                0,
-
-                0,
-
-                0
-
-            );
-
-
-            const amount =
-
-                Number(
-
-                    item.amount
-
-                ) || 0;
-
-
-            /* -------------------------------------
-               PERIOD
-            ------------------------------------- */
-
-            if(
-
-                period
-
-                &&
-
-                date >=
-
-                    new Date(
-
-                        period.start
-
-                    )
-
-                &&
-
-                date <=
-
-                    new Date(
-
-                        period.end
-
-                    )
-
-                &&
-
-                date <=
-
-                    today
-
-            ){
-
-                periodIncome +=
-
-                    amount;
-
-            }
-
-
-            /* -------------------------------------
-               TODAY
-            ------------------------------------- */
-
-            if(
-
-                date.getTime() ===
-
-                today.getTime()
-
-            ){
-
-                todayIncome +=
-
-                    amount;
-
-            }
-
-
-            /* -------------------------------------
-               WEEK
-            ------------------------------------- */
-
-            if(
-
-                date >=
-
-                    weekStart
-
-                &&
-
-                date <=
-
-                    today
-
-            ){
-
-                weekIncome +=
-
-                    amount;
-
-            }
-
-        }
-
-    );
-
-
-    /* =============================================
-       RENDER
-    ============================================= */
-
-    card.innerHTML =
-
-    `
-
-        <div class="summary-total">
-
-
-            <span id="summary-label">
-
-                Total Gaji Berjalan
-
-            </span>
-
-
-            <strong id="summary-total">
-
-                ${
-
-                    formatCurrency(
-
-                        periodIncome
-
-                    )
-
-                }
-
-            </strong>
-
-
-            <span id="summary-period">
-
-                ${
-
-                    period
-
-                    ?
-
-                    `${
-
-                        formatDate(
-
-                            period.start
-
-                        )
-
-                    }
-
-                    -
-
-                    ${
-
-                        formatDate(
-
-                            period.end
-
-                        )
-
-                    }`
-
-                    :
-
-                    "Periode berjalan"
-
-                }
-
-            </span>
-
-
-        </div>
-
-
-        <div class="summary-grid">
-
-
-            <!-- HARI INI -->
-
-            <div class="summary-item">
-
-                <span>
-
-                    Pendapatan Hari Ini
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        formatShortCurrency(
-
-                            todayIncome
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <!-- MINGGU INI -->
-
-            <div class="summary-item">
-
-                <span>
-
-                    Pendapatan Minggu Ini
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        formatShortCurrency(
-
-                            weekIncome
-
-                        )
-
-                }
-
-            </strong>
-
-            </div>
-
-
-        </div>
-
-    `;
-
-
-    /* =============================================
-       TOTAL ANIMATION
-    ============================================= */
-
-    const totalElement =
-
-        card.querySelector(
-
-            "#summary-total"
-
-        );
-
-
-    Animation.number(
-
-        totalElement,
-
-        periodIncome,
-
-        value =>
-
-            formatCurrency(
-
-                value
-
-            )
-
-    );
-
-}
-
-
-/* =====================================================
-   WEEK START
-===================================================== */
-
-function getWeekStart(
-
-    date
-
-){
-
-    const result =
-
-        new Date(
-
-            date
-
-        );
-
-
-    const day =
-
-        result.getDay();
-
-
-    const difference =
-
-        day === 0
-
-            ? -6
-
-            : 1 - day;
-
-
-    result.setDate(
-
-        result.getDate() +
-
-        difference
-
-    );
-
-
-    result.setHours(
-
-        0,
-
-        0,
-
-        0,
-
-        0
-
-    );
-
-
-    return result;
-
-}
-
-
-/* =====================================================
-   CURRENCY
-===================================================== */
-
-function formatCurrency(
-
-    value
-
-){
-
-    return new Intl.NumberFormat(
-
-        CONFIG.currency.locale,
-
-        {
-
-            style :
-
-                "currency",
-
-            currency :
-
-                CONFIG.currency.code,
-
-            maximumFractionDigits :
-
-                0
-
-        }
-
-    ).format(
-
-        Number(
-
-            value
-
-        ) || 0
-
-    );
-
-}
-
-
-/* =====================================================
-   SHORT CURRENCY
-===================================================== */
-
-function formatShortCurrency(
-
-    value
-
-){
-
-    value =
-
-        Number(
-
-            value
-
-        ) || 0;
-
-
-    if(
-
-        value >=
-
-        1000000000
-
-    ){
-
-        return `Rp${
-
-            trimDecimal(
-
-                value /
-
-                1000000000
-
-            )
-
-        }M`;
-
-    }
-
-
-    if(
-
-        value >=
-
-        1000000
-
-    ){
-
-        return `Rp${
-
-            trimDecimal(
-
-                value /
-
-                1000000
-
-            )
-
-        }jt`;
-
-    }
-
-
-    if(
-
-        value >=
-
-        1000
-
-    ){
-
-        return `Rp${
-
-            trimDecimal(
-
-                value /
-
-                1000
-
-            )
-
-        }rb`;
-
-    }
-
-
-    return `Rp${
-
-        value.toLocaleString(
-
-            "id-ID"
-
-        )
-
-    }`;
-
-}
-
-
-/* =====================================================
-   TRIM DECIMAL
-===================================================== */
-
-function trimDecimal(
-
-    value
-
-){
-
-    return value
-
-        .toFixed(2)
-
-        .replace(
-
-            /\.00$/,
-
-            ""
-
-        )
-
-        .replace(
-
-            /(\.\d)0$/,
-
-            "$1"
-
-        );
 
 }
 
