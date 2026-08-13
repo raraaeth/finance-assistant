@@ -62,6 +62,19 @@ import {
 
 } from "../../components/profile/script.js";
 
+import {
+
+    Statistics
+
+} from "./statistics.js";
+
+
+import {
+
+    Summary
+
+} from "./summary.js";
+
 
 import {
 
@@ -184,6 +197,18 @@ export async function init(){
             API.data
 
         );
+ /* -----------------------------------------
+   Summary
+----------------------------------------- */
+
+Summary.init();
+
+
+/* -----------------------------------------
+   Statistics
+----------------------------------------- */
+
+Statistics.init();
 
 
         /* -----------------------------------------
@@ -191,6 +216,7 @@ export async function init(){
         ----------------------------------------- */
 
         renderHomeSummary();
+       
 
     }
 
