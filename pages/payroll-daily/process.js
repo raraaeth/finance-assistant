@@ -3,29 +3,36 @@
    Page        : Payroll Daily
    Module      : Process
    File        : process.js
-   Version     : 2.0.0
+   Version     : 1.0.0
 
    Description :
    Payroll Daily Data Processor
 
    Flow :
-   RAW
-    ↓
-   Filter status masuk
-    ↓
-   Rule
-    ↓
-   Period
-    ↓
-   Calculation
-    ↓
-   Processed Data
+   - Receive raw payroll data
+   - Receive payroll rules
+   - Determine salary period
+   - Match work rule
+   - Calculate work income
+   - Produce processed data
+
+   Salary Period :
+   - 28 → 27
+   - Tidak menggunakan periode_start / periode_end
+     sebagai periode gaji
 ===================================================== */
 
 
 /* =====================================================
    IMPORT
 ===================================================== */
+
+import {
+
+    Periode
+
+} from "./periode.js";
+
 
 import {
 
@@ -39,13 +46,6 @@ import {
     Calculation
 
 } from "./calculation.js";
-
-
-import {
-
-    Period
-
-} from "./periode.js";
 
 
 /* =====================================================
@@ -77,41 +77,10 @@ export const Process = {
 
 
     /* =================================================
-       PERIOD
+       CURRENT SALARY PERIOD
     ================================================= */
 
-    period : {
-
-        current : null,
-
-        previous : null,
-
-        next : null
-
-    },
-
-
-    /* =================================================
-       SUMMARY
-    ================================================= */
-
-    summary : {
-
-        currentGross : 0,
-
-        currentNet : 0,
-
-        currentWork : 0,
-
-        currentAddition : 0,
-
-        currentDeduction : 0,
-
-        previousGross : 0,
-
-        previousNet : 0
-
-    },
+    period : null,
 
 
     /* =================================================
@@ -126,60 +95,69 @@ export const Process = {
 
     ){
 
+        /* ---------------------------------------------
+           RESET RAW
+        --------------------------------------------- */
+
         this.raw =
 
-            Array.isArray(raw)
+            Array.isArray(
 
-                ? raw
+                raw
 
-                : [];
+            )
 
+                ?
+
+                raw
+
+                :
+
+                [];
+
+
+        /* ---------------------------------------------
+           RESET RULES
+        --------------------------------------------- */
 
         this.rules =
 
-            Array.isArray(rules)
+            Array.isArray(
 
-                ? rules
+                rules
 
-                : [];
+            )
 
+                ?
+
+                rules
+
+                :
+
+                [];
+
+
+        /* ---------------------------------------------
+           RESET DATA
+        --------------------------------------------- */
 
         this.data = [];
 
 
-        this.period = {
+        /* ---------------------------------------------
+           CURRENT SALARY PERIOD
+        --------------------------------------------- */
 
-            current :
+        this.period =
 
-                Period.getCurrent(
+            Periode.current();
 
-                    this.rules
 
-                ),
-
-            previous :
-
-                Period.getPrevious(
-
-                    this.rules
-
-                ),
-
-            next :
-
-                Period.getNext(
-
-                    this.rules
-
-                )
-
-        };
-
+        /* ---------------------------------------------
+           PROCESS
+        --------------------------------------------- */
 
         this.process();
-
-
-        this.calculateSummary();
 
 
         return this.data;
@@ -203,15 +181,11 @@ export const Process = {
 
                         item &&
 
-                        this.normalize(
+                        this.isMasuk(
 
-                            item.status
+                            item
 
                         )
-
-                        ===
-
-                        "masuk"
 
                 )
 
@@ -224,6 +198,14 @@ export const Process = {
                             item
 
                         )
+
+                )
+
+                .filter(
+
+                    item =>
+
+                        item !== null
 
                 );
 
@@ -240,6 +222,10 @@ export const Process = {
 
     ){
 
+        /* ---------------------------------------------
+           DATE
+        --------------------------------------------- */
+
         const date =
 
             this.getDate(
@@ -249,30 +235,43 @@ export const Process = {
             );
 
 
+        if(
+
+            !date
+
+        ){
+
+            return null;
+
+        }
+
+
         /* ---------------------------------------------
-           WORK RULE
+           FIND WORK RULE
         --------------------------------------------- */
 
-        const workRule =
+        const rule =
 
             Rule.find(
 
                 item,
 
-                this.rules,
-
-                date
+                this.rules
 
             );
 
 
+        /* ---------------------------------------------
+           CALCULATION
+        --------------------------------------------- */
+
         const calculation =
 
-            Calculation.item(
+            Calculation.calculate(
 
                 item,
 
-                workRule
+                rule
 
             );
 
@@ -285,56 +284,89 @@ export const Process = {
 
             ...item,
 
+
+            /* -----------------------------------------
+               DATE
+            ----------------------------------------- */
+
             dateObject :
 
                 date,
 
 
+            /* -----------------------------------------
+               PERIOD STATUS
+            ----------------------------------------- */
+
+            inSalaryPeriod :
+
+                Periode.contains(
+
+                    date,
+
+                    this.period
+
+                ),
+
+
+            /* -----------------------------------------
+               QTY
+            ----------------------------------------- */
+
             qty :
 
-                calculation.qty,
+                calculation.qty ?? 0,
 
+
+            /* -----------------------------------------
+               NOMINAL
+            ----------------------------------------- */
 
             nominal :
 
-                calculation.nominal,
+                calculation.nominal ?? 0,
 
+
+            /* -----------------------------------------
+               TOTAL
+            ----------------------------------------- */
 
             total :
 
-                calculation.total,
+                calculation.total ?? 0,
 
 
-            workIncome :
-
-                calculation.workIncome,
-
+            /* -----------------------------------------
+               RULE
+            ----------------------------------------- */
 
             ruleFound :
 
                 Boolean(
 
-                    workRule
+                    rule
 
                 ),
 
 
+            ruleType :
+
+                rule?.type_rule ?? null,
+
+
+            ruleName :
+
+                rule?.nama ?? null,
+
+
             ruleLevel :
 
-                workRule
-
-                    ?
-
-                    workRule.matchLevel
-
-                    :
-
-                    null,
+                rule?.matchLevel ?? null,
 
 
             rule :
 
-                workRule || null
+                rule || null
 
         };
 
@@ -342,212 +374,49 @@ export const Process = {
 
 
     /* =================================================
-       CALCULATE SUMMARY
+       GET CURRENT PERIOD
     ================================================= */
 
-    calculateSummary(){
+    getCurrentPeriod(){
 
-        const current =
+        return this.period
 
-            this.period.current;
+            ?
 
+            {
 
-        const previous =
+                start :
 
-            this.period.previous;
+                    new Date(
 
-
-        const currentData =
-
-            this.data.filter(
-
-                item =>
-
-                    Period.contains(
-
-                        item.dateObject,
-
-                        current
-
-                    )
-
-            );
-
-
-        const previousData =
-
-            this.data.filter(
-
-                item =>
-
-                    Period.contains(
-
-                        item.dateObject,
-
-                        previous
-
-                    )
-
-            );
-
-
-        const currentWork =
-
-            currentData.reduce(
-
-                (
-
-                    total,
-
-                    item
-
-                ) =>
-
-                    total +
-
-                    this.number(
-
-                        item.workIncome
+                        this.period.start
 
                     ),
 
-                0
+                end :
 
-            );
+                    new Date(
 
+                        this.period.end
 
-        const previousWork =
+                    )
 
-            previousData.reduce(
+            }
 
-                (
+            :
 
-                    total,
-
-                    item
-
-                ) =>
-
-                    total +
-
-                    this.number(
-
-                        item.workIncome
-
-                    ),
-
-                0
-
-            );
-
-
-        /* ---------------------------------------------
-           CURRENT ADDITIONS
-           Tambahan dihitung SEKALI PER HARI.
-        --------------------------------------------- */
-
-        const currentAddition =
-
-            this.calculatePeriodAdditions(
-
-                current
-
-            );
-
-
-        const previousAddition =
-
-            this.calculatePeriodAdditions(
-
-                previous
-
-            );
-
-
-        /* ---------------------------------------------
-           GROSS
-        --------------------------------------------- */
-
-        const currentGross =
-
-            currentWork +
-
-            currentAddition;
-
-
-        const previousGross =
-
-            previousWork +
-
-            previousAddition;
-
-
-        /* ---------------------------------------------
-           DEDUCTIONS
-           Potongan hanya dikenakan satu kali
-           pada periode gaji.
-        --------------------------------------------- */
-
-        const currentDeduction =
-
-            this.calculatePeriodDeductions(
-
-                current
-
-            );
-
-
-        const previousDeduction =
-
-            this.calculatePeriodDeductions(
-
-                previous
-
-            );
-
-
-        const currentNet =
-
-            currentGross -
-
-            currentDeduction;
-
-
-        const previousNet =
-
-            previousGross -
-
-            previousDeduction;
-
-
-        this.summary = {
-
-            currentGross,
-
-            currentNet,
-
-            currentWork,
-
-            currentAddition,
-
-            currentDeduction,
-
-            previousGross,
-
-            previousNet
-
-        };
+            null;
 
     },
 
 
     /* =================================================
-       CALCULATE PERIOD ADDITIONS
+       GET PERIOD DATA
     ================================================= */
 
-    calculatePeriodAdditions(
+    getPeriodData(
 
-        period
+        period = this.period
 
     ){
 
@@ -557,170 +426,104 @@ export const Process = {
 
         ){
 
-            return 0;
+            return [];
 
         }
 
 
-        const additions =
+        return this.data.filter(
 
-            Rule.findAdditions(
+            item =>
 
-                this.rules
+                Periode.contains(
 
-            );
+                    item.dateObject,
 
+                    period
 
-        if(
-
-            !additions.length
-
-        ){
-
-            return 0;
-
-        }
-
-
-        let total = 0;
-
-
-        const dateMap = {};
-
-
-        this.data.forEach(
-
-            item => {
-
-                if(
-
-                    !item.dateObject
-
-                ){
-
-                    return;
-
-                }
-
-
-                if(
-
-                    !Period.contains(
-
-                        item.dateObject,
-
-                        period
-
-                    )
-
-                ){
-
-                    return;
-
-                }
-
-
-                const key =
-
-                    this.dateKey(
-
-                        item.dateObject
-
-                    );
-
-
-                dateMap[key] =
-
-                    item.dateObject;
-
-            }
+                )
 
         );
 
+    },
 
-        Object.values(
 
-            dateMap
+    /* =================================================
+       GET ALL WORK INCOME
+    ================================================= */
+
+    getWorkIncome(
+
+        period = this.period
+
+    ){
+
+        return this.getPeriodData(
+
+            period
 
         )
 
-        .forEach(
+        .reduce(
 
-            date => {
+            (
 
-                additions.forEach(
+                total,
 
-                    rule => {
+                item
 
-                        if(
+            ) =>
 
-                            Rule.matchesDay(
+                total +
 
-                                rule,
+                this.toNumber(
 
-                                date
+                    item.total
 
-                            )
+                ),
 
-                        ){
-
-                            total +=
-
-                                Calculation.number(
-
-                                    rule.nominal
-
-                                );
-
-                        }
-
-                    }
-
-                );
-
-            }
+            0
 
         );
-
-
-        return total;
 
     },
 
 
     /* =================================================
-       CALCULATE PERIOD DEDUCTIONS
+       GET TOTAL QTY
     ================================================= */
 
-    calculatePeriodDeductions(
+    getTotalQty(
 
-        period
+        period = this.period
 
     ){
 
-        if(
+        return this.getPeriodData(
 
-            !period
+            period
 
-        ){
+        )
 
-            return 0;
+        .reduce(
 
-        }
+            (
 
+                total,
 
-        const deductions =
+                item
 
-            Rule.findDeductions(
+            ) =>
 
-                this.rules
+                total +
 
-            );
+                this.toNumber(
 
+                    item.qty
 
-        return Calculation.sumRules(
+                ),
 
-            deductions
+            0
 
         );
 
@@ -760,7 +563,7 @@ export const Process = {
         }
 
 
-        return this.parseDate(
+        return Periode.parse(
 
             item?.tanggal ??
 
@@ -772,178 +575,32 @@ export const Process = {
 
 
     /* =================================================
-       DATE KEY
+       CHECK STATUS MASUK
     ================================================= */
 
-    dateKey(
+    isMasuk(
 
-        date
+        item
 
     ){
-
-        const year =
-
-            date.getFullYear();
-
-
-        const month =
-
-            String(
-
-                date.getMonth() + 1
-
-            )
-
-            .padStart(
-
-                2,
-
-                "0"
-
-            );
-
-
-        const day =
-
-            String(
-
-                date.getDate()
-
-            )
-
-            .padStart(
-
-                2,
-
-                "0"
-
-            );
-
 
         return (
 
-            year +
-
-            "-" +
-
-            month +
-
-            "-" +
-
-            day
-
-        );
-
-    },
-
-
-    /* =================================================
-       PARSE DATE
-    ================================================= */
-
-    parseDate(
-
-        value
-
-    ){
-
-        if(
-
-            !value
-
-        ){
-
-            return null;
-
-        }
-
-
-        const parts =
-
             String(
 
-                value
+                item?.status ?? ""
 
             )
 
             .trim()
 
-            .split("-")
+            .toLowerCase()
 
-            .map(Number);
+            ===
 
+            "masuk"
 
-        if(
-
-            parts.length !== 3
-
-        ){
-
-            return null;
-
-        }
-
-
-        const [
-
-            year,
-
-            month,
-
-            day
-
-        ] = parts;
-
-
-        const date =
-
-            new Date(
-
-                year,
-
-                month - 1,
-
-                day
-
-            );
-
-
-        return Number.isNaN(
-
-            date.getTime()
-
-        )
-
-            ?
-
-            null
-
-            :
-
-            date;
-
-    },
-
-
-    /* =================================================
-       NORMALIZE
-    ================================================= */
-
-    normalize(
-
-        value
-
-    ){
-
-        return String(
-
-            value ?? ""
-
-        )
-
-        .trim()
-
-        .toLowerCase();
+        );
 
     },
 
@@ -952,17 +609,34 @@ export const Process = {
        NUMBER
     ================================================= */
 
-    number(
+    toNumber(
 
         value
 
     ){
 
-        return Calculation.number(
+        const number =
 
-            value
+            Number(
 
-        );
+                value
+
+            );
+
+
+        return Number.isFinite(
+
+            number
+
+        )
+
+            ?
+
+            number
+
+            :
+
+            0;
 
     }
 
