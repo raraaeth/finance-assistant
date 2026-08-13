@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Summary
    File        : summary.js
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Payroll Daily Salary Summary
@@ -11,7 +11,10 @@
    Responsibility :
    - Menampilkan periode terakhir
    - Menampilkan periode berjalan
-   - Menggabungkan rincian pekerjaan
+   - Menampilkan gaji bersih
+   - Menampilkan rincian pekerjaan
+   - Menampilkan penambahan
+   - Menampilkan potongan
    - Membaca hasil Process
    - Tidak menjalankan Rule / Calculation / Periode
 
@@ -61,7 +64,16 @@ export const Summary = {
 Summary.init = function(){
 
     /* =============================================
-       CURRENT
+       HIDE GLOBAL SUMMARY SECTIONS
+       Payroll Daily hanya menggunakan
+       section payroll khusus.
+    ============================================= */
+
+    hideDefaultSections();
+
+
+    /* =============================================
+       CURRENT PERIOD
     ============================================= */
 
     const currentPeriod =
@@ -70,7 +82,7 @@ Summary.init = function(){
 
 
     /* =============================================
-       PREVIOUS
+       PREVIOUS PERIOD
     ============================================= */
 
     const previousPeriod =
@@ -79,7 +91,7 @@ Summary.init = function(){
 
 
     /* =============================================
-       CALCULATE VIEW DATA
+       BUILD VIEW DATA
     ============================================= */
 
     Summary.current =
@@ -106,10 +118,72 @@ Summary.init = function(){
 
     renderLastPeriod();
 
-
     renderCurrentPeriod();
 
+
+    /* =============================================
+       OVERLAY
+    ============================================= */
+
+    setupOverlay();
+
 };
+
+
+/* =====================================================
+   HIDE DEFAULT SECTIONS
+===================================================== */
+
+function hideDefaultSections(){
+
+    const overview =
+
+        document.getElementById(
+
+            "summary-overview"
+
+        );
+
+
+    const distribution =
+
+        document.getElementById(
+
+            "summary-distribution"
+
+        );
+
+
+    if(
+
+        overview
+
+    ){
+
+        overview.classList.add(
+
+            "hidden"
+
+        );
+
+    }
+
+
+    if(
+
+        distribution
+
+    ){
+
+        distribution.classList.add(
+
+            "hidden"
+
+        );
+
+    }
+
+}
 
 
 /* =====================================================
@@ -134,7 +208,7 @@ function buildSummary(
 
 
     /* =============================================
-       GET PERIOD DATA
+       PERIOD DATA
     ============================================= */
 
     const data =
@@ -540,7 +614,6 @@ function calculateAdditions(
 
     const items = [];
 
-
     let total = 0;
 
 
@@ -754,7 +827,6 @@ function calculateDeductions(
 
     const items = [];
 
-
     let total = 0;
 
 
@@ -880,13 +952,163 @@ function renderLastPeriod(){
     );
 
 
-    card.innerHTML =
+    const result =
 
-        renderPeriod(
+        Summary.previous;
 
-            Summary.previous
+
+    if(
+
+        !result
+
+        ||
+
+        !result.period
+
+    ){
+
+        card.innerHTML = `
+
+            <div class="summary-payroll-empty">
+
+                Data belum tersedia.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    card.innerHTML = `
+
+        <div class="summary-payroll-card">
+
+            <div class="summary-payroll-period">
+
+                ${
+
+                    formatDate(
+
+                        result.period.start
+
+                    )
+
+                }
+
+                -
+
+                ${
+
+                    formatDate(
+
+                        result.period.end
+
+                    )
+
+                }
+
+            </div>
+
+
+            <div class="summary-payroll-total">
+
+                ${
+
+                    rupiah(
+
+                        result.net
+
+                    )
+
+                }
+
+            </div>
+
+
+            <div class="summary-payroll-navigation">
+
+                <button
+
+                    type="button"
+
+                    class="summary-payroll-nav disabled"
+
+                >
+
+                    &lt; Back
+
+                </button>
+
+
+                <button
+
+                    type="button"
+
+                    class="summary-payroll-nav disabled"
+
+                >
+
+                    Next &gt;
+
+                </button>
+
+            </div>
+
+
+            <button
+
+                type="button"
+
+                class="summary-payroll-detail-button"
+
+                id="summary-payroll-detail-button"
+
+            >
+
+                Tampilkan Rincian
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    const detailButton =
+
+        document.getElementById(
+
+            "summary-payroll-detail-button"
 
         );
+
+
+    if(
+
+        detailButton
+
+    ){
+
+        detailButton.addEventListener(
+
+            "click",
+
+            () => {
+
+                openOverlay(
+
+                    result
+
+                );
+
+            }
+
+        );
+
+    }
 
 }
 
@@ -937,7 +1159,7 @@ function renderCurrentPeriod(){
 
     card.innerHTML =
 
-        renderPeriod(
+        renderCurrentDetail(
 
             Summary.current
 
@@ -947,10 +1169,10 @@ function renderCurrentPeriod(){
 
 
 /* =====================================================
-   RENDER PERIOD
+   CURRENT PERIOD DETAIL
 ===================================================== */
 
-function renderPeriod(
+function renderCurrentDetail(
 
     result
 
@@ -959,6 +1181,10 @@ function renderPeriod(
     if(
 
         !result
+
+        ||
+
+        !result.period
 
     ){
 
@@ -1015,19 +1241,33 @@ function renderPeriod(
                  NET
             ====================================== -->
 
-            <div class="summary-payroll-total">
+            <div class="summary-payroll-net-row">
 
-                ${
+                <strong>
 
-                    rupiah(
+                    Gaji Bersih
 
-                        result.net
+                </strong>
 
-                    )
 
-                }
+                <strong>
+
+                    ${
+
+                        rupiah(
+
+                            result.net
+
+                        )
+
+                    }
+
+                </strong>
 
             </div>
+
+
+            <div class="summary-payroll-divider"></div>
 
 
             <!-- =====================================
@@ -1039,25 +1279,34 @@ function renderPeriod(
 
                 <div class="summary-payroll-group-title">
 
-                    🏭 Pekerjaan
+                    🏭 Rincian Pekerjaan
 
                 </div>
 
 
-                ${
+                <div class="summary-payroll-work-list">
 
-                    renderWork(
+                    ${
 
-                        result.work.items
+                        renderWork(
 
-                    )
+                            result.work.items
 
-                }
+                        )
+
+                    }
+
+                </div>
 
 
                 <div class="summary-payroll-subtotal">
 
-                    Total Pekerjaan
+                    <span>
+
+                        Total Pekerjaan
+
+                    </span>
+
 
                     <strong>
 
@@ -1079,8 +1328,11 @@ function renderPeriod(
             </div>
 
 
+            <div class="summary-payroll-divider"></div>
+
+
             <!-- =====================================
-                 ADDITION
+                 ADDITIONS
             ====================================== -->
 
             <div class="summary-payroll-group">
@@ -1108,7 +1360,12 @@ function renderPeriod(
 
                 <div class="summary-payroll-subtotal">
 
-                    Total Penambahan
+                    <span>
+
+                        Total Penambahan
+
+                    </span>
+
 
                     <strong>
 
@@ -1128,6 +1385,9 @@ function renderPeriod(
 
 
             </div>
+
+
+            <div class="summary-payroll-divider"></div>
 
 
             <!-- =====================================
@@ -1159,7 +1419,12 @@ function renderPeriod(
 
                 <div class="summary-payroll-subtotal">
 
-                    Total Potongan
+                    <span>
+
+                        Total Potongan
+
+                    </span>
+
 
                     <strong>
 
@@ -1177,6 +1442,39 @@ function renderPeriod(
 
                 </div>
 
+
+            </div>
+
+
+            <div class="summary-payroll-divider"></div>
+
+
+            <!-- =====================================
+                 TOTAL / NET
+            ====================================== -->
+
+            <div class="summary-payroll-net-row summary-payroll-net-final">
+
+                <strong>
+
+                    Gaji Bersih
+
+                </strong>
+
+
+                <strong>
+
+                    ${
+
+                        rupiah(
+
+                            result.net
+
+                        )
+
+                    }
+
+                </strong>
 
             </div>
 
@@ -1221,10 +1519,10 @@ function renderWork(
 
         item => `
 
-            <div class="summary-payroll-row">
+            <div class="summary-payroll-work-row">
 
 
-                <div class="summary-payroll-row-main">
+                <div class="summary-payroll-work-info">
 
                     <strong>
 
@@ -1241,7 +1539,7 @@ function renderWork(
                     </strong>
 
 
-                    <small>
+                    <span>
 
                         ${
 
@@ -1251,7 +1549,7 @@ function renderWork(
 
                         pcs
 
-                    </small>
+                    </span>
 
                 </div>
 
@@ -1504,6 +1802,462 @@ function buildWorkName(
     )
 
     .join(" ");
+
+}
+
+
+/* =====================================================
+   OVERLAY SETUP
+===================================================== */
+
+function setupOverlay(){
+
+    const overlay =
+
+        document.getElementById(
+
+            "summary-payroll-overlay"
+
+        );
+
+
+    if(
+
+        !overlay
+
+    ){
+
+        return;
+
+    }
+
+
+    const closeButton =
+
+        document.getElementById(
+
+            "summary-payroll-overlay-close"
+
+        );
+
+
+    const backdrop =
+
+        overlay.querySelector(
+
+            "[data-close-payroll-overlay]"
+
+        );
+
+
+    if(
+
+        closeButton
+
+    ){
+
+        closeButton.addEventListener(
+
+            "click",
+
+            closeOverlay
+
+        );
+
+    }
+
+
+    if(
+
+        backdrop
+
+    ){
+
+        backdrop.addEventListener(
+
+            "click",
+
+            closeOverlay
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   OPEN OVERLAY
+===================================================== */
+
+function openOverlay(
+
+    result
+
+){
+
+    const overlay =
+
+        document.getElementById(
+
+            "summary-payroll-overlay"
+
+        );
+
+
+    const title =
+
+        document.getElementById(
+
+            "summary-payroll-overlay-title"
+
+        );
+
+
+    const period =
+
+        document.getElementById(
+
+            "summary-payroll-overlay-period"
+
+        );
+
+
+    const content =
+
+        document.getElementById(
+
+            "summary-payroll-overlay-content"
+
+        );
+
+
+    if(
+
+        !overlay ||
+
+        !content ||
+
+        !result
+
+    ){
+
+        return;
+
+    }
+
+
+    if(
+
+        title
+
+    ){
+
+        title.textContent =
+
+            "Rincian Gaji";
+
+    }
+
+
+    if(
+
+        period
+
+    ){
+
+        period.textContent =
+
+            formatDate(
+
+                result.period.start
+
+            )
+
+            +
+
+            " - "
+
+            +
+
+            formatDate(
+
+                result.period.end
+
+            );
+
+    }
+
+
+    content.innerHTML =
+
+        renderDetailContent(
+
+            result
+
+        );
+
+
+    overlay.classList.remove(
+
+        "hidden"
+
+    );
+
+}
+
+
+/* =====================================================
+   DETAIL OVERLAY CONTENT
+===================================================== */
+
+function renderDetailContent(
+
+    result
+
+){
+
+    return `
+
+        <div class="summary-payroll-overlay-total">
+
+            Gaji Bersih
+
+            <strong>
+
+                ${
+
+                    rupiah(
+
+                        result.net
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+
+        <div class="summary-payroll-divider"></div>
+
+
+        <div class="summary-payroll-group">
+
+            <div class="summary-payroll-group-title">
+
+                🏭 Rincian Pekerjaan
+
+            </div>
+
+
+            ${
+
+                renderWork(
+
+                    result.work.items
+
+                )
+
+            }
+
+
+            <div class="summary-payroll-subtotal">
+
+                <span>
+
+                    Total Pekerjaan
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        rupiah(
+
+                            result.work.total
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-payroll-divider"></div>
+
+
+        <div class="summary-payroll-group">
+
+            <div class="summary-payroll-group-title">
+
+                ➕
+
+                Penambahan
+
+            </div>
+
+
+            ${
+
+                renderAdditions(
+
+                    result.additions.items
+
+                )
+
+            }
+
+
+            <div class="summary-payroll-subtotal">
+
+                <span>
+
+                    Total Penambahan
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        rupiah(
+
+                            result.additions.total
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-payroll-divider"></div>
+
+
+        <div class="summary-payroll-group">
+
+            <div class="summary-payroll-group-title">
+
+                ➖
+
+                Potongan
+
+            </div>
+
+
+            ${
+
+                renderDeductions(
+
+                    result.deductions.items
+
+                )
+
+            }
+
+
+            <div class="summary-payroll-subtotal">
+
+                <span>
+
+                    Total Potongan
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        rupiah(
+
+                            result.deductionTotal
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-payroll-divider"></div>
+
+
+        <div class="summary-payroll-net-row">
+
+            <strong>
+
+                Gaji Bersih
+
+            </strong>
+
+
+            <strong>
+
+                ${
+
+                    rupiah(
+
+                        result.net
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   CLOSE OVERLAY
+===================================================== */
+
+function closeOverlay(){
+
+    const overlay =
+
+        document.getElementById(
+
+            "summary-payroll-overlay"
+
+        );
+
+
+    if(
+
+        overlay
+
+    ){
+
+        overlay.classList.add(
+
+            "hidden"
+
+        );
+
+    }
 
 }
 
