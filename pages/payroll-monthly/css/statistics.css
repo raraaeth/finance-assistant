@@ -3,10 +3,16 @@
    Page        : Payroll Monthly
    Module      : Statistics
    File        : statistics.css
-   Version     : 3.0.0
+   Version     : 3.1.0
 
    Description :
    Payroll Statistics Page
+
+   Theme Aware :
+   - Light
+   - Dark
+   - Green
+   - Pink
 ===================================================== */
 
 
@@ -51,9 +57,9 @@
 
     border-radius:999px;
 
-    background:#E1F5F2;
+    background:var(--surface);
 
-    color:#197A72;
+    color:var(--text);
 
     font-size:1.15rem;
 
@@ -98,7 +104,7 @@
 
 .statistics-motivation-text{
 
-    color:var(--text-primary);
+    color:var(--text);
 
     font-size:16px;
 
@@ -113,25 +119,11 @@
 
 .statistics-period-insight{
 
-    color:var(--text-primary);
+    color:var(--text);
 
     font-size:15px;
 
     line-height:1.5;
-
-}
-
-/* =====================================================
-   INSIGHT CONTENT
-===================================================== */
-
-.statistics-insight-content{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:12px;
 
 }
 
@@ -146,7 +138,7 @@
 
     line-height:1.5;
 
-    color:var(--text-primary);
+    color:var(--text);
 
 }
 
@@ -165,6 +157,7 @@
 
 }
 
+
 /* =====================================================
    SUMMARY GRID
 ===================================================== */
@@ -175,7 +168,19 @@
 
     grid-template-columns:
 
-        repeat(3, minmax(0, 1fr));
+        repeat(
+
+            3,
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+        );
 
     gap:14px;
 
@@ -196,7 +201,7 @@
 
     border-radius:20px;
 
-    background:#F4FAFA;
+    background:var(--surface);
 
     display:flex;
 
@@ -221,7 +226,7 @@
 
     width:100%;
 
-    color:#71817F;
+    color:var(--text-secondary);
 
     font-size:14px;
 
@@ -242,7 +247,7 @@
 
     width:100%;
 
-    color:#173C3A;
+    color:var(--text);
 
     font-size:24px;
 
@@ -362,17 +367,7 @@
 
         2px solid
 
-        rgba(
-
-            45,
-
-            55,
-
-            72,
-
-            .12
-
-        );
+        var(--border);
 
 }
 
@@ -422,7 +417,7 @@
 
     font-weight:700;
 
-    color:var(--text-primary);
+    color:var(--text);
 
 }
 
@@ -460,7 +455,7 @@
 
     gap:2px;
 
-    color:var(--text-primary);
+    color:var(--text);
 
     font-size:15px;
 
@@ -476,7 +471,7 @@
 #statistics-transaction-list
 .transaction-detail strong{
 
-    color:var(--text-primary);
+    color:var(--text);
 
     font-weight:700;
 
@@ -592,13 +587,13 @@
 
     padding:10px 14px;
 
-    border:1px solid var(--border-color);
+    border:1px solid var(--border);
 
     border-radius:14px;
 
-    background:var(--surface-secondary);
+    background:var(--surface);
 
-    color:var(--text-primary);
+    color:var(--text);
 
     font-size:14px;
 
@@ -886,4 +881,4 @@
 
     }
 
-   }
+}
