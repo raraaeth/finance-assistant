@@ -3,80 +3,37 @@
    Page        : Payroll Daily
    Module      : Summary
    File        : summary.css
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
-   Payroll Daily Summary
+   Payroll Daily Summary Styling
 
-   Theme Aware :
-   - Light
-   - Dark
-   - Green
-   - Pink
+   Theme :
+   Mengikuti global theme variables.
 ===================================================== */
 
 
 /* =====================================================
-   SUMMARY PAGE
+   PAYROLL SUMMARY SECTION
 ===================================================== */
 
-#summary-page{
+#summary-payroll-last,
+#summary-payroll-current{
 
-    padding-bottom:40px;
-
-}
-
-
-#summary-page .section{
-
-    margin-bottom:32px;
-
-}
-
-
-#summary-page .section-header{
-
-    margin-bottom:16px;
+    width:100%;
 
 }
 
 
 /* =====================================================
-   SECTION BADGE
+   PAYROLL SUMMARY CARD
 ===================================================== */
 
-#summary-page .section-badge{
+.summary-payroll-card{
 
-    display:inline-flex;
+    width:100%;
 
-    align-items:center;
-
-    gap:6px;
-
-    padding:8px 16px;
-
-    border-radius:999px;
-
-    background:var(--surface);
-
-    color:var(--text);
-
-    font-size:1.15rem;
-
-    font-weight:700;
-
-}
-
-
-/* =====================================================
-   PERIOD CARD
-===================================================== */
-
-.summary-period-card{
-
-    padding:30px 28px;
-
-    overflow:hidden;
+    box-sizing:border-box;
 
 }
 
@@ -85,43 +42,50 @@
    PERIOD
 ===================================================== */
 
-.summary-period{
+.summary-payroll-period{
 
-    color:var(--text);
+    font-size:16px;
 
-    font-size:20px;
+    line-height:1.5;
 
-    line-height:1.4;
+    color:var(
+        --text-secondary,
+        #6b7280
+    );
 
-    margin-bottom:28px;
+    margin-bottom:16px;
 
 }
 
 
 /* =====================================================
-   PERIOD TOTAL
+   LAST PERIOD
 ===================================================== */
 
-.summary-period-total{
+#summary-payroll-last
+.summary-payroll-total{
 
-    color:var(--text);
-
-    font-size:30px;
+    font-size:32px;
 
     line-height:1.2;
 
     font-weight:700;
 
-    margin-bottom:36px;
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+    margin:8px 0 24px;
 
 }
 
 
 /* =====================================================
-   NAVIGATION
+   LAST PERIOD NAVIGATION
 ===================================================== */
 
-.summary-navigation{
+.summary-payroll-navigation{
 
     display:flex;
 
@@ -129,45 +93,43 @@
 
     justify-content:space-between;
 
-    gap:20px;
+    gap:16px;
 
-    margin-bottom:34px;
+    margin-top:8px;
 
 }
 
 
-/* =====================================================
-   NAVIGATION BUTTON
-===================================================== */
+.summary-payroll-nav{
 
-.summary-navigation button{
-
-    border:none;
+    border:0;
 
     background:transparent;
 
-    color:var(--text);
+    padding:8px 0;
 
-    font-size:18px;
+    font-size:17px;
 
-    font-weight:700;
+    font-weight:600;
 
-    padding:6px 0;
+    color:var(
+        --text-primary,
+        inherit
+    );
 
     cursor:pointer;
 
 }
 
 
-/* =====================================================
-   NAVIGATION DISABLED
-===================================================== */
+.summary-payroll-nav.disabled{
 
-.summary-navigation button:disabled{
+    color:var(
+        --text-muted,
+        #9ca3af
+    );
 
-    opacity:.35;
-
-    cursor:not-allowed;
+    cursor:default;
 
 }
 
@@ -176,75 +138,46 @@
    DETAIL BUTTON
 ===================================================== */
 
-.summary-detail-button{
+.summary-payroll-detail-button{
 
     display:block;
 
     width:100%;
 
-    border:none;
+    margin-top:22px;
+
+    padding:10px 0;
+
+    border:0;
 
     background:transparent;
 
-    color:var(--text-secondary);
+    color:var(
+        --primary-color,
+        var(--accent-color, #2563eb)
+    );
 
-    font-size:17px;
+    font-size:16px;
 
-    font-weight:700;
-
-    padding:8px 0;
+    font-weight:600;
 
     cursor:pointer;
 
 }
 
 
-/* =====================================================
-   DETAIL BUTTON HOVER
-===================================================== */
+.summary-payroll-detail-button:active{
 
-.summary-detail-button:hover{
-
-    color:var(--primary);
+    opacity:.7;
 
 }
 
 
 /* =====================================================
-   ESTIMATE CARD
+   CURRENT PERIOD NET
 ===================================================== */
 
-.summary-estimate-card{
-
-    padding:28px;
-
-    overflow:hidden;
-
-}
-
-
-/* =====================================================
-   ESTIMATE PERIOD
-===================================================== */
-
-.summary-estimate-period{
-
-    color:var(--text-secondary);
-
-    font-size:18px;
-
-    line-height:1.4;
-
-    margin-bottom:34px;
-
-}
-
-
-/* =====================================================
-   ESTIMATE ROW
-===================================================== */
-
-.summary-estimate-row{
+.summary-payroll-net-row{
 
     display:flex;
 
@@ -254,31 +187,21 @@
 
     gap:20px;
 
-}
+    width:100%;
 
-
-.summary-estimate-row span{
-
-    color:var(--text);
-
-    font-size:19px;
+    font-size:17px;
 
     line-height:1.4;
 
+    color:var(
+        --text-primary,
+        inherit
+    );
+
 }
 
 
-.summary-estimate-row strong{
-
-    color:var(--text);
-
-    font-size:26px;
-
-    line-height:1.25;
-
-    font-weight:700;
-
-    text-align:right;
+.summary-payroll-net-row strong:last-child{
 
     white-space:nowrap;
 
@@ -286,113 +209,560 @@
 
 
 /* =====================================================
-   ESTIMATE DIVIDER
+   FINAL NET
 ===================================================== */
 
-.summary-estimate-divider{
+.summary-payroll-net-final{
+
+    padding-top:2px;
+
+    font-size:19px;
+
+}
+
+
+.summary-payroll-net-final strong:last-child{
+
+    font-size:21px;
+
+}
+
+
+/* =====================================================
+   DIVIDER
+===================================================== */
+
+.summary-payroll-divider{
+
+    width:100%;
 
     height:1px;
 
-    background:var(--border);
+    margin:20px 0;
 
-    margin:28px 0 22px;
+    background:var(
+        --border-color,
+        rgba(128,128,128,.20)
+    );
 
 }
 
 
 /* =====================================================
-   ESTIMATE INFO
+   GROUP
 ===================================================== */
 
-.summary-estimate-info{
+.summary-payroll-group{
 
-    color:var(--text-secondary);
+    width:100%;
+
+}
+
+
+/* =====================================================
+   GROUP TITLE
+===================================================== */
+
+.summary-payroll-group-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    margin-bottom:14px;
+
+    font-size:18px;
+
+    line-height:1.4;
+
+    font-weight:600;
+
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+}
+
+
+/* =====================================================
+   WORK LIST
+===================================================== */
+
+.summary-payroll-work-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   WORK ROW
+===================================================== */
+
+.summary-payroll-work-row{
+
+    display:grid;
+
+    grid-template-columns:
+
+        minmax(0, 1fr)
+
+        auto;
+
+    align-items:center;
+
+    column-gap:16px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   WORK INFO
+===================================================== */
+
+.summary-payroll-work-info{
+
+    min-width:0;
+
+    display:flex;
+
+    align-items:baseline;
+
+    gap:7px;
+
+    flex-wrap:wrap;
+
+}
+
+
+.summary-payroll-work-info strong{
 
     font-size:15px;
 
-    line-height:1.5;
+    line-height:1.35;
+
+    font-weight:600;
+
+    color:var(
+        --text-primary,
+        inherit
+    );
 
 }
 
 
-.summary-estimate-info strong{
+.summary-payroll-work-info span{
 
-    color:var(--text);
+    font-size:14px;
 
-    font-weight:700;
+    line-height:1.35;
+
+    color:var(
+        --text-secondary,
+        #6b7280
+    );
+
+    white-space:nowrap;
 
 }
 
 
 /* =====================================================
-   TABLET
+   ROW VALUE
 ===================================================== */
 
-@media(
+.summary-payroll-row-value{
 
-    max-width:700px
+    text-align:right;
 
-){
+    white-space:nowrap;
 
-    .summary-period-card{
+    font-size:15px;
 
-        padding:26px 24px;
+    line-height:1.35;
 
-    }
-
-
-    .summary-period{
-
-        font-size:19px;
-
-        margin-bottom:26px;
-
-    }
-
-
-    .summary-period-total{
-
-        font-size:28px;
-
-        margin-bottom:32px;
-
-    }
-
-
-    .summary-estimate-card{
-
-        padding:26px 24px;
-
-    }
-
-
-    .summary-estimate-period{
-
-        font-size:17px;
-
-        margin-bottom:30px;
-
-    }
-
-
-    .summary-estimate-row span{
-
-        font-size:18px;
-
-    }
-
-
-    .summary-estimate-row strong{
-
-        font-size:24px;
-
-    }
+    color:var(
+        --text-primary,
+        inherit
+    );
 
 }
 
 
 /* =====================================================
-   MOBILE
+   NORMAL ROW
+===================================================== */
+
+.summary-payroll-row{
+
+    display:grid;
+
+    grid-template-columns:
+
+        minmax(0, 1fr)
+
+        auto;
+
+    align-items:center;
+
+    gap:16px;
+
+    width:100%;
+
+    margin-bottom:10px;
+
+}
+
+
+/* =====================================================
+   ROW MAIN
+===================================================== */
+
+.summary-payroll-row-main{
+
+    display:flex;
+
+    align-items:baseline;
+
+    gap:7px;
+
+    min-width:0;
+
+}
+
+
+.summary-payroll-row-main strong{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    line-height:1.4;
+
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+}
+
+
+.summary-payroll-row-main small{
+
+    font-size:13px;
+
+    color:var(
+        --text-secondary,
+        #6b7280
+    );
+
+}
+
+
+/* =====================================================
+   SUBTOTAL
+===================================================== */
+
+.summary-payroll-subtotal{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    margin-top:14px;
+
+    font-size:15px;
+
+    line-height:1.4;
+
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+}
+
+
+.summary-payroll-subtotal strong{
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.summary-payroll-empty{
+
+    padding:4px 0;
+
+    font-size:14px;
+
+    line-height:1.5;
+
+    color:var(
+        --text-secondary,
+        #6b7280
+    );
+
+}
+
+
+/* =====================================================
+   OVERLAY
+===================================================== */
+
+.summary-payroll-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:1000;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:center;
+
+}
+
+
+.summary-payroll-overlay.hidden{
+
+    display:none;
+
+}
+
+
+/* =====================================================
+   OVERLAY BACKDROP
+===================================================== */
+
+.summary-payroll-overlay-backdrop{
+
+    position:absolute;
+
+    inset:0;
+
+    background:rgba(
+        0,
+        0,
+        0,
+        .45
+    );
+
+}
+
+
+/* =====================================================
+   OVERLAY PANEL
+===================================================== */
+
+.summary-payroll-overlay-panel{
+
+    position:relative;
+
+    z-index:1;
+
+    width:100%;
+
+    max-width:680px;
+
+    max-height:88vh;
+
+    overflow-y:auto;
+
+    box-sizing:border-box;
+
+    padding:20px;
+
+    border-radius:24px 24px 0 0;
+
+    background:var(
+        --card-background,
+        var(--bg-card, #fff)
+    );
+
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+    box-shadow:
+
+        0 -8px 30px
+
+        rgba(
+            0,
+            0,
+            0,
+            .15
+        );
+
+}
+
+
+/* =====================================================
+   OVERLAY HEADER
+===================================================== */
+
+.summary-payroll-overlay-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    padding-bottom:16px;
+
+    margin-bottom:4px;
+
+    border-bottom:1px solid;
+
+    border-color:var(
+        --border-color,
+        rgba(128,128,128,.20)
+    );
+
+}
+
+
+.summary-payroll-overlay-header > div{
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+}
+
+
+.summary-payroll-overlay-header strong{
+
+    font-size:18px;
+
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+}
+
+
+.summary-payroll-overlay-header small{
+
+    font-size:13px;
+
+    color:var(
+        --text-secondary,
+        #6b7280
+    );
+
+}
+
+
+/* =====================================================
+   OVERLAY CLOSE
+===================================================== */
+
+.summary-payroll-overlay-close{
+
+    width:38px;
+
+    height:38px;
+
+    flex:none;
+
+    border:0;
+
+    border-radius:50%;
+
+    background:var(
+        --surface-secondary,
+        rgba(128,128,128,.10)
+    );
+
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+    font-size:18px;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   OVERLAY CONTENT
+===================================================== */
+
+.summary-payroll-overlay-content{
+
+    padding-top:4px;
+
+}
+
+
+/* =====================================================
+   OVERLAY TOTAL
+===================================================== */
+
+.summary-payroll-overlay-total{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    font-size:17px;
+
+    color:var(
+        --text-primary,
+        inherit
+    );
+
+}
+
+
+.summary-payroll-overlay-total strong{
+
+    font-size:20px;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
 ===================================================== */
 
 @media(
@@ -401,153 +771,70 @@
 
 ){
 
-    #summary-page{
+    .summary-payroll-period{
 
-        padding-bottom:30px;
-
-    }
-
-
-    #summary-page .section{
-
-        margin-bottom:28px;
+        font-size:15px;
 
     }
 
 
-    #summary-page .section-header{
+    #summary-payroll-last
+    .summary-payroll-total{
 
-        margin-bottom:14px;
-
-    }
-
-
-    #summary-page .section-badge{
-
-        padding:7px 14px;
-
-        font-size:1.08rem;
+        font-size:30px;
 
     }
 
 
-    /* =============================================
-       LAST PERIOD
-    ============================================= */
-
-    .summary-period-card{
-
-        padding:24px 20px;
-
-        border-radius:24px;
-
-    }
-
-
-    .summary-period{
-
-        font-size:18px;
-
-        line-height:1.45;
-
-        margin-bottom:24px;
-
-    }
-
-
-    .summary-period-total{
-
-        font-size:27px;
-
-        line-height:1.2;
-
-        margin-bottom:32px;
-
-    }
-
-
-    .summary-navigation{
-
-        margin-bottom:30px;
-
-    }
-
-
-    .summary-navigation button{
+    .summary-payroll-group-title{
 
         font-size:17px;
 
     }
 
 
-    .summary-detail-button{
-
-        font-size:16px;
-
-    }
-
-
-    /* =============================================
-       CURRENT ESTIMATE
-    ============================================= */
-
-    .summary-estimate-card{
-
-        padding:24px 20px;
-
-        border-radius:24px;
-
-    }
-
-
-    .summary-estimate-period{
-
-        font-size:16px;
-
-        line-height:1.45;
-
-        margin-bottom:28px;
-
-    }
-
-
-    .summary-estimate-row{
-
-        align-items:flex-start;
-
-        gap:12px;
-
-    }
-
-
-    .summary-estimate-row span{
-
-        font-size:17px;
-
-        line-height:1.4;
-
-    }
-
-
-    .summary-estimate-row strong{
-
-        font-size:22px;
-
-        line-height:1.25;
-
-    }
-
-
-    .summary-estimate-divider{
-
-        margin:24px 0 20px;
-
-    }
-
-
-    .summary-estimate-info{
+    .summary-payroll-work-info strong,
+    .summary-payroll-row-main strong{
 
         font-size:14px;
+
+    }
+
+
+    .summary-payroll-work-info span,
+    .summary-payroll-row-main small{
+
+        font-size:12px;
+
+    }
+
+
+    .summary-payroll-row-value{
+
+        font-size:14px;
+
+    }
+
+
+    .summary-payroll-net-row{
+
+        font-size:16px;
+
+    }
+
+
+    .summary-payroll-net-final strong:last-child{
+
+        font-size:19px;
+
+    }
+
+
+    .summary-payroll-overlay-panel{
+
+        padding:18px;
+
+        border-radius:20px 20px 0 0;
 
     }
 
@@ -555,55 +842,41 @@
 
 
 /* =====================================================
-   VERY SMALL MOBILE
+   DARK THEME SUPPORT
 ===================================================== */
 
-@media(
+[data-theme="dark"]
+.summary-payroll-overlay-panel{
 
-    max-width:360px
+    box-shadow:
 
-){
+        0 -8px 30px
 
-    .summary-period-card,
+        rgba(
+            0,
+            0,
+            0,
+            .35
+        );
 
-    .summary-estimate-card{
-
-        padding-left:17px;
-
-        padding-right:17px;
-
-    }
-
-
-    .summary-period{
-
-        font-size:17px;
-
-    }
+}
 
 
-    .summary-period-total{
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
 
-        font-size:25px;
+.summary-payroll-detail-button:focus-visible,
+.summary-payroll-nav:focus-visible,
+.summary-payroll-overlay-close:focus-visible{
 
-    }
+    outline:2px solid;
 
+    outline-color:var(
+        --primary-color,
+        var(--accent-color, #2563eb)
+    );
 
-    .summary-estimate-row{
-
-        flex-direction:column;
-
-        gap:8px;
-
-    }
-
-
-    .summary-estimate-row strong{
-
-        font-size:22px;
-
-        text-align:left;
-
-    }
+    outline-offset:3px;
 
 }
