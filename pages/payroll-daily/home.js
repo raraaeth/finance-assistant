@@ -1,304 +1,322 @@
 /* =====================================================
-Finance Assistant
-Page        : Payroll Daily
-Module      : Home
-File        : home.js
-Version     : 1.2.0
+   Finance Assistant
+   Page        : Payroll Daily
+   Module      : Home
+   File        : home.js
+   Version     : 1.3.0
 
-Description :
-Payroll Daily Home Controller
+   Description :
+   Payroll Daily Home Controller
 
-Flow :
+   Flow :
 
-Load user
+   Load user
+        ↓
+   Render hero
+        ↓
+   Load payroll data
+        ↓
+   Process data
+        ↓
+   Summary
+        ↓
+   Render home summary
 
-Render hero
-
-Load payroll data
-
-Process data
-
-Render home summary
+   Responsibility :
+   - Menampilkan Hero
+   - Menampilkan estimasi gaji periode ini
+   - Menampilkan pendapatan minggu ini
+   - Menampilkan pendapatan hari ini
+   - Membaca hasil dari Process / Summary
+   - Tidak menjalankan perhitungan periode gaji
+   - Tidak menjalankan Statistics
 ===================================================== */
 
 
 /* =====================================================
-IMPORT
+   IMPORT
 ===================================================== */
 
 import {
 
-loadUser
+    loadUser
 
 } from "../../js/storage.js";
 
+
 import {
 
-CONFIG
+    CONFIG
 
 } from "./config.js";
 
+
 import {
 
-API
+    API
 
 } from "../../js/api.js";
 
+
 import {
 
-Process
+    Process
 
 } from "./process.js";
 
+
 import {
 
-Header
+    Header
 
 } from "../../components/header/script.js";
 
+
 import {
 
-Profile
+    Profile
 
 } from "../../components/profile/script.js";
 
+
 import {
 
-Summary
+    Summary
 
 } from "./summary.js";
 
+
 import {
 
-formatDate,  
+    formatDate,
 
-rupiah,  
+    rupiah,
 
-shortRupiah
+    shortRupiah
 
 } from "../../js/utils.js";
 
+
 import {
 
-Animation
+    Animation
 
 } from "../../js/animation.js";
 
+
 /* =====================================================
-STATE
+   STATE
 ===================================================== */
 
 const user =
 
-loadUser();
+    loadUser();
+
 
 /* =====================================================
-INIT
+   INIT
 ===================================================== */
 
 export async function init(){
 
-/* =============================================  
-   HEADER  
-============================================= */  
 
-await Header.render({  
+    /* =============================================
+       HEADER
+    ============================================= */
 
-    container :  
+    await Header.render({
 
-        "#header-container",  
+        container :
 
-    theme :  
+            "#header-container",
 
-        "payroll"  
+        theme :
 
-});  
+            "payroll"
 
-
-/* =============================================  
-   HERO  
-============================================= */  
-
-renderHero();  
+    });
 
 
-/* =============================================  
-   PROFILE  
-============================================= */  
+    /* =============================================
+       HERO
+    ============================================= */
 
-await Profile.render({  
-
-    container :  
-
-        "#profile-page"  
-
-});  
+    renderHero();
 
 
-/* =============================================  
-   INITIAL HOME  
-============================================= */  
+    /* =============================================
+       PROFILE
+    ============================================= */
 
-renderHomeSummary();  
+    await Profile.render({
 
+        container :
 
-/* =============================================  
-   LOAD DATA  
-============================================= */  
+            "#profile-page"
 
-try{  
-
-    await API.load(  
-
-CONFIG.api.daily,  
-
-CONFIG.api.rules
-
-);
-
-}  
-
-catch(error){  
-
-    console.error(  
-
-        "Payroll Daily API Error:",  
-
-        error  
-
-    );  
-
-    return;  
-
-}  
+    });
 
 
-/* =============================================  
-   PROCESS  
-============================================= */  
+    /* =============================================
+       LOAD DATA
+    ============================================= */
 
-try{  
+    try{
 
-    Process.init(  
+        await API.load(
 
-        API.raw,  
+            CONFIG.api.daily,
 
-        API.data  
+            CONFIG.api.rules
 
-    );
+        );
 
-/* -----------------------------------------
-Summary
------------------------------------------ */
+    }
 
-Summary.init();
+    catch(error){
 
-/* -----------------------------------------  
-       HOME SUMMARY  
-    ----------------------------------------- */  
+        console.error(
 
-    renderHomeSummary();  
-     
+            "Payroll Daily API Error:",
 
-}  
+            error
 
-catch(error){  
+        );
 
-    console.error(  
+        return;
 
-        "Payroll Daily Process Error:",  
+    }
 
-        error  
 
-    );  
+    /* =============================================
+       PROCESS
+    ============================================= */
+
+    try{
+
+        Process.init(
+
+            API.raw,
+
+            API.data
+
+        );
+
+
+        /* -----------------------------------------
+           SUMMARY
+        ----------------------------------------- */
+
+        Summary.init();
+
+
+        /* -----------------------------------------
+           HOME SUMMARY
+        ----------------------------------------- */
+
+        renderHomeSummary();
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Payroll Daily Process Error:",
+
+            error
+
+        );
+
+    }
 
 }
 
-}
 
 /* =====================================================
-HERO
+   HERO
 ===================================================== */
 
 function renderHero(){
 
-const name =  
+    const name =
 
-    capitalize(  
+        capitalize(
 
-        user?.displayName ??  
+            user?.displayName ??
 
-        "Guest"  
+            "Guest"
 
-    );  
-
-
-const title =  
-
-    document.getElementById(  
-
-        "hero-title"  
-
-    );  
+        );
 
 
-const description =  
+    const title =
 
-    document.getElementById(  
+        document.getElementById(
 
-        "hero-description"  
+            "hero-title"
 
-    );  
-
-
-const banner =  
-
-    document.getElementById(  
-
-        "hero-banner"  
-
-    );  
+        );
 
 
-if(  
+    const description =
 
-    title  
+        document.getElementById(
 
-){  
+            "hero-description"
 
-    title.innerHTML =  
-
-        `Halo, ${name} 👋`;  
-
-}  
+        );
 
 
-if(  
+    const banner =
 
-    description  
+        document.getElementById(
 
-){  
+            "hero-banner"
 
-    description.textContent =  
-
-        CONFIG.hero.description;  
-
-}  
+        );
 
 
-if(  
+    if(
 
-    banner  
+        title
 
-){  
+    ){
 
-    banner.src =  
+        title.innerHTML =
 
-        CONFIG.hero.image;  
+            `Halo, ${name} 👋`;
+
+    }
+
+
+    if(
+
+        description
+
+    ){
+
+        description.textContent =
+
+            CONFIG.hero.description;
+
+    }
+
+
+    if(
+
+        banner
+
+    ){
+
+        banner.src =
+
+            CONFIG.hero.image;
+
+    }
 
 }
 
-}
 
 /* =====================================================
    HOME SUMMARY
@@ -328,7 +346,7 @@ function renderHomeSummary(){
 
     /* =============================================
        SUMMARY DATA
-       Payroll diambil dari Summary
+       Payroll berasal dari Summary
     ============================================= */
 
     const summary =
@@ -338,26 +356,34 @@ function renderHomeSummary(){
 
     const period =
 
-        summary?.period ?? null;
+        summary?.period ??
+
+        null;
 
 
     const periodIncome =
 
         Number(
 
-            summary?.net ?? 0
+            summary?.net ??
+
+            0
 
         );
 
 
     /* =============================================
-       DATA HARIAN / MINGGUAN
-       Tetap menggunakan Process.data
+       DAILY / WEEKLY DATA
+
+       Data pekerjaan tetap berasal dari Process.
+       Tidak menggunakan Statistics.
     ============================================= */
 
     const data =
 
-        Process.data ?? [];
+        Process.data ??
+
+        [];
 
 
     /* =============================================
@@ -746,346 +772,229 @@ function renderHomeSummary(){
 
 }
 
-/* =====================================================
-GET CURRENT PAYROLL PERIOD
-===================================================== */
-
-function getCurrentPayrollPeriod(
-
-rules
-
-){
-
-if(  
-
-    !Array.isArray(rules)  
-
-){  
-
-    return null;  
-
-}  
-
-
-const salaryRule =  
-
-    rules.find(  
-
-        rule =>  
-
-            String(  
-
-                rule?.type_rule ?? ""  
-
-            )  
-
-            .trim()  
-
-            .toLowerCase()  
-
-            ===  
-
-            "rule_gaji"  
-
-    );  
-
-
-if(  
-
-    !salaryRule  
-
-){  
-
-    return null;  
-
-}  
-
-
-const start =  
-
-    parseLocalDate(  
-
-        salaryRule.periode_start  
-
-    );  
-
-
-const end =  
-
-    parseLocalDate(  
-
-        salaryRule.periode_end  
-
-    );  
-
-
-if(  
-
-    !start ||  
-
-    !end  
-
-){  
-
-    return null;  
-
-}  
-
-
-start.setHours(  
-
-    0,  
-
-    0,  
-
-    0,  
-
-    0  
-
-);  
-
-
-end.setHours(  
-
-    23,  
-
-    59,  
-
-    59,  
-
-    999  
-
-);  
-
-
-return {  
-
-    start,  
-
-    end  
-
-};
-
-}
 
 /* =====================================================
-GET ITEM DATE
+   GET ITEM DATE
 ===================================================== */
 
 function getItemDate(
 
-item
+    item
 
 ){
 
-if(  
+    if(
 
-    item?.dateObject instanceof Date  
+        item?.dateObject instanceof Date
 
-    &&  
+        &&
 
-    !Number.isNaN(  
+        !Number.isNaN(
 
-        item.dateObject.getTime()  
+            item.dateObject.getTime()
 
-    )  
+        )
 
-){  
+    ){
 
-    return item.dateObject;  
+        return item.dateObject;
 
-}  
+    }
 
 
-return parseLocalDate(  
+    return parseLocalDate(
 
-    item?.date ??  
+        item?.date ??
 
-    item?.tanggal  
+        item?.tanggal
 
-);
+    );
 
 }
 
+
 /* =====================================================
-PARSE LOCAL DATE
+   PARSE LOCAL DATE
 ===================================================== */
 
 function parseLocalDate(
 
-value
+    value
 
 ){
 
-if(  
+    if(
 
-    !value  
+        !value
 
-){  
+    ){
 
-    return null;  
+        return null;
 
-}  
-
-
-const parts =  
-
-    String(  
-
-        value  
-
-    )  
-
-    .split("-")  
-
-    .map(Number);  
+    }
 
 
-if(  
+    const parts =
 
-    parts.length !== 3  
+        String(
 
-){  
+            value
 
-    return null;  
+        )
 
-}  
+        .split("-")
 
-
-const [  
-
-    year,  
-
-    month,  
-
-    day  
-
-] = parts;  
+        .map(Number);
 
 
-const date =  
+    if(
 
-    new Date(  
+        parts.length !== 3
 
-        year,  
+    ){
 
-        month - 1,  
+        return null;
 
-        day  
-
-    );  
+    }
 
 
-return Number.isNaN(  
+    const [
 
-    date.getTime()  
+        year,
 
-)  
+        month,
 
-    ?  
+        day
 
-    null  
+    ] = parts;
 
-    :  
 
-    date;
+    const date =
+
+        new Date(
+
+            year,
+
+            month - 1,
+
+            day
+
+        );
+
+
+    return Number.isNaN(
+
+        date.getTime()
+
+    )
+
+        ?
+
+        null
+
+        :
+
+        date;
 
 }
 
+
 /* =====================================================
-GET INCOME
+   GET INCOME
 ===================================================== */
 
 function getIncome(
 
-item
+    item
 
 ){
 
-return toNumber(  
+    return toNumber(
 
-    item?.income ??  
+        item?.income ??
 
-    item?.pendapatan ??  
+        item?.pendapatan ??
 
-    item?.total ??  
+        item?.total ??
 
-    item?.amount ??  
+        item?.amount ??
 
-    0  
+        0
 
-);
+    );
 
 }
 
+
 /* =====================================================
-NUMBER
+   NUMBER
 ===================================================== */
 
 function toNumber(
 
-value
+    value
 
 ){
 
-const number =  
+    const number =
 
-    Number(  
+        Number(
 
-        value  
+            value
 
-    );  
+        );
 
 
-return Number.isFinite(  
+    return Number.isFinite(
 
-    number  
+        number
 
-)  
+    )
 
-    ?  
+        ?
 
-    number  
+        number
 
-    :  
+        :
 
-    0;
+        0;
 
 }
 
+
 /* =====================================================
-CAPITALIZE
+   CAPITALIZE
 ===================================================== */
 
 function capitalize(
 
-text
+    text
 
 ){
 
-if(  
+    if(
 
-    !text  
+        !text
 
-){  
+    ){
 
-    return "-";  
+        return "-";
 
-}  
+    }
 
 
-return String(  
+    return String(
 
-    text  
+        text
 
-).replace(  
+    ).replace(
 
-    /\b\w/g,  
+        /\b\w/g,
 
-    letter =>  
+        letter =>
 
-        letter.toUpperCase()  
+            letter.toUpperCase()
 
-);
+    );
 
 }
