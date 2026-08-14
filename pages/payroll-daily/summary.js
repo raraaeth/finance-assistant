@@ -1825,7 +1825,7 @@ function renderDeductions(
 
                 <div class="summary-payroll-row-value">
 
-                    ${
+                    -${
 
                         rupiah(
 
