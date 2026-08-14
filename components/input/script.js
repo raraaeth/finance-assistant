@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 2.0.0
+   Version      : 3.0.0
 
    Description :
    Global Input Controller
@@ -14,8 +14,9 @@
    - Init
    - Open
    - Close
-   - Workspace
-   - Form
+   - Flow
+   - Field
+   - Session
    - Helper
 ===================================================== */
 
@@ -57,14 +58,11 @@ const INPUT_CONFIG = {
 
 let initialized = false;
 
+let currentConfig = null;
 
-/* =====================================================
-   SESSION
-===================================================== */
+let currentStep = 0;
 
-let currentConfig =
-
-    null;
+let currentValues = {};
 
 
 /* =====================================================
@@ -90,10 +88,6 @@ export const Input = {
 
         }
 
-
-        /* =============================================
-           CHECK EXISTING
-        ============================================= */
 
         let input =
 
@@ -199,7 +193,7 @@ export const Input = {
 
 
         /* =============================================
-           CLOSE BUTTON
+           CLOSE
         ============================================= */
 
         const closeButton =
@@ -328,7 +322,7 @@ export const Input = {
 
 
         /* =============================================
-           GET WORKSPACE
+           WORKSPACE
         ============================================= */
 
         const workspace =
@@ -364,6 +358,15 @@ export const Input = {
 
 
         /* =============================================
+           RESET SESSION
+        ============================================= */
+
+        currentStep = 0;
+
+        currentValues = {};
+
+
+        /* =============================================
            SESSION
         ============================================= */
 
@@ -392,14 +395,17 @@ export const Input = {
 
 
         /* =============================================
-           FORM
+           RESET LIST
         ============================================= */
 
-        renderForm(
+        resetList();
 
-            config
 
-        );
+        /* =============================================
+           RENDER FIRST STEP
+        ============================================= */
+
+        renderCurrentStep();
 
 
         /* =============================================
@@ -464,6 +470,825 @@ export const Input = {
     }
 
 };
+
+
+/* =====================================================
+   CURRENT STEP
+===================================================== */
+
+function renderCurrentStep(){
+
+    const form =
+
+        document.getElementById(
+
+            "global-input-form"
+
+        );
+
+
+    if(
+
+        !form
+
+    ){
+
+        return;
+
+    }
+
+
+    form.innerHTML = "";
+
+
+    const steps =
+
+        currentConfig?.steps ??
+
+        [];
+
+
+    /* =============================================
+       FIND NEXT VISIBLE STEP
+    ============================================= */
+
+    let step =
+
+        steps[currentStep];
+
+
+    while(
+
+        step
+
+        &&
+
+        !shouldShow(
+
+            step
+
+        )
+
+    ){
+
+        currentStep++;
+
+        step =
+
+            steps[currentStep];
+
+    }
+
+
+    /* =============================================
+       COMPLETE
+    ============================================= */
+
+    if(
+
+        !step
+
+    ){
+
+        finishInput();
+
+        return;
+
+    }
+
+
+    renderField(
+
+        form,
+
+        step
+
+    );
+
+}
+
+
+/* =====================================================
+   SHOULD SHOW
+===================================================== */
+
+function shouldShow(
+
+    field
+
+){
+
+    if(
+
+        typeof field.showWhen !==
+
+        "function"
+
+    ){
+
+        return true;
+
+    }
+
+
+    return field.showWhen(
+
+        currentValues
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER FIELD
+===================================================== */
+
+function renderField(
+
+    container,
+
+    field
+
+){
+
+    const wrapper =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    wrapper.className =
+
+        "global-input-field";
+
+
+    const label =
+
+        document.createElement(
+
+            "label"
+
+        );
+
+
+    label.textContent =
+
+        field.label;
+
+
+    wrapper.appendChild(
+
+        label
+
+    );
+
+
+    let element;
+
+
+    /* =============================================
+       SELECT
+    ============================================= */
+
+    if(
+
+        field.type ===
+
+        "select"
+
+    ){
+
+        element =
+
+            document.createElement(
+
+                "select"
+
+            );
+
+
+        const placeholder =
+
+            document.createElement(
+
+                "option"
+
+            );
+
+
+        placeholder.value =
+
+            "";
+
+
+        placeholder.textContent =
+
+            "Pilih...";
+
+
+        placeholder.disabled =
+
+            true;
+
+
+        placeholder.selected =
+
+            true;
+
+
+        element.appendChild(
+
+            placeholder
+
+        );
+
+
+        const options =
+
+            typeof field.options ===
+
+            "function"
+
+                ?
+
+                field.options(
+
+                    currentValues
+
+                )
+
+                :
+
+                (
+
+                    field.options ??
+
+                    []
+
+                );
+
+
+        options.forEach(
+
+            option => {
+
+                const item =
+
+                    document.createElement(
+
+                        "option"
+
+                    );
+
+
+                item.value =
+
+                    option.value;
+
+
+                item.textContent =
+
+                    option.label;
+
+
+                element.appendChild(
+
+                    item
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    /* =============================================
+       INPUT
+    ============================================= */
+
+    else{
+
+        element =
+
+            document.createElement(
+
+                "input"
+
+            );
+
+
+        element.type =
+
+            field.type ??
+
+            "text";
+
+
+        if(
+
+            field.placeholder
+
+        ){
+
+            element.placeholder =
+
+                field.placeholder;
+
+        }
+
+    }
+
+
+    element.dataset.field =
+
+        field.id;
+
+
+    wrapper.appendChild(
+
+        element
+
+    );
+
+
+    container.appendChild(
+
+        wrapper
+
+    );
+
+
+    /* =============================================
+       EVENT
+    ============================================= */
+
+    element.addEventListener(
+
+        "change",
+
+        () => {
+
+            handleField(
+
+                field,
+
+                element
+
+            );
+
+        }
+
+    );
+
+
+    element.addEventListener(
+
+        "keydown",
+
+        event => {
+
+            if(
+
+                event.key === "Enter"
+
+            ){
+
+                event.preventDefault();
+
+                handleField(
+
+                    field,
+
+                    element
+
+                );
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       FOCUS
+    ============================================= */
+
+    requestAnimationFrame(
+
+        () => {
+
+            element.focus();
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   HANDLE FIELD
+===================================================== */
+
+function handleField(
+
+    field,
+
+    element
+
+){
+
+    const value =
+
+        element.value.trim();
+
+
+    /* =============================================
+       VALIDATION
+    ============================================= */
+
+    if(
+
+        !value
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       SAVE VALUE
+    ============================================= */
+
+    currentValues[
+
+        field.id
+
+    ] =
+
+        value;
+
+
+    console.log(
+
+        "Input:",
+
+        field.id,
+
+        value
+
+    );
+
+
+    /* =============================================
+       NEXT STEP
+    ============================================= */
+
+    currentStep++;
+
+    renderCurrentStep();
+
+}
+
+
+/* =====================================================
+   FINISH INPUT
+===================================================== */
+
+function finishInput(){
+
+    console.log(
+
+        "Input selesai:",
+
+        currentValues
+
+    );
+
+
+    renderInputPreview();
+
+}
+
+
+/* =====================================================
+   INPUT PREVIEW
+===================================================== */
+
+function renderInputPreview(){
+
+    const form =
+
+        document.getElementById(
+
+            "global-input-form"
+
+        );
+
+
+    if(
+
+        form
+
+    ){
+
+        form.innerHTML =
+
+        `
+
+            <div class="global-input-field">
+
+                <strong>
+
+                    Input selesai
+
+                </strong>
+
+            </div>
+
+        `;
+
+    }
+
+
+    const listSection =
+
+        document.getElementById(
+
+            "global-input-list-section"
+
+        );
+
+
+    const list =
+
+        document.getElementById(
+
+            "global-input-list"
+
+        );
+
+
+    const count =
+
+        document.getElementById(
+
+            "global-input-count"
+
+        );
+
+
+    if(
+
+        listSection
+
+    ){
+
+        listSection.style.display =
+
+            "block";
+
+    }
+
+
+    if(
+
+        list
+
+    ){
+
+        list.innerHTML =
+
+            `
+
+                <div class="global-input-list-item">
+
+                    <strong>
+
+                        ${
+
+                            formatWorkspace(
+
+                                currentConfig.workspace
+
+                            )
+
+                        }
+
+                    </strong>
+
+                    <br>
+
+                    ${
+
+                        formatValue(
+
+                            currentValues.type
+
+                        )
+
+                    }
+
+                    <br>
+
+                    ${
+
+                        currentValues.member ??
+
+                        "-"
+
+                    }
+
+                    <br>
+
+                    Rp${
+
+                        Number(
+
+                            currentValues.amount
+
+                        ).toLocaleString(
+
+                            "id-ID"
+
+                        )
+
+                    }
+
+                </div>
+
+            `;
+
+    }
+
+
+    if(
+
+        count
+
+    ){
+
+        count.textContent =
+
+            "1";
+
+    }
+
+}
+
+
+/* =====================================================
+   RESET LIST
+===================================================== */
+
+function resetList(){
+
+    const listSection =
+
+        document.getElementById(
+
+            "global-input-list-section"
+
+        );
+
+
+    const list =
+
+        document.getElementById(
+
+            "global-input-list"
+
+        );
+
+
+    const count =
+
+        document.getElementById(
+
+            "global-input-count"
+
+        );
+
+
+    if(
+
+        listSection
+
+    ){
+
+        listSection.style.display =
+
+            "none";
+
+    }
+
+
+    if(
+
+        list
+
+    ){
+
+        list.innerHTML = "";
+
+    }
+
+
+    if(
+
+        count
+
+    ){
+
+        count.textContent =
+
+            "0";
+
+    }
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+function renderDate(){
+
+    const element =
+
+        document.getElementById(
+
+            "global-input-date"
+
+        );
+
+
+    if(
+
+        !element
+
+    ){
+
+        return;
+
+    }
+
+
+    const today =
+
+        new Date();
+
+
+    const year =
+
+        today.getFullYear();
+
+
+    const month =
+
+        String(
+
+            today.getMonth() + 1
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        );
+
+
+    const day =
+
+        String(
+
+            today.getDate()
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        );
+
+
+    element.value =
+
+        `${year}-${month}-${day}`;
+
+}
 
 
 /* =====================================================
@@ -547,22 +1372,19 @@ function renderWorkspace(
 
     if(
 
-        !element
+        element
 
     ){
 
-        return;
+        element.textContent =
+
+            formatWorkspace(
+
+                workspace
+
+            );
 
     }
-
-
-    element.textContent =
-
-        formatWorkspace(
-
-            workspace
-
-        );
 
 }
 
@@ -588,357 +1410,19 @@ function renderId(
 
     if(
 
-        !element
+        element
 
     ){
 
-        return;
+        element.textContent =
 
-    }
+            generateId(
 
-
-    element.textContent =
-
-        generateId(
-
-            workspace
-
-        );
-
-}
-
-
-/* =====================================================
-   DATE
-===================================================== */
-
-function renderDate(){
-
-    const element =
-
-        document.getElementById(
-
-            "global-input-date"
-
-        );
-
-
-    if(
-
-        !element
-
-    ){
-
-        return;
-
-    }
-
-
-    const today =
-
-        new Date();
-
-
-    const year =
-
-        today.getFullYear();
-
-
-    const month =
-
-        String(
-
-            today.getMonth() + 1
-
-        ).padStart(
-
-            2,
-
-            "0"
-
-        );
-
-
-    const day =
-
-        String(
-
-            today.getDate()
-
-        ).padStart(
-
-            2,
-
-            "0"
-
-        );
-
-
-    element.value =
-
-        `${year}-${month}-${day}`;
-
-}
-
-
-/* =====================================================
-   FORM
-===================================================== */
-
-function renderForm(
-
-    config
-
-){
-
-    const form =
-
-        document.getElementById(
-
-            "global-input-form"
-
-        );
-
-
-    if(
-
-        !form
-
-    ){
-
-        return;
-
-    }
-
-
-    form.innerHTML = "";
-
-
-    const fields =
-
-        config.fields ??
-
-        [];
-
-
-    fields.forEach(
-
-        field => {
-
-            renderField(
-
-                form,
-
-                field
+                workspace
 
             );
 
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   FIELD
-===================================================== */
-
-function renderField(
-
-    container,
-
-    field
-
-){
-
-    const wrapper =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    wrapper.className =
-
-        "global-input-field";
-
-
-    const label =
-
-        document.createElement(
-
-            "label"
-
-        );
-
-
-    label.textContent =
-
-        field.label;
-
-
-    wrapper.appendChild(
-
-        label
-
-    );
-
-
-    /* =============================================
-       SELECT
-    ============================================= */
-
-    if(
-
-        field.type ===
-
-        "select"
-
-    ){
-
-        const select =
-
-            document.createElement(
-
-                "select"
-
-            );
-
-
-        select.dataset.field =
-
-            field.id;
-
-
-        const placeholder =
-
-            document.createElement(
-
-                "option"
-
-            );
-
-
-        placeholder.value =
-
-            "";
-
-
-        placeholder.textContent =
-
-            "Pilih...";
-
-
-        placeholder.disabled =
-
-            true;
-
-
-        placeholder.selected =
-
-            true;
-
-
-        select.appendChild(
-
-            placeholder
-
-        );
-
-
-        (
-
-            field.options ??
-
-            []
-
-        ).forEach(
-
-            option => {
-
-                const item =
-
-                    document.createElement(
-
-                        "option"
-
-                    );
-
-
-                item.value =
-
-                    option.value;
-
-
-                item.textContent =
-
-                    option.label;
-
-
-                select.appendChild(
-
-                    item
-
-                );
-
-            }
-
-        );
-
-
-        wrapper.appendChild(
-
-            select
-
-        );
-
     }
-
-
-    /* =============================================
-       INPUT
-    ============================================= */
-
-    else{
-
-        const input =
-
-            document.createElement(
-
-                "input"
-
-            );
-
-
-        input.type =
-
-            field.type ??
-
-            "text";
-
-
-        input.dataset.field =
-
-            field.id;
-
-
-        wrapper.appendChild(
-
-            input
-
-        );
-
-    }
-
-
-    container.appendChild(
-
-        wrapper
-
-    );
 
 }
 
@@ -1061,7 +1545,7 @@ function getPrefix(
 
 
 /* =====================================================
-   WORKSPACE NAME
+   FORMAT WORKSPACE
 ===================================================== */
 
 function formatWorkspace(
@@ -1107,4 +1591,39 @@ function formatWorkspace(
 
     }
 
-            }
+}
+
+
+/* =====================================================
+   FORMAT VALUE
+===================================================== */
+
+function formatValue(
+
+    value
+
+){
+
+    switch(
+
+        value
+
+    ){
+
+        case "masuk":
+
+            return "💰 Masuk";
+
+
+        case "keluar":
+
+            return "💸 Keluar";
+
+
+        default:
+
+            return value ?? "-";
+
+    }
+
+}
