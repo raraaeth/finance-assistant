@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Summary
    File        : summary.js
-   Version     : 1.2.0
+   Version     : 2.0.0
 
    Description :
    Payroll Daily Salary Summary
@@ -21,6 +21,11 @@
    Sections :
    - Last Completed Period
    - Current Salary Period
+
+   Navigation :
+   - Back / Next menggunakan periodOffset
+   - Global event delegation
+   - Mengikuti pola Payroll Monthly
 ===================================================== */
 
 
@@ -33,6 +38,13 @@ import {
     Process
 
 } from "./process.js";
+
+
+import {
+
+    Overlay
+
+} from "../../components/overlay/script.js";
 
 
 import {
@@ -52,7 +64,11 @@ export const Summary = {
 
     current : null,
 
-    previous : null
+    previous : null,
+
+    periodOffset : -1,
+
+    initialized : false
 
 };
 
@@ -63,13 +79,32 @@ export const Summary = {
 
 Summary.init = function(){
 
+    if(
+
+        Summary.initialized
+
+    ){
+
+        return;
+
+    }
+
+
+    Summary.initialized = true;
+
+
     /* =============================================
        HIDE GLOBAL SUMMARY SECTIONS
-       Payroll Daily hanya menggunakan
-       section payroll khusus.
     ============================================= */
 
     hideDefaultSections();
+
+
+    /* =============================================
+       RESET NAVIGATION
+    ============================================= */
+
+    Summary.periodOffset = -1;
 
 
     /* =============================================
@@ -81,19 +116,6 @@ Summary.init = function(){
         Process.getCurrentPeriod();
 
 
-    /* =============================================
-       PREVIOUS PERIOD
-    ============================================= */
-
-    const previousPeriod =
-
-        Process.getPreviousPeriod();
-
-
-    /* =============================================
-       BUILD VIEW DATA
-    ============================================= */
-
     Summary.current =
 
         buildSummary(
@@ -103,13 +125,13 @@ Summary.init = function(){
         );
 
 
+    /* =============================================
+       PREVIOUS PERIOD
+    ============================================= */
+
     Summary.previous =
 
-        buildSummary(
-
-            previousPeriod
-
-        );
+        buildPreviousSummary();
 
 
     /* =============================================
@@ -122,10 +144,10 @@ Summary.init = function(){
 
 
     /* =============================================
-       OVERLAY
+       EVENTS
     ============================================= */
 
-    setupOverlay();
+    setupEvents();
 
 };
 
@@ -136,52 +158,113 @@ Summary.init = function(){
 
 function hideDefaultSections(){
 
-    const overview =
+    [
 
-        document.getElementById(
+        "summary-overview",
 
-            "summary-overview"
+        "summary-debt",
 
-        );
+        "summary-distribution"
+
+    ].forEach(
+
+        id => {
+
+            const section =
+
+                document.getElementById(
+
+                    id
+
+                );
 
 
-    const distribution =
+            if(
 
-        document.getElementById(
+                section
 
-            "summary-distribution"
+            ){
 
-        );
+                section.classList.add(
+
+                    "hidden"
+
+                );
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   BUILD PREVIOUS SUMMARY
+===================================================== */
+
+function buildPreviousSummary(){
+
+    const currentPeriod =
+
+        Process.getCurrentPeriod();
 
 
     if(
 
-        overview
+        !currentPeriod
 
     ){
 
-        overview.classList.add(
-
-            "hidden"
-
-        );
+        return emptySummary();
 
     }
 
 
-    if(
+    const start =
 
-        distribution
+        new Date(
 
-    ){
-
-        distribution.classList.add(
-
-            "hidden"
+            currentPeriod.start
 
         );
 
-    }
+
+    const end =
+
+        new Date(
+
+            currentPeriod.end
+
+        );
+
+
+    start.setMonth(
+
+        start.getMonth() -
+
+        1
+
+    );
+
+
+    end.setMonth(
+
+        end.getMonth() -
+
+        1
+
+    );
+
+
+    return buildSummary({
+
+        start,
+
+        end
+
+    });
 
 }
 
@@ -945,10 +1028,6 @@ function renderLastPeriod(){
     }
 
 
-    /* =============================================
-       SECTION AKTIF
-    ============================================= */
-
     section.classList.remove(
 
         "hidden"
@@ -961,13 +1040,11 @@ function renderLastPeriod(){
         Summary.previous;
 
 
-    /* =============================================
-       DATA TIDAK TERSEDIA
-    ============================================= */
-
     if(
 
-        !result ||
+        !result
+
+        ||
 
         !result.period
 
@@ -988,15 +1065,10 @@ function renderLastPeriod(){
     }
 
 
-    /* =============================================
-       CARD RINGKAS
-       
-       HANYA :
-       - Periode
-       - Gaji bersih
-       - Navigasi
-       - Tombol rincian
-    ============================================= */
+    const canNext =
+
+        Summary.periodOffset < -1;
+
 
     card.innerHTML = `
 
@@ -1079,9 +1151,29 @@ function renderLastPeriod(){
 
                     type="button"
 
-                    class="summary-payroll-nav disabled"
+                    class="summary-payroll-nav
+
+                        ${
+
+                            canNext
+
+                                ? ""
+
+                                : "disabled"
+
+                        }"
 
                     id="summary-payroll-last-next"
+
+                    ${
+
+                        canNext
+
+                            ? ""
+
+                            : "disabled"
+
+                    }
 
                 >
 
@@ -1116,171 +1208,8 @@ function renderLastPeriod(){
 
     `;
 
-
-    /* =============================================
-       DETAIL BUTTON
-    ============================================= */
-
-    const detailButton =
-
-        document.getElementById(
-
-            "summary-payroll-last-detail"
-
-        );
-
-
-    if(
-
-        detailButton
-
-    ){
-
-        detailButton.addEventListener(
-
-            "click",
-
-            () => {
-
-                openOverlay(
-
-                    result
-
-                );
-
-            }
-
-        );
-
-    }
-
-        /* =============================================
-       BACK BUTTON
-       Mundur berdasarkan periode yang sedang tampil
-    ============================================= */
-
-    const backButton =
-
-        document.getElementById(
-
-            "summary-payroll-last-back"
-
-        );
-
-
-    if(
-
-        backButton
-
-    ){
-
-        backButton.addEventListener(
-
-            "click",
-
-            () => {
-
-                const currentPeriod =
-
-                    Summary.previous?.period;
-
-
-                if(
-
-                    !currentPeriod
-
-                ){
-
-                    return;
-
-                }
-
-
-                const start =
-
-                    new Date(
-
-                        currentPeriod.start
-
-                    );
-
-
-                /* -------------------------------------
-                   Mundur 1 bulan
-                   Contoh:
-
-                   28 Jul → 28 Jun
-                   28 Jun → 28 Mei
-                ------------------------------------- */
-
-                const previousStart =
-
-                    new Date(
-
-                        start.getFullYear(),
-
-                        start.getMonth() - 1,
-
-                        start.getDate()
-
-                    );
-
-
-                /* -------------------------------------
-                   End = sehari sebelum start
-                   periode berikutnya
-
-                   28 Jun → 27 Jul
-                   28 Mei → 27 Jun
-                ------------------------------------- */
-
-                const previousEnd =
-
-                    new Date(
-
-                        start.getFullYear(),
-
-                        start.getMonth(),
-
-                        start.getDate() - 1
-
-                    );
-
-
-                const previousPeriod = {
-
-                    start :
-
-                        previousStart,
-
-                    end :
-
-                        previousEnd
-
-                };
-
-
-                Summary.previous =
-
-                    buildSummary(
-
-                        previousPeriod
-
-                    );
-
-
-                renderLastPeriod();
-
-            }
-
-        );
-
-    }
-        
-
 }
 
-                    
 
 /* =====================================================
    RENDER CURRENT PERIOD
@@ -1619,7 +1548,7 @@ function renderCurrentDetail(
 
 
             <!-- =====================================
-                 TOTAL / NET
+                 FINAL NET
             ====================================== -->
 
             <div class="summary-payroll-net-row summary-payroll-net-final">
@@ -1976,138 +1905,117 @@ function buildWorkName(
 
 
 /* =====================================================
-   OVERLAY SETUP
+   GLOBAL EVENTS
 ===================================================== */
 
-function setupOverlay(){
+function setupEvents(){
 
-    const overlay =
+    document.addEventListener(
 
-        document.getElementById(
+        "click",
 
-            "summary-payroll-overlay"
-
-        );
+        event => {
 
 
-    if(
+            /* =====================================
+               BACK
+            ===================================== */
 
-        !overlay
+            if(
 
-    ){
+                event.target.closest(
 
-        return;
+                    "#summary-payroll-last-back"
 
-    }
+                )
 
+            ){
 
-    const closeButton =
+                changePeriod(
 
-        document.getElementById(
+                    -1
 
-            "summary-payroll-overlay-close"
+                );
 
-        );
+                return;
 
-
-    const backdrop =
-
-        overlay.querySelector(
-
-            "[data-close-payroll-overlay]"
-
-        );
+            }
 
 
-    if(
+            /* =====================================
+               NEXT
+            ===================================== */
 
-        closeButton
+            if(
 
-    ){
+                event.target.closest(
 
-        closeButton.addEventListener(
+                    "#summary-payroll-last-next"
 
-            "click",
+                )
 
-            closeOverlay
+            ){
 
-        );
+                changePeriod(
 
-    }
+                    1
+
+                );
+
+                return;
+
+            }
 
 
-    if(
+            /* =====================================
+               DETAIL
+            ===================================== */
 
-        backdrop
+            if(
 
-    ){
+                event.target.closest(
 
-        backdrop.addEventListener(
+                    "#summary-payroll-last-detail"
 
-            "click",
+                )
 
-            closeOverlay
+            ){
 
-        );
+                openDetailOverlay();
 
-    }
+            }
+
+        }
+
+    );
 
 }
 
 
 /* =====================================================
-   OPEN OVERLAY
+   CHANGE PERIOD
 ===================================================== */
 
-function openOverlay(
+function changePeriod(
 
-    result
+    direction
 
 ){
 
-    const overlay =
+    const newOffset =
 
-        document.getElementById(
+        Summary.periodOffset +
 
-            "summary-payroll-overlay"
-
-        );
+        direction;
 
 
-    const title =
-
-        document.getElementById(
-
-            "summary-payroll-overlay-title"
-
-        );
-
-
-    const period =
-
-        document.getElementById(
-
-            "summary-payroll-overlay-period"
-
-        );
-
-
-    const content =
-
-        document.getElementById(
-
-            "summary-payroll-overlay-content"
-
-        );
-
+    /* =============================================
+       TIDAK BOLEH MASUK CURRENT PERIOD
+    ============================================= */
 
     if(
 
-        !overlay ||
-
-        !content ||
-
-        !result
+        newOffset >= 0
 
     ){
 
@@ -2116,26 +2024,435 @@ function openOverlay(
     }
 
 
+    const base =
+
+        Process.getCurrentPeriod();
+
+
     if(
 
-        title
+        !base
 
     ){
 
-        title.textContent =
-
-            "Rincian Gaji";
+        return;
 
     }
 
 
+    const start =
+
+        new Date(
+
+            base.start
+
+        );
+
+
+    const end =
+
+        new Date(
+
+            base.end
+
+        );
+
+
+    start.setMonth(
+
+        start.getMonth() +
+
+        newOffset
+
+    );
+
+
+    end.setMonth(
+
+        end.getMonth() +
+
+        newOffset
+
+    );
+
+
+    Summary.periodOffset =
+
+        newOffset;
+
+
+    Summary.previous =
+
+        buildSummary({
+
+            start,
+
+            end
+
+        });
+
+
+    renderLastPeriod();
+
+}
+
+
+/* =====================================================
+   OPEN DETAIL OVERLAY
+===================================================== */
+
+function openDetailOverlay(){
+
+    const result =
+
+        Summary.previous;
+
+
     if(
 
-        period
+        !result
+
+        ||
+
+        !result.period
 
     ){
 
-        period.textContent =
+        return;
+
+    }
+
+
+    const rows = [];
+
+
+    /* =============================================
+       WORK
+    ============================================= */
+
+    rows.push(
+
+        `
+
+        <div class="global-overlay-subtitle">
+
+            🏭 Rincian Pekerjaan
+
+        </div>
+
+        `
+
+    );
+
+
+    result.work.items.forEach(
+
+        item => {
+
+            rows.push(
+
+                overlayRow(
+
+                    `${
+
+                        buildWorkName(
+
+                            item
+
+                        )
+
+                    } ${
+
+                        item.qty
+
+                    } pcs`,
+
+                    rupiah(
+
+                        item.total
+
+                    )
+
+                )
+
+            );
+
+        }
+
+    );
+
+
+    rows.push(
+
+        overlayRow(
+
+            "Total Pekerjaan",
+
+            rupiah(
+
+                result.work.total
+
+            )
+
+        )
+
+    );
+
+
+    /* =============================================
+       ADDITIONS
+    ============================================= */
+
+    rows.push(
+
+        `
+
+        <div class="global-overlay-divider"></div>
+
+        <div class="global-overlay-subtitle">
+
+            ➕
+
+            Penambahan
+
+        </div>
+
+        `
+
+    );
+
+
+    if(
+
+        result.additions.items.length
+
+    ){
+
+        result.additions.items.forEach(
+
+            item => {
+
+                rows.push(
+
+                    overlayRow(
+
+                        `${
+
+                            capitalize(
+
+                                item.nama
+
+                            )
+
+                        } ${
+
+                            item.qty
+
+                        } hari`,
+
+                        rupiah(
+
+                            item.total
+
+                        )
+
+                    )
+
+                );
+
+            }
+
+        );
+
+    }
+
+    else {
+
+        rows.push(
+
+            `
+
+            <div class="global-overlay-empty">
+
+                Tidak ada penambahan.
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    rows.push(
+
+        overlayRow(
+
+            "Total Penambahan",
+
+            rupiah(
+
+                result.additions.total
+
+            )
+
+        )
+
+    );
+
+
+    /* =============================================
+       DEDUCTIONS
+    ============================================= */
+
+    rows.push(
+
+        `
+
+        <div class="global-overlay-divider"></div>
+
+        <div class="global-overlay-subtitle">
+
+            ➖
+
+            Potongan
+
+        </div>
+
+        `
+
+    );
+
+
+    if(
+
+        result.deductions.items.length
+
+    ){
+
+        result.deductions.items.forEach(
+
+            item => {
+
+                rows.push(
+
+                    overlayRow(
+
+                        capitalize(
+
+                            item.nama
+
+                        ),
+
+                        `-${
+
+                            rupiah(
+
+                                item.total
+
+                            )
+
+                        }`
+
+                    )
+
+                );
+
+            }
+
+        );
+
+    }
+
+    else {
+
+        rows.push(
+
+            `
+
+            <div class="global-overlay-empty">
+
+                Tidak ada potongan.
+
+            </div>
+
+            `
+
+        );
+
+    }
+
+
+    rows.push(
+
+        overlayRow(
+
+            "Total Potongan",
+
+            `-${
+
+                rupiah(
+
+                    result.deductionTotal
+
+                )
+
+            }`
+
+        )
+
+    );
+
+
+    /* =============================================
+       NET
+    ============================================= */
+
+    rows.push(
+
+        `
+
+        <div class="global-overlay-divider"></div>
+
+
+        <div class="global-overlay-row global-overlay-total">
+
+            <span>
+
+                Gaji Bersih
+
+            </span>
+
+
+            <strong>
+
+                ${
+
+                    rupiah(
+
+                        result.net
+
+                    )
+
+                }
+
+            </strong>
+
+        </div>
+
+        `
+
+    );
+
+
+    Overlay.open({
+
+        title :
+
+            "Rincian Gaji",
+
+        period :
 
             formatDate(
 
@@ -2153,240 +2470,53 @@ function openOverlay(
 
                 result.period.end
 
-            );
+            ),
 
-    }
+        userName :
 
+            getAppUserName(),
 
-    content.innerHTML =
+        content :
 
-        renderDetailContent(
+            rows.join("")
 
-            result
-
-        );
-
-
-    overlay.classList.remove(
-
-        "hidden"
-
-    );
+    });
 
 }
 
 
 /* =====================================================
-   DETAIL OVERLAY CONTENT
+   OVERLAY ROW
 ===================================================== */
 
-function renderDetailContent(
+function overlayRow(
 
-    result
+    label,
+
+    value
 
 ){
 
     return `
 
-        <div class="summary-payroll-overlay-total">
+        <div class="global-overlay-row">
 
-            Gaji Bersih
-
-            <strong>
+            <span>
 
                 ${
 
-                    rupiah(
-
-                        result.net
-
-                    )
+                    label
 
                 }
 
-            </strong>
-
-        </div>
-
-
-        <div class="summary-payroll-divider"></div>
-
-
-        <div class="summary-payroll-group">
-
-            <div class="summary-payroll-group-title">
-
-                🏭 Rincian Pekerjaan
-
-            </div>
-
-
-            ${
-
-                renderWork(
-
-                    result.work.items
-
-                )
-
-            }
-
-
-            <div class="summary-payroll-subtotal">
-
-                <span>
-
-                    Total Pekerjaan
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        rupiah(
-
-                            result.work.total
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="summary-payroll-divider"></div>
-
-
-        <div class="summary-payroll-group">
-
-            <div class="summary-payroll-group-title">
-
-                ➕
-
-                Penambahan
-
-            </div>
-
-
-            ${
-
-                renderAdditions(
-
-                    result.additions.items
-
-                )
-
-            }
-
-
-            <div class="summary-payroll-subtotal">
-
-                <span>
-
-                    Total Penambahan
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        rupiah(
-
-                            result.additions.total
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="summary-payroll-divider"></div>
-
-
-        <div class="summary-payroll-group">
-
-            <div class="summary-payroll-group-title">
-
-                ➖
-
-                Potongan
-
-            </div>
-
-
-            ${
-
-                renderDeductions(
-
-                    result.deductions.items
-
-                )
-
-            }
-
-
-            <div class="summary-payroll-subtotal">
-
-                <span>
-
-                    Total Potongan
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        rupiah(
-
-                            result.deductionTotal
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="summary-payroll-divider"></div>
-
-
-        <div class="summary-payroll-net-row">
-
-            <strong>
-
-                Gaji Bersih
-
-            </strong>
+            </span>
 
 
             <strong>
 
                 ${
 
-                    rupiah(
-
-                        result.net
-
-                    )
+                    value
 
                 }
 
@@ -2400,33 +2530,36 @@ function renderDetailContent(
 
 
 /* =====================================================
-   CLOSE OVERLAY
+   USER NAME
 ===================================================== */
 
-function closeOverlay(){
+function getAppUserName(){
 
-    const overlay =
+    return (
 
-        document.getElementById(
+        window.currentUser?.displayName ??
 
-            "summary-payroll-overlay"
+        window.currentUser?.name ??
 
-        );
+        window.user?.displayName ??
 
+        window.user?.name ??
 
-    if(
+        localStorage.getItem(
 
-        overlay
+            "displayName"
 
-    ){
+        ) ??
 
-        overlay.classList.add(
+        localStorage.getItem(
 
-            "hidden"
+            "userName"
 
-        );
+        ) ??
 
-    }
+        "Finance User"
+
+    );
 
 }
 
@@ -2455,7 +2588,11 @@ function getDate(
 
     ){
 
-        return item.dateObject;
+        return new Date(
+
+            item.dateObject
+
+        );
 
     }
 
@@ -2639,15 +2776,32 @@ function parseDateKey(
     ] = parts;
 
 
-    return new Date(
+    const date =
 
-        year,
+        new Date(
 
-        month - 1,
+            year,
 
-        day
+            month - 1,
 
-    );
+            day
+
+        );
+
+
+    return Number.isNaN(
+
+        date.getTime()
+
+    )
+
+        ?
+
+        null
+
+        :
+
+        date;
 
 }
 
