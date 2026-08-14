@@ -87,9 +87,9 @@ import {
 
 import {
 
-    Summary
+    Statistics
 
-} from "./summary.js";
+} from "./statistics.js";
 
 
 import {
