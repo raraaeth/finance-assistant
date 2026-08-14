@@ -3,13 +3,12 @@
    Global Component
    Module      : Input
    File        : input.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Global Input Controller
 
    Sections :
-   - Import
    - State
    - Init
    - Open
@@ -92,15 +91,11 @@ Input.open = function(){
     }
 
 
-    /* =============================================
-       RESET SESSION
-    ============================================= */
-
     resetSession();
 
 
     /* =============================================
-       LOAD WORKSPACE
+       WORKSPACE
     ============================================= */
 
     const workspace =
@@ -116,7 +111,7 @@ Input.open = function(){
 
 
     /* =============================================
-       RENDER SESSION
+       SESSION
     ============================================= */
 
     renderWorkspace();
@@ -178,7 +173,7 @@ Input.close = function(){
 
 
 /* =====================================================
-   RESET SESSION
+   RESET
 ===================================================== */
 
 function resetSession(){
@@ -192,26 +187,6 @@ function resetSession(){
     Input.items = [];
 
     Input.current = {};
-
-
-    const list =
-
-        document.getElementById(
-
-            "global-input-list"
-
-        );
-
-
-    if(
-
-        list
-
-    ){
-
-        list.innerHTML = "";
-
-    }
 
 
     const form =
@@ -234,35 +209,55 @@ function resetSession(){
     }
 
 
-    hideElement(
+    const list =
+
+        document.getElementById(
+
+            "global-input-list"
+
+        );
+
+
+    if(
+
+        list
+
+    ){
+
+        list.innerHTML = "";
+
+    }
+
+
+    hide(
 
         "global-input-action"
 
     );
 
 
-    hideElement(
+    hide(
 
         "global-input-list-section"
 
     );
 
 
-    hideElement(
+    hide(
 
         "global-input-footer"
 
     );
 
 
-    showElement(
+    show(
 
         "global-input-date"
 
     );
 
 
-    hideElement(
+    hide(
 
         "global-input-date-locked"
 
@@ -458,89 +453,6 @@ function setDefaultDate(){
 
 
 /* =====================================================
-   LOCK DATE
-===================================================== */
-
-function lockDate(){
-
-    const input =
-
-        document.getElementById(
-
-            "global-input-date"
-
-        );
-
-
-    const locked =
-
-        document.getElementById(
-
-            "global-input-date-locked"
-
-        );
-
-
-    const lockedDate =
-
-        document.getElementById(
-
-            "global-input-locked-date"
-
-        );
-
-
-    if(
-
-        !input ||
-
-        !locked ||
-
-        !lockedDate
-
-    ){
-
-        return;
-
-    }
-
-
-    Input.sessionDate =
-
-        input.value;
-
-
-    Input.dateLocked =
-
-        true;
-
-
-    input.classList.add(
-
-        "hidden"
-
-    );
-
-
-    locked.classList.remove(
-
-        "hidden"
-
-    );
-
-
-    lockedDate.textContent =
-
-        formatDate(
-
-            Input.sessionDate
-
-        );
-
-}
-
-
-/* =====================================================
    EVENTS
 ===================================================== */
 
@@ -691,7 +603,7 @@ function getPrefix(
 
 
 /* =====================================================
-   FORMAT WORKSPACE
+   WORKSPACE NAME
 ===================================================== */
 
 function formatWorkspace(
@@ -799,7 +711,7 @@ function formatDate(
    SHOW
 ===================================================== */
 
-function showElement(
+function show(
 
     id
 
@@ -835,7 +747,7 @@ function showElement(
    HIDE
 ===================================================== */
 
-function hideElement(
+function hide(
 
     id
 
