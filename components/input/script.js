@@ -2,21 +2,20 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
-   Reusable Global Input Controller
-
-   Direction :
-   Right → Left
+   Global Input Controller
 
    Sections :
+   - Import
    - State
-   - Input
+   - Config
    - Init
    - Open
    - Close
-   - Session
+   - Workspace
+   - Form
    - Helper
 ===================================================== */
 
@@ -32,11 +31,40 @@ import {
 } from "../../js/storage.js";
 
 
+import {
+
+    Kas
+
+} from "./kas.js";
+
+
+/* =====================================================
+   CONFIG
+===================================================== */
+
+const INPUT_CONFIG = {
+
+    kas :
+
+        Kas
+
+};
+
+
 /* =====================================================
    STATE
 ===================================================== */
 
 let initialized = false;
+
+
+/* =====================================================
+   SESSION
+===================================================== */
+
+let currentConfig =
+
+    null;
 
 
 /* =====================================================
@@ -300,14 +328,78 @@ export const Input = {
 
 
         /* =============================================
+           GET WORKSPACE
+        ============================================= */
+
+        const workspace =
+
+            getActiveWorkspace();
+
+
+        const config =
+
+            INPUT_CONFIG[workspace];
+
+
+        if(
+
+            !config
+
+        ){
+
+            console.warn(
+
+                `Input configuration untuk workspace "${workspace}" tidak ditemukan.`
+
+            );
+
+            return;
+
+        }
+
+
+        currentConfig =
+
+            config;
+
+
+        /* =============================================
            SESSION
         ============================================= */
 
-        renderWorkspace();
+        renderTitle(
 
-        renderId();
+            config
+
+        );
+
+
+        renderWorkspace(
+
+            workspace
+
+        );
+
+
+        renderId(
+
+            workspace
+
+        );
+
 
         renderDate();
+
+
+        /* =============================================
+           FORM
+        ============================================= */
+
+        renderForm(
+
+            config
+
+        );
 
 
         /* =============================================
@@ -375,10 +467,74 @@ export const Input = {
 
 
 /* =====================================================
+   TITLE
+===================================================== */
+
+function renderTitle(
+
+    config
+
+){
+
+    const title =
+
+        document.getElementById(
+
+            "global-input-title"
+
+        );
+
+
+    const subtitle =
+
+        document.getElementById(
+
+            "global-input-subtitle"
+
+        );
+
+
+    if(
+
+        title
+
+    ){
+
+        title.textContent =
+
+            config.title ??
+
+            "Input";
+
+    }
+
+
+    if(
+
+        subtitle
+
+    ){
+
+        subtitle.textContent =
+
+            config.subtitle ??
+
+            "Tambahkan data";
+
+    }
+
+}
+
+
+/* =====================================================
    WORKSPACE
 ===================================================== */
 
-function renderWorkspace(){
+function renderWorkspace(
+
+    workspace
+
+){
 
     const element =
 
@@ -400,23 +556,11 @@ function renderWorkspace(){
     }
 
 
-    const workspace =
-
-        loadWorkspace();
-
-
-    const active =
-
-        workspace?.workspace ??
-
-        "saving";
-
-
     element.textContent =
 
         formatWorkspace(
 
-            active
+            workspace
 
         );
 
@@ -427,7 +571,11 @@ function renderWorkspace(){
    ID
 ===================================================== */
 
-function renderId(){
+function renderId(
+
+    workspace
+
+){
 
     const element =
 
@@ -449,23 +597,11 @@ function renderId(){
     }
 
 
-    const workspace =
-
-        loadWorkspace();
-
-
-    const active =
-
-        workspace?.workspace ??
-
-        "saving";
-
-
     element.textContent =
 
         generateId(
 
-            active
+            workspace
 
         );
 
@@ -541,6 +677,290 @@ function renderDate(){
     element.value =
 
         `${year}-${month}-${day}`;
+
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+function renderForm(
+
+    config
+
+){
+
+    const form =
+
+        document.getElementById(
+
+            "global-input-form"
+
+        );
+
+
+    if(
+
+        !form
+
+    ){
+
+        return;
+
+    }
+
+
+    form.innerHTML = "";
+
+
+    const fields =
+
+        config.fields ??
+
+        [];
+
+
+    fields.forEach(
+
+        field => {
+
+            renderField(
+
+                form,
+
+                field
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   FIELD
+===================================================== */
+
+function renderField(
+
+    container,
+
+    field
+
+){
+
+    const wrapper =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    wrapper.className =
+
+        "global-input-field";
+
+
+    const label =
+
+        document.createElement(
+
+            "label"
+
+        );
+
+
+    label.textContent =
+
+        field.label;
+
+
+    wrapper.appendChild(
+
+        label
+
+    );
+
+
+    /* =============================================
+       SELECT
+    ============================================= */
+
+    if(
+
+        field.type ===
+
+        "select"
+
+    ){
+
+        const select =
+
+            document.createElement(
+
+                "select"
+
+            );
+
+
+        select.dataset.field =
+
+            field.id;
+
+
+        const placeholder =
+
+            document.createElement(
+
+                "option"
+
+            );
+
+
+        placeholder.value =
+
+            "";
+
+
+        placeholder.textContent =
+
+            "Pilih...";
+
+
+        placeholder.disabled =
+
+            true;
+
+
+        placeholder.selected =
+
+            true;
+
+
+        select.appendChild(
+
+            placeholder
+
+        );
+
+
+        (
+
+            field.options ??
+
+            []
+
+        ).forEach(
+
+            option => {
+
+                const item =
+
+                    document.createElement(
+
+                        "option"
+
+                    );
+
+
+                item.value =
+
+                    option.value;
+
+
+                item.textContent =
+
+                    option.label;
+
+
+                select.appendChild(
+
+                    item
+
+                );
+
+            }
+
+        );
+
+
+        wrapper.appendChild(
+
+            select
+
+        );
+
+    }
+
+
+    /* =============================================
+       INPUT
+    ============================================= */
+
+    else{
+
+        const input =
+
+            document.createElement(
+
+                "input"
+
+            );
+
+
+        input.type =
+
+            field.type ??
+
+            "text";
+
+
+        input.dataset.field =
+
+            field.id;
+
+
+        wrapper.appendChild(
+
+            input
+
+        );
+
+    }
+
+
+    container.appendChild(
+
+        wrapper
+
+    );
+
+}
+
+
+/* =====================================================
+   ACTIVE WORKSPACE
+===================================================== */
+
+function getActiveWorkspace(){
+
+    const workspace =
+
+        loadWorkspace();
+
+
+    return (
+
+        workspace?.workspace ??
+
+        "saving"
+
+    );
 
 }
 
@@ -687,4 +1107,4 @@ function formatWorkspace(
 
     }
 
-}
+            }
