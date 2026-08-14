@@ -64,12 +64,6 @@ Profile
 
 import {
 
-Statistics
-
-} from "./statistics.js";
-
-import {
-
 Summary
 
 } from "./summary.js";
@@ -199,12 +193,6 @@ Summary
 
 Summary.init();
 
-/* -----------------------------------------
-Statistics
------------------------------------------ */
-
-Statistics.init();
-
 /* -----------------------------------------  
        HOME SUMMARY  
     ----------------------------------------- */  
@@ -313,465 +301,448 @@ if(
 }
 
 /* =====================================================
-HOME SUMMARY
+   HOME SUMMARY
 ===================================================== */
 
 function renderHomeSummary(){
 
-const card =  
+    const card =
 
-    document.getElementById(  
+        document.getElementById(
 
-        "summary-card"  
+            "summary-card"
 
-    );  
+        );
 
 
-if(  
+    if(
 
-    !card  
+        !card
 
-){  
+    ){
 
-    return;  
+        return;
 
-}  
+    }
 
 
-/* =============================================  
-   DATA  
-============================================= */  
+    /* =============================================
+       SUMMARY DATA
+       Payroll diambil dari Summary
+    ============================================= */
 
-const data =  
+    const summary =
 
-    Process.data ?? [];  
+        Summary.current;
 
 
-const rules =  
+    const period =
 
-    Process.rules ?? [];  
+        summary?.period ?? null;
 
 
-/* =============================================  
-   CURRENT PAYROLL PERIOD  
-============================================= */  
+    const periodIncome =
 
-const period =  
+        Number(
 
-    getCurrentPayrollPeriod(  
+            summary?.net ?? 0
 
-        rules  
+        );
 
-    );  
 
+    /* =============================================
+       DATA HARIAN / MINGGUAN
+       Tetap menggunakan Process.data
+    ============================================= */
 
-/* =============================================  
-   TODAY  
-============================================= */  
+    const data =
 
-const today =  
+        Process.data ?? [];
 
-    new Date();  
 
+    /* =============================================
+       TODAY
+    ============================================= */
 
-const todayStart =  
+    const today =
 
-    new Date(  
+        new Date();
 
-        today.getFullYear(),  
 
-        today.getMonth(),  
+    const todayStart =
 
-        today.getDate()  
+        new Date(
 
-    );  
+            today.getFullYear(),
 
+            today.getMonth(),
 
-const todayEnd =  
+            today.getDate()
 
-    new Date(  
+        );
 
-        today.getFullYear(),  
 
-        today.getMonth(),  
+    const todayEnd =
 
-        today.getDate(),  
+        new Date(
 
-        23,  
+            today.getFullYear(),
 
-        59,  
+            today.getMonth(),
 
-        59,  
+            today.getDate(),
 
-        999  
+            23,
 
-    );  
+            59,
 
+            59,
 
-/* =============================================  
-   CURRENT WEEK  
-   SENIN - MINGGU  
-============================================= */  
+            999
 
-const day =  
+        );
 
-    todayStart.getDay();  
 
+    /* =============================================
+       CURRENT WEEK
+       SENIN - MINGGU
+    ============================================= */
 
-const mondayOffset =  
+    const day =
 
-    day === 0  
+        todayStart.getDay();
 
-        ?  
 
-        6  
+    const mondayOffset =
 
-        :  
+        day === 0
 
-        day - 1;  
+            ?
 
+            6
 
-const weekStart =  
+            :
 
-    new Date(  
+            day - 1;
 
-        todayStart  
 
-    );  
+    const weekStart =
 
+        new Date(
 
-weekStart.setDate(  
+            todayStart
 
-    weekStart.getDate()  
+        );
 
-    -  
 
-    mondayOffset  
+    weekStart.setDate(
 
-);  
+        weekStart.getDate()
 
+        -
 
-const weekEnd =  
+        mondayOffset
 
-    new Date(  
+    );
 
-        weekStart  
 
-    );  
+    const weekEnd =
 
+        new Date(
 
-weekEnd.setDate(  
+            weekStart
 
-    weekEnd.getDate()  
+        );
 
-    + 6  
 
-);  
+    weekEnd.setDate(
 
+        weekEnd.getDate()
 
-weekEnd.setHours(  
+        + 6
 
-    23,  
+    );
 
-    59,  
 
-    59,  
+    weekEnd.setHours(
 
-    999  
+        23,
 
-);  
+        59,
 
+        59,
 
-/* =============================================  
-   CALCULATION  
-============================================= */  
+        999
 
-let periodIncome =  
+    );
 
-    0;  
 
+    /* =============================================
+       WEEK / TODAY CALCULATION
+    ============================================= */
 
-let todayIncome =  
+    let todayIncome =
 
-    0;  
+        0;
 
 
-let weekIncome =  
+    let weekIncome =
 
-    0;  
+        0;
 
 
-data.forEach(  
+    data.forEach(
 
-    item => {  
+        item => {
 
-        const date =  
+            const date =
 
-            getItemDate(  
+                getItemDate(
 
-                item  
+                    item
 
-            );  
+                );
 
 
-        if(  
+            if(
 
-            !date  
+                !date
 
-        ){  
+            ){
 
-            return;  
+                return;
 
-        }  
+            }
 
 
-        const income =  
+            const income =
 
-            getIncome(  
+                getIncome(
 
-                item  
+                    item
 
-            );  
+                );
 
 
-        /* -----------------------------------------  
-           PAYROLL PERIOD  
-        ----------------------------------------- */  
+            /* -----------------------------------------
+               TODAY
+            ----------------------------------------- */
 
-        if(  
+            if(
 
-            period  
+                date >= todayStart
 
-            &&  
+                &&
 
-            date >= period.start  
+                date <= todayEnd
 
-            &&  
+            ){
 
-            date <= period.end  
+                todayIncome +=
 
-        ){  
+                    income;
 
-            periodIncome += income;  
+            }
 
-        }  
 
+            /* -----------------------------------------
+               CURRENT WEEK
+            ----------------------------------------- */
 
-        /* -----------------------------------------  
-           TODAY  
-        ----------------------------------------- */  
+            if(
 
-        if(  
+                date >= weekStart
 
-            date >= todayStart  
+                &&
 
-            &&  
+                date <= weekEnd
 
-            date <= todayEnd  
+            ){
 
-        ){  
+                weekIncome +=
 
-            todayIncome += income;  
+                    income;
 
-        }  
+            }
 
+        }
 
-        /* -----------------------------------------  
-           CURRENT WEEK  
-        ----------------------------------------- */  
+    );
 
-        if(  
 
-            date >= weekStart  
+    /* =============================================
+       RENDER
+    ============================================= */
 
-            &&  
+    card.innerHTML =
 
-            date <= weekEnd  
+    `
 
-        ){  
+        <!-- =========================================
+             PAYROLL SUMMARY
+        ========================================== -->
 
-            weekIncome += income;  
+        <div class="home-payroll-title">
 
-        }  
+            Estimasi Gaji Periode Ini
 
-    }  
+        </div>
 
-);  
 
+        <div class="home-payroll-period">
 
-/* =============================================  
-   RENDER  
-============================================= */  
+            ${
 
-card.innerHTML =  
+                period
 
-`  
+                    ?
 
-    <!-- =========================================  
-         TOTAL PAYROLL  
-    ========================================== -->  
+                    formatDate(
 
-    <div class="home-payroll-title">  
+                        period.start
 
-        Total Gaji Berjalan  
+                    )
 
-    </div>  
+                    +
 
+                    " - "
 
-    <div class="home-payroll-period">  
+                    +
 
-        ${  
+                    formatDate(
 
-            period  
+                        period.end
 
-                ?  
+                    )
 
-                formatDate(  
+                    :
 
-                    period.start  
+                    "Periode tidak tersedia"
 
-                )  
+            }
 
-                +  
+        </div>
 
-                " - "  
 
-                +  
+        <div class="home-payroll-salary">
 
-                formatDate(  
+            ${
 
-                    period.end  
+                rupiah(
 
-                )  
+                    periodIncome
 
-                :  
+                )
 
-                "Periode tidak tersedia"  
+            }
 
-        }  
+        </div>
 
-    </div>  
 
+        <!-- =========================================
+             SMALL SUMMARY
+        ========================================== -->
 
-    <div class="home-payroll-salary">  
+        <div class="home-income-grid">
 
-        ${  
 
-            rupiah(  
+            <!-- MINGGU -->
 
-                periodIncome  
+            <div class="home-income-item">
 
-            )  
+                <span>
 
-        }  
+                    Minggu Ini
 
-    </div>  
+                </span>
 
 
-    <!-- =========================================  
-         SMALL SUMMARY  
-    ========================================== -->  
+                <strong>
 
-    <div class="home-income-grid">  
+                    ${
 
+                        shortRupiah(
 
-        <!-- MINGGU -->  
+                            weekIncome
 
-        <div class="home-income-item">  
+                        )
 
-            <span>  
+                    }
 
-                Minggu Ini  
+                </strong>
 
-            </span>  
+            </div>
 
 
-            <strong>  
+            <!-- HARI INI -->
 
-                ${  
+            <div class="home-income-item">
 
-                    shortRupiah(  
+                <span>
 
-                        weekIncome  
+                    Hari Ini
 
-                    )  
+                </span>
 
-                }  
 
-            </strong>  
+                <strong>
 
-        </div>  
+                    ${
 
+                        shortRupiah(
 
-        <!-- HARI INI -->  
+                            todayIncome
 
-        <div class="home-income-item">  
+                        )
 
-            <span>  
+                    }
 
-                Hari Ini  
+                </strong>
 
-            </span>  
+            </div>
 
 
-            <strong>  
+        </div>
 
-                ${  
+    `;
 
-                    shortRupiah(  
 
-                        todayIncome  
+    /* =============================================
+       NUMBER ANIMATION
+    ============================================= */
 
-                    )  
+    const salaryElement =
 
-                }  
+        card.querySelector(
 
-            </strong>  
+            ".home-payroll-salary"
 
-        </div>  
+        );
 
 
-    </div>  
+    if(
 
-`;  
+        salaryElement
 
+    ){
 
-/* =============================================  
-   NUMBER ANIMATION  
-============================================= */  
+        Animation.number(
 
-const salaryElement =  
+            salaryElement,
 
-    card.querySelector(  
+            periodIncome,
 
-        ".home-payroll-salary"  
+            value =>
 
-    );  
+                rupiah(
 
+                    value
 
-if(  
+                )
 
-    salaryElement  
+        );
 
-){  
-
-    Animation.number(  
-
-        salaryElement,  
-
-        periodIncome,  
-
-        value =>  
-
-            rupiah(  
-
-                value  
-
-            )  
-
-    );  
-
-}
+    }
 
 }
 
