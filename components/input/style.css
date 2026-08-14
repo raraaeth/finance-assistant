@@ -3,7 +3,7 @@
    Global Component
    Module      : Input
    File        : style.css
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Global Input Overlay
@@ -14,19 +14,31 @@
    OVERLAY
 ===================================================== */
 
-.global-input-overlay{
+#global-input-overlay{
 
     position:fixed;
 
     inset:0;
 
-    z-index:10000;
+    width:100%;
+
+    height:100%;
+
+    z-index:9999;
 
     display:flex;
 
     justify-content:flex-end;
 
+    background:#ffffff;
+
+    overflow:hidden;
+
     visibility:visible;
+
+    opacity:1;
+
+    pointer-events:auto;
 
 }
 
@@ -35,28 +47,30 @@
    HIDDEN
 ===================================================== */
 
-.global-input-overlay.hidden{
+#global-input-overlay.hidden{
 
-    display:none;
+    visibility:hidden;
+
+    opacity:0;
+
+    pointer-events:none;
 
 }
 
 
 /* =====================================================
    BACKDROP
+   Tidak transparan.
+   Hanya sebagai layer dasar.
 ===================================================== */
 
-.global-input-backdrop{
+#global-input-backdrop{
 
     position:absolute;
 
     inset:0;
 
-    background:rgba(15,23,42,.62);
-
-    backdrop-filter:blur(2px);
-
-    -webkit-backdrop-filter:blur(2px);
+    background:#ffffff;
 
 }
 
@@ -65,7 +79,7 @@
    PANEL
 ===================================================== */
 
-.global-input-panel{
+#global-input-panel{
 
     position:relative;
 
@@ -73,35 +87,46 @@
 
     width:100%;
 
-    max-width:560px;
+    max-width:520px;
 
     height:100%;
 
-    display:flex;
+    background:#ffffff;
 
-    flex-direction:column;
+    overflow-y:auto;
 
-    overflow:hidden;
+    overflow-x:hidden;
 
-    background:var(--card);
+    transform:translateX(0);
 
-    color:var(--text);
+    transition:
 
-    box-shadow:
+        transform .32s
 
-        -12px 0 40px
+        cubic-bezier(
 
-        rgba(0,0,0,.18);
+            .22,
 
-    animation:
+            .61,
 
-        globalInputSlideIn
+            .36,
 
-        .3s
+            1
 
-        ease
+        );
 
-        forwards;
+}
+
+
+/* =====================================================
+   CLOSED
+===================================================== */
+
+#global-input-overlay.hidden
+
+#global-input-panel{
+
+    transform:translateX(100%);
 
 }
 
@@ -110,31 +135,37 @@
    HEADER
 ===================================================== */
 
-.global-input-header{
+#global-input-header{
 
-    position:relative;
+    position:sticky;
 
-    z-index:5;
+    top:0;
 
-    flex-shrink:0;
+    z-index:10;
 
     display:flex;
 
-    align-items:flex-start;
+    align-items:center;
 
     justify-content:space-between;
 
     gap:16px;
 
-    padding:20px;
+    padding:
 
-    background:var(--card);
+        20px
+
+        20px
+
+        16px;
+
+    background:#ffffff;
 
     border-bottom:
 
         1px solid
 
-        var(--border);
+        #e5e7eb;
 
 }
 
@@ -143,50 +174,46 @@
    HEADER CONTENT
 ===================================================== */
 
-.global-input-header-content{
+#global-input-header-content{
 
     min-width:0;
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:4px;
-
 }
 
 
-.global-input-header h2{
+#global-input-title{
 
     margin:0;
 
-    font-size:21px;
+    font-size:24px;
+
+    line-height:1.2;
 
     font-weight:800;
 
-    color:var(--text);
+    color:#1f2937;
 
 }
 
 
-.global-input-header p{
+#global-input-subtitle{
 
-    margin:0;
+    margin:
+
+        5px 0 0;
 
     font-size:13px;
 
-    line-height:1.5;
-
-    color:var(--text-secondary);
+    color:#6b7280;
 
 }
 
 
 /* =====================================================
-   CLOSE
+   CLOSE BUTTON
 ===================================================== */
 
-.global-input-close{
+#global-input-close{
 
     width:42px;
 
@@ -200,13 +227,13 @@
 
     justify-content:center;
 
-    border:none;
+    border:0;
 
-    border-radius:14px;
+    border-radius:50%;
 
-    background:var(--background);
+    background:#f1f5f9;
 
-    color:var(--text);
+    color:#374151;
 
     font-size:28px;
 
@@ -214,23 +241,10 @@
 
     cursor:pointer;
 
-    transition:
-
-        background .2s ease,
-
-        transform .15s ease;
-
 }
 
 
-.global-input-close:hover{
-
-    background:var(--border);
-
-}
-
-
-.global-input-close:active{
+#global-input-close:active{
 
     transform:scale(.94);
 
@@ -241,15 +255,7 @@
    BODY
 ===================================================== */
 
-.global-input-body{
-
-    flex:1;
-
-    min-height:0;
-
-    overflow-y:auto;
-
-    overflow-x:hidden;
+#global-input-body{
 
     padding:20px;
 
@@ -260,13 +266,13 @@
    SESSION
 ===================================================== */
 
-.global-input-session{
+#global-input-session{
 
     display:flex;
 
     flex-direction:column;
 
-    gap:10px;
+    gap:12px;
 
     margin-bottom:20px;
 
@@ -287,26 +293,26 @@
 
     gap:16px;
 
-    padding:12px 14px;
+    padding:14px 16px;
 
-    border-radius:14px;
-
-    background:var(--background);
+    background:#f8fafc;
 
     border:
 
         1px solid
 
-        var(--border);
+        #e5e7eb;
+
+    border-radius:16px;
 
 }
 
 
 .global-input-meta-label{
 
-    font-size:12px;
+    font-size:13px;
 
-    color:var(--text-secondary);
+    color:#6b7280;
 
 }
 
@@ -317,7 +323,9 @@
 
     font-weight:700;
 
-    color:var(--text);
+    color:#1f2937;
+
+    text-align:right;
 
 }
 
@@ -326,36 +334,25 @@
    DATE
 ===================================================== */
 
-.global-input-date{
-
-    width:auto;
+#global-input-date{
 
     min-width:145px;
 
-    padding:8px 10px;
+    padding:10px 12px;
 
     border:
 
         1px solid
 
-        var(--border);
+        #d1d5db;
 
     border-radius:10px;
 
-    background:var(--card);
+    background:#ffffff;
 
-    color:var(--text);
+    color:#1f2937;
 
-    font-size:13px;
-
-    outline:none;
-
-}
-
-
-.global-input-date:focus{
-
-    border-color:var(--primary);
+    font-size:14px;
 
 }
 
@@ -364,50 +361,25 @@
    LOCKED DATE
 ===================================================== */
 
-.global-input-date-locked{
+#global-input-date-locked{
 
     display:flex;
 
     align-items:center;
 
-    gap:10px;
+    gap:12px;
 
-    padding:12px 14px;
+    padding:14px 16px;
 
-    border-radius:14px;
-
-    background:var(--background);
+    background:#f8fafc;
 
     border:
 
         1px solid
 
-        var(--border);
+        #e5e7eb;
 
-}
-
-
-.global-input-date-locked > span{
-
-    font-size:18px;
-
-}
-
-
-.global-input-date-locked > div{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:3px;
-
-}
-
-
-.global-input-date-locked.hidden{
-
-    display:none;
+    border-radius:16px;
 
 }
 
@@ -416,7 +388,7 @@
    FORM
 ===================================================== */
 
-.global-input-form{
+#global-input-form{
 
     display:flex;
 
@@ -428,211 +400,27 @@
 
 
 /* =====================================================
-   DYNAMIC FIELD
+   ADD ACTION
 ===================================================== */
 
-.global-input-field{
+#global-input-action{
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:7px;
+    margin-top:18px;
 
 }
 
 
-.global-input-field label{
-
-    font-size:13px;
-
-    font-weight:600;
-
-    color:var(--text);
-
-}
-
-
-.global-input-field input,
-
-.global-input-field select,
-
-.global-input-field textarea{
+#global-input-add{
 
     width:100%;
-
-    box-sizing:border-box;
-
-    padding:13px 14px;
-
-    border:
-
-        1px solid
-
-        var(--border);
-
-    border-radius:14px;
-
-    background:var(--background);
-
-    color:var(--text);
-
-    font-family:inherit;
-
-    font-size:14px;
-
-    outline:none;
-
-    transition:
-
-        border-color .2s ease,
-
-        background .2s ease;
-
-}
-
-
-.global-input-field input:focus,
-
-.global-input-field select:focus,
-
-.global-input-field textarea:focus{
-
-    border-color:var(--primary);
-
-}
-
-
-.global-input-field textarea{
-
-    min-height:90px;
-
-    resize:vertical;
-
-}
-
-
-.global-input-field input::placeholder,
-
-.global-input-field textarea::placeholder{
-
-    color:var(--text-secondary);
-
-}
-
-
-/* =====================================================
-   OPTION GROUP
-===================================================== */
-
-.global-input-options{
-
-    display:grid;
-
-    grid-template-columns:
-
-        repeat(
-
-            2,
-
-            minmax(0,1fr)
-
-        );
-
-    gap:10px;
-
-}
-
-
-.global-input-option{
 
     min-height:48px;
 
-    padding:10px 12px;
-
-    border:
-
-        1px solid
-
-        var(--border);
+    border:0;
 
     border-radius:14px;
 
-    background:var(--background);
-
-    color:var(--text);
-
-    font-size:14px;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:
-
-        background .2s ease,
-
-        border-color .2s ease,
-
-        transform .15s ease;
-
-}
-
-
-.global-input-option:hover{
-
-    border-color:var(--primary);
-
-}
-
-
-.global-input-option:active{
-
-    transform:scale(.98);
-
-}
-
-
-.global-input-option.active{
-
-    background:var(--primary);
-
-    border-color:var(--primary);
-
-    color:#ffffff;
-
-}
-
-
-/* =====================================================
-   ACTION
-===================================================== */
-
-.global-input-action{
-
-    margin-top:20px;
-
-}
-
-
-.global-input-action.hidden{
-
-    display:none;
-
-}
-
-
-.global-input-add{
-
-    width:100%;
-
-    min-height:50px;
-
-    border:none;
-
-    border-radius:16px;
-
-    background:var(--primary);
+    background:#2563eb;
 
     color:#ffffff;
 
@@ -642,26 +430,6 @@
 
     cursor:pointer;
 
-    transition:
-
-        transform .15s ease,
-
-        filter .2s ease;
-
-}
-
-
-.global-input-add:hover{
-
-    filter:brightness(1.05);
-
-}
-
-
-.global-input-add:active{
-
-    transform:scale(.98);
-
 }
 
 
@@ -669,23 +437,12 @@
    INPUT LIST
 ===================================================== */
 
-.global-input-list-section{
+#global-input-list-section{
 
     margin-top:24px;
 
 }
 
-
-.global-input-list-section.hidden{
-
-    display:none;
-
-}
-
-
-/* =====================================================
-   LIST HEADER
-===================================================== */
 
 .global-input-list-header{
 
@@ -706,33 +463,31 @@
 
     margin:0;
 
-    font-size:16px;
+    font-size:17px;
 
-    font-weight:700;
-
-    color:var(--text);
+    color:#1f2937;
 
 }
 
 
 .global-input-list-header p{
 
-    margin:4px 0 0;
+    margin:
+
+        4px 0 0;
 
     font-size:12px;
 
-    color:var(--text-secondary);
+    color:#6b7280;
 
 }
 
 
 .global-input-count{
 
-    min-width:28px;
+    min-width:32px;
 
-    height:28px;
-
-    padding:0 8px;
+    height:32px;
 
     display:flex;
 
@@ -740,19 +495,11 @@
 
     justify-content:center;
 
-    border-radius:999px;
+    border-radius:50%;
 
-    background:var(--background);
+    background:#eff6ff;
 
-    color:var(--text);
-
-    border:
-
-        1px solid
-
-        var(--border);
-
-    font-size:12px;
+    color:#2563eb;
 
     font-weight:700;
 
@@ -760,116 +507,38 @@
 
 
 /* =====================================================
-   LIST
+   FOOTER
 ===================================================== */
 
-.global-input-list{
+#global-input-footer{
 
-    display:flex;
+    position:sticky;
 
-    flex-direction:column;
+    bottom:0;
 
-    gap:10px;
+    z-index:10;
 
-}
+    padding:
 
+        14px
 
-/* =====================================================
-   ITEM
-===================================================== */
+        20px
 
-.global-input-item{
+        calc(
 
-    padding:15px;
+            14px +
 
-    border-radius:16px;
+            env(safe-area-inset-bottom)
 
-    background:var(--background);
+        );
 
-    border:
+    background:#ffffff;
+
+    border-top:
 
         1px solid
 
-        var(--border);
-
-}
-
-
-.global-input-item-header{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:12px;
-
-    margin-bottom:10px;
-
-}
-
-
-.global-input-item-number{
-
-    font-size:12px;
-
-    font-weight:700;
-
-    color:var(--text-secondary);
-
-}
-
-
-.global-input-item-type{
-
-    font-size:12px;
-
-    font-weight:700;
-
-    color:var(--primary);
-
-}
-
-
-.global-input-item-content{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
-}
-
-
-.global-input-item-content strong{
-
-    font-size:15px;
-
-    color:var(--text);
-
-}
-
-
-.global-input-item-content span{
-
-    font-size:12px;
-
-    color:var(--text-secondary);
-
-}
-
-
-.global-input-item-amount{
-
-    margin-top:10px;
-
-    font-size:16px;
-
-    font-weight:800;
-
-    color:var(--text);
+        #e5e7eb;
 
 }
 
@@ -878,96 +547,52 @@
    SUMMARY
 ===================================================== */
 
-.global-input-footer{
+#global-input-summary{
 
-    flex-shrink:0;
+    display:grid;
 
-    padding:
+    grid-template-columns:
 
-        16px
-
-        20px
-
-        20px;
-
-    background:var(--card);
-
-    border-top:
-
-        1px solid
-
-        var(--border);
-
-}
-
-
-.global-input-footer.hidden{
-
-    display:none;
-
-}
-
-
-.global-input-summary{
-
-    display:flex;
-
-    flex-direction:column;
+        repeat(3,1fr);
 
     gap:8px;
 
-    margin-bottom:14px;
+    margin-bottom:12px;
 
 }
 
 
-.global-input-summary > div{
+#global-input-summary > div{
 
-    display:flex;
+    padding:10px;
 
-    align-items:center;
+    background:#f8fafc;
 
-    justify-content:space-between;
+    border-radius:12px;
 
-    gap:12px;
+}
+
+
+#global-input-summary span{
+
+    display:block;
+
+    font-size:11px;
+
+    color:#6b7280;
+
+}
+
+
+#global-input-summary strong{
+
+    display:block;
+
+    margin-top:3px;
 
     font-size:13px;
 
-}
-
-
-.global-input-summary span{
-
-    color:var(--text-secondary);
-
-}
-
-
-.global-input-summary strong{
-
-    color:var(--text);
-
-}
-
-
-/* =====================================================
-   INCOME
-===================================================== */
-
-.global-input-total.income strong{
-
-    color:#16A34A;
-
-}
-
-
-/* =====================================================
-   EXPENSE
-===================================================== */
-
-.global-input-total.expense strong{
-
-    color:#EF4444;
+    color:#1f2937;
 
 }
 
@@ -976,66 +601,25 @@
    CONFIRM
 ===================================================== */
 
-.global-input-confirm{
+#global-input-confirm{
 
     width:100%;
 
-    min-height:52px;
+    min-height:50px;
 
-    border:none;
+    border:0;
 
-    border-radius:16px;
+    border-radius:15px;
 
-    background:var(--primary);
+    background:#2563eb;
 
     color:#ffffff;
 
     font-size:15px;
 
-    font-weight:700;
+    font-weight:800;
 
     cursor:pointer;
-
-    transition:
-
-        transform .15s ease,
-
-        filter .2s ease;
-
-}
-
-
-.global-input-confirm:hover{
-
-    filter:brightness(1.05);
-
-}
-
-
-.global-input-confirm:active{
-
-    transform:scale(.98);
-
-}
-
-
-/* =====================================================
-   ANIMATION
-===================================================== */
-
-@keyframes globalInputSlideIn{
-
-    from{
-
-        transform:translateX(100%);
-
-    }
-
-    to{
-
-        transform:translateX(0);
-
-    }
 
 }
 
@@ -1046,182 +630,70 @@
 
 @media(
 
-    max-width:767px
+    max-width:600px
 
 ){
 
-    .global-input-panel{
+    #global-input-panel{
 
         max-width:none;
 
-    }
-
-
-    .global-input-header{
-
-        padding:
-
-            18px;
+        width:100%;
 
     }
 
 
-    .global-input-body{
+    #global-input-header{
 
         padding:
-
-            18px;
-
-    }
-
-
-    .global-input-footer{
-
-        padding:
-
-            14px
 
             18px
 
-            18px;
+            16px
+
+            14px;
 
     }
 
 
-    .global-input-options{
+    #global-input-body{
+
+        padding:16px;
+
+    }
+
+
+    #global-input-title{
+
+        font-size:22px;
+
+    }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media(
+
+    max-width:380px
+
+){
+
+    #global-input-body{
+
+        padding:14px;
+
+    }
+
+
+    #global-input-summary{
 
         grid-template-columns:
 
-            repeat(
-
-                2,
-
-                minmax(0,1fr)
-
-            );
-
-    }
-
-}
-
-
-/* =====================================================
-   DESKTOP
-===================================================== */
-
-@media(
-
-    min-width:768px
-
-){
-
-    .global-input-panel{
-
-        border-radius:
-
-            24px
-
-            0
-
-            0
-
-            24px;
-
-    }
-
-}
-
-
-/* =====================================================
-   DARK
-===================================================== */
-
-html[data-theme="dark"]
-
-.global-input-backdrop{
-
-    background:
-
-        rgba(
-
-            0,
-
-            0,
-
-            0,
-
-            .68
-
-        );
-
-}
-
-
-/* =====================================================
-   PINK
-===================================================== */
-
-html[data-theme="pink"]
-
-.global-input-backdrop{
-
-    background:
-
-        rgba(
-
-            88,
-
-            35,
-
-            58,
-
-            .48
-
-        );
-
-}
-
-
-/* =====================================================
-   GREEN
-===================================================== */
-
-html[data-theme="green"]
-
-.global-input-backdrop{
-
-    background:
-
-        rgba(
-
-            6,
-
-            52,
-
-            43,
-
-            .50
-
-        );
-
-}
-
-
-/* =====================================================
-   REDUCE MOTION
-===================================================== */
-
-@media(
-
-    prefers-reduced-motion:reduce
-
-){
-
-    .global-input-panel{
-
-        animation:none;
-
-        transform:translateX(0);
+            1fr;
 
     }
 
