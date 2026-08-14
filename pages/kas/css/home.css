@@ -131,3 +131,203 @@
     margin-bottom:32px;
 
 }
+
+/* =====================================================
+   KAS INPUT MENU
+===================================================== */
+
+#input-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   INPUT MENU ITEM
+===================================================== */
+
+#kas-input-menu{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:14px;
+
+    padding:16px;
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+    color:var(--text);
+
+    cursor:pointer;
+
+    box-shadow:
+
+        0 4px 16px
+
+        rgba(15,23,42,.06);
+
+    transition:
+
+        transform .15s ease,
+
+        border-color .2s ease,
+
+        box-shadow .2s ease;
+
+}
+
+
+/* =====================================================
+   HOVER
+===================================================== */
+
+#kas-input-menu:hover{
+
+    border-color:var(--primary);
+
+    box-shadow:
+
+        0 6px 20px
+
+        rgba(15,23,42,.10);
+
+}
+
+
+/* =====================================================
+   ACTIVE
+===================================================== */
+
+#kas-input-menu:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   LEFT
+===================================================== */
+
+#kas-input-menu .profile-menu-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   ICON
+===================================================== */
+
+#kas-input-menu .profile-menu-icon{
+
+    width:44px;
+
+    height:44px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:14px;
+
+    background:var(--background);
+
+    color:var(--primary);
+
+    font-size:20px;
+
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+#kas-input-menu .profile-menu-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+    min-width:0;
+
+}
+
+
+#kas-input-menu .profile-menu-title{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+#kas-input-menu .profile-menu-description{
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   ARROW
+===================================================== */
+
+#kas-input-menu .profile-menu-arrow{
+
+    flex-shrink:0;
+
+    color:var(--text-secondary);
+
+    font-size:22px;
+
+    transition:
+
+        transform .2s ease,
+
+        color .2s ease;
+
+}
+
+
+#kas-input-menu:hover .profile-menu-arrow{
+
+    color:var(--primary);
+
+    transform:translateX(3px);
+
+}
