@@ -1154,8 +1154,9 @@ function renderLastPeriod(){
 
     }
 
-    /* =============================================
+        /* =============================================
        BACK BUTTON
+       Mundur berdasarkan periode yang sedang tampil
     ============================================= */
 
     const backButton =
@@ -1179,20 +1180,84 @@ function renderLastPeriod(){
 
             () => {
 
-                const previousPeriod =
+                const currentPeriod =
 
-                    Process.getPreviousPeriod();
+                    Summary.previous?.period;
 
 
                 if(
 
-                    !previousPeriod
+                    !currentPeriod
 
                 ){
 
                     return;
 
                 }
+
+
+                const start =
+
+                    new Date(
+
+                        currentPeriod.start
+
+                    );
+
+
+                /* -------------------------------------
+                   Mundur 1 bulan
+                   Contoh:
+
+                   28 Jul → 28 Jun
+                   28 Jun → 28 Mei
+                ------------------------------------- */
+
+                const previousStart =
+
+                    new Date(
+
+                        start.getFullYear(),
+
+                        start.getMonth() - 1,
+
+                        start.getDate()
+
+                    );
+
+
+                /* -------------------------------------
+                   End = sehari sebelum start
+                   periode berikutnya
+
+                   28 Jun → 27 Jul
+                   28 Mei → 27 Jun
+                ------------------------------------- */
+
+                const previousEnd =
+
+                    new Date(
+
+                        start.getFullYear(),
+
+                        start.getMonth(),
+
+                        start.getDate() - 1
+
+                    );
+
+
+                const previousPeriod = {
+
+                    start :
+
+                        previousStart,
+
+                    end :
+
+                        previousEnd
+
+                };
 
 
                 Summary.previous =
@@ -1210,7 +1275,8 @@ function renderLastPeriod(){
 
         );
 
-    }   
+    }
+        
 
 }
 
