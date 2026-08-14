@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : workspace.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Menentukan workspace aktif dan konfigurasi Input
@@ -64,14 +64,6 @@ const WORKSPACES = {
 
 export function getActiveWorkspace(){
 
-    /*
-       Untuk sementara kita baca dari
-       workspace global.
-
-       Nanti bisa langsung disambungkan
-       ke workspace controller utama.
-    */
-
     const workspace =
 
         window.activeWorkspace
@@ -117,9 +109,24 @@ export function getWorkspaceConfig(
    RESOLVE WORKSPACE
 ===================================================== */
 
-export function resolveWorkspace(){
+export function resolveWorkspace(
 
-    const workspace =
+    workspace = null
+
+){
+
+    /* =============================================
+       PRIORITY
+
+       1. Workspace yang dikirim langsung
+       2. Workspace global aktif
+    ============================================= */
+
+    const activeWorkspace =
+
+        workspace
+
+        ||
 
         getActiveWorkspace();
 
@@ -128,7 +135,7 @@ export function resolveWorkspace(){
 
         getWorkspaceConfig(
 
-            workspace
+            activeWorkspace
 
         );
 
@@ -143,16 +150,20 @@ export function resolveWorkspace(){
 
             "Input configuration tidak ditemukan:",
 
-            workspace
+            activeWorkspace
 
         );
 
 
         return {
 
-            workspace,
+            workspace :
 
-            config : null
+                activeWorkspace,
+
+            config :
+
+                null
 
         };
 
@@ -161,7 +172,9 @@ export function resolveWorkspace(){
 
     return {
 
-        workspace,
+        workspace :
+
+            activeWorkspace,
 
         config
 
