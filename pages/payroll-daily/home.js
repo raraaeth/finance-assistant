@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Home
    File        : home.js
-   Version     : 2.0.0
+   Version     : 1.3.0
 
    Description :
    Payroll Daily Home Controller
@@ -12,21 +12,24 @@
 
    Load user
         ↓
-   Render header
-        ↓
    Render hero
-        ↓
-   Render profile
         ↓
    Load payroll data
         ↓
    Process data
         ↓
-   Initialize Summary
+   Summary
         ↓
-   Initialize Statistics
-        ↓
-   Render Home
+   Render home summary
+
+   Responsibility :
+   - Menampilkan Hero
+   - Menampilkan estimasi gaji periode ini
+   - Menampilkan pendapatan minggu ini
+   - Menampilkan pendapatan hari ini
+   - Membaca hasil dari Process / Summary
+   - Tidak menjalankan perhitungan periode gaji
+   - Tidak menjalankan Statistics
 ===================================================== */
 
 
@@ -82,12 +85,11 @@ import {
 
 } from "./summary.js";
 
-
 import {
 
-    Statistics
+    Summary
 
-} from "./statistics.js";
+} from "./summary.js";
 
 
 import {
@@ -122,6 +124,7 @@ const user =
 ===================================================== */
 
 export async function init(){
+
 
     /* =============================================
        HEADER
@@ -192,7 +195,7 @@ export async function init(){
 
 
     /* =============================================
-       PROCESS DATA
+       PROCESS
     ============================================= */
 
     try{
@@ -207,22 +210,16 @@ export async function init(){
 
 
         /* -----------------------------------------
-           PAYROLL SUMMARY
+           SUMMARY
         ----------------------------------------- */
 
         Summary.init();
-
-
-        /* -----------------------------------------
-           DAILY STATISTICS
-        ----------------------------------------- */
 
         Statistics.init();
 
 
         /* -----------------------------------------
-           HOME
-           Render setelah semua data siap
+           HOME SUMMARY
         ----------------------------------------- */
 
         renderHomeSummary();
@@ -356,221 +353,8 @@ function renderHomeSummary(){
 
 
     /* =============================================
-       PAYROLL SUMMARY
-       
-       Home tidak menghitung payroll sendiri.
-
-       Semua nilai payroll mengikuti Summary.
-    ============================================= */
-
-    const payroll =
-
-        getPayrollSummary();
-
-
-    /* =============================================
-       DAILY DATA
-       
-       Hanya untuk:
-       - Minggu Ini
-       - Hari Ini
-       
-       Tidak digunakan untuk menghitung gaji.
-    ============================================= */
-
-    const weekly =
-
-        calculateWeeklyIncome();
-
-
-    /* =============================================
-       RENDER
-    ============================================= */
-
-    card.innerHTML =
-
-    `
-
-        <!-- =========================================
-             PAYROLL
-        ========================================== -->
-
-        <div class="home-payroll-title">
-
-            Estimasi Gaji Periode Ini
-
-        </div>
-
-
-        <div class="home-payroll-period">
-
-            ${
-
-                payroll.period
-
-                    ?
-
-                    formatDate(
-
-                        payroll.period.start
-
-                    )
-
-                    +
-
-                    " - "
-
-                    +
-
-                    formatDate(
-
-                        payroll.period.end
-
-                    )
-
-                    :
-
-                    "Periode tidak tersedia"
-
-            }
-
-        </div>
-
-
-        <div class="home-payroll-salary">
-
-            ${
-
-                rupiah(
-
-                    payroll.netSalary
-
-                )
-
-            }
-
-        </div>
-
-
-        <!-- =========================================
-             SMALL SUMMARY
-        ========================================== -->
-
-        <div class="home-income-grid">
-
-
-            <!-- MINGGU -->
-
-            <div class="home-income-item">
-
-                <span>
-
-                    Minggu Ini
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        shortRupiah(
-
-                            weekly.weekIncome
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-            <!-- HARI INI -->
-
-            <div class="home-income-item">
-
-                <span>
-
-                    Hari Ini
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        shortRupiah(
-
-                            weekly.todayIncome
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-
-        </div>
-
-    `;
-
-
-    /* =============================================
-       NUMBER ANIMATION
-    ============================================= */
-
-    const salaryElement =
-
-        card.querySelector(
-
-            ".home-payroll-salary"
-
-        );
-
-
-    if(
-
-        salaryElement
-
-    ){
-
-        Animation.number(
-
-            salaryElement,
-
-            payroll.netSalary,
-
-            value =>
-
-                rupiah(
-
-                    value
-
-                )
-
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   GET PAYROLL SUMMARY
-===================================================== */
-
-function getPayrollSummary(){
-
-    /* =============================================
-       DAILY SUMMARY
-       
-       Payroll Daily menyimpan hasil perhitungan
-       periode berjalan di Summary.current.
+       SUMMARY DATA
+       Payroll berasal dari Summary
     ============================================= */
 
     const summary =
@@ -578,77 +362,41 @@ function getPayrollSummary(){
         Summary.current;
 
 
-    if(
+    const period =
 
-        !summary
+        summary?.period ??
 
-    ){
-
-        return {
-
-            period : null,
-
-            netSalary : 0
-
-        };
-
-    }
+        null;
 
 
-    return {
+    const periodIncome =
 
-        period :
+        Number(
 
-            summary.period ?? null,
-
-        netSalary :
-
-            Number(
-
-                summary.net ?? 0
-
-            )
-
-    };
-
-}
-
-    /* =============================================
-       FALLBACK
-       Menggunakan current period jika Summary
-       sudah menentukan period tetapi belum
-       mempunyai historyData.
-    ============================================= */
-
-    return {
-
-        period :
-
-            Summary.currentPeriod ??
-
-            Summary.selectedPeriod ??
-
-            null,
-
-        netSalary :
+            summary?.net ??
 
             0
 
-    };
-
-}
+        );
 
 
-/* =====================================================
-   CALCULATE WEEKLY INCOME
-===================================================== */
+    /* =============================================
+       DAILY / WEEKLY DATA
 
-function calculateWeeklyIncome(){
+       Data pekerjaan tetap berasal dari Process.
+       Tidak menggunakan Statistics.
+    ============================================= */
 
     const data =
 
-        Process.data ?? [];
+        Process.data ??
 
+        [];
+
+
+    /* =============================================
+       TODAY
+    ============================================= */
 
     const today =
 
@@ -763,6 +511,10 @@ function calculateWeeklyIncome(){
     );
 
 
+    /* =============================================
+       WEEK / TODAY CALCULATION
+    ============================================= */
+
     let todayIncome =
 
         0;
@@ -852,13 +604,179 @@ function calculateWeeklyIncome(){
     );
 
 
-    return {
+    /* =============================================
+       RENDER
+    ============================================= */
 
-        todayIncome,
+    card.innerHTML =
 
-        weekIncome
+    `
 
-    };
+        <!-- =========================================
+             PAYROLL SUMMARY
+        ========================================== -->
+
+        <div class="home-payroll-title">
+
+            Estimasi Gaji Periode Ini
+
+        </div>
+
+
+        <div class="home-payroll-period">
+
+            ${
+
+                period
+
+                    ?
+
+                    formatDate(
+
+                        period.start
+
+                    )
+
+                    +
+
+                    " - "
+
+                    +
+
+                    formatDate(
+
+                        period.end
+
+                    )
+
+                    :
+
+                    "Periode tidak tersedia"
+
+            }
+
+        </div>
+
+
+        <div class="home-payroll-salary">
+
+            ${
+
+                rupiah(
+
+                    periodIncome
+
+                )
+
+            }
+
+        </div>
+
+
+        <!-- =========================================
+             SMALL SUMMARY
+        ========================================== -->
+
+        <div class="home-income-grid">
+
+
+            <!-- MINGGU -->
+
+            <div class="home-income-item">
+
+                <span>
+
+                    Minggu Ini
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        shortRupiah(
+
+                            weekIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <!-- HARI INI -->
+
+            <div class="home-income-item">
+
+                <span>
+
+                    Hari Ini
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        shortRupiah(
+
+                            todayIncome
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /* =============================================
+       NUMBER ANIMATION
+    ============================================= */
+
+    const salaryElement =
+
+        card.querySelector(
+
+            ".home-payroll-salary"
+
+        );
+
+
+    if(
+
+        salaryElement
+
+    ){
+
+        Animation.number(
+
+            salaryElement,
+
+            periodIncome,
+
+            value =>
+
+                rupiah(
+
+                    value
+
+                )
+
+        );
+
+    }
 
 }
 
@@ -956,9 +874,7 @@ function parseLocalDate(
 
         day
 
-    ] =
-
-        parts;
+    ] = parts;
 
 
     const date =
