@@ -72,6 +72,12 @@ import {
 
 } from "../../js/animation.js";
 
+import {
+
+    Input
+
+} from "../../components/input/input.js";
+
 
 /* =====================================================
    INIT DATA
@@ -127,6 +133,8 @@ export async function init(){
     renderInput();
 
     renderSetting();
+
+    Input.init();
 
     await Profile.render({
 
@@ -379,6 +387,7 @@ function renderInput(){
 
         );
 
+
     if(
 
         !card
@@ -389,36 +398,101 @@ function renderInput(){
 
     }
 
+
     card.innerHTML =
 
     `
 
-        <div class="card-header">
+        <div
+            id="kas-input-menu"
+            class="profile-menu-item">
 
-            <span class="card-title">
 
-                Tambah Transaksi
+            <div
+                class="profile-menu-left">
 
-            </span>
 
-        </div>
+                <div
+                    class="profile-menu-icon">
 
-        <div class="card-body">
+                    ⚙️
 
-            <p>
+                </div>
 
-                Gunakan modul Kas untuk
-                mencatat pemasukan,
-                pengeluaran, atau transaksi
-                lainnya.
 
-            </p>
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Input
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Tambahkan transaksi Kas
+
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
 
         </div>
 
     `;
 
+
+    /* =============================================
+       OPEN GLOBAL INPUT
+    ============================================= */
+
+    const menu =
+
+        document.getElementById(
+
+            "kas-input-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            ()=>{
+
+                Input.open();
+
+            }
+
+        );
+
+    }
+
 }
+        
 
 
 /* =====================================================
