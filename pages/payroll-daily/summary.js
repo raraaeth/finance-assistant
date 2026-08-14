@@ -1154,6 +1154,64 @@ function renderLastPeriod(){
 
     }
 
+    /* =============================================
+       BACK BUTTON
+    ============================================= */
+
+    const backButton =
+
+        document.getElementById(
+
+            "summary-payroll-last-back"
+
+        );
+
+
+    if(
+
+        backButton
+
+    ){
+
+        backButton.addEventListener(
+
+            "click",
+
+            () => {
+
+                const previousPeriod =
+
+                    Process.getPreviousPeriod();
+
+
+                if(
+
+                    !previousPeriod
+
+                ){
+
+                    return;
+
+                }
+
+
+                Summary.previous =
+
+                    buildSummary(
+
+                        previousPeriod
+
+                    );
+
+
+                renderLastPeriod();
+
+            }
+
+        );
+
+    }   
+
 }
 
                     
