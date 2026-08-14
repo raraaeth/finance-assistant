@@ -2,12 +2,13 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 5.0.0
+   Version      : 5.1.0
 
    Description :
    Global Input Controller
 
    Handles :
+   - Load HTML
    - Init
    - Open
    - Close
@@ -77,6 +78,26 @@ export const Input = {
         if(
 
             initialized
+
+        ){
+
+            return;
+
+        }
+
+
+        /* =============================================
+           LOAD HTML
+        ============================================= */
+
+        const overlay =
+
+            await loadHTML();
+
+
+        if(
+
+            !overlay
 
         ){
 
@@ -201,6 +222,17 @@ export const Input = {
         await Input.init();
 
 
+        if(
+
+            !initialized
+
+        ){
+
+            return;
+
+        }
+
+
         /* =============================================
            RESOLVE WORKSPACE
         ============================================= */
@@ -237,7 +269,7 @@ export const Input = {
 
 
         /* =============================================
-           SET CONFIG
+           CONFIG
         ============================================= */
 
         State.workspace =
@@ -371,6 +403,148 @@ export const Input = {
     }
 
 };
+
+
+/* =====================================================
+   LOAD HTML
+===================================================== */
+
+async function loadHTML(){
+
+    /* =============================================
+       CHECK EXISTING
+    ============================================= */
+
+    let overlay =
+
+        document.getElementById(
+
+            "global-input-overlay"
+
+        );
+
+
+    if(
+
+        overlay
+
+    ){
+
+        return overlay;
+
+    }
+
+
+    /* =============================================
+       FETCH COMPONENT HTML
+    ============================================= */
+
+    try{
+
+        const response =
+
+            await fetch(
+
+                new URL(
+
+                    "./index.html",
+
+                    import.meta.url
+
+                )
+
+            );
+
+
+        if(
+
+            !response.ok
+
+        ){
+
+            throw new Error(
+
+                `HTTP ${response.status}`
+
+            );
+
+        }
+
+
+        const html =
+
+            await response.text();
+
+
+        /* =========================================
+           CREATE DOM
+        ========================================= */
+
+        const wrapper =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+        wrapper.innerHTML =
+
+            html.trim();
+
+
+        overlay =
+
+            wrapper.firstElementChild;
+
+
+        if(
+
+            !overlay
+
+        ){
+
+            throw new Error(
+
+                "Root Global Input tidak ditemukan."
+
+            );
+
+        }
+
+
+        /* =========================================
+           APPEND
+        ========================================= */
+
+        document.body.appendChild(
+
+            overlay
+
+        );
+
+
+        return overlay;
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Global Input HTML Error:",
+
+            error
+
+        );
+
+
+        return null;
+
+    }
+
+}
 
 
 /* =====================================================
