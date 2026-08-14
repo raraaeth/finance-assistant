@@ -1480,119 +1480,89 @@ Statistics.renderTransaction = function(){
 
             list.innerHTML +=
 
-            `
+`
 
-                <div class="transaction-item">
-
-                    <div class="transaction-header">
-
-                        <strong>
-
-                            📦 ${
-
-                                capitalize(
-
-                                    nama
-
-                                )
-
-                            }
-
-                        </strong>
+    <div class="summary-payroll-work-row">
 
 
-                        <small>
-
-                            ${
-
-                                date
-
-                                    ?
-
-                                    formatDate(
-
-                                        date
-
-                                    )
-
-                                    :
-
-                                    "-"
-
-                            }
-
-                        </small>
-
-                    </div>
+        <div class="summary-payroll-work-info">
 
 
-                    <div class="transaction-detail">
+            <strong>
+
+               📦${
+
+                    capitalize(
+
+                        nama
+
+                    )
+
+                }
+
+            </strong>
 
 
-                        <div>
+            <span>
 
-                            Grade
+                ${
 
-                            <strong>
+                    grade ||
 
-                                ${
+                    "-"
 
-                                    grade ||
+                }
 
-                                    "-"
+                • ${
 
-                                }
+                    qty
 
-                            </strong>
+                }
 
-                        </div>
+                pcs
 
+                • ${
 
-                        <div>
+                    date
 
-                            Qty
+                        ?
 
-                            <strong>
+                        formatDate(
 
-                                ${
+                            date
 
-                                    qty
+                        )
 
-                                }
+                        :
 
-                                pcs
+                        "-"
 
-                            </strong>
+                }
 
-                        </div>
-
-
-                        <div>
-
-                            Pendapatan
-
-                            <strong class="transaction-income">
-
-                                ${
-
-                                    rupiah(
-
-                                        income
-
-                                    )
-
-                                }
-
-                            </strong>
-
-                        </div>
+            </span>
 
 
-                    </div>
+        </div>
 
-                </div>
 
-            `;
+        <div class="summary-payroll-row-value">
+
+            ${
+
+                rupiah(
+
+                    income
+
+                )
+
+            }
+
+        </div>
+
+
+    </div>
+
+`;          
 
         }
 
