@@ -567,47 +567,51 @@ function renderHomeSummary(){
 function getPayrollSummary(){
 
     /* =============================================
-       PRIORITY 1
-       Summary history / current result
+       DAILY SUMMARY
+       
+       Payroll Daily menyimpan hasil perhitungan
+       periode berjalan di Summary.current.
     ============================================= */
 
-    const history =
+    const summary =
 
-        Summary.historyData;
+        Summary.current;
 
 
     if(
 
-        history
+        !summary
 
     ){
 
         return {
 
-            period :
+            period : null,
 
-                history.period ??
-
-                Summary.selectedPeriod ??
-
-                Summary.currentPeriod ??
-
-                null,
-
-            netSalary :
-
-                Number(
-
-                    history.netSalary ??
-
-                    0
-
-                )
+            netSalary : 0
 
         };
 
     }
 
+
+    return {
+
+        period :
+
+            summary.period ?? null,
+
+        netSalary :
+
+            Number(
+
+                summary.net ?? 0
+
+            )
+
+    };
+
+}
 
     /* =============================================
        FALLBACK
