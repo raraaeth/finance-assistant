@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Home
    File        : home.js
-   Version     : 1.2.0
+   Version     : 1.3.0
 
    Description :
    Payroll Daily Home Controller
@@ -13,7 +13,15 @@
    - Render hero
    - Load payroll data
    - Process data
+   - Summary menjadi sumber payroll
    - Render home summary
+
+   Payroll Source :
+   Summary.current
+
+   Theme :
+   Mengikuti Global Theme / CSS
+   Tidak menggunakan warna hard-code
 ===================================================== */
 
 
@@ -61,6 +69,7 @@ import {
     Profile
 
 } from "../../components/profile/script.js";
+
 
 import {
 
@@ -148,6 +157,7 @@ export async function init(){
 
     /* =============================================
        INITIAL HOME
+       Menampilkan keadaan awal sebelum data tersedia.
     ============================================= */
 
     renderHomeSummary();
@@ -161,11 +171,11 @@ export async function init(){
 
         await API.load(
 
-    CONFIG.api.daily,
+            CONFIG.api.daily,
 
-    CONFIG.api.rules
+            CONFIG.api.rules
 
-);
+        );
 
     }
 
@@ -197,26 +207,29 @@ export async function init(){
             API.data
 
         );
- /* -----------------------------------------
-   Summary
------------------------------------------ */
-
-Summary.init();
 
 
-/* -----------------------------------------
-   Statistics
------------------------------------------ */
+        /* =========================================
+           SUMMARY
+           Summary menjadi sumber utama payroll.
+        ========================================= */
 
-Statistics.init();
+        Summary.init();
 
 
-        /* -----------------------------------------
+        /* =========================================
+           STATISTICS
+        ========================================= */
+
+        Statistics.init();
+
+
+        /* =========================================
            HOME SUMMARY
-        ----------------------------------------- */
+           Render ulang setelah semua data siap.
+        ========================================= */
 
         renderHomeSummary();
-       
 
     }
 
@@ -347,28 +360,27 @@ function renderHomeSummary(){
 
 
     /* =============================================
-       DATA
+       SUMMARY PAYROLL
+       
+       Home sekarang membaca hasil Summary.
+       Tidak menghitung ulang gaji.
     ============================================= */
 
-    const data =
+    const summary =
 
-        Process.data ?? [];
+        Summary?.current;
 
-
-    const rules =
-
-        Process.rules ?? [];
-
-
-    /* =============================================
-       CURRENT PAYROLL PERIOD
-    ============================================= */
 
     const period =
 
-        getCurrentPayrollPeriod(
+        summary?.period ?? null;
 
-            rules
+
+    const periodSalary =
+
+        toNumber(
+
+            summary?.net
 
         );
 
@@ -491,12 +503,15 @@ function renderHomeSummary(){
 
 
     /* =============================================
-       CALCULATION
+       PROCESS DATA
+       
+       Minggu Ini / Hari Ini tetap mengambil
+       pendapatan pekerjaan aktual dari Process.
     ============================================= */
 
-    let periodIncome =
+    const data =
 
-        0;
+        Process.data ?? [];
 
 
     let todayIncome =
@@ -543,29 +558,6 @@ function renderHomeSummary(){
 
 
             /* -----------------------------------------
-               PAYROLL PERIOD
-            ----------------------------------------- */
-
-            if(
-
-                period
-
-                &&
-
-                date >= period.start
-
-                &&
-
-                date <= period.end
-
-            ){
-
-                periodIncome += income;
-
-            }
-
-
-            /* -----------------------------------------
                TODAY
             ----------------------------------------- */
 
@@ -579,7 +571,9 @@ function renderHomeSummary(){
 
             ){
 
-                todayIncome += income;
+                todayIncome +=
+
+                    income;
 
             }
 
@@ -598,7 +592,9 @@ function renderHomeSummary(){
 
             ){
 
-                weekIncome += income;
+                weekIncome +=
+
+                    income;
 
             }
 
@@ -616,15 +612,19 @@ function renderHomeSummary(){
     `
 
         <!-- =========================================
-             TOTAL PAYROLL
+             ESTIMATED SALARY
         ========================================== -->
 
         <div class="home-payroll-title">
 
-            Total Gaji Berjalan
+            Estimasi Gaji Periode Ini
 
         </div>
 
+
+        <!-- =========================================
+             PAYROLL PERIOD
+        ========================================== -->
 
         <div class="home-payroll-period">
 
@@ -661,13 +661,17 @@ function renderHomeSummary(){
         </div>
 
 
+        <!-- =========================================
+             NET SALARY
+        ========================================== -->
+
         <div class="home-payroll-salary">
 
             ${
 
                 rupiah(
 
-                    periodIncome
+                    periodSalary
 
                 )
 
@@ -683,7 +687,9 @@ function renderHomeSummary(){
         <div class="home-income-grid">
 
 
-            <!-- MINGGU -->
+            <!-- =====================================
+                 MINGGU
+            ====================================== -->
 
             <div class="home-income-item">
 
@@ -711,7 +717,9 @@ function renderHomeSummary(){
             </div>
 
 
-            <!-- HARI INI -->
+            <!-- =====================================
+                 HARI INI
+            ====================================== -->
 
             <div class="home-income-item">
 
@@ -767,7 +775,7 @@ function renderHomeSummary(){
 
             salaryElement,
 
-            periodIncome,
+            periodSalary,
 
             value =>
 
@@ -780,129 +788,6 @@ function renderHomeSummary(){
         );
 
     }
-
-}
-
-
-/* =====================================================
-   GET CURRENT PAYROLL PERIOD
-===================================================== */
-
-function getCurrentPayrollPeriod(
-
-    rules
-
-){
-
-    if(
-
-        !Array.isArray(rules)
-
-    ){
-
-        return null;
-
-    }
-
-
-    const salaryRule =
-
-        rules.find(
-
-            rule =>
-
-                String(
-
-                    rule?.type_rule ?? ""
-
-                )
-
-                .trim()
-
-                .toLowerCase()
-
-                ===
-
-                "rule_gaji"
-
-        );
-
-
-    if(
-
-        !salaryRule
-
-    ){
-
-        return null;
-
-    }
-
-
-    const start =
-
-        parseLocalDate(
-
-            salaryRule.periode_start
-
-        );
-
-
-    const end =
-
-        parseLocalDate(
-
-            salaryRule.periode_end
-
-        );
-
-
-    if(
-
-        !start ||
-
-        !end
-
-    ){
-
-        return null;
-
-    }
-
-
-    start.setHours(
-
-        0,
-
-        0,
-
-        0,
-
-        0
-
-    );
-
-
-    end.setHours(
-
-        23,
-
-        59,
-
-        59,
-
-        999
-
-    );
-
-
-    return {
-
-        start,
-
-        end
-
-    };
 
 }
 
@@ -931,7 +816,11 @@ function getItemDate(
 
     ){
 
-        return item.dateObject;
+        return new Date(
+
+            item.dateObject
+
+        );
 
     }
 
@@ -978,7 +867,11 @@ function parseLocalDate(
 
         .split("-")
 
-        .map(Number);
+        .map(
+
+            Number
+
+        );
 
 
     if(
