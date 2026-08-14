@@ -945,6 +945,10 @@ function renderLastPeriod(){
     }
 
 
+    /* =============================================
+       SECTION AKTIF
+    ============================================= */
+
     section.classList.remove(
 
         "hidden"
@@ -957,11 +961,13 @@ function renderLastPeriod(){
         Summary.previous;
 
 
+    /* =============================================
+       DATA TIDAK TERSEDIA
+    ============================================= */
+
     if(
 
-        !result
-
-        ||
+        !result ||
 
         !result.period
 
@@ -971,7 +977,7 @@ function renderLastPeriod(){
 
             <div class="summary-payroll-empty">
 
-                Data belum tersedia.
+                Data gaji periode sebelumnya belum tersedia.
 
             </div>
 
@@ -982,9 +988,24 @@ function renderLastPeriod(){
     }
 
 
+    /* =============================================
+       CARD RINGKAS
+       
+       HANYA :
+       - Periode
+       - Gaji bersih
+       - Navigasi
+       - Tombol rincian
+    ============================================= */
+
     card.innerHTML = `
 
         <div class="summary-payroll-card">
+
+
+            <!-- =================================
+                 PERIODE
+            ================================== -->
 
             <div class="summary-payroll-period">
 
@@ -1013,6 +1034,10 @@ function renderLastPeriod(){
             </div>
 
 
+            <!-- =================================
+                 GAJI BERSIH
+            ================================== -->
+
             <div class="summary-payroll-total">
 
                 ${
@@ -1028,13 +1053,20 @@ function renderLastPeriod(){
             </div>
 
 
+            <!-- =================================
+                 NAVIGATION
+            ================================== -->
+
             <div class="summary-payroll-navigation">
+
 
                 <button
 
                     type="button"
 
-                    class="summary-payroll-nav disabled"
+                    class="summary-payroll-nav"
+
+                    id="summary-payroll-last-back"
 
                 >
 
@@ -1049,14 +1081,21 @@ function renderLastPeriod(){
 
                     class="summary-payroll-nav disabled"
 
+                    id="summary-payroll-last-next"
+
                 >
 
                     Next &gt;
 
                 </button>
 
+
             </div>
 
+
+            <!-- =================================
+                 DETAIL
+            ================================== -->
 
             <button
 
@@ -1064,7 +1103,7 @@ function renderLastPeriod(){
 
                 class="summary-payroll-detail-button"
 
-                id="summary-payroll-detail-button"
+                id="summary-payroll-last-detail"
 
             >
 
@@ -1072,16 +1111,21 @@ function renderLastPeriod(){
 
             </button>
 
+
         </div>
 
     `;
 
 
+    /* =============================================
+       DETAIL BUTTON
+    ============================================= */
+
     const detailButton =
 
         document.getElementById(
 
-            "summary-payroll-detail-button"
+            "summary-payroll-last-detail"
 
         );
 
@@ -1112,6 +1156,7 @@ function renderLastPeriod(){
 
 }
 
+                    
 
 /* =====================================================
    RENDER CURRENT PERIOD
