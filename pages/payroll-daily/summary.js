@@ -302,6 +302,22 @@ function buildSummary(
 
         );
 
+   /* =============================================
+   HOME SUMMARY DATA
+   Data untuk Home dihitung di Summary,
+   bukan di Home.
+============================================= */
+
+const home =
+
+    buildHomeSummary(
+
+        data,
+
+        period
+
+    );
+
 
     /* =============================================
        WORK
@@ -383,6 +399,8 @@ function buildSummary(
 
         data,
 
+        home,
+
         work,
 
         additions,
@@ -399,6 +417,311 @@ function buildSummary(
 
 }
 
+/* =====================================================
+   BUILD HOME SUMMARY
+===================================================== */
+
+function buildHomeSummary(
+
+    data,
+
+    period
+
+){
+
+    const today =
+
+        new Date();
+
+
+    const todayStart =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth(),
+
+            today.getDate()
+
+        );
+
+
+    const todayEnd =
+
+        new Date(
+
+            today.getFullYear(),
+
+            today.getMonth(),
+
+            today.getDate(),
+
+            23,
+
+            59,
+
+            59,
+
+            999
+
+        );
+
+
+    /* =============================================
+       CURRENT WEEK
+       SENIN - MINGGU
+    ============================================= */
+
+    const day =
+
+        todayStart.getDay();
+
+
+    const mondayOffset =
+
+        day === 0
+
+            ?
+
+            6
+
+            :
+
+            day - 1;
+
+
+    const weekStart =
+
+        new Date(
+
+            todayStart
+
+        );
+
+
+    weekStart.setDate(
+
+        weekStart.getDate()
+
+        -
+
+        mondayOffset
+
+    );
+
+
+    const weekEnd =
+
+        new Date(
+
+            weekStart
+
+        );
+
+
+    weekEnd.setDate(
+
+        weekEnd.getDate()
+
+        + 6
+
+    );
+
+
+    weekEnd.setHours(
+
+        23,
+
+        59,
+
+        59,
+
+        999
+
+    );
+
+
+    /* =============================================
+       TODAY
+    ============================================= */
+
+    const todayIncome =
+
+        data.reduce(
+
+            (
+
+                total,
+
+                item
+
+            ) => {
+
+                const date =
+
+                    getDate(
+
+                        item
+
+                    );
+
+
+                if(
+
+                    !date
+
+                ){
+
+                    return total;
+
+                }
+
+
+                if(
+
+                    date >= todayStart
+
+                    &&
+
+                    date <= todayEnd
+
+                ){
+
+                    return (
+
+                        total +
+
+                        toNumber(
+
+                            item?.total
+
+                        )
+
+                    );
+
+                }
+
+
+                return total;
+
+            },
+
+            0
+
+        );
+
+
+    /* =============================================
+       WEEK
+    ============================================= */
+
+    const weekIncome =
+
+        data.reduce(
+
+            (
+
+                total,
+
+                item
+
+            ) => {
+
+                const date =
+
+                    getDate(
+
+                        item
+
+                    );
+
+
+                if(
+
+                    !date
+
+                ){
+
+                    return total;
+
+                }
+
+
+                if(
+
+                    date >= weekStart
+
+                    &&
+
+                    date <= weekEnd
+
+                ){
+
+                    return (
+
+                        total +
+
+                        toNumber(
+
+                            item?.total
+
+                        )
+
+                    );
+
+                }
+
+
+                return total;
+
+            },
+
+            0
+
+        );
+
+
+    return {
+
+        period :
+
+            period
+
+                ?
+
+                {
+
+                    start :
+
+                        new Date(
+
+                            period.start
+
+                        ),
+
+                    end :
+
+                        new Date(
+
+                            period.end
+
+                        )
+
+                }
+
+                :
+
+                null,
+
+
+        todayIncome,
+
+        weekIncome
+
+    };
+
+           }
 
 /* =====================================================
    GROUP WORK
