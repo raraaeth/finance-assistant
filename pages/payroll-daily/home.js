@@ -1,1027 +1,1120 @@
 /* =====================================================
-   Finance Assistant
-   Page        : Payroll Daily
-   Module      : Home
-   File        : home.js
-   Version     : 1.3.0
+Finance Assistant
+Page        : Payroll Daily
+Module      : Home
+File        : home.js
+Version     : 1.2.0
 
-   Description :
-   Payroll Daily Home Controller
+Description :
+Payroll Daily Home Controller
 
-   Flow :
-   - Load user
-   - Render hero
-   - Load payroll data
-   - Process data
-   - Summary menjadi sumber payroll
-   - Render home summary
+Flow :
 
-   Payroll Source :
-   Summary.current
+Load user
 
-   Theme :
-   Mengikuti Global Theme / CSS
-   Tidak menggunakan warna hard-code
+Render hero
+
+Load payroll data
+
+Process data
+
+Render home summary
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT
+IMPORT
 ===================================================== */
 
 import {
 
-    loadUser
+loadUser
 
 } from "../../js/storage.js";
 
-
 import {
 
-    CONFIG
+CONFIG
 
 } from "./config.js";
 
-
 import {
 
-    API
+API
 
 } from "../../js/api.js";
 
-
 import {
 
-    Process
+Process
 
 } from "./process.js";
 
-
 import {
 
-    Header
+Header
 
 } from "../../components/header/script.js";
 
-
 import {
 
-    Profile
+Profile
 
 } from "../../components/profile/script.js";
 
-
 import {
 
-    Statistics
+Statistics
 
 } from "./statistics.js";
 
-
 import {
 
-    Summary
+Summary
 
 } from "./summary.js";
 
-
 import {
 
-    formatDate,
+formatDate,  
 
-    rupiah,
+rupiah,  
 
-    shortRupiah
+shortRupiah
 
 } from "../../js/utils.js";
 
-
 import {
 
-    Animation
+Animation
 
 } from "../../js/animation.js";
 
-
 /* =====================================================
-   STATE
+STATE
 ===================================================== */
 
 const user =
 
-    loadUser();
-
+loadUser();
 
 /* =====================================================
-   INIT
+INIT
 ===================================================== */
 
 export async function init(){
 
-    /* =============================================
-       HEADER
-    ============================================= */
+/* =============================================  
+   HEADER  
+============================================= */  
 
-    await Header.render({
+await Header.render({  
 
-        container :
+    container :  
 
-            "#header-container",
+        "#header-container",  
 
-        theme :
+    theme :  
 
-            "payroll"
+        "payroll"  
 
-    });
-
-
-    /* =============================================
-       HERO
-    ============================================= */
-
-    renderHero();
+});  
 
 
-    /* =============================================
-       PROFILE
-    ============================================= */
+/* =============================================  
+   HERO  
+============================================= */  
 
-    await Profile.render({
-
-        container :
-
-            "#profile-page"
-
-    });
+renderHero();  
 
 
-    /* =============================================
-       INITIAL HOME
-       Menampilkan keadaan awal sebelum data tersedia.
-    ============================================= */
+/* =============================================  
+   PROFILE  
+============================================= */  
 
-    renderHomeSummary();
+await Profile.render({  
 
+    container :  
 
-    /* =============================================
-       LOAD DATA
-    ============================================= */
+        "#profile-page"  
 
-    try{
-
-        await API.load(
-
-            CONFIG.api.daily,
-
-            CONFIG.api.rules
-
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "Payroll Daily API Error:",
-
-            error
-
-        );
-
-        return;
-
-    }
+});  
 
 
-    /* =============================================
-       PROCESS
-    ============================================= */
+/* =============================================  
+   INITIAL HOME  
+============================================= */  
 
-    try{
-
-        Process.init(
-
-            API.raw,
-
-            API.data
-
-        );
+renderHomeSummary();  
 
 
-        /* =========================================
-           SUMMARY
-           Summary menjadi sumber utama payroll.
-        ========================================= */
+/* =============================================  
+   LOAD DATA  
+============================================= */  
 
-        Summary.init();
+try{  
+
+    await API.load(  
+
+CONFIG.api.daily,  
+
+CONFIG.api.rules
+
+);
+
+}  
+
+catch(error){  
+
+    console.error(  
+
+        "Payroll Daily API Error:",  
+
+        error  
+
+    );  
+
+    return;  
+
+}  
 
 
-        /* =========================================
-           STATISTICS
-        ========================================= */
+/* =============================================  
+   PROCESS  
+============================================= */  
 
-        Statistics.init();
+try{  
 
+    Process.init(  
 
-        /* =========================================
-           HOME SUMMARY
-           Render ulang setelah semua data siap.
-        ========================================= */
+        API.raw,  
 
-        renderHomeSummary();
+        API.data  
 
-    }
+    );
 
-    catch(error){
+/* -----------------------------------------
+Summary
+----------------------------------------- */
 
-        console.error(
+Summary.init();
 
-            "Payroll Daily Process Error:",
+/* -----------------------------------------
+Statistics
+----------------------------------------- */
 
-            error
+Statistics.init();
 
-        );
+/* -----------------------------------------  
+       HOME SUMMARY  
+    ----------------------------------------- */  
 
-    }
+    renderHomeSummary();  
+     
+
+}  
+
+catch(error){  
+
+    console.error(  
+
+        "Payroll Daily Process Error:",  
+
+        error  
+
+    );  
 
 }
 
+}
 
 /* =====================================================
-   HERO
+HERO
 ===================================================== */
 
 function renderHero(){
 
-    const name =
+const name =  
 
-        capitalize(
+    capitalize(  
 
-            user?.displayName ??
+        user?.displayName ??  
 
-            "Guest"
+        "Guest"  
 
-        );
-
-
-    const title =
-
-        document.getElementById(
-
-            "hero-title"
-
-        );
+    );  
 
 
-    const description =
+const title =  
 
-        document.getElementById(
+    document.getElementById(  
 
-            "hero-description"
+        "hero-title"  
 
-        );
-
-
-    const banner =
-
-        document.getElementById(
-
-            "hero-banner"
-
-        );
+    );  
 
 
-    if(
+const description =  
 
-        title
+    document.getElementById(  
 
-    ){
+        "hero-description"  
 
-        title.innerHTML =
-
-            `Halo, ${name} 👋`;
-
-    }
+    );  
 
 
-    if(
+const banner =  
 
-        description
+    document.getElementById(  
 
-    ){
+        "hero-banner"  
 
-        description.textContent =
-
-            CONFIG.hero.description;
-
-    }
+    );  
 
 
-    if(
+if(  
 
-        banner
+    title  
 
-    ){
+){  
 
-        banner.src =
+    title.innerHTML =  
 
-            CONFIG.hero.image;
+        `Halo, ${name} 👋`;  
 
-    }
+}  
+
+
+if(  
+
+    description  
+
+){  
+
+    description.textContent =  
+
+        CONFIG.hero.description;  
+
+}  
+
+
+if(  
+
+    banner  
+
+){  
+
+    banner.src =  
+
+        CONFIG.hero.image;  
 
 }
 
+}
 
 /* =====================================================
-   HOME SUMMARY
+HOME SUMMARY
 ===================================================== */
 
 function renderHomeSummary(){
 
-    const card =
+const card =  
 
-        document.getElementById(
+    document.getElementById(  
 
-            "summary-card"
+        "summary-card"  
 
-        );
+    );  
 
 
-    if(
+if(  
 
-        !card
+    !card  
 
-    ){
+){  
 
-        return;
+    return;  
 
-    }
+}  
 
 
-    /* =============================================
-       SUMMARY PAYROLL
-       
-       Home sekarang membaca hasil Summary.
-       Tidak menghitung ulang gaji.
-    ============================================= */
+/* =============================================  
+   DATA  
+============================================= */  
 
-    const summary =
+const data =  
 
-        Summary?.current;
+    Process.data ?? [];  
 
 
-    const period =
+const rules =  
 
-        summary?.period ?? null;
+    Process.rules ?? [];  
 
 
-    const periodSalary =
+/* =============================================  
+   CURRENT PAYROLL PERIOD  
+============================================= */  
 
-        toNumber(
+const period =  
 
-            summary?.net
+    getCurrentPayrollPeriod(  
 
-        );
+        rules  
 
+    );  
 
-    /* =============================================
-       TODAY
-    ============================================= */
 
-    const today =
+/* =============================================  
+   TODAY  
+============================================= */  
 
-        new Date();
+const today =  
 
+    new Date();  
 
-    const todayStart =
 
-        new Date(
+const todayStart =  
 
-            today.getFullYear(),
+    new Date(  
 
-            today.getMonth(),
+        today.getFullYear(),  
 
-            today.getDate()
+        today.getMonth(),  
 
-        );
+        today.getDate()  
 
+    );  
 
-    const todayEnd =
 
-        new Date(
+const todayEnd =  
 
-            today.getFullYear(),
+    new Date(  
 
-            today.getMonth(),
+        today.getFullYear(),  
 
-            today.getDate(),
+        today.getMonth(),  
 
-            23,
+        today.getDate(),  
 
-            59,
+        23,  
 
-            59,
+        59,  
 
-            999
+        59,  
 
-        );
+        999  
 
+    );  
 
-    /* =============================================
-       CURRENT WEEK
-       SENIN - MINGGU
-    ============================================= */
 
-    const day =
+/* =============================================  
+   CURRENT WEEK  
+   SENIN - MINGGU  
+============================================= */  
 
-        todayStart.getDay();
+const day =  
 
+    todayStart.getDay();  
 
-    const mondayOffset =
 
-        day === 0
+const mondayOffset =  
 
-            ?
+    day === 0  
 
-            6
+        ?  
 
-            :
+        6  
 
-            day - 1;
+        :  
 
+        day - 1;  
 
-    const weekStart =
 
-        new Date(
+const weekStart =  
 
-            todayStart
+    new Date(  
 
-        );
+        todayStart  
 
+    );  
 
-    weekStart.setDate(
 
-        weekStart.getDate()
+weekStart.setDate(  
 
-        -
+    weekStart.getDate()  
 
-        mondayOffset
+    -  
 
-    );
+    mondayOffset  
 
+);  
 
-    const weekEnd =
 
-        new Date(
+const weekEnd =  
 
-            weekStart
+    new Date(  
 
-        );
+        weekStart  
 
+    );  
 
-    weekEnd.setDate(
 
-        weekEnd.getDate()
+weekEnd.setDate(  
 
-        + 6
+    weekEnd.getDate()  
 
-    );
+    + 6  
 
+);  
 
-    weekEnd.setHours(
 
-        23,
+weekEnd.setHours(  
 
-        59,
+    23,  
 
-        59,
+    59,  
 
-        999
+    59,  
 
-    );
+    999  
 
+);  
 
-    /* =============================================
-       PROCESS DATA
-       
-       Minggu Ini / Hari Ini tetap mengambil
-       pendapatan pekerjaan aktual dari Process.
-    ============================================= */
 
-    const data =
+/* =============================================  
+   CALCULATION  
+============================================= */  
 
-        Process.data ?? [];
+let periodIncome =  
 
+    0;  
 
-    let todayIncome =
 
-        0;
+let todayIncome =  
 
+    0;  
 
-    let weekIncome =
 
-        0;
+let weekIncome =  
 
+    0;  
 
-    data.forEach(
 
-        item => {
+data.forEach(  
 
-            const date =
+    item => {  
 
-                getItemDate(
+        const date =  
 
-                    item
+            getItemDate(  
 
-                );
+                item  
 
+            );  
 
-            if(
 
-                !date
+        if(  
 
-            ){
+            !date  
 
-                return;
+        ){  
 
-            }
+            return;  
 
+        }  
 
-            const income =
 
-                getIncome(
+        const income =  
 
-                    item
+            getIncome(  
 
-                );
+                item  
 
+            );  
 
-            /* -----------------------------------------
-               TODAY
-            ----------------------------------------- */
 
-            if(
+        /* -----------------------------------------  
+           PAYROLL PERIOD  
+        ----------------------------------------- */  
 
-                date >= todayStart
+        if(  
 
-                &&
+            period  
 
-                date <= todayEnd
+            &&  
 
-            ){
+            date >= period.start  
 
-                todayIncome +=
+            &&  
 
-                    income;
+            date <= period.end  
 
-            }
+        ){  
 
+            periodIncome += income;  
 
-            /* -----------------------------------------
-               CURRENT WEEK
-            ----------------------------------------- */
+        }  
 
-            if(
 
-                date >= weekStart
+        /* -----------------------------------------  
+           TODAY  
+        ----------------------------------------- */  
 
-                &&
+        if(  
 
-                date <= weekEnd
+            date >= todayStart  
 
-            ){
+            &&  
 
-                weekIncome +=
+            date <= todayEnd  
 
-                    income;
+        ){  
 
-            }
+            todayIncome += income;  
 
-        }
+        }  
 
-    );
 
+        /* -----------------------------------------  
+           CURRENT WEEK  
+        ----------------------------------------- */  
 
-    /* =============================================
-       RENDER
-    ============================================= */
+        if(  
 
-    card.innerHTML =
+            date >= weekStart  
 
-    `
+            &&  
 
-        <!-- =========================================
-             ESTIMATED SALARY
-        ========================================== -->
+            date <= weekEnd  
 
-        <div class="home-payroll-title">
+        ){  
 
-            Estimasi Gaji Periode Ini
+            weekIncome += income;  
 
-        </div>
+        }  
 
+    }  
 
-        <!-- =========================================
-             PAYROLL PERIOD
-        ========================================== -->
+);  
 
-        <div class="home-payroll-period">
 
-            ${
+/* =============================================  
+   RENDER  
+============================================= */  
 
-                period
+card.innerHTML =  
 
-                    ?
+`  
 
-                    formatDate(
+    <!-- =========================================  
+         TOTAL PAYROLL  
+    ========================================== -->  
 
-                        period.start
+    <div class="home-payroll-title">  
 
-                    )
+        Total Gaji Berjalan  
 
-                    +
+    </div>  
 
-                    " - "
 
-                    +
+    <div class="home-payroll-period">  
 
-                    formatDate(
+        ${  
 
-                        period.end
+            period  
 
-                    )
+                ?  
 
-                    :
+                formatDate(  
 
-                    "Periode tidak tersedia"
+                    period.start  
 
-            }
+                )  
 
-        </div>
+                +  
 
+                " - "  
 
-        <!-- =========================================
-             NET SALARY
-        ========================================== -->
+                +  
 
-        <div class="home-payroll-salary">
+                formatDate(  
 
-            ${
+                    period.end  
 
-                rupiah(
+                )  
 
-                    periodSalary
+                :  
 
-                )
+                "Periode tidak tersedia"  
 
-            }
+        }  
 
-        </div>
+    </div>  
 
 
-        <!-- =========================================
-             SMALL SUMMARY
-        ========================================== -->
+    <div class="home-payroll-salary">  
 
-        <div class="home-income-grid">
+        ${  
 
+            rupiah(  
 
-            <!-- =====================================
-                 MINGGU
-            ====================================== -->
+                periodIncome  
 
-            <div class="home-income-item">
+            )  
 
-                <span>
+        }  
 
-                    Minggu Ini
+    </div>  
 
-                </span>
 
+    <!-- =========================================  
+         SMALL SUMMARY  
+    ========================================== -->  
 
-                <strong>
+    <div class="home-income-grid">  
 
-                    ${
 
-                        shortRupiah(
+        <!-- MINGGU -->  
 
-                            weekIncome
+        <div class="home-income-item">  
 
-                        )
+            <span>  
 
-                    }
+                Minggu Ini  
 
-                </strong>
+            </span>  
 
-            </div>
 
+            <strong>  
 
-            <!-- =====================================
-                 HARI INI
-            ====================================== -->
+                ${  
 
-            <div class="home-income-item">
+                    shortRupiah(  
 
-                <span>
+                        weekIncome  
 
-                    Hari Ini
+                    )  
 
-                </span>
+                }  
 
+            </strong>  
 
-                <strong>
+        </div>  
 
-                    ${
 
-                        shortRupiah(
+        <!-- HARI INI -->  
 
-                            todayIncome
+        <div class="home-income-item">  
 
-                        )
+            <span>  
 
-                    }
+                Hari Ini  
 
-                </strong>
+            </span>  
 
-            </div>
 
+            <strong>  
 
-        </div>
+                ${  
 
-    `;
+                    shortRupiah(  
 
+                        todayIncome  
 
-    /* =============================================
-       NUMBER ANIMATION
-    ============================================= */
+                    )  
 
-    const salaryElement =
+                }  
 
-        card.querySelector(
+            </strong>  
 
-            ".home-payroll-salary"
+        </div>  
 
-        );
 
+    </div>  
 
-    if(
+`;  
 
-        salaryElement
 
-    ){
+/* =============================================  
+   NUMBER ANIMATION  
+============================================= */  
 
-        Animation.number(
+const salaryElement =  
 
-            salaryElement,
+    card.querySelector(  
 
-            periodSalary,
+        ".home-payroll-salary"  
 
-            value =>
+    );  
 
-                rupiah(
 
-                    value
+if(  
 
-                )
+    salaryElement  
 
-        );
+){  
 
-    }
+    Animation.number(  
+
+        salaryElement,  
+
+        periodIncome,  
+
+        value =>  
+
+            rupiah(  
+
+                value  
+
+            )  
+
+    );  
 
 }
 
+}
 
 /* =====================================================
-   GET ITEM DATE
+GET CURRENT PAYROLL PERIOD
+===================================================== */
+
+function getCurrentPayrollPeriod(
+
+rules
+
+){
+
+if(  
+
+    !Array.isArray(rules)  
+
+){  
+
+    return null;  
+
+}  
+
+
+const salaryRule =  
+
+    rules.find(  
+
+        rule =>  
+
+            String(  
+
+                rule?.type_rule ?? ""  
+
+            )  
+
+            .trim()  
+
+            .toLowerCase()  
+
+            ===  
+
+            "rule_gaji"  
+
+    );  
+
+
+if(  
+
+    !salaryRule  
+
+){  
+
+    return null;  
+
+}  
+
+
+const start =  
+
+    parseLocalDate(  
+
+        salaryRule.periode_start  
+
+    );  
+
+
+const end =  
+
+    parseLocalDate(  
+
+        salaryRule.periode_end  
+
+    );  
+
+
+if(  
+
+    !start ||  
+
+    !end  
+
+){  
+
+    return null;  
+
+}  
+
+
+start.setHours(  
+
+    0,  
+
+    0,  
+
+    0,  
+
+    0  
+
+);  
+
+
+end.setHours(  
+
+    23,  
+
+    59,  
+
+    59,  
+
+    999  
+
+);  
+
+
+return {  
+
+    start,  
+
+    end  
+
+};
+
+}
+
+/* =====================================================
+GET ITEM DATE
 ===================================================== */
 
 function getItemDate(
 
-    item
+item
 
 ){
 
-    if(
+if(  
 
-        item?.dateObject instanceof Date
+    item?.dateObject instanceof Date  
 
-        &&
+    &&  
 
-        !Number.isNaN(
+    !Number.isNaN(  
 
-            item.dateObject.getTime()
+        item.dateObject.getTime()  
 
-        )
+    )  
 
-    ){
+){  
 
-        return new Date(
+    return item.dateObject;  
 
-            item.dateObject
-
-        );
-
-    }
+}  
 
 
-    return parseLocalDate(
+return parseLocalDate(  
 
-        item?.date ??
+    item?.date ??  
 
-        item?.tanggal
+    item?.tanggal  
 
-    );
+);
 
 }
 
-
 /* =====================================================
-   PARSE LOCAL DATE
+PARSE LOCAL DATE
 ===================================================== */
 
 function parseLocalDate(
 
-    value
+value
 
 ){
 
-    if(
+if(  
 
-        !value
+    !value  
 
-    ){
+){  
 
-        return null;
+    return null;  
 
-    }
-
-
-    const parts =
-
-        String(
-
-            value
-
-        )
-
-        .split("-")
-
-        .map(
-
-            Number
-
-        );
+}  
 
 
-    if(
+const parts =  
 
-        parts.length !== 3
+    String(  
 
-    ){
+        value  
 
-        return null;
+    )  
 
-    }
+    .split("-")  
 
-
-    const [
-
-        year,
-
-        month,
-
-        day
-
-    ] = parts;
+    .map(Number);  
 
 
-    const date =
+if(  
 
-        new Date(
+    parts.length !== 3  
 
-            year,
+){  
 
-            month - 1,
+    return null;  
 
-            day
-
-        );
+}  
 
 
-    return Number.isNaN(
+const [  
 
-        date.getTime()
+    year,  
 
-    )
+    month,  
 
-        ?
+    day  
 
-        null
+] = parts;  
 
-        :
 
-        date;
+const date =  
+
+    new Date(  
+
+        year,  
+
+        month - 1,  
+
+        day  
+
+    );  
+
+
+return Number.isNaN(  
+
+    date.getTime()  
+
+)  
+
+    ?  
+
+    null  
+
+    :  
+
+    date;
 
 }
 
-
 /* =====================================================
-   GET INCOME
+GET INCOME
 ===================================================== */
 
 function getIncome(
 
-    item
+item
 
 ){
 
-    return toNumber(
+return toNumber(  
 
-        item?.income ??
+    item?.income ??  
 
-        item?.pendapatan ??
+    item?.pendapatan ??  
 
-        item?.total ??
+    item?.total ??  
 
-        item?.amount ??
+    item?.amount ??  
 
-        0
+    0  
 
-    );
+);
 
 }
 
-
 /* =====================================================
-   NUMBER
+NUMBER
 ===================================================== */
 
 function toNumber(
 
-    value
+value
 
 ){
 
-    const number =
+const number =  
 
-        Number(
+    Number(  
 
-            value
+        value  
 
-        );
+    );  
 
 
-    return Number.isFinite(
+return Number.isFinite(  
 
-        number
+    number  
 
-    )
+)  
 
-        ?
+    ?  
 
-        number
+    number  
 
-        :
+    :  
 
-        0;
+    0;
 
 }
 
-
 /* =====================================================
-   CAPITALIZE
+CAPITALIZE
 ===================================================== */
 
 function capitalize(
 
-    text
+text
 
 ){
 
-    if(
+if(  
 
-        !text
+    !text  
 
-    ){
+){  
 
-        return "-";
+    return "-";  
 
-    }
+}  
 
 
-    return String(
+return String(  
 
-        text
+    text  
 
-    ).replace(
+).replace(  
 
-        /\b\w/g,
+    /\b\w/g,  
 
-        letter =>
+    letter =>  
 
-            letter.toUpperCase()
+        letter.toUpperCase()  
 
-    );
+);
 
 }
