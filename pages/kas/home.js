@@ -76,8 +76,7 @@ import {
 
     Input
 
-} from "../../components/input/input.js";
-
+} from "../../components/input/script.js";
 
 /* =====================================================
    INIT DATA
