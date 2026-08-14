@@ -1295,58 +1295,169 @@ Statistics.renderTransaction = function(){
 
 
     /* =============================================
+       GROUP DATA BY DATE
+    ============================================= */
+
+    const grouped = {};
+
+
+    Statistics.data.forEach(
+
+        item => {
+
+            const date =
+
+                getItemDate(
+
+                    item
+
+                );
+
+
+            if(
+
+                !date
+
+            ){
+
+                return;
+
+            }
+
+
+            const key =
+
+                [
+
+                    date.getFullYear(),
+
+                    String(
+
+                        date.getMonth() + 1
+
+                    ).padStart(
+
+                        2,
+
+                        "0"
+
+                    ),
+
+                    String(
+
+                        date.getDate()
+
+                    ).padStart(
+
+                        2,
+
+                        "0"
+
+                    )
+
+                ].join("-");
+
+
+            if(
+
+                !grouped[key]
+
+            ){
+
+                grouped[key] = {
+
+                    date :
+
+                        date,
+
+                    income :
+
+                        0,
+
+                    jobs : []
+
+                };
+
+            }
+
+
+            /* =====================================
+               TOTAL PENDAPATAN HARI
+            ===================================== */
+
+            grouped[key].income +=
+
+                getIncome(
+
+                    item
+
+                );
+
+
+            /* =====================================
+               DETAIL PEKERJAAN
+            ===================================== */
+
+            grouped[key].jobs.push({
+
+                nama :
+
+                    item.nama ?? "",
+
+                grade1 :
+
+                    item.grade_1 ?? "",
+
+                grade2 :
+
+                    item.grade_2 ?? "",
+
+                qty :
+
+                    toNumber(
+
+                        item.qty
+
+                    )
+
+            });
+
+        }
+
+    );
+
+
+    /* =============================================
        SORT TERBARU
     ============================================= */
 
-    const sortedData =
+    const days =
 
-        Statistics.data
+        Object.values(
 
-            .slice()
+            grouped
 
-            .sort(
+        ).sort(
 
-                (
+            (
 
-                    a,
+                a,
 
-                    b
+                b
 
-                ) => {
+            ) =>
 
-                    const dateA =
+                b.date -
 
-                        getItemDate(
+                a.date
 
-                            a
-
-                        );
-
-
-                    const dateB =
-
-                        getItemDate(
-
-                            b
-
-                        );
-
-
-                    return (
-
-                        dateB -
-
-                        dateA
-
-                    );
-
-                }
-
-            );
+        );
 
 
     /* =============================================
        PAGINATION
+       
+       1 PAGE = 5 HARI
     ============================================= */
 
     const start =
@@ -1373,7 +1484,7 @@ Statistics.renderTransaction = function(){
 
     const pageData =
 
-        sortedData.slice(
+        days.slice(
 
             start,
 
@@ -1404,178 +1515,238 @@ Statistics.renderTransaction = function(){
 
         `;
 
+
+        renderPagination(
+
+            days.length
+
+        );
+
+
+        return;
+
     }
 
 
     /* =============================================
-       RENDER
+       RENDER PER DAY
     ============================================= */
 
     pageData.forEach(
 
-        item => {
+        day => {
 
-            const date =
 
-                getItemDate(
+            /* =====================================
+               GROUP PEKERJAAN YANG SAMA
+            ===================================== */
 
-                    item
+            const jobs = {};
+
+
+            day.jobs.forEach(
+
+                job => {
+
+                    const key =
+
+                        [
+
+                            normalizeText(
+
+                                job.nama
+
+                            ),
+
+                            normalizeText(
+
+                                job.grade1
+
+                            ),
+
+                            normalizeText(
+
+                                job.grade2
+
+                            )
+
+                        ].join("|");
+
+
+                    if(
+
+                        !jobs[key]
+
+                    ){
+
+                        jobs[key] = {
+
+                            nama :
+
+                                job.nama,
+
+                            grade1 :
+
+                                job.grade1,
+
+                            grade2 :
+
+                                job.grade2,
+
+                            qty :
+
+                                0
+
+                        };
+
+                    }
+
+
+                    jobs[key].qty +=
+
+                        job.qty;
+
+                }
+
+            );
+
+
+            const jobList =
+
+                Object.values(
+
+                    jobs
 
                 );
 
 
-            const nama =
-
-                item.nama ??
-
-                "-";
-
-
-            const grade1 =
-
-                item.grade_1 ??
-
-                "";
-
-
-            const grade2 =
-
-                item.grade_2 ??
-
-                "";
-
-
-            const qty =
-
-                toNumber(
-
-                    item.qty
-
-                );
-
-
-            const income =
-
-                getIncome(
-
-                    item
-
-                );
-
-
-            const grade =
-
-                [
-
-                    grade1,
-
-                    grade2
-
-                ]
-
-                    .filter(Boolean)
-
-                    .join(" • ");
-
+            /* =====================================
+               CARD
+            ===================================== */
 
             list.innerHTML +=
 
-`
+            `
 
-    <div class="summary-payroll-work-row">
-
-
-        <div class="summary-payroll-work-info">
+                <div class="transaction-item">
 
 
-            <strong>
+                    <!-- =================================
+                         DATE + DAILY INCOME
+                    ================================== -->
 
-               📦${
-
-                    capitalize(
-
-                        nama
-
-                    )
-
-                }
-
-            </strong>
+                    <div class="transaction-header">
 
 
-            <span>
+                        <strong>
 
-                ${
+                            ${
 
-                    grade ||
+                                formatDate(
 
-                    "-"
+                                    day.date
 
-                }
+                                )
 
-                • ${
+                            }
 
-                    qty
-
-                }
-
-                pcs
-
-                • ${
-
-                    date
-
-                        ?
-
-                        formatDate(
-
-                            date
-
-                        )
-
-                        :
-
-                        "-"
-
-                }
-
-            </span>
+                        </strong>
 
 
-        </div>
+                        <strong
+
+                            class="transaction-income"
+
+                        >
+
+                            ${
+
+                                rupiah(
+
+                                    day.income
+
+                                )
+
+                            }
+
+                        </strong>
 
 
-        <div class="summary-payroll-row-value">
-
-            ${
-
-                rupiah(
-
-                    income
-
-                )
-
-            }
-
-        </div>
+                    </div>
 
 
-    </div>
+                    <!-- =================================
+                         WORK DETAILS
+                    ================================== -->
 
-`;          
+                    <div class="transaction-detail">
+
+
+                        ${
+
+                            jobList.map(
+
+                                job => `
+
+                                    <div class="transaction-work-row">
+
+
+                                        <span>
+
+                                            ${
+
+                                                buildWorkName(
+
+                                                    job
+
+                                                )
+
+                                            }
+
+                                            ×
+
+                                            ${
+
+                                                job.qty
+
+                                            }
+
+                                        </span>
+
+
+                                    </div>
+
+                                `
+
+                            ).join("")
+
+                        }
+
+
+                    </div>
+
+
+                </div>
+
+            `;
 
         }
 
     );
 
 
+    /* =============================================
+       PAGINATION
+    ============================================= */
+
     renderPagination(
 
-        sortedData.length
+        days.length
 
     );
 
 };
+
 
 
 /* =====================================================
@@ -2120,6 +2291,84 @@ function toNumber(
 
 }
 
+/* =====================================================
+   BUILD WORK NAME
+===================================================== */
+
+function buildWorkName(
+
+    item
+
+){
+
+    return [
+
+        item.nama,
+
+        item.grade1,
+
+        item.grade2
+
+    ]
+
+    .filter(
+
+        value =>
+
+            value !== null
+
+            &&
+
+            value !== undefined
+
+            &&
+
+            String(
+
+                value
+
+            ).trim() !== ""
+
+    )
+
+    .map(
+
+        value =>
+
+            capitalize(
+
+                value
+
+            )
+
+    )
+
+    .join(" ");
+
+}
+
+
+/* =====================================================
+   NORMALIZE TEXT
+===================================================== */
+
+function normalizeText(
+
+    value
+
+){
+
+    return String(
+
+        value ?? ""
+
+    )
+
+    .trim()
+
+    .toLowerCase();
+
+}
 
 /* =====================================================
    CAPITALIZE
