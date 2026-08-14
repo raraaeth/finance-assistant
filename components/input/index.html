@@ -1,0 +1,415 @@
+<!-- =====================================================
+     Finance Assistant
+     Global Component
+     Module      : Input
+     File        : index.html
+     Version     : 1.0.0
+
+     Description :
+     Global Input Overlay
+===================================================== -->
+
+
+<!-- =====================================================
+     INPUT OVERLAY
+===================================================== -->
+
+<div
+    id="global-input-overlay"
+    class="global-input-overlay hidden">
+
+
+    <!-- ==============================================
+         BACKDROP
+    ============================================== -->
+
+    <div
+        id="global-input-backdrop"
+        class="global-input-backdrop">
+    </div>
+
+
+    <!-- ==============================================
+         PANEL
+    ============================================== -->
+
+    <div
+        id="global-input-panel"
+        class="global-input-panel">
+
+
+        <!-- ==========================================
+             HEADER
+        ========================================== -->
+
+        <header
+            id="global-input-header"
+            class="global-input-header">
+
+
+            <div
+                class="global-input-header-content">
+
+                <h2
+                    id="global-input-title">
+
+                    Input
+
+                </h2>
+
+
+                <p
+                    id="global-input-subtitle">
+
+                    Tambahkan data
+
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="global-input-close"
+                class="global-input-close"
+                aria-label="Tutup">
+
+                ×
+
+            </button>
+
+        </header>
+
+
+        <!-- ==========================================
+             BODY
+        ========================================== -->
+
+        <div
+            id="global-input-body"
+            class="global-input-body">
+
+
+            <!-- ======================================
+                 SESSION INFORMATION
+            ====================================== -->
+
+            <section
+                id="global-input-session"
+                class="global-input-session">
+
+
+                <!-- WORKSPACE -->
+
+                <div
+                    class="global-input-meta">
+
+
+                    <span
+                        class="global-input-meta-label">
+
+                        Workspace
+
+                    </span>
+
+
+                    <strong
+                        id="global-input-workspace"
+                        class="global-input-meta-value">
+
+                        -
+
+                    </strong>
+
+                </div>
+
+
+                <!-- ID -->
+
+                <div
+                    class="global-input-meta">
+
+
+                    <span
+                        class="global-input-meta-label">
+
+                        ID
+
+                    </span>
+
+
+                    <strong
+                        id="global-input-id"
+                        class="global-input-meta-value">
+
+                        -
+
+                    </strong>
+
+                </div>
+
+
+                <!-- DATE -->
+
+                <div
+                    class="global-input-meta">
+
+
+                    <label
+                        for="global-input-date"
+                        class="global-input-meta-label">
+
+                        Tanggal
+
+                    </label>
+
+
+                    <input
+                        type="date"
+                        id="global-input-date"
+                        class="global-input-date">
+
+                </div>
+
+
+                <!-- LOCKED DATE -->
+
+                <div
+                    id="global-input-date-locked"
+                    class="global-input-date-locked hidden">
+
+
+                    <span>
+
+                        🔒
+
+                    </span>
+
+
+                    <div>
+
+                        <span
+                            class="global-input-meta-label">
+
+                            Tanggal Input
+
+                        </span>
+
+
+                        <strong
+                            id="global-input-locked-date"
+                            class="global-input-meta-value">
+
+                            -
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ======================================
+                 CURRENT FORM
+            ====================================== -->
+
+            <section
+                id="global-input-form"
+                class="global-input-form">
+
+
+                <!--
+
+                    Field akan dibuat oleh input.js
+
+                    Contoh:
+
+                    Jenis
+                    Kategori
+                    Member / Bank
+                    Nominal
+                    Keterangan
+
+                -->
+
+            </section>
+
+
+            <!-- ======================================
+                 ADD BUTTON
+            ====================================== -->
+
+            <section
+                id="global-input-action"
+                class="global-input-action hidden">
+
+
+                <button
+                    type="button"
+                    id="global-input-add"
+                    class="global-input-add">
+
+                    + Tambah Input
+
+                </button>
+
+            </section>
+
+
+            <!-- ======================================
+                 INPUT LIST
+            ====================================== -->
+
+            <section
+                id="global-input-list-section"
+                class="global-input-list-section hidden">
+
+
+                <div
+                    class="global-input-list-header">
+
+
+                    <div>
+
+                        <h3>
+
+                            Input Saat Ini
+
+                        </h3>
+
+
+                        <p>
+
+                            Periksa kembali data sebelum dikirim.
+
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        id="global-input-count"
+                        class="global-input-count">
+
+                        0
+
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="global-input-list"
+                    class="global-input-list">
+
+                    <!--
+
+                        Transaksi akan dibuat
+                        secara dinamis oleh input.js
+
+                    -->
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+
+        <!-- ==========================================
+             FOOTER
+        ========================================== -->
+
+        <footer
+            id="global-input-footer"
+            class="global-input-footer hidden">
+
+
+            <div
+                id="global-input-summary"
+                class="global-input-summary">
+
+
+                <div>
+
+                    <span>
+
+                        Total Input
+
+                    </span>
+
+
+                    <strong
+                        id="global-input-total-count">
+
+                        0
+
+                    </strong>
+
+                </div>
+
+
+                <div
+                    id="global-input-total-income"
+                    class="global-input-total income">
+
+
+                    <span>
+
+                        Masuk
+
+                    </span>
+
+
+                    <strong>
+
+                        Rp0
+
+                    </strong>
+
+                </div>
+
+
+                <div
+                    id="global-input-total-expense"
+                    class="global-input-total expense">
+
+
+                    <span>
+
+                        Keluar
+
+                    </span>
+
+
+                    <strong>
+
+                        Rp0
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONFIRM -->
+
+            <button
+                type="button"
+                id="global-input-confirm"
+                class="global-input-confirm">
+
+                Konfirmasi
+
+            </button>
+
+        </footer>
+
+
+    </div>
+
+</div>
