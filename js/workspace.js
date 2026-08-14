@@ -38,6 +38,9 @@ import * as PayrollMonthly from
 import * as PayrollDaily from
     "../pages/payroll-daily/home.js";
 
+import * as Financial from
+    "../pages/financial/home.js";
+
 /* =====================================================
    STATE
 ===================================================== */
@@ -58,7 +61,10 @@ const WORKSPACE = {
         PayrollMonthly,
 
     "payroll-daily" :
-        PayrollDaily
+        PayrollDaily,
+   
+   "financial" :
+        Financial
 
 };
 
