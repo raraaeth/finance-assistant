@@ -3,33 +3,23 @@
    Page        : Payroll Daily
    Module      : Home
    File        : home.js
-   Version     : 1.3.0
+   Version     : 2.1.0
 
    Description :
    Payroll Daily Home Controller
 
-   Flow :
-
-   Load user
-        ↓
-   Render hero
-        ↓
-   Load payroll data
-        ↓
-   Process data
-        ↓
-   Summary
-        ↓
-   Render home summary
-
    Responsibility :
-   - Menampilkan Hero
-   - Menampilkan estimasi gaji periode ini
-   - Menampilkan pendapatan minggu ini
-   - Menampilkan pendapatan hari ini
-   - Membaca hasil dari Process / Summary
-   - Tidak menjalankan perhitungan periode gaji
-   - Tidak menjalankan Statistics
+   - Menjadi controller utama Payroll Daily
+   - Load API
+   - Menjalankan Process
+   - Menjalankan Summary
+   - Menjalankan Statistics
+   - Menampilkan Home
+
+   IMPORTANT :
+   Home tidak menghitung payroll.
+   Semua angka payroll dan ringkasan
+   dibaca dari Summary.
 ===================================================== */
 
 
@@ -85,6 +75,7 @@ import {
 
 } from "./summary.js";
 
+
 import {
 
     Statistics
@@ -124,7 +115,6 @@ const user =
 ===================================================== */
 
 export async function init(){
-
 
     /* =============================================
        HEADER
@@ -209,18 +199,31 @@ export async function init(){
         );
 
 
-        /* -----------------------------------------
+        /* =========================================
            SUMMARY
-        ----------------------------------------- */
+
+           Summary menghitung seluruh data
+           yang dibutuhkan Home.
+        ========================================= */
 
         Summary.init();
+
+
+        /* =========================================
+           STATISTICS
+
+           Statistics tetap dijalankan di sini
+           karena home.js adalah controller utama.
+        ========================================= */
 
         Statistics.init();
 
 
-        /* -----------------------------------------
-           HOME SUMMARY
-        ----------------------------------------- */
+        /* =========================================
+           HOME
+
+           Home hanya membaca hasil Summary.
+        ========================================= */
 
         renderHomeSummary();
 
@@ -353,8 +356,7 @@ function renderHomeSummary(){
 
 
     /* =============================================
-       SUMMARY DATA
-       Payroll berasal dari Summary
+       SEMUA DATA HOME DARI SUMMARY
     ============================================= */
 
     const summary =
@@ -362,258 +364,83 @@ function renderHomeSummary(){
         Summary.current;
 
 
+    if(
+
+        !summary
+
+    ){
+
+        card.innerHTML = `
+
+            <div class="summary-payroll-empty">
+
+                Data gaji belum tersedia.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* =============================================
+       PAYROLL
+    ============================================= */
+
     const period =
 
-        summary?.period ??
-
-        null;
+        summary.period ?? null;
 
 
-    const periodIncome =
+    const netSalary =
 
         Number(
 
-            summary?.net ??
-
-            0
+            summary.net ?? 0
 
         );
 
 
     /* =============================================
-       DAILY / WEEKLY DATA
+       HOME DATA
 
-       Data pekerjaan tetap berasal dari Process.
-       Tidak menggunakan Statistics.
+       Tidak ada perhitungan Process.data
+       di sini.
     ============================================= */
 
-    const data =
+    const home =
 
-        Process.data ??
-
-        [];
+        summary.home ?? {};
 
 
-    /* =============================================
-       TODAY
-    ============================================= */
+    const todayIncome =
 
-    const today =
+        Number(
 
-        new Date();
-
-
-    const todayStart =
-
-        new Date(
-
-            today.getFullYear(),
-
-            today.getMonth(),
-
-            today.getDate()
+            home.todayIncome ?? 0
 
         );
 
 
-    const todayEnd =
+    const weekIncome =
 
-        new Date(
+        Number(
 
-            today.getFullYear(),
-
-            today.getMonth(),
-
-            today.getDate(),
-
-            23,
-
-            59,
-
-            59,
-
-            999
+            home.weekIncome ?? 0
 
         );
-
-
-    /* =============================================
-       CURRENT WEEK
-       SENIN - MINGGU
-    ============================================= */
-
-    const day =
-
-        todayStart.getDay();
-
-
-    const mondayOffset =
-
-        day === 0
-
-            ?
-
-            6
-
-            :
-
-            day - 1;
-
-
-    const weekStart =
-
-        new Date(
-
-            todayStart
-
-        );
-
-
-    weekStart.setDate(
-
-        weekStart.getDate()
-
-        -
-
-        mondayOffset
-
-    );
-
-
-    const weekEnd =
-
-        new Date(
-
-            weekStart
-
-        );
-
-
-    weekEnd.setDate(
-
-        weekEnd.getDate()
-
-        + 6
-
-    );
-
-
-    weekEnd.setHours(
-
-        23,
-
-        59,
-
-        59,
-
-        999
-
-    );
-
-
-    /* =============================================
-       WEEK / TODAY CALCULATION
-    ============================================= */
-
-    let todayIncome =
-
-        0;
-
-
-    let weekIncome =
-
-        0;
-
-
-    data.forEach(
-
-        item => {
-
-            const date =
-
-                getItemDate(
-
-                    item
-
-                );
-
-
-            if(
-
-                !date
-
-            ){
-
-                return;
-
-            }
-
-
-            const income =
-
-                getIncome(
-
-                    item
-
-                );
-
-
-            /* -----------------------------------------
-               TODAY
-            ----------------------------------------- */
-
-            if(
-
-                date >= todayStart
-
-                &&
-
-                date <= todayEnd
-
-            ){
-
-                todayIncome +=
-
-                    income;
-
-            }
-
-
-            /* -----------------------------------------
-               CURRENT WEEK
-            ----------------------------------------- */
-
-            if(
-
-                date >= weekStart
-
-                &&
-
-                date <= weekEnd
-
-            ){
-
-                weekIncome +=
-
-                    income;
-
-            }
-
-        }
-
-    );
 
 
     /* =============================================
        RENDER
     ============================================= */
 
-    card.innerHTML =
-
-    `
+    card.innerHTML = `
 
         <!-- =========================================
-             PAYROLL SUMMARY
+             PAYROLL
         ========================================== -->
 
         <div class="home-payroll-title">
@@ -664,7 +491,7 @@ function renderHomeSummary(){
 
                 rupiah(
 
-                    periodIncome
+                    netSalary
 
                 )
 
@@ -764,7 +591,7 @@ function renderHomeSummary(){
 
             salaryElement,
 
-            periodIncome,
+            netSalary,
 
             value =>
 
@@ -777,195 +604,6 @@ function renderHomeSummary(){
         );
 
     }
-
-}
-
-
-/* =====================================================
-   GET ITEM DATE
-===================================================== */
-
-function getItemDate(
-
-    item
-
-){
-
-    if(
-
-        item?.dateObject instanceof Date
-
-        &&
-
-        !Number.isNaN(
-
-            item.dateObject.getTime()
-
-        )
-
-    ){
-
-        return item.dateObject;
-
-    }
-
-
-    return parseLocalDate(
-
-        item?.date ??
-
-        item?.tanggal
-
-    );
-
-}
-
-
-/* =====================================================
-   PARSE LOCAL DATE
-===================================================== */
-
-function parseLocalDate(
-
-    value
-
-){
-
-    if(
-
-        !value
-
-    ){
-
-        return null;
-
-    }
-
-
-    const parts =
-
-        String(
-
-            value
-
-        )
-
-        .split("-")
-
-        .map(Number);
-
-
-    if(
-
-        parts.length !== 3
-
-    ){
-
-        return null;
-
-    }
-
-
-    const [
-
-        year,
-
-        month,
-
-        day
-
-    ] = parts;
-
-
-    const date =
-
-        new Date(
-
-            year,
-
-            month - 1,
-
-            day
-
-        );
-
-
-    return Number.isNaN(
-
-        date.getTime()
-
-    )
-
-        ?
-
-        null
-
-        :
-
-        date;
-
-}
-
-
-/* =====================================================
-   GET INCOME
-===================================================== */
-
-function getIncome(
-
-    item
-
-){
-
-    return toNumber(
-
-        item?.income ??
-
-        item?.pendapatan ??
-
-        item?.total ??
-
-        item?.amount ??
-
-        0
-
-    );
-
-}
-
-
-/* =====================================================
-   NUMBER
-===================================================== */
-
-function toNumber(
-
-    value
-
-){
-
-    const number =
-
-        Number(
-
-            value
-
-        );
-
-
-    return Number.isFinite(
-
-        number
-
-    )
-
-        ?
-
-        number
-
-        :
-
-        0;
 
 }
 
