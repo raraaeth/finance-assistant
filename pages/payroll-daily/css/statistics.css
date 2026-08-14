@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Statistics
    File        : statistics.css
-   Version     : 2.0.0
+   Version     : 2.1.0
 
    Description :
    Payroll Daily Statistics Page
@@ -97,7 +97,7 @@
 
 
 /* =====================================================
-   TODAY INCOME CARD
+   TODAY INCOME
 ===================================================== */
 
 .statistics-summary-today{
@@ -116,7 +116,7 @@
 
 
 /* =====================================================
-   TODAY INCOME LABEL
+   TODAY LABEL
 ===================================================== */
 
 .statistics-summary-today-label{
@@ -137,7 +137,7 @@
 
 
 /* =====================================================
-   TODAY INCOME VALUE
+   TODAY VALUE
 ===================================================== */
 
 .statistics-summary-today-value{
@@ -342,13 +342,11 @@
 
     flex-direction:column;
 
-    gap:8px;
-
-    padding:18px 0;
+    padding:18px 16px;
 
     border-bottom:
 
-        2px solid
+        1px solid
 
         var(--border);
 
@@ -374,33 +372,15 @@
 #statistics-transaction-list
 .transaction-header{
 
-    display:grid;
-
-    grid-template-columns:
-
-        1fr auto;
+    display:flex;
 
     align-items:center;
 
-    gap:10px;
+    justify-content:space-between;
 
-}
+    gap:12px;
 
-
-/* =====================================================
-   TRANSACTION TITLE
-===================================================== */
-
-#statistics-transaction-list
-.transaction-header strong{
-
-    font-size:17px;
-
-    line-height:1.3;
-
-    font-weight:700;
-
-    color:var(--text);
+    margin-bottom:10px;
 
 }
 
@@ -410,15 +390,39 @@
 ===================================================== */
 
 #statistics-transaction-list
-.transaction-header small{
+.transaction-header > strong:first-child{
 
-    font-size:14px;
+    min-width:0;
+
+    color:var(--text);
+
+    font-size:17px;
 
     line-height:1.3;
 
-    color:var(--text-secondary);
+    font-weight:600;
 
-    text-align:right;
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   DAILY INCOME
+===================================================== */
+
+#statistics-transaction-list
+.transaction-income{
+
+    margin-left:auto;
+
+    color:var(--text);
+
+    font-size:20px;
+
+    line-height:1.3;
+
+    font-weight:700;
 
     white-space:nowrap;
 
@@ -436,43 +440,33 @@
 
     flex-direction:column;
 
-    gap:2px;
+    gap:4px;
 
-    color:var(--text);
-
-    font-size:15px;
-
-    line-height:1.45;
+    color:var(--text-secondary);
 
 }
 
 
 /* =====================================================
-   TRANSACTION DETAIL STRONG
+   WORK ROW
 ===================================================== */
 
 #statistics-transaction-list
-.transaction-detail strong{
+.transaction-work-row{
 
-    color:var(--text);
+    color:var(--text-secondary);
 
-    font-weight:700;
+    font-family:
 
-    margin-left:4px;
+        "Courier New",
 
-}
+        monospace;
 
+    font-size:16px;
 
-/* =====================================================
-   INCOME VALUE
-===================================================== */
+    font-style:italic;
 
-#statistics-transaction-list
-.transaction-income{
-
-    color:var(--primary);
-
-    font-weight:700;
+    line-height:1.5;
 
 }
 
@@ -543,13 +537,9 @@
 
     border-radius:14px;
 
-    background:
+    background:var(--surface);
 
-        var(--surface);
-
-    color:
-
-        var(--text);
+    color:var(--text);
 
     font-size:14px;
 
@@ -571,18 +561,14 @@
 
 
 /* =====================================================
-   PAGINATION BUTTON HOVER
+   PAGINATION HOVER
 ===================================================== */
 
 .statistics-pagination button:hover:not(:disabled){
 
-    border-color:
+    border-color:var(--primary);
 
-        var(--primary);
-
-    color:
-
-        var(--primary);
+    color:var(--primary);
 
 }
 
@@ -610,9 +596,7 @@
 
     text-align:center;
 
-    color:
-
-        var(--text-secondary);
+    color:var(--text-secondary);
 
     font-size:14px;
 
@@ -632,7 +616,7 @@
 ){
 
     /* ---------------------------------------------
-       TODAY
+       SUMMARY
     --------------------------------------------- */
 
     .statistics-summary-today{
@@ -648,10 +632,6 @@
 
     }
 
-
-    /* ---------------------------------------------
-       WEEKLY
-    --------------------------------------------- */
 
     .statistics-summary-weekly{
 
@@ -704,10 +684,6 @@
     }
 
 
-    /* ---------------------------------------------
-       TODAY
-    --------------------------------------------- */
-
     .statistics-summary-today{
 
         padding:22px 18px;
@@ -734,10 +710,6 @@
 
     }
 
-
-    /* ---------------------------------------------
-       WEEKLY
-    --------------------------------------------- */
 
     .statistics-summary-weekly{
 
@@ -816,35 +788,31 @@
 
         padding:15px 8px;
 
-        gap:7px;
-
     }
 
 
     #statistics-transaction-list
     .transaction-header{
 
-        grid-template-columns:
-
-            1fr auto;
-
         gap:8px;
 
-    }
-
-
-    #statistics-transaction-list
-    .transaction-header strong{
-
-        font-size:16px;
+        margin-bottom:8px;
 
     }
 
 
     #statistics-transaction-list
-    .transaction-header small{
+    .transaction-header > strong:first-child{
 
-        font-size:13px;
+        font-size:15px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-income{
+
+        font-size:20px;
 
     }
 
@@ -852,11 +820,17 @@
     #statistics-transaction-list
     .transaction-detail{
 
+        gap:3px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-work-row{
+
         font-size:14px;
 
-        line-height:1.4;
-
-        gap:2px;
+        line-height:1.45;
 
     }
 
