@@ -6,6 +6,13 @@
 
    Description :
    Global Input Controller
+
+   Handles :
+   - Load HTML
+   - Init
+   - Open
+   - Close
+   - Module connection
 ===================================================== */
 
 
@@ -96,7 +103,7 @@ export const Input = {
 
             console.error(
 
-                "Global Input gagal diinisialisasi."
+                "Global Input gagal dimuat."
 
             );
 
@@ -246,13 +253,52 @@ export const Input = {
 
             console.error(
 
-                "INPUT INIT GAGAL"
+                "INPUT INIT gagal."
 
             );
 
             return;
 
         }
+
+
+        /* =============================================
+           ROOT
+        ============================================= */
+
+        const overlay =
+
+            document.getElementById(
+
+                "global-input-overlay"
+
+            );
+
+
+        if(
+
+            !overlay
+
+        ){
+
+            console.error(
+
+                "Element #global-input-overlay tidak ditemukan."
+
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+
+            "INPUT ROOT",
+
+            overlay
+
+        );
 
 
         /* =============================================
@@ -279,6 +325,10 @@ export const Input = {
 
         if(
 
+            !result
+
+            ||
+
             !result.config
 
         ){
@@ -287,7 +337,7 @@ export const Input = {
 
                 "Input configuration tidak ditemukan:",
 
-                result.workspace
+                result?.workspace
 
             );
 
@@ -332,49 +382,17 @@ export const Input = {
 
 
         /* =============================================
-           START FLOW
+           WORKSPACE
         ============================================= */
 
-        startFlow();
+        renderWorkspace();
 
 
         /* =============================================
-           GET OVERLAY
+           FLOW
         ============================================= */
 
-        const overlay =
-
-            document.getElementById(
-
-                "global-input"
-
-            );
-
-
-        console.log(
-
-            "INPUT ROOT",
-
-            overlay
-
-        );
-
-
-        if(
-
-            !overlay
-
-        ){
-
-            console.error(
-
-                "Element #global-input tidak ditemukan."
-
-            );
-
-            return;
-
-        }
+        startFlow();
 
 
         /* =============================================
@@ -397,7 +415,7 @@ export const Input = {
 
         console.log(
 
-            "INPUT OPENED"
+            "INPUT FLOW STARTED"
 
         );
 
@@ -414,7 +432,7 @@ export const Input = {
 
             document.getElementById(
 
-                "global-input"
+                "global-input-overlay"
 
             );
 
@@ -430,10 +448,6 @@ export const Input = {
         }
 
 
-        /* =============================================
-           HIDE
-        ============================================= */
-
         overlay.classList.remove(
 
             "is-open"
@@ -444,13 +458,6 @@ export const Input = {
         document.body.classList.remove(
 
             "input-open"
-
-        );
-
-
-        console.log(
-
-            "INPUT CLOSED"
 
         );
 
@@ -465,7 +472,6 @@ export const Input = {
 
 async function loadHTML(){
 
-
     /* =============================================
        CHECK EXISTING
     ============================================= */
@@ -474,7 +480,7 @@ async function loadHTML(){
 
         document.getElementById(
 
-            "global-input"
+            "global-input-overlay"
 
         );
 
@@ -491,7 +497,7 @@ async function loadHTML(){
 
 
     /* =============================================
-       FETCH HTML
+       FETCH COMPONENT HTML
     ============================================= */
 
     try{
@@ -570,6 +576,27 @@ async function loadHTML(){
 
 
         /* =========================================
+           VALIDATE ROOT
+        ========================================= */
+
+        if(
+
+            overlay.id !==
+
+            "global-input-overlay"
+
+        ){
+
+            throw new Error(
+
+                "Root Global Input harus menggunakan id global-input-overlay."
+
+            );
+
+        }
+
+
+        /* =========================================
            APPEND
         ========================================= */
 
@@ -634,7 +661,7 @@ function renderHeader(){
 
         title.textContent =
 
-            State.config.title ??
+            State.config?.title ??
 
             "Input";
 
@@ -649,10 +676,51 @@ function renderHeader(){
 
         subtitle.textContent =
 
-            State.config.subtitle ??
+            State.config?.subtitle ??
 
             "Tambahkan data";
 
     }
+
+}
+
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+function renderWorkspace(){
+
+    const workspaceElement =
+
+        document.getElementById(
+
+            "global-input-workspace"
+
+        );
+
+
+    if(
+
+        !workspaceElement
+
+    ){
+
+        return;
+
+    }
+
+
+    workspaceElement.textContent =
+
+        State.config?.workspaceLabel
+
+        ??
+
+        State.workspace
+
+        ??
+
+        "-";
 
 }
