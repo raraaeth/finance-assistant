@@ -1,0 +1,325 @@
+<!-- =====================================================
+     Finance Assistant
+     Component    : Global Setting
+     File         : index.html
+     Version      : 1.0.0
+
+     Description :
+     Reusable Global Setting Overlay
+===================================================== -->
+
+
+<div
+    id="global-setting-overlay"
+    class="global-setting-overlay">
+
+
+    <!-- ==========================================
+         BACKDROP
+    ========================================== -->
+
+    <div
+        id="global-setting-backdrop"
+        class="global-setting-backdrop">
+    </div>
+
+
+    <!-- ==========================================
+         PANEL
+    ========================================== -->
+
+    <div
+        id="global-setting-panel"
+        class="global-setting-panel">
+
+
+        <!-- ======================================
+             HEADER
+        ====================================== -->
+
+        <header
+            class="global-setting-header">
+
+            <div
+                class="global-setting-heading">
+
+                <h2
+                    id="global-setting-title">
+
+                    Pengaturan
+
+                </h2>
+
+                <span
+                    id="global-setting-subtitle">
+
+                    Atur konfigurasi workspace
+
+                </span>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="global-setting-close"
+                class="global-setting-close"
+                aria-label="Tutup">
+
+                ×
+
+            </button>
+
+        </header>
+
+
+        <!-- ======================================
+             CONTENT
+        ====================================== -->
+
+        <div
+            id="global-setting-content"
+            class="global-setting-content">
+
+
+            <!-- ==================================
+                 ACTIVE PERIOD
+            ================================== -->
+
+            <section
+                class="global-setting-period">
+
+                <div
+                    class="global-setting-section-header">
+
+                    <div>
+
+                        <h3>
+                            Periode Aktif
+                        </h3>
+
+                        <p>
+                            Periode berlakunya aturan.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="global-setting-fields">
+
+                    <div
+                        class="global-setting-field">
+
+                        <label>
+                            Berlaku Mulai
+                        </label>
+
+                        <input
+                            type="date"
+                            id="setting-active-start">
+
+                    </div>
+
+
+                    <div
+                        class="global-setting-field">
+
+                        <label>
+                            Berlaku Sampai
+                        </label>
+
+                        <input
+                            type="date"
+                            id="setting-active-end">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 RULE PERIODE
+            ================================== -->
+
+            <section
+                class="global-setting-section"
+                id="setting-rule-periode">
+
+                <div
+                    class="global-setting-section-header">
+
+                    <div>
+
+                        <h3>
+                            📅 Rule Periode
+                        </h3>
+
+                        <p>
+                            Aturan periode gaji.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="setting-periode-form"
+                    class="global-setting-form">
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="global-setting-add"
+                    data-rule="periode">
+
+                    ＋ Tambah
+
+                </button>
+
+
+                <div
+                    id="setting-periode-result"
+                    class="global-setting-result">
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 RULE GAJI
+            ================================== -->
+
+            <section
+                class="global-setting-section"
+                id="setting-rule-gaji">
+
+                <div
+                    class="global-setting-section-header">
+
+                    <div>
+
+                        <h3>
+                            💰 Rule Gaji
+                        </h3>
+
+                        <p>
+                            Aturan gaji, tambahan dan potongan.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="setting-gaji-form"
+                    class="global-setting-form">
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="global-setting-add"
+                    data-rule="gaji">
+
+                    ＋ Tambah
+
+                </button>
+
+
+                <div
+                    id="setting-gaji-result"
+                    class="global-setting-result">
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 RULE ATTENDANCE
+            ================================== -->
+
+            <section
+                class="global-setting-section"
+                id="setting-rule-attendance">
+
+                <div
+                    class="global-setting-section-header">
+
+                    <div>
+
+                        <h3>
+                            📅 Rule Attendance
+                        </h3>
+
+                        <p>
+                            Aturan masuk, telat, izin dan lembur.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="setting-attendance-form"
+                    class="global-setting-form">
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="global-setting-add"
+                    data-rule="attendance">
+
+                    ＋ Tambah
+
+                </button>
+
+
+                <div
+                    id="setting-attendance-result"
+                    class="global-setting-result">
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+
+        <!-- ======================================
+             FOOTER
+        ====================================== -->
+
+        <footer
+            class="global-setting-footer">
+
+            <button
+                type="button"
+                id="global-setting-confirm"
+                class="global-setting-confirm">
+
+                Konfirmasi
+
+            </button>
+
+        </footer>
+
+
+    </div>
+
+</div>
