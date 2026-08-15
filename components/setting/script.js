@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Global Setting Controller
@@ -12,6 +12,10 @@
    - Init
    - Open
    - Close
+   - Render Module
+   - Add Result
+   - Delete Result
+   - Confirm
 ===================================================== */
 
 
@@ -22,6 +26,8 @@
 let initialized = false;
 
 let currentWorkspace = null;
+
+let currentConfig = null;
 
 
 /* =====================================================
@@ -65,7 +71,7 @@ export const Setting = {
 
 
         /* =============================================
-           CLOSE
+           CLOSE BUTTON
         ============================================= */
 
         const closeButton =
@@ -158,43 +164,6 @@ export const Setting = {
 
 
         /* =============================================
-           ADD BUTTONS
-        ============================================= */
-
-        document
-
-            .querySelectorAll(
-
-                ".global-setting-add"
-
-            )
-
-            .forEach(
-
-                button => {
-
-                    button.addEventListener(
-
-                        "click",
-
-                        () => {
-
-                            addResult(
-
-                                button.dataset.rule
-
-                            );
-
-                        }
-
-                    );
-
-                }
-
-            );
-
-
-        /* =============================================
            CONFIRM
         ============================================= */
 
@@ -219,7 +188,7 @@ export const Setting = {
 
                 () => {
 
-                    confirm();
+                    Setting.confirm();
 
                 }
 
@@ -241,7 +210,9 @@ export const Setting = {
 
     async open(
 
-        workspace = "kas"
+        workspace,
+
+        config
 
     ){
 
@@ -262,6 +233,11 @@ export const Setting = {
         currentWorkspace =
 
             workspace;
+
+
+        currentConfig =
+
+            config;
 
 
         const overlay =
@@ -285,7 +261,7 @@ export const Setting = {
 
 
         /* =============================================
-           TITLE
+           HEADER
         ============================================= */
 
         const title =
@@ -308,51 +284,43 @@ export const Setting = {
 
         if(
 
-            workspace ===
-
-            "payroll-monthly"
+            title
 
         ){
 
-            if(title){
+            title.textContent =
 
-                title.textContent =
+                config?.title ??
 
-                    "Pengaturan Payroll Monthly";
-
-            }
-
-
-            if(subtitle){
-
-                subtitle.textContent =
-
-                    "Atur rule Payroll Monthly";
-
-            }
+                "Pengaturan";
 
         }
 
-        else{
 
-            if(title){
+        if(
 
-                title.textContent =
+            subtitle
 
-                    "Pengaturan";
+        ){
 
-            }
+            subtitle.textContent =
 
+                config?.subtitle ??
 
-            if(subtitle){
-
-                subtitle.textContent =
-
-                    "Atur konfigurasi workspace";
-
-            }
+                "Atur konfigurasi workspace";
 
         }
+
+
+        /* =============================================
+           RENDER
+        ============================================= */
+
+        renderContent(
+
+            config
+
+        );
 
 
         /* =============================================
@@ -411,6 +379,33 @@ export const Setting = {
         document.body.classList.remove(
 
             "setting-open"
+
+        );
+
+    },
+
+
+    /* =================================================
+       CONFIRM
+    ================================================= */
+
+    confirm(){
+
+        console.log(
+
+            "SETTING CONFIRM",
+
+            {
+
+                workspace :
+
+                    currentWorkspace,
+
+                config :
+
+                    currentConfig
+
+            }
 
         );
 
@@ -546,88 +541,227 @@ async function loadHTML(){
 
 
 /* =====================================================
-   ADD RESULT
+   RENDER CONTENT
 ===================================================== */
 
-function addResult(
+function renderContent(
 
-    rule
+    config
 
 ){
 
-    let containerId =
-
-        "";
-
-
-    let title =
-
-        "";
-
-
-    if(
-
-        rule === "periode"
-
-    ){
-
-        containerId =
-
-            "setting-periode-result";
-
-        title =
-
-            "Periode Gaji";
-
-    }
-
-
-    if(
-
-        rule === "gaji"
-
-    ){
-
-        containerId =
-
-            "setting-gaji-result";
-
-        title =
-
-            "Rule Gaji";
-
-    }
-
-
-    if(
-
-        rule === "attendance"
-
-    ){
-
-        containerId =
-
-            "setting-attendance-result";
-
-        title =
-
-            "Rule Attendance";
-
-    }
-
-
-    const container =
+    const content =
 
         document.getElementById(
 
-            containerId
+            "global-setting-content"
 
         );
 
 
     if(
 
-        !container
+        !content
+
+    ){
+
+        return;
+
+    }
+
+
+    content.innerHTML = "";
+
+
+    if(
+
+        !config ||
+
+        !Array.isArray(
+
+            config.sections
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    config.sections.forEach(
+
+        section => {
+
+            renderSection(
+
+                content,
+
+                section
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER SECTION
+===================================================== */
+
+function renderSection(
+
+    container,
+
+    section
+
+){
+
+    const element =
+
+        document.createElement(
+
+            "section"
+
+        );
+
+
+    element.className =
+
+        "global-setting-section";
+
+
+    element.dataset.section =
+
+        section.id;
+
+
+    element.innerHTML =
+
+    `
+
+        <div
+            class="global-setting-section-header">
+
+            <div>
+
+                <h3>
+
+                    ${escapeHTML(
+
+                        section.title
+
+                    )}
+
+                </h3>
+
+                <p>
+
+                    ${escapeHTML(
+
+                        section.description ??
+
+                        ""
+
+                    )}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="global-setting-add">
+
+            ＋ Tambah
+
+        </button>
+
+
+        <div
+            class="global-setting-result">
+
+        </div>
+
+    `;
+
+
+    container.appendChild(
+
+        element
+
+    );
+
+
+    const addButton =
+
+        element.querySelector(
+
+            ".global-setting-add"
+
+        );
+
+
+    if(
+
+        addButton
+
+    ){
+
+        addButton.addEventListener(
+
+            "click",
+
+            () => {
+
+                addResult(
+
+                    section,
+
+                    element
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ADD RESULT
+===================================================== */
+
+function addResult(
+
+    section,
+
+    sectionElement
+
+){
+
+    const result =
+
+        sectionElement.querySelector(
+
+            ".global-setting-result"
+
+        );
+
+
+    if(
+
+        !result
 
     ){
 
@@ -657,17 +791,28 @@ function addResult(
         <div
             class="global-setting-result-title">
 
-            ${title}
+            ${escapeHTML(
+
+                section.resultTitle ??
+
+                section.title
+
+            )}
 
         </div>
+
 
         <div
             class="global-setting-result-detail">
 
             Prototype result.
-            Detail rule akan dibuat pada tahap berikutnya.
+
+            Detail rule akan dibuat
+
+            pada tahap berikutnya.
 
         </div>
+
 
         <button
             type="button"
@@ -680,6 +825,13 @@ function addResult(
     `;
 
 
+    result.appendChild(
+
+        item
+
+    );
+
+
     const deleteButton =
 
         item.querySelector(
@@ -689,46 +841,83 @@ function addResult(
         );
 
 
-    deleteButton.addEventListener(
+    if(
 
-        "click",
+        deleteButton
 
-        () => {
+    ){
 
-            item.remove();
+        deleteButton.addEventListener(
 
-        }
+            "click",
 
-    );
+            () => {
 
+                item.remove();
 
-    container.appendChild(
+            }
 
-        item
+        );
 
-    );
+    }
 
 }
 
 
 /* =====================================================
-   CONFIRM
+   ESCAPE HTML
 ===================================================== */
 
-function confirm(){
+function escapeHTML(
 
-    console.log(
+    value
 
-        "SETTING CONFIRM",
+){
 
-        {
+    return String(
 
-            workspace :
+        value ?? ""
 
-                currentWorkspace
+    )
 
-        }
+        .replace(
 
-    );
+            /&/g,
+
+            "&amp;"
+
+        )
+
+        .replace(
+
+            /</g,
+
+            "&lt;"
+
+        )
+
+        .replace(
+
+            />/g,
+
+            "&gt;"
+
+        )
+
+        .replace(
+
+            /"/g,
+
+            "&quot;"
+
+        )
+
+        .replace(
+
+            /'/g,
+
+            "&#039;"
+
+        );
 
 }
