@@ -982,6 +982,8 @@ function toggleForm(
 
             "hidden"
 
+           )
+
         ){
 
         form.classList.add(
