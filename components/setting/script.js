@@ -18,6 +18,12 @@
 
 import {
 
+    KasSetting
+
+} from "./kas.js";
+
+import {
+
     MonthlySetting
 
 } from "./monthly.js";
