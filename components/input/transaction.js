@@ -2,18 +2,19 @@
    Finance Assistant
    Component    : Global Input
    File         : transaction.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
-   Temporary Transaction Controller
+   Transaction Controller
 
    Handles :
+   - Complete transaction
    - Add transaction
-   - Edit transaction
    - Delete transaction
    - Transaction list
    - Summary
    - Date lock
+   - Confirm
 ===================================================== */
 
 
@@ -49,24 +50,43 @@ import {
 
 export function initTransaction(){
 
+    /* =============================================
+       FLOW COMPLETE
+    ============================================= */
+
     document.addEventListener(
 
         "global-input-flow-complete",
 
-        event => {
+        () => {
 
-            completeTransaction(
+            /*
+               Semua field sudah selesai.
 
-                event.detail.values
+               BELUM memasukkan transaksi
+               ke dalam list.
 
-            );
+               Sekarang hanya tampilkan
+               tombol + Tambah.
+            */
+
+            showAddButton();
 
         }
 
     );
 
 
+    /* =============================================
+       ADD
+    ============================================= */
+
     bindAddButton();
+
+
+    /* =============================================
+       CONFIRM
+    ============================================= */
 
     bindConfirmButton();
 
@@ -82,6 +102,25 @@ function completeTransaction(
     values
 
 ){
+
+    /* =============================================
+       VALIDATION
+    ============================================= */
+
+    if(
+
+        !values
+
+        ||
+
+        typeof values !== "object"
+
+    ){
+
+        return;
+
+    }
+
 
     /* =============================================
        LOCK DATE
@@ -118,65 +157,50 @@ function completeTransaction(
 
 
     /* =============================================
-       EDIT
+       ADD TO LIST
     ============================================= */
 
-    if(
+    State.transactions.push(
 
-        State.editingIndex !== null
+        transaction
 
-    ){
-
-        State.transactions[
-
-            State.editingIndex
-
-        ] = transaction;
-
-
-        State.editingIndex =
-
-            null;
-
-    }
+    );
 
 
     /* =============================================
-       ADD
-    ============================================= */
-
-    else{
-
-        State.transactions.push(
-
-            transaction
-
-        );
-
-    }
-
-
-    /* =============================================
-       RESET CURRENT
+       RESET CURRENT TRANSACTION
     ============================================= */
 
     State.resetCurrent();
 
 
     /* =============================================
-       RENDER
+       HIDE ADD BUTTON
+    ============================================= */
+
+    hideAddButton();
+
+
+    /* =============================================
+       RENDER LIST
     ============================================= */
 
     renderTransactionList();
 
+
     updateSummary();
 
-    showAddButton();
+
+    /* =============================================
+       START NEW TRANSACTION
+    ============================================= */
+
+    startFlow();
 
 
     console.log(
 
-        "Transaction:",
+        "Transaction ditambahkan:",
 
         transaction
 
@@ -206,6 +230,12 @@ function bindAddButton(){
 
     ){
 
+        console.warn(
+
+            "Tombol #global-input-add belum ditemukan."
+
+        );
+
         return;
 
     }
@@ -217,7 +247,26 @@ function bindAddButton(){
 
         () => {
 
-            startFlow();
+            /* =====================================
+               AMBIL CURRENT VALUES
+            ===================================== */
+
+            const values = {
+
+                ...State.values
+
+            };
+
+
+            /* =====================================
+               SELESAIKAN TRANSAKSI
+            ===================================== */
+
+            completeTransaction(
+
+                values
+
+            );
 
         }
 
@@ -353,6 +402,7 @@ export function renderTransactionList(){
             "hidden"
 
         );
+
 
         list.innerHTML = "";
 
@@ -541,17 +591,6 @@ export function renderTransactionList(){
 
                         type="button"
 
-                        data-edit="${index}">
-
-                        Edit
-
-                    </button>
-
-
-                    <button
-
-                        type="button"
-
                         data-delete="${index}">
 
                         Hapus
@@ -605,38 +644,9 @@ function bindListActions(){
     }
 
 
-    list.querySelectorAll(
-
-        "[data-edit]"
-
-    ).forEach(
-
-        button => {
-
-            button.addEventListener(
-
-                "click",
-
-                () => {
-
-                    editTransaction(
-
-                        Number(
-
-                            button.dataset.edit
-
-                        )
-
-                    );
-
-                }
-
-            );
-
-        }
-
-    );
-
+    /* =============================================
+       DELETE ONLY
+    ============================================= */
 
     list.querySelectorAll(
 
@@ -669,108 +679,6 @@ function bindListActions(){
         }
 
     );
-
-}
-
-
-/* =====================================================
-   EDIT
-===================================================== */
-
-function editTransaction(
-
-    index
-
-){
-
-    const transaction =
-
-        State.transactions[index];
-
-
-    if(
-
-        !transaction
-
-    ){
-
-        return;
-
-    }
-
-
-    State.editingIndex =
-
-        index;
-
-
-    State.values = {
-
-        type :
-
-            transaction.type,
-
-        member :
-
-            transaction.member,
-
-        amount :
-
-            transaction.amount,
-
-        category :
-
-            transaction.category,
-
-        customCategory :
-
-            transaction.customCategory ??
-
-            "",
-
-        note :
-
-            transaction.note ??
-
-            ""
-
-    };
-
-
-    State.step = 0;
-
-
-    /*
-
-       Untuk sementara kita hapus tampilan
-       form lalu mulai ulang flow.
-
-       Tahap restore value akan kita sempurnakan
-       setelah engine dasar selesai.
-
-    */
-
-    const form =
-
-        document.getElementById(
-
-            "global-input-form"
-
-        );
-
-
-    if(
-
-        form
-
-    ){
-
-        form.innerHTML = "";
-
-    }
-
-
-    startFlow();
 
 }
 
@@ -816,8 +724,6 @@ function deleteTransaction(
     ){
 
         unlockDate();
-
-        hideAddButton();
 
     }
 
@@ -1098,12 +1004,10 @@ function confirmTransactions(){
 
 
     /*
-
        Apps Script belum disambungkan.
 
        Nanti payload ini yang dikirim
        ke API / Apps Script.
-
     */
 
 }
@@ -1224,7 +1128,9 @@ function getCategoryLabel(
 
     const steps =
 
-        State.config?.steps ??
+        State.config?.steps
+
+        ??
 
         [];
 
