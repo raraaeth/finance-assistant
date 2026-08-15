@@ -228,7 +228,6 @@ export async function init(){
 
         Statistics.init();
        
-       Statistics.init();
 
 /* -----------------------------------------
    Summary
