@@ -1,42 +1,55 @@
 /* =====================================================
    Finance Assistant
-   Component : Global Input
-   File      : style.css
-   Version   : 5.0.0
+   Component    : Global Input
+   File         : style.css
+   Version      : 6.0.0
 
    Description :
-   Simple Full Screen Input Overlay
+   Reusable Global Input Overlay
+
+   Behavior :
+   Full Screen
+   No Slide
+   No Floating
 ===================================================== */
 
 
 /* =====================================================
-   ROOT
+   OVERLAY ROOT
 ===================================================== */
 
-.global-input{
+.global-input-overlay{
 
     position:fixed;
 
     top:0;
+    right:0;
+    bottom:0;
     left:0;
 
-    width:100vw;
-    height:100vh;
+    width:100%;
+    height:100%;
 
-    z-index:99999;
+    z-index:10000;
 
-    display:none;
+    visibility:hidden;
+
+    pointer-events:none;
+
+    background:#ffffff;
 
 }
 
 
 /* =====================================================
-   OPEN
+   OPEN STATE
 ===================================================== */
 
-.global-input.is-open{
+.global-input-overlay.is-open{
 
-    display:block;
+    visibility:visible;
+
+    pointer-events:auto;
 
 }
 
@@ -50,6 +63,8 @@
     position:absolute;
 
     top:0;
+    right:0;
+    bottom:0;
     left:0;
 
     width:100%;
@@ -69,18 +84,24 @@
     position:absolute;
 
     top:0;
+    right:0;
+    bottom:0;
     left:0;
 
     width:100%;
     height:100%;
 
+    box-sizing:border-box;
+
     background:#ffffff;
 
-    box-sizing:border-box;
+    color:#253f3d;
 
     display:flex;
 
     flex-direction:column;
+
+    overflow:hidden;
 
 }
 
@@ -104,6 +125,8 @@
         20px;
 
     box-sizing:border-box;
+
+    background:#ffffff;
 
     border-bottom:
 
@@ -168,6 +191,14 @@
 
     flex-shrink:0;
 
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:0;
+
     border:none;
 
     border-radius:50%;
@@ -179,6 +210,8 @@
     font-size:20px;
 
     line-height:1;
+
+    font-family:inherit;
 
     cursor:pointer;
 
@@ -202,9 +235,13 @@
 
     min-height:0;
 
-    padding:20px;
+    width:100%;
 
     box-sizing:border-box;
+
+    padding:
+
+        20px;
 
     overflow-y:auto;
 
@@ -227,13 +264,15 @@
 
     gap:4px;
 
-    margin-bottom:20px;
+    width:100%;
+
+    margin:0 0 20px;
 
 }
 
 
 /* =====================================================
-   META
+   META ROW
 ===================================================== */
 
 .global-input-meta{
@@ -248,12 +287,18 @@
 
     width:100%;
 
-    padding:10px 0;
+    min-height:40px;
+
+    padding:8px 0;
 
     box-sizing:border-box;
 
 }
 
+
+/* =====================================================
+   META LABEL
+===================================================== */
 
 .global-input-meta span{
 
@@ -263,18 +308,28 @@
 
     font-size:15px;
 
+    line-height:1.4;
+
     color:#354846;
 
 }
 
 
+/* =====================================================
+   META VALUE
+===================================================== */
+
 .global-input-meta strong{
 
     flex-shrink:0;
 
+    min-width:120px;
+
     text-align:right;
 
     font-size:15px;
+
+    line-height:1.4;
 
     font-weight:700;
 
@@ -289,11 +344,17 @@
 
 .global-input-date{
 
+    flex-shrink:0;
+
     width:145px;
 
     min-height:40px;
 
-    padding:8px 10px;
+    padding:
+
+        8px
+
+        10px;
 
     box-sizing:border-box;
 
@@ -312,11 +373,20 @@
 
     font-family:inherit;
 
+    outline:none;
+
+}
+
+
+.global-input-date:focus{
+
+    border-color:#6f9994;
+
 }
 
 
 /* =====================================================
-   FORM
+   DYNAMIC FORM
 ===================================================== */
 
 .global-input-form{
@@ -327,11 +397,13 @@
 
     gap:16px;
 
+    width:100%;
+
 }
 
 
 /* =====================================================
-   FIELD
+   FORM FIELD
 ===================================================== */
 
 .global-input-field{
@@ -342,12 +414,20 @@
 
     gap:7px;
 
+    width:100%;
+
 }
 
+
+/* =====================================================
+   FORM LABEL
+===================================================== */
 
 .global-input-field label{
 
     font-size:13px;
+
+    line-height:1.4;
 
     font-weight:600;
 
@@ -355,6 +435,10 @@
 
 }
 
+
+/* =====================================================
+   FORM INPUT
+===================================================== */
 
 .global-input-field input,
 .global-input-field select,
@@ -364,7 +448,11 @@
 
     min-height:46px;
 
-    padding:10px 12px;
+    padding:
+
+        10px
+
+        12px;
 
     box-sizing:border-box;
 
@@ -388,6 +476,10 @@
 }
 
 
+/* =====================================================
+   TEXTAREA
+===================================================== */
+
 .global-input-field textarea{
 
     min-height:90px;
@@ -398,15 +490,34 @@
 
 
 /* =====================================================
-   LIST
+   FORM FOCUS
+===================================================== */
+
+.global-input-field input:focus,
+.global-input-field select:focus,
+.global-input-field textarea:focus{
+
+    border-color:#6f9994;
+
+}
+
+
+/* =====================================================
+   CURRENT INPUT SECTION
 ===================================================== */
 
 .global-input-list-section{
+
+    width:100%;
 
     margin-top:24px;
 
 }
 
+
+/* =====================================================
+   LIST HEADER
+===================================================== */
 
 .global-input-list-header{
 
@@ -416,10 +527,18 @@
 
     justify-content:space-between;
 
+    gap:12px;
+
+    width:100%;
+
     margin-bottom:12px;
 
 }
 
+
+/* =====================================================
+   LIST TITLE
+===================================================== */
 
 .global-input-list-header h3{
 
@@ -427,21 +546,39 @@
 
     font-size:17px;
 
+    line-height:1.3;
+
     color:#253f3d;
 
 }
 
 
+/* =====================================================
+   LIST DESCRIPTION
+===================================================== */
+
 .global-input-list-header p{
 
-    margin:4px 0 0;
+    margin:
+
+        4px
+
+        0
+
+        0;
 
     font-size:12px;
+
+    line-height:1.4;
 
     color:#81908f;
 
 }
 
+
+/* =====================================================
+   COUNT
+===================================================== */
 
 .global-input-count{
 
@@ -454,6 +591,8 @@
     align-items:center;
 
     justify-content:center;
+
+    flex-shrink:0;
 
     border-radius:50%;
 
@@ -469,7 +608,7 @@
 
 
 /* =====================================================
-   LIST
+   CURRENT INPUT LIST
 ===================================================== */
 
 .global-input-list{
@@ -480,6 +619,8 @@
 
     gap:10px;
 
+    width:100%;
+
 }
 
 
@@ -488,6 +629,8 @@
 ===================================================== */
 
 .global-input-footer{
+
+    width:100%;
 
     flex-shrink:0;
 
@@ -501,18 +644,18 @@
 
     box-sizing:border-box;
 
+    background:#ffffff;
+
     border-top:
 
         1px solid
         #e5e9e8;
 
-    background:#ffffff;
-
 }
 
 
 /* =====================================================
-   CONFIRM
+   CONFIRM BUTTON
 ===================================================== */
 
 .global-input-confirm{
@@ -520,6 +663,12 @@
     width:100%;
 
     min-height:50px;
+
+    padding:
+
+        12px
+
+        16px;
 
     border:none;
 
@@ -540,8 +689,15 @@
 }
 
 
+.global-input-confirm:active{
+
+    transform:scale(.98);
+
+}
+
+
 /* =====================================================
-   BODY
+   BODY LOCK
 ===================================================== */
 
 body.input-open{
@@ -559,15 +715,21 @@ body.input-open{
 
     .global-input-header{
 
-        padding:18px;
+        padding:
+
+            18px;
 
     }
+
 
     .global-input-content{
 
-        padding:18px;
+        padding:
+
+            18px;
 
     }
+
 
     .global-input-footer{
 
@@ -578,6 +740,20 @@ body.input-open{
             18px
 
             18px;
+
+    }
+
+
+    .global-input-meta strong{
+
+        min-width:110px;
+
+    }
+
+
+    .global-input-date{
+
+        width:145px;
 
     }
 
