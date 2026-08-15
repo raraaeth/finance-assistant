@@ -90,6 +90,12 @@ import {
 
 } from "../../js/animation.js";
 
+import {
+
+    Setting
+
+} from "../../components/setting/script.js";
+
 
 
 /* =====================================================
