@@ -1,0 +1,609 @@
+/* =====================================================
+   Finance Assistant
+   Component    : Global Setting
+   File         : style.css
+   Version      : 1.0.0
+===================================================== */
+
+
+/* =====================================================
+   OVERLAY ROOT
+===================================================== */
+
+.global-setting-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    z-index:11000;
+
+    visibility:hidden;
+
+    pointer-events:none;
+
+    background:#ffffff;
+
+}
+
+
+/* =====================================================
+   OPEN
+===================================================== */
+
+.global-setting-overlay.is-open{
+
+    visibility:visible;
+
+    pointer-events:auto;
+
+}
+
+
+/* =====================================================
+   BACKDROP
+===================================================== */
+
+.global-setting-backdrop{
+
+    position:absolute;
+
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    background:#ffffff;
+
+}
+
+
+/* =====================================================
+   PANEL
+===================================================== */
+
+.global-setting-panel{
+
+    position:absolute;
+
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    box-sizing:border-box;
+
+    display:flex;
+
+    flex-direction:column;
+
+    overflow:hidden;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.global-setting-header{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    flex-shrink:0;
+
+    background:#ffffff;
+
+    border-bottom:
+        1px solid
+        #e5e9e8;
+
+}
+
+
+.global-setting-heading{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+
+.global-setting-heading h2{
+
+    margin:0;
+
+    font-size:20px;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+    color:#253f3d;
+
+}
+
+
+.global-setting-heading span{
+
+    font-size:12px;
+
+    color:#7d8988;
+
+}
+
+
+/* =====================================================
+   CLOSE
+===================================================== */
+
+.global-setting-close{
+
+    width:36px;
+    height:36px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:0;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#f1f5f4;
+
+    color:#334b4a;
+
+    font-size:20px;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.global-setting-content{
+
+    flex:1;
+
+    min-height:0;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    background:#ffffff;
+
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+.global-setting-section,
+.global-setting-period{
+
+    width:100%;
+
+    margin-bottom:20px;
+
+    padding:16px;
+
+    box-sizing:border-box;
+
+    border:
+        1px solid
+        #e1e7e5;
+
+    border-radius:14px;
+
+    background:#ffffff;
+
+}
+
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+.global-setting-section-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    margin-bottom:16px;
+
+}
+
+
+.global-setting-section-header h3{
+
+    margin:0;
+
+    font-size:17px;
+
+    line-height:1.3;
+
+    color:#253f3d;
+
+}
+
+
+.global-setting-section-header p{
+
+    margin:5px 0 0;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    color:#81908f;
+
+}
+
+
+/* =====================================================
+   FIELDS
+===================================================== */
+
+.global-setting-fields{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+.global-setting-field{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+
+.global-setting-field label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#667574;
+
+}
+
+
+.global-setting-field input,
+.global-setting-field select{
+
+    width:100%;
+
+    min-height:46px;
+
+    padding:10px 12px;
+
+    box-sizing:border-box;
+
+    border:
+        1px solid
+        #d7dfdd;
+
+    border-radius:12px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    font-size:15px;
+
+    font-family:inherit;
+
+    outline:none;
+
+}
+
+
+.global-setting-field input:focus,
+.global-setting-field select:focus{
+
+    border-color:#6f9994;
+
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.global-setting-form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   ADD
+===================================================== */
+
+.global-setting-add{
+
+    width:100%;
+
+    min-height:46px;
+
+    margin-top:14px;
+
+    padding:10px 16px;
+
+    border:
+        1px solid
+        #253f3d;
+
+    border-radius:12px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+}
+
+
+.global-setting-add:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   RESULT
+===================================================== */
+
+.global-setting-result{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    margin-top:14px;
+
+}
+
+
+/* =====================================================
+   RESULT CARD
+===================================================== */
+
+.global-setting-result-item{
+
+    position:relative;
+
+    width:100%;
+
+    padding:14px;
+
+    box-sizing:border-box;
+
+    border:
+        1px solid
+        #dfe6e4;
+
+    border-radius:12px;
+
+    background:#f5f7f7;
+
+}
+
+
+/* =====================================================
+   RESULT TITLE
+===================================================== */
+
+.global-setting-result-title{
+
+    margin:0 0 5px;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:#294845;
+
+}
+
+
+.global-setting-result-detail{
+
+    font-size:13px;
+
+    line-height:1.5;
+
+    color:#687876;
+
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+.global-setting-result-delete{
+
+    margin-top:10px;
+
+    padding:7px 12px;
+
+    border:
+        1px solid
+        #d5dddd;
+
+    border-radius:8px;
+
+    background:#ffffff;
+
+    color:#7b4b4b;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.global-setting-footer{
+
+    flex-shrink:0;
+
+    padding:14px 20px 20px;
+
+    box-sizing:border-box;
+
+    background:#ffffff;
+
+    border-top:
+        1px solid
+        #e5e9e8;
+
+}
+
+
+/* =====================================================
+   CONFIRM
+===================================================== */
+
+.global-setting-confirm{
+
+    width:100%;
+
+    min-height:50px;
+
+    padding:12px 16px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#253f3d;
+
+    color:#ffffff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+}
+
+
+.global-setting-confirm:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   BODY LOCK
+===================================================== */
+
+body.setting-open{
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:480px){
+
+    .global-setting-header{
+
+        padding:18px;
+
+    }
+
+    .global-setting-content{
+
+        padding:18px;
+
+    }
+
+    .global-setting-footer{
+
+        padding:
+            14px
+            18px
+            18px;
+
+    }
+
+}
