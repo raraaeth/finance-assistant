@@ -3,13 +3,16 @@
    Component    : Global Setting
    Module       : Kas
    File         : kas.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Kas Setting Definition
 
-   Setting :
-   - Nama Member
+   Sheet :
+   kas_member
+
+   Fields :
+   - nama
 ===================================================== */
 
 
@@ -50,17 +53,79 @@ export const KasSetting = {
 
                 "member",
 
+
             title :
 
                 "👥 Nama Member",
+
 
             description :
 
                 "Daftar nama member yang digunakan dalam Kas.",
 
-            resultTitle :
 
-                "Nama Member"
+            /* =========================================
+               ADD BUTTON
+            ========================================= */
+
+            addLabel :
+
+                "＋ Tambah",
+
+
+            /* =========================================
+               FORM BUTTON
+            ========================================= */
+
+            formAddLabel :
+
+                "＋ Tambahkan",
+
+
+            /* =========================================
+               DELETE BUTTON
+            ========================================= */
+
+            deleteLabel :
+
+                "Hapus",
+
+
+            /* =========================================
+               FIELDS
+            ========================================= */
+
+            fields : [
+
+                {
+
+                    name :
+
+                        "nama",
+
+
+                    label :
+
+                        "Nama Member",
+
+
+                    type :
+
+                        "text",
+
+
+                    placeholder :
+
+                        "Masukkan nama member",
+
+
+                    required :
+
+                        true
+
+                }
+
+            ]
 
         }
 
