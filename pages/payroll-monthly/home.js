@@ -97,6 +97,13 @@ import {
 } from "../../components/setting/script.js";
 
 
+import {
+
+    Input
+
+} from "../../components/input/script.js";
+
+
 
 /* =====================================================
    STATE
@@ -137,13 +144,17 @@ export async function init(){
     renderHero();
 
 
-    /* =============================================
+   /* =============================================
        HOME CARD
     ============================================= */
 
     renderPreviousSalary();
 
     renderAttendance();
+
+    renderInput();
+
+    renderSetting();
 
 
     /* =============================================
@@ -1033,6 +1044,248 @@ function renderAttendance(){
     `;
 
 };
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+function renderInput(){
+
+    const card =
+
+        document.getElementById(
+
+            "input-card"
+
+        );
+
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
+
+    `
+
+        <div
+            id="payroll-input-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    ✍️
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Input
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Tambahkan data Payroll
+
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    const menu =
+
+        document.getElementById(
+
+            "payroll-input-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Input.open(
+
+                    "payroll-monthly"
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
+
+/* =====================================================
+   SETTING
+===================================================== */
+
+function renderSetting(){
+
+    const card =
+
+        document.getElementById(
+
+            "setting-card"
+
+        );
+
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
+
+    `
+
+        <div
+            id="payroll-setting-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    ⚙️
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Pengaturan Payroll
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Atur rule dan konfigurasi Payroll
+
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    const menu =
+
+        document.getElementById(
+
+            "payroll-setting-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Setting.open(
+
+                    "payroll-monthly"
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
 
 
 /* =====================================================
