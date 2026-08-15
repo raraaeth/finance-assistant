@@ -216,8 +216,7 @@ export const Input = {
     /* =================================================
        OPEN
     ================================================= */
-
-    async open(
+async open(
 
     workspace = null
 
@@ -235,6 +234,15 @@ export const Input = {
     await Input.init();
 
 
+    console.log(
+
+        "INPUT INIT SELESAI",
+
+        initialized
+
+    );
+
+
     if(
 
         !initialized
@@ -246,10 +254,6 @@ export const Input = {
     }
 
 
-    /* =============================================
-       RESOLVE WORKSPACE
-    ============================================= */
-
     const result =
 
         resolveWorkspace(
@@ -259,98 +263,118 @@ export const Input = {
         );
 
 
-        /* =============================================
-           RESET STATE
-        ============================================= */
+    console.log(
 
-        State.reset();
+        "INPUT WORKSPACE RESULT",
 
+        result
 
-        /* =============================================
-           CONFIG
-        ============================================= */
-
-        State.workspace =
-
-            result.workspace;
+    );
 
 
-        State.config =
+    if(
 
-            result.config;
+        !result.config
 
+    ){
 
-        /* =============================================
-           SESSION
-        ============================================= */
+        console.warn(
 
-        initSession(
+            "Input configuration tidak ditemukan:",
 
             result.workspace
 
         );
 
+        return;
 
-        /* =============================================
-           HEADER
-        ============================================= */
-
-        renderHeader();
+    }
 
 
-        /* =============================================
-           START FLOW
-        ============================================= */
-
-        startFlow();
+    State.reset();
 
 
-        /* =============================================
-           SHOW
-        ============================================= */
+    State.workspace =
 
-        const overlay =
-
-            document.getElementById(
-
-                "global-input-overlay"
-
-            );
+        result.workspace;
 
 
-        if(
+    State.config =
 
-            !overlay
-
-        ){
-
-            return;
-
-        }
+        result.config;
 
 
-        overlay.classList.remove(
+    initSession(
 
-            "hidden"
+        result.workspace
 
-        );
+    );
 
 
-        overlay.classList.add(
+    renderHeader();
 
-            "is-open"
+
+    startFlow();
+
+
+    console.log(
+
+        "INPUT FLOW STARTED"
+
+    );
+
+
+    const overlay =
+
+        document.getElementById(
+
+            "global-input-overlay"
 
         );
 
 
-        document.body.classList.add(
+    console.log(
 
-            "input-open"
+        "INPUT OVERLAY",
 
-        );
+        overlay
 
-    },
+    );
 
+
+    if(
+
+        !overlay
+
+    ){
+
+        return;
+
+    }
+
+
+    overlay.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    overlay.classList.add(
+
+        "is-open"
+
+    );
+
+
+    document.body.classList.add(
+
+        "input-open"
+
+    );
+
+}
+   
 
     /* =================================================
        CLOSE
