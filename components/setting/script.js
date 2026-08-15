@@ -2,13 +2,31 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 2.1.0
+   Version      : 3.0.0
 
    Description :
    Global Setting Controller
 
-   Module :
-   - Payroll Monthly
+   Responsibility :
+   - Load HTML
+   - Init
+   - Open
+   - Close
+   - Module Registry
+   - Render Section
+   - Render Dynamic Fields
+   - Collect Input
+   - Render Result
+   - Delete Result
+   - Confirm
+
+   Principle :
+   Controller is generic.
+   Module-specific configuration lives in:
+   - kas.js
+   - monthly.js
+   - saving.js
+   - payroll-daily.js
 ===================================================== */
 
 
@@ -21,6 +39,7 @@ import {
     KasSetting
 
 } from "./kas.js";
+
 
 import {
 
@@ -38,6 +57,7 @@ const SETTINGS = {
     "payroll-monthly":
 
         MonthlySetting,
+
 
     "kas":
 
@@ -76,7 +96,7 @@ export const Setting = {
 
         ){
 
-            return;
+            return true;
 
         }
 
@@ -92,13 +112,13 @@ export const Setting = {
 
         ){
 
-            return;
+            return false;
 
         }
 
 
         /* =============================================
-           CLOSE
+           CLOSE BUTTON
         ============================================= */
 
         const closeButton =
@@ -228,6 +248,9 @@ export const Setting = {
 
             true;
 
+
+        return true;
+
     },
 
 
@@ -241,12 +264,14 @@ export const Setting = {
 
     ){
 
-        await Setting.init();
+        const ready =
+
+            await Setting.init();
 
 
         if(
 
-            !initialized
+            !ready
 
         ){
 
@@ -256,7 +281,7 @@ export const Setting = {
 
 
         /* =============================================
-           GET CONFIG
+           GET MODULE CONFIG
         ============================================= */
 
         const config =
@@ -286,6 +311,10 @@ export const Setting = {
 
         }
 
+
+        /* =============================================
+           SAVE STATE
+        ============================================= */
 
         currentWorkspace =
 
@@ -331,56 +360,15 @@ export const Setting = {
            HEADER
         ============================================= */
 
-        const title =
+        renderHeader(
 
-            document.getElementById(
+            config
 
-                "global-setting-title"
-
-            );
-
-
-        const subtitle =
-
-            document.getElementById(
-
-                "global-setting-subtitle"
-
-            );
-
-
-        if(
-
-            title
-
-        ){
-
-            title.textContent =
-
-                config.title ??
-
-                "Pengaturan";
-
-        }
-
-
-        if(
-
-            subtitle
-
-        ){
-
-            subtitle.textContent =
-
-                config.subtitle ??
-
-                "Atur konfigurasi workspace";
-
-        }
+        );
 
 
         /* =============================================
-           RENDER
+           CONTENT
         ============================================= */
 
         renderContent(
@@ -458,6 +446,11 @@ export const Setting = {
 
     confirm(){
 
+        const data =
+
+            collectAllResults();
+
+
         console.log(
 
             "SETTING CONFIRM",
@@ -468,13 +461,26 @@ export const Setting = {
 
                     currentWorkspace,
 
-                config :
+                data :
 
-                    currentConfig
+                    data
 
             }
 
         );
+
+        /*
+         * Apps Script belum dipanggil.
+         *
+         * Untuk sekarang data hanya dikumpulkan
+         * dan ditampilkan di console.
+         *
+         * Tahap berikutnya:
+         *
+         * API / Apps Script
+         *        ↓
+         * Sheet setting
+         */
 
     }
 
@@ -496,6 +502,10 @@ async function loadHTML(){
         );
 
 
+    /* =============================================
+       EXISTING
+    ============================================= */
+
     if(
 
         overlay
@@ -506,6 +516,10 @@ async function loadHTML(){
 
     }
 
+
+    /* =============================================
+       FETCH
+    ============================================= */
 
     try{
 
@@ -544,6 +558,10 @@ async function loadHTML(){
             await response.text();
 
 
+        /* =========================================
+           CREATE DOM
+        ========================================= */
+
         const wrapper =
 
             document.createElement(
@@ -578,6 +596,10 @@ async function loadHTML(){
         }
 
 
+        /* =========================================
+           APPEND
+        ========================================= */
+
         document.body.appendChild(
 
             overlay
@@ -601,6 +623,66 @@ async function loadHTML(){
 
 
         return null;
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER HEADER
+===================================================== */
+
+function renderHeader(
+
+    config
+
+){
+
+    const title =
+
+        document.getElementById(
+
+            "global-setting-title"
+
+        );
+
+
+    const subtitle =
+
+        document.getElementById(
+
+            "global-setting-subtitle"
+
+        );
+
+
+    if(
+
+        title
+
+    ){
+
+        title.textContent =
+
+            config.title ??
+
+            "Pengaturan";
+
+    }
+
+
+    if(
+
+        subtitle
+
+    ){
+
+        subtitle.textContent =
+
+            config.subtitle ??
+
+            "Atur konfigurasi workspace";
 
     }
 
@@ -637,8 +719,16 @@ function renderContent(
     }
 
 
+    /* =============================================
+       RESET
+    ============================================= */
+
     content.innerHTML = "";
 
+
+    /* =============================================
+       VALIDATE
+    ============================================= */
 
     if(
 
@@ -662,6 +752,10 @@ function renderContent(
 
     }
 
+
+    /* =============================================
+       RENDER
+    ============================================= */
 
     config.sections.forEach(
 
@@ -717,8 +811,13 @@ function renderSection(
 
     `
 
+        <!-- ======================================
+             SECTION HEADER
+        ====================================== -->
+
         <div
             class="global-setting-section-header">
+
 
             <div>
 
@@ -731,6 +830,7 @@ function renderSection(
                     )}
 
                 </h3>
+
 
                 <p>
 
@@ -746,17 +846,42 @@ function renderSection(
 
             </div>
 
+
         </div>
 
+
+        <!-- ======================================
+             FORM
+        ====================================== -->
+
+        <div
+            class="global-setting-form hidden">
+
+        </div>
+
+
+        <!-- ======================================
+             ADD BUTTON
+        ====================================== -->
 
         <button
             type="button"
             class="global-setting-add">
 
-            ＋ Tambah
+            ${escapeHTML(
+
+                section.addLabel ??
+
+                "＋ Tambah"
+
+            )}
 
         </button>
 
+
+        <!-- ======================================
+             RESULT
+        ====================================== -->
 
         <div
             class="global-setting-result">
@@ -772,6 +897,10 @@ function renderSection(
 
     );
 
+
+    /* =============================================
+       ADD BUTTON
+    ============================================= */
 
     const addButton =
 
@@ -794,7 +923,7 @@ function renderSection(
 
             () => {
 
-                addResult(
+                toggleForm(
 
                     section,
 
@@ -812,6 +941,621 @@ function renderSection(
 
 
 /* =====================================================
+   TOGGLE FORM
+===================================================== */
+
+function toggleForm(
+
+    section,
+
+    sectionElement
+
+){
+
+    const form =
+
+        sectionElement.querySelector(
+
+            ".global-setting-form"
+
+        );
+
+
+    if(
+
+        !form
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       IF FORM ALREADY OPEN
+    ============================================= */
+
+    if(
+
+        !form.classList.contains(
+
+            "hidden"
+
+        ){
+
+        form.classList.add(
+
+            "hidden"
+
+        );
+
+
+        form.innerHTML = "";
+
+
+        return;
+
+    }
+
+
+    /* =============================================
+       RENDER FORM
+    ============================================= */
+
+    renderForm(
+
+        section,
+
+        sectionElement
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER FORM
+===================================================== */
+
+function renderForm(
+
+    section,
+
+    sectionElement
+
+){
+
+    const form =
+
+        sectionElement.querySelector(
+
+            ".global-setting-form"
+
+        );
+
+
+    if(
+
+        !form
+
+    ){
+
+        return;
+
+    }
+
+
+    form.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    form.innerHTML = "";
+
+
+    /* =============================================
+       VALIDATE FIELDS
+    ============================================= */
+
+    if(
+
+        !Array.isArray(
+
+            section.fields
+
+        )
+
+        ||
+
+        section.fields.length === 0
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       RENDER FIELDS
+    ============================================= */
+
+    section.fields.forEach(
+
+        field => {
+
+            renderField(
+
+                form,
+
+                field
+
+            );
+
+        }
+
+    );
+
+
+    /* =============================================
+       FORM ACTION
+    ============================================= */
+
+    const action =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    action.type =
+
+        "button";
+
+
+    action.className =
+
+        "global-setting-form-add";
+
+
+    action.textContent =
+
+        section.formAddLabel ??
+
+        "＋ Tambahkan";
+
+
+    form.appendChild(
+
+        action
+
+    );
+
+
+    action.addEventListener(
+
+        "click",
+
+        () => {
+
+            addResult(
+
+                section,
+
+                sectionElement
+
+            );
+
+        }
+
+    );
+
+
+    /* =============================================
+       FOCUS
+    ============================================= */
+
+    const firstInput =
+
+        form.querySelector(
+
+            "input, select, textarea"
+
+        );
+
+
+    if(
+
+        firstInput
+
+    ){
+
+        firstInput.focus();
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER FIELD
+===================================================== */
+
+function renderField(
+
+    container,
+
+    field
+
+){
+
+    const wrapper =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    wrapper.className =
+
+        "global-setting-field";
+
+
+    /* =============================================
+       LABEL
+    ============================================= */
+
+    const label =
+
+        document.createElement(
+
+            "label"
+
+        );
+
+
+    label.textContent =
+
+        field.label ??
+
+        field.name;
+
+
+    wrapper.appendChild(
+
+        label
+
+    );
+
+
+    /* =============================================
+       FIELD
+    ============================================= */
+
+    let input;
+
+
+    /* =============================================
+       SELECT
+    ============================================= */
+
+    if(
+
+        field.type ===
+
+        "select"
+
+    ){
+
+        input =
+
+            document.createElement(
+
+                "select"
+
+            );
+
+
+        if(
+
+            Array.isArray(
+
+                field.options
+
+            )
+
+        ){
+
+            field.options.forEach(
+
+                option => {
+
+                    const optionElement =
+
+                        document.createElement(
+
+                            "option"
+
+                        );
+
+
+                    if(
+
+                        typeof option ===
+
+                        "object"
+
+                    ){
+
+                        optionElement.value =
+
+                            option.value ?? "";
+
+
+                        optionElement.textContent =
+
+                            option.label ??
+
+                            option.value ??
+
+                            "";
+
+                    }
+
+                    else{
+
+                        optionElement.value =
+
+                            option;
+
+
+                        optionElement.textContent =
+
+                            option;
+
+                    }
+
+
+                    input.appendChild(
+
+                        optionElement
+
+                    );
+
+                }
+
+            );
+
+        }
+
+    }
+
+
+    /* =============================================
+       TEXTAREA
+    ============================================= */
+
+    else if(
+
+        field.type ===
+
+        "textarea"
+
+    ){
+
+        input =
+
+            document.createElement(
+
+                "textarea"
+
+            );
+
+    }
+
+
+    /* =============================================
+       CHECKBOX
+    ============================================= */
+
+    else if(
+
+        field.type ===
+
+        "checkbox"
+
+    ){
+
+        input =
+
+            document.createElement(
+
+                "input"
+
+            );
+
+
+        input.type =
+
+            "checkbox";
+
+    }
+
+
+    /* =============================================
+       DEFAULT INPUT
+    ============================================= */
+
+    else{
+
+        input =
+
+            document.createElement(
+
+                "input"
+
+            );
+
+
+        input.type =
+
+            field.type ??
+
+            "text";
+
+    }
+
+
+    /* =============================================
+       COMMON ATTRIBUTES
+    ============================================= */
+
+    input.name =
+
+        field.name;
+
+
+    input.id =
+
+        `setting-${
+
+            currentWorkspace
+
+        }-${
+
+            field.name
+
+        }`;
+
+
+    if(
+
+        field.placeholder
+
+    ){
+
+        input.placeholder =
+
+            field.placeholder;
+
+    }
+
+
+    if(
+
+        field.required
+
+    ){
+
+        input.required =
+
+            true;
+
+    }
+
+
+    if(
+
+        field.min !== undefined
+
+    ){
+
+        input.min =
+
+            field.min;
+
+    }
+
+
+    if(
+
+        field.max !== undefined
+
+    ){
+
+        input.max =
+
+            field.max;
+
+    }
+
+
+    if(
+
+        field.step !== undefined
+
+    ){
+
+        input.step =
+
+            field.step;
+
+    }
+
+
+    if(
+
+        field.value !== undefined
+
+    ){
+
+        if(
+
+            field.type ===
+
+            "checkbox"
+
+        ){
+
+            input.checked =
+
+                Boolean(
+
+                    field.value
+
+                );
+
+        }
+
+        else{
+
+            input.value =
+
+                field.value;
+
+        }
+
+    }
+
+
+    /* =============================================
+       APPEND
+    ============================================= */
+
+    wrapper.appendChild(
+
+        input
+
+    );
+
+
+    container.appendChild(
+
+        wrapper
+
+    );
+
+}
+
+
+/* =====================================================
    ADD RESULT
 ===================================================== */
 
@@ -822,6 +1566,15 @@ function addResult(
     sectionElement
 
 ){
+
+    const form =
+
+        sectionElement.querySelector(
+
+            ".global-setting-form"
+
+        );
+
 
     const result =
 
@@ -834,6 +1587,8 @@ function addResult(
 
     if(
 
+        !form ||
+
         !result
 
     ){
@@ -842,6 +1597,63 @@ function addResult(
 
     }
 
+
+    /* =============================================
+       COLLECT
+    ============================================= */
+
+    const data =
+
+        collectFormData(
+
+            section,
+
+            form
+
+        );
+
+
+    if(
+
+        data === null
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       DUPLICATE
+    ============================================= */
+
+    if(
+
+        isDuplicate(
+
+            result,
+
+            data
+
+        )
+
+    ){
+
+        alert(
+
+            "Data sudah ada."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CREATE RESULT
+    ============================================= */
 
     const item =
 
@@ -857,45 +1669,183 @@ function addResult(
         "global-setting-result-item";
 
 
-    item.innerHTML =
+    item.dataset.value =
 
-    `
+        JSON.stringify(
 
-        <div
-            class="global-setting-result-title">
+            data
 
-            ${escapeHTML(
-
-                section.resultTitle ??
-
-                section.title
-
-            )}
-
-        </div>
+        );
 
 
-        <div
-            class="global-setting-result-detail">
+    /* =============================================
+       RESULT BODY
+    ============================================= */
 
-            Prototype result.
+    const body =
 
-            Detail rule akan dibuat
+        document.createElement(
 
-            pada tahap berikutnya.
+            "div"
 
-        </div>
+        );
 
 
-        <button
-            type="button"
-            class="global-setting-result-delete">
+    body.className =
 
-            Hapus
+        "global-setting-result-content";
 
-        </button>
 
-    `;
+    /* =============================================
+       RESULT FIELDS
+    ============================================= */
+
+    if(
+
+        Array.isArray(
+
+            section.fields
+
+        )
+
+    ){
+
+        section.fields.forEach(
+
+            field => {
+
+                const row =
+
+                    document.createElement(
+
+                        "div"
+
+                    );
+
+
+                row.className =
+
+                    "global-setting-result-row";
+
+
+                const label =
+
+                    document.createElement(
+
+                        "span"
+
+                    );
+
+
+                label.textContent =
+
+                    field.label ??
+
+                    field.name;
+
+
+                const value =
+
+                    document.createElement(
+
+                        "strong"
+
+                    );
+
+
+                value.textContent =
+
+                    formatResultValue(
+
+                        field,
+
+                        data[field.name]
+
+                    );
+
+
+                row.appendChild(
+
+                    label
+
+                );
+
+
+                row.appendChild(
+
+                    value
+
+                );
+
+
+                body.appendChild(
+
+                    row
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    item.appendChild(
+
+        body
+
+    );
+
+
+    /* =============================================
+       DELETE
+    ============================================= */
+
+    const deleteButton =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    deleteButton.type =
+
+        "button";
+
+
+    deleteButton.className =
+
+        "global-setting-result-delete";
+
+
+    deleteButton.textContent =
+
+        section.deleteLabel ??
+
+        "Hapus";
+
+
+    deleteButton.addEventListener(
+
+        "click",
+
+        () => {
+
+            item.remove();
+
+        }
+
+    );
+
+
+    item.appendChild(
+
+        deleteButton
+
+    );
 
 
     result.appendChild(
@@ -905,34 +1855,689 @@ function addResult(
     );
 
 
-    const deleteButton =
+    /* =============================================
+       RESET FORM
+    ============================================= */
 
-        item.querySelector(
+    resetForm(
 
-            ".global-setting-result-delete"
+        section,
+
+        form
+
+    );
+
+}
+
+
+/* =====================================================
+   COLLECT FORM DATA
+===================================================== */
+
+function collectFormData(
+
+    section,
+
+    form
+
+){
+
+    const data = {};
+
+
+    if(
+
+        !Array.isArray(
+
+            section.fields
+
+        )
+
+    ){
+
+        return data;
+
+    }
+
+
+    for(
+
+        const field of
+
+            section.fields
+
+    ){
+
+        const input =
+
+            form.querySelector(
+
+                `[name="${escapeSelector(
+
+                    field.name
+
+                )}"]`
+
+            );
+
+
+        if(
+
+            !input
+
+        ){
+
+            continue;
+
+        }
+
+
+        let value;
+
+
+        /* =========================================
+           CHECKBOX
+        ========================================= */
+
+        if(
+
+            field.type ===
+
+            "checkbox"
+
+        ){
+
+            value =
+
+                input.checked;
+
+        }
+
+
+        /* =========================================
+           OTHER
+        ========================================= */
+
+        else{
+
+            value =
+
+                input.value.trim();
+
+        }
+
+
+        /* =========================================
+           REQUIRED
+        ========================================= */
+
+        if(
+
+            field.required &&
+
+            (
+
+                value === "" ||
+
+                value === null ||
+
+                value === undefined
+
+            )
+
+        ){
+
+            alert(
+
+                `${
+
+                    field.label ??
+
+                    field.name
+
+                } wajib diisi.`
+
+            );
+
+
+            input.focus();
+
+
+            return null;
+
+        }
+
+
+        data[field.name] =
+
+            value;
+
+    }
+
+
+    return data;
+
+}
+
+
+/* =====================================================
+   DUPLICATE CHECK
+===================================================== */
+
+function isDuplicate(
+
+    result,
+
+    data
+
+){
+
+    return [
+
+        ...result.children
+
+    ].some(
+
+        item => {
+
+            if(
+
+                !item.dataset.value
+
+            ){
+
+                return false;
+
+            }
+
+
+            try{
+
+                const existing =
+
+                    JSON.parse(
+
+                        item.dataset.value
+
+                    );
+
+
+                return (
+
+                    JSON.stringify(
+
+                        existing
+
+                    )
+
+                    ===
+
+                    JSON.stringify(
+
+                        data
+
+                    )
+
+                );
+
+            }
+
+            catch(error){
+
+                return false;
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   RESET FORM
+===================================================== */
+
+function resetForm(
+
+    section,
+
+    form
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            section.fields
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    section.fields.forEach(
+
+        field => {
+
+            const input =
+
+                form.querySelector(
+
+                    `[name="${escapeSelector(
+
+                        field.name
+
+                    )}"]`
+
+                );
+
+
+            if(
+
+                !input
+
+            ){
+
+                return;
+
+            }
+
+
+            if(
+
+                field.type ===
+
+                "checkbox"
+
+            ){
+
+                input.checked =
+
+                    Boolean(
+
+                        field.value
+
+                    );
+
+            }
+
+            else{
+
+                input.value =
+
+                    field.value ??
+
+                    "";
+
+            }
+
+        }
+
+    );
+
+
+    const firstInput =
+
+        form.querySelector(
+
+            "input, select, textarea"
 
         );
 
 
     if(
 
-        deleteButton
+        firstInput
 
     ){
 
-        deleteButton.addEventListener(
+        firstInput.focus();
 
-            "click",
+    }
 
-            () => {
+}
 
-                item.remove();
+
+/* =====================================================
+   FORMAT RESULT VALUE
+===================================================== */
+
+function formatResultValue(
+
+    field,
+
+    value
+
+){
+
+    if(
+
+        value === undefined ||
+
+        value === null ||
+
+        value === ""
+
+    ){
+
+        return "-";
+
+    }
+
+
+    /* =============================================
+       SELECT
+    ============================================= */
+
+    if(
+
+        field.type ===
+
+        "select"
+
+        &&
+
+        Array.isArray(
+
+            field.options
+
+        )
+
+    ){
+
+        const option =
+
+            field.options.find(
+
+                item => {
+
+                    if(
+
+                        typeof item ===
+
+                        "object"
+
+                    ){
+
+                        return (
+
+                            String(
+
+                                item.value
+
+                            )
+
+                            ===
+
+                            String(
+
+                                value
+
+                            )
+
+                        );
+
+                    }
+
+
+                    return (
+
+                        String(
+
+                            item
+
+                        )
+
+                        ===
+
+                        String(
+
+                            value
+
+                        )
+
+                    );
+
+                }
+
+            );
+
+
+        if(
+
+            option &&
+
+            typeof option ===
+
+            "object"
+
+        ){
+
+            return option.label ??
+
+                option.value;
+
+        }
+
+    }
+
+
+    /* =============================================
+       CHECKBOX
+    ============================================= */
+
+    if(
+
+        field.type ===
+
+        "checkbox"
+
+    ){
+
+        return value
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
+
+    }
+
+
+    return value;
+
+}
+
+
+/* =====================================================
+   COLLECT ALL RESULTS
+===================================================== */
+
+function collectAllResults(){
+
+    const content =
+
+        document.getElementById(
+
+            "global-setting-content"
+
+        );
+
+
+    if(
+
+        !content
+
+    ){
+
+        return [];
+
+    }
+
+
+    const output = [];
+
+
+    const sections =
+
+        content.querySelectorAll(
+
+            ".global-setting-section"
+
+        );
+
+
+    sections.forEach(
+
+        sectionElement => {
+
+            const sectionId =
+
+                sectionElement.dataset.section;
+
+
+            const result =
+
+                sectionElement.querySelector(
+
+                    ".global-setting-result"
+
+                );
+
+
+            if(
+
+                !result
+
+            ){
+
+                return;
 
             }
+
+
+            [
+
+                ...result.children
+
+            ].forEach(
+
+                item => {
+
+                    if(
+
+                        !item.dataset.value
+
+                    ){
+
+                        return;
+
+                    }
+
+
+                    try{
+
+                        const data =
+
+                            JSON.parse(
+
+                                item.dataset.value
+
+                            );
+
+
+                        output.push({
+
+                            section :
+
+                                sectionId,
+
+                            data :
+
+                                data
+
+                        });
+
+                    }
+
+                    catch(error){
+
+                        console.error(
+
+                            "Setting result parse error:",
+
+                            error
+
+                        );
+
+                    }
+
+                }
+
+            );
+
+        }
+
+    );
+
+
+    return output;
+
+}
+
+
+/* =====================================================
+   ESCAPE SELECTOR
+===================================================== */
+
+function escapeSelector(
+
+    value
+
+){
+
+    if(
+
+        window.CSS &&
+
+        typeof CSS.escape ===
+
+        "function"
+
+    ){
+
+        return CSS.escape(
+
+            value
 
         );
 
     }
+
+
+    return String(
+
+        value
+
+    )
+
+        .replace(
+
+            /([^\w-])/g,
+
+            "\\$1"
+
+        );
 
 }
 
