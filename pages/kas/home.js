@@ -78,6 +78,12 @@ import {
 
 } from "../../components/input/script.js";
 
+import {
+
+    Setting
+
+} from "../../components/setting/script.js";
+
 /* =====================================================
    INIT DATA
 ===================================================== */
