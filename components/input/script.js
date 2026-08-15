@@ -217,48 +217,46 @@ export const Input = {
        OPEN
     ================================================= */
 
-    async open(){
+    async open(
 
-        await Input.init();
+    workspace = null
 
+){
 
-        if(
+    console.log(
 
-            !initialized
+        "INPUT OPEN",
 
-        ){
+        workspace
 
-            return;
-
-        }
-
-
-        /* =============================================
-           RESOLVE WORKSPACE
-        ============================================= */
-
-        const result =
-
-            resolveWorkspace();
+    );
 
 
-        if(
+    await Input.init();
 
-            !result.config
 
-        ){
+    if(
 
-            console.warn(
+        !initialized
 
-                "Input configuration tidak ditemukan:",
+    ){
 
-                result.workspace
+        return;
 
-            );
+    }
 
-            return;
 
-        }
+    /* =============================================
+       RESOLVE WORKSPACE
+    ============================================= */
+
+    const result =
+
+        resolveWorkspace(
+
+            workspace
+
+        );
 
 
         /* =============================================
