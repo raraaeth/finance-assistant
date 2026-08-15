@@ -494,8 +494,7 @@ function renderInput(){
 
             ()=>{
 
-                Input.open();
-
+                Input.open("kas");
             }
 
         );
