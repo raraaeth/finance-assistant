@@ -72,6 +72,19 @@ import {
 
 } from "../../js/animation.js";
 
+import {
+
+    Input
+
+} from "../../components/input/script.js";
+
+
+import {
+
+    Setting
+
+} from "../../components/setting/script.js";
+
 
 
 /* =====================================================
@@ -124,6 +137,10 @@ export async function init(){
     renderHero();
 
     renderSummary();
+
+    renderInput();
+
+    renderSetting();
 
     await Profile.render({
 
@@ -320,6 +337,258 @@ function renderSummary(){
     rupiah
 
 );
+
+}
+
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+function renderInput(){
+
+    const card =
+
+        document.getElementById(
+
+            "input-card"
+
+        );
+
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
+
+    `
+
+        <div
+            id="saving-input-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    💰
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Input
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Tambahkan transaksi Saving
+
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /* =============================================
+       OPEN GLOBAL INPUT
+    ============================================= */
+
+    const menu =
+
+        document.getElementById(
+
+            "saving-input-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Input.open(
+
+                    "saving"
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
+
+/* =====================================================
+   SETTING
+===================================================== */
+
+function renderSetting(){
+
+    const card =
+
+        document.getElementById(
+
+            "setting-card"
+
+        );
+
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
+
+    `
+
+        <div
+            id="saving-setting-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    ⚙️
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Pengaturan
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Atur rekening dan tempat penyimpanan Saving
+
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /* =============================================
+       OPEN GLOBAL SETTING
+    ============================================= */
+
+    const menu =
+
+        document.getElementById(
+
+            "saving-setting-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Setting.open(
+
+                    "saving"
+
+                );
+
+            }
+
+        );
+
+    }
 
 }
 
