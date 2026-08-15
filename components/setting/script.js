@@ -37,7 +37,11 @@ const SETTINGS = {
 
     "payroll-monthly":
 
-        MonthlySetting
+        MonthlySetting,
+
+    "kas":
+
+        KasSetting
 
 };
 
