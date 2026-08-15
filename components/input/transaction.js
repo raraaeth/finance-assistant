@@ -174,28 +174,35 @@ function completeTransaction(
     State.resetCurrent();
 
 
-    /* =============================================
-       HIDE ADD BUTTON
-    ============================================= */
+/* =============================================
+   RESET FORM DOM
+============================================= */
 
-    hideAddButton();
-
-
-    /* =============================================
-       RENDER LIST
-    ============================================= */
-
-    renderTransactionList();
+resetTransactionForm();
 
 
-    updateSummary();
+/* =============================================
+   HIDE ADD BUTTON
+============================================= */
+
+hideAddButton();
 
 
-    /* =============================================
-       START NEW TRANSACTION
-    ============================================= */
+/* =============================================
+   RENDER LIST
+============================================= */
 
-    startFlow();
+renderTransactionList();
+
+
+updateSummary();
+
+
+/* =============================================
+   START NEW TRANSACTION
+============================================= */
+
+startFlow();
 
 
     console.log(
@@ -205,6 +212,36 @@ function completeTransaction(
         transaction
 
     );
+
+}
+
+/* =====================================================
+   RESET FORM
+===================================================== */
+
+function resetTransactionForm(){
+
+    const form =
+
+        document.getElementById(
+
+            "global-input-form"
+
+        );
+
+
+    if(
+
+        !form
+
+    ){
+
+        return;
+
+    }
+
+
+    form.innerHTML = "";
 
 }
 
