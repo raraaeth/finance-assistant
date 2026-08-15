@@ -509,8 +509,6 @@ function renderInput(){
 
 }
         
-
-
 /* =====================================================
    SETTING
 ===================================================== */
@@ -525,6 +523,7 @@ function renderSetting(){
 
         );
 
+
     if(
 
         !card
@@ -535,32 +534,102 @@ function renderSetting(){
 
     }
 
+
     card.innerHTML =
 
     `
 
-        <div class="card-header">
+        <div
+            id="kas-setting-menu"
+            class="profile-menu-item">
 
-            <span class="card-title">
 
-                Pengaturan Kas
+            <div
+                class="profile-menu-left">
 
-            </span>
 
-        </div>
+                <div
+                    class="profile-menu-icon">
 
-        <div class="card-body">
+                    ⚙️
 
-            <p>
+                </div>
 
-                Pengaturan workspace Kas
-                dapat dikelola melalui
-                Profile.
 
-            </p>
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Pengaturan
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Atur konfigurasi Kas
+
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
 
         </div>
 
     `;
 
+
+    /* =============================================
+       OPEN GLOBAL SETTING
+    ============================================= */
+
+    const menu =
+
+        document.getElementById(
+
+            "kas-setting-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Setting.open(
+
+                    "kas"
+
+                );
+
+            }
+
+        );
+
+    }
+
 }
+
