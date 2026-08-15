@@ -2,21 +2,15 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 2.0.0
+   Version      : 2.1.0
 
    Description :
    Global Setting Controller
 
-   Handles :
-   - Load HTML
-   - Init
-   - Open
-   - Close
-   - Render Module
-   - Add Result
-   - Delete Result
-   - Confirm
+   Module :
+   - Payroll Monthly
 ===================================================== */
+
 
 /* =====================================================
    IMPORT
@@ -27,6 +21,19 @@ import {
     MonthlySetting
 
 } from "./monthly.js";
+
+
+/* =====================================================
+   MODULE REGISTRY
+===================================================== */
+
+const SETTINGS = {
+
+    "payroll-monthly":
+
+        MonthlySetting
+
+};
 
 
 /* =====================================================
@@ -81,7 +88,7 @@ export const Setting = {
 
 
         /* =============================================
-           CLOSE BUTTON
+           CLOSE
         ============================================= */
 
         const closeButton =
@@ -220,9 +227,7 @@ export const Setting = {
 
     async open(
 
-        workspace,
-
-        config
+        workspace
 
     ){
 
@@ -240,6 +245,38 @@ export const Setting = {
         }
 
 
+        /* =============================================
+           GET CONFIG
+        ============================================= */
+
+        const config =
+
+            SETTINGS[
+
+                workspace
+
+            ];
+
+
+        if(
+
+            !config
+
+        ){
+
+            console.error(
+
+                "Setting module tidak ditemukan:",
+
+                workspace
+
+            );
+
+            return;
+
+        }
+
+
         currentWorkspace =
 
             workspace;
@@ -249,6 +286,10 @@ export const Setting = {
 
             config;
 
+
+        /* =============================================
+           GET OVERLAY
+        ============================================= */
 
         const overlay =
 
@@ -264,6 +305,12 @@ export const Setting = {
             !overlay
 
         ){
+
+            console.error(
+
+                "Global Setting overlay tidak ditemukan."
+
+            );
 
             return;
 
@@ -300,7 +347,7 @@ export const Setting = {
 
             title.textContent =
 
-                config?.title ??
+                config.title ??
 
                 "Pengaturan";
 
@@ -315,7 +362,7 @@ export const Setting = {
 
             subtitle.textContent =
 
-                config?.subtitle ??
+                config.subtitle ??
 
                 "Atur konfigurasi workspace";
 
@@ -334,7 +381,7 @@ export const Setting = {
 
 
         /* =============================================
-           SHOW
+           OPEN
         ============================================= */
 
         overlay.classList.add(
@@ -585,8 +632,6 @@ function renderContent(
 
     if(
 
-        !config ||
-
         !Array.isArray(
 
             config.sections
@@ -594,6 +639,14 @@ function renderContent(
         )
 
     ){
+
+        console.error(
+
+            "Setting sections tidak ditemukan:",
+
+            config
+
+        );
 
         return;
 
