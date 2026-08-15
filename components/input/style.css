@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : style.css
-   Version      : 6.0.1
+   Version      : 7.0.0
 
    Description :
    Reusable Global Input Overlay
@@ -488,6 +488,80 @@
 
 
 /* =====================================================
+   ADD TRANSACTION
+===================================================== */
+
+.global-input-action{
+
+    width:100%;
+
+    margin-top:20px;
+
+    box-sizing:border-box;
+
+}
+
+
+.global-input-add{
+
+    width:100%;
+
+    min-height:50px;
+
+    padding:12px 16px;
+
+    box-sizing:border-box;
+
+    border:
+        1px solid
+        #253f3d;
+
+    border-radius:12px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    transition:
+        background-color .2s ease,
+        transform .1s ease;
+
+}
+
+
+.global-input-add:hover{
+
+    background:#f5f8f7;
+
+}
+
+
+.global-input-add:active{
+
+    background:#eef3f2;
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
    CURRENT INPUT SECTION
 ===================================================== */
 
@@ -496,6 +570,8 @@
     width:100%;
 
     margin-top:24px;
+
+    box-sizing:border-box;
 
 }
 
@@ -600,6 +676,8 @@
 
     width:100%;
 
+    box-sizing:border-box;
+
 }
 
 
@@ -617,7 +695,7 @@
 
     border:
         1px solid
-        #e1e7e5;
+        #dfe6e4;
 
     border-radius:12px;
 
@@ -629,14 +707,18 @@
 
 
 /* =====================================================
-   INPUT LIST ITEM CONTENT
+   INPUT ITEM CONTENT
 ===================================================== */
 
 .global-input-list-item > div{
 
+    width:100%;
+
+    box-sizing:border-box;
+
     font-size:14px;
 
-    line-height:1.45;
+    line-height:1.5;
 
     color:#4f5f5d;
 
@@ -644,7 +726,7 @@
 
 
 /* =====================================================
-   INPUT LIST ITEM TITLE
+   INPUT ITEM TITLE
 ===================================================== */
 
 .global-input-list-item strong{
@@ -696,6 +778,8 @@
 ===================================================== */
 
 .global-input-item-actions button{
+
+    min-height:30px;
 
     padding:4px 2px;
 
@@ -810,6 +894,17 @@ body.input-open{
 
 
 /* =====================================================
+   HIDDEN
+===================================================== */
+
+.hidden{
+
+    display:none !important;
+
+}
+
+
+/* =====================================================
    MOBILE
 ===================================================== */
 
@@ -858,96 +953,5 @@ body.input-open{
         padding:13px;
 
     }
-
-}
-
-
-/* =====================================================
-   ADD TRANSACTION
-===================================================== */
-
-.global-input-action{
-
-    width:100%;
-
-    margin-top:20px;
-
-    box-sizing:border-box;
-
-}
-
-
-/* =====================================================
-   ADD BUTTON
-===================================================== */
-
-.global-input-add{
-
-    width:100%;
-
-    min-height:50px;
-
-    padding:
-        12px
-        16px;
-
-    box-sizing:border-box;
-
-    border:
-        1px solid
-        #253f3d;
-
-    border-radius:12px;
-
-    background:#ffffff;
-
-    color:#253f3d;
-
-    font-size:16px;
-
-    font-weight:700;
-
-    font-family:inherit;
-
-    cursor:pointer;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:8px;
-
-    transition:
-        background-color .2s ease,
-        transform .1s ease;
-
-}
-
-
-.global-input-add:hover{
-
-    background:#f5f8f7;
-
-}
-
-
-.global-input-add:active{
-
-    background:#eef3f2;
-
-    transform:scale(.98);
-
-}
-
-
-/* =====================================================
-   HIDDEN
-===================================================== */
-
-.hidden{
-
-    display:none !important;
 
 }
