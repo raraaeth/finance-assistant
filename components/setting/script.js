@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 3.0.0
+   Version      : 4.0.0
 
    Description :
    Global Setting Controller
@@ -15,13 +15,16 @@
    - Module Registry
    - Render Section
    - Render Dynamic Fields
+   - Conditional Fields
    - Collect Input
+   - Normalize Input
    - Render Result
    - Delete Result
    - Confirm
 
    Principle :
    Controller is generic.
+
    Module-specific configuration lives in:
    - kas.js
    - monthly.js
@@ -48,6 +51,13 @@ import {
 } from "./monthly.js";
 
 
+import {
+
+    SavingSetting
+
+} from "./saving.js";
+
+
 /* =====================================================
    MODULE REGISTRY
 ===================================================== */
@@ -61,7 +71,12 @@ const SETTINGS = {
 
     "kas":
 
-        KasSetting
+        KasSetting,
+
+
+    "saving":
+
+        SavingSetting
 
 };
 
@@ -469,6 +484,7 @@ export const Setting = {
 
         );
 
+
         /*
          * Apps Script belum dipanggil.
          *
@@ -818,7 +834,6 @@ function renderSection(
         <div
             class="global-setting-section-header">
 
-
             <div>
 
                 <h3>
@@ -845,7 +860,6 @@ function renderSection(
                 </p>
 
             </div>
-
 
         </div>
 
@@ -982,9 +996,9 @@ function toggleForm(
 
             "hidden"
 
-           )
+        )
 
-        ){
+    ){
 
         form.classList.add(
 
@@ -1103,6 +1117,19 @@ function renderForm(
 
 
     /* =============================================
+       CONDITIONAL FIELD LISTENER
+    ============================================= */
+
+    bindConditionalFields(
+
+        form,
+
+        section.fields
+
+    );
+
+
+    /* =============================================
        FORM ACTION
     ============================================= */
 
@@ -1159,25 +1186,38 @@ function renderForm(
 
 
     /* =============================================
+       INITIAL CONDITION
+    ============================================= */
+
+    updateConditionalFields(
+
+        form,
+
+        section.fields
+
+    );
+
+
+    /* =============================================
        FOCUS
     ============================================= */
 
-    const firstInput =
+    const firstVisibleInput =
 
-        form.querySelector(
+        getFirstVisibleInput(
 
-            "input, select, textarea"
+            form
 
         );
 
 
     if(
 
-        firstInput
+        firstVisibleInput
 
     ){
 
-        firstInput.focus();
+        firstVisibleInput.focus();
 
     }
 
@@ -1208,6 +1248,33 @@ function renderField(
     wrapper.className =
 
         "global-setting-field";
+
+
+    wrapper.dataset.field =
+
+        field.name;
+
+
+    /* =============================================
+       CONDITIONAL METADATA
+    ============================================= */
+
+    if(
+
+        field.dependsOn
+
+    ){
+
+        wrapper.dataset.dependsOnField =
+
+            field.dependsOn.field;
+
+
+        wrapper.dataset.dependsOnValue =
+
+            field.dependsOn.value;
+
+    }
 
 
     /* =============================================
@@ -1264,6 +1331,52 @@ function renderField(
 
             );
 
+
+        /* -----------------------------------------
+           PLACEHOLDER OPTION
+        ----------------------------------------- */
+
+        const placeholder =
+
+            document.createElement(
+
+                "option"
+
+            );
+
+
+        placeholder.value =
+
+            "";
+
+
+        placeholder.textContent =
+
+            field.placeholder ??
+
+            "Pilih...";
+
+
+        placeholder.disabled =
+
+            false;
+
+
+        placeholder.selected =
+
+            true;
+
+
+        input.appendChild(
+
+            placeholder
+
+        );
+
+
+        /* -----------------------------------------
+           OPTIONS
+        ----------------------------------------- */
 
         if(
 
@@ -1441,6 +1554,10 @@ function renderField(
 
         field.placeholder
 
+        &&
+
+        field.type !== "select"
+
     ){
 
         input.placeholder =
@@ -1538,7 +1655,7 @@ function renderField(
 
 
     /* =============================================
-       APPEND
+       APPEND INPUT
     ============================================= */
 
     wrapper.appendChild(
@@ -1553,6 +1670,333 @@ function renderField(
         wrapper
 
     );
+
+}
+
+
+/* =====================================================
+   CONDITIONAL FIELD LISTENER
+===================================================== */
+
+function bindConditionalFields(
+
+    form,
+
+    fields
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            fields
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    fields.forEach(
+
+        field => {
+
+            if(
+
+                !field.dependsOn
+
+            ){
+
+                return;
+
+            }
+
+
+            const controller =
+
+                form.querySelector(
+
+                    `[name="${escapeSelector(
+
+                        field.dependsOn.field
+
+                    )}"]`
+
+                );
+
+
+            if(
+
+                !controller
+
+            ){
+
+                return;
+
+            }
+
+
+            controller.addEventListener(
+
+                "change",
+
+                () => {
+
+                    updateConditionalFields(
+
+                        form,
+
+                        fields
+
+                    );
+
+                }
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   UPDATE CONDITIONAL FIELDS
+===================================================== */
+
+function updateConditionalFields(
+
+    form,
+
+    fields
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            fields
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    fields.forEach(
+
+        field => {
+
+            if(
+
+                !field.dependsOn
+
+            ){
+
+                return;
+
+            }
+
+
+            const wrapper =
+
+                form.querySelector(
+
+                    `[data-field="${escapeSelector(
+
+                        field.name
+
+                    )}"]`
+
+                );
+
+
+            const controller =
+
+                form.querySelector(
+
+                    `[name="${escapeSelector(
+
+                        field.dependsOn.field
+
+                    )}"]`
+
+                );
+
+
+            if(
+
+                !wrapper ||
+
+                !controller
+
+            ){
+
+                return;
+
+            }
+
+
+            const shouldShow =
+
+                String(
+
+                    controller.value
+
+                )
+
+                ===
+
+                String(
+
+                    field.dependsOn.value
+
+                );
+
+
+            if(
+
+                shouldShow
+
+            ){
+
+                wrapper.classList.remove(
+
+                    "hidden"
+
+                );
+
+            }
+
+            else{
+
+                wrapper.classList.add(
+
+                    "hidden"
+
+                );
+
+
+                const input =
+
+                    wrapper.querySelector(
+
+                        "input, select, textarea"
+
+                    );
+
+
+                if(
+
+                    input
+
+                ){
+
+                    if(
+
+                        input.type ===
+
+                        "checkbox"
+
+                    ){
+
+                        input.checked =
+
+                            false;
+
+                    }
+
+                    else{
+
+                        input.value =
+
+                            "";
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   FIRST VISIBLE INPUT
+===================================================== */
+
+function getFirstVisibleInput(
+
+    form
+
+){
+
+    const inputs =
+
+        form.querySelectorAll(
+
+            "input, select, textarea"
+
+        );
+
+
+    for(
+
+        const input of inputs
+
+    ){
+
+        const wrapper =
+
+            input.closest(
+
+                ".global-setting-field"
+
+            );
+
+
+        if(
+
+            !wrapper
+
+        ){
+
+            continue;
+
+        }
+
+
+        if(
+
+            !wrapper.classList.contains(
+
+                "hidden"
+
+            )
+
+        ){
+
+            return input;
+
+        }
+
+    }
+
+
+    return null;
 
 }
 
@@ -1715,6 +2159,28 @@ function addResult(
         section.fields.forEach(
 
             field => {
+
+                /*
+                 * Field conditional yang sedang
+                 * tidak aktif tidak perlu ditampilkan.
+                 */
+
+                if(
+
+                    field.dependsOn &&
+
+                    !data.hasOwnProperty(
+
+                        field.name
+
+                    )
+
+                ){
+
+                    return;
+
+                }
+
 
                 const row =
 
@@ -1934,6 +2400,58 @@ function collectFormData(
         }
 
 
+        /* =========================================
+           CONDITIONAL FIELD
+        ========================================= */
+
+        if(
+
+            field.dependsOn
+
+        ){
+
+            const controller =
+
+                form.querySelector(
+
+                    `[name="${escapeSelector(
+
+                        field.dependsOn.field
+
+                    )}"]`
+
+                );
+
+
+            if(
+
+                controller
+
+                &&
+
+                String(
+
+                    controller.value
+
+                )
+
+                !==
+
+                String(
+
+                    field.dependsOn.value
+
+                )
+
+            ){
+
+                continue;
+
+            }
+
+        }
+
+
         let value;
 
 
@@ -2013,6 +2531,27 @@ function collectFormData(
         data[field.name] =
 
             value;
+
+    }
+
+
+    /* =============================================
+       NORMALIZE
+    ============================================= */
+
+    if(
+
+        typeof section.normalize ===
+
+        "function"
+
+    ){
+
+        return section.normalize(
+
+            data
+
+        );
 
     }
 
@@ -2185,22 +2724,39 @@ function resetForm(
     );
 
 
-    const firstInput =
+    /* =============================================
+       RESET CONDITIONAL STATE
+    ============================================= */
 
-        form.querySelector(
+    updateConditionalFields(
 
-            "input, select, textarea"
+        form,
+
+        section.fields
+
+    );
+
+
+    /* =============================================
+       FOCUS
+    ============================================= */
+
+    const firstVisibleInput =
+
+        getFirstVisibleInput(
+
+            form
 
         );
 
 
     if(
 
-        firstInput
+        firstVisibleInput
 
     ){
 
-        firstInput.focus();
+        firstVisibleInput.focus();
 
     }
 
