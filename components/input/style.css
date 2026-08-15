@@ -758,3 +758,99 @@ body.input-open{
     }
 
 }
+
+/* =====================================================
+   ADD TRANSACTION
+===================================================== */
+
+.global-input-action{
+
+    width:100%;
+
+    margin-top:20px;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =====================================================
+   ADD BUTTON
+===================================================== */
+
+.global-input-add{
+
+    width:100%;
+
+    min-height:50px;
+
+    padding:
+
+        12px
+
+        16px;
+
+    box-sizing:border-box;
+
+    border:
+
+        1px solid
+
+        #253f3d;
+
+    border-radius:12px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    transition:
+
+        background-color .2s ease,
+
+        transform .1s ease;
+
+}
+
+
+.global-input-add:hover{
+
+    background:#f5f8f7;
+
+}
+
+
+.global-input-add:active{
+
+    background:#eef3f2;
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
+   HIDDEN
+===================================================== */
+
+.hidden{
+
+    display:none !important;
+
+}
