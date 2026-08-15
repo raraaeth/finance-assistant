@@ -2,10 +2,10 @@
    Finance Assistant
    Component    : Global Input
    File         : style.css
-   Version      : 1.0.0
+   Version      : 3.0.0
 
    Description :
-   Reusable Global Input Overlay
+   Full Screen Global Input Overlay
 
    Direction :
    Right → Left
@@ -22,11 +22,30 @@
 
     inset:0;
 
+    width:100vw;
+
+    height:100vh;
+
     z-index:10000;
 
     visibility:hidden;
 
     pointer-events:none;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   OPEN STATE
+===================================================== */
+
+.global-input.is-open{
+
+    visibility:visible;
+
+    pointer-events:auto;
 
 }
 
@@ -41,7 +60,23 @@
 
     inset:0;
 
+    width:100%;
+
+    height:100%;
+
     background:#ffffff;
+
+    opacity:0;
+
+    transition:
+
+        opacity .3s ease;
+
+}
+
+
+.global-input.is-open
+.global-input-backdrop{
 
     opacity:1;
 
@@ -56,19 +91,9 @@
 
     position:absolute;
 
-    top:0;
+    inset:0;
 
-    right:0;
-
-    width:
-
-        min(
-
-            100%,
-
-            520px
-
-        );
+    width:100%;
 
     height:100%;
 
@@ -78,13 +103,7 @@
 
     color:#253f3d;
 
-    box-shadow:
-
-        -8px 0 30px
-
-        rgba(0,0,0,.15);
-
-    overflow-y:auto;
+    overflow:hidden;
 
     transform:
 
@@ -102,17 +121,8 @@
 
 
 /* =====================================================
-   OPEN STATE
+   PANEL OPEN
 ===================================================== */
-
-.global-input.is-open{
-
-    visibility:visible;
-
-    pointer-events:auto;
-
-}
-
 
 .global-input.is-open
 .global-input-panel{
@@ -153,6 +163,8 @@
         #e5e9e8;
 
     flex-shrink:0;
+
+    background:#ffffff;
 
 }
 
@@ -220,14 +232,24 @@
 
     font-size:18px;
 
+    line-height:1;
+
     cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
 
 }
 
 
 .global-input-close:active{
 
-    transform:scale(.94);
+    transform:
+
+        scale(.94);
 
 }
 
@@ -240,11 +262,19 @@
 
     flex:1;
 
+    min-height:0;
+
     padding:
 
         20px;
 
     overflow-y:auto;
+
+    overflow-x:hidden;
+
+    background:#ffffff;
+
+    box-sizing:border-box;
 
 }
 
@@ -282,7 +312,9 @@
 
     width:100%;
 
-    padding:10px 0;
+    padding:
+
+        10px 0;
 
     box-sizing:border-box;
 
@@ -359,6 +391,15 @@
 
     font-family:inherit;
 
+    outline:none;
+
+}
+
+
+.global-input-date:focus{
+
+    border-color:#6f9994;
+
 }
 
 
@@ -373,6 +414,8 @@
     flex-direction:column;
 
     gap:16px;
+
+    width:100%;
 
 }
 
@@ -525,7 +568,7 @@
 
 
 /* =====================================================
-   INPUT LIST
+   LIST
 ===================================================== */
 
 .global-input-list{
@@ -536,6 +579,8 @@
 
     gap:10px;
 
+    width:100%;
+
 }
 
 
@@ -545,6 +590,8 @@
 
 .global-input-footer{
 
+    flex-shrink:0;
+
     padding:
 
         14px
@@ -552,8 +599,6 @@
         20px
 
         20px;
-
-    flex-shrink:0;
 
     border-top:
 
@@ -603,7 +648,20 @@
 
 .global-input-confirm:active{
 
-    transform:scale(.98);
+    transform:
+
+        scale(.98);
+
+}
+
+
+/* =====================================================
+   BODY LOCK
+===================================================== */
+
+body.input-open{
+
+    overflow:hidden;
 
 }
 
@@ -617,13 +675,6 @@
     max-width:480px
 
 ){
-
-    .global-input-panel{
-
-        width:100%;
-
-    }
-
 
     .global-input-header{
 
@@ -640,7 +691,22 @@
 
     .global-input-content{
 
-        padding:18px;
+        padding:
+
+            18px;
+
+    }
+
+
+    .global-input-footer{
+
+        padding:
+
+            14px
+
+            18px
+
+            18px;
 
     }
 
