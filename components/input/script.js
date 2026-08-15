@@ -2,17 +2,10 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 5.1.0
+   Version      : 5.2.0
 
    Description :
    Global Input Controller
-
-   Handles :
-   - Load HTML
-   - Init
-   - Open
-   - Close
-   - Module connection
 ===================================================== */
 
 
@@ -100,6 +93,12 @@ export const Input = {
             !overlay
 
         ){
+
+            console.error(
+
+                "Global Input gagal diinisialisasi."
+
+            );
 
             return;
 
@@ -216,165 +215,194 @@ export const Input = {
     /* =================================================
        OPEN
     ================================================= */
-async open(
 
-    workspace = null
+    async open(
 
-){
-
-    console.log(
-
-        "INPUT OPEN",
-
-        workspace
-
-    );
-
-
-    await Input.init();
-
-
-    console.log(
-
-        "INPUT INIT SELESAI",
-
-        initialized
-
-    );
-
-
-    if(
-
-        !initialized
+        workspace = null
 
     ){
 
-        return;
+        console.log(
 
-    }
-
-
-    const result =
-
-        resolveWorkspace(
+            "INPUT OPEN",
 
             workspace
 
         );
 
 
-    console.log(
+        /* =============================================
+           INIT
+        ============================================= */
 
-        "INPUT WORKSPACE RESULT",
-
-        result
-
-    );
+        await Input.init();
 
 
-    if(
+        if(
 
-        !result.config
+            !initialized
 
-    ){
+        ){
 
-        console.warn(
+            console.error(
 
-            "Input configuration tidak ditemukan:",
+                "INPUT INIT GAGAL"
+
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           RESOLVE WORKSPACE
+        ============================================= */
+
+        const result =
+
+            resolveWorkspace(
+
+                workspace
+
+            );
+
+
+        console.log(
+
+            "INPUT WORKSPACE RESULT",
+
+            result
+
+        );
+
+
+        if(
+
+            !result.config
+
+        ){
+
+            console.warn(
+
+                "Input configuration tidak ditemukan:",
+
+                result.workspace
+
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           RESET STATE
+        ============================================= */
+
+        State.reset();
+
+
+        State.workspace =
+
+            result.workspace;
+
+
+        State.config =
+
+            result.config;
+
+
+        /* =============================================
+           SESSION
+        ============================================= */
+
+        initSession(
 
             result.workspace
 
         );
 
-        return;
 
-    }
+        /* =============================================
+           HEADER
+        ============================================= */
 
-
-    State.reset();
-
-
-    State.workspace =
-
-        result.workspace;
+        renderHeader();
 
 
-    State.config =
+        /* =============================================
+           START FLOW
+        ============================================= */
 
-        result.config;
-
-
-    initSession(
-
-        result.workspace
-
-    );
+        startFlow();
 
 
-    renderHeader();
+        /* =============================================
+           GET OVERLAY
+        ============================================= */
+
+        const overlay =
+
+            document.getElementById(
+
+                "global-input"
+
+            );
 
 
-    startFlow();
+        console.log(
 
+            "INPUT ROOT",
 
-    console.log(
-
-        "INPUT FLOW STARTED"
-
-    );
-
-
-    const overlay =
-
-        document.getElementById(
-
-            "global-input-overlay"
+            overlay
 
         );
 
 
-    console.log(
+        if(
 
-        "INPUT OVERLAY",
+            !overlay
 
-        overlay
+        ){
 
-    );
+            console.error(
 
+                "Element #global-input tidak ditemukan."
 
-    if(
+            );
 
-        !overlay
+            return;
 
-    ){
-
-        return;
-
-    }
+        }
 
 
-    overlay.classList.remove(
+        /* =============================================
+           SHOW
+        ============================================= */
 
-        "hidden"
+        overlay.classList.add(
 
-    );
+            "is-open"
 
-
-    overlay.classList.add(
-
-        "is-open"
-
-    );
+        );
 
 
-    document.body.classList.add(
+        document.body.classList.add(
 
-        "input-open"
+            "input-open"
 
-    );
+        );
 
-},
-   
+
+        console.log(
+
+            "INPUT OPENED"
+
+        );
+
+    },
+
 
     /* =================================================
        CLOSE
@@ -386,7 +414,7 @@ async open(
 
             document.getElementById(
 
-                "global-input-overlay"
+                "global-input"
 
             );
 
@@ -402,6 +430,10 @@ async open(
         }
 
 
+        /* =============================================
+           HIDE
+        ============================================= */
+
         overlay.classList.remove(
 
             "is-open"
@@ -409,16 +441,16 @@ async open(
         );
 
 
-        overlay.classList.add(
+        document.body.classList.remove(
 
-            "hidden"
+            "input-open"
 
         );
 
 
-        document.body.classList.remove(
+        console.log(
 
-            "input-open"
+            "INPUT CLOSED"
 
         );
 
@@ -433,6 +465,7 @@ async open(
 
 async function loadHTML(){
 
+
     /* =============================================
        CHECK EXISTING
     ============================================= */
@@ -441,7 +474,7 @@ async function loadHTML(){
 
         document.getElementById(
 
-            "global-input-overlay"
+            "global-input"
 
         );
 
@@ -458,7 +491,7 @@ async function loadHTML(){
 
 
     /* =============================================
-       FETCH COMPONENT HTML
+       FETCH HTML
     ============================================= */
 
     try{
