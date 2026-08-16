@@ -912,6 +912,54 @@ body.setting-open{
 
 }
 
+/* =====================================================
+   GLOBAL SETTING FIELD NOTE
+===================================================== */
 
+.global-setting-field-note{
+
+    display:block;
+
+    margin-top:8px;
+
+    padding:0 4px;
+
+    font-size:13px;
+
+    line-height:1.5;
+
+    color:#7a8583;
+
+}
+
+
+/* =====================================================
+   DATE FIELD NOTE
+===================================================== */
+
+.global-setting-field{
+
+    position:relative;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width:600px){
+
+    .global-setting-field-note{
+
+        font-size:12px;
+
+        margin-top:7px;
+
+        line-height:1.45;
+
+    }
+
+}
 
 
