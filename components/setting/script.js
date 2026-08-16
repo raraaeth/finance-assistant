@@ -1147,7 +1147,163 @@ function renderForm(
         section.fields
 
     );
+   
+   bindDynamicSelects(
 
+    form,
+
+    section.fields
+
+);
+   
+/* =====================================================
+   BIND DYNAMIC SELECTS
+===================================================== */
+
+function bindDynamicSelects(
+
+    form,
+
+    fields
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            fields
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    fields.forEach(
+
+        field => {
+
+            if(
+
+                !field.optionsBy
+
+            ){
+
+                return;
+
+            }
+
+
+            const controller =
+
+                form.querySelector(
+
+                    `[name="${escapeSelector(
+
+                        field.optionsByField
+
+                    )}"]`
+
+                );
+
+
+            const hidden =
+
+                form.querySelector(
+
+                    `[name="${escapeSelector(
+
+                        field.name
+
+                    )}"]`
+
+                );
+
+
+            const button =
+
+                form.querySelector(
+
+                    `.global-setting-custom-select[data-name="${escapeSelector(
+
+                        field.name
+
+                    )}"]`
+
+                );
+
+
+            if(
+
+                !controller ||
+
+                !hidden ||
+
+                !button
+
+            ){
+
+                return;
+
+            }
+
+
+            controller.addEventListener(
+
+                "change",
+
+                () => {
+
+                    /* =========================
+                       RESET VALUE
+                    ========================= */
+
+                    hidden.value = "";
+
+
+                    button.classList.remove(
+
+                        "has-value"
+
+                    );
+
+
+                    const valueElement =
+
+                        button.querySelector(
+
+                            ".global-setting-custom-value"
+
+                        );
+
+
+                    if(
+
+                        valueElement
+
+                    ){
+
+                        valueElement.textContent =
+
+                            field.placeholder ??
+
+                            "Pilih...";
+
+                    }
+
+                }
+
+            );
+
+        }
+
+    );
+
+}
 
     /* =============================================
        FORM ACTION
@@ -1986,179 +2142,187 @@ function openCustomPicker(
 
 
     /* =============================================
-       OPTIONS
-    ============================================= */
+   OPTIONS
+============================================= */
 
-    if(
+const options =
 
-        Array.isArray(
+    getFieldOptions(
 
-            field.options
+        field
 
-        )
+    );
 
-    ){
 
-        field.options.forEach(
+if(
 
-            option => {
+    Array.isArray(
 
-                const value =
+        options
 
-                    typeof option ===
+    )
+){
 
-                    "object"
+    options.forEach(
 
-                        ?
+        option => {
 
-                    option.value
+            const value =
 
-                        :
+                typeof option ===
 
-                    option;
+                "object"
 
+                    ?
 
-                const label =
+                option.value
 
-                    typeof option ===
+                    :
 
-                    "object"
+                option;
 
-                        ?
 
-                    option.label ??
+            const label =
 
-                    option.value
+                typeof option ===
 
-                        :
+                "object"
 
-                    option;
+                    ?
 
+                option.label ??
 
-                const item =
+                option.value
 
-                    document.createElement(
+                    :
 
-                        "button"
+                option;
 
-                    );
 
+            const item =
 
-                item.type =
+                document.createElement(
 
-                    "button";
-
-
-                item.className =
-
-                    "global-setting-picker-option";
-
-
-                const selected =
-
-                    String(
-
-                        hidden.value
-
-                    )
-
-                    ===
-
-                    String(
-
-                        value
-
-                    );
-
-
-                if(
-
-                    selected
-
-                ){
-
-                    item.classList.add(
-
-                        "selected"
-
-                    );
-
-                }
-
-
-                item.innerHTML =
-
-                `
-
-                    <span>
-
-                        ${escapeHTML(
-
-                            label
-
-                        )}
-
-                    </span>
-
-
-                    <span class="picker-radio">
-
-                        ${
-
-                            selected
-
-                                ?
-
-                            "●"
-
-                                :
-
-                            "○"
-
-                        }
-
-                    </span>
-
-                `;
-
-
-                item.addEventListener(
-
-                    "click",
-
-                    () => {
-
-                        selectCustomOption(
-
-                            value,
-
-                            label,
-
-                            button,
-
-                            hidden,
-
-                            picker
-
-                        );
-
-                    }
+                    "button"
 
                 );
 
 
-                list.appendChild(
+            item.type =
 
-                    item
+                "button";
+
+
+            item.className =
+
+                "global-setting-picker-option";
+
+
+            const selected =
+
+                String(
+
+                    hidden.value
+
+                )
+
+                ===
+
+                String(
+
+                    value
+
+                );
+
+
+            if(
+
+                selected
+
+            ){
+
+                item.classList.add(
+
+                    "selected"
 
                 );
 
             }
 
-        );
 
-    }
+            item.innerHTML =
 
+            `
+
+                <span>
+
+                    ${escapeHTML(
+
+                        label
+
+                    )}
+
+                </span>
+
+
+                <span class="picker-radio">
+
+                    ${
+
+                        selected
+
+                            ?
+
+                        "●"
+
+                            :
+
+                        "○"
+
+                    }
+
+                </span>
+
+            `;
+
+
+            item.addEventListener(
+
+                "click",
+
+                () => {
+
+                    selectCustomOption(
+
+                        value,
+
+                        label,
+
+                        button,
+
+                        hidden,
+
+                        picker
+
+                    );
+
+                }
+
+            );
+
+
+            list.appendChild(
+
+                item
+
+            );
+
+        }
+
+    );
+
+}
+                                            
 
     /* =============================================
        CLOSE EVENTS
@@ -2492,6 +2656,109 @@ function getOptionLabel(
 
 }
 
+/* =====================================================
+   GET FIELD OPTIONS
+===================================================== */
+
+function getFieldOptions(
+
+    field
+
+){
+
+    /* =============================================
+       STATIC OPTIONS
+    ============================================= */
+
+    if(
+
+        Array.isArray(
+
+            field.options
+
+        )
+
+    ){
+
+        return field.options;
+
+    }
+
+
+    /* =============================================
+       DYNAMIC OPTIONS
+    ============================================= */
+
+    if(
+
+        field.optionsBy
+
+    ){
+
+        const form =
+
+            document.querySelector(
+
+                ".global-setting-form:not(.hidden)"
+
+            );
+
+
+        if(
+
+            !form
+
+        ){
+
+            return [];
+
+        }
+
+
+        const controller =
+
+            form.querySelector(
+
+                `[name="${escapeSelector(
+
+                    field.optionsByField
+
+                )}"]`
+
+            );
+
+
+        if(
+
+            !controller
+
+        ){
+
+            return [];
+
+        }
+
+
+        return (
+
+            field.optionsBy[
+
+                controller.value
+
+            ]
+
+            ??
+
+            []
+
+        );
+
+    }
+
+
+    return [];
+
+               }
 
 /* =====================================================
    CONDITIONAL FIELD LISTENER
