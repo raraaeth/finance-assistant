@@ -351,271 +351,235 @@ export const MonthlySetting = {
                 ------------------------------------- */
 
                 {
+    name :
 
-                    name :
+        "nama",
 
-                        "nama",
+    label :
 
+        "Nama Rule",
 
-                    label :
+    type :
 
-                        "Nama Rule",
+        "select",
 
+    required :
 
-                    type :
+        true,
 
-                        "select",
+    placeholder :
 
+        "Pilih nama rule",
 
-                    required :
+    optionsByField :
 
-                        true,
+        "type_rule",
 
+    optionsBy : {
 
-                    placeholder :
+        /* =========================================
+           RULE GAJI
+        ========================================= */
 
-                        "Pilih nama rule",
+        "rule_gaji" : [
 
+            {
+                value :
 
-                    options : [
+                    "gaji",
 
-                        /* =================================
-                           RULE GAJI
-                        ================================= */
+                label :
 
-                        {
+                    "Gaji Pokok"
+            }
 
-                            value :
+        ],
 
-                                "gaji",
 
-                            label :
+        /* =========================================
+           RULE TAMBAH
+        ========================================= */
 
-                                "Gaji Pokok"
+        "rule_tambah" : [
 
-                        },
+            {
+                value :
 
+                    "uang_makan",
 
-                        /* =================================
-                           RULE TAMBAH
-                        ================================= */
+                label :
 
-                        {
+                    "Uang Makan"
+            },
 
-                            value :
+            {
+                value :
 
-                                "uang_makan",
+                    "tunjangan",
 
-                            label :
+                label :
 
-                                "Uang Makan"
+                    "Tunjangan"
+            },
 
-                        },
+            {
+                value :
 
+                    "uang_transport",
 
-                        {
+                label :
 
-                            value :
+                    "Uang Transport"
+            },
 
-                                "tunjangan",
+            {
+                value :
 
-                            label :
+                    "lembur",
 
-                                "Tunjangan"
+                label :
 
-                        },
+                    "Lembur"
+            },
 
+            {
+                value :
 
-                        {
+                    "lembur_jam_1",
 
-                            value :
+                label :
 
-                                "uang_transport",
+                    "Lembur Jam 1"
+            },
 
-                            label :
+            {
+                value :
 
-                                "Uang Transport"
+                    "lembur_jam_2",
 
-                        },
+                label :
 
+                    "Lembur Jam 2"
+            },
 
-                        {
+            {
+                value :
 
-                            value :
+                    "lembur_jam_3",
 
-                                "lembur",
+                label :
 
-                            label :
+                    "Lembur Jam 3"
+            },
 
-                                "Lembur"
+            {
+                value :
 
-                        },
+                    "lembur_jam_4",
 
+                label :
 
-                        {
+                    "Lembur Jam 4"
+            },
 
-                            value :
+            {
+                value :
 
-                                "lembur_jam_1",
+                    "lembur_jam_5",
 
-                            label :
+                label :
 
-                                "Lembur Jam 1"
+                    "Lembur Jam 5"
+            },
 
-                        },
+            {
+                value :
 
+                    "lembur_jam_6",
 
-                        {
+                label :
 
-                            value :
+                    "Lembur Jam 6"
+            },
 
-                                "lembur_jam_2",
+            {
+                value :
 
-                            label :
+                    "lembur_jam_7",
 
-                                "Lembur Jam 2"
+                label :
 
-                        },
+                    "Lembur Jam 7"
+            },
 
+            {
+                value :
 
-                        {
+                    "lembur_jam_8",
 
-                            value :
+                label :
 
-                                "lembur_jam_3",
+                    "Lembur Jam 8"
+            }
 
-                            label :
+        ],
 
-                                "Lembur Jam 3"
 
-                        },
+        /* =========================================
+           RULE POTONG
+        ========================================= */
 
+        "rule_potong" : [
 
-                        {
+            {
+                value :
 
-                            value :
+                    "telat",
 
-                                "lembur_jam_4",
+                label :
 
-                            label :
+                    "Telat"
+            },
 
-                                "Lembur Jam 4"
+            {
+                value :
 
-                        },
+                    "izin_telat",
 
+                label :
 
-                        {
+                    "Izin Telat"
+            },
 
-                            value :
+            {
+                value :
 
-                                "lembur_jam_5",
+                    "izin_pulang",
 
-                            label :
+                label :
 
-                                "Lembur Jam 5"
+                    "Izin Pulang"
+            },
 
-                        },
+            {
+                value :
 
+                    "absen",
 
-                        {
+                label :
 
-                            value :
+                    "Absen"
+            }
 
-                                "lembur_jam_6",
+        ]
 
-                            label :
+    }
 
-                                "Lembur Jam 6"
+},
+                        
 
-                        },
-
-
-                        {
-
-                            value :
-
-                                "lembur_jam_7",
-
-                            label :
-
-                                "Lembur Jam 7"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "lembur_jam_8",
-
-                            label :
-
-                                "Lembur Jam 8"
-
-                        },
-
-
-                        /* =================================
-                           RULE POTONG
-                        ================================= */
-
-                        {
-
-                            value :
-
-                                "telat",
-
-                            label :
-
-                                "Telat"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "izin_telat",
-
-                            label :
-
-                                "Izin Telat"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "izin_pulang",
-
-                            label :
-
-                                "Izin Pulang"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "absen",
-
-                            label :
-
-                                "Absen"
-
-                        }
-
-                    ]
-
-                },
-
-
+                            
+               
                 /* -------------------------------------
                    KONDISI
                 ------------------------------------- */
