@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 4.0.0
+   Version      : 4.1.0
 
    Description :
    Payroll Monthly Setting Definition
@@ -133,7 +133,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Contoh tanggal: 2026-05-25"
+                        "Tentukan tanggal awal periode perhitungan gaji. Contoh: 2026-05-25."
 
                 },
 
@@ -162,7 +162,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Contoh tanggal: 2026-06-24"
+                        "Tentukan tanggal akhir periode perhitungan gaji. Contoh: 2026-06-24."
 
                 },
 
@@ -195,7 +195,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Contoh tanggal: 2026-05-25"
+                        "Tentukan tanggal mulai berlakunya rule payroll. Contoh: 2026-05-25."
 
                 },
 
@@ -224,7 +224,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Contoh tanggal: 2027-02-24"
+                        "Tentukan tanggal berakhirnya masa aktif rule payroll. Contoh: 2027-02-24."
 
                 }
 
@@ -374,6 +374,11 @@ export const MonthlySetting = {
                         true,
 
 
+                    note :
+
+                        "Pilih jenis gaji yang akan digunakan.",
+
+
                     options : [
 
                         {
@@ -437,7 +442,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Masukkan nominal gaji pokok per periode gaji."
+                        "Masukkan nominal gaji pokok untuk satu periode gaji."
 
                 }
 
@@ -580,6 +585,11 @@ export const MonthlySetting = {
                     required :
 
                         true,
+
+
+                    note :
+
+                        "Pilih jenis potongan yang ingin digunakan.",
 
 
                     options : [
@@ -732,7 +742,7 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Izin Telat (/jam)"
+                                "Izin Telat"
 
                         },
 
@@ -746,7 +756,7 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Izin Pulang (/jam)"
+                                "Izin Pulang"
 
                         },
 
@@ -760,7 +770,7 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Absen (/hari)"
+                                "Absen"
 
                         }
 
@@ -812,7 +822,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Masukkan nominal potongan."
+                        "Masukkan nominal potongan sesuai rule yang dipilih."
 
                 },
 
@@ -884,7 +894,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Isi batas awal keterlambatan dalam menit. Contoh: 1."
+                        "Khusus rule telat. Isi batas awal keterlambatan dalam menit. Contoh: 1."
 
                 },
 
@@ -956,7 +966,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Isi batas akhir keterlambatan dalam menit. Contoh: 30."
+                        "Khusus rule telat. Isi batas akhir keterlambatan dalam menit. Contoh: 30."
 
                 }
 
@@ -1283,6 +1293,11 @@ export const MonthlySetting = {
                         true,
 
 
+                    note :
+
+                        "Pilih jenis tambahan yang ingin dibuat.",
+
+
                     options : [
 
 
@@ -1337,7 +1352,7 @@ export const MonthlySetting = {
 
 
                         /* =================================
-                           LEMBUR
+                           LEMBUR HARIAN
                         ================================= */
 
                         {
@@ -1349,10 +1364,14 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Lembur"
+                                "Lembur Harian"
 
                         },
 
+
+                        /* =================================
+                           LEMBUR PER JAM
+                        ================================= */
 
                         {
 
@@ -1472,8 +1491,6 @@ export const MonthlySetting = {
 
                 /* =========================================
                    KONDISI UANG MAKAN
-                   
-                   Hanya digunakan jika nama = uang_makan.
                 ========================================= */
 
                 {
@@ -1515,6 +1532,11 @@ export const MonthlySetting = {
                             "uang_makan"
 
                     },
+
+
+                    note :
+
+                        "Masuk + Lembur dihitung harian. Periode dihitung bulanan.",
 
 
                     options : [
@@ -1594,7 +1616,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Masukkan nominal tambahan sesuai rule."
+                        "Masukkan nominal tambahan sesuai rule yang dipilih."
 
                 },
 
@@ -1602,7 +1624,7 @@ export const MonthlySetting = {
                 /* =========================================
                    NILAI START
                    
-                   Khusus Lembur / Lembur Jam 1–8.
+                   Hanya untuk Lembur Jam 1–8.
                 ========================================= */
 
                 {
@@ -1651,8 +1673,6 @@ export const MonthlySetting = {
 
                         values : [
 
-                            "lembur",
-
                             "lembur_jam_1",
 
                             "lembur_jam_2",
@@ -1676,7 +1696,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Isi nilai awal jam lembur. Contoh: 1."
+                        "Khusus Lembur Jam. Isi jam awal yang digunakan untuk rule ini. Contoh: 1."
 
                 },
 
@@ -1684,7 +1704,7 @@ export const MonthlySetting = {
                 /* =========================================
                    NILAI END
                    
-                   Khusus Lembur / Lembur Jam 1–8.
+                   Hanya untuk Lembur Jam 1–8.
                 ========================================= */
 
                 {
@@ -1733,8 +1753,6 @@ export const MonthlySetting = {
 
                         values : [
 
-                            "lembur",
-
                             "lembur_jam_1",
 
                             "lembur_jam_2",
@@ -1758,7 +1776,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Isi nilai akhir jam lembur jika diperlukan. Contoh: 8."
+                        "Khusus Lembur Jam. Isi jam akhir jika rule mencakup beberapa jam. Contoh: 8."
 
                 }
 
@@ -1859,16 +1877,34 @@ export const MonthlySetting = {
 
 
                     /* =====================================
-                       LEMBUR
+                       LEMBUR HARIAN
                     ===================================== */
 
                     else if(
 
                         nama ===
 
-                            "lembur"
+                        "lembur"
 
-                        ||
+                    ){
+
+                        kondisi =
+
+                            "lembur_harian";
+
+
+                        waktu =
+
+                            "harian";
+
+                    }
+
+
+                    /* =====================================
+                       LEMBUR PER JAM
+                    ===================================== */
+
+                    else if(
 
                         nama ===
 
