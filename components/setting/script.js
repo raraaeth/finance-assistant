@@ -3419,11 +3419,36 @@ function addResult(
 
     resetForm(
 
-        section,
+    section,
 
-        form
+    form
+
+);
+
+
+/* =============================================
+   AUTO CLOSE FORM
+   ============================================= */
+
+if(
+
+    section.autoCloseForm !== false
+
+){
+
+    closeCustomPicker();
+
+
+    form.classList.add(
+
+        "hidden"
 
     );
+
+
+    form.innerHTML = "";
+
+}
 
 }
 
