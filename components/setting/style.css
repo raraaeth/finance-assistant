@@ -607,8 +607,9 @@ body.setting-open{
     }
 
 }
+
 /* =====================================================
-   CUSTOM SELECT
+   CUSTOM SELECT BUTTON
 ===================================================== */
 
 .global-setting-custom-select{
@@ -623,7 +624,7 @@ body.setting-open{
 
     border-radius:18px;
 
-    background:var(--card-background);
+    background:#ffffff;
 
     color:var(--text-color);
 
@@ -639,6 +640,12 @@ body.setting-open{
 
     text-align:left;
 
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+    user-select:none;
+
 }
 
 
@@ -649,9 +656,26 @@ body.setting-open{
 }
 
 
+.global-setting-custom-value{
+
+    flex:1;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
 .global-setting-custom-arrow{
 
-    font-size:20px;
+    margin-left:12px;
+
+    font-size:18px;
+
+    color:var(--text-secondary);
 
 }
 
@@ -668,68 +692,15 @@ body.setting-open{
 
     z-index:99999;
 
+    width:100vw;
+
+    height:100vh;
+
+    background:#ffffff;
+
     display:flex;
 
-    align-items:flex-end;
-
-    justify-content:center;
-
-}
-
-
-.global-setting-picker-backdrop{
-
-    position:absolute;
-
-    inset:0;
-
-    background:rgba(0,0,0,.45);
-
-    backdrop-filter:blur(3px);
-
-}
-
-
-.global-setting-picker-panel{
-
-    position:relative;
-
-    width:100%;
-
-    max-width:620px;
-
-    max-height:75vh;
-
-    background:var(--background-color);
-
-    border-radius:26px 26px 0 0;
-
-    overflow:hidden;
-
-    box-shadow:0 -10px 40px rgba(0,0,0,.2);
-
-    animation:
-
-        settingPickerUp
-
-        .2s ease;
-
-}
-
-
-@keyframes settingPickerUp{
-
-    from{
-
-        transform:translateY(100%);
-
-    }
-
-    to{
-
-        transform:translateY(0);
-
-    }
+    flex-direction:column;
 
 }
 
@@ -740,7 +711,9 @@ body.setting-open{
 
 .global-setting-picker-header{
 
-    min-height:64px;
+    width:100%;
+
+    min-height:68px;
 
     padding:0 20px;
 
@@ -750,7 +723,13 @@ body.setting-open{
 
     justify-content:space-between;
 
+    background:#ffffff;
+
+    color:var(--text-color);
+
     border-bottom:1px solid var(--border-color);
+
+    flex-shrink:0;
 
 }
 
@@ -758,6 +737,8 @@ body.setting-open{
 .global-setting-picker-header strong{
 
     font-size:18px;
+
+    font-weight:600;
 
 }
 
@@ -772,11 +753,19 @@ body.setting-open{
 
     border-radius:50%;
 
-    background:var(--card-background);
+    background:#f3f4f6;
 
     color:var(--text-color);
 
-    font-size:26px;
+    font-size:25px;
+
+    line-height:1;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
 
     cursor:pointer;
 
@@ -789,12 +778,24 @@ body.setting-open{
 
 .global-setting-picker-list{
 
+    flex:1;
+
+    width:100%;
+
     overflow-y:auto;
 
-    max-height:calc(75vh - 64px);
+    overflow-x:hidden;
+
+    background:#ffffff;
+
+    -webkit-overflow-scrolling:touch;
 
 }
 
+
+/* =====================================================
+   PICKER OPTION
+===================================================== */
 
 .global-setting-picker-option{
 
@@ -806,9 +807,9 @@ body.setting-open{
 
     border:0;
 
-    border-bottom:1px solid var(--border-color);
+    border-bottom:1px solid #eeeeee;
 
-    background:transparent;
+    background:#ffffff;
 
     color:var(--text-color);
 
@@ -824,17 +825,23 @@ body.setting-open{
 
     cursor:pointer;
 
+    transition:
+
+        background .15s ease;
+
 }
 
 
 .global-setting-picker-option:active{
 
-    background:var(--card-background);
+    background:#f3f4f6;
 
 }
 
 
 .global-setting-picker-option.selected{
+
+    background:#f7f9ff;
 
     color:var(--accent-color);
 
@@ -843,8 +850,68 @@ body.setting-open{
 }
 
 
+/* =====================================================
+   RADIO
+===================================================== */
+
 .picker-radio{
+
+    width:22px;
+
+    height:22px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:#777;
 
     font-size:20px;
 
-   }
+}
+
+
+.global-setting-picker-option.selected
+.picker-radio{
+
+    color:var(--accent-color);
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:600px
+
+){
+
+    .global-setting-picker-header{
+
+        min-height:62px;
+
+        padding:0 16px;
+
+    }
+
+
+    .global-setting-picker-option{
+
+        min-height:56px;
+
+        padding:0 18px;
+
+        font-size:16px;
+
+    }
+
+}
+
+
+
+
