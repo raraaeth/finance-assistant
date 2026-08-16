@@ -1374,7 +1374,10 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Lembur Harian"
+                                "Lembur Harian",
+                           
+                           note :
+                        "Masukkan nominal lembur per hari."
 
                         },
 
