@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 4.1.0
+   Version      : 4.2.0
 
    Description :
    Global Setting Controller
@@ -17,6 +17,9 @@
    - Render Dynamic Fields
    - Custom Select
    - Conditional Fields
+   - Dynamic Select
+   - Field Note
+   - Option Note Override
    - Collect Input
    - Normalize Input
    - Render Result
@@ -213,7 +216,9 @@ export const Setting = {
 
                 if(
 
-                    event.key === "Escape"
+                    event.key ===
+
+                    "Escape"
 
                 ){
 
@@ -1147,15 +1152,116 @@ function renderForm(
         section.fields
 
     );
-   
-   bindDynamicSelects(
 
-    form,
 
-    section.fields
+    /* =============================================
+       DYNAMIC SELECT LISTENER
+    ============================================= */
 
-);
-   
+    bindDynamicSelects(
+
+        form,
+
+        section.fields
+
+    );
+
+
+    /* =============================================
+       FORM ACTION
+    ============================================= */
+
+    const action =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    action.type =
+
+        "button";
+
+
+    action.className =
+
+        "global-setting-form-add";
+
+
+    action.textContent =
+
+        section.formAddLabel ??
+
+        "＋ Tambahkan";
+
+
+    form.appendChild(
+
+        action
+
+    );
+
+
+    action.addEventListener(
+
+        "click",
+
+        () => {
+
+            addResult(
+
+                section,
+
+                sectionElement
+
+            );
+
+        }
+
+    );
+
+
+    /* =============================================
+       INITIAL CONDITION
+    ============================================= */
+
+    updateConditionalFields(
+
+        form,
+
+        section.fields
+
+    );
+
+
+    /* =============================================
+       FOCUS
+    ============================================= */
+
+    const firstVisibleInput =
+
+        getFirstVisibleInput(
+
+            form
+
+        );
+
+
+    if(
+
+        firstVisibleInput
+
+    ){
+
+        firstVisibleInput.focus();
+
+    }
+
+}
+
+
 /* =====================================================
    BIND DYNAMIC SELECTS
 ===================================================== */
@@ -1295,6 +1401,43 @@ function bindDynamicSelects(
 
                     }
 
+
+                    /* =========================
+                       RESET NOTE
+                    ========================= */
+
+                    const wrapper =
+
+                        button.closest(
+
+                            ".global-setting-field"
+
+                        );
+
+
+                    const noteElement =
+
+                        wrapper?.querySelector(
+
+                            ".global-setting-field-note"
+
+                        );
+
+
+                    if(
+
+                        noteElement
+
+                    ){
+
+                        noteElement.textContent =
+
+                            field.note ??
+
+                            "";
+
+                    }
+
                 }
 
             );
@@ -1302,100 +1445,6 @@ function bindDynamicSelects(
         }
 
     );
-
-}
-
-    /* =============================================
-       FORM ACTION
-    ============================================= */
-
-    const action =
-
-        document.createElement(
-
-            "button"
-
-        );
-
-
-    action.type =
-
-        "button";
-
-
-    action.className =
-
-        "global-setting-form-add";
-
-
-    action.textContent =
-
-        section.formAddLabel ??
-
-        "＋ Tambahkan";
-
-
-    form.appendChild(
-
-        action
-
-    );
-
-
-    action.addEventListener(
-
-        "click",
-
-        () => {
-
-            addResult(
-
-                section,
-
-                sectionElement
-
-            );
-
-        }
-
-    );
-
-
-    /* =============================================
-       INITIAL CONDITION
-    ============================================= */
-
-    updateConditionalFields(
-
-        form,
-
-        section.fields
-
-    );
-
-
-    /* =============================================
-       FOCUS
-    ============================================= */
-
-    const firstVisibleInput =
-
-        getFirstVisibleInput(
-
-            form
-
-        );
-
-
-    if(
-
-        firstVisibleInput
-
-    ){
-
-        firstVisibleInput.focus();
-
-    }
 
 }
 
@@ -1488,30 +1537,29 @@ function renderField(
 
     if(
 
-    field.type ===
+        field.type ===
 
-    "select"
-
-){
-
-    renderCustomSelect(
-
-        wrapper,
-
-        field
-
-    );
-
-
-    /* =============================================
-       FIELD NOTE
-    ============================================= */
-
-    if(
-
-        field.note
+        "select"
 
     ){
+
+        renderCustomSelect(
+
+            wrapper,
+
+            field
+
+        );
+
+
+        /* =============================================
+           FIELD NOTE
+           
+           Note selalu dibuat untuk select.
+           Jika field.note kosong tetapi option
+           mempunyai note, note tetap tersedia
+           dan akan diisi saat option dipilih.
+        ============================================= */
 
         const note =
 
@@ -1529,8 +1577,9 @@ function renderField(
 
         note.textContent =
 
-            field.note;
+            field.note ??
 
+            "";
 
         wrapper.appendChild(
 
@@ -1538,19 +1587,17 @@ function renderField(
 
         );
 
+
+        container.appendChild(
+
+            wrapper
+
+        );
+
+
+        return;
+
     }
-
-
-    container.appendChild(
-
-        wrapper
-
-    );
-
-
-    return;
-
-}
 
 
     /* =============================================
@@ -1648,66 +1695,67 @@ function renderField(
     );
 
 
-/* =============================================
-   APPEND INPUT
-============================================= */
-
-wrapper.appendChild(
-
-    input
-
-);
-
-
-/* =============================================
-   FIELD NOTE
-============================================= */
-
-if(
-
-    field.note
-
-){
-
-    const note =
-
-        document.createElement(
-
-            "small"
-
-        );
-
-
-    note.className =
-
-        "global-setting-field-note";
-
-
-    note.textContent =
-
-        field.note;
-
+    /* =============================================
+       APPEND INPUT
+    ============================================= */
 
     wrapper.appendChild(
 
-        note
+        input
+
+    );
+
+
+    /* =============================================
+       FIELD NOTE
+    ============================================= */
+
+    if(
+
+        field.note
+
+    ){
+
+        const note =
+
+            document.createElement(
+
+                "small"
+
+            );
+
+
+        note.className =
+
+            "global-setting-field-note";
+
+
+        note.textContent =
+
+            field.note;
+
+
+        wrapper.appendChild(
+
+            note
+
+        );
+
+    }
+
+
+    /* =============================================
+       APPEND WRAPPER
+    ============================================= */
+
+    container.appendChild(
+
+        wrapper
 
     );
 
 }
 
-
-/* =============================================
-   APPEND WRAPPER
-============================================= */
-
-container.appendChild(
-
-    wrapper
-
-);
-
-}
 
 /* =====================================================
    APPLY FIELD ATTRIBUTES
@@ -2073,7 +2121,6 @@ function renderCustomSelect(
 
 }
 
-
 /* =====================================================
    OPEN CUSTOM PICKER
 ===================================================== */
@@ -2180,191 +2227,196 @@ function openCustomPicker(
 
 
     /* =============================================
-   OPTIONS
-============================================= */
+       OPTIONS
+    ============================================= */
 
-const options =
+    const options =
 
-    getFieldOptions(
+        getFieldOptions(
 
-        field
+            field
 
-    );
+        );
 
 
-if(
+    if(
 
-    Array.isArray(
+        Array.isArray(
 
-        options
+            options
 
-    )
-){
+        )
 
-    options.forEach(
+    ){
 
-        option => {
+        options.forEach(
 
-            const value =
+            option => {
 
-                typeof option ===
+                const value =
 
-                "object"
+                    typeof option ===
 
-                    ?
+                    "object"
 
-                option.value
+                        ?
 
-                    :
+                    option.value
 
-                option;
+                        :
 
+                    option;
 
-            const label =
 
-                typeof option ===
+                const label =
 
-                "object"
+                    typeof option ===
 
-                    ?
+                    "object"
 
-                option.label ??
+                        ?
 
-                option.value
+                    option.label ??
 
-                    :
+                    option.value
 
-                option;
+                        :
 
+                    option;
 
-            const item =
 
-                document.createElement(
+                const item =
 
-                    "button"
+                    document.createElement(
 
-                );
+                        "button"
 
+                    );
 
-            item.type =
 
-                "button";
+                item.type =
 
+                    "button";
 
-            item.className =
 
-                "global-setting-picker-option";
+                item.className =
 
+                    "global-setting-picker-option";
 
-            const selected =
 
-                String(
+                const selected =
 
-                    hidden.value
+                    String(
 
-                )
+                        hidden.value
 
-                ===
+                    )
 
-                String(
+                    ===
 
-                    value
+                    String(
 
-                );
+                        value
 
+                    );
 
-            if(
 
-                selected
+                if(
 
-            ){
+                    selected
 
-                item.classList.add(
+                ){
 
-                    "selected"
+                    item.classList.add(
 
-                );
-
-            }
-
-
-            item.innerHTML =
-
-            `
-
-                <span>
-
-                    ${escapeHTML(
-
-                        label
-
-                    )}
-
-                </span>
-
-
-                <span class="picker-radio">
-
-                    ${
-
-                        selected
-
-                            ?
-
-                        "●"
-
-                            :
-
-                        "○"
-
-                    }
-
-                </span>
-
-            `;
-
-
-            item.addEventListener(
-
-                "click",
-
-                () => {
-
-                    selectCustomOption(
-
-                        value,
-
-            label,
-
-            option,
-
-            field,
-
-            button,
-
-            hidden,
-
-            picker
+                        "selected"
 
                     );
 
                 }
 
-            );
+
+                item.innerHTML =
+
+                `
+
+                    <span>
+
+                        ${escapeHTML(
+
+                            label
+
+                        )}
+
+                    </span>
 
 
-            list.appendChild(
+                    <span class="picker-radio">
 
-                item
+                        ${
 
-            );
+                            selected
 
-        }
+                                ?
 
-    );
+                            "●"
 
-}
-                                            
+                                :
+
+                            "○"
+
+                        }
+
+                    </span>
+
+                `;
+
+
+                /* =================================
+                   SELECT OPTION
+                ================================= */
+
+                item.addEventListener(
+
+                    "click",
+
+                    () => {
+
+                        selectCustomOption(
+
+                            value,
+
+                            label,
+
+                            option,
+
+                            field,
+
+                            button,
+
+                            hidden,
+
+                            picker
+
+                        );
+
+                    }
+
+                );
+
+
+                list.appendChild(
+
+                    item
+
+                );
+
+            }
+
+        );
+
+    }
+
 
     /* =============================================
        CLOSE EVENTS
@@ -2478,10 +2530,18 @@ function selectCustomOption(
 
 ){
 
+    /* =============================================
+       SAVE VALUE
+    ============================================= */
+
     hidden.value =
 
         value;
 
+
+    /* =============================================
+       UPDATE LABEL
+    ============================================= */
 
     const valueElement =
 
@@ -2504,57 +2564,80 @@ function selectCustomOption(
 
     }
 
-   /* =============================================
-   UPDATE OPTION NOTE
-============================================= */
 
-const wrapper =
+    /* =============================================
+       UPDATE NOTE
+       
+       PRIORITY :
+       option.note
+       ↓
+       field.note
+       ↓
+       empty
+    ============================================= */
 
-    button.closest(
+    const wrapper =
 
-        ".global-setting-field"
+        button.closest(
 
-    );
+            ".global-setting-field"
 
-
-const noteElement =
-
-    wrapper?.querySelector(
-
-        ".global-setting-field-note"
-
-    );
-
-
-if(
-
-    noteElement
-
-){
-
-    const optionNote =
-
-        typeof option === "object"
-
-            ?
-
-        option.note
-
-            :
-
-        "";
+        );
 
 
-    noteElement.textContent =
+    const noteElement =
 
-        optionNote ||
+        wrapper?.querySelector(
 
-        field.note ||
+            ".global-setting-field-note"
 
-        "";
+        );
 
-}
 
+    if(
+
+        noteElement
+
+    ){
+
+        let optionNote =
+
+            "";
+
+
+        if(
+
+            option &&
+
+            typeof option ===
+
+            "object"
+
+        ){
+
+            optionNote =
+
+                option.note ??
+
+                "";
+
+        }
+
+
+        noteElement.textContent =
+
+            optionNote ||
+
+            field.note ||
+
+            "";
+
+    }
+
+
+    /* =============================================
+       STATE
+    ============================================= */
 
     button.classList.add(
 
@@ -2565,6 +2648,7 @@ if(
 
     /* =============================================
        CHANGE EVENT
+       
        Penting untuk conditional fields.
     ============================================= */
 
@@ -2667,11 +2751,20 @@ function getOptionLabel(
     }
 
 
+    const options =
+
+        getFieldOptions(
+
+            field
+
+        );
+
+
     if(
 
         !Array.isArray(
 
-            field.options
+            options
 
         )
 
@@ -2684,7 +2777,7 @@ function getOptionLabel(
 
     const option =
 
-        field.options.find(
+        options.find(
 
             item => {
 
@@ -2752,6 +2845,142 @@ function getOptionLabel(
         option;
 
 }
+
+
+/* =====================================================
+   GET OPTION NOTE
+===================================================== */
+
+function getOptionNote(
+
+    field,
+
+    value
+
+){
+
+    if(
+
+        value === undefined ||
+
+        value === null ||
+
+        value === ""
+
+    ){
+
+        return (
+
+            field.note ??
+
+            ""
+
+        );
+
+    }
+
+
+    const options =
+
+        getFieldOptions(
+
+            field
+
+        );
+
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        return (
+
+            field.note ??
+
+            ""
+
+        );
+
+    }
+
+
+    const option =
+
+        options.find(
+
+            item => {
+
+                const optionValue =
+
+                    typeof item ===
+
+                    "object"
+
+                        ?
+
+                    item.value
+
+                        :
+
+                    item;
+
+
+                return (
+
+                    String(
+
+                        optionValue
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    )
+
+                );
+
+            }
+
+        );
+
+
+    if(
+
+        option &&
+
+        typeof option ===
+
+        "object" &&
+
+        option.note
+
+    ){
+
+        return option.note;
+
+    }
+
+
+    return (
+
+        field.note ??
+
+        ""
+
+    );
+
+}
+
 
 /* =====================================================
    GET FIELD OPTIONS
@@ -2855,7 +3084,8 @@ function getFieldOptions(
 
     return [];
 
-               }
+}
+
 
 /* =====================================================
    CONDITIONAL FIELD LISTENER
@@ -3027,83 +3257,89 @@ function updateConditionalFields(
                 return;
 
             }
-/* =============================================
-   SHOULD SHOW
-============================================= */
 
-            let shouldShow = false;
 
-/* =============================================
-   MULTIPLE VALUES
-   ============================================= */
+            /* =============================================
+               SHOULD SHOW
+            ============================================= */
 
-if(
+            let shouldShow =
 
-    Array.isArray(
+                false;
 
-        field.dependsOn.values
 
-    )
+            /* =============================================
+               MULTIPLE VALUES
+            ============================================= */
 
-){
+            if(
 
-    shouldShow =
+                Array.isArray(
 
-        field.dependsOn.values.some(
-
-            value =>
-
-                String(
-
-                    controller.value
+                    field.dependsOn.values
 
                 )
 
-                ===
+            ){
 
-                String(
+                shouldShow =
 
-                    value
+                    field.dependsOn.values.some(
 
-                )
+                        value =>
 
-        );
+                            String(
 
-}
+                                controller.value
+
+                            )
+
+                            ===
+
+                            String(
+
+                                value
+
+                            )
+
+                    );
+
+            }
 
 
-/* =============================================
-   SINGLE VALUE
-   ============================================= */
+            /* =============================================
+               SINGLE VALUE
+            ============================================= */
 
-else if(
+            else if(
 
-    field.dependsOn.value !== undefined
+                field.dependsOn.value !== undefined
 
-){
+            ){
 
-    shouldShow =
+                shouldShow =
 
-        String(
+                    String(
 
-            controller.value
+                        controller.value
 
-        )
+                    )
 
-        ===
+                    ===
 
-        String(
+                    String(
 
-            field.dependsOn.value
+                        field.dependsOn.value
 
-        );
+                    );
 
-}
+            }
 
-/* =============================================
-   APPLY STATE
-============================================= */
-           
+
+            /* =============================================
+               APPLY STATE
+            ============================================= */
+
             if(
 
                 shouldShow
@@ -3206,7 +3442,7 @@ function getFirstVisibleInput(
 
                 ".global-setting-field"
 
-            );
+        );
 
 
         if(
@@ -3317,27 +3553,27 @@ function addResult(
 
     if(
 
-    isDuplicate(
+        isDuplicate(
 
-        result,
+            result,
 
-        data,
+            data,
 
-        section.uniqueFields
+            section.uniqueFields
 
-    )
+        )
 
-){
+    ){
 
-    alert(
+        alert(
 
-        "Rule dengan pilihan yang sama sudah ada."
+            "Rule dengan pilihan yang sama sudah ada."
 
-    );
+        );
 
-    return;
+        return;
 
-}
+    }
 
 
     /* =============================================
@@ -3574,39 +3810,38 @@ function addResult(
 
     resetForm(
 
-    section,
+        section,
 
-    form
-
-);
-
-
-/* =============================================
-   AUTO CLOSE FORM
-   ============================================= */
-
-if(
-
-    section.autoCloseForm !== false
-
-){
-
-    closeCustomPicker();
-
-
-    form.classList.add(
-
-        "hidden"
+        form
 
     );
 
 
-    form.innerHTML = "";
+    /* =============================================
+       AUTO CLOSE FORM
+    ============================================= */
+
+    if(
+
+        section.autoCloseForm !== false
+
+    ){
+
+        closeCustomPicker();
+
+
+        form.classList.add(
+
+            "hidden"
+
+        );
+
+
+        form.innerHTML = "";
+
+    }
 
 }
-
-}
-
 
 /* =====================================================
    COLLECT FORM DATA
@@ -3671,56 +3906,89 @@ function collectFormData(
 
 
         /* =========================================
-   CONDITIONAL FIELD
-========================================= */
-
-if(
-
-    field.dependsOn
-
-){
-
-    const controller =
-
-        form.querySelector(
-
-            `[name="${escapeSelector(
-
-                field.dependsOn.field
-
-            )}"]`
-
-        );
-
-
-    if(
-
-        controller
-
-    ){
-
-        let shouldCollect = false;
-
-
-        /* =====================================
-           MULTIPLE VALUES
-        ===================================== */
+           CONDITIONAL FIELD
+        ========================================= */
 
         if(
 
-            Array.isArray(
-
-                field.dependsOn.values
-
-            )
+            field.dependsOn
 
         ){
 
-            shouldCollect =
+            const controller =
 
-                field.dependsOn.values.some(
+                form.querySelector(
 
-                    value =>
+                    `[name="${escapeSelector(
+
+                        field.dependsOn.field
+
+                    )}"]`
+
+                );
+
+
+            if(
+
+                controller
+
+            ){
+
+                let shouldCollect =
+
+                    false;
+
+
+                /* =====================================
+                   MULTIPLE VALUES
+                ===================================== */
+
+                if(
+
+                    Array.isArray(
+
+                        field.dependsOn.values
+
+                    )
+
+                ){
+
+                    shouldCollect =
+
+                        field.dependsOn.values.some(
+
+                            value =>
+
+                                String(
+
+                                    controller.value
+
+                                )
+
+                                ===
+
+                                String(
+
+                                    value
+
+                                )
+
+                        );
+
+                }
+
+
+                /* =====================================
+                   SINGLE VALUE
+                ===================================== */
+
+                else if(
+
+                    field.dependsOn.value !== undefined
+
+                ){
+
+                    shouldCollect =
 
                         String(
 
@@ -3732,61 +4000,31 @@ if(
 
                         String(
 
-                            value
+                            field.dependsOn.value
 
-                        )
+                        );
 
-                );
-
-        }
+                }
 
 
-        /* =====================================
-           SINGLE VALUE
-        ===================================== */
+                /* =====================================
+                   FIELD TIDAK AKTIF
+                ===================================== */
 
-        else if(
+                if(
 
-            field.dependsOn.value !== undefined
+                    !shouldCollect
 
-        ){
+                ){
 
-            shouldCollect =
+                    continue;
 
-                String(
+                }
 
-                    controller.value
-
-                )
-
-                ===
-
-                String(
-
-                    field.dependsOn.value
-
-                );
+            }
 
         }
 
-
-        /* =====================================
-           FIELD TIDAK AKTIF
-        ===================================== */
-
-        if(
-
-            !shouldCollect
-
-        ){
-
-            continue;
-
-        }
-
-    }
-
-}
 
         let value;
 
@@ -3856,10 +4094,9 @@ if(
             );
 
 
-            /*
-             * Hidden input dari custom select
-             * tidak bisa di-focus seperti field biasa.
-             */
+            /* =====================================
+               HIDDEN INPUT
+            ===================================== */
 
             if(
 
@@ -3990,7 +4227,7 @@ function isDuplicate(
 
                 /* =========================================
                    CUSTOM UNIQUE FIELDS
-                   
+
                    Jika module menentukan uniqueFields,
                    hanya field tersebut yang dibandingkan.
                 ========================================= */
@@ -4015,7 +4252,9 @@ function isDuplicate(
 
                             String(
 
-                                existing[field] ?? ""
+                                existing[field] ??
+
+                                ""
 
                             )
 
@@ -4023,7 +4262,9 @@ function isDuplicate(
 
                             String(
 
-                                data[field] ?? ""
+                                data[field] ??
+
+                                ""
 
                             )
 
@@ -4034,7 +4275,7 @@ function isDuplicate(
 
                 /* =========================================
                    DEFAULT
-                   
+
                    Jika module tidak menentukan
                    uniqueFields, gunakan perbandingan
                    seluruh data seperti sebelumnya.
@@ -4071,6 +4312,7 @@ function isDuplicate(
     );
 
 }
+
 
 /* =====================================================
    RESET FORM
@@ -4127,6 +4369,10 @@ function resetForm(
             }
 
 
+            /* =========================================
+               CHECKBOX
+            ========================================= */
+
             if(
 
                 field.type ===
@@ -4145,6 +4391,11 @@ function resetForm(
 
             }
 
+
+            /* =========================================
+               OTHER
+            ========================================= */
+
             else{
 
                 input.value =
@@ -4156,9 +4407,9 @@ function resetForm(
             }
 
 
-            /* =====================================
+            /* =========================================
                CUSTOM SELECT DISPLAY
-            ===================================== */
+            ========================================= */
 
             if(
 
@@ -4190,6 +4441,10 @@ function resetForm(
                     );
 
 
+                /* =====================================
+                   RESET LABEL
+                ===================================== */
+
                 if(
 
                     valueElement
@@ -4217,6 +4472,10 @@ function resetForm(
                 }
 
 
+                /* =====================================
+                   RESET BUTTON STATE
+                ===================================== */
+
                 if(
 
                     button
@@ -4230,6 +4489,49 @@ function resetForm(
                         input.value !== ""
 
                     );
+
+                }
+
+
+                /* =====================================
+                   RESET NOTE
+                   
+                   PRIORITY :
+                   option.note
+                   ↓
+                   field.note
+                   ↓
+                   empty
+                ===================================== */
+
+                const noteElement =
+
+                    button?.closest(
+
+                        ".global-setting-field"
+
+                    )?.querySelector(
+
+                        ".global-setting-field-note"
+
+                    );
+
+
+                if(
+
+                    noteElement
+
+                ){
+
+                    noteElement.textContent =
+
+                        getOptionNote(
+
+                            field,
+
+                            input.value
+
+                        );
 
                 }
 
@@ -4272,10 +4574,9 @@ function resetForm(
 
     ){
 
-        /*
-         * Jangan focus hidden input dari
-         * custom select.
-         */
+        /* =========================================
+           Jangan focus hidden input custom select.
+        ========================================= */
 
         if(
 
@@ -4330,14 +4631,6 @@ function formatResultValue(
         field.type ===
 
         "select"
-
-        &&
-
-        Array.isArray(
-
-            field.options
-
-        )
 
     ){
 
