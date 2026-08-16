@@ -14,22 +14,9 @@
    - Rule Potong
    - Rule Tambah
 
-   Current Development :
-   - Rule Periode : active
-   - Rule Gaji    : active
-   - Rule Potong  : active
-   - Rule Tambah  : skeleton
-
    Principle :
    User only fills fields that are necessary.
    Internal engine values are generated automatically.
-
-   Important :
-   - Periode menjadi sumber masa aktif semua rule.
-   - Rule Gaji hanya untuk Gaji Pokok.
-   - Rule Potong menentukan potongan berdasarkan
-     nama rule.
-   - Rule Telat menggunakan nilai_start dan nilai_end.
 ===================================================== */
 
 
@@ -82,10 +69,6 @@ export const MonthlySetting = {
                 "Tentukan periode perhitungan dan masa aktif gaji.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
 
                 "＋ Tambah Periode",
@@ -101,10 +84,6 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            /* =============================================
-               DUPLICATE
-            ============================================= */
-
             uniqueFields : [
 
                 "nilai_start",
@@ -118,9 +97,10 @@ export const MonthlySetting = {
             ],
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            autoCloseForm :
+
+                true,
+
 
             fields : [
 
@@ -251,10 +231,6 @@ export const MonthlySetting = {
             ],
 
 
-            /* =============================================
-               NORMALIZE
-            ============================================= */
-
             normalize :
 
                 function(
@@ -337,10 +313,6 @@ export const MonthlySetting = {
                 "Tentukan gaji pokok yang digunakan dalam perhitungan payroll.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
 
                 "＋ Tambah Rule Gaji",
@@ -356,10 +328,6 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            /* =============================================
-               DUPLICATE
-            ============================================= */
-
             uniqueFields : [
 
                 "nama"
@@ -367,15 +335,16 @@ export const MonthlySetting = {
             ],
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            autoCloseForm :
+
+                true,
+
 
             fields : [
 
 
                 /* =========================================
-                   NAMA
+                   NAMA GAJI
                 ========================================= */
 
                 {
@@ -475,10 +444,6 @@ export const MonthlySetting = {
             ],
 
 
-            /* =============================================
-               NORMALIZE
-            ============================================= */
-
             normalize :
 
                 function(
@@ -561,10 +526,6 @@ export const MonthlySetting = {
                 "Atur aturan pemotongan gaji dan attendance.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
 
                 "＋ Tambah Rule Potong",
@@ -580,10 +541,6 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            /* =============================================
-               DUPLICATE
-            ============================================= */
-
             uniqueFields : [
 
                 "nama"
@@ -591,9 +548,10 @@ export const MonthlySetting = {
             ],
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            autoCloseForm :
+
+                true,
+
 
             fields : [
 
@@ -631,8 +589,9 @@ export const MonthlySetting = {
 
                     options : [
 
+
                         /* =================================
-                           POTONGAN PERIODE / GAJI
+                           POTONGAN PERIODE
                         ================================= */
 
                         {
@@ -640,6 +599,7 @@ export const MonthlySetting = {
                             value :
 
                                 "BPJS",
+
 
                             label :
 
@@ -653,6 +613,7 @@ export const MonthlySetting = {
 
                                 "tabungan",
 
+
                             label :
 
                                 "Tabungan"
@@ -664,6 +625,7 @@ export const MonthlySetting = {
                             value :
 
                                 "Jamsostek",
+
 
                             label :
 
@@ -677,6 +639,7 @@ export const MonthlySetting = {
 
                                 "koperasi",
 
+
                             label :
 
                                 "Koperasi"
@@ -688,6 +651,7 @@ export const MonthlySetting = {
                             value :
 
                                 "lain-lain",
+
 
                             label :
 
@@ -706,6 +670,7 @@ export const MonthlySetting = {
 
                                 "telat_1",
 
+
                             label :
 
                                 "Telat 1"
@@ -717,6 +682,7 @@ export const MonthlySetting = {
                             value :
 
                                 "telat_2",
+
 
                             label :
 
@@ -730,6 +696,7 @@ export const MonthlySetting = {
 
                                 "telat_3",
 
+
                             label :
 
                                 "Telat 3"
@@ -741,6 +708,7 @@ export const MonthlySetting = {
                             value :
 
                                 "telat_4",
+
 
                             label :
 
@@ -759,6 +727,7 @@ export const MonthlySetting = {
 
                                 "izin_telat",
 
+
                             label :
 
                                 "Izin Telat"
@@ -771,6 +740,7 @@ export const MonthlySetting = {
 
                                 "izin_pulang",
 
+
                             label :
 
                                 "Izin Pulang"
@@ -782,6 +752,7 @@ export const MonthlySetting = {
                             value :
 
                                 "absen",
+
 
                             label :
 
@@ -844,8 +815,12 @@ export const MonthlySetting = {
 
                 /* =========================================
                    NILAI START
-                   
-                   Digunakan untuk Telat 1–4.
+
+                   HANYA UNTUK :
+                   telat_1
+                   telat_2
+                   telat_3
+                   telat_4
                 ========================================= */
 
                 {
@@ -887,15 +862,41 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Khusus rule telat. Isi batas awal keterlambatan dalam menit."
+                        "Khusus rule telat. Isi batas awal dalam menit. Contoh: 1.",
+
+
+                    dependsOn : {
+
+                        field :
+
+                            "nama",
+
+
+                        values : [
+
+                            "telat_1",
+
+                            "telat_2",
+
+                            "telat_3",
+
+                            "telat_4"
+
+                        ]
+
+                    }
 
                 },
 
 
                 /* =========================================
                    NILAI END
-                   
-                   Digunakan untuk Telat 1–4.
+
+                   HANYA UNTUK :
+                   telat_1
+                   telat_2
+                   telat_3
+                   telat_4
                 ========================================= */
 
                 {
@@ -937,7 +938,29 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Khusus rule telat. Isi batas akhir keterlambatan dalam menit."
+                        "Khusus rule telat. Isi batas akhir dalam menit. Contoh: 30.",
+
+
+                    dependsOn : {
+
+                        field :
+
+                            "nama",
+
+
+                        values : [
+
+                            "telat_1",
+
+                            "telat_2",
+
+                            "telat_3",
+
+                            "telat_4"
+
+                        ]
+
+                    }
 
                 }
 
@@ -972,7 +995,7 @@ export const MonthlySetting = {
 
 
                     /* =====================================
-                       RULE TELAT
+                       TELAT
                     ===================================== */
 
                     if(
@@ -1211,10 +1234,6 @@ export const MonthlySetting = {
                 "Atur tunjangan, uang makan, transport, dan lembur.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
 
                 "＋ Tambah Rule Tambah",
@@ -1230,9 +1249,10 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            autoCloseForm :
+
+                true,
+
 
             fields : []
 
