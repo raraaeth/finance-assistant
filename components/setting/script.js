@@ -1454,25 +1454,64 @@ function renderField(
     );
 
 
-    /* =============================================
-       APPEND INPUT
-    ============================================= */
+/* =============================================
+   APPEND INPUT
+============================================= */
+
+wrapper.appendChild(
+
+    input
+
+);
+
+
+/* =============================================
+   FIELD NOTE
+============================================= */
+
+if(
+
+    field.note
+
+){
+
+    const note =
+
+        document.createElement(
+
+            "small"
+
+        );
+
+
+    note.className =
+
+        "global-setting-field-note";
+
+
+    note.textContent =
+
+        field.note;
+
 
     wrapper.appendChild(
 
-        input
-
-    );
-
-
-    container.appendChild(
-
-        wrapper
+        note
 
     );
 
 }
 
+
+/* =============================================
+   APPEND WRAPPER
+============================================= */
+
+container.appendChild(
+
+    wrapper
+
+);
 
 /* =====================================================
    APPLY FIELD ATTRIBUTES
