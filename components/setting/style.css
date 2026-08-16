@@ -607,3 +607,244 @@ body.setting-open{
     }
 
 }
+/* =====================================================
+   CUSTOM SELECT
+===================================================== */
+
+.global-setting-custom-select{
+
+    width:100%;
+
+    min-height:58px;
+
+    padding:0 18px;
+
+    border:1px solid var(--border-color);
+
+    border-radius:18px;
+
+    background:var(--card-background);
+
+    color:var(--text-color);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    text-align:left;
+
+}
+
+
+.global-setting-custom-select.has-value{
+
+    border-color:var(--accent-color);
+
+}
+
+
+.global-setting-custom-arrow{
+
+    font-size:20px;
+
+}
+
+
+/* =====================================================
+   CUSTOM PICKER
+===================================================== */
+
+.global-setting-picker{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:99999;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:center;
+
+}
+
+
+.global-setting-picker-backdrop{
+
+    position:absolute;
+
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    backdrop-filter:blur(3px);
+
+}
+
+
+.global-setting-picker-panel{
+
+    position:relative;
+
+    width:100%;
+
+    max-width:620px;
+
+    max-height:75vh;
+
+    background:var(--background-color);
+
+    border-radius:26px 26px 0 0;
+
+    overflow:hidden;
+
+    box-shadow:0 -10px 40px rgba(0,0,0,.2);
+
+    animation:
+
+        settingPickerUp
+
+        .2s ease;
+
+}
+
+
+@keyframes settingPickerUp{
+
+    from{
+
+        transform:translateY(100%);
+
+    }
+
+    to{
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+/* =====================================================
+   PICKER HEADER
+===================================================== */
+
+.global-setting-picker-header{
+
+    min-height:64px;
+
+    padding:0 20px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    border-bottom:1px solid var(--border-color);
+
+}
+
+
+.global-setting-picker-header strong{
+
+    font-size:18px;
+
+}
+
+
+.global-setting-picker-close{
+
+    width:42px;
+
+    height:42px;
+
+    border:0;
+
+    border-radius:50%;
+
+    background:var(--card-background);
+
+    color:var(--text-color);
+
+    font-size:26px;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   PICKER LIST
+===================================================== */
+
+.global-setting-picker-list{
+
+    overflow-y:auto;
+
+    max-height:calc(75vh - 64px);
+
+}
+
+
+.global-setting-picker-option{
+
+    width:100%;
+
+    min-height:60px;
+
+    padding:0 22px;
+
+    border:0;
+
+    border-bottom:1px solid var(--border-color);
+
+    background:transparent;
+
+    color:var(--text-color);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    text-align:left;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+}
+
+
+.global-setting-picker-option:active{
+
+    background:var(--card-background);
+
+}
+
+
+.global-setting-picker-option.selected{
+
+    color:var(--accent-color);
+
+    font-weight:600;
+
+}
+
+
+.picker-radio{
+
+    font-size:20px;
+
+   }
