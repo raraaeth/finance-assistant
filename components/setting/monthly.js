@@ -200,7 +200,7 @@ export const MonthlySetting = {
 
                     label :
 
-                        "Tentukan periode tanggal perhitungan gaji dimulai",
+                        "Periode Perhitungan Gaji\nTentukan periode tanggal perhitungan gaji dimulai",
 
 
                     type :
@@ -266,7 +266,7 @@ export const MonthlySetting = {
 
                     label :
 
-                        "Kapan Periode Aktif gaji ini dimulai",
+                        "Periode Aktif Gaji\nKapan Periode Aktif gaji ini dimulai",
 
 
                     type :
