@@ -962,4 +962,10 @@ body.setting-open{
 
 }
 
+/* =====================================================
+   LEABEL PRE-LINE
+===================================================== */
 
+.global-setting-field > label {
+    white-space: pre-line;
+}
