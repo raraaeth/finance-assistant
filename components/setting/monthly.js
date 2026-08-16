@@ -3,26 +3,26 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 2.0.0
+   Version      : 3.0.0
 
    Description :
    Payroll Monthly Setting Definition
 
-   Rule Periode :
-   - UI hanya menampilkan 4 tanggal
-   - Data internal otomatis:
-       type_rule      = rule_periode
-       nama           = gaji
-       kondisi        = gaji_pokok
-       waktu          = bulanan
+   Modules :
+   - Rule Periode
+   - Rule Gaji
+   - Rule Potong
+   - Rule Tambah
 
-   Periode Perhitungan Gaji :
-   - nilai_start
-   - nilai_end
+   Current Development :
+   - Rule Periode : active
+   - Rule Gaji    : active
+   - Rule Potong  : skeleton
+   - Rule Tambah  : skeleton
 
-   Periode Aktif Gaji :
-   - periode_start
-   - periode_end
+   Principle :
+   User only fills fields that are necessary.
+   Internal engine values are generated automatically.
 ===================================================== */
 
 
@@ -53,9 +53,10 @@ export const MonthlySetting = {
 
     sections : [
 
-        /* =============================================
+
+        /* =================================================
            RULE PERIODE
-        ============================================= */
+        ================================================= */
 
         {
 
@@ -71,12 +72,12 @@ export const MonthlySetting = {
 
             description :
 
-                "Tentukan periode perhitungan dan masa aktif rule gaji.",
+                "Tentukan periode perhitungan dan masa aktif gaji.",
 
 
-            /* =========================================
+            /* =============================================
                BUTTON
-            ========================================= */
+            ============================================= */
 
             addLabel :
 
@@ -93,12 +94,9 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            /* =========================================
-               UNIQUE
-               
-               Satu kombinasi periode yang sama
-               tidak boleh dimasukkan dua kali.
-            ========================================= */
+            /* =============================================
+               DUPLICATE
+            ============================================= */
 
             uniqueFields : [
 
@@ -113,15 +111,25 @@ export const MonthlySetting = {
             ],
 
 
-            /* =========================================
+            /* =============================================
+               AUTO CLOSE FORM
+            ============================================= */
+
+            autoCloseForm :
+
+                true,
+
+
+            /* =============================================
                FIELDS
-            ========================================= */
+            ============================================= */
 
             fields : [
 
-                /* =====================================
+
+                /* =========================================
                    PERIODE PERHITUNGAN GAJI
-                ===================================== */
+                ========================================= */
 
                 {
 
@@ -181,9 +189,9 @@ export const MonthlySetting = {
                 },
 
 
-                /* =====================================
+                /* =========================================
                    PERIODE AKTIF GAJI
-                ===================================== */
+                ========================================= */
 
                 {
 
@@ -245,14 +253,9 @@ export const MonthlySetting = {
             ],
 
 
-            /* =========================================
+            /* =============================================
                NORMALIZE
-               
-               UI hanya mengisi 4 tanggal.
-               
-               Data rule lengkap dibuat otomatis
-               di sini.
-            ========================================= */
+            ============================================= */
 
             normalize :
 
@@ -271,17 +274,22 @@ export const MonthlySetting = {
 
                         nama :
 
-                            "gaji",
+                            "periode_gaji",
 
 
                         kondisi :
 
-                            "gaji_pokok",
+                            "periode",
 
 
                         waktu :
 
                             "bulanan",
+
+
+                        nominal :
+
+                            "",
 
 
                         nilai_start :
@@ -294,12 +302,12 @@ export const MonthlySetting = {
                             data.nilai_end,
 
 
-                        periode_start :
+                        berlaku_start :
 
                             data.periode_start,
 
 
-                        periode_end :
+                        berlaku_end :
 
                             data.periode_end
 
@@ -310,13 +318,9 @@ export const MonthlySetting = {
         },
 
 
-        /* =============================================
+        /* =================================================
            RULE GAJI
-           
-           Skeleton sementara.
-           Kita isi bertahap setelah Rule Periode
-           benar-benar selesai.
-        ============================================= */
+        ================================================= */
 
         {
 
@@ -332,8 +336,12 @@ export const MonthlySetting = {
 
             description :
 
-                "Atur komponen gaji dan aturan pembayaran.",
+                "Tentukan gaji pokok yang digunakan dalam perhitungan payroll.",
 
+
+            /* =============================================
+               BUTTON
+            ============================================= */
 
             addLabel :
 
@@ -350,16 +358,202 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            fields : []
+            /* =============================================
+               DUPLICATE
+            ============================================= */
+
+            uniqueFields : [
+
+                "nama"
+
+            ],
+
+
+            /* =============================================
+               AUTO CLOSE FORM
+            ============================================= */
+
+            autoCloseForm :
+
+                true,
+
+
+            /* =============================================
+               FIELDS
+            ============================================= */
+
+            fields : [
+
+
+                /* =========================================
+                   NAMA
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "nama",
+
+
+                    label :
+
+                        "Nama Gaji",
+
+
+                    type :
+
+                        "select",
+
+
+                    placeholder :
+
+                        "Pilih gaji",
+
+
+                    required :
+
+                        true,
+
+
+                    options : [
+
+                        {
+
+                            value :
+
+                                "gaji",
+
+
+                            label :
+
+                                "Gaji Pokok"
+
+                        }
+
+                    ]
+
+                },
+
+
+                /* =========================================
+                   NOMINAL
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "nominal",
+
+
+                    label :
+
+                        "Nominal Gaji Pokok",
+
+
+                    type :
+
+                        "number",
+
+
+                    placeholder :
+
+                        "Contoh: 5157500",
+
+
+                    required :
+
+                        true,
+
+
+                    min :
+
+                        0,
+
+
+                    step :
+
+                        1,
+
+
+                    note :
+
+                        "Masukkan nominal gaji pokok per periode gaji."
+
+                }
+
+            ],
+
+
+            /* =============================================
+               NORMALIZE
+            ============================================= */
+
+            normalize :
+
+                function(
+
+                    data
+
+                ){
+
+                    return {
+
+                        type_rule :
+
+                            "rule_gaji",
+
+
+                        nama :
+
+                            "gaji",
+
+
+                        kondisi :
+
+                            "gaji_pokok",
+
+
+                        waktu :
+
+                            "bulanan",
+
+
+                        nominal :
+
+                            data.nominal,
+
+
+                        nilai_start :
+
+                            "",
+
+
+                        nilai_end :
+
+                            "",
+
+
+                        berlaku_start :
+
+                            "",
+
+
+                        berlaku_end :
+
+                            ""
+
+                    };
+
+                }
 
         },
 
 
-        /* =============================================
+        /* =================================================
            RULE POTONG
-           
-           Skeleton
-        ============================================= */
+        ================================================= */
 
         {
 
@@ -393,16 +587,19 @@ export const MonthlySetting = {
                 "Hapus",
 
 
+            autoCloseForm :
+
+                true,
+
+
             fields : []
 
         },
 
 
-        /* =============================================
+        /* =================================================
            RULE TAMBAH
-           
-           Skeleton
-        ============================================= */
+        ================================================= */
 
         {
 
@@ -418,7 +615,7 @@ export const MonthlySetting = {
 
             description :
 
-                "Atur tunjangan dan tambahan penghasilan.",
+                "Atur tunjangan, uang makan, transport, dan lembur.",
 
 
             addLabel :
@@ -434,6 +631,11 @@ export const MonthlySetting = {
             deleteLabel :
 
                 "Hapus",
+
+
+            autoCloseForm :
+
+                true,
 
 
             fields : []
