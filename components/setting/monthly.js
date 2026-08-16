@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 3.1.0
+   Version      : 4.0.0
 
    Description :
    Payroll Monthly Setting Definition
@@ -548,16 +548,11 @@ export const MonthlySetting = {
             ],
 
 
-            autoCloseForm :
-
-                true,
-
-
             fields : [
 
 
                 /* =========================================
-                   NAMA RULE
+                   NAMA RULE POTONG
                 ========================================= */
 
                 {
@@ -607,6 +602,7 @@ export const MonthlySetting = {
 
                         },
 
+
                         {
 
                             value :
@@ -619,6 +615,7 @@ export const MonthlySetting = {
                                 "Tabungan"
 
                         },
+
 
                         {
 
@@ -633,6 +630,7 @@ export const MonthlySetting = {
 
                         },
 
+
                         {
 
                             value :
@@ -645,6 +643,7 @@ export const MonthlySetting = {
                                 "Koperasi"
 
                         },
+
 
                         {
 
@@ -677,6 +676,7 @@ export const MonthlySetting = {
 
                         },
 
+
                         {
 
                             value :
@@ -690,6 +690,7 @@ export const MonthlySetting = {
 
                         },
 
+
                         {
 
                             value :
@@ -702,6 +703,7 @@ export const MonthlySetting = {
                                 "Telat 3"
 
                         },
+
 
                         {
 
@@ -734,6 +736,7 @@ export const MonthlySetting = {
 
                         },
 
+
                         {
 
                             value :
@@ -746,6 +749,7 @@ export const MonthlySetting = {
                                 "Izin Pulang"
 
                         },
+
 
                         {
 
@@ -815,12 +819,8 @@ export const MonthlySetting = {
 
                 /* =========================================
                    NILAI START
-
-                   HANYA UNTUK :
-                   telat_1
-                   telat_2
-                   telat_3
-                   telat_4
+                   
+                   Khusus Telat 1–4.
                 ========================================= */
 
                 {
@@ -860,11 +860,6 @@ export const MonthlySetting = {
                         1,
 
 
-                    note :
-
-                        "Khusus rule telat. Isi batas awal dalam menit. Contoh: 1.",
-
-
                     dependsOn : {
 
                         field :
@@ -884,19 +879,20 @@ export const MonthlySetting = {
 
                         ]
 
-                    }
+                    },
+
+
+                    note :
+
+                        "Isi batas awal keterlambatan dalam menit. Contoh: 1."
 
                 },
 
 
                 /* =========================================
                    NILAI END
-
-                   HANYA UNTUK :
-                   telat_1
-                   telat_2
-                   telat_3
-                   telat_4
+                   
+                   Khusus Telat 1–4.
                 ========================================= */
 
                 {
@@ -936,11 +932,6 @@ export const MonthlySetting = {
                         1,
 
 
-                    note :
-
-                        "Khusus rule telat. Isi batas akhir dalam menit. Contoh: 30.",
-
-
                     dependsOn : {
 
                         field :
@@ -960,16 +951,17 @@ export const MonthlySetting = {
 
                         ]
 
-                    }
+                    },
+
+
+                    note :
+
+                        "Isi batas akhir keterlambatan dalam menit. Contoh: 30."
 
                 }
 
             ],
 
-
-            /* =============================================
-               NORMALIZE
-            ============================================= */
 
             normalize :
 
@@ -1089,7 +1081,7 @@ export const MonthlySetting = {
 
 
                     /* =====================================
-                       VALIDATE RANGE TELAT
+                       VALIDATE TELAT
                     ===================================== */
 
                     if(
@@ -1155,10 +1147,6 @@ export const MonthlySetting = {
 
                     }
 
-
-                    /* =====================================
-                       RETURN
-                    ===================================== */
 
                     return {
 
@@ -1249,12 +1237,847 @@ export const MonthlySetting = {
                 "Hapus",
 
 
+            uniqueFields : [
+
+                "nama"
+
+            ],
+
+
             autoCloseForm :
 
                 true,
 
 
-            fields : []
+            fields : [
+
+
+                /* =========================================
+                   NAMA RULE TAMBAH
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "nama",
+
+
+                    label :
+
+                        "Nama Rule Tambah",
+
+
+                    type :
+
+                        "select",
+
+
+                    placeholder :
+
+                        "Pilih rule tambah",
+
+
+                    required :
+
+                        true,
+
+
+                    options : [
+
+
+                        /* =================================
+                           TAMBAHAN PERIODE
+                        ================================= */
+
+                        {
+
+                            value :
+
+                                "tunjangan",
+
+
+                            label :
+
+                                "Tunjangan"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "uang_transport",
+
+
+                            label :
+
+                                "Uang Transport"
+
+                        },
+
+
+                        /* =================================
+                           UANG MAKAN
+                        ================================= */
+
+                        {
+
+                            value :
+
+                                "uang_makan",
+
+
+                            label :
+
+                                "Uang Makan"
+
+                        },
+
+
+                        /* =================================
+                           LEMBUR
+                        ================================= */
+
+                        {
+
+                            value :
+
+                                "lembur",
+
+
+                            label :
+
+                                "Lembur"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_1",
+
+
+                            label :
+
+                                "Lembur Jam 1"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_2",
+
+
+                            label :
+
+                                "Lembur Jam 2"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_3",
+
+
+                            label :
+
+                                "Lembur Jam 3"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_4",
+
+
+                            label :
+
+                                "Lembur Jam 4"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_5",
+
+
+                            label :
+
+                                "Lembur Jam 5"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_6",
+
+
+                            label :
+
+                                "Lembur Jam 6"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_7",
+
+
+                            label :
+
+                                "Lembur Jam 7"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "lembur_jam_8",
+
+
+                            label :
+
+                                "Lembur Jam 8"
+
+                        }
+
+                    ]
+
+                },
+
+
+                /* =========================================
+                   KONDISI UANG MAKAN
+                   
+                   Hanya digunakan jika nama = uang_makan.
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "kondisi",
+
+
+                    label :
+
+                        "Kondisi Uang Makan",
+
+
+                    type :
+
+                        "select",
+
+
+                    placeholder :
+
+                        "Pilih kondisi",
+
+
+                    required :
+
+                        true,
+
+
+                    dependsOn : {
+
+                        field :
+
+                            "nama",
+
+
+                        value :
+
+                            "uang_makan"
+
+                    },
+
+
+                    options : [
+
+                        {
+
+                            value :
+
+                                "masuk,lembur",
+
+
+                            label :
+
+                                "Masuk + Lembur"
+
+                        },
+
+
+                        {
+
+                            value :
+
+                                "periode",
+
+
+                            label :
+
+                                "Periode"
+
+                        }
+
+                    ]
+
+                },
+
+
+                /* =========================================
+                   NOMINAL
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "nominal",
+
+
+                    label :
+
+                        "Nominal Tambahan",
+
+
+                    type :
+
+                        "number",
+
+
+                    placeholder :
+
+                        "Contoh: 8000",
+
+
+                    required :
+
+                        true,
+
+
+                    min :
+
+                        0,
+
+
+                    step :
+
+                        1,
+
+
+                    note :
+
+                        "Masukkan nominal tambahan sesuai rule."
+
+                },
+
+
+                /* =========================================
+                   NILAI START
+                   
+                   Khusus Lembur / Lembur Jam 1–8.
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "nilai_start",
+
+
+                    label :
+
+                        "Nilai Start",
+
+
+                    type :
+
+                        "number",
+
+
+                    placeholder :
+
+                        "Contoh: 1",
+
+
+                    required :
+
+                        false,
+
+
+                    min :
+
+                        1,
+
+
+                    step :
+
+                        1,
+
+
+                    dependsOn : {
+
+                        field :
+
+                            "nama",
+
+
+                        values : [
+
+                            "lembur",
+
+                            "lembur_jam_1",
+
+                            "lembur_jam_2",
+
+                            "lembur_jam_3",
+
+                            "lembur_jam_4",
+
+                            "lembur_jam_5",
+
+                            "lembur_jam_6",
+
+                            "lembur_jam_7",
+
+                            "lembur_jam_8"
+
+                        ]
+
+                    },
+
+
+                    note :
+
+                        "Isi nilai awal jam lembur. Contoh: 1."
+
+                },
+
+
+                /* =========================================
+                   NILAI END
+                   
+                   Khusus Lembur / Lembur Jam 1–8.
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "nilai_end",
+
+
+                    label :
+
+                        "Nilai End",
+
+
+                    type :
+
+                        "number",
+
+
+                    placeholder :
+
+                        "Contoh: 8",
+
+
+                    required :
+
+                        false,
+
+
+                    min :
+
+                        1,
+
+
+                    step :
+
+                        1,
+
+
+                    dependsOn : {
+
+                        field :
+
+                            "nama",
+
+
+                        values : [
+
+                            "lembur",
+
+                            "lembur_jam_1",
+
+                            "lembur_jam_2",
+
+                            "lembur_jam_3",
+
+                            "lembur_jam_4",
+
+                            "lembur_jam_5",
+
+                            "lembur_jam_6",
+
+                            "lembur_jam_7",
+
+                            "lembur_jam_8"
+
+                        ]
+
+                    },
+
+
+                    note :
+
+                        "Isi nilai akhir jam lembur jika diperlukan. Contoh: 8."
+
+                }
+
+            ],
+
+
+            /* =============================================
+               NORMALIZE
+            ============================================= */
+
+            normalize :
+
+                function(
+
+                    data
+
+                ){
+
+                    const nama =
+
+                        data.nama;
+
+
+                    let kondisi =
+
+                        "periode";
+
+
+                    let waktu =
+
+                        "gaji";
+
+
+                    /* =====================================
+                       UANG MAKAN
+                    ===================================== */
+
+                    if(
+
+                        nama ===
+
+                        "uang_makan"
+
+                    ){
+
+                        if(
+
+                            data.kondisi ===
+
+                            "masuk,lembur"
+
+                        ){
+
+                            kondisi =
+
+                                "masuk,lembur";
+
+
+                            waktu =
+
+                                "harian";
+
+                        }
+
+                        else if(
+
+                            data.kondisi ===
+
+                            "periode"
+
+                        ){
+
+                            kondisi =
+
+                                "periode";
+
+
+                            waktu =
+
+                                "bulanan";
+
+                        }
+
+                        else{
+
+                            alert(
+
+                                "Kondisi Uang Makan wajib dipilih."
+
+                            );
+
+
+                            return null;
+
+                        }
+
+                    }
+
+
+                    /* =====================================
+                       LEMBUR
+                    ===================================== */
+
+                    else if(
+
+                        nama ===
+
+                            "lembur"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_1"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_2"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_3"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_4"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_5"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_6"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_7"
+
+                        ||
+
+                        nama ===
+
+                            "lembur_jam_8"
+
+                    ){
+
+                        kondisi =
+
+                            "masuk,lembur";
+
+
+                        waktu =
+
+                            "jam";
+
+
+                        /* =================================
+                           VALIDATE RANGE
+                        ================================= */
+
+                        if(
+
+                            data.nilai_start === ""
+
+                            &&
+
+                            data.nilai_end !== ""
+
+                        ){
+
+                            alert(
+
+                                "Nilai Start harus diisi jika Nilai End diisi."
+
+                            );
+
+
+                            return null;
+
+                        }
+
+
+                        if(
+
+                            data.nilai_start !== ""
+
+                            &&
+
+                            data.nilai_end !== ""
+
+                            &&
+
+                            Number(
+
+                                data.nilai_start
+
+                            )
+
+                            >
+
+                            Number(
+
+                                data.nilai_end
+
+                            )
+
+                        ){
+
+                            alert(
+
+                                "Nilai Start tidak boleh lebih besar dari Nilai End."
+
+                            );
+
+
+                            return null;
+
+                        }
+
+                    }
+
+
+                    /* =====================================
+                       TUNJANGAN
+                       UANG TRANSPORT
+                    ===================================== */
+
+                    else if(
+
+                        nama ===
+
+                            "tunjangan"
+
+                        ||
+
+                        nama ===
+
+                            "uang_transport"
+
+                    ){
+
+                        kondisi =
+
+                            "periode";
+
+
+                        waktu =
+
+                            "gaji";
+
+                    }
+
+
+                    /* =====================================
+                       RETURN
+                    ===================================== */
+
+                    return {
+
+                        type_rule :
+
+                            "rule_tambah",
+
+
+                        nama :
+
+                            nama,
+
+
+                        kondisi :
+
+                            kondisi,
+
+
+                        waktu :
+
+                            waktu,
+
+
+                        nominal :
+
+                            data.nominal ?? "",
+
+
+                        nilai_start :
+
+                            data.nilai_start ?? "",
+
+
+                        nilai_end :
+
+                            data.nilai_end ?? "",
+
+
+                        berlaku_start :
+
+                            "",
+
+
+                        berlaku_end :
+
+                            ""
+
+                    };
+
+                }
 
         }
 
