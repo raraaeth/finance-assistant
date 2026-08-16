@@ -1003,9 +1003,27 @@ body.setting-open{
 }
 
 /* =====================================================
-   LEABEL PRE-LINE
+   LABEL PRE-LINE
 ===================================================== */
 
 .global-setting-field > label {
     white-space: pre-line;
+}
+
+/* =====================================================
+   CHECK BOX
+===================================================== */
+
+.global-setting-field input[type="checkbox"]{
+
+    width:18px;
+
+    height:18px;
+
+    margin:0;
+
+    padding:0;
+
+    flex:none;
+
 }
