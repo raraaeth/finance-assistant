@@ -1488,31 +1488,69 @@ function renderField(
 
     if(
 
-        field.type ===
+    field.type ===
 
-        "select"
+    "select"
+
+){
+
+    renderCustomSelect(
+
+        wrapper,
+
+        field
+
+    );
+
+
+    /* =============================================
+       FIELD NOTE
+    ============================================= */
+
+    if(
+
+        field.note
 
     ){
 
-        renderCustomSelect(
+        const note =
 
-            wrapper,
+            document.createElement(
 
-            field
+                "small"
+
+            );
+
+
+        note.className =
+
+            "global-setting-field-note";
+
+
+        note.textContent =
+
+            field.note;
+
+
+        wrapper.appendChild(
+
+            note
 
         );
-
-
-        container.appendChild(
-
-            wrapper
-
-        );
-
-
-        return;
 
     }
+
+
+    container.appendChild(
+
+        wrapper
+
+    );
+
+
+    return;
+
+}
 
 
     /* =============================================
