@@ -54,6 +54,12 @@ import {
 
 } from "./monthly.js";
 
+import {
+
+    DailySetting
+
+} from "./daily.js";
+
 
 import {
 
@@ -71,6 +77,10 @@ const SETTINGS = {
     "payroll-monthly":
 
         MonthlySetting,
+   
+   "payroll-daily":
+
+        DailySetting,
 
 
     "kas":
