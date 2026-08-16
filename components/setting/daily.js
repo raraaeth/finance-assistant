@@ -480,7 +480,7 @@ export const DailySetting = {
 
                     placeholder :
 
-                        "Contoh: rear",
+                        "Contoh: Baju",
 
 
                     required :
@@ -518,7 +518,7 @@ export const DailySetting = {
 
                     placeholder :
 
-                        "Contoh: back",
+                        "Contoh: atasan",
 
 
                     required :
@@ -556,7 +556,7 @@ export const DailySetting = {
 
                     placeholder :
 
-                        "Contoh: r",
+                        "Contoh: XL",
 
 
                     required :
@@ -869,7 +869,11 @@ export const DailySetting = {
 
                     required :
 
-                        false
+                        false,
+
+                   resultValue :
+
+                         "sabtu"
 
                 },
 
@@ -893,7 +897,11 @@ export const DailySetting = {
 
                     required :
 
-                        false
+                        false,
+
+                   resultValue :
+
+                         "minggu"
 
                 },
 
@@ -917,7 +925,11 @@ export const DailySetting = {
 
                     required :
 
-                        false
+                        false,
+
+                     resultValue :
+
+                        "senin"
 
                 },
 
@@ -941,7 +953,11 @@ export const DailySetting = {
 
                     required :
 
-                        false
+                        false,
+
+                     resultValue :
+                        
+                        "Selasa"
 
                 },
 
@@ -965,7 +981,11 @@ export const DailySetting = {
 
                     required :
 
-                        false
+                        false,
+
+                     resultValue :
+                        
+                        "Rabu"
 
                 },
 
@@ -989,7 +1009,11 @@ export const DailySetting = {
 
                     required :
 
-                        false
+                        false,
+
+                     resultValue :
+                        
+                        "Kamis"
 
                 },
 
@@ -1013,7 +1037,11 @@ export const DailySetting = {
 
                     required :
 
-                        false
+                        false,
+
+                     resultValue :
+                        
+                        "Jumat"
 
                 },
 
