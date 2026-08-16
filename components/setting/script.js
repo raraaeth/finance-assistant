@@ -2854,25 +2854,27 @@ function addResult(
 
     if(
 
-        isDuplicate(
+    isDuplicate(
 
-            result,
+        result,
 
-            data
+        data,
 
-        )
+        section.uniqueFields
 
-    ){
+    )
 
-        alert(
+){
 
-            "Data sudah ada."
+    alert(
 
-        );
+        "Rule dengan pilihan yang sama sudah ada."
 
-        return;
+    );
 
-    }
+    return;
+
+}
 
 
     /* =============================================
@@ -3396,7 +3398,9 @@ function isDuplicate(
 
     result,
 
-    data
+    data,
+
+    uniqueFields = []
 
 ){
 
@@ -3430,6 +3434,58 @@ function isDuplicate(
                     );
 
 
+                /* =========================================
+                   CUSTOM UNIQUE FIELDS
+                   
+                   Jika module menentukan uniqueFields,
+                   hanya field tersebut yang dibandingkan.
+                ========================================= */
+
+                if(
+
+                    Array.isArray(
+
+                        uniqueFields
+
+                    )
+
+                    &&
+
+                    uniqueFields.length > 0
+
+                ){
+
+                    return uniqueFields.every(
+
+                        field =>
+
+                            String(
+
+                                existing[field] ?? ""
+
+                            )
+
+                            ===
+
+                            String(
+
+                                data[field] ?? ""
+
+                            )
+
+                    );
+
+                }
+
+
+                /* =========================================
+                   DEFAULT
+                   
+                   Jika module tidak menentukan
+                   uniqueFields, gunakan perbandingan
+                   seluruh data seperti sebelumnya.
+                ========================================= */
+
                 return (
 
                     JSON.stringify(
@@ -3461,7 +3517,6 @@ function isDuplicate(
     );
 
 }
-
 
 /* =====================================================
    RESET FORM
