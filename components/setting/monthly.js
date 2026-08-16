@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 3.0.0
+   Version      : 3.1.0
 
    Description :
    Payroll Monthly Setting Definition
@@ -17,12 +17,19 @@
    Current Development :
    - Rule Periode : active
    - Rule Gaji    : active
-   - Rule Potong  : skeleton
+   - Rule Potong  : active
    - Rule Tambah  : skeleton
 
    Principle :
    User only fills fields that are necessary.
    Internal engine values are generated automatically.
+
+   Important :
+   - Periode menjadi sumber masa aktif semua rule.
+   - Rule Gaji hanya untuk Gaji Pokok.
+   - Rule Potong menentukan potongan berdasarkan
+     nama rule.
+   - Rule Telat menggunakan nilai_start dan nilai_end.
 ===================================================== */
 
 
@@ -109,15 +116,6 @@ export const MonthlySetting = {
                 "periode_end"
 
             ],
-
-
-            /* =============================================
-               AUTO CLOSE FORM
-            ============================================= */
-
-            autoCloseForm :
-
-                true,
 
 
             /* =============================================
@@ -370,15 +368,6 @@ export const MonthlySetting = {
 
 
             /* =============================================
-               AUTO CLOSE FORM
-            ============================================= */
-
-            autoCloseForm :
-
-                true,
-
-
-            /* =============================================
                FIELDS
             ============================================= */
 
@@ -551,654 +540,654 @@ export const MonthlySetting = {
         },
 
 
-/* =================================================
-   RULE POTONG
-================================================= */
-
-{
-
-    id :
-
-        "rule_potong",
-
-
-    title :
-
-        "➖ Rule Potong",
-
-
-    description :
-
-        "Atur aturan pemotongan gaji dan attendance.",
-
-
-    /* =============================================
-       BUTTON
-    ============================================= */
-
-    addLabel :
-
-        "＋ Tambah Rule Potong",
-
-
-    formAddLabel :
-
-        "＋ Tambahkan",
-
-
-    deleteLabel :
-
-        "Hapus",
-
-
-    /* =============================================
-       DUPLICATE
-    ============================================= */
-
-    uniqueFields : [
-
-        "nama"
-
-    ],
-
-
-    /* =============================================
-       FIELDS
-    ============================================= */
-
-    fields : [
-
-
-        /* =========================================
-           NAMA RULE
-        ========================================= */
+        /* =================================================
+           RULE POTONG
+        ================================================= */
 
         {
 
-            name :
+            id :
 
-                "nama",
-
-
-            label :
-
-                "Nama Rule Potong",
+                "rule_potong",
 
 
-            type :
+            title :
 
-                "select",
-
-
-            placeholder :
-
-                "Pilih rule potong",
+                "➖ Rule Potong",
 
 
-            required :
+            description :
 
-                true,
+                "Atur aturan pemotongan gaji dan attendance.",
 
 
-            options : [
+            /* =============================================
+               BUTTON
+            ============================================= */
 
-                /* =================================
-                   POTONGAN PERIODE
-                ================================= */
+            addLabel :
+
+                "＋ Tambah Rule Potong",
+
+
+            formAddLabel :
+
+                "＋ Tambahkan",
+
+
+            deleteLabel :
+
+                "Hapus",
+
+
+            /* =============================================
+               DUPLICATE
+            ============================================= */
+
+            uniqueFields : [
+
+                "nama"
+
+            ],
+
+
+            /* =============================================
+               FIELDS
+            ============================================= */
+
+            fields : [
+
+
+                /* =========================================
+                   NAMA RULE
+                ========================================= */
 
                 {
 
-                    value :
+                    name :
 
-                        "BPJS",
+                        "nama",
+
 
                     label :
 
-                        "BPJS"
+                        "Nama Rule Potong",
+
+
+                    type :
+
+                        "select",
+
+
+                    placeholder :
+
+                        "Pilih rule potong",
+
+
+                    required :
+
+                        true,
+
+
+                    options : [
+
+                        /* =================================
+                           POTONGAN PERIODE / GAJI
+                        ================================= */
+
+                        {
+
+                            value :
+
+                                "BPJS",
+
+                            label :
+
+                                "BPJS"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "tabungan",
+
+                            label :
+
+                                "Tabungan"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "Jamsostek",
+
+                            label :
+
+                                "Jamsostek"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "koperasi",
+
+                            label :
+
+                                "Koperasi"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "lain-lain",
+
+                            label :
+
+                                "Lain-lain"
+
+                        },
+
+
+                        /* =================================
+                           POTONGAN TELAT
+                        ================================= */
+
+                        {
+
+                            value :
+
+                                "telat_1",
+
+                            label :
+
+                                "Telat 1"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "telat_2",
+
+                            label :
+
+                                "Telat 2"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "telat_3",
+
+                            label :
+
+                                "Telat 3"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "telat_4",
+
+                            label :
+
+                                "Telat 4"
+
+                        },
+
+
+                        /* =================================
+                           POTONGAN ATTENDANCE
+                        ================================= */
+
+                        {
+
+                            value :
+
+                                "izin_telat",
+
+                            label :
+
+                                "Izin Telat"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "izin_pulang",
+
+                            label :
+
+                                "Izin Pulang"
+
+                        },
+
+                        {
+
+                            value :
+
+                                "absen",
+
+                            label :
+
+                                "Absen"
+
+                        }
+
+                    ]
 
                 },
 
-                {
 
-                    value :
-
-                        "tabungan",
-
-                    label :
-
-                        "Tabungan"
-
-                },
+                /* =========================================
+                   NOMINAL
+                ========================================= */
 
                 {
 
-                    value :
+                    name :
 
-                        "Jamsostek",
+                        "nominal",
+
 
                     label :
 
-                        "Jamsostek"
-
-                },
-
-                {
-
-                    value :
-
-                        "koperasi",
-
-                    label :
-
-                        "Koperasi"
-
-                },
-
-                {
-
-                    value :
-
-                        "lain-lain",
-
-                    label :
-
-                        "Lain-lain"
-
-                },
+                        "Nominal Potongan",
 
 
-                /* =================================
-                   POTONGAN TELAT
-                ================================= */
+                    type :
 
-                {
+                        "number",
 
-                    value :
 
-                        "telat_1",
+                    placeholder :
 
-                    label :
+                        "Contoh: 40000",
 
-                        "Telat 1"
 
-                },
+                    required :
 
-                {
+                        true,
 
-                    value :
 
-                        "telat_2",
+                    min :
 
-                    label :
+                        0,
 
-                        "Telat 2"
 
-                },
+                    step :
 
-                {
+                        1,
 
-                    value :
 
-                        "telat_3",
+                    note :
 
-                    label :
-
-                        "Telat 3"
-
-                },
-
-                {
-
-                    value :
-
-                        "telat_4",
-
-                    label :
-
-                        "Telat 4"
+                        "Masukkan nominal potongan."
 
                 },
 
 
-                /* =================================
-                   POTONGAN ATTENDANCE
-                ================================= */
+                /* =========================================
+                   NILAI START
+                   
+                   Digunakan untuk Telat 1–4.
+                ========================================= */
 
                 {
 
-                    value :
+                    name :
 
-                        "izin_telat",
+                        "nilai_start",
+
 
                     label :
 
-                        "Izin Telat"
+                        "Nilai Start",
+
+
+                    type :
+
+                        "number",
+
+
+                    placeholder :
+
+                        "Contoh: 1",
+
+
+                    required :
+
+                        false,
+
+
+                    min :
+
+                        1,
+
+
+                    step :
+
+                        1,
+
+
+                    note :
+
+                        "Khusus rule telat. Isi batas awal keterlambatan dalam menit."
 
                 },
 
-                {
 
-                    value :
-
-                        "izin_pulang",
-
-                    label :
-
-                        "Izin Pulang"
-
-                },
+                /* =========================================
+                   NILAI END
+                   
+                   Digunakan untuk Telat 1–4.
+                ========================================= */
 
                 {
 
-                    value :
+                    name :
 
-                        "absen",
+                        "nilai_end",
+
 
                     label :
 
-                        "Absen"
+                        "Nilai End",
+
+
+                    type :
+
+                        "number",
+
+
+                    placeholder :
+
+                        "Contoh: 30",
+
+
+                    required :
+
+                        false,
+
+
+                    min :
+
+                        1,
+
+
+                    step :
+
+                        1,
+
+
+                    note :
+
+                        "Khusus rule telat. Isi batas akhir keterlambatan dalam menit."
 
                 }
 
-            ]
+            ],
 
-        },
 
+            /* =============================================
+               NORMALIZE
+            ============================================= */
 
-        /* =========================================
-           NOMINAL
-        ========================================= */
+            normalize :
 
-        {
+                function(
 
-            name :
-
-                "nominal",
-
-
-            label :
-
-                "Nominal Potongan",
-
-
-            type :
-
-                "number",
-
-
-            placeholder :
-
-                "Contoh: 40000",
-
-
-            required :
-
-                true,
-
-
-            min :
-
-                0,
-
-
-            step :
-
-                1,
-
-
-            note :
-
-                "Masukkan nominal potongan."
-
-        },
-
-
-        /* =========================================
-           NILAI START
-           
-           Dipakai khusus untuk Telat 1–4.
-        ========================================= */
-
-        {
-
-            name :
-
-                "nilai_start",
-
-
-            label :
-
-                "Nilai Start",
-
-
-            type :
-
-                "number",
-
-
-            placeholder :
-
-                "Contoh: 1",
-
-
-            required :
-
-                false,
-
-
-            min :
-
-                1,
-
-
-            step :
-
-                1,
-
-
-            note :
-
-                "Khusus rule telat. Isi batas awal dalam menit. Contoh: 1."
-
-        },
-
-
-        /* =========================================
-           NILAI END
-           
-           Dipakai khusus untuk Telat 1–4.
-        ========================================= */
-
-        {
-
-            name :
-
-                "nilai_end",
-
-
-            label :
-
-                "Nilai End",
-
-
-            type :
-
-                "number",
-
-
-            placeholder :
-
-                "Contoh: 30",
-
-
-            required :
-
-                false,
-
-
-            min :
-
-                1,
-
-
-            step :
-
-                1,
-
-
-            note :
-
-                "Khusus rule telat. Isi batas akhir dalam menit. Contoh: 30."
-
-        }
-
-    ],
-
-
-    /* =============================================
-       NORMALIZE
-    ============================================= */
-
-    normalize :
-
-        function(
-
-            data
-
-        ){
-
-            const nama =
-
-                data.nama;
-
-
-            let kondisi =
-
-                "periode";
-
-
-            let waktu =
-
-                "gaji";
-
-
-            /* =====================================
-               TELAT
-            ===================================== */
-
-            if(
-
-                nama === "telat_1" ||
-
-                nama === "telat_2" ||
-
-                nama === "telat_3" ||
-
-                nama === "telat_4"
-
-            ){
-
-                kondisi =
-
-                    "telat";
-
-
-                waktu =
-
-                    "menit";
-
-            }
-
-
-            /* =====================================
-               IZIN TELAT
-            ===================================== */
-
-            else if(
-
-                nama === "izin_telat"
-
-            ){
-
-                kondisi =
-
-                    "izin_telat";
-
-
-                waktu =
-
-                    "jam";
-
-            }
-
-
-            /* =====================================
-               IZIN PULANG
-            ===================================== */
-
-            else if(
-
-                nama === "izin_pulang"
-
-            ){
-
-                kondisi =
-
-                    "izin_pulang";
-
-
-                waktu =
-
-                    "jam";
-
-            }
-
-
-            /* =====================================
-               ABSEN
-            ===================================== */
-
-            else if(
-
-                nama === "absen"
-
-            ){
-
-                kondisi =
-
-                    "absen";
-
-
-                waktu =
-
-                    "harian";
-
-            }
-
-
-            /* =====================================
-               VALIDATE RANGE TELAT
-            ===================================== */
-
-            if(
-
-                nama === "telat_1" ||
-
-                nama === "telat_2" ||
-
-                nama === "telat_3" ||
-
-                nama === "telat_4"
-
-            ){
-
-                if(
-
-                    data.nilai_start === "" ||
-
-                    data.nilai_end === ""
+                    data
 
                 ){
 
-                    alert(
+                    const nama =
 
-                        "Rule telat wajib memiliki Nilai Start dan Nilai End."
-
-                    );
+                        data.nama;
 
 
-                    return null;
+                    let kondisi =
+
+                        "periode";
+
+
+                    let waktu =
+
+                        "gaji";
+
+
+                    /* =====================================
+                       RULE TELAT
+                    ===================================== */
+
+                    if(
+
+                        nama === "telat_1" ||
+
+                        nama === "telat_2" ||
+
+                        nama === "telat_3" ||
+
+                        nama === "telat_4"
+
+                    ){
+
+                        kondisi =
+
+                            "telat";
+
+
+                        waktu =
+
+                            "menit";
+
+                    }
+
+
+                    /* =====================================
+                       IZIN TELAT
+                    ===================================== */
+
+                    else if(
+
+                        nama === "izin_telat"
+
+                    ){
+
+                        kondisi =
+
+                            "izin_telat";
+
+
+                        waktu =
+
+                            "jam";
+
+                    }
+
+
+                    /* =====================================
+                       IZIN PULANG
+                    ===================================== */
+
+                    else if(
+
+                        nama === "izin_pulang"
+
+                    ){
+
+                        kondisi =
+
+                            "izin_pulang";
+
+
+                        waktu =
+
+                            "jam";
+
+                    }
+
+
+                    /* =====================================
+                       ABSEN
+                    ===================================== */
+
+                    else if(
+
+                        nama === "absen"
+
+                    ){
+
+                        kondisi =
+
+                            "absen";
+
+
+                        waktu =
+
+                            "harian";
+
+                    }
+
+
+                    /* =====================================
+                       VALIDATE RANGE TELAT
+                    ===================================== */
+
+                    if(
+
+                        nama === "telat_1" ||
+
+                        nama === "telat_2" ||
+
+                        nama === "telat_3" ||
+
+                        nama === "telat_4"
+
+                    ){
+
+                        if(
+
+                            data.nilai_start === "" ||
+
+                            data.nilai_end === ""
+
+                        ){
+
+                            alert(
+
+                                "Rule telat wajib memiliki Nilai Start dan Nilai End."
+
+                            );
+
+
+                            return null;
+
+                        }
+
+
+                        if(
+
+                            Number(
+
+                                data.nilai_start
+
+                            )
+
+                            >
+
+                            Number(
+
+                                data.nilai_end
+
+                            )
+
+                        ){
+
+                            alert(
+
+                                "Nilai Start tidak boleh lebih besar dari Nilai End."
+
+                            );
+
+
+                            return null;
+
+                        }
+
+                    }
+
+
+                    /* =====================================
+                       RETURN
+                    ===================================== */
+
+                    return {
+
+                        type_rule :
+
+                            "rule_potong",
+
+
+                        nama :
+
+                            nama,
+
+
+                        kondisi :
+
+                            kondisi,
+
+
+                        waktu :
+
+                            waktu,
+
+
+                        nominal :
+
+                            data.nominal ?? "",
+
+
+                        nilai_start :
+
+                            data.nilai_start ?? "",
+
+
+                        nilai_end :
+
+                            data.nilai_end ?? "",
+
+
+                        berlaku_start :
+
+                            "",
+
+
+                        berlaku_end :
+
+                            ""
+
+                    };
 
                 }
 
-
-                if(
-
-                    Number(
-
-                        data.nilai_start
-
-                    )
-
-                    >
-
-                    Number(
-
-                        data.nilai_end
-
-                    )
-
-                ){
-
-                    alert(
-
-                        "Nilai Start tidak boleh lebih besar dari Nilai End."
-
-                    );
-
-
-                    return null;
-
-                }
-
-            }
-
-
-            /* =====================================
-               RETURN
-            ===================================== */
-
-            return {
-
-                type_rule :
-
-                    "rule_potong",
-
-
-                nama :
-
-                    nama,
-
-
-                kondisi :
-
-                    kondisi,
-
-
-                waktu :
-
-                    waktu,
-
-
-                nominal :
-
-                    data.nominal ?? "",
-
-
-                nilai_start :
-
-                    data.nilai_start ?? "",
-
-
-                nilai_end :
-
-                    data.nilai_end ?? "",
-
-
-                berlaku_start :
-
-                    "",
-
-
-                berlaku_end :
-
-                    ""
-
-            };
-
-        }
-
-}
+        },
 
 
         /* =================================================
@@ -1222,6 +1211,10 @@ export const MonthlySetting = {
                 "Atur tunjangan, uang makan, transport, dan lembur.",
 
 
+            /* =============================================
+               BUTTON
+            ============================================= */
+
             addLabel :
 
                 "＋ Tambah Rule Tambah",
@@ -1237,10 +1230,9 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            autoCloseForm :
-
-                true,
-
+            /* =============================================
+               FIELDS
+            ============================================= */
 
             fields : []
 
