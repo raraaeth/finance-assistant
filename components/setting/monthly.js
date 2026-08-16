@@ -3,19 +3,35 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 1.1.0
+   Version      : 2.0.0
 
    Description :
    Payroll Monthly Setting Definition
 
-   Stage :
-   - Rule Periode : ACTIVE
-   - Rule Gaji    : SKELETON
-   - Attendance   : SKELETON
+   Fokus tahap ini :
+   - Rule Periode
 
-   Principle :
-   - Periode Gaji hanya dapat dibuat satu kali
-   - Rule lain akan dikembangkan bertahap
+   Prinsip :
+   - Periode gaji disimpan sebagai tanggal lengkap
+   - Tidak menggunakan angka tanggal seperti 25 / 24
+   - Format tanggal :
+     YYYY-MM-DD
+
+   Contoh :
+   nilai_start :
+   2026-05-25
+
+   nilai_end :
+   2026-06-24
+
+   Catatan :
+   Period Engine tetap menerima start dan end.
+   Tanggal periode dihitung langsung dari data
+   yang disimpan pada rule.
+
+   Section berikutnya masih skeleton :
+   - Rule Gaji
+   - Rule Attendance
 ===================================================== */
 
 
@@ -46,10 +62,9 @@ export const MonthlySetting = {
 
     sections : [
 
-
-        /* =================================================
+        /* =============================================
            RULE PERIODE
-        ================================================= */
+        ============================================= */
 
         {
 
@@ -65,8 +80,12 @@ export const MonthlySetting = {
 
             description :
 
-                "Aturan periode perhitungan gaji.",
+                "Tentukan tanggal periode perhitungan gaji dan masa aktif rule.",
 
+
+            /* =========================================
+               BUTTON
+            ========================================= */
 
             addLabel :
 
@@ -83,26 +102,15 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            /* ---------------------------------------------
-               FIELD YANG DIANGGAP UNIK
-               
-               Artinya:
-               nama yang sama tidak boleh dibuat lagi
-               di section ini.
-            --------------------------------------------- */
-
-            uniqueFields : [
-
-                "nama"
-
-            ],
-
+            /* =========================================
+               FIELDS
+            ========================================= */
 
             fields : [
 
-                /* -----------------------------------------
+                /* -------------------------------------
                    NAMA
-                ----------------------------------------- */
+                ------------------------------------- */
 
                 {
 
@@ -110,40 +118,37 @@ export const MonthlySetting = {
 
                         "nama",
 
+
                     label :
 
-                        "Nama",
+                        "Nama Rule",
+
 
                     type :
 
-                        "select",
+                        "text",
+
+
+                    value :
+
+                        "periode_gaji",
+
+
+                    placeholder :
+
+                        "Contoh: periode_gaji",
+
 
                     required :
 
-                        true,
-
-                    options : [
-
-                        {
-
-                            value :
-
-                                "periode_gaji",
-
-                            label :
-
-                                "Periode Gaji"
-
-                        }
-
-                    ]
+                        true
 
                 },
 
 
-                /* -----------------------------------------
+                /* -------------------------------------
                    WAKTU
-                ----------------------------------------- */
+                ------------------------------------- */
 
                 {
 
@@ -151,17 +156,21 @@ export const MonthlySetting = {
 
                         "waktu",
 
+
                     label :
 
                         "Waktu",
+
 
                     type :
 
                         "select",
 
+
                     required :
 
                         true,
+
 
                     options : [
 
@@ -182,9 +191,9 @@ export const MonthlySetting = {
                 },
 
 
-                /* -----------------------------------------
-                   MULAI TANGGAL
-                ----------------------------------------- */
+                /* -------------------------------------
+                   NILAI START
+                ------------------------------------- */
 
                 {
 
@@ -192,36 +201,32 @@ export const MonthlySetting = {
 
                         "nilai_start",
 
+
                     label :
 
-                        "Mulai tanggal",
+                        "Tentukan periode tanggal perhitungan gaji dimulai",
+
 
                     type :
 
-                        "number",
+                        "text",
 
-                    required :
-
-                        true,
-
-                    min :
-
-                        1,
-
-                    max :
-
-                        31,
 
                     placeholder :
 
-                        "Contoh: 28"
+                        "Contoh: 2026-05-25",
+
+
+                    required :
+
+                        true
 
                 },
 
 
-                /* -----------------------------------------
-                   SAMPAI TANGGAL
-                ----------------------------------------- */
+                /* -------------------------------------
+                   NILAI END
+                ------------------------------------- */
 
                 {
 
@@ -229,36 +234,32 @@ export const MonthlySetting = {
 
                         "nilai_end",
 
+
                     label :
 
-                        "Sampai tanggal",
+                        "Tentukan periode tanggal perhitungan gaji berakhir",
+
 
                     type :
 
-                        "number",
+                        "text",
 
-                    required :
-
-                        true,
-
-                    min :
-
-                        1,
-
-                    max :
-
-                        31,
 
                     placeholder :
 
-                        "Contoh: 27"
+                        "Contoh: 2026-06-24",
+
+
+                    required :
+
+                        true
 
                 },
 
 
-                /* -----------------------------------------
-                   PERIODE AKTIF MULAI
-                ----------------------------------------- */
+                /* -------------------------------------
+                   BERLAKU START
+                ------------------------------------- */
 
                 {
 
@@ -266,13 +267,21 @@ export const MonthlySetting = {
 
                         "berlaku_start",
 
+
                     label :
 
-                        "Periode Aktif Mulai",
+                        "Kapan Periode Aktif gaji ini dimulai",
+
 
                     type :
 
-                        "date",
+                        "text",
+
+
+                    placeholder :
+
+                        "Contoh: 2026-05-25",
+
 
                     required :
 
@@ -281,9 +290,9 @@ export const MonthlySetting = {
                 },
 
 
-                /* -----------------------------------------
-                   PERIODE AKTIF SAMPAI
-                ----------------------------------------- */
+                /* -------------------------------------
+                   BERLAKU END
+                ------------------------------------- */
 
                 {
 
@@ -291,13 +300,21 @@ export const MonthlySetting = {
 
                         "berlaku_end",
 
+
                     label :
 
-                        "Periode Aktif Sampai",
+                        "Kapan Periode Aktif gaji ini diakhiri",
+
 
                     type :
 
-                        "date",
+                        "text",
+
+
+                    placeholder :
+
+                        "Contoh: 2026-06-24",
+
 
                     required :
 
@@ -305,31 +322,15 @@ export const MonthlySetting = {
 
                 }
 
-            ],
-
-
-            /* ---------------------------------------------
-               NORMALIZE
-            --------------------------------------------- */
-
-            normalize :
-
-                data => ({
-
-                    type_rule :
-
-                        "rule_periode",
-
-                    ...data
-
-                })
+            ]
 
         },
 
 
-        /* =================================================
+        /* =============================================
            RULE GAJI
-        ================================================= */
+           SKELETON
+        ============================================= */
 
         {
 
@@ -348,14 +349,19 @@ export const MonthlySetting = {
                 "Aturan gaji, tambahan dan potongan.",
 
 
-            skeleton :
-
-                true,
-
-
             addLabel :
 
-                "Segera",
+                "＋ Tambah",
+
+
+            formAddLabel :
+
+                "＋ Tambahkan",
+
+
+            deleteLabel :
+
+                "Hapus",
 
 
             fields : []
@@ -363,9 +369,10 @@ export const MonthlySetting = {
         },
 
 
-        /* =================================================
+        /* =============================================
            RULE ATTENDANCE
-        ================================================= */
+           SKELETON
+        ============================================= */
 
         {
 
@@ -384,14 +391,19 @@ export const MonthlySetting = {
                 "Aturan masuk, telat, izin dan lembur.",
 
 
-            skeleton :
-
-                true,
-
-
             addLabel :
 
-                "Segera",
+                "＋ Tambah",
+
+
+            formAddLabel :
+
+                "＋ Tambahkan",
+
+
+            deleteLabel :
+
+                "Hapus",
 
 
             fields : []
