@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 4.1.0
+   Version      : 4.2.0
 
    Description :
    Global Setting Controller
@@ -17,6 +17,9 @@
    - Render Dynamic Fields
    - Custom Select
    - Conditional Fields
+   - Dynamic Select
+   - Field Note
+   - Option Note Override
    - Collect Input
    - Normalize Input
    - Render Result
@@ -213,7 +216,9 @@ export const Setting = {
 
                 if(
 
-                    event.key === "Escape"
+                    event.key ===
+
+                    "Escape"
 
                 ){
 
@@ -1549,40 +1554,38 @@ function renderField(
 
         /* =============================================
            FIELD NOTE
+           
+           Note selalu dibuat untuk select.
+           Jika field.note kosong tetapi option
+           mempunyai note, note tetap tersedia
+           dan akan diisi saat option dipilih.
         ============================================= */
 
-        if(
+        const note =
 
-            field.note
+            document.createElement(
 
-        ){
-
-            const note =
-
-                document.createElement(
-
-                    "small"
-
-                );
-
-
-            note.className =
-
-                "global-setting-field-note";
-
-
-            note.textContent =
-
-                field.note;
-
-
-            wrapper.appendChild(
-
-                note
+                "small"
 
             );
 
-        }
+
+        note.className =
+
+            "global-setting-field-note";
+
+
+        note.textContent =
+
+            field.note ??
+
+            "";
+
+        wrapper.appendChild(
+
+            note
+
+        );
 
 
         container.appendChild(
@@ -1774,9 +1777,13 @@ function applyFieldAttributes(
     input.id =
 
         `setting-${
+
             currentWorkspace
+
         }-${
+
             field.name
+
         }`;
 
 
@@ -2018,9 +2025,13 @@ function renderCustomSelect(
     hidden.id =
 
         `setting-${
+
             currentWorkspace
+
         }-${
+
             field.name
+
         }`;
 
 
@@ -2109,7 +2120,6 @@ function renderCustomSelect(
     );
 
 }
-
 
 /* =====================================================
    OPEN CUSTOM PICKER
@@ -2249,11 +2259,11 @@ function openCustomPicker(
 
                     "object"
 
-                    ?
+                        ?
 
                     option.value
 
-                    :
+                        :
 
                     option;
 
@@ -2264,13 +2274,13 @@ function openCustomPicker(
 
                     "object"
 
-                    ?
+                        ?
 
                     option.label ??
 
                     option.value
 
-                    :
+                        :
 
                     option;
 
@@ -2361,6 +2371,10 @@ function openCustomPicker(
 
                 `;
 
+
+                /* =================================
+                   SELECT OPTION
+                ================================= */
 
                 item.addEventListener(
 
@@ -2516,10 +2530,18 @@ function selectCustomOption(
 
 ){
 
+    /* =============================================
+       SAVE VALUE
+    ============================================= */
+
     hidden.value =
 
         value;
 
+
+    /* =============================================
+       UPDATE LABEL
+    ============================================= */
 
     const valueElement =
 
@@ -2544,7 +2566,14 @@ function selectCustomOption(
 
 
     /* =============================================
-       UPDATE OPTION NOTE
+       UPDATE NOTE
+       
+       PRIORITY :
+       option.note
+       ↓
+       field.note
+       ↓
+       empty
     ============================================= */
 
     const wrapper =
@@ -2571,17 +2600,28 @@ function selectCustomOption(
 
     ){
 
-        const optionNote =
-
-            typeof option === "object"
-
-                ?
-
-            option.note
-
-                :
+        let optionNote =
 
             "";
+
+
+        if(
+
+            option &&
+
+            typeof option ===
+
+            "object"
+
+        ){
+
+            optionNote =
+
+                option.note ??
+
+                "";
+
+        }
 
 
         noteElement.textContent =
@@ -2595,6 +2635,10 @@ function selectCustomOption(
     }
 
 
+    /* =============================================
+       STATE
+    ============================================= */
+
     button.classList.add(
 
         "has-value"
@@ -2604,6 +2648,7 @@ function selectCustomOption(
 
     /* =============================================
        CHANGE EVENT
+       
        Penting untuk conditional fields.
     ============================================= */
 
@@ -2706,11 +2751,20 @@ function getOptionLabel(
     }
 
 
+    const options =
+
+        getFieldOptions(
+
+            field
+
+        );
+
+
     if(
 
         !Array.isArray(
 
-            field.options
+            options
 
         )
 
@@ -2723,7 +2777,7 @@ function getOptionLabel(
 
     const option =
 
-        field.options.find(
+        options.find(
 
             item => {
 
@@ -2733,11 +2787,11 @@ function getOptionLabel(
 
                     "object"
 
-                    ?
+                        ?
 
                     item.value
 
-                    :
+                        :
 
                     item;
 
@@ -2780,15 +2834,150 @@ function getOptionLabel(
 
         "object"
 
-        ?
+            ?
 
         option.label ??
 
         option.value
 
-        :
+            :
 
         option;
+
+}
+
+
+/* =====================================================
+   GET OPTION NOTE
+===================================================== */
+
+function getOptionNote(
+
+    field,
+
+    value
+
+){
+
+    if(
+
+        value === undefined ||
+
+        value === null ||
+
+        value === ""
+
+    ){
+
+        return (
+
+            field.note ??
+
+            ""
+
+        );
+
+    }
+
+
+    const options =
+
+        getFieldOptions(
+
+            field
+
+        );
+
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        return (
+
+            field.note ??
+
+            ""
+
+        );
+
+    }
+
+
+    const option =
+
+        options.find(
+
+            item => {
+
+                const optionValue =
+
+                    typeof item ===
+
+                    "object"
+
+                        ?
+
+                    item.value
+
+                        :
+
+                    item;
+
+
+                return (
+
+                    String(
+
+                        optionValue
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    )
+
+                );
+
+            }
+
+        );
+
+
+    if(
+
+        option &&
+
+        typeof option ===
+
+        "object" &&
+
+        option.note
+
+    ){
+
+        return option.note;
+
+    }
+
+
+    return (
+
+        field.note ??
+
+        ""
+
+    );
 
 }
 
@@ -3074,7 +3263,9 @@ function updateConditionalFields(
                SHOULD SHOW
             ============================================= */
 
-            let shouldShow = false;
+            let shouldShow =
+
+                false;
 
 
             /* =============================================
@@ -3251,7 +3442,7 @@ function getFirstVisibleInput(
 
                 ".global-setting-field"
 
-            );
+        );
 
 
         if(
@@ -3285,6 +3476,7 @@ function getFirstVisibleInput(
     return null;
 
 }
+
 
 /* =====================================================
    ADD RESULT
@@ -3651,7 +3843,6 @@ function addResult(
 
 }
 
-
 /* =====================================================
    COLLECT FORM DATA
 ===================================================== */
@@ -3743,7 +3934,9 @@ function collectFormData(
 
             ){
 
-                let shouldCollect = false;
+                let shouldCollect =
+
+                    false;
 
 
                 /* =====================================
@@ -3901,10 +4094,9 @@ function collectFormData(
             );
 
 
-            /*
-             * Hidden input dari custom select
-             * tidak bisa di-focus seperti field biasa.
-             */
+            /* =====================================
+               HIDDEN INPUT
+            ===================================== */
 
             if(
 
@@ -4060,7 +4252,9 @@ function isDuplicate(
 
                             String(
 
-                                existing[field] ?? ""
+                                existing[field] ??
+
+                                ""
 
                             )
 
@@ -4068,7 +4262,9 @@ function isDuplicate(
 
                             String(
 
-                                data[field] ?? ""
+                                data[field] ??
+
+                                ""
 
                             )
 
@@ -4173,6 +4369,10 @@ function resetForm(
             }
 
 
+            /* =========================================
+               CHECKBOX
+            ========================================= */
+
             if(
 
                 field.type ===
@@ -4191,6 +4391,11 @@ function resetForm(
 
             }
 
+
+            /* =========================================
+               OTHER
+            ========================================= */
+
             else{
 
                 input.value =
@@ -4202,9 +4407,9 @@ function resetForm(
             }
 
 
-            /* =====================================
+            /* =========================================
                CUSTOM SELECT DISPLAY
-            ===================================== */
+            ========================================= */
 
             if(
 
@@ -4236,6 +4441,10 @@ function resetForm(
                     );
 
 
+                /* =====================================
+                   RESET LABEL
+                ===================================== */
+
                 if(
 
                     valueElement
@@ -4263,6 +4472,10 @@ function resetForm(
                 }
 
 
+                /* =====================================
+                   RESET BUTTON STATE
+                ===================================== */
+
                 if(
 
                     button
@@ -4281,21 +4494,23 @@ function resetForm(
 
 
                 /* =====================================
-                   RESET SELECT NOTE
+                   RESET NOTE
+                   
+                   PRIORITY :
+                   option.note
+                   ↓
+                   field.note
+                   ↓
+                   empty
                 ===================================== */
 
-                const wrapper =
+                const noteElement =
 
                     button?.closest(
 
                         ".global-setting-field"
 
-                    );
-
-
-                const noteElement =
-
-                    wrapper?.querySelector(
+                    )?.querySelector(
 
                         ".global-setting-field-note"
 
@@ -4308,110 +4523,15 @@ function resetForm(
 
                 ){
 
-                    let resetNote =
-
-                        field.note ??
-
-                        "";
-
-
-                    if(
-
-                        input.value !== ""
-
-                    ){
-
-                        const options =
-
-                            getFieldOptions(
-
-                                field
-
-                            );
-
-
-                        if(
-
-                            Array.isArray(
-
-                                options
-
-                            )
-
-                        ){
-
-                            const selectedOption =
-
-                                options.find(
-
-                                    option => {
-
-                                        const optionValue =
-
-                                            typeof option ===
-
-                                            "object"
-
-                                            ?
-
-                                            option.value
-
-                                            :
-
-                                            option;
-
-
-                                        return (
-
-                                            String(
-
-                                                optionValue
-
-                                            )
-
-                                            ===
-
-                                            String(
-
-                                                input.value
-
-                                            )
-
-                                        );
-
-                                    }
-
-                                );
-
-
-                            if(
-
-                                selectedOption &&
-
-                                typeof selectedOption ===
-
-                                "object"
-
-                            ){
-
-                                resetNote =
-
-                                    selectedOption.note ||
-
-                                    field.note ||
-
-                                    "";
-
-                            }
-
-                        }
-
-                    }
-
-
                     noteElement.textContent =
 
-                        resetNote;
+                        getOptionNote(
+
+                            field,
+
+                            input.value
+
+                        );
 
                 }
 
@@ -4454,10 +4574,9 @@ function resetForm(
 
     ){
 
-        /*
-         * Jangan focus hidden input dari
-         * custom select.
-         */
+        /* =========================================
+           Jangan focus hidden input custom select.
+        ========================================= */
 
         if(
 
@@ -4512,14 +4631,6 @@ function formatResultValue(
         field.type ===
 
         "select"
-
-        &&
-
-        Array.isArray(
-
-            field.options
-
-        )
 
     ){
 
