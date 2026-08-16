@@ -2930,9 +2930,31 @@ function updateConditionalFields(
                 return;
 
             }
+/* =============================================
+   SHOULD SHOW
+============================================= */
 
+            let shouldShow = false;
 
-            const shouldShow =
+/* =============================================
+   MULTIPLE VALUES
+   ============================================= */
+
+if(
+
+    Array.isArray(
+
+        field.dependsOn.values
+
+    )
+
+){
+
+    shouldShow =
+
+        field.dependsOn.values.some(
+
+            value =>
 
                 String(
 
@@ -2944,11 +2966,47 @@ function updateConditionalFields(
 
                 String(
 
-                    field.dependsOn.value
+                    value
 
-                );
+                )
+
+        );
+
+}
 
 
+/* =============================================
+   SINGLE VALUE
+   ============================================= */
+
+else if(
+
+    field.dependsOn.value !== undefined
+
+){
+
+    shouldShow =
+
+        String(
+
+            controller.value
+
+        )
+
+        ===
+
+        String(
+
+            field.dependsOn.value
+
+        );
+
+}
+
+/* =============================================
+   APPLY STATE
+============================================= */
+           
             if(
 
                 shouldShow
