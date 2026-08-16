@@ -2334,13 +2334,17 @@ if(
 
                         value,
 
-                        label,
+            label,
 
-                        button,
+            option,
 
-                        hidden,
+            field,
 
-                        picker
+            button,
+
+            hidden,
+
+            picker
 
                     );
 
@@ -2462,6 +2466,10 @@ function selectCustomOption(
 
     label,
 
+    option,
+
+    field,
+
     button,
 
     hidden,
@@ -2495,6 +2503,57 @@ function selectCustomOption(
             label;
 
     }
+
+   /* =============================================
+   UPDATE OPTION NOTE
+============================================= */
+
+const wrapper =
+
+    button.closest(
+
+        ".global-setting-field"
+
+    );
+
+
+const noteElement =
+
+    wrapper?.querySelector(
+
+        ".global-setting-field-note"
+
+    );
+
+
+if(
+
+    noteElement
+
+){
+
+    const optionNote =
+
+        typeof option === "object"
+
+            ?
+
+        option.note
+
+            :
+
+        "";
+
+
+    noteElement.textContent =
+
+        optionNote ||
+
+        field.note ||
+
+        "";
+
+}
 
 
     button.classList.add(
