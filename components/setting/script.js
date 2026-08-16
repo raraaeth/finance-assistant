@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 4.0.0
+   Version      : 4.1.0
 
    Description :
    Global Setting Controller
@@ -15,6 +15,7 @@
    - Module Registry
    - Render Section
    - Render Dynamic Fields
+   - Custom Select
    - Conditional Fields
    - Collect Input
    - Normalize Input
@@ -419,6 +420,9 @@ export const Setting = {
 
     close(){
 
+        closeCustomPicker();
+
+
         const overlay =
 
             document.getElementById(
@@ -460,6 +464,9 @@ export const Setting = {
     ================================================= */
 
     confirm(){
+
+        closeCustomPicker();
+
 
         const data =
 
@@ -743,6 +750,13 @@ function renderContent(
 
 
     /* =============================================
+       CLOSE OLD PICKER
+    ============================================= */
+
+    closeCustomPicker();
+
+
+    /* =============================================
        VALIDATE
     ============================================= */
 
@@ -1000,6 +1014,9 @@ function toggleForm(
 
     ){
 
+        closeCustomPicker();
+
+
         form.classList.add(
 
             "hidden"
@@ -1060,6 +1077,9 @@ function renderForm(
         return;
 
     }
+
+
+    closeCustomPicker();
 
 
     form.classList.remove(
@@ -1305,14 +1325,9 @@ function renderField(
 
 
     /* =============================================
-       FIELD
-    ============================================= */
-
-    let input;
-
-
-    /* =============================================
-       SELECT
+       CUSTOM SELECT
+       Semua type "select" otomatis
+       menggunakan picker custom.
     ============================================= */
 
     if(
@@ -1323,141 +1338,39 @@ function renderField(
 
     ){
 
-        input =
+        renderCustomSelect(
 
-            document.createElement(
+            wrapper,
 
-                "select"
-
-            );
-
-
-        /* -----------------------------------------
-           PLACEHOLDER OPTION
-        ----------------------------------------- */
-
-        const placeholder =
-
-            document.createElement(
-
-                "option"
-
-            );
-
-
-        placeholder.value =
-
-            "";
-
-
-        placeholder.textContent =
-
-            field.placeholder ??
-
-            "Pilih...";
-
-
-        placeholder.disabled =
-
-            false;
-
-
-        placeholder.selected =
-
-            true;
-
-
-        input.appendChild(
-
-            placeholder
+            field
 
         );
 
 
-        /* -----------------------------------------
-           OPTIONS
-        ----------------------------------------- */
+        container.appendChild(
 
-        if(
+            wrapper
 
-            Array.isArray(
-
-                field.options
-
-            )
-
-        ){
-
-            field.options.forEach(
-
-                option => {
-
-                    const optionElement =
-
-                        document.createElement(
-
-                            "option"
-
-                        );
+        );
 
 
-                    if(
-
-                        typeof option ===
-
-                        "object"
-
-                    ){
-
-                        optionElement.value =
-
-                            option.value ?? "";
-
-
-                        optionElement.textContent =
-
-                            option.label ??
-
-                            option.value ??
-
-                            "";
-
-                    }
-
-                    else{
-
-                        optionElement.value =
-
-                            option;
-
-
-                        optionElement.textContent =
-
-                            option;
-
-                    }
-
-
-                    input.appendChild(
-
-                        optionElement
-
-                    );
-
-                }
-
-            );
-
-        }
+        return;
 
     }
+
+
+    /* =============================================
+       FIELD
+    ============================================= */
+
+    let input;
 
 
     /* =============================================
        TEXTAREA
     ============================================= */
 
-    else if(
+    if(
 
         field.type ===
 
@@ -1532,6 +1445,47 @@ function renderField(
        COMMON ATTRIBUTES
     ============================================= */
 
+    applyFieldAttributes(
+
+        input,
+
+        field
+
+    );
+
+
+    /* =============================================
+       APPEND INPUT
+    ============================================= */
+
+    wrapper.appendChild(
+
+        input
+
+    );
+
+
+    container.appendChild(
+
+        wrapper
+
+    );
+
+}
+
+
+/* =====================================================
+   APPLY FIELD ATTRIBUTES
+===================================================== */
+
+function applyFieldAttributes(
+
+    input,
+
+    field
+
+){
+
     input.name =
 
         field.name;
@@ -1553,10 +1507,6 @@ function renderField(
     if(
 
         field.placeholder
-
-        &&
-
-        field.type !== "select"
 
     ){
 
@@ -1653,23 +1603,851 @@ function renderField(
 
     }
 
+}
+
+
+/* =====================================================
+   RENDER CUSTOM SELECT
+===================================================== */
+
+function renderCustomSelect(
+
+    wrapper,
+
+    field
+
+){
 
     /* =============================================
-       APPEND INPUT
+       SELECT BUTTON
+    ============================================= */
+
+    const button =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    button.type =
+
+        "button";
+
+
+    button.className =
+
+        "global-setting-custom-select";
+
+
+    button.dataset.name =
+
+        field.name;
+
+
+    /* =============================================
+       VALUE
+    ============================================= */
+
+    const valueElement =
+
+        document.createElement(
+
+            "span"
+
+        );
+
+
+    valueElement.className =
+
+        "global-setting-custom-value";
+
+
+    valueElement.textContent =
+
+        getOptionLabel(
+
+            field,
+
+            field.value
+
+        ) ??
+
+        field.placeholder ??
+
+        "Pilih...";
+
+
+    /* =============================================
+       ARROW
+    ============================================= */
+
+    const arrow =
+
+        document.createElement(
+
+            "span"
+
+        );
+
+
+    arrow.className =
+
+        "global-setting-custom-arrow";
+
+
+    arrow.textContent =
+
+        "▾";
+
+
+    button.appendChild(
+
+        valueElement
+
+    );
+
+
+    button.appendChild(
+
+        arrow
+
+    );
+
+
+    /* =============================================
+       HIDDEN VALUE
+    ============================================= */
+
+    const hidden =
+
+        document.createElement(
+
+            "input"
+
+        );
+
+
+    hidden.type =
+
+        "hidden";
+
+
+    hidden.name =
+
+        field.name;
+
+
+    hidden.id =
+
+        `setting-${
+
+            currentWorkspace
+
+        }-${
+
+            field.name
+
+        }`;
+
+
+    hidden.value =
+
+        field.value ??
+
+        "";
+
+
+    if(
+
+        field.required
+
+    ){
+
+        hidden.dataset.required =
+
+            "true";
+
+    }
+
+
+    /* =============================================
+       APPEND
     ============================================= */
 
     wrapper.appendChild(
 
-        input
+        button
 
     );
 
 
-    container.appendChild(
+    wrapper.appendChild(
 
-        wrapper
+        hidden
 
     );
+
+
+    /* =============================================
+       STATE
+    ============================================= */
+
+    if(
+
+        hidden.value !== ""
+
+    ){
+
+        button.classList.add(
+
+            "has-value"
+
+        );
+
+    }
+
+
+    /* =============================================
+       OPEN PICKER
+    ============================================= */
+
+    button.addEventListener(
+
+        "click",
+
+        event => {
+
+            event.preventDefault();
+
+
+            openCustomPicker(
+
+                field,
+
+                button,
+
+                hidden
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   OPEN CUSTOM PICKER
+===================================================== */
+
+function openCustomPicker(
+
+    field,
+
+    button,
+
+    hidden
+
+){
+
+    closeCustomPicker();
+
+
+    /* =============================================
+       PICKER
+    ============================================= */
+
+    const picker =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    picker.className =
+
+        "global-setting-picker";
+
+
+    picker.innerHTML =
+
+    `
+
+        <div
+            class="global-setting-picker-backdrop">
+
+        </div>
+
+
+        <div
+            class="global-setting-picker-panel">
+
+
+            <div
+                class="global-setting-picker-header">
+
+
+                <strong>
+
+                    ${escapeHTML(
+
+                        field.label ??
+
+                        "Pilih"
+
+                    )}
+
+                </strong>
+
+
+                <button
+                    type="button"
+                    class="global-setting-picker-close">
+
+                    ×
+
+                </button>
+
+
+            </div>
+
+
+            <div
+                class="global-setting-picker-list">
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+
+        picker
+
+    );
+
+
+    const list =
+
+        picker.querySelector(
+
+            ".global-setting-picker-list"
+
+        );
+
+
+    /* =============================================
+       OPTIONS
+    ============================================= */
+
+    if(
+
+        Array.isArray(
+
+            field.options
+
+        )
+
+    ){
+
+        field.options.forEach(
+
+            option => {
+
+                const value =
+
+                    typeof option ===
+
+                    "object"
+
+                        ?
+
+                    option.value
+
+                        :
+
+                    option;
+
+
+                const label =
+
+                    typeof option ===
+
+                    "object"
+
+                        ?
+
+                    option.label ??
+
+                    option.value
+
+                        :
+
+                    option;
+
+
+                const item =
+
+                    document.createElement(
+
+                        "button"
+
+                    );
+
+
+                item.type =
+
+                    "button";
+
+
+                item.className =
+
+                    "global-setting-picker-option";
+
+
+                const selected =
+
+                    String(
+
+                        hidden.value
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    );
+
+
+                if(
+
+                    selected
+
+                ){
+
+                    item.classList.add(
+
+                        "selected"
+
+                    );
+
+                }
+
+
+                item.innerHTML =
+
+                `
+
+                    <span>
+
+                        ${escapeHTML(
+
+                            label
+
+                        )}
+
+                    </span>
+
+
+                    <span class="picker-radio">
+
+                        ${
+
+                            selected
+
+                                ?
+
+                            "●"
+
+                                :
+
+                            "○"
+
+                        }
+
+                    </span>
+
+                `;
+
+
+                item.addEventListener(
+
+                    "click",
+
+                    () => {
+
+                        selectCustomOption(
+
+                            value,
+
+                            label,
+
+                            button,
+
+                            hidden,
+
+                            picker
+
+                        );
+
+                    }
+
+                );
+
+
+                list.appendChild(
+
+                    item
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    /* =============================================
+       CLOSE EVENTS
+    ============================================= */
+
+    const closeButton =
+
+        picker.querySelector(
+
+            ".global-setting-picker-close"
+
+        );
+
+
+    const backdrop =
+
+        picker.querySelector(
+
+            ".global-setting-picker-backdrop"
+
+        );
+
+
+    if(
+
+        closeButton
+
+    ){
+
+        closeButton.addEventListener(
+
+            "click",
+
+            closeCustomPicker
+
+        );
+
+    }
+
+
+    if(
+
+        backdrop
+
+    ){
+
+        backdrop.addEventListener(
+
+            "click",
+
+            closeCustomPicker
+
+        );
+
+    }
+
+
+    /* =============================================
+       ESC
+    ============================================= */
+
+    picker._escapeHandler =
+
+        event => {
+
+            if(
+
+                event.key ===
+
+                "Escape"
+
+            ){
+
+                closeCustomPicker();
+
+            }
+
+        };
+
+
+    document.addEventListener(
+
+        "keydown",
+
+        picker._escapeHandler
+
+    );
+
+}
+
+
+/* =====================================================
+   SELECT CUSTOM OPTION
+===================================================== */
+
+function selectCustomOption(
+
+    value,
+
+    label,
+
+    button,
+
+    hidden,
+
+    picker
+
+){
+
+    hidden.value =
+
+        value;
+
+
+    const valueElement =
+
+        button.querySelector(
+
+            ".global-setting-custom-value"
+
+        );
+
+
+    if(
+
+        valueElement
+
+    ){
+
+        valueElement.textContent =
+
+            label;
+
+    }
+
+
+    button.classList.add(
+
+        "has-value"
+
+    );
+
+
+    /* =============================================
+       CHANGE EVENT
+       Penting untuk conditional fields.
+    ============================================= */
+
+    hidden.dispatchEvent(
+
+        new Event(
+
+            "change",
+
+            {
+
+                bubbles :
+
+                    true
+
+            }
+
+        )
+
+    );
+
+
+    closeCustomPicker();
+
+}
+
+
+/* =====================================================
+   CLOSE CUSTOM PICKER
+===================================================== */
+
+function closeCustomPicker(){
+
+    const picker =
+
+        document.querySelector(
+
+            ".global-setting-picker"
+
+        );
+
+
+    if(
+
+        !picker
+
+    ){
+
+        return;
+
+    }
+
+
+    if(
+
+        picker._escapeHandler
+
+    ){
+
+        document.removeEventListener(
+
+            "keydown",
+
+            picker._escapeHandler
+
+        );
+
+    }
+
+
+    picker.remove();
+
+}
+
+
+/* =====================================================
+   GET OPTION LABEL
+===================================================== */
+
+function getOptionLabel(
+
+    field,
+
+    value
+
+){
+
+    if(
+
+        value === undefined ||
+
+        value === null ||
+
+        value === ""
+
+    ){
+
+        return "";
+
+    }
+
+
+    if(
+
+        !Array.isArray(
+
+            field.options
+
+        )
+
+    ){
+
+        return value;
+
+    }
+
+
+    const option =
+
+        field.options.find(
+
+            item => {
+
+                const optionValue =
+
+                    typeof item ===
+
+                    "object"
+
+                        ?
+
+                    item.value
+
+                        :
+
+                    item;
+
+
+                return (
+
+                    String(
+
+                        optionValue
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    )
+
+                );
+
+            }
+
+        );
+
+
+    if(
+
+        option === undefined
+
+    ){
+
+        return value;
+
+    }
+
+
+    return typeof option ===
+
+        "object"
+
+            ?
+
+        option.label ??
+
+        option.value
+
+            :
+
+        option;
 
 }
 
@@ -2169,7 +2947,9 @@ function addResult(
 
                     field.dependsOn &&
 
-                    !data.hasOwnProperty(
+                    !Object.prototype.hasOwnProperty.call(
+
+                        data,
 
                         field.name
 
@@ -2520,7 +3300,54 @@ function collectFormData(
             );
 
 
-            input.focus();
+            /*
+             * Hidden input dari custom select
+             * tidak bisa di-focus seperti field biasa.
+             */
+
+            if(
+
+                input.type ===
+
+                "hidden"
+
+            ){
+
+                const wrapper =
+
+                    input.closest(
+
+                        ".global-setting-field"
+
+                    );
+
+
+                const button =
+
+                    wrapper?.querySelector(
+
+                        ".global-setting-custom-select"
+
+                    );
+
+
+                if(
+
+                    button
+
+                ){
+
+                    button.focus();
+
+                }
+
+            }
+
+            else{
+
+                input.focus();
+
+            }
 
 
             return null;
@@ -2719,6 +3546,86 @@ function resetForm(
 
             }
 
+
+            /* =====================================
+               CUSTOM SELECT DISPLAY
+            ===================================== */
+
+            if(
+
+                field.type ===
+
+                "select"
+
+            ){
+
+                const button =
+
+                    form.querySelector(
+
+                        `.global-setting-custom-select[data-name="${escapeSelector(
+
+                            field.name
+
+                        )}"]`
+
+                    );
+
+
+                const valueElement =
+
+                    button?.querySelector(
+
+                        ".global-setting-custom-value"
+
+                    );
+
+
+                if(
+
+                    valueElement
+
+                ){
+
+                    valueElement.textContent =
+
+                        getOptionLabel(
+
+                            field,
+
+                            input.value
+
+                        )
+
+                        ||
+
+                        field.placeholder
+
+                        ||
+
+                        "Pilih...";
+
+                }
+
+
+                if(
+
+                    button
+
+                ){
+
+                    button.classList.toggle(
+
+                        "has-value",
+
+                        input.value !== ""
+
+                    );
+
+                }
+
+            }
+
         }
 
     );
@@ -2756,7 +3663,22 @@ function resetForm(
 
     ){
 
-        firstVisibleInput.focus();
+        /*
+         * Jangan focus hidden input dari
+         * custom select.
+         */
+
+        if(
+
+            firstVisibleInput.type !==
+
+            "hidden"
+
+        ){
+
+            firstVisibleInput.focus();
+
+        }
 
     }
 
@@ -2810,79 +3732,13 @@ function formatResultValue(
 
     ){
 
-        const option =
+        return getOptionLabel(
 
-            field.options.find(
+            field,
 
-                item => {
+            value
 
-                    if(
-
-                        typeof item ===
-
-                        "object"
-
-                    ){
-
-                        return (
-
-                            String(
-
-                                item.value
-
-                            )
-
-                            ===
-
-                            String(
-
-                                value
-
-                            )
-
-                        );
-
-                    }
-
-
-                    return (
-
-                        String(
-
-                            item
-
-                        )
-
-                        ===
-
-                        String(
-
-                            value
-
-                        )
-
-                    );
-
-                }
-
-            );
-
-
-        if(
-
-            option &&
-
-            typeof option ===
-
-            "object"
-
-        ){
-
-            return option.label ??
-
-                option.value;
-
-        }
+        );
 
     }
 
