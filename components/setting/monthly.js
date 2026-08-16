@@ -742,7 +742,10 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Izin Telat"
+                                "Izin Telat",
+                           
+                            note :
+                           "Masukkan nominal potongan per jam."
 
                         },
 
@@ -756,7 +759,11 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Izin Pulang"
+                                "Izin Pulang",
+
+                           note :
+                           "Masukkan nominal potongan per jam."
+                           
 
                         },
 
@@ -770,7 +777,10 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Absen"
+                                "Absen",
+                           
+                             note :
+                           "Masukkan nominal potongan per hari."
 
                         }
 
