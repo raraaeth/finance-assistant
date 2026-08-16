@@ -8,9 +8,21 @@
    Description :
    Payroll Monthly Setting Definition
 
-   Sections :
-   - Periode Gaji
-   - Rule Gaji
+   Rule Periode :
+   - UI hanya menampilkan 4 tanggal
+   - Data internal otomatis:
+       type_rule      = rule_periode
+       nama           = gaji
+       kondisi        = gaji_pokok
+       waktu          = bulanan
+
+   Periode Perhitungan Gaji :
+   - nilai_start
+   - nilai_end
+
+   Periode Aktif Gaji :
+   - periode_start
+   - periode_end
 ===================================================== */
 
 
@@ -41,16 +53,15 @@ export const MonthlySetting = {
 
     sections : [
 
-
         /* =============================================
-           PERIODE GAJI
+           RULE PERIODE
         ============================================= */
 
         {
 
             id :
 
-                "periode_gaji",
+                "rule_periode",
 
 
             title :
@@ -62,6 +73,10 @@ export const MonthlySetting = {
 
                 "Tentukan periode perhitungan dan masa aktif rule gaji.",
 
+
+            /* =========================================
+               BUTTON
+            ========================================= */
 
             addLabel :
 
@@ -79,20 +94,40 @@ export const MonthlySetting = {
 
 
             /* =========================================
+               UNIQUE
+               
+               Satu kombinasi periode yang sama
+               tidak boleh dimasukkan dua kali.
+            ========================================= */
+
+            uniqueFields : [
+
+                "nilai_start",
+
+                "nilai_end",
+
+                "periode_start",
+
+                "periode_end"
+
+            ],
+
+
+            /* =========================================
                FIELDS
             ========================================= */
 
             fields : [
 
-                /* -------------------------------------
-                   PERIODE PERHITUNGAN
-                ------------------------------------- */
+                /* =====================================
+                   PERIODE PERHITUNGAN GAJI
+                ===================================== */
 
                 {
 
                     name :
 
-                        "periode_mulai",
+                        "nilai_start",
 
 
                     label :
@@ -121,7 +156,7 @@ export const MonthlySetting = {
 
                     name :
 
-                        "periode_berakhir",
+                        "nilai_end",
 
 
                     label :
@@ -146,15 +181,15 @@ export const MonthlySetting = {
                 },
 
 
-                /* -------------------------------------
-                   PERIODE AKTIF
-                ------------------------------------- */
+                /* =====================================
+                   PERIODE AKTIF GAJI
+                ===================================== */
 
                 {
 
                     name :
 
-                        "periode_aktif_mulai",
+                        "periode_start",
 
 
                     label :
@@ -183,7 +218,7 @@ export const MonthlySetting = {
 
                     name :
 
-                        "periode_aktif_berakhir",
+                        "periode_end",
 
 
                     label :
@@ -211,25 +246,76 @@ export const MonthlySetting = {
 
 
             /* =========================================
-               DUPLICATE PERIODE
+               NORMALIZE
                
-               Periode perhitungan yang sama
-               tidak boleh dimasukkan dua kali.
+               UI hanya mengisi 4 tanggal.
+               
+               Data rule lengkap dibuat otomatis
+               di sini.
             ========================================= */
 
-            uniqueFields : [
+            normalize :
 
-                "periode_mulai",
+                function(
 
-                "periode_berakhir"
+                    data
 
-            ]
+                ){
+
+                    return {
+
+                        type_rule :
+
+                            "rule_periode",
+
+
+                        nama :
+
+                            "gaji",
+
+
+                        kondisi :
+
+                            "gaji_pokok",
+
+
+                        waktu :
+
+                            "bulanan",
+
+
+                        nilai_start :
+
+                            data.nilai_start,
+
+
+                        nilai_end :
+
+                            data.nilai_end,
+
+
+                        periode_start :
+
+                            data.periode_start,
+
+
+                        periode_end :
+
+                            data.periode_end
+
+                    };
+
+                }
 
         },
 
 
         /* =============================================
            RULE GAJI
+           
+           Skeleton sementara.
+           Kita isi bertahap setelah Rule Periode
+           benar-benar selesai.
         ============================================= */
 
         {
@@ -246,17 +332,17 @@ export const MonthlySetting = {
 
             description :
 
-                "Atur gaji, tambahan, dan potongan berdasarkan kebutuhan payroll.",
+                "Atur komponen gaji dan aturan pembayaran.",
 
 
             addLabel :
 
-                "＋ Tambah Rule",
+                "＋ Tambah Rule Gaji",
 
 
             formAddLabel :
 
-                "＋ Tambahkan Rule",
+                "＋ Tambahkan",
 
 
             deleteLabel :
@@ -264,617 +350,93 @@ export const MonthlySetting = {
                 "Hapus",
 
 
-            /* =========================================
-               FIELDS
-            ========================================= */
+            fields : []
 
-            fields : [
+        },
 
-                /* -------------------------------------
-                   TYPE RULE
-                ------------------------------------- */
 
-                {
-
-                    name :
-
-                        "type_rule",
-
-
-                    label :
-
-                        "Jenis Rule",
-
-
-                    type :
-
-                        "select",
-
-
-                    required :
-
-                        true,
-
-
-                    placeholder :
-
-                        "Pilih jenis rule",
-
-
-                    options : [
-
-                        {
-
-                            value :
-
-                                "rule_gaji",
-
-                            label :
-
-                                "Rule Gaji"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "rule_tambah",
-
-                            label :
-
-                                "Rule Tambah"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "rule_potong",
-
-                            label :
-
-                                "Rule Potong"
-
-                        }
-
-                    ]
-
-                },
-
-
-                /* -------------------------------------
-                   NAMA RULE
-                ------------------------------------- */
-
-                {
-    name :
-
-        "nama",
-
-    label :
-
-        "Nama Rule",
-
-    type :
-
-        "select",
-
-    required :
-
-        true,
-
-    placeholder :
-
-        "Pilih nama rule",
-
-    optionsByField :
-
-        "type_rule",
-
-    optionsBy : {
-
-        /* =========================================
-           RULE GAJI
-        ========================================= */
-
-        "rule_gaji" : [
-
-            {
-                value :
-
-                    "gaji",
-
-                label :
-
-                    "Gaji Pokok"
-            }
-
-        ],
-
-
-        /* =========================================
-           RULE TAMBAH
-        ========================================= */
-
-        "rule_tambah" : [
-
-            {
-                value :
-
-                    "uang_makan",
-
-                label :
-
-                    "Uang Makan"
-            },
-
-            {
-                value :
-
-                    "tunjangan",
-
-                label :
-
-                    "Tunjangan"
-            },
-
-            {
-                value :
-
-                    "uang_transport",
-
-                label :
-
-                    "Uang Transport"
-            },
-
-            {
-                value :
-
-                    "lembur",
-
-                label :
-
-                    "Lembur"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_1",
-
-                label :
-
-                    "Lembur Jam 1"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_2",
-
-                label :
-
-                    "Lembur Jam 2"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_3",
-
-                label :
-
-                    "Lembur Jam 3"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_4",
-
-                label :
-
-                    "Lembur Jam 4"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_5",
-
-                label :
-
-                    "Lembur Jam 5"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_6",
-
-                label :
-
-                    "Lembur Jam 6"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_7",
-
-                label :
-
-                    "Lembur Jam 7"
-            },
-
-            {
-                value :
-
-                    "lembur_jam_8",
-
-                label :
-
-                    "Lembur Jam 8"
-            }
-
-        ],
-
-
-        /* =========================================
+        /* =============================================
            RULE POTONG
-        ========================================= */
+           
+           Skeleton
+        ============================================= */
 
-        "rule_potong" : [
+        {
 
-            {
-                value :
+            id :
 
-                    "telat",
+                "rule_potong",
 
-                label :
 
-                    "Telat"
-            },
+            title :
 
-            {
-                value :
+                "➖ Rule Potong",
 
-                    "izin_telat",
 
-                label :
+            description :
 
-                    "Izin Telat"
-            },
+                "Atur aturan pemotongan gaji.",
 
-            {
-                value :
 
-                    "izin_pulang",
+            addLabel :
 
-                label :
+                "＋ Tambah Rule Potong",
 
-                    "Izin Pulang"
-            },
 
-            {
-                value :
+            formAddLabel :
 
-                    "absen",
+                "＋ Tambahkan",
 
-                label :
 
-                    "Absen"
-            }
+            deleteLabel :
 
-        ]
+                "Hapus",
 
-    }
 
-},
-                        
+            fields : []
 
-                            
-               
-                /* -------------------------------------
-                   KONDISI
-                ------------------------------------- */
+        },
 
-                {
 
-                    name :
+        /* =============================================
+           RULE TAMBAH
+           
+           Skeleton
+        ============================================= */
 
-                        "kondisi",
+        {
 
+            id :
 
-                    label :
+                "rule_tambah",
 
-                        "Kondisi",
 
+            title :
 
-                    type :
+                "➕ Rule Tambah",
 
-                        "select",
 
+            description :
 
-                    required :
+                "Atur tunjangan dan tambahan penghasilan.",
 
-                        true,
 
+            addLabel :
 
-                    placeholder :
+                "＋ Tambah Rule Tambah",
 
-                        "Pilih kondisi",
 
+            formAddLabel :
 
-                    options : [
+                "＋ Tambahkan",
 
-                        {
 
-                            value :
+            deleteLabel :
 
-                                "periode",
+                "Hapus",
 
-                            label :
 
-                                "Periode"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "masuk,lembur",
-
-                            label :
-
-                                "Masuk + Lembur"
-
-                        }
-
-                    ]
-
-                },
-
-
-                /* -------------------------------------
-                   WAKTU
-                ------------------------------------- */
-
-                {
-
-                    name :
-
-                        "waktu",
-
-
-                    label :
-
-                        "Waktu",
-
-
-                    type :
-
-                        "select",
-
-
-                    required :
-
-                        true,
-
-
-                    placeholder :
-
-                        "Pilih waktu",
-
-
-                    options : [
-
-                        {
-
-                            value :
-
-                                "gaji",
-
-                            label :
-
-                                "Gaji"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "harian",
-
-                            label :
-
-                                "Harian"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "bulanan",
-
-                            label :
-
-                                "Bulanan"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "menit",
-
-                            label :
-
-                                "Menit"
-
-                        },
-
-
-                        {
-
-                            value :
-
-                                "jam",
-
-                            label :
-
-                                "Jam"
-
-                        }
-
-                    ]
-
-                },
-
-
-                /* -------------------------------------
-                   NILAI START
-                ------------------------------------- */
-
-                {
-
-                    name :
-
-                        "nilai_start",
-
-
-                    label :
-
-                        "Nilai Mulai",
-
-
-                    type :
-
-                        "number",
-
-
-                    placeholder :
-
-                        "Contoh: 1",
-
-
-                    note :
-
-                        "Contoh lembur_jam_1: 1. Lembur jam berikutnya dapat dimulai dari 2, 3, dan seterusnya."
-
-                },
-
-
-                /* -------------------------------------
-                   NILAI END
-                ------------------------------------- */
-
-                {
-
-                    name :
-
-                        "nilai_end",
-
-
-                    label :
-
-                        "Nilai Akhir",
-
-
-                    type :
-
-                        "number",
-
-
-                    placeholder :
-
-                        "Contoh: 2",
-
-
-                    note :
-
-                        "Contoh lembur_jam_1: 2. Kosongkan jika rule berlaku mulai nilai tersebut dan seterusnya."
-
-                },
-
-
-                /* -------------------------------------
-                   NOMINAL
-                ------------------------------------- */
-
-                {
-
-                    name :
-
-                        "nominal",
-
-
-                    label :
-
-                        "Nominal",
-
-
-                    type :
-
-                        "number",
-
-
-                    required :
-
-                        true,
-
-
-                    min :
-
-                        0,
-
-
-                    step :
-
-                        1,
-
-
-                    placeholder :
-
-                        "Masukkan nominal"
-
-                }
-
-            ],
-
-
-            /* =========================================
-               DUPLICATE RULE
-            ========================================= */
-
-            uniqueFields : [
-
-                "type_rule",
-
-                "nama",
-
-                "kondisi",
-
-                "waktu",
-
-                "nilai_start",
-
-                "nilai_end"
-
-            ]
+            fields : []
 
         }
 
