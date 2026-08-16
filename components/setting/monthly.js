@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 2.0.0
+   Version      : 2.1.0
 
    Description :
    Payroll Monthly Setting Definition
@@ -12,9 +12,9 @@
    - Rule Periode
 
    Prinsip :
-   - Periode gaji disimpan sebagai tanggal lengkap
-   - Tidak menggunakan angka tanggal seperti 25 / 24
-   - Format tanggal :
+   - Periode gaji menggunakan tanggal lengkap
+   - Input tanggal menggunakan calendar
+   - Format data :
      YYYY-MM-DD
 
    Contoh :
@@ -25,9 +25,9 @@
    2026-06-24
 
    Catatan :
-   Period Engine tetap menerima start dan end.
-   Tanggal periode dihitung langsung dari data
-   yang disimpan pada rule.
+   Tanggal periode disimpan sebagai tanggal
+   sebenarnya agar dapat digunakan langsung
+   oleh Period Engine dan Summary.
 
    Section berikutnya masih skeleton :
    - Rule Gaji
@@ -80,12 +80,8 @@ export const MonthlySetting = {
 
             description :
 
-                "Tentukan tanggal periode perhitungan gaji dan masa aktif rule.",
+                "Tentukan periode tanggal perhitungan gaji dan masa aktif rule.",
 
-
-            /* =========================================
-               BUTTON
-            ========================================= */
 
             addLabel :
 
@@ -192,7 +188,7 @@ export const MonthlySetting = {
 
 
                 /* -------------------------------------
-                   NILAI START
+                   PERIODE MULAI
                 ------------------------------------- */
 
                 {
@@ -209,12 +205,12 @@ export const MonthlySetting = {
 
                     type :
 
-                        "text",
+                        "date",
 
 
-                    placeholder :
+                    note :
 
-                        "Contoh: 2026-05-25",
+                        "Contoh tanggal: 2026-05-25",
 
 
                     required :
@@ -225,7 +221,7 @@ export const MonthlySetting = {
 
 
                 /* -------------------------------------
-                   NILAI END
+                   PERIODE BERAKHIR
                 ------------------------------------- */
 
                 {
@@ -242,12 +238,12 @@ export const MonthlySetting = {
 
                     type :
 
-                        "text",
+                        "date",
 
 
-                    placeholder :
+                    note :
 
-                        "Contoh: 2026-06-24",
+                        "Contoh tanggal: 2026-06-24",
 
 
                     required :
@@ -258,7 +254,7 @@ export const MonthlySetting = {
 
 
                 /* -------------------------------------
-                   BERLAKU START
+                   PERIODE AKTIF MULAI
                 ------------------------------------- */
 
                 {
@@ -275,12 +271,12 @@ export const MonthlySetting = {
 
                     type :
 
-                        "text",
+                        "date",
 
 
-                    placeholder :
+                    note :
 
-                        "Contoh: 2026-05-25",
+                        "Contoh tanggal: 2026-01-25",
 
 
                     required :
@@ -291,7 +287,7 @@ export const MonthlySetting = {
 
 
                 /* -------------------------------------
-                   BERLAKU END
+                   PERIODE AKTIF BERAKHIR
                 ------------------------------------- */
 
                 {
@@ -308,12 +304,12 @@ export const MonthlySetting = {
 
                     type :
 
-                        "text",
+                        "date",
 
 
-                    placeholder :
+                    note :
 
-                        "Contoh: 2026-06-24",
+                        "Contoh tanggal: 2027-02-24",
 
 
                     required :
