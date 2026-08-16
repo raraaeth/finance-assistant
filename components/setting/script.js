@@ -3574,33 +3574,87 @@ function collectFormData(
 
 
         /* =========================================
-           CONDITIONAL FIELD
-        ========================================= */
+   CONDITIONAL FIELD
+========================================= */
+
+if(
+
+    field.dependsOn
+
+){
+
+    const controller =
+
+        form.querySelector(
+
+            `[name="${escapeSelector(
+
+                field.dependsOn.field
+
+            )}"]`
+
+        );
+
+
+    if(
+
+        controller
+
+    ){
+
+        let shouldCollect = false;
+
+
+        /* =====================================
+           MULTIPLE VALUES
+        ===================================== */
 
         if(
 
-            field.dependsOn
+            Array.isArray(
+
+                field.dependsOn.values
+
+            )
 
         ){
 
-            const controller =
+            shouldCollect =
 
-                form.querySelector(
+                field.dependsOn.values.some(
 
-                    `[name="${escapeSelector(
+                    value =>
 
-                        field.dependsOn.field
+                        String(
 
-                    )}"]`
+                            controller.value
+
+                        )
+
+                        ===
+
+                        String(
+
+                            value
+
+                        )
 
                 );
 
+        }
 
-            if(
 
-                controller
+        /* =====================================
+           SINGLE VALUE
+        ===================================== */
 
-                &&
+        else if(
+
+            field.dependsOn.value !== undefined
+
+        ){
+
+            shouldCollect =
 
                 String(
 
@@ -3608,22 +3662,34 @@ function collectFormData(
 
                 )
 
-                !==
+                ===
 
                 String(
 
                     field.dependsOn.value
 
-                )
-
-            ){
-
-                continue;
-
-            }
+                );
 
         }
 
+
+        /* =====================================
+           FIELD TIDAK AKTIF
+        ===================================== */
+
+        if(
+
+            !shouldCollect
+
+        ){
+
+            continue;
+
+        }
+
+    }
+
+}
 
         let value;
 
