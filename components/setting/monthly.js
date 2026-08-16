@@ -732,7 +732,7 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Izin Telat"
+                                "Izin Telat (/jam)"
 
                         },
 
@@ -746,7 +746,7 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Izin Pulang"
+                                "Izin Pulang (/jam)"
 
                         },
 
@@ -760,7 +760,7 @@ export const MonthlySetting = {
 
                             label :
 
-                                "Absen"
+                                "Absen (/hari)"
 
                         }
 
