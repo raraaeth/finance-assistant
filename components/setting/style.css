@@ -961,6 +961,46 @@ body.setting-open{
     }
 
 }
+/* =====================================================
+   CUSTOM PICKER LIST
+===================================================== */
+
+.global-setting-picker-list{
+
+    max-height:60vh;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+    -webkit-overflow-scrolling:touch;
+
+}
+
+
+/* Scrollbar */
+
+.global-setting-picker-list::-webkit-scrollbar{
+
+    width:6px;
+
+}
+
+
+.global-setting-picker-list::-webkit-scrollbar-thumb{
+
+    background:rgba(0,0,0,.25);
+
+    border-radius:10px;
+
+}
+
+
+.global-setting-picker-list::-webkit-scrollbar-track{
+
+    background:transparent;
+
+}
 
 /* =====================================================
    LEABEL PRE-LINE
