@@ -169,18 +169,6 @@ export const SavingSetting = {
 
                             value :
 
-                                "wallet_crypto",
-
-                            label :
-
-                                "Wallet Crypto"
-
-                        },
-
-                        {
-
-                            value :
-
                                 "ovo",
 
                             label :
