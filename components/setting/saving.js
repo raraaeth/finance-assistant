@@ -247,19 +247,7 @@ export const SavingSetting = {
 
                                 "Dana Darurat"
 
-                        },
-
-                        {
-
-                            value :
-
-                                "koperasi",
-
-                            label :
-
-                                "Koperasi"
-
-                        },
+                        },               
 
                         /* ---------------------------------
                            LAIN-LAIN
