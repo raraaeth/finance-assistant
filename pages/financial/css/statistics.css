@@ -1,0 +1,790 @@
+/* =====================================================
+   Finance Assistant
+   Page        : Financial
+   Module      : Statistics
+   File        : statistics.css
+   Version     : 1.0.0
+
+   Description :
+   Financial Statistics Page
+
+   Theme Aware :
+   - Light
+   - Dark
+   - Green
+   - Pink
+
+   Sections :
+   - Page
+   - Filter
+   - Chart
+   - Transaction
+   - Transaction Item
+   - Pagination
+   - Responsive
+===================================================== */
+
+
+/* =====================================================
+   STATISTICS PAGE
+===================================================== */
+
+#statistics-page{
+
+    padding-bottom:40px;
+
+}
+
+
+#statistics-page .section{
+
+    margin-bottom:32px;
+
+}
+
+
+#statistics-page .section-header{
+
+    margin-bottom:16px;
+
+}
+
+
+/* =====================================================
+   SECTION BADGE
+===================================================== */
+
+#statistics-page .section-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:var(--surface);
+
+    color:var(--text);
+
+    font-size:1.15rem;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+#statistics-filter-list{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   CHART CARD
+===================================================== */
+
+#statistics-chart .card{
+
+    width:100%;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   CHART CANVAS
+===================================================== */
+
+#statistics-chart-canvas{
+
+    display:block;
+
+    width:100% !important;
+
+    max-width:100%;
+
+}
+
+
+/* =====================================================
+   TRANSACTION CARD
+===================================================== */
+
+#statistics-transaction .card{
+
+    width:100%;
+
+    padding:18px 20px;
+
+    box-sizing:border-box;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   TRANSACTION LIST
+===================================================== */
+
+#statistics-transaction-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   TRANSACTION ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:100%;
+
+    box-sizing:border-box;
+
+    gap:14px;
+
+    padding:20px 0;
+
+    border-bottom:
+
+        1px solid
+
+        var(--border);
+
+}
+
+
+/* =====================================================
+   LAST TRANSACTION
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item:last-child{
+
+    border-bottom:none;
+
+}
+
+
+/* =====================================================
+   TRANSACTION HEADER
+===================================================== */
+
+#statistics-transaction-list
+.transaction-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    width:100%;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   TRANSACTION DATE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-date{
+
+    flex:1;
+
+    min-width:0;
+
+    color:var(--text);
+
+    font-size:17px;
+
+    line-height:1.35;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   TRANSACTION DETAIL
+===================================================== */
+
+#statistics-transaction-list
+.transaction-detail{
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:100%;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   TRANSACTION ROW
+===================================================== */
+
+#statistics-transaction-list
+.transaction-work-row{
+
+    display:grid;
+
+    grid-template-columns:
+
+        minmax(
+
+            0,
+
+            1fr
+
+        )
+
+        auto;
+
+    align-items:center;
+
+    gap:16px;
+
+    width:100%;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =====================================================
+   TRANSACTION NAME
+===================================================== */
+
+#statistics-transaction-list
+.transaction-name{
+
+    min-width:0;
+
+    overflow:hidden;
+
+    color:var(--text);
+
+    font-size:15px;
+
+    line-height:1.4;
+
+    font-weight:500;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   TRANSACTION NOMINAL
+===================================================== */
+
+#statistics-transaction-list
+.transaction-income,
+
+#statistics-transaction-list
+.transaction-expense{
+
+    display:block;
+
+    flex-shrink:0;
+
+    text-align:right;
+
+    white-space:nowrap;
+
+    font-size:15px;
+
+    line-height:1.4;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   INCOME
+===================================================== */
+
+#statistics-transaction-list
+.transaction-income{
+
+    color:
+
+        var(
+
+            --success,
+
+            #16a34a
+
+        );
+
+}
+
+
+/* =====================================================
+   EXPENSE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-expense{
+
+    color:
+
+        var(
+
+            --danger,
+
+            #dc2626
+
+        );
+
+}
+
+
+/* =====================================================
+   TRANSACTION EMPTY
+===================================================== */
+
+#statistics-transaction-list
+.statistics-summary-empty{
+
+    padding:28px 10px;
+
+    text-align:center;
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    line-height:1.5;
+
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+#statistics-show-more{
+
+    margin-top:14px;
+
+}
+
+
+/* =====================================================
+   PAGINATION CONTAINER
+===================================================== */
+
+.statistics-pagination{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:16px;
+
+    padding:14px 0 4px;
+
+}
+
+
+/* =====================================================
+   PAGINATION BUTTON
+===================================================== */
+
+.statistics-pagination button{
+
+    min-width:110px;
+
+    padding:10px 14px;
+
+    box-sizing:border-box;
+
+    border:
+
+        1px solid
+
+        var(--border);
+
+    border-radius:14px;
+
+    background:var(--surface);
+
+    color:var(--text);
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+
+        background .2s ease,
+
+        border-color .2s ease,
+
+        color .2s ease,
+
+        opacity .2s ease,
+
+        transform .2s ease;
+
+}
+
+
+/* =====================================================
+   PAGINATION HOVER
+===================================================== */
+
+.statistics-pagination button:hover:not(:disabled){
+
+    border-color:var(--primary);
+
+    color:var(--primary);
+
+}
+
+
+/* =====================================================
+   PAGINATION ACTIVE
+===================================================== */
+
+.statistics-pagination button:active:not(:disabled){
+
+    transform:scale(.97);
+
+}
+
+
+/* =====================================================
+   PAGINATION DISABLED
+===================================================== */
+
+.statistics-pagination button:disabled{
+
+    opacity:.45;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =====================================================
+   PAGE NUMBER
+===================================================== */
+
+.statistics-pagination span{
+
+    min-width:40px;
+
+    text-align:center;
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media(
+
+    max-width:700px
+
+){
+
+    /* ---------------------------------------------
+       CHART
+    --------------------------------------------- */
+
+    #statistics-chart .card{
+
+        padding:18px 16px;
+
+    }
+
+
+    /* ---------------------------------------------
+       TRANSACTION
+    --------------------------------------------- */
+
+    #statistics-transaction .card{
+
+        padding:18px 16px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        padding:18px 0;
+
+        gap:13px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-name{
+
+        font-size:15px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-income,
+
+    #statistics-transaction-list
+    .transaction-expense{
+
+        font-size:15px;
+
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    /* ---------------------------------------------
+       PAGE
+    --------------------------------------------- */
+
+    #statistics-page{
+
+        padding-bottom:30px;
+
+    }
+
+
+    #statistics-page .section{
+
+        margin-bottom:24px;
+
+    }
+
+
+    /* ---------------------------------------------
+       FILTER
+    --------------------------------------------- */
+
+    #statistics-filter-list{
+
+        gap:8px;
+
+    }
+
+
+    /* ---------------------------------------------
+       CHART
+    --------------------------------------------- */
+
+    #statistics-chart .card{
+
+        padding:16px 12px;
+
+        border-radius:20px;
+
+    }
+
+
+    /* ---------------------------------------------
+       TRANSACTION
+    --------------------------------------------- */
+
+    #statistics-transaction .card{
+
+        padding:16px 12px;
+
+        border-radius:20px;
+
+    }
+
+
+    /* ---------------------------------------------
+       TRANSACTION ITEM
+    --------------------------------------------- */
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        padding:16px 4px;
+
+        gap:12px;
+
+    }
+
+
+    /* ---------------------------------------------
+       DATE
+    --------------------------------------------- */
+
+    #statistics-transaction-list
+    .transaction-date{
+
+        font-size:16px;
+
+    }
+
+
+    /* ---------------------------------------------
+       DETAIL
+    --------------------------------------------- */
+
+    #statistics-transaction-list
+    .transaction-detail{
+
+        gap:9px;
+
+    }
+
+
+    /* ---------------------------------------------
+       ROW
+    --------------------------------------------- */
+
+    #statistics-transaction-list
+    .transaction-work-row{
+
+        grid-template-columns:
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+            auto;
+
+        gap:10px;
+
+    }
+
+
+    /* ---------------------------------------------
+       NAME
+    --------------------------------------------- */
+
+    #statistics-transaction-list
+    .transaction-name{
+
+        font-size:14px;
+
+        font-weight:500;
+
+    }
+
+
+    /* ---------------------------------------------
+       NOMINAL
+    --------------------------------------------- */
+
+    #statistics-transaction-list
+    .transaction-income,
+
+    #statistics-transaction-list
+    .transaction-expense{
+
+        font-size:14px;
+
+    }
+
+
+    /* ---------------------------------------------
+       PAGINATION
+    --------------------------------------------- */
+
+    .statistics-pagination{
+
+        gap:8px;
+
+        padding-top:12px;
+
+    }
+
+
+    .statistics-pagination button{
+
+        min-width:95px;
+
+        padding:9px 10px;
+
+        border-radius:12px;
+
+        font-size:13px;
+
+    }
+
+
+    .statistics-pagination span{
+
+        min-width:34px;
+
+        font-size:13px;
+
+    }
+
+}
