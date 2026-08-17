@@ -446,20 +446,14 @@ function renderSummary(){
 
 function renderInput(){
 
-
     const card =
-
         document.getElementById(
-
             "input-card"
-
         );
 
 
     if(
-
         !card
-
     ){
 
         return;
@@ -471,34 +465,102 @@ function renderInput(){
 
     `
 
-        <div class="summary-total">
-
-            <p>
-
-                Input
-
-            </p>
+        <div
+            id="financial-input-menu"
+            class="profile-menu-item">
 
 
-            <h2>
+            <div
+                class="profile-menu-left">
 
-                -
 
-            </h2>
+                <div
+                    class="profile-menu-icon">
+
+                    ✍️
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Input
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Tambahkan data Financial
+
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
 
         </div>
 
     `;
 
-}
 
+    const menu =
+
+        document.getElementById(
+
+            "financial-input-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Input.open(
+
+                    "financial"
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
 
 /* =====================================================
    SETTING
 ===================================================== */
 
 function renderSetting(){
-
 
     const card =
 
@@ -524,27 +586,96 @@ function renderSetting(){
 
     `
 
-        <div class="summary-total">
-
-            <p>
-
-                Pengaturan
-
-            </p>
+        <div
+            id="financial-setting-menu"
+            class="profile-menu-item">
 
 
-            <h2>
+            <div
+                class="profile-menu-left">
 
-                -
 
-            </h2>
+                <div
+                    class="profile-menu-icon">
+
+                    ⚙️
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Pengaturan Financial
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Atur rule dan konfigurasi Financial
+
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
 
         </div>
 
     `;
 
-}
 
+    const menu =
+
+        document.getElementById(
+
+            "financial-setting-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Setting.open(
+
+                    "financial"
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
 
 /* =====================================================
    HELPER
