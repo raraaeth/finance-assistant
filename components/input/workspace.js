@@ -41,6 +41,12 @@ import {
 } from "./monthly.js";
 
 
+import {
+
+    FinancialInput
+
+} from "./financial.js";
+
 /* =====================================================
    WORKSPACE CONFIG
 ===================================================== */
@@ -52,6 +58,8 @@ const WORKSPACES = {
     saving : Saving,
 
     "payroll-daily" : Daily,
+
+    "financial": Financial,
 
     "payroll-monthly" : Monthly
 
