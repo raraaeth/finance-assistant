@@ -287,7 +287,8 @@ function renderOverview(){
         </div>
 
     `;
-   Animation.count(
+   
+   Animation.number(
 
     document.getElementById(
 
