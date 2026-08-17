@@ -3718,7 +3718,9 @@ function addResult(
 
                         field,
 
-                        data[field.name]
+                        data[field.name],
+
+                        data
 
                     );
 
@@ -4613,7 +4615,9 @@ function formatResultValue(
 
     field,
 
-    value
+    value,
+
+    data
 
 ){
 
@@ -4651,6 +4655,53 @@ function formatResultValue(
             value
 
         );
+
+    }
+       /* =============================================
+       CHECKBOX RESULT DARI NORMALIZED VALUE
+       Contoh:
+       field.resultValue = "sabtu"
+       data.waktu = "sabtu,minggu"
+    ============================================= */
+
+    if(
+
+        field.resultValue
+
+    ){
+
+        const values =
+
+            String(
+
+                data?.waktu ?? ""
+
+            )
+
+            .split(",")
+
+            .map(
+
+                item =>
+
+                    item.trim()
+
+            );
+
+
+        return values.includes(
+
+            field.resultValue
+
+        )
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
 
     }
 
