@@ -2,15 +2,20 @@
    Finance Assistant
    Module      : Financial
    File        : summary.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Financial Summary Controller
 
    Sections :
+   - Import
    - State
    - Init
    - Overview
+   - Financial Position
+   - Distribution
+   - Distribution List
+   - Calculate Overview
    - Helper
 ===================================================== */
 
@@ -28,17 +33,25 @@ import {
 
 import {
 
-    rupiah,
+    Chart
 
-    shortRupiah
+} from "../../js/chart.js";
 
-} from "../../js/utils.js";
 
 import {
 
     Animation
 
 } from "../../js/animation.js";
+
+
+import {
+
+    rupiah,
+
+    shortRupiah
+
+} from "../../js/utils.js";
 
 
 /* =====================================================
@@ -103,7 +116,9 @@ Summary.init = function(
 
 
     renderOverview();
+
     renderFinancialPosition();
+
     renderDistribution();
 
 
@@ -161,12 +176,12 @@ function renderOverview(){
 
 
             <strong
-    id="financial-overview-balance"
-    class="financial-overview-balance-value">
+                id="financial-overview-balance"
+                class="financial-overview-balance-value">
 
-    Rp 0
+                Rp 0
 
-</strong>
+            </strong>
 
         </div>
 
@@ -188,11 +203,12 @@ function renderOverview(){
 
                 </span>
 
+
                 <strong>
 
                     ${
 
-                        shortRupiahSafe(
+                        shortRupiah(
 
                             overview.currentIncome
 
@@ -215,11 +231,12 @@ function renderOverview(){
 
                 </span>
 
+
                 <strong>
 
                     ${
 
-                        shortRupiahSafe(
+                        shortRupiah(
 
                             overview.currentExpense
 
@@ -242,11 +259,12 @@ function renderOverview(){
 
                 </span>
 
+
                 <strong>
 
                     ${
 
-                        shortRupiahSafe(
+                        shortRupiah(
 
                             overview.previousIncome
 
@@ -269,11 +287,12 @@ function renderOverview(){
 
                 </span>
 
+
                 <strong>
 
                     ${
 
-                        shortRupiahSafe(
+                        shortRupiah(
 
                             overview.previousExpense
 
@@ -289,45 +308,61 @@ function renderOverview(){
         </div>
 
     `;
-   
-   Animation.number(
 
-    document.getElementById(
 
-        "financial-overview-balance"
+    /* =============================================
+       BALANCE ANIMATION
+    ============================================= */
 
-    ),
+    Animation.number(
 
-    overview.balance,
+        document.getElementById(
 
-    rupiahSafe
+            "financial-overview-balance"
 
-);
+        ),
+
+        overview.balance,
+
+        rupiah,
+
+        1800
+
+    );
 
 }
 
+
 /* =====================================================
-   Financial Position
+   FINANCIAL POSITION
 ===================================================== */
+
 function renderFinancialPosition(){
 
     const section =
 
         document.getElementById(
+
             "summary-financial-position"
+
         );
 
 
     const card =
 
         document.getElementById(
+
             "summary-financial-position-card"
+
         );
 
 
     if(
+
         !section ||
+
         !card
+
     ){
 
         return;
@@ -357,23 +392,34 @@ function renderFinancialPosition(){
 
     const debtBalance =
 
-        debt?.outstanding ?? 0;
+        toNumber(
+
+            debt?.outstanding
+
+        );
 
 
     const danaDaruratBalance =
 
-        danaDarurat?.balance ?? 0;
+        toNumber(
+
+            danaDarurat?.balance
+
+        );
 
 
     const tabunganKalengBalance =
 
-        tabunganKaleng?.balance ?? 0;
+        toNumber(
+
+            tabunganKaleng?.balance
+
+        );
 
 
-    /*
-     * Kalau semuanya 0,
-     * section disembunyikan.
-     */
+    /* =============================================
+       SEMUA KOSONG
+    ============================================= */
 
     if(
 
@@ -385,22 +431,32 @@ function renderFinancialPosition(){
 
     ){
 
-        section.classList.add("hidden");
+        section.classList.add(
+
+            "hidden"
+
+        );
+
+        card.innerHTML = "";
 
         return;
 
     }
 
 
-    section.classList.remove("hidden");
+    section.classList.remove(
+
+        "hidden"
+
+    );
 
 
     card.innerHTML = "";
 
 
-    /*
-     * DANA DARURAT
-     */
+    /* =============================================
+       DANA DARURAT
+    ============================================= */
 
     if(
 
@@ -410,22 +466,22 @@ function renderFinancialPosition(){
 
         card.innerHTML +=
 
-        createSavingCard(
+            createSavingCard(
 
-            "Dana Darurat",
+                "Dana Darurat",
 
-            danaDarurat,
+                danaDarurat,
 
-            "../assets/icons/dana_darurat.webp"
+                "../assets/icons/dana_darurat.webp"
 
-        );
+            );
 
     }
 
 
-    /*
-     * TABUNGAN KALENG
-     */
+    /* =============================================
+       CELENGAN TOPLES
+    ============================================= */
 
     if(
 
@@ -435,22 +491,22 @@ function renderFinancialPosition(){
 
         card.innerHTML +=
 
-        createSavingCard(
+            createSavingCard(
 
-            "Celengan Toples",
+                "Celengan Toples",
 
-            tabunganKaleng,
+                tabunganKaleng,
 
-            "../assets/icons/toples_brangkas.webp"
+                "../assets/icons/toples_brangkas.webp"
 
-        );
+            );
 
     }
 
 
-    /*
-     * HUTANG
-     */
+    /* =============================================
+       HUTANG
+    ============================================= */
 
     if(
 
@@ -460,15 +516,16 @@ function renderFinancialPosition(){
 
         card.innerHTML +=
 
-        createDebtCard(
+            createDebtCard(
 
-            debt
+                debt
 
-        );
+            );
 
     }
 
 }
+
 
 /* =====================================================
    SAVING CARD
@@ -486,7 +543,19 @@ function createSavingCard(
 
     const transactions =
 
-        data?.transactions ?? [];
+        Array.isArray(
+
+            data?.transactions
+
+        )
+
+            ?
+
+            data.transactions
+
+            :
+
+            [];
 
 
     const last =
@@ -558,12 +627,15 @@ function createSavingCard(
 
                     src="${icon}"
 
-                    alt="${title}">
+                    alt="${escapeHTML(title)}"
+
+
+                >
 
 
                 <strong>
 
-                    ${title}
+                    ${escapeHTML(title)}
 
                 </strong>
 
@@ -573,11 +645,15 @@ function createSavingCard(
 
             <div class="financial-position-value">
 
-                ${shortRupiah(
+                ${
 
-                    data.balance
+                    shortRupiah(
 
-                )}
+                        data?.balance ?? 0
+
+                    )
+
+                }
 
             </div>
 
@@ -597,6 +673,7 @@ function createSavingCard(
 
 }
 
+
 /* =====================================================
    DEBT CARD
 ===================================================== */
@@ -614,19 +691,22 @@ function createDebtCard(
 
             <div class="financial-position-header">
 
-    <span class="financial-position-emoji">
 
-        🏦
+                <span class="financial-position-emoji">
 
-    </span>
+                    🏦
 
-    <strong>
+                </span>
 
-        Hutang
 
-    </strong>
+                <strong>
 
-</div>
+                    Hutang
+
+                </strong>
+
+
+            </div>
 
 
             <div class="financial-position-row">
@@ -637,13 +717,18 @@ function createDebtCard(
 
                 </span>
 
+
                 <strong>
 
-                    ${shortRupiah(
+                    ${
 
-                        debt.borrowed
+                        shortRupiah(
 
-                    )}
+                            debt?.borrowed ?? 0
+
+                        )
+
+                    }
 
                 </strong>
 
@@ -658,13 +743,18 @@ function createDebtCard(
 
                 </span>
 
+
                 <strong>
 
-                    ${shortRupiah(
+                    ${
 
-                        debt.paid
+                        shortRupiah(
 
-                    )}
+                            debt?.paid ?? 0
+
+                        )
+
+                    }
 
                 </strong>
 
@@ -679,13 +769,18 @@ function createDebtCard(
 
                 </span>
 
+
                 <strong>
 
-                    ${shortRupiah(
+                    ${
 
-                        debt.outstanding
+                        shortRupiah(
 
-                    )}
+                            debt?.outstanding ?? 0
+
+                        )
+
+                    }
 
                 </strong>
 
@@ -698,6 +793,7 @@ function createDebtCard(
 
 }
 
+
 /* =====================================================
    DISTRIBUTION
 ===================================================== */
@@ -707,20 +803,25 @@ function renderDistribution(){
     const canvas =
 
         document.getElementById(
+
             "summary-distribution-chart"
+
         );
 
 
     const list =
 
         document.getElementById(
+
             "summary-distribution-list"
+
         );
 
 
     if(
 
         !canvas ||
+
         !list
 
     ){
@@ -730,9 +831,9 @@ function renderDistribution(){
     }
 
 
-    /*
-     * BULAN BERJALAN
-     */
+    /* =============================================
+       BULAN BERJALAN
+    ============================================= */
 
     const now =
 
@@ -760,46 +861,61 @@ function renderDistribution(){
         ].join("-");
 
 
-    /*
-     * HANYA TRANSAKSI:
-     *
-     * masuk
-     * keluar
-     *
-     * Hutang / bayar / nabung / tarik
-     * otomatis diabaikan.
-     */
+    /* =============================================
+       FILTER TRANSAKSI
+
+       HANYA:
+
+       masuk
+       keluar
+
+       Abaikan:
+
+       hutang
+       bayar
+       nabung
+       tarik
+    ============================================= */
 
     const transactions =
 
         Process.data.filter(
 
-            item =>
+            item => {
 
-                item.date?.startsWith(
+                if(
 
-                    currentMonth
+                    !item?.date ||
 
-                )
+                    !item.date.startsWith(
 
-                &&
+                        currentMonth
 
-                (
+                    )
 
-                    item.jenis === "masuk"
+                ){
 
-                    ||
+                    return false;
+
+                }
+
+
+                return (
+
+                    item.jenis === "masuk" ||
 
                     item.jenis === "keluar"
 
-                )
+                );
+
+            }
 
         );
 
 
-    /*
-     * GROUP ACTIVITY
-     */
+    /* =============================================
+       GROUP ACTIVITY
+    ============================================= */
 
     const income = {};
 
@@ -824,6 +940,17 @@ function renderDistribution(){
                     item.nominal
 
                 );
+
+
+            if(
+
+                nominal <= 0
+
+            ){
+
+                return;
+
+            }
 
 
             if(
@@ -872,9 +999,9 @@ function renderDistribution(){
     );
 
 
-    /*
-     * DONUT
-     */
+    /* =============================================
+       DONUT
+    ============================================= */
 
     renderDistributionDonut(
 
@@ -887,9 +1014,9 @@ function renderDistribution(){
     );
 
 
-    /*
-     * HORIZONTAL BAR
-     */
+    /* =============================================
+       HORIZONTAL BAR
+    ============================================= */
 
     renderDistributionList(
 
@@ -902,6 +1029,7 @@ function renderDistribution(){
     );
 
 }
+
 
 /* =====================================================
    DISTRIBUTION DONUT
@@ -917,33 +1045,46 @@ function renderDistributionDonut(
 
 ){
 
-    if(
+    const incomeLabels =
 
-        typeof Chart ===
+        Object.keys(
 
-        "undefined"
+            income
 
-    ){
+        );
 
-        return;
 
-    }
+    const expenseLabels =
+
+        Object.keys(
+
+            expense
+
+        );
 
 
     const labels = [
 
-        ...Object.keys(income),
+        ...incomeLabels,
 
-        ...Object.keys(expense)
+        ...expenseLabels
 
     ];
 
 
     const values = [
 
-        ...Object.values(income),
+        ...Object.values(
 
-        ...Object.values(expense)
+            income
+
+        ),
+
+        ...Object.values(
+
+            expense
+
+        )
 
     ];
 
@@ -960,86 +1101,56 @@ function renderDistributionDonut(
 
 
     /*
-     * Hapus chart lama
+     * Mengikuti metode Saving:
+     * gunakan Chart.renderDoughnut()
      */
 
-    if(
+    Chart.renderDoughnut({
 
-        window.financialDistributionChart
+        canvas :
 
-    ){
-
-        window.financialDistributionChart.destroy();
-
-    }
+            "#summary-distribution-chart",
 
 
-    window.financialDistributionChart =
+        labels,
 
-        new Chart(
 
-            canvas,
+        datasets : [
 
             {
 
-                type :
+                data :
 
-                    "doughnut",
+                    values,
 
+                backgroundColor : [
 
-                data : {
+                    "#4F7CFF",
 
-                    labels,
+                    "#64B5F6",
 
-                    datasets : [
+                    "#4DD0E1",
 
-                        {
+                    "#81C784",
 
-                            data :
+                    "#FFD54F",
 
-                                values,
+                    "#FF8A65",
 
-                            borderWidth :
+                    "#9575CD",
 
-                                2
+                    "#90A4AE"
 
-                        }
-
-                    ]
-
-                },
-
-
-                options : {
-
-                    responsive :
-
-                        true,
-
-                    maintainAspectRatio :
-
-                        false,
-
-
-                    plugins : {
-
-                        legend : {
-
-                            display :
-
-                                false
-
-                        }
-
-                    }
-
-                }
+                ]
 
             }
 
-        );
+        ]
+
+    });
 
 }
+
 
 /* =====================================================
    DISTRIBUTION LIST
@@ -1122,9 +1233,9 @@ function renderDistributionList(
         );
 
 
-    /*
-     * PEMASUKAN
-     */
+    /* =============================================
+       PEMASUKAN
+    ============================================= */
 
     if(
 
@@ -1149,7 +1260,13 @@ function renderDistributionList(
 
                     incomeItems.map(
 
-                        ([name, value]) =>
+                        ([
+
+                            name,
+
+                            value
+
+                        ]) =>
 
                             createDistributionBar(
 
@@ -1174,9 +1291,9 @@ function renderDistributionList(
     }
 
 
-    /*
-     * JEDA
-     */
+    /* =============================================
+       JEDA PEMASUKAN / PENGELUARAN
+    ============================================= */
 
     if(
 
@@ -1190,16 +1307,18 @@ function renderDistributionList(
 
         `
 
-            <div class="distribution-divider"></div>
+            <div class="distribution-divider">
+
+            </div>
 
         `;
 
     }
 
 
-    /*
-     * PENGELUARAN
-     */
+    /* =============================================
+       PENGELUARAN
+    ============================================= */
 
     if(
 
@@ -1224,7 +1343,13 @@ function renderDistributionList(
 
                     expenseItems.map(
 
-                        ([name, value]) =>
+                        ([
+
+                            name,
+
+                            value
+
+                        ]) =>
 
                             createDistributionBar(
 
@@ -1249,6 +1374,10 @@ function renderDistributionList(
     }
 
 
+    /* =============================================
+       EMPTY
+    ============================================= */
+
     if(
 
         !incomeItems.length &&
@@ -1272,6 +1401,7 @@ function renderDistributionList(
     }
 
 }
+
 
 /* =====================================================
    DISTRIBUTION BAR
@@ -1317,6 +1447,7 @@ function createDistributionBar(
 
             <div class="distribution-item-header">
 
+
                 <span>
 
                     ${escapeHTML(name)}
@@ -1330,10 +1461,12 @@ function createDistributionBar(
 
                 </strong>
 
+
             </div>
 
 
             <div class="distribution-bar-track">
+
 
                 <div
 
@@ -1343,6 +1476,7 @@ function createDistributionBar(
 
                 </div>
 
+
             </div>
 
 
@@ -1351,6 +1485,7 @@ function createDistributionBar(
     `;
 
 }
+
 
 /* =====================================================
    CALCULATE OVERVIEW
@@ -1687,92 +1822,6 @@ function toNumber(
 
 }
 
-
-/* =====================================================
-   RUPIAH
-===================================================== */
-
-function rupiahSafe(
-
-    value
-
-){
-
-    if(
-
-        typeof rupiah ===
-
-        "function"
-
-    ){
-
-        return rupiah(
-
-            value
-
-        );
-
-    }
-
-
-    return new Intl.NumberFormat(
-
-        "id-ID",
-
-        {
-
-            style :
-
-                "currency",
-
-            currency :
-
-                "IDR",
-
-            maximumFractionDigits :
-
-                0
-
-        }
-
-    ).format(
-
-        value
-
-    );
-
-}
-
-function shortRupiahSafe(
-
-    value
-
-){
-
-    if(
-
-        typeof shortRupiah ===
-
-        "function"
-
-    ){
-
-        return shortRupiah(
-
-            value
-
-        );
-
-    }
-
-
-    return rupiahSafe(
-
-        value
-
-    );
-
-}
 
 /* =====================================================
    ESCAPE HTML
