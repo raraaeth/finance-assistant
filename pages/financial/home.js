@@ -207,6 +207,115 @@ export async function init(){
     });
 
 }
+/* =============================================
+   LOAD FINANCIAL DATA
+============================================= */
+
+try{
+
+    await API.load(
+
+        CONFIG.api.financial,
+
+        CONFIG.api.activity
+
+    );
+
+
+    console.log(
+
+        "========== FINANCIAL API DEBUG =========="
+
+    );
+
+
+    console.log(
+
+        "[Financial] API.raw:",
+
+        API.raw
+
+    );
+
+
+    console.log(
+
+        "[Financial] API.data:",
+
+        API.data
+
+    );
+
+
+}
+
+catch(error){
+
+    console.error(
+
+        "[Financial] API Error:",
+
+        error
+
+    );
+
+    return;
+
+}
+
+
+/* =============================================
+   PROCESS FINANCIAL DATA
+============================================= */
+
+try{
+
+    Process.init(
+
+        API.raw,
+
+        API.data
+
+    );
+
+
+    console.log(
+
+        "========== FINANCIAL PROCESS DEBUG =========="
+
+    );
+
+
+    console.log(
+
+        "[Financial] Process.data:",
+
+        Process.data
+
+    );
+
+
+    console.log(
+
+        "[Financial] Process.rules:",
+
+        Process.rules
+
+    );
+
+}
+
+catch(error){
+
+    console.error(
+
+        "[Financial] Process Error:",
+
+        error
+
+    );
+
+}
 
 
 /* =====================================================
