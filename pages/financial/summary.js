@@ -298,9 +298,7 @@ function renderOverview(){
 
     overview.balance,
 
-    rupiahSafe,
-
-    1200
+    rupiahSafe
 
 );
 
