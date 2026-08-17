@@ -955,3 +955,670 @@ body.input-open{
     }
 
 }
+
+
+/* =====================================================
+   CUSTOM SELECT WRAPPER
+===================================================== */
+
+.global-input-custom-select-wrapper{
+
+    position:relative;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   CUSTOM SELECT BUTTON
+===================================================== */
+
+.global-input-custom-select{
+
+    width:100%;
+
+    min-height:56px;
+
+    padding:14px 18px;
+
+    border:1px solid #d6dcdc;
+
+    border-radius:16px;
+
+    background:#ffffff;
+
+    color:#263f3c;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    font-size:16px;
+
+    font-family:inherit;
+
+    text-align:left;
+
+    cursor:pointer;
+
+    transition:
+
+        border-color .2s ease,
+
+        box-shadow .2s ease,
+
+        background .2s ease;
+
+}
+
+
+/* =====================================================
+   HOVER / FOCUS
+===================================================== */
+
+.global-input-custom-select:hover{
+
+    border-color:#9aabaa;
+
+}
+
+
+.global-input-custom-select:focus{
+
+    outline:none;
+
+    border-color:#284b47;
+
+    box-shadow:
+
+        0 0 0 3px
+
+        rgba(40,75,71,.10);
+
+}
+
+
+/* =====================================================
+   SELECT HAS VALUE
+===================================================== */
+
+.global-input-custom-select.has-value{
+
+    color:#263f3c;
+
+}
+
+
+/* =====================================================
+   VALUE
+===================================================== */
+
+.global-input-custom-value{
+
+    flex:1;
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   ARROW
+===================================================== */
+
+.global-input-custom-arrow{
+
+    flex-shrink:0;
+
+    font-size:16px;
+
+    color:#687875;
+
+    transition:
+
+        transform .2s ease;
+
+}
+
+
+.global-input-custom-select:focus
+
+.global-input-custom-arrow{
+
+    transform:
+
+        rotate(180deg);
+
+}
+
+
+/* =====================================================
+   FIELD NOTE
+===================================================== */
+
+.global-input-field-note{
+
+    display:block;
+
+    margin-top:8px;
+
+    color:#7b8987;
+
+    font-size:14px;
+
+    line-height:1.45;
+
+}
+
+
+/* =====================================================
+   PICKER ROOT
+===================================================== */
+
+.global-input-picker{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:99999;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:center;
+
+    visibility:hidden;
+
+    opacity:0;
+
+    transition:
+
+        opacity .2s ease,
+
+        visibility .2s ease;
+
+}
+
+
+/* =====================================================
+   PICKER OPEN
+===================================================== */
+
+.global-input-picker.is-open{
+
+    visibility:visible;
+
+    opacity:1;
+
+}
+
+
+/* =====================================================
+   BACKDROP
+===================================================== */
+
+.global-input-picker-backdrop{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+        rgba(0,0,0,.38);
+
+}
+
+
+/* =====================================================
+   PICKER PANEL
+===================================================== */
+
+.global-input-picker-panel{
+
+    position:relative;
+
+    z-index:1;
+
+    width:
+
+        min(
+
+            100%,
+
+            560px
+
+        );
+
+    max-height:75vh;
+
+    margin:
+
+        0 12px 12px;
+
+    background:#ffffff;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    box-shadow:
+
+        0 20px 60px
+
+        rgba(0,0,0,.22);
+
+    transform:
+
+        translateY(24px);
+
+    transition:
+
+        transform .25s ease;
+
+}
+
+
+.global-input-picker.is-open
+
+.global-input-picker-panel{
+
+    transform:
+
+        translateY(0);
+
+}
+
+
+/* =====================================================
+   PICKER HEADER
+===================================================== */
+
+.global-input-picker-header{
+
+    min-height:64px;
+
+    padding:16px 20px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    border-bottom:1px solid #e5e9e8;
+
+}
+
+
+/* =====================================================
+   PICKER TITLE
+===================================================== */
+
+.global-input-picker-header strong{
+
+    color:#263f3c;
+
+    font-size:18px;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   CLOSE
+===================================================== */
+
+.global-input-picker-close{
+
+    width:40px;
+
+    height:40px;
+
+    border:0;
+
+    border-radius:50%;
+
+    background:#eef3f2;
+
+    color:#263f3c;
+
+    font-size:24px;
+
+    line-height:1;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   OPTION LIST
+===================================================== */
+
+.global-input-picker-list{
+
+    max-height:
+
+        calc(
+
+            75vh - 64px
+
+        );
+
+    overflow-y:auto;
+
+    overscroll-behavior:contain;
+
+}
+
+
+/* =====================================================
+   OPTION
+===================================================== */
+
+.global-input-picker-option{
+
+    position:relative;
+
+    width:100%;
+
+    min-height:68px;
+
+    padding:16px 20px;
+
+    border:0;
+
+    border-bottom:1px solid #edf0ef;
+
+    background:#ffffff;
+
+    color:#263f3c;
+
+    display:grid;
+
+    grid-template-columns:
+
+        1fr auto;
+
+    align-items:center;
+
+    column-gap:16px;
+
+    text-align:left;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+    transition:
+
+        background .15s ease;
+
+}
+
+
+/* =====================================================
+   OPTION HOVER
+===================================================== */
+
+.global-input-picker-option:hover{
+
+    background:#f4f7f6;
+
+}
+
+
+/* =====================================================
+   OPTION SELECTED
+===================================================== */
+
+.global-input-picker-option.selected{
+
+    background:#f0f5f4;
+
+}
+
+
+/* =====================================================
+   OPTION CONTENT
+===================================================== */
+
+.global-input-picker-option-content{
+
+    min-width:0;
+
+    font-size:17px;
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   OPTION RADIO
+===================================================== */
+
+.global-input-picker-radio{
+
+    width:28px;
+
+    height:28px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    font-size:28px;
+
+    line-height:1;
+
+    color:#8b9694;
+
+}
+
+
+.global-input-picker-option.selected
+
+.global-input-picker-radio{
+
+    color:#e88ca2;
+
+}
+
+
+/* =====================================================
+   OPTION NOTE
+===================================================== */
+
+.global-input-picker-option-note{
+
+    grid-column:1 / -1;
+
+    margin-top:4px;
+
+    color:#7b8987;
+
+    font-size:13px;
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:600px
+
+){
+
+    .global-input-picker-panel{
+
+        width:
+
+            calc(
+
+                100% - 20px
+
+            );
+
+        margin:
+
+            0 10px 10px;
+
+        border-radius:22px;
+
+        max-height:80vh;
+
+    }
+
+
+    .global-input-picker-list{
+
+        max-height:
+
+            calc(
+
+                80vh - 64px
+
+            );
+
+    }
+
+
+    .global-input-picker-option{
+
+        min-height:64px;
+
+        padding:
+
+            15px 18px;
+
+    }
+
+
+    .global-input-picker-option-content{
+
+        font-size:16px;
+
+    }
+
+
+    .global-input-picker-option-note{
+
+        font-size:13px;
+
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREEN
+===================================================== */
+
+@media(
+
+    max-width:360px
+
+){
+
+    .global-input-custom-select{
+
+        min-height:52px;
+
+        padding:
+
+            13px 15px;
+
+    }
+
+
+    .global-input-picker-panel{
+
+        width:
+
+            calc(
+
+                100% - 12px
+
+            );
+
+        margin-bottom:6px;
+
+    }
+
+
+    .global-input-picker-header{
+
+        padding:
+
+            14px 16px;
+
+    }
+
+
+    .global-input-picker-option{
+
+        padding:
+
+            14px 16px;
+
+    }
+
+}
+
+
+/* =====================================================
+   REDUCE MOTION
+===================================================== */
+
+@media(
+
+    prefers-reduced-motion: reduce
+
+){
+
+    .global-input-picker,
+
+    .global-input-picker-panel,
+
+    .global-input-custom-select,
+
+    .global-input-custom-arrow{
+
+        transition:none;
+
+    }
+
+}
