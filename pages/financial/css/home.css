@@ -190,11 +190,13 @@
 
     color:var(--text);
 
-    font-size:18px;
+    font-size:20px;
 
     line-height:1.25;
 
-    font-weight:700;
+    font-weight:800;
+
+    letter-spacing:-.2px;
 
     word-break:break-word;
 
@@ -211,14 +213,15 @@
 
     color:var(--text);
 
-    font-size:16px;
+    font-size:18px;
 
     line-height:1.35;
 
     font-weight:700;
 
-}
+    font-style:italic;
 
+}
 
 /* =====================================================
    HIGHEST EXPENSE VALUE
@@ -303,9 +306,11 @@
 
     .financial-home-expense-item strong{
 
-        font-size:16px;
+    font-size:18px;
 
-    }
+    font-weight:800;
+
+}
 
 
     .financial-home-highest-date{
