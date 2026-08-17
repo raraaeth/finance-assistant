@@ -17,7 +17,7 @@
 
 
 /* =====================================================
-   OVERVIEW CARD
+   OVERVIEW
 ===================================================== */
 
 #summary-overview-card{
@@ -36,7 +36,7 @@
 
 
 /* =====================================================
-   BALANCE CARD
+   OVERVIEW : BALANCE
 ===================================================== */
 
 .financial-overview-balance{
@@ -105,7 +105,7 @@
 
 
 /* =====================================================
-   MONTHLY GRID
+   OVERVIEW : MONTHLY GRID
 ===================================================== */
 
 .financial-overview-monthly{
@@ -203,74 +203,6 @@
 
 
 /* =====================================================
-   MOBILE
-===================================================== */
-
-@media(
-
-    max-width:480px
-
-){
-
-    #summary-overview-card{
-
-        padding:16px 12px;
-
-        gap:10px;
-
-    }
-
-
-    .financial-overview-balance{
-
-        padding:20px 18px;
-
-        border-radius:18px;
-
-    }
-
-
-    .financial-overview-balance-value{
-
-        font-size:27px;
-
-    }
-
-
-    .financial-overview-monthly{
-
-        gap:10px;
-
-    }
-
-
-    .financial-overview-item{
-
-        min-height:82px;
-
-        padding:14px 12px;
-
-        border-radius:16px;
-
-    }
-
-
-    .financial-overview-item span{
-
-        font-size:12px;
-
-    }
-
-
-    .financial-overview-item strong{
-
-        font-size:16px;
-
-    }
-
-}
-
-/* =====================================================
    FINANCIAL POSITION
 ===================================================== */
 
@@ -281,11 +213,17 @@
     grid-template-columns:
 
         repeat(
+
             2,
+
             minmax(
+
                 0,
+
                 1fr
+
             )
+
         );
 
     gap:14px;
@@ -396,6 +334,42 @@
 
 
 /* =====================================================
+   DEBT
+===================================================== */
+
+.debt-card{
+
+    grid-column:1 / -1;
+
+}
+
+
+/* =====================================================
+   DEBT EMOJI
+===================================================== */
+
+.financial-position-emoji{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:44px;
+
+    height:44px;
+
+    flex-shrink:0;
+
+    font-size:38px;
+
+    line-height:1;
+
+}
+
+
+/* =====================================================
    DEBT ROW
 ===================================================== */
 
@@ -435,144 +409,7 @@
 
 
 /* =====================================================
-   DEBT CARD
-===================================================== */
-
-.debt-card{
-
-    grid-column:1 / -1;
-
-}
-
-.financial-position-emoji{
-
-    width:44px;
-
-    height:44px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    flex-shrink:0;
-
-    font-size:38px;
-
-    line-height:1;
-
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media(
-
-    max-width:480px
-
-){
-
-    #summary-financial-position-card{
-
-        grid-template-columns:
-
-            repeat(
-                2,
-                minmax(
-                    0,
-                    1fr
-                )
-            );
-
-        gap:10px;
-
-    }
-
-
-    .financial-position-card{
-
-        padding:15px;
-
-        border-radius:16px;
-
-        gap:12px;
-
-    }
-
-
-    .financial-position-icon{
-
-        width:38px;
-
-        height:38px;
-
-    }
-
-
-    .financial-position-header strong{
-
-        font-size:15px;
-
-    }
-
-
-    .financial-position-value{
-
-        font-size:18px;
-
-    }
-
-
-    .financial-position-row{
-
-        align-items:flex-start;
-
-        flex-direction:column;
-
-        gap:4px;
-
-    }
-
-
-    .financial-position-row strong{
-
-        font-size:15px;
-
-        text-align:left;
-
-    }
-
-}
-
-@media(
-
-    max-width:480px
-
-){
-
-    .financial-position-emoji{
-
-        width:38px;
-
-        height:38px;
-
-        font-size:32px;
-
-    }
-
-}
-
-/* =====================================================
-   FINANCIAL
-   SUMMARY : DISTRIBUTION
-===================================================== */
-
-
-/* =====================================================
-   DISTRIBUTION CARD
+   DISTRIBUTION
 ===================================================== */
 
 #summary-distribution-card{
@@ -589,7 +426,7 @@
 
 
 /* =====================================================
-   DONUT
+   DISTRIBUTION : DONUT
 ===================================================== */
 
 #summary-distribution-chart{
@@ -608,16 +445,16 @@
 
 
 /* =====================================================
-   DISTRIBUTION LIST
+   DISTRIBUTION : LIST
 ===================================================== */
 
 #summary-distribution-list{
 
-    width:100%;
-
     display:flex;
 
     flex-direction:column;
+
+    width:100%;
 
     gap:0;
 
@@ -625,12 +462,18 @@
 
 
 /* =====================================================
-   GROUP
+   DISTRIBUTION : GROUP
 ===================================================== */
 
 .distribution-group{
 
+    display:flex;
+
+    flex-direction:column;
+
     width:100%;
+
+    gap:16px;
 
 }
 
@@ -641,13 +484,15 @@
 
 .distribution-group-title{
 
-    margin-bottom:16px;
+    color:var(--text);
+
+    margin:0;
 
     font-size:16px;
 
-    font-weight:700;
+    line-height:1.3;
 
-    color:var(--text-primary);
+    font-weight:700;
 
 }
 
@@ -658,9 +503,13 @@
 
 .distribution-item{
 
+    display:flex;
+
+    flex-direction:column;
+
     width:100%;
 
-    margin-bottom:20px;
+    gap:7px;
 
 }
 
@@ -679,7 +528,7 @@
 
     gap:16px;
 
-    margin-bottom:8px;
+    width:100%;
 
 }
 
@@ -694,11 +543,13 @@
 
     white-space:nowrap;
 
+    color:var(--text);
+
     font-size:16px;
 
-    font-weight:600;
+    line-height:1.3;
 
-    color:var(--text-primary);
+    font-weight:600;
 
 }
 
@@ -707,24 +558,30 @@
 
     flex-shrink:0;
 
+    color:var(--text);
+
     font-size:16px;
+
+    line-height:1.3;
 
     font-weight:700;
 
-    color:var(--text-primary);
+    text-align:right;
+
+    white-space:nowrap;
 
 }
 
 
 /* =====================================================
-   BAR
+   DISTRIBUTION : BAR TRACK
 ===================================================== */
 
 .distribution-bar-track{
 
     width:100%;
 
-    height:10px;
+    height:9px;
 
     overflow:hidden;
 
@@ -732,12 +589,24 @@
 
     background:
 
-        var(--surface-secondary);
+        var(
+
+            --surface-secondary,
+
+            #e8edf5
+
+        );
 
 }
 
 
+/* =====================================================
+   DISTRIBUTION : BAR FILL
+===================================================== */
+
 .distribution-bar-fill{
+
+    width:0;
 
     height:100%;
 
@@ -753,29 +622,45 @@
 
 
 /* =====================================================
-   INCOME / EXPENSE
+   INCOME BAR
 ===================================================== */
 
 .distribution-bar-fill.income{
 
     background:
 
-        var(--success);
+        var(
 
-}
+            --success,
 
+            #16a34a
 
-.distribution-bar-fill.expense{
-
-    background:
-
-        var(--danger);
+        );
 
 }
 
 
 /* =====================================================
-   DIVIDER
+   EXPENSE BAR
+===================================================== */
+
+.distribution-bar-fill.expense{
+
+    background:
+
+        var(
+
+            --danger,
+
+            #dc2626
+
+        );
+
+}
+
+
+/* =====================================================
+   DISTRIBUTION : DIVIDER
 ===================================================== */
 
 .distribution-divider{
@@ -784,28 +669,34 @@
 
     height:1px;
 
-    margin:8px 0 24px;
+    margin:18px 0;
 
     background:
 
-        var(--border-color);
+        var(
+
+            --border-color,
+
+            #e5e7eb
+
+        );
 
 }
 
 
 /* =====================================================
-   EMPTY
+   DISTRIBUTION : EMPTY
 ===================================================== */
 
 .distribution-empty{
 
     padding:30px 10px;
 
-    text-align:center;
+    color:var(--text-secondary);
 
     font-size:14px;
 
-    color:var(--text-secondary);
+    text-align:center;
 
 }
 
@@ -819,6 +710,184 @@
     max-width:600px
 
 ){
+
+    /* ---------------------------------------------
+       OVERVIEW
+    --------------------------------------------- */
+
+    #summary-overview-card{
+
+        gap:10px;
+
+        padding:16px 12px;
+
+    }
+
+
+    .financial-overview-balance{
+
+        padding:20px 18px;
+
+        border-radius:18px;
+
+    }
+
+
+    .financial-overview-balance-value{
+
+        font-size:27px;
+
+    }
+
+
+    .financial-overview-monthly{
+
+        gap:10px;
+
+    }
+
+
+    .financial-overview-item{
+
+        min-height:82px;
+
+        padding:14px 12px;
+
+        border-radius:16px;
+
+    }
+
+
+    .financial-overview-item span{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-overview-item strong{
+
+        font-size:16px;
+
+    }
+
+
+    /* ---------------------------------------------
+       FINANCIAL POSITION
+    --------------------------------------------- */
+
+    #summary-financial-position-card{
+
+        grid-template-columns:
+
+            repeat(
+
+                2,
+
+                minmax(
+
+                    0,
+
+                    1fr
+
+                )
+
+            );
+
+        gap:10px;
+
+    }
+
+
+    .financial-position-card{
+
+        gap:12px;
+
+        padding:15px;
+
+        border-radius:16px;
+
+    }
+
+
+    .financial-position-icon{
+
+        width:38px;
+
+        height:38px;
+
+    }
+
+
+    .financial-position-emoji{
+
+        width:38px;
+
+        height:38px;
+
+        font-size:32px;
+
+    }
+
+
+    .financial-position-header{
+
+        gap:8px;
+
+    }
+
+
+    .financial-position-header strong{
+
+        font-size:15px;
+
+    }
+
+
+    .financial-position-value{
+
+        font-size:18px;
+
+    }
+
+
+    .financial-position-last{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-position-row{
+
+        align-items:flex-start;
+
+        flex-direction:column;
+
+        gap:4px;
+
+    }
+
+
+    .financial-position-row span{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-position-row strong{
+
+        font-size:15px;
+
+        text-align:left;
+
+    }
+
+
+    /* ---------------------------------------------
+       DISTRIBUTION
+    --------------------------------------------- */
 
     #summary-distribution-card{
 
@@ -840,6 +909,20 @@
     }
 
 
+    .distribution-group{
+
+        gap:14px;
+
+    }
+
+
+    .distribution-group-title{
+
+        font-size:15px;
+
+    }
+
+
     .distribution-item-header{
 
         gap:10px;
@@ -852,6 +935,20 @@
     .distribution-item-header strong{
 
         font-size:15px;
+
+    }
+
+
+    .distribution-bar-track{
+
+        height:8px;
+
+    }
+
+
+    .distribution-divider{
+
+        margin:16px 0;
 
     }
 
