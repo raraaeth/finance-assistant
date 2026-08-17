@@ -564,3 +564,295 @@
     }
 
 }
+
+/* =====================================================
+   FINANCIAL
+   SUMMARY : DISTRIBUTION
+===================================================== */
+
+
+/* =====================================================
+   DISTRIBUTION CARD
+===================================================== */
+
+#summary-distribution-card{
+
+    position:relative;
+
+    width:100%;
+
+    box-sizing:border-box;
+
+    padding:28px 22px 30px;
+
+}
+
+
+/* =====================================================
+   DONUT
+===================================================== */
+
+#summary-distribution-chart{
+
+    display:block;
+
+    width:100% !important;
+
+    height:320px !important;
+
+    max-height:320px;
+
+    margin:0 auto 28px;
+
+}
+
+
+/* =====================================================
+   DISTRIBUTION LIST
+===================================================== */
+
+#summary-distribution-list{
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:0;
+
+}
+
+
+/* =====================================================
+   GROUP
+===================================================== */
+
+.distribution-group{
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   GROUP TITLE
+===================================================== */
+
+.distribution-group-title{
+
+    margin-bottom:16px;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   DISTRIBUTION ITEM
+===================================================== */
+
+.distribution-item{
+
+    width:100%;
+
+    margin-bottom:20px;
+
+}
+
+
+/* =====================================================
+   ITEM HEADER
+===================================================== */
+
+.distribution-item-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    margin-bottom:8px;
+
+}
+
+
+.distribution-item-header span{
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    color:var(--text-primary);
+
+}
+
+
+.distribution-item-header strong{
+
+    flex-shrink:0;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   BAR
+===================================================== */
+
+.distribution-bar-track{
+
+    width:100%;
+
+    height:10px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:
+
+        var(--surface-secondary);
+
+}
+
+
+.distribution-bar-fill{
+
+    height:100%;
+
+    min-width:2px;
+
+    border-radius:999px;
+
+    transition:
+
+        width .5s ease;
+
+}
+
+
+/* =====================================================
+   INCOME / EXPENSE
+===================================================== */
+
+.distribution-bar-fill.income{
+
+    background:
+
+        var(--success);
+
+}
+
+
+.distribution-bar-fill.expense{
+
+    background:
+
+        var(--danger);
+
+}
+
+
+/* =====================================================
+   DIVIDER
+===================================================== */
+
+.distribution-divider{
+
+    width:100%;
+
+    height:1px;
+
+    margin:8px 0 24px;
+
+    background:
+
+        var(--border-color);
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.distribution-empty{
+
+    padding:30px 10px;
+
+    text-align:center;
+
+    font-size:14px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:600px
+
+){
+
+    #summary-distribution-card{
+
+        padding:
+
+            24px 18px 26px;
+
+    }
+
+
+    #summary-distribution-chart{
+
+        height:280px !important;
+
+        max-height:280px;
+
+        margin-bottom:24px;
+
+    }
+
+
+    .distribution-item-header{
+
+        gap:10px;
+
+    }
+
+
+    .distribution-item-header span,
+
+    .distribution-item-header strong{
+
+        font-size:15px;
+
+    }
+
+}
