@@ -681,3 +681,34 @@ function rupiahSafe(
     );
 
 }
+
+function shortRupiahSafe(
+
+    value
+
+){
+
+    if(
+
+        typeof shortRupiah ===
+
+        "function"
+
+    ){
+
+        return shortRupiah(
+
+            value
+
+        );
+
+    }
+
+
+    return rupiahSafe(
+
+        value
+
+    );
+
+}
