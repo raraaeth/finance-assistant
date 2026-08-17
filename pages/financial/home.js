@@ -127,13 +127,43 @@ export async function init(){
 
         );
 
+
+        /* -----------------------------------------
+           API DEBUG
+        ----------------------------------------- */
+
+        console.log(
+
+            "========== FINANCIAL API DEBUG =========="
+
+        );
+
+
+        console.log(
+
+            "[Financial] API.raw:",
+
+            API.raw
+
+        );
+
+
+        console.log(
+
+            "[Financial] API.data:",
+
+            API.data
+
+        );
+
+
     }
 
     catch(error){
 
         console.error(
 
-            "Financial API Error:",
+            "[Financial] API Error:",
 
             error
 
@@ -160,6 +190,44 @@ export async function init(){
 
 
         /* -----------------------------------------
+           PROCESS DEBUG
+        ----------------------------------------- */
+
+        console.log(
+
+            "========== FINANCIAL PROCESS DEBUG =========="
+
+        );
+
+
+        console.log(
+
+            "[Financial] Process:",
+
+            Process
+
+        );
+
+
+        console.log(
+
+            "[Financial] Process.data:",
+
+            Process.data
+
+        );
+
+
+        console.log(
+
+            "[Financial] Process.rules:",
+
+            Process.rules
+
+        );
+
+
+        /* -----------------------------------------
            SUMMARY
         ----------------------------------------- */
 
@@ -179,13 +247,14 @@ export async function init(){
 
         renderSetting();
 
+
     }
 
     catch(error){
 
         console.error(
 
-            "Financial Process Error:",
+            "[Financial] Process Error:",
 
             error
 
@@ -205,115 +274,6 @@ export async function init(){
             "#profile-page"
 
     });
-
-}
-/* =============================================
-   LOAD FINANCIAL DATA
-============================================= */
-
-try{
-
-    await API.load(
-
-        CONFIG.api.financial,
-
-        CONFIG.api.activity
-
-    );
-
-
-    console.log(
-
-        "========== FINANCIAL API DEBUG =========="
-
-    );
-
-
-    console.log(
-
-        "[Financial] API.raw:",
-
-        API.raw
-
-    );
-
-
-    console.log(
-
-        "[Financial] API.data:",
-
-        API.data
-
-    );
-
-
-}
-
-catch(error){
-
-    console.error(
-
-        "[Financial] API Error:",
-
-        error
-
-    );
-
-    return;
-
-}
-
-
-/* =============================================
-   PROCESS FINANCIAL DATA
-============================================= */
-
-try{
-
-    Process.init(
-
-        API.raw,
-
-        API.data
-
-    );
-
-
-    console.log(
-
-        "========== FINANCIAL PROCESS DEBUG =========="
-
-    );
-
-
-    console.log(
-
-        "[Financial] Process.data:",
-
-        Process.data
-
-    );
-
-
-    console.log(
-
-        "[Financial] Process.rules:",
-
-        Process.rules
-
-    );
-
-}
-
-catch(error){
-
-    console.error(
-
-        "[Financial] Process Error:",
-
-        error
-
-    );
 
 }
 
