@@ -1,1 +1,265 @@
+/* =====================================================
+   Finance Assistant
+   Page        : Financial
+   Module      : Summary
+   File        : summary.css
+   Version     : 1.0.0
 
+   Description :
+   Financial Summary Styling
+
+   Theme Aware :
+   - Light
+   - Dark
+   - Green
+   - Pink
+===================================================== */
+
+
+/* =====================================================
+   OVERVIEW CARD
+===================================================== */
+
+#summary-overview-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+    padding:20px;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   BALANCE CARD
+===================================================== */
+
+.financial-overview-balance{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    width:100%;
+
+    padding:22px;
+
+    box-sizing:border-box;
+
+    border-radius:20px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   BALANCE LABEL
+===================================================== */
+
+.financial-overview-label{
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    line-height:1.35;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   BALANCE VALUE
+===================================================== */
+
+.financial-overview-balance-value{
+
+    color:var(--text);
+
+    font-size:30px;
+
+    line-height:1.2;
+
+    font-weight:800;
+
+    letter-spacing:-.4px;
+
+    word-break:break-word;
+
+}
+
+
+/* =====================================================
+   MONTHLY GRID
+===================================================== */
+
+.financial-overview-monthly{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            2,
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+        );
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   MONTHLY ITEM
+===================================================== */
+
+.financial-overview-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+    min-width:0;
+
+    min-height:88px;
+
+    padding:16px;
+
+    box-sizing:border-box;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   MONTHLY LABEL
+===================================================== */
+
+.financial-overview-item span{
+
+    display:block;
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+    line-height:1.35;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   MONTHLY VALUE
+===================================================== */
+
+.financial-overview-item strong{
+
+    display:block;
+
+    margin-top:10px;
+
+    color:var(--text);
+
+    font-size:18px;
+
+    line-height:1.25;
+
+    font-weight:700;
+
+    word-break:break-word;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    #summary-overview-card{
+
+        padding:16px 12px;
+
+        gap:10px;
+
+    }
+
+
+    .financial-overview-balance{
+
+        padding:20px 18px;
+
+        border-radius:18px;
+
+    }
+
+
+    .financial-overview-balance-value{
+
+        font-size:27px;
+
+    }
+
+
+    .financial-overview-monthly{
+
+        gap:10px;
+
+    }
+
+
+    .financial-overview-item{
+
+        min-height:82px;
+
+        padding:14px 12px;
+
+        border-radius:16px;
+
+    }
+
+
+    .financial-overview-item span{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-overview-item strong{
+
+        font-size:16px;
+
+    }
+
+}
