@@ -4638,6 +4638,77 @@ function formatResultValue(
 
 ){
 
+    /* =============================================
+       CHECKBOX RESULT DARI NORMALIZED VALUE
+
+       Contoh:
+
+       field.resultValue :
+           "sabtu"
+
+       data.waktu :
+           "sabtu,minggu"
+
+       Hasil :
+           Ya
+    ============================================= */
+
+    if(
+
+        field.resultValue
+
+    ){
+
+        const values =
+
+            String(
+
+                data?.waktu ?? ""
+
+            )
+
+            .split(",")
+
+            .map(
+
+                item =>
+
+                    item.trim()
+
+            )
+
+            .filter(
+
+                Boolean
+
+            );
+
+
+        return values.includes(
+
+            String(
+
+                field.resultValue
+
+            )
+
+        )
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
+
+    }
+
+
+    /* =============================================
+       EMPTY VALUE
+    ============================================= */
+
     if(
 
         value === undefined ||
@@ -4675,57 +4746,9 @@ function formatResultValue(
 
     }
 
-    /* =============================================
-       CHECKBOX RESULT DARI NORMALIZED VALUE
-       Contoh:
-       field.resultValue = "sabtu"
-       data.waktu = "sabtu,minggu"
-    ============================================= */
-
-    if(
-
-        field.resultValue
-
-    ){
-
-        const values =
-
-            String(
-
-                data?.waktu ?? ""
-
-            )
-
-            .split(",")
-
-            .map(
-
-                item =>
-
-                    item.trim()
-
-            );
-
-
-        return values.includes(
-
-            field.resultValue
-
-        )
-
-            ?
-
-            "Ya"
-
-            :
-
-            "Tidak";
-
-    }
-
 
     /* =============================================
-       CHECKBOX
+       NORMAL CHECKBOX
     ============================================= */
 
     if(
@@ -4752,7 +4775,6 @@ function formatResultValue(
     return value;
 
 }
-
 
 /* =====================================================
    COLLECT ALL RESULTS
