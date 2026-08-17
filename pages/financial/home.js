@@ -543,6 +543,88 @@ function renderSummary(){
             </div>
 
 
+            <!-- ======================================
+                 HIGHEST EXPENSE DAYS
+            ======================================= -->
+
+            <div class="financial-home-expense-grid">
+
+
+                <!-- CURRENT MONTH -->
+
+                <div class="financial-home-expense-item">
+
+                    <span>
+
+                        Hari Pengeluaran Terbesar Bulan Ini
+
+                    </span>
+
+
+                    <strong>
+
+                        ${
+
+                            statistics.currentHighest
+
+                                ?
+
+                                formatHighestExpense(
+
+                                    statistics.currentHighest
+
+                                )
+
+                                :
+
+                                "Belum ada pengeluaran"
+
+                        }
+
+                    </strong>
+
+                </div>
+
+
+                <!-- PREVIOUS MONTH -->
+
+                <div class="financial-home-expense-item">
+
+                    <span>
+
+                        Hari Pengeluaran Terbesar Bulan Sebelumnya
+
+                    </span>
+
+
+                    <strong>
+
+                        ${
+
+                            statistics.previousHighest
+
+                                ?
+
+                                formatHighestExpense(
+
+                                    statistics.previousHighest
+
+                                )
+
+                                :
+
+                                "Belum ada pengeluaran"
+
+                        }
+
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
         </div>
 
     `;
@@ -563,12 +645,11 @@ function renderSummary(){
         summary.balance,
 
         rupiah,
-        
 
     );
 
 }
-      
+
 /* =====================================================
    HOME EXPENSE CALCULATION
 ===================================================== */
@@ -626,9 +707,11 @@ function calculateHomeExpenses(
         previousDate.getMonth();
 
 
-    /*
-     * Awal minggu = Senin
-     */
+    /* =============================================
+       START OF WEEK
+
+       Senin → hari ini
+    ============================================= */
 
     const startOfWeek =
 
@@ -686,6 +769,11 @@ function calculateHomeExpenses(
     let previousMonthTotal = 0;
 
 
+    const currentDays = {};
+
+    const previousDays = {};
+
+
     data.forEach(
 
         item => {
@@ -736,6 +824,21 @@ function calculateHomeExpenses(
 
             if(
 
+                nominal <= 0
+
+            ){
+
+                return;
+
+            }
+
+
+            /* =====================================
+               TODAY
+            ===================================== */
+
+            if(
+
                 item.date ===
 
                 todayKey
@@ -748,6 +851,10 @@ function calculateHomeExpenses(
 
             }
 
+
+            /* =====================================
+               THIS WEEK
+            ===================================== */
 
             if(
 
@@ -768,6 +875,10 @@ function calculateHomeExpenses(
             }
 
 
+            /* =====================================
+               CURRENT MONTH
+            ===================================== */
+
             if(
 
                 date.getFullYear() ===
@@ -784,8 +895,25 @@ function calculateHomeExpenses(
 
                     nominal;
 
+
+                currentDays[item.date] =
+
+                    (
+
+                        currentDays[item.date] ??
+
+                        0
+
+                    ) +
+
+                    nominal;
+
             }
 
+
+            /* =====================================
+               PREVIOUS MONTH
+            ===================================== */
 
             if(
 
@@ -800,6 +928,19 @@ function calculateHomeExpenses(
             ){
 
                 previousMonthTotal +=
+
+                    nominal;
+
+
+                previousDays[item.date] =
+
+                    (
+
+                        previousDays[item.date] ??
+
+                        0
+
+                    ) +
 
                     nominal;
 
@@ -822,13 +963,154 @@ function calculateHomeExpenses(
 
         previousMonth :
 
-            previousMonthTotal
+            previousMonthTotal,
+
+        currentHighest :
+
+            getHighestExpenseDay(
+
+                currentDays
+
+            ),
+
+        previousHighest :
+
+            getHighestExpenseDay(
+
+                previousDays
+
+            )
 
     };
 
 }
 
+/* =====================================================
+   HIGHEST EXPENSE DAY
+===================================================== */
 
+function getHighestExpenseDay(
+
+    days
+
+){
+
+    const entries =
+
+        Object.entries(
+
+            days
+
+        );
+
+
+    if(
+
+        !entries.length
+
+    ){
+
+        return null;
+
+    }
+
+
+    entries.sort(
+
+        (a, b) =>
+
+            b[1] - a[1]
+
+    );
+
+
+    return {
+
+        date :
+
+            entries[0][0],
+
+        total :
+
+            entries[0][1]
+
+    };
+
+}
+
+/* =====================================================
+   HIGHEST EXPENSE FORMAT
+===================================================== */
+
+function formatHighestExpense(
+
+    data
+
+){
+
+    const date =
+
+        parseLocalDate(
+
+            data.date
+
+        );
+
+
+    if(
+
+        !date
+
+    ){
+
+        return shortRupiah(
+
+            data.total
+
+        );
+
+    }
+
+
+    const dateText =
+
+        date.toLocaleDateString(
+
+            "id-ID",
+
+            {
+
+                day :
+
+                    "numeric",
+
+                month :
+
+                    "long"
+
+            }
+
+        );
+
+
+    return `
+
+        <span class="financial-home-highest-date">
+
+            ${dateText}
+
+        </span>
+
+
+        <span class="financial-home-highest-value">
+
+            ${shortRupiah(data.total)}
+
+        </span>
+
+    `;
+
+}
 
 /* =====================================================
    INPUT
