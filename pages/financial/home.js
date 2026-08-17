@@ -556,7 +556,7 @@ function renderSummary(){
 
                     <span>
 
-                        Hari Pengeluaran Terbesar Bulan Ini
+                        Pengeluaran Terbesar Bulan Ini
 
                     </span>
 
@@ -592,7 +592,7 @@ function renderSummary(){
 
                     <span>
 
-                        Hari Pengeluaran Terbesar Bulan Sebelumnya
+                        Pengeluaran Terbesar Bulan Lalu
 
                     </span>
 
