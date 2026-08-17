@@ -81,9 +81,18 @@ import {
 
 import {
 
+    shortRupiah,
+
     rupiah
 
 } from "../../js/utils.js";
+
+
+import {
+
+    Animation
+
+} from "../../js/animation.js";
 
 import {
    
@@ -349,7 +358,6 @@ function renderHero(){
 
 function renderSummary(){
 
-
     const card =
 
         document.getElementById(
@@ -376,47 +384,450 @@ function renderSummary(){
 
         {
 
-            income : 0,
-
-            expense : 0,
-
             balance : 0
 
         };
+
+
+    const statistics =
+
+        calculateHomeExpenses(
+
+            Process.data
+
+        );
 
 
     card.innerHTML =
 
     `
 
-        <div class="summary-total">
-
-            <p>
-
-                Saldo Saat Ini
-
-            </p>
+        <div class="financial-home-summary">
 
 
-            <h2>
+            <!-- ======================================
+                 TOTAL SALDO ACTUAL
+            ======================================= -->
 
-                ${
+            <div class="financial-home-balance">
 
-                    rupiah(
+                <span class="financial-home-balance-label">
 
-                        summary.balance
+                    Total Saldo Actual
 
-                    )
+                </span>
 
-                }
 
-            </h2>
+                <strong
+                    id="financial-home-balance"
+                    class="financial-home-balance-value">
+
+                    Rp 0
+
+                </strong>
+
+            </div>
+
+
+            <!-- ======================================
+                 EXPENSE SUMMARY
+            ======================================= -->
+
+            <div class="financial-home-expense-grid">
+
+
+                <div class="financial-home-expense-item">
+
+                    <span>
+
+                        Pengeluaran Hari Ini
+
+                    </span>
+
+
+                    <strong>
+
+                        ${
+
+                            shortRupiah(
+
+                                statistics.today
+
+                            )
+
+                        }
+
+                    </strong>
+
+                </div>
+
+
+                <div class="financial-home-expense-item">
+
+                    <span>
+
+                        Pengeluaran Minggu Ini
+
+                    </span>
+
+
+                    <strong>
+
+                        ${
+
+                            shortRupiah(
+
+                                statistics.week
+
+                            )
+
+                        }
+
+                    </strong>
+
+                </div>
+
+
+                <div class="financial-home-expense-item">
+
+                    <span>
+
+                        Pengeluaran Bulan Ini
+
+                    </span>
+
+
+                    <strong>
+
+                        ${
+
+                            shortRupiah(
+
+                                statistics.currentMonth
+
+                            )
+
+                        }
+
+                    </strong>
+
+                </div>
+
+
+                <div class="financial-home-expense-item">
+
+                    <span>
+
+                        Pengeluaran Bulan Sebelumnya
+
+                    </span>
+
+
+                    <strong>
+
+                        ${
+
+                            shortRupiah(
+
+                                statistics.previousMonth
+
+                            )
+
+                        }
+
+                    </strong>
+
+                </div>
+
+
+            </div>
+
 
         </div>
 
     `;
 
+
+    /* =============================================
+       BALANCE ANIMATION
+    ============================================= */
+
+    Animation.number(
+
+        document.getElementById(
+
+            "financial-home-balance"
+
+        ),
+
+        summary.balance,
+
+        rupiah,
+        
+
+    );
+
 }
+      
+/* =====================================================
+   HOME EXPENSE CALCULATION
+===================================================== */
+
+function calculateHomeExpenses(
+
+    data = []
+
+){
+
+    const now =
+
+        new Date();
+
+
+    const todayKey =
+
+        formatDateKey(
+
+            now
+
+        );
+
+
+    const currentYear =
+
+        now.getFullYear();
+
+
+    const currentMonth =
+
+        now.getMonth();
+
+
+    const previousDate =
+
+        new Date(
+
+            currentYear,
+
+            currentMonth - 1,
+
+            1
+
+        );
+
+
+    const previousYear =
+
+        previousDate.getFullYear();
+
+
+    const previousMonth =
+
+        previousDate.getMonth();
+
+
+    /*
+     * Awal minggu = Senin
+     */
+
+    const startOfWeek =
+
+        new Date(
+
+            now
+
+        );
+
+
+    const day =
+
+        startOfWeek.getDay();
+
+
+    const diff =
+
+        day === 0
+
+            ?
+
+            6
+
+            :
+
+            day - 1;
+
+
+    startOfWeek.setDate(
+
+        now.getDate() - diff
+
+    );
+
+
+    startOfWeek.setHours(
+
+        0,
+
+        0,
+
+        0,
+
+        0
+
+    );
+
+
+    let today = 0;
+
+    let week = 0;
+
+    let currentMonthTotal = 0;
+
+    let previousMonthTotal = 0;
+
+
+    data.forEach(
+
+        item => {
+
+            if(
+
+                !item ||
+
+                item.jenis !== "keluar" ||
+
+                !item.date
+
+            ){
+
+                return;
+
+            }
+
+
+            const date =
+
+                parseLocalDate(
+
+                    item.date
+
+                );
+
+
+            if(
+
+                !date
+
+            ){
+
+                return;
+
+            }
+
+
+            const nominal =
+
+                toNumber(
+
+                    item.nominal
+
+                );
+
+
+            if(
+
+                item.date ===
+
+                todayKey
+
+            ){
+
+                today +=
+
+                    nominal;
+
+            }
+
+
+            if(
+
+                date >=
+
+                startOfWeek &&
+
+                date <=
+
+                now
+
+            ){
+
+                week +=
+
+                    nominal;
+
+            }
+
+
+            if(
+
+                date.getFullYear() ===
+
+                    currentYear &&
+
+                date.getMonth() ===
+
+                    currentMonth
+
+            ){
+
+                currentMonthTotal +=
+
+                    nominal;
+
+            }
+
+
+            if(
+
+                date.getFullYear() ===
+
+                    previousYear &&
+
+                date.getMonth() ===
+
+                    previousMonth
+
+            ){
+
+                previousMonthTotal +=
+
+                    nominal;
+
+            }
+
+        }
+
+    );
+
+
+    return {
+
+        today,
+
+        week,
+
+        currentMonth :
+
+            currentMonthTotal,
+
+        previousMonth :
+
+            previousMonthTotal
+
+    };
+
+}
+
 
 
 /* =====================================================
@@ -662,6 +1073,162 @@ function renderSetting(){
 
 }
 
+
+/* =====================================================
+   DATE KEY
+===================================================== */
+
+function formatDateKey(
+
+    date
+
+){
+
+    return [
+
+        date.getFullYear(),
+
+        String(
+
+            date.getMonth() + 1
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        ),
+
+        String(
+
+            date.getDate()
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        )
+
+    ].join("-");
+
+}
+
+
+/* =====================================================
+   PARSE LOCAL DATE
+===================================================== */
+
+function parseLocalDate(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return null;
+
+    }
+
+
+    const parts =
+
+        String(
+
+            value
+
+        )
+
+        .split("-")
+
+        .map(Number);
+
+
+    if(
+
+        parts.length !== 3
+
+    ){
+
+        return null;
+
+    }
+
+
+    const date =
+
+        new Date(
+
+            parts[0],
+
+            parts[1] - 1,
+
+            parts[2]
+
+        );
+
+
+    if(
+
+        Number.isNaN(
+
+            date.getTime()
+
+        )
+
+    ){
+
+        return null;
+
+    }
+
+
+    return date;
+
+}
+
+
+/* =====================================================
+   NUMBER
+===================================================== */
+
+function toNumber(
+
+    value
+
+){
+
+    const number =
+
+        Number(
+
+            value
+
+        );
+
+
+    return Number.isFinite(
+
+        number
+
+    )
+
+        ?
+
+        number
+
+        :
+
+        0;
+
+}
 
 /* =====================================================
    HELPER
