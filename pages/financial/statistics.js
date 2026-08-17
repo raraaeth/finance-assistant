@@ -840,68 +840,76 @@ Statistics.renderTransaction = function(){
 
                                 item => `
 
-                                    <div
-
-                                        class="transaction-work-row"
-
-                                    >
+                                <div class="transaction-work-row">
 
 
-                                        <span
+    <div class="transaction-info">
 
-                                            class="transaction-name"
+        <div class="transaction-name">
 
-                                        >
+            ${
 
-                                            ${
+                escapeHTML(
 
-                                                escapeHTML(
+                    item.name
 
-                                                    item.name
+                )
 
-                                                )
+            }
 
-                                            }
-
-                                        </span>
+        </div>
 
 
-                                        <span
+        ${
 
-                                            class="transaction-amount
+            item.keterangan
 
-                                            ${
+                ?
 
-                                                item.category ===
+                `
 
-                                                "income"
+                    <div class="transaction-note">
 
-                                                    ?
+                        ${
 
-                                                    "transaction-income"
+                            escapeHTML(
 
-                                                    :
+                                item.keterangan
 
-                                                    "transaction-expense"
+                            )
 
-                                            }"
+                        }
 
-                                        >
+                    </div>
 
-                                            ${
+                `
 
-                                                rupiahSafe(
+                :
 
-                                                    item.nominal
+                ""
 
-                                                )
+        }
 
-                                            }
-
-                                        </span>
+    </div>
 
 
-                                    </div>
+    <div class="transaction-amount">
+
+        ${
+
+            rupiahSafe(
+
+                item.nominal
+
+            )
+
+        }
+
+    </div>
+
+
+</div>
+
 
                                 `
 
@@ -955,7 +963,9 @@ function groupActivities(
 
                     item.type,
 
-                    item.nama
+                    item.nama,
+
+                    item.keterangan ?? ""
 
                 ].join("|");
 
@@ -980,7 +990,13 @@ function groupActivities(
 
                     category :
 
-                        item.category
+                        item.category,
+
+                    keterangan :
+
+                        item.keterangan ??
+
+                        ""
 
                 };
 
