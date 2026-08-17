@@ -79,6 +79,20 @@ import {
 
 } from "../../js/utils.js";
 
+import {
+   
+    Setting
+   
+} from "../../components/setting/script.js";
+
+
+import {
+   
+    Input
+   
+} from "../../components/input/script.js";
+
+
 
 /* =====================================================
    STATE
