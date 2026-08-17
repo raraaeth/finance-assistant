@@ -103,6 +103,7 @@ Summary.init = function(
 
 
     renderOverview();
+    renderFinancialPosition();
 
 
     return Summary;
@@ -303,6 +304,393 @@ function renderOverview(){
 );
 
 }
+
+/* =====================================================
+   Financial Position
+===================================================== */
+function renderFinancialPosition(){
+
+    const section =
+
+        document.getElementById(
+            "summary-financial-position"
+        );
+
+
+    const card =
+
+        document.getElementById(
+            "summary-financial-position-card"
+        );
+
+
+    if(
+        !section ||
+        !card
+    ){
+
+        return;
+
+    }
+
+
+    const debt =
+
+        Process.debt;
+
+
+    const saving =
+
+        Process.saving;
+
+
+    const danaDarurat =
+
+        saving?.danaDarurat;
+
+
+    const tabunganKaleng =
+
+        saving?.tabunganKaleng;
+
+
+    const debtBalance =
+
+        debt?.outstanding ?? 0;
+
+
+    const danaDaruratBalance =
+
+        danaDarurat?.balance ?? 0;
+
+
+    const tabunganKalengBalance =
+
+        tabunganKaleng?.balance ?? 0;
+
+
+    /*
+     * Kalau semuanya 0,
+     * section disembunyikan.
+     */
+
+    if(
+
+        debtBalance <= 0 &&
+
+        danaDaruratBalance <= 0 &&
+
+        tabunganKalengBalance <= 0
+
+    ){
+
+        section.classList.add("hidden");
+
+        return;
+
+    }
+
+
+    section.classList.remove("hidden");
+
+
+    card.innerHTML = "";
+
+
+    /*
+     * DANA DARURAT
+     */
+
+    if(
+
+        danaDaruratBalance > 0
+
+    ){
+
+        card.innerHTML +=
+
+        createSavingCard(
+
+            "Dana Darurat",
+
+            danaDarurat,
+
+            "../assets/icons/dana_darurat.webp"
+
+        );
+
+    }
+
+
+    /*
+     * TABUNGAN KALENG
+     */
+
+    if(
+
+        tabunganKalengBalance > 0
+
+    ){
+
+        card.innerHTML +=
+
+        createSavingCard(
+
+            "Celengan Toples",
+
+            tabunganKaleng,
+
+            "../assets/icons/toples_brangkas.webp"
+
+        );
+
+    }
+
+
+    /*
+     * HUTANG
+     */
+
+    if(
+
+        debtBalance > 0
+
+    ){
+
+        card.innerHTML +=
+
+        createDebtCard(
+
+            debt
+
+        );
+
+    }
+
+}
+
+/* =====================================================
+   SAVING CARD
+===================================================== */
+
+function createSavingCard(
+
+    title,
+
+    data,
+
+    icon
+
+){
+
+    const transactions =
+
+        data?.transactions ?? [];
+
+
+    const last =
+
+        transactions[
+
+            transactions.length - 1
+
+        ];
+
+
+    let lastTransaction = "-";
+
+
+    if(
+
+        last
+
+    ){
+
+        const amount =
+
+            toNumber(
+
+                last.nominal
+
+            );
+
+
+        const sign =
+
+            last.savingType ===
+
+            "deposit"
+
+                ?
+
+                "+"
+
+                :
+
+                "-";
+
+
+        lastTransaction =
+
+            sign +
+
+            shortRupiah(
+
+                amount
+
+            );
+
+    }
+
+
+    return `
+
+        <div class="financial-position-card saving-card">
+
+
+            <div class="financial-position-header">
+
+
+                <img
+
+                    class="financial-position-icon"
+
+                    src="${icon}"
+
+                    alt="${title}">
+
+
+                <strong>
+
+                    ${title}
+
+                </strong>
+
+
+            </div>
+
+
+            <div class="financial-position-value">
+
+                ${shortRupiah(
+
+                    data.balance
+
+                )}
+
+            </div>
+
+
+            <div class="financial-position-last">
+
+                Tx terakhir :
+
+                ${lastTransaction}
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
+/* =====================================================
+   DEBT CARD
+===================================================== */
+
+function createDebtCard(
+
+    debt
+
+){
+
+    return `
+
+        <div class="financial-position-card debt-card">
+
+
+            <div class="financial-position-header">
+
+                <strong>
+
+                    Hutang
+
+                </strong>
+
+            </div>
+
+
+            <div class="financial-position-row">
+
+                <span>
+
+                    Hutang
+
+                </span>
+
+                <strong>
+
+                    ${shortRupiah(
+
+                        debt.borrowed
+
+                    )}
+
+                </strong>
+
+            </div>
+
+
+            <div class="financial-position-row">
+
+                <span>
+
+                    Dibayar
+
+                </span>
+
+                <strong>
+
+                    ${shortRupiah(
+
+                        debt.paid
+
+                    )}
+
+                </strong>
+
+            </div>
+
+
+            <div class="financial-position-row">
+
+                <span>
+
+                    Sisa
+
+                </span>
+
+                <strong>
+
+                    ${shortRupiah(
+
+                        debt.outstanding
+
+                    )}
+
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
 
 
 /* =====================================================
