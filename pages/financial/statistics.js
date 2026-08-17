@@ -1,7 +1,6 @@
 /* =====================================================
    Finance Assistant
-   Page        : Financial
-   Module      : Statistics
+   Module      : Financial
    File        : statistics.js
    Version     : 1.0.0
 
@@ -9,7 +8,6 @@
    Financial Statistics Controller
 
    Sections :
-   - Import
    - State
    - Init
    - Filter
@@ -21,67 +19,24 @@
 
 
 /* =====================================================
-   IMPORT
-===================================================== */
-
-import {
-
-    Process
-
-} from "./process.js";
-
-
-import {
-
-    Filter
-
-} from "../../js/filter.js";
-
-
-import {
-
-    Chart
-
-} from "../../js/chart.js";
-
-
-import {
-
-    formatDate,
-
-    rupiah
-
-} from "../../js/utils.js";
-
-
-/* =====================================================
    STATE
 ===================================================== */
 
 export const Statistics = {
 
-    filter : {
-
-        start : null,
-
-        end : null,
-
-        range : null
-
-    },
-
-
     data : [],
 
+    filteredData : [],
 
     page : 1,
 
+    perPage : 5,
 
-    /* =============================================
-       1 PAGE = 5 HARI
-    ============================================= */
+    month : "all",
 
-    perPage : 5
+    category : "all",
+
+    chart : null
 
 };
 
@@ -90,33 +45,44 @@ export const Statistics = {
    INIT
 ===================================================== */
 
-Statistics.init = function(){
+Statistics.init = function(
+
+    data = []
+
+){
+
+    Statistics.data =
+
+        Array.isArray(
+
+            data
+
+        )
+
+            ?
+
+            data
+
+            :
+
+            [];
 
 
-    /* =============================================
-       FILTER
-    ============================================= */
+    Statistics.page = 1;
 
-    initializeFilter();
+    Statistics.month = "all";
 
-
-    /* =============================================
-       APPLY FILTER
-    ============================================= */
-
-    Statistics.applyFilter();
+    Statistics.category = "all";
 
 
-    /* =============================================
-       CHART
-    ============================================= */
+    Statistics.filteredData =
 
-    Statistics.renderChart();
+        Statistics.data;
 
 
-    /* =============================================
-       TRANSACTION
-    ============================================= */
+    renderFilter();
+
+    renderChart();
 
     Statistics.renderTransaction();
 
@@ -124,368 +90,148 @@ Statistics.init = function(){
 
 
 /* =====================================================
-   INITIALIZE FILTER
+   FILTER
 ===================================================== */
 
-function initializeFilter(){
+function renderFilter(){
 
-    const today =
+    const filter =
 
-        new Date();
+        document.getElementById(
 
-
-    /* =============================================
-       DEFAULT :
-       BULAN BERJALAN
-    ============================================= */
-
-    Statistics.filter.start =
-
-        new Date(
-
-            today.getFullYear(),
-
-            today.getMonth(),
-
-            1
+            "statistics-filter-list"
 
         );
 
 
-    Statistics.filter.end =
+    if(
 
-        today;
+        !filter
 
+    ){
 
-    Statistics.filter.end.setHours(
+        return;
 
-        23,
-
-        59,
-
-        59,
-
-        999
-
-    );
+    }
 
 
-    Statistics.filter.range =
+    const months =
 
-        null;
+        getAvailableMonths(
 
+            Statistics.data
 
-    /* =============================================
-       RENDER FILTER
-    ============================================= */
-
-    Filter.render({
-
-        container :
-
-            "#statistics-filter-list",
-
-        period :
-
-            formatPeriod(
-
-                Statistics.filter.start,
-
-                Statistics.filter.end
-
-            ),
-
-        range :
-
-            Statistics.filter.range
-
-    });
+        );
 
 
-    /* =============================================
-       REGISTER FILTER
-    ============================================= */
+    filter.innerHTML =
 
-    Filter.register({
+    `
 
-        onPeriod :
+        <button
 
-            value => {
+            type="button"
 
-                Statistics.applyPeriod(
+            class="statistics-filter-item active"
 
-                    value
+            data-month="all"
 
-                );
+        >
 
-            },
+            Semua
+
+        </button>
 
 
-        onRange :
+        ${
 
-            value => {
+            months.map(
 
-                handleRange(
+                month => `
 
-                    value
+                    <button
+
+                        type="button"
+
+                        class="statistics-filter-item"
+
+                        data-month="${month.value}"
+
+                    >
+
+                        ${month.label}
+
+                    </button>
+
+                `
+
+            ).join("")
+
+        }
+
+    `;
+
+
+    filter
+
+        .querySelectorAll(
+
+            ".statistics-filter-item"
+
+        )
+
+        .forEach(
+
+            button => {
+
+                button.addEventListener(
+
+                    "click",
+
+                    () => {
+
+                        Statistics.month =
+
+                            button.dataset.month;
+
+
+                        Statistics.page = 1;
+
+
+                        filter
+
+                            .querySelectorAll(
+
+                                ".statistics-filter-item"
+
+                            )
+
+                            .forEach(
+
+                                item => {
+
+                                    item.classList.toggle(
+
+                                        "active",
+
+                                        item === button
+
+                                    );
+
+                                }
+
+                            );
+
+
+                        applyFilter();
+
+                    }
 
                 );
 
             }
 
-    });
-
-}
-
-
-/* =====================================================
-   APPLY PERIOD
-===================================================== */
-
-Statistics.applyPeriod = function(
-
-    value
-
-){
-
-    if(
-
-        !value ||
-
-        !value.start ||
-
-        !value.end
-
-    ){
-
-        return;
-
-    }
-
-
-    Statistics.filter.start =
-
-        new Date(
-
-            value.start
-
         );
-
-
-    Statistics.filter.end =
-
-        new Date(
-
-            value.end
-
-        );
-
-
-    /* =============================================
-       END OF DAY
-    ============================================= */
-
-    Statistics.filter.start.setHours(
-
-        0,
-
-        0,
-
-        0,
-
-        0
-
-    );
-
-
-    Statistics.filter.end.setHours(
-
-        23,
-
-        59,
-
-        59,
-
-        999
-
-    );
-
-
-    Statistics.filter.range =
-
-        null;
-
-
-    Statistics.page =
-
-        1;
-
-
-    /* =============================================
-       UPDATE FILTER UI
-    ============================================= */
-
-    Filter.setRange(
-
-        null
-
-    );
-
-
-    Filter.setPeriod(
-
-        formatPeriod(
-
-            Statistics.filter.start,
-
-            Statistics.filter.end
-
-        )
-
-    );
-
-
-    /* =============================================
-       REFRESH
-    ============================================= */
-
-    refresh();
-
-};
-
-
-/* =====================================================
-   HANDLE RANGE
-===================================================== */
-
-function handleRange(
-
-    value
-
-){
-
-    const today =
-
-        new Date();
-
-
-    if(
-
-        !value ||
-
-        Number(value) <= 0
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =============================================
-       RANGE = JUMLAH BULAN
-    ============================================= */
-
-    Statistics.filter.start =
-
-        new Date(
-
-            today.getFullYear(),
-
-            today.getMonth()
-
-            -
-
-            (
-
-                Number(value) - 1
-
-            ),
-
-            1
-
-        );
-
-
-    Statistics.filter.start.setHours(
-
-        0,
-
-        0,
-
-        0,
-
-        0
-
-    );
-
-
-    Statistics.filter.end =
-
-        today;
-
-
-    Statistics.filter.end.setHours(
-
-        23,
-
-        59,
-
-        59,
-
-        999
-
-    );
-
-
-    Statistics.filter.range =
-
-        Number(value);
-
-
-    Statistics.page =
-
-        1;
-
-
-    /* =============================================
-       UPDATE FILTER UI
-    ============================================= */
-
-    Filter.setDate(
-
-        Statistics.filter.start,
-
-        Statistics.filter.end
-
-    );
-
-
-    Filter.setPeriod(
-
-        formatPeriod(
-
-            Statistics.filter.start,
-
-            Statistics.filter.end
-
-        )
-
-    );
-
-
-    Filter.setRange(
-
-        Number(value)
-
-    );
-
-
-    /* =============================================
-       REFRESH
-    ============================================= */
-
-    refresh();
 
 }
 
@@ -494,104 +240,72 @@ function handleRange(
    APPLY FILTER
 ===================================================== */
 
-Statistics.applyFilter = function(){
+function applyFilter(){
 
-    const data =
+    Statistics.filteredData =
 
-        Process.data ?? [];
-
-
-    const start =
-
-        Statistics.filter.start;
-
-
-    const end =
-
-        Statistics.filter.end;
-
-
-    if(
-
-        !start ||
-
-        !end
-
-    ){
-
-        Statistics.data = [];
-
-        return;
-
-    }
-
-
-    Statistics.data =
-
-        data.filter(
+        Statistics.data.filter(
 
             item => {
 
-                const date =
-
-                    getItemDate(
-
-                        item
-
-                    );
-
-
                 if(
 
-                    !date
+                    Statistics.month !==
+
+                    "all"
 
                 ){
 
-                    return false;
+                    if(
+
+                        !item.date ||
+
+                        !item.date.startsWith(
+
+                            Statistics.month
+
+                        )
+
+                    ){
+
+                        return false;
+
+                    }
 
                 }
 
 
-                return (
+                if(
 
-                    date >= start
+                    Statistics.category !==
 
-                )
+                    "all"
 
-                &&
+                ){
 
-                (
+                    if(
 
-                    date <= end
+                        item.category !==
 
-                );
+                        Statistics.category
+
+                    ){
+
+                        return false;
+
+                    }
+
+                }
+
+
+                return true;
 
             }
 
         );
 
-};
 
-
-/* =====================================================
-   REFRESH
-===================================================== */
-
-function refresh(){
-
-    Statistics.applyFilter();
-
-
-    /* =============================================
-       CHART
-    ============================================= */
-
-    Statistics.renderChart();
-
-
-    /* =============================================
-       TRANSACTION
-    ============================================= */
+    renderChart();
 
     Statistics.renderTransaction();
 
@@ -602,20 +316,24 @@ function refresh(){
    CHART
 ===================================================== */
 
-Statistics.renderChart = function(){
+function renderChart(){
 
     const canvas =
 
-        document.querySelector(
+        document.getElementById(
 
-            "#statistics-chart-canvas"
+            "statistics-chart-canvas"
 
         );
 
 
     if(
 
-        !canvas
+        !canvas ||
+
+        typeof Chart ===
+
+        "undefined"
 
     ){
 
@@ -624,29 +342,29 @@ Statistics.renderChart = function(){
     }
 
 
-    /* =============================================
-       GROUP BY DATE
-    ============================================= */
+    if(
+
+        Statistics.chart
+
+    ){
+
+        Statistics.chart.destroy();
+
+        Statistics.chart = null;
+
+    }
+
 
     const grouped = {};
 
 
-    Statistics.data.forEach(
+    Statistics.filteredData.forEach(
 
         item => {
 
-            const date =
-
-                getItemDate(
-
-                    item
-
-                );
-
-
             if(
 
-                !date
+                !item.date
 
             ){
 
@@ -655,56 +373,22 @@ Statistics.renderChart = function(){
             }
 
 
-            const key =
-
-                formatChartDate(
-
-                    date
-
-                );
-
-
             if(
 
-                !grouped[key]
+                !grouped[item.date]
 
             ){
 
-                grouped[key] = {
+                grouped[item.date] = {
 
-                    date :
+                    income : 0,
 
-                        date,
-
-                    income :
-
-                        0,
-
-                    expense :
-
-                        0
+                    expense : 0
 
                 };
 
             }
 
-
-            const nominal =
-
-                toNumber(
-
-                    item.nominal
-
-                );
-
-
-            /* =====================================
-               INCOME
-               
-               masuk
-               hutang
-               tarik
-            ===================================== */
 
             if(
 
@@ -714,22 +398,18 @@ Statistics.renderChart = function(){
 
             ){
 
-                grouped[key].income +=
+                grouped[item.date].income +=
 
-                    nominal;
+                    toNumber(
+
+                        item.nominal
+
+                    );
 
             }
 
 
-            /* =====================================
-               EXPENSE
-               
-               keluar
-               bayar
-               nabung
-            ===================================== */
-
-            if(
+            else if(
 
                 item.category ===
 
@@ -737,9 +417,13 @@ Statistics.renderChart = function(){
 
             ){
 
-                grouped[key].expense +=
+                grouped[item.date].expense +=
 
-                    nominal;
+                    toNumber(
+
+                        item.nominal
+
+                    );
 
             }
 
@@ -748,167 +432,189 @@ Statistics.renderChart = function(){
     );
 
 
-    /* =============================================
-       SORT DATE
-    ============================================= */
+    const dates =
 
-    const entries =
-
-        Object.values(
+        Object.keys(
 
             grouped
 
-        ).sort(
+        ).sort();
 
-            (
 
-                a,
+    const labels =
 
-                b
+        dates.map(
 
-            ) =>
+            date =>
 
-                a.date -
+                formatShortDate(
 
-                b.date
+                    date
+
+                )
 
         );
 
 
-    /* =============================================
-       EMPTY DATA
-    ============================================= */
+    const income =
 
-    if(
+        dates.map(
 
-        !entries.length
+            date =>
 
-    ){
+                grouped[date].income
 
-        Chart.renderBar({
+        );
 
-            canvas :
 
-                "#statistics-chart-canvas",
+    const expense =
 
-            labels :
+        dates.map(
 
-                [],
+            date =>
 
-            datasets : [
+                grouped[date].expense
 
-                {
+        );
 
-                    label :
 
-                        "Pemasukan",
+    Statistics.chart =
 
-                    data :
+        new Chart(
 
-                        []
+            canvas,
+
+            {
+
+                type :
+
+                    "bar",
+
+
+                data : {
+
+                    labels,
+
+
+                    datasets : [
+
+                        {
+
+                            label :
+
+                                "Pemasukan",
+
+                            data :
+
+                                income,
+
+                            backgroundColor :
+
+                                getThemeColor(
+
+                                    "--success",
+
+                                    "#16a34a"
+
+                                ),
+
+                            borderRadius : 6
+
+                        },
+
+
+                        {
+
+                            label :
+
+                                "Pengeluaran",
+
+                            data :
+
+                                expense,
+
+                            backgroundColor :
+
+                                getThemeColor(
+
+                                    "--danger",
+
+                                    "#dc2626"
+
+                                ),
+
+                            borderRadius : 6
+
+                        }
+
+                    ]
 
                 },
 
-                {
 
-                    label :
+                options : {
 
-                        "Pengeluaran",
+                    responsive : true,
 
-                    data :
+                    maintainAspectRatio : false,
 
-                        []
+
+                    interaction : {
+
+                        mode :
+
+                            "index",
+
+                        intersect :
+
+                            false
+
+                    },
+
+
+                    plugins : {
+
+                        legend : {
+
+                            display : true
+
+                        }
+
+                    },
+
+
+                    scales : {
+
+                        y : {
+
+                            beginAtZero : true,
+
+
+                            ticks : {
+
+                                callback :
+
+                                    value =>
+
+                                        formatCompactRupiah(
+
+                                            value
+
+                                        )
+
+                            }
+
+                        }
+
+                    }
 
                 }
 
-            ]
-
-        });
-
-
-        return;
-
-    }
-
-
-    /* =============================================
-       CHART DATA
-    ============================================= */
-
-    Chart.renderBar({
-
-        canvas :
-
-            "#statistics-chart-canvas",
-
-
-        labels :
-
-            entries.map(
-
-                item =>
-
-                    formatChartDate(
-
-                        item.date
-
-                    )
-
-            ),
-
-
-        datasets : [
-
-            {
-
-                label :
-
-                    "Pemasukan",
-
-                data :
-
-                    entries.map(
-
-                        item =>
-
-                            item.income
-
-                    ),
-
-                borderWidth :
-
-                    1
-
-            },
-
-
-            {
-
-                label :
-
-                    "Pengeluaran",
-
-                data :
-
-                    entries.map(
-
-                        item =>
-
-                            item.expense
-
-                    ),
-
-                borderWidth :
-
-                    1
-
             }
 
-        ]
+        );
 
-    });
-
-};
+}
 
 
 /* =====================================================
@@ -941,28 +647,19 @@ Statistics.renderTransaction = function(){
 
 
     /* =============================================
-       GROUP DATA BY DATE
+       GROUP BY DATE
     ============================================= */
 
     const grouped = {};
 
 
-    Statistics.data.forEach(
+    Statistics.filteredData.forEach(
 
         item => {
 
-            const date =
-
-                getItemDate(
-
-                    item
-
-                );
-
-
             if(
 
-                !date
+                !item.date
 
             ){
 
@@ -971,61 +668,26 @@ Statistics.renderTransaction = function(){
             }
 
 
-            const key =
-
-                [
-
-                    date.getFullYear(),
-
-                    String(
-
-                        date.getMonth() + 1
-
-                    ).padStart(
-
-                        2,
-
-                        "0"
-
-                    ),
-
-                    String(
-
-                        date.getDate()
-
-                    ).padStart(
-
-                        2,
-
-                        "0"
-
-                    )
-
-                ].join("-");
-
-
             if(
 
-                !grouped[key]
+                !grouped[item.date]
 
             ){
 
-                grouped[key] = {
+                grouped[item.date] = {
 
                     date :
 
-                        date,
+                        item.date,
 
-                    items :
-
-                        []
+                    items : []
 
                 };
 
             }
 
 
-            grouped[key].items.push(
+            grouped[item.date].items.push(
 
                 item
 
@@ -1037,7 +699,7 @@ Statistics.renderTransaction = function(){
 
 
     /* =============================================
-       SORT TERBARU
+       SORT DATE
     ============================================= */
 
     const days =
@@ -1048,25 +710,19 @@ Statistics.renderTransaction = function(){
 
         ).sort(
 
-            (
+            (a, b) =>
 
-                a,
+                b.date.localeCompare(
 
-                b
+                    a.date
 
-            ) =>
-
-                b.date -
-
-                a.date
+                )
 
         );
 
 
     /* =============================================
        PAGINATION
-       
-       1 PAGE = 5 HARI
     ============================================= */
 
     const start =
@@ -1118,7 +774,7 @@ Statistics.renderTransaction = function(){
 
             <div class="statistics-summary-empty">
 
-                Belum ada data pada periode ini.
+                Belum ada transaksi pada periode ini.
 
             </div>
 
@@ -1138,17 +794,21 @@ Statistics.renderTransaction = function(){
 
 
     /* =============================================
-       RENDER PER DAY
+       RENDER
     ============================================= */
 
     pageData.forEach(
 
         day => {
 
+            const items =
 
-            /* =====================================
-               CARD
-            ===================================== */
+                groupActivities(
+
+                    day.items
+
+                );
+
 
             list.innerHTML +=
 
@@ -1157,45 +817,26 @@ Statistics.renderTransaction = function(){
                 <div class="transaction-item">
 
 
-                    <!-- =================================
-                         DATE
-                    ================================== -->
+                    <div class="transaction-date">
 
-                    <div class="transaction-header">
+                        ${
 
+                            formatLongDate(
 
-                        <strong
+                                day.date
 
-                            class="transaction-date"
+                            )
 
-                        >
-
-                            ${
-
-                                formatDate(
-
-                                    day.date
-
-                                )
-
-                            }
-
-                        </strong>
-
+                        }
 
                     </div>
 
 
-                    <!-- =================================
-                         TRANSACTION DETAILS
-                    ================================== -->
-
                     <div class="transaction-detail">
-
 
                         ${
 
-                            day.items.map(
+                            items.map(
 
                                 item => `
 
@@ -1204,6 +845,7 @@ Statistics.renderTransaction = function(){
                                         class="transaction-work-row"
 
                                     >
+
 
                                         <span
 
@@ -1215,9 +857,7 @@ Statistics.renderTransaction = function(){
 
                                                 escapeHTML(
 
-                                                    item.nama ??
-
-                                                    "-"
+                                                    item.name
 
                                                 )
 
@@ -1228,7 +868,9 @@ Statistics.renderTransaction = function(){
 
                                         <span
 
-                                            class="${
+                                            class="transaction-amount
+
+                                            ${
 
                                                 item.category ===
 
@@ -1248,19 +890,16 @@ Statistics.renderTransaction = function(){
 
                                             ${
 
-                                                rupiah(
+                                                rupiahSafe(
 
-                                                    toNumber(
-
-                                                        item.nominal
-
-                                                    )
+                                                    item.nominal
 
                                                 )
 
                                             }
 
                                         </span>
+
 
                                     </div>
 
@@ -1269,7 +908,6 @@ Statistics.renderTransaction = function(){
                             ).join("")
 
                         }
-
 
                     </div>
 
@@ -1283,10 +921,6 @@ Statistics.renderTransaction = function(){
     );
 
 
-    /* =============================================
-       PAGINATION
-    ============================================= */
-
     renderPagination(
 
         days.length
@@ -1297,16 +931,95 @@ Statistics.renderTransaction = function(){
 
 
 /* =====================================================
+   GROUP ACTIVITIES
+===================================================== */
+
+function groupActivities(
+
+    items
+
+){
+
+    const grouped = {};
+
+
+    items.forEach(
+
+        item => {
+
+            const key =
+
+                [
+
+                    item.category,
+
+                    item.type,
+
+                    item.nama
+
+                ].join("|");
+
+
+            if(
+
+                !grouped[key]
+
+            ){
+
+                grouped[key] = {
+
+                    name :
+
+                        item.nama ??
+
+                        "-",
+
+                    nominal :
+
+                        0,
+
+                    category :
+
+                        item.category
+
+                };
+
+            }
+
+
+            grouped[key].nominal +=
+
+                toNumber(
+
+                    item.nominal
+
+                );
+
+        }
+
+    );
+
+
+    return Object.values(
+
+        grouped
+
+    );
+
+}
+
+
+/* =====================================================
    PAGINATION
 ===================================================== */
 
 function renderPagination(
 
-    totalData
+    totalDays
 
 ){
 
-    const pagination =
+    const container =
 
         document.getElementById(
 
@@ -1317,7 +1030,7 @@ function renderPagination(
 
     if(
 
-        !pagination
+        !container
 
     ){
 
@@ -1326,59 +1039,46 @@ function renderPagination(
     }
 
 
-    /* =============================================
-       TOTAL PAGE
-    ============================================= */
-
     const totalPage =
 
-        Math.max(
+        Math.ceil(
 
-            1,
+            totalDays /
 
-            Math.ceil(
-
-                totalData /
-
-                Statistics.perPage
-
-            )
+            Statistics.perPage
 
         );
 
 
     if(
 
-        Statistics.page >
-
-        totalPage
+        totalPage <= 1
 
     ){
 
-        Statistics.page =
+        container.innerHTML = "";
 
-            totalPage;
+        return;
 
     }
 
 
-    pagination.innerHTML =
+    container.innerHTML =
 
     `
 
-        <div
+        <div class="statistics-pagination">
 
-            class="statistics-pagination"
-
-        >
 
             <button
 
-                id="statistics-prev"
+                type="button"
+
+                data-page="prev"
 
                 ${
 
-                    Statistics.page === 1
+                    Statistics.page <= 1
 
                         ?
 
@@ -1399,18 +1099,28 @@ function renderPagination(
 
             <span>
 
-                ${Statistics.page}
+                ${
+
+                    Statistics.page
+
+                }
 
                 /
 
-                ${totalPage}
+                ${
+
+                    totalPage
+
+                }
 
             </span>
 
 
             <button
 
-                id="statistics-next"
+                type="button"
+
+                data-page="next"
 
                 ${
 
@@ -1432,244 +1142,177 @@ function renderPagination(
 
             </button>
 
+
         </div>
 
     `;
 
-}
 
+    const previous =
 
-/* =====================================================
-   PAGINATION EVENT
-===================================================== */
+        container.querySelector(
 
-document.addEventListener(
+            '[data-page="prev"]'
 
-    "click",
+        );
 
-    event => {
 
+    const next =
 
-        const prev =
+        container.querySelector(
 
-            event.target.closest(
+            '[data-page="next"]'
 
-                "#statistics-prev"
+        );
 
-            );
-
-
-        if(
-
-            prev
-
-        ){
-
-            if(
-
-                Statistics.page >
-
-                1
-
-            ){
-
-                Statistics.page--;
-
-                Statistics.renderTransaction();
-
-            }
-
-
-            return;
-
-        }
-
-
-        const next =
-
-            event.target.closest(
-
-                "#statistics-next"
-
-            );
-
-
-        if(
-
-            next
-
-        ){
-
-            /* =====================================
-               HITUNG BERDASARKAN JUMLAH HARI
-            ===================================== */
-
-            const days =
-
-                getGroupedDays();
-
-
-            const totalPage =
-
-                Math.max(
-
-                    1,
-
-                    Math.ceil(
-
-                        days.length /
-
-                        Statistics.perPage
-
-                    )
-
-                );
-
-
-            if(
-
-                Statistics.page <
-
-                totalPage
-
-            ){
-
-                Statistics.page++;
-
-                Statistics.renderTransaction();
-
-            }
-
-        }
-
-    }
-
-);
-
-
-/* =====================================================
-   GROUPED DAYS
-===================================================== */
-
-function getGroupedDays(){
-
-    const grouped = {};
-
-
-    Statistics.data.forEach(
-
-        item => {
-
-            const date =
-
-                getItemDate(
-
-                    item
-
-                );
-
-
-            if(
-
-                !date
-
-            ){
-
-                return;
-
-            }
-
-
-            const key =
-
-                [
-
-                    date.getFullYear(),
-
-                    String(
-
-                        date.getMonth() + 1
-
-                    ).padStart(
-
-                        2,
-
-                        "0"
-
-                    ),
-
-                    String(
-
-                        date.getDate()
-
-                    ).padStart(
-
-                        2,
-
-                        "0"
-
-                    )
-
-                ].join("-");
-
-
-            grouped[key] = true;
-
-        }
-
-    );
-
-
-    return Object.keys(
-
-        grouped
-
-    );
-
-}
-
-
-/* =====================================================
-   GET ITEM DATE
-===================================================== */
-
-function getItemDate(
-
-    item
-
-){
 
     if(
 
-        item.dateObject instanceof Date
-
-        &&
-
-        !Number.isNaN(
-
-            item.dateObject.getTime()
-
-        )
+        previous
 
     ){
 
-        return item.dateObject;
+        previous.addEventListener(
+
+            "click",
+
+            () => {
+
+                if(
+
+                    Statistics.page <= 1
+
+                ){
+
+                    return;
+
+                }
+
+
+                Statistics.page--;
+
+
+                Statistics.renderTransaction();
+
+            }
+
+        );
 
     }
 
 
-    const value =
+    if(
 
-        item.date ??
+        next
 
-        item.Date ??
+    ){
 
-        item.tanggal;
+        next.addEventListener(
+
+            "click",
+
+            () => {
+
+                if(
+
+                    Statistics.page >= totalPage
+
+                ){
+
+                    return;
+
+                }
 
 
-    return parseLocalDate(
+                Statistics.page++;
 
-        value
+
+                Statistics.renderTransaction();
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   AVAILABLE MONTHS
+===================================================== */
+
+function getAvailableMonths(
+
+    data
+
+){
+
+    const values =
+
+        [
+
+            ...new Set(
+
+                data
+
+                    .map(
+
+                        item =>
+
+                            item.date
+
+                            ?
+
+                            item.date.slice(
+
+                                0,
+
+                                7
+
+                            )
+
+                            :
+
+                            null
+
+                    )
+
+                    .filter(
+
+                        Boolean
+
+                    )
+
+            )
+
+        ];
+
+
+    values.sort(
+
+        (a, b) =>
+
+            b.localeCompare(a)
+
+    );
+
+
+    return values.map(
+
+        value => ({
+
+            value,
+
+            label :
+
+                formatMonth(
+
+                    value
+
+                )
+
+        })
 
     );
 
@@ -1677,10 +1320,155 @@ function getItemDate(
 
 
 /* =====================================================
-   PARSE LOCAL DATE
+   DATE FORMAT
 ===================================================== */
 
-function parseLocalDate(
+function formatLongDate(
+
+    value
+
+){
+
+    const date =
+
+        parseDate(
+
+            value
+
+        );
+
+
+    if(
+
+        !date
+
+    ){
+
+        return value;
+
+    }
+
+
+    return date.toLocaleDateString(
+
+        "id-ID",
+
+        {
+
+            day :
+
+                "numeric",
+
+            month :
+
+                "long",
+
+            year :
+
+                "numeric"
+
+        }
+
+    );
+
+}
+
+
+function formatShortDate(
+
+    value
+
+){
+
+    const date =
+
+        parseDate(
+
+            value
+
+        );
+
+
+    if(
+
+        !date
+
+    ){
+
+        return value;
+
+    }
+
+
+    return date.toLocaleDateString(
+
+        "id-ID",
+
+        {
+
+            day :
+
+                "2-digit",
+
+            month :
+
+                "short"
+
+        }
+
+    );
+
+}
+
+
+function formatMonth(
+
+    value
+
+){
+
+    const date =
+
+        parseDate(
+
+            `${value}-01`
+
+        );
+
+
+    if(
+
+        !date
+
+    ){
+
+        return value;
+
+    }
+
+
+    return date.toLocaleDateString(
+
+        "id-ID",
+
+        {
+
+            month :
+
+                "long",
+
+            year :
+
+                "numeric"
+
+        }
+
+    );
+
+}
+
+
+function parseDate(
 
     value
 
@@ -1721,114 +1509,65 @@ function parseLocalDate(
     }
 
 
-    const [
-
-        year,
-
-        month,
-
-        day
-
-    ] = parts;
-
-
     const date =
 
         new Date(
 
-            year,
+            parts[0],
 
-            month - 1,
+            parts[1] - 1,
 
-            day
+            parts[2]
 
         );
 
 
-    if(
+    return Number.isNaN(
 
-        Number.isNaN(
+        date.getTime()
 
-            date.getTime()
+    )
 
-        )
+        ?
 
-    ){
+        null
 
-        return null;
+        :
 
-    }
-
-
-    return date;
+        date;
 
 }
 
 
 /* =====================================================
-   FORMAT CHART DATE
+   THEME COLOR
 ===================================================== */
 
-function formatChartDate(
+function getThemeColor(
 
-    date
+    variable,
+
+    fallback
 
 ){
 
-    return date.toLocaleDateString(
+    return getComputedStyle(
 
-        "id-ID",
+        document.documentElement
 
-        {
+    )
 
-            day :
+    .getPropertyValue(
 
-                "2-digit",
+        variable
 
-            month :
+    )
 
-                "short"
+    .trim()
 
-        }
+        ||
 
-    );
-
-}
-
-
-/* =====================================================
-   FORMAT PERIOD
-===================================================== */
-
-function formatPeriod(
-
-    start,
-
-    end
-
-){
-
-    return (
-
-        formatDate(
-
-            start
-
-        )
-
-        +
-
-        " - "
-
-        +
-
-        formatDate(
-
-            end
-
-        )
-
-    );
+        fallback;
 
 }
 
@@ -1865,6 +1604,129 @@ function toNumber(
         :
 
         0;
+
+}
+
+
+/* =====================================================
+   RUPIAH
+===================================================== */
+
+function rupiahSafe(
+
+    value
+
+){
+
+    if(
+
+        typeof rupiah ===
+
+        "function"
+
+    ){
+
+        return rupiah(
+
+            value
+
+        );
+
+    }
+
+
+    return new Intl.NumberFormat(
+
+        "id-ID",
+
+        {
+
+            style :
+
+                "currency",
+
+            currency :
+
+                "IDR",
+
+            maximumFractionDigits :
+
+                0
+
+        }
+
+    ).format(
+
+        value
+
+    );
+
+}
+
+
+function formatCompactRupiah(
+
+    value
+
+){
+
+    if(
+
+        value >= 1000000
+
+    ){
+
+        return (
+
+            "Rp " +
+
+            (
+
+                value /
+
+                1000000
+
+            ).toFixed(1) +
+
+            " jt"
+
+        );
+
+    }
+
+
+    if(
+
+        value >= 1000
+
+    ){
+
+        return (
+
+            "Rp " +
+
+            Math.round(
+
+                value /
+
+                1000
+
+            ) +
+
+            " rb"
+
+        );
+
+    }
+
+
+    return (
+
+        "Rp " +
+
+        value
+
+    );
 
 }
 
