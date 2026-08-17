@@ -1110,6 +1110,44 @@ body.setting-open{
 
 
 /* =====================================================
+   PAYROLL DAILY CHECKBOX
+===================================================== */
+
+.global-setting-field.global-setting-checkbox-field{
+
+    display:flex !important;
+
+    flex-direction:row !important;
+
+    align-items:center !important;
+
+    justify-content:space-between !important;
+
+    width:100%;
+
+    gap:16px;
+
+}
+
+
+/* =====================================================
+   CHECKBOX LABEL
+===================================================== */
+
+.global-setting-field.global-setting-checkbox-field label{
+
+    display:block;
+
+    flex:1;
+
+    width:auto;
+
+    margin:0;
+
+}
+
+
+/* =====================================================
    CHECKBOX INPUT
 ===================================================== */
 
