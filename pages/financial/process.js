@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Financial
    File        : process.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Financial Processing Engine
@@ -13,7 +13,7 @@
           ↓
    Normalize
           ↓
-   Classify
+   Apply Rules
           ↓
    Debt Engine
           ↓
@@ -120,7 +120,7 @@ export const Process = {
 
 
         /* =============================================
-           NORMALIZE
+           NORMALIZE + CLASSIFY
         ============================================= */
 
         Process.data =
@@ -129,7 +129,15 @@ export const Process = {
 
                 .map(
 
-                    normalizeTransaction
+                    item =>
+
+                        normalizeTransaction(
+
+                            item,
+
+                            Process.rules
+
+                        )
 
                 )
 
@@ -192,7 +200,9 @@ export const Process = {
 
 function normalizeTransaction(
 
-    item
+    item,
+
+    rules = []
 
 ){
 
@@ -206,6 +216,10 @@ function normalizeTransaction(
 
     }
 
+
+    /* =============================================
+       DATE
+    ============================================= */
 
     const date =
 
@@ -231,30 +245,26 @@ function normalizeTransaction(
     }
 
 
+    /* =============================================
+       BASIC DATA
+    ============================================= */
+
     const jenis =
 
-        String(
+        normalizeText(
 
-            item.jenis ?? ""
+            item.jenis
 
-        )
-
-        .trim()
-
-        .toLowerCase();
+        );
 
 
     const type =
 
-        String(
+        normalizeText(
 
-            item.type ?? ""
+            item.type
 
-        )
-
-        .trim()
-
-        .toLowerCase();
+        );
 
 
     const nominal =
@@ -268,7 +278,9 @@ function normalizeTransaction(
 
     if(
 
-        !jenis
+        !jenis ||
+
+        !type
 
     ){
 
@@ -277,67 +289,70 @@ function normalizeTransaction(
     }
 
 
-    let category =
+    /* =============================================
+       RULE MATCHING
+    ============================================= */
 
-        null;
+    const matchedRules =
+
+        findRules(
+
+            jenis,
+
+            type,
+
+            rules
+
+        );
 
 
     /* =============================================
-       INCOME
+       CASHFLOW CATEGORY
        
-       masuk
-       hutang
-       tarik
+       Ditentukan dari rule_pemasukan /
+       rule_pengeluaran.
     ============================================= */
 
-    if(
+    const category =
 
-        jenis === "masuk"
+        getCashflowCategory(
 
-        ||
+            matchedRules
 
-        jenis === "hutang"
-
-        ||
-
-        jenis === "tarik"
-
-    ){
-
-        category =
-
-            "income";
-
-    }
+        );
 
 
     /* =============================================
-       EXPENSE
+       ENGINE FLAGS
        
-       keluar
-       bayar
-       nabung
+       Satu transaksi boleh mempunyai
+       lebih dari satu fungsi.
     ============================================= */
 
-    else if(
+    const debtAction =
 
-        jenis === "keluar"
+        getDebtAction(
 
-        ||
+            matchedRules,
 
-        jenis === "bayar"
+            jenis,
 
-        ||
+            type
 
-        jenis === "nabung"
+        );
 
-    ){
 
-        category =
+    const savingAction =
 
-            "expense";
+        getSavingAction(
 
-    }
+            matchedRules,
+
+            jenis,
+
+            type
+
+        );
 
 
     return {
@@ -369,6 +384,7 @@ function normalizeTransaction(
 
         type :
 
+
             type,
 
 
@@ -390,6 +406,18 @@ function normalizeTransaction(
             category,
 
 
+        debtAction :
+
+
+            debtAction,
+
+
+        savingAction :
+
+
+            savingAction,
+
+
         nama :
 
 
@@ -400,6 +428,318 @@ function normalizeTransaction(
             )
 
     };
+
+}
+
+
+/* =====================================================
+   FIND RULES
+===================================================== */
+
+function findRules(
+
+    jenis,
+
+    type,
+
+    rules
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            rules
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return rules.filter(
+
+        rule => {
+
+
+            const ruleType =
+
+                splitRuleValues(
+
+                    rule?.type
+
+                );
+
+
+            const activity =
+
+                splitRuleValues(
+
+                    rule?.activity
+
+                );
+
+
+            const typeMatch =
+
+                ruleType.includes(
+
+                    jenis
+
+                );
+
+
+            const activityMatch =
+
+                activity.includes(
+
+                    type
+
+                );
+
+
+            return (
+
+                typeMatch
+
+                &&
+
+                activityMatch
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   CASHFLOW CATEGORY
+===================================================== */
+
+function getCashflowCategory(
+
+    matchedRules
+
+){
+
+    const incomeRule =
+
+        matchedRules.find(
+
+            rule =>
+
+                normalizeText(
+
+                    rule?.rules
+
+                )
+
+                ===
+
+                "rule_pemasukan"
+
+        );
+
+
+    if(
+
+        incomeRule
+
+    ){
+
+        return "income";
+
+    }
+
+
+    const expenseRule =
+
+        matchedRules.find(
+
+            rule =>
+
+                normalizeText(
+
+                    rule?.rules
+
+                )
+
+                ===
+
+                "rule_pengeluaran"
+
+        );
+
+
+    if(
+
+        expenseRule
+
+    ){
+
+        return "expense";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   DEBT ACTION
+===================================================== */
+
+function getDebtAction(
+
+    matchedRules,
+
+    jenis,
+
+    type
+
+){
+
+    const debtRule =
+
+        matchedRules.find(
+
+            rule =>
+
+                normalizeText(
+
+                    rule?.rules
+
+                )
+
+                ===
+
+                "rule_hutang"
+
+        );
+
+
+    if(
+
+        !debtRule
+
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+
+        jenis === "hutang"
+
+        &&
+
+        type === "hutang_piutang"
+
+    ){
+
+        return "borrow";
+
+    }
+
+
+    if(
+
+        jenis === "bayar"
+
+        &&
+
+        type === "hutang_piutang"
+
+    ){
+
+        return "payment";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   SAVING ACTION
+===================================================== */
+
+function getSavingAction(
+
+    matchedRules,
+
+    jenis,
+
+    type
+
+){
+
+    const savingRule =
+
+        matchedRules.find(
+
+            rule =>
+
+                normalizeText(
+
+                    rule?.rules
+
+                )
+
+                ===
+
+                "rule_tabungan"
+
+        );
+
+
+    if(
+
+        !savingRule
+
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+
+        jenis === "nabung"
+
+    ){
+
+        return "deposit";
+
+    }
+
+
+    if(
+
+        jenis === "tarik"
+
+    ){
+
+        return "withdraw";
+
+    }
+
+
+    return null;
 
 }
 
@@ -423,6 +763,7 @@ function calculateSummary(
 
         item => {
 
+
             if(
 
                 item.category ===
@@ -438,7 +779,7 @@ function calculateSummary(
             }
 
 
-            if(
+            else if(
 
                 item.category ===
 
@@ -459,11 +800,20 @@ function calculateSummary(
 
     return {
 
-        income,
+        income :
 
-        expense,
+
+            income,
+
+
+        expense :
+
+
+            expense,
+
 
         balance :
+
 
             income -
 
@@ -501,23 +851,96 @@ function buildActivityName(
 
     )
 
-    .replace(
+        .replace(
 
-        /_/g,
+            /_/g,
 
-        " "
+            " "
+
+        )
+
+        .replace(
+
+            /\b\w/g,
+
+            letter =>
+
+                letter.toUpperCase()
+
+        );
+
+}
+
+
+/* =====================================================
+   SPLIT RULE VALUES
+===================================================== */
+
+function splitRuleValues(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return [];
+
+    }
+
+
+    return String(
+
+        value
 
     )
 
-    .replace(
+        .split(",")
 
-        /\b\w/g,
+        .map(
 
-        letter =>
+            value =>
 
-            letter.toUpperCase()
+                normalizeText(
 
-    );
+                    value
+
+                )
+
+        )
+
+        .filter(
+
+            Boolean
+
+        );
+
+}
+
+
+/* =====================================================
+   NORMALIZE TEXT
+===================================================== */
+
+function normalizeText(
+
+    value
+
+){
+
+    return String(
+
+        value ?? ""
+
+    )
+
+        .trim()
+
+        .toLowerCase();
 
 }
 
@@ -553,7 +976,11 @@ function parseLocalDate(
 
         .split("-")
 
-        .map(Number);
+        .map(
+
+            Number
+
+        );
 
 
     if(
