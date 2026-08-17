@@ -14,100 +14,16 @@
 ===================================================== */
 
 
-/* =====================================================
-   FINANCIAL INPUT
-===================================================== */
-
 export const Financial = {
 
+    workspace : "financial",
 
-    /* =================================================
-       HEADER
-    ================================================= */
+    title : "Input Financial",
 
-    title :
+    subtitle : "Tambahkan data pemasukan harian",
 
-        "Input Financial",
-
-
-    subtitle :
-
-        "Tambahkan data Financial",
-
-
-    /* =================================================
-       FIELDS
-    ================================================= */
-
-    fields : [
-
-        {
-
-            name :
-
-                "nama",
-
-
-            label :
-
-                "Nama",
-
-
-            type :
-
-                "text",
-
-
-            placeholder :
-
-                "Masukkan nama",
-
-
-            required :
-
-                true
-
-        },
-
-
-        {
-
-            name :
-
-                "nominal",
-
-
-            label :
-
-                "Nominal",
-
-
-            type :
-
-                "number",
-
-
-            placeholder :
-
-                "Masukkan nominal",
-
-
-            required :
-
-                true,
-
-
-            min :
-
-                0,
-
-
-            step :
-
-                1
-
-        }
-
-    ]
+    steps : []
 
 };
+
+            
