@@ -104,6 +104,7 @@ Summary.init = function(
 
     renderOverview();
     renderFinancialPosition();
+    renderDistribution();
 
 
     return Summary;
@@ -697,7 +698,659 @@ function createDebtCard(
 
 }
 
+/* =====================================================
+   DISTRIBUTION
+===================================================== */
 
+function renderDistribution(){
+
+    const canvas =
+
+        document.getElementById(
+            "summary-distribution-chart"
+        );
+
+
+    const list =
+
+        document.getElementById(
+            "summary-distribution-list"
+        );
+
+
+    if(
+
+        !canvas ||
+        !list
+
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * BULAN BERJALAN
+     */
+
+    const now =
+
+        new Date();
+
+
+    const currentMonth =
+
+        [
+
+            now.getFullYear(),
+
+            String(
+
+                now.getMonth() + 1
+
+            ).padStart(
+
+                2,
+
+                "0"
+
+            )
+
+        ].join("-");
+
+
+    /*
+     * HANYA TRANSAKSI:
+     *
+     * masuk
+     * keluar
+     *
+     * Hutang / bayar / nabung / tarik
+     * otomatis diabaikan.
+     */
+
+    const transactions =
+
+        Process.data.filter(
+
+            item =>
+
+                item.date?.startsWith(
+
+                    currentMonth
+
+                )
+
+                &&
+
+                (
+
+                    item.jenis === "masuk"
+
+                    ||
+
+                    item.jenis === "keluar"
+
+                )
+
+        );
+
+
+    /*
+     * GROUP ACTIVITY
+     */
+
+    const income = {};
+
+    const expense = {};
+
+
+    transactions.forEach(
+
+        item => {
+
+            const name =
+
+                item.nama ??
+
+                "-";
+
+
+            const nominal =
+
+                toNumber(
+
+                    item.nominal
+
+                );
+
+
+            if(
+
+                item.jenis === "masuk"
+
+            ){
+
+                income[name] =
+
+                    (
+
+                        income[name] ??
+
+                        0
+
+                    ) +
+
+                    nominal;
+
+            }
+
+
+            else if(
+
+                item.jenis === "keluar"
+
+            ){
+
+                expense[name] =
+
+                    (
+
+                        expense[name] ??
+
+                        0
+
+                    ) +
+
+                    nominal;
+
+            }
+
+        }
+
+    );
+
+
+    /*
+     * DONUT
+     */
+
+    renderDistributionDonut(
+
+        canvas,
+
+        income,
+
+        expense
+
+    );
+
+
+    /*
+     * HORIZONTAL BAR
+     */
+
+    renderDistributionList(
+
+        list,
+
+        income,
+
+        expense
+
+    );
+
+}
+
+/* =====================================================
+   DISTRIBUTION DONUT
+===================================================== */
+
+function renderDistributionDonut(
+
+    canvas,
+
+    income,
+
+    expense
+
+){
+
+    if(
+
+        typeof Chart ===
+
+        "undefined"
+
+    ){
+
+        return;
+
+    }
+
+
+    const labels = [
+
+        ...Object.keys(income),
+
+        ...Object.keys(expense)
+
+    ];
+
+
+    const values = [
+
+        ...Object.values(income),
+
+        ...Object.values(expense)
+
+    ];
+
+
+    if(
+
+        !labels.length
+
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Hapus chart lama
+     */
+
+    if(
+
+        window.financialDistributionChart
+
+    ){
+
+        window.financialDistributionChart.destroy();
+
+    }
+
+
+    window.financialDistributionChart =
+
+        new Chart(
+
+            canvas,
+
+            {
+
+                type :
+
+                    "doughnut",
+
+
+                data : {
+
+                    labels,
+
+                    datasets : [
+
+                        {
+
+                            data :
+
+                                values,
+
+                            borderWidth :
+
+                                2
+
+                        }
+
+                    ]
+
+                },
+
+
+                options : {
+
+                    responsive :
+
+                        true,
+
+                    maintainAspectRatio :
+
+                        false,
+
+
+                    plugins : {
+
+                        legend : {
+
+                            display :
+
+                                false
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+/* =====================================================
+   DISTRIBUTION LIST
+===================================================== */
+
+function renderDistributionList(
+
+    container,
+
+    income,
+
+    expense
+
+){
+
+    container.innerHTML = "";
+
+
+    const incomeItems =
+
+        Object.entries(
+
+            income
+
+        )
+
+        .sort(
+
+            (a, b) =>
+
+                b[1] - a[1]
+
+        );
+
+
+    const expenseItems =
+
+        Object.entries(
+
+            expense
+
+        )
+
+        .sort(
+
+            (a, b) =>
+
+                b[1] - a[1]
+
+        );
+
+
+    const maxIncome =
+
+        Math.max(
+
+            ...Object.values(
+
+                income
+
+            ),
+
+            0
+
+        );
+
+
+    const maxExpense =
+
+        Math.max(
+
+            ...Object.values(
+
+                expense
+
+            ),
+
+            0
+
+        );
+
+
+    /*
+     * PEMASUKAN
+     */
+
+    if(
+
+        incomeItems.length
+
+    ){
+
+        container.innerHTML +=
+
+        `
+
+            <div class="distribution-group">
+
+                <div class="distribution-group-title">
+
+                    Pemasukan
+
+                </div>
+
+
+                ${
+
+                    incomeItems.map(
+
+                        ([name, value]) =>
+
+                            createDistributionBar(
+
+                                name,
+
+                                value,
+
+                                maxIncome,
+
+                                "income"
+
+                            )
+
+                    ).join("")
+
+                }
+
+            </div>
+
+        `;
+
+    }
+
+
+    /*
+     * JEDA
+     */
+
+    if(
+
+        incomeItems.length &&
+
+        expenseItems.length
+
+    ){
+
+        container.innerHTML +=
+
+        `
+
+            <div class="distribution-divider"></div>
+
+        `;
+
+    }
+
+
+    /*
+     * PENGELUARAN
+     */
+
+    if(
+
+        expenseItems.length
+
+    ){
+
+        container.innerHTML +=
+
+        `
+
+            <div class="distribution-group">
+
+                <div class="distribution-group-title">
+
+                    Pengeluaran
+
+                </div>
+
+
+                ${
+
+                    expenseItems.map(
+
+                        ([name, value]) =>
+
+                            createDistributionBar(
+
+                                name,
+
+                                value,
+
+                                maxExpense,
+
+                                "expense"
+
+                            )
+
+                    ).join("")
+
+                }
+
+            </div>
+
+        `;
+
+    }
+
+
+    if(
+
+        !incomeItems.length &&
+
+        !expenseItems.length
+
+    ){
+
+        container.innerHTML =
+
+        `
+
+            <div class="distribution-empty">
+
+                Belum ada transaksi bulan ini.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+/* =====================================================
+   DISTRIBUTION BAR
+===================================================== */
+
+function createDistributionBar(
+
+    name,
+
+    value,
+
+    max,
+
+    type
+
+){
+
+    const percentage =
+
+        max > 0
+
+            ?
+
+            (
+
+                value /
+
+                max
+
+            ) *
+
+            100
+
+            :
+
+            0;
+
+
+    return `
+
+        <div class="distribution-item">
+
+
+            <div class="distribution-item-header">
+
+                <span>
+
+                    ${escapeHTML(name)}
+
+                </span>
+
+
+                <strong>
+
+                    ${shortRupiah(value)}
+
+                </strong>
+
+            </div>
+
+
+            <div class="distribution-bar-track">
+
+                <div
+
+                    class="distribution-bar-fill ${type}"
+
+                    style="width:${percentage}%">
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
 
 /* =====================================================
    CALCULATE OVERVIEW
