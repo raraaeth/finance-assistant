@@ -34,6 +34,12 @@ import {
 
 } from "../../js/utils.js";
 
+import {
+
+    Animation
+
+} from "../../js/animation.js";
+
 
 /* =====================================================
    STATE
@@ -152,19 +158,13 @@ function renderOverview(){
             </span>
 
 
-            <strong class="financial-overview-balance-value">
+            <strong
+    id="financial-overview-balance"
+    class="financial-overview-balance-value">
 
-                ${
+    Rp 0
 
-                    rupiahSafe(
-
-                        overview.balance
-
-                    )
-
-                }
-
-            </strong>
+</strong>
 
         </div>
 
@@ -287,6 +287,21 @@ function renderOverview(){
         </div>
 
     `;
+   Animation.count(
+
+    document.getElementById(
+
+        "financial-overview-balance"
+
+    ),
+
+    overview.balance,
+
+    rupiahSafe,
+
+    1200
+
+);
 
 }
 
