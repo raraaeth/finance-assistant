@@ -45,6 +45,10 @@
 
     flex-direction:column;
 
+    align-items:center;
+
+    justify-content:center;
+
     gap:8px;
 
     width:100%;
@@ -56,6 +60,8 @@
     border-radius:20px;
 
     background:var(--surface);
+
+    text-align:center;
 
 }
 
