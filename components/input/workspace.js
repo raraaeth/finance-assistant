@@ -43,9 +43,10 @@ import {
 
 import {
 
-    FinancialInput
+    Financial
 
 } from "./financial.js";
+
 
 /* =====================================================
    WORKSPACE CONFIG
