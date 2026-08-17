@@ -28,7 +28,9 @@ import {
 
 import {
 
-    rupiah
+    rupiah,
+
+    shortRupiah
 
 } from "../../js/utils.js";
 
@@ -188,7 +190,7 @@ function renderOverview(){
 
                     ${
 
-                        rupiahSafe(
+                        shortRupiahSafe(
 
                             overview.currentIncome
 
@@ -215,7 +217,7 @@ function renderOverview(){
 
                     ${
 
-                        rupiahSafe(
+                        shortRupiahSafe(
 
                             overview.currentExpense
 
@@ -242,7 +244,7 @@ function renderOverview(){
 
                     ${
 
-                        rupiahSafe(
+                        shortRupiahSafe(
 
                             overview.previousIncome
 
@@ -269,7 +271,7 @@ function renderOverview(){
 
                     ${
 
-                        rupiahSafe(
+                        shortRupiahSafe(
 
                             overview.previousExpense
 
