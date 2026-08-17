@@ -146,6 +146,53 @@ export const Process = {
                     Boolean
 
                 );
+       /* =============================================
+   DEBUG RULE RESULT
+============================================= */
+
+console.log(
+    "========== FINANCIAL RULE TEST =========="
+);
+
+
+console.log(
+    "[TEST] Hutang:",
+    Process.data.find(
+        item =>
+            item.jenis === "hutang" &&
+            item.type === "hutang_piutang"
+    )
+);
+
+
+console.log(
+    "[TEST] Bayar Hutang:",
+    Process.data.find(
+        item =>
+            item.jenis === "bayar" &&
+            item.type === "hutang_piutang"
+    )
+);
+
+
+console.log(
+    "[TEST] Nabung Dana Darurat:",
+    Process.data.find(
+        item =>
+            item.jenis === "nabung" &&
+            item.type === "dana_darurat"
+    )
+);
+
+
+console.log(
+    "[TEST] Tarik Dana Darurat:",
+    Process.data.find(
+        item =>
+            item.jenis === "tarik" &&
+            item.type === "dana_darurat"
+    )
+);
 
 
         /* =============================================
