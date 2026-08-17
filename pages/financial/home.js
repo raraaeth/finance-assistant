@@ -3,7 +3,7 @@
    Page        : Financial
    Module      : Home
    File        : home.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Financial Home Controller
@@ -40,6 +40,20 @@ import {
 
 import {
 
+    API
+
+} from "../../js/api.js";
+
+
+import {
+
+    Process
+
+} from "./process.js";
+
+
+import {
+
     Header
 
 } from "../../components/header/script.js";
@@ -50,6 +64,13 @@ import {
     Profile
 
 } from "../../components/profile/script.js";
+
+
+import {
+
+    rupiah
+
+} from "../../js/utils.js";
 
 
 /* =====================================================
@@ -93,24 +114,84 @@ export async function init(){
 
 
     /* =============================================
-       SUMMARY
+       LOAD FINANCIAL DATA
     ============================================= */
 
-    renderSummary();
+    try{
+
+        await API.load(
+
+            CONFIG.api.financial,
+
+            CONFIG.api.activity
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Financial API Error:",
+
+            error
+
+        );
+
+        return;
+
+    }
 
 
     /* =============================================
-       INPUT
+       PROCESS DATA
     ============================================= */
 
-    renderInput();
+    try{
+
+        Process.init(
+
+            API.raw,
+
+            API.data
+
+        );
 
 
-    /* =============================================
-       SETTING
-    ============================================= */
+        /* -----------------------------------------
+           SUMMARY
+        ----------------------------------------- */
 
-    renderSetting();
+        renderSummary();
+
+
+        /* -----------------------------------------
+           INPUT
+        ----------------------------------------- */
+
+        renderInput();
+
+
+        /* -----------------------------------------
+           SETTING
+        ----------------------------------------- */
+
+        renderSetting();
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Financial Process Error:",
+
+            error
+
+        );
+
+    }
 
 
     /* =============================================
@@ -241,6 +322,21 @@ function renderSummary(){
     }
 
 
+    const summary =
+
+        Process.summary ??
+
+        {
+
+            income : 0,
+
+            expense : 0,
+
+            balance : 0
+
+        };
+
+
     card.innerHTML =
 
     `
@@ -249,13 +345,22 @@ function renderSummary(){
 
             <p>
 
-                Ringkasan Keuangan
+                Saldo Saat Ini
 
             </p>
 
+
             <h2>
 
-                -
+                ${
+
+                    rupiah(
+
+                        summary.balance
+
+                    )
+
+                }
 
             </h2>
 
@@ -304,6 +409,7 @@ function renderInput(){
                 Input
 
             </p>
+
 
             <h2>
 
@@ -356,6 +462,7 @@ function renderSetting(){
                 Pengaturan
 
             </p>
+
 
             <h2>
 
