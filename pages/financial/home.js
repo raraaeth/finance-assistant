@@ -58,6 +58,12 @@ import {
 
 } from "./statistics.js";
 
+import {
+
+    Summary
+
+} from "./summary.js";
+
 
 import {
 
@@ -178,6 +184,16 @@ export async function init(){
             API.data
 
         );
+
+       /* =========================================
+           SUMMARY
+        ========================================= */
+
+       Summary.init(
+
+           Process.data
+
+      );
 
 
         /* =========================================
