@@ -67,6 +67,13 @@ import {
 
 } from "./saving.js";
 
+import {
+
+    FinancialSetting
+
+} from "./financial.js";
+
+
 
 /* =====================================================
    MODULE REGISTRY
@@ -81,6 +88,10 @@ const SETTINGS = {
    "payroll-daily":
 
         DailySetting,
+
+   "financial":
+
+        FinancialSetting,
 
 
     "kas":
