@@ -4674,7 +4674,8 @@ function formatResultValue(
         );
 
     }
-       /* =============================================
+
+    /* =============================================
        CHECKBOX RESULT DARI NORMALIZED VALUE
        Contoh:
        field.resultValue = "sabtu"
