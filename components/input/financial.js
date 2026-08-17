@@ -18,7 +18,7 @@
    FINANCIAL INPUT
 ===================================================== */
 
-export const FinancialInput = {
+export const Financial = {
 
 
     /* =================================================
