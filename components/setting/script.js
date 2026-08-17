@@ -1482,7 +1482,24 @@ function renderField(
 
     wrapper.className =
 
-        "global-setting-field";
+    "global-setting-field";
+
+
+if(
+
+    field.type ===
+
+    "checkbox"
+
+){
+
+    wrapper.classList.add(
+
+        "global-setting-checkbox-field"
+
+    );
+
+}
 
 
     wrapper.dataset.field =
