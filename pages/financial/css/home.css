@@ -1,1 +1,270 @@
+/* =====================================================
+   Finance Assistant
+   Page        : Financial
+   Module      : Home
+   File        : home.css
+   Version     : 1.0.0
 
+   Description :
+   Financial Home Styling
+
+   Theme Aware :
+   - Dark
+   - Green
+   - Pink
+===================================================== */
+
+
+/* =====================================================
+   HOME SUMMARY
+===================================================== */
+
+#summary-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =====================================================
+   TOTAL BALANCE
+===================================================== */
+
+.financial-home-balance{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    width:100%;
+
+    padding:22px;
+
+    box-sizing:border-box;
+
+    border-radius:20px;
+
+    background:var(--surface);
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   BALANCE LABEL
+===================================================== */
+
+.financial-home-balance-label{
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    line-height:1.35;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   BALANCE VALUE
+===================================================== */
+
+.financial-home-balance-value{
+
+    color:var(--text);
+
+    font-size:30px;
+
+    line-height:1.2;
+
+    font-weight:800;
+
+    letter-spacing:-.4px;
+
+    word-break:break-word;
+
+}
+
+
+/* =====================================================
+   EXPENSE GRID
+===================================================== */
+
+.financial-home-expense-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            2,
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+        );
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   EXPENSE ITEM
+===================================================== */
+
+.financial-home-expense-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:space-between;
+
+    min-width:0;
+
+    min-height:88px;
+
+    padding:16px;
+
+    box-sizing:border-box;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   EXPENSE LABEL
+===================================================== */
+
+.financial-home-expense-item span{
+
+    display:block;
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+    line-height:1.35;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   EXPENSE VALUE
+===================================================== */
+
+.financial-home-expense-item strong{
+
+    display:block;
+
+    margin-top:10px;
+
+    color:var(--text);
+
+    font-size:18px;
+
+    line-height:1.25;
+
+    font-weight:700;
+
+    word-break:break-word;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    #summary-card{
+
+        padding:16px 12px;
+
+        gap:10px;
+
+    }
+
+
+    .financial-home-balance{
+
+        padding:20px 18px;
+
+        border-radius:18px;
+
+    }
+
+
+    .financial-home-balance-value{
+
+        font-size:27px;
+
+    }
+
+
+    .financial-home-expense-grid{
+
+        gap:10px;
+
+    }
+
+
+    .financial-home-expense-item{
+
+        min-height:82px;
+
+        padding:14px 12px;
+
+        border-radius:16px;
+
+    }
+
+
+    .financial-home-expense-item span{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-home-expense-item strong{
+
+        font-size:16px;
+
+    }
+
+}
