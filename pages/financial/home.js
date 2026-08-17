@@ -3,7 +3,7 @@
    Page        : Financial
    Module      : Home
    File        : home.js
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Financial Home Controller
@@ -50,6 +50,13 @@ import {
     Process
 
 } from "./process.js";
+
+
+import {
+
+    Statistics
+
+} from "./statistics.js";
 
 
 import {
@@ -127,36 +134,6 @@ export async function init(){
 
         );
 
-
-        /* -----------------------------------------
-           API DEBUG
-        ----------------------------------------- */
-
-        console.log(
-
-            "========== FINANCIAL API DEBUG =========="
-
-        );
-
-
-        console.log(
-
-            "[Financial] API.raw:",
-
-            API.raw
-
-        );
-
-
-        console.log(
-
-            "[Financial] API.data:",
-
-            API.data
-
-        );
-
-
     }
 
     catch(error){
@@ -189,64 +166,36 @@ export async function init(){
         );
 
 
-        /* -----------------------------------------
-           PROCESS DEBUG
-        ----------------------------------------- */
+        /* =========================================
+           STATISTICS
+        ========================================= */
 
-        console.log(
-
-            "========== FINANCIAL PROCESS DEBUG =========="
-
-        );
-
-
-        console.log(
-
-            "[Financial] Process:",
-
-            Process
-
-        );
-
-
-        console.log(
-
-            "[Financial] Process.data:",
+        Statistics.init(
 
             Process.data
 
         );
 
 
-        console.log(
-
-            "[Financial] Process.rules:",
-
-            Process.rules
-
-        );
-
-
-        /* -----------------------------------------
+        /* =========================================
            SUMMARY
-        ----------------------------------------- */
+        ========================================= */
 
         renderSummary();
 
 
-        /* -----------------------------------------
+        /* =========================================
            INPUT
-        ----------------------------------------- */
+        ========================================= */
 
         renderInput();
 
 
-        /* -----------------------------------------
+        /* =========================================
            SETTING
-        ----------------------------------------- */
+        ========================================= */
 
         renderSetting();
-
 
     }
 
@@ -447,13 +396,18 @@ function renderSummary(){
 function renderInput(){
 
     const card =
+
         document.getElementById(
+
             "input-card"
+
         );
 
 
     if(
+
         !card
+
     ){
 
         return;
@@ -555,6 +509,7 @@ function renderInput(){
     }
 
 }
+
 
 /* =====================================================
    SETTING
@@ -676,6 +631,7 @@ function renderSetting(){
     }
 
 }
+
 
 /* =====================================================
    HELPER
