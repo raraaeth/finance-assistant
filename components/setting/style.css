@@ -1027,3 +1027,47 @@ body.setting-open{
     flex:none;
 
 }
+
+/* =====================================================
+   CHECKBOX FIELD
+===================================================== */
+
+.global-setting-checkbox-field{
+
+    display:flex;
+
+    flex-direction:row;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+}
+
+
+/* LABEL */
+
+.global-setting-checkbox-field label{
+
+    margin:0;
+
+    flex:1;
+
+}
+
+
+/* CHECKBOX */
+
+.global-setting-checkbox-field input[type="checkbox"]{
+
+    width:20px;
+
+    height:20px;
+
+    margin:0;
+
+    flex:none;
+
+}
