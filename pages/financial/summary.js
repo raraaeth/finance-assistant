@@ -613,13 +613,19 @@ function createDebtCard(
 
             <div class="financial-position-header">
 
-                <strong>
+    <span class="financial-position-emoji">
 
-                    Hutang
+        🏦
 
-                </strong>
+    </span>
 
-            </div>
+    <strong>
+
+        Hutang
+
+    </strong>
+
+</div>
 
 
             <div class="financial-position-row">
