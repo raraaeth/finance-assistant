@@ -194,6 +194,12 @@ function completeTransaction(
 
     hideAddButton();
 
+   /* =============================================
+       START NEW TRANSACTION
+    ============================================= */
+
+    startFlow();
+   
 
     /* =============================================
        RENDER LIST
@@ -203,13 +209,6 @@ function completeTransaction(
 
 
     updateSummary();
-
-
-    /* =============================================
-       START NEW TRANSACTION
-    ============================================= */
-
-    startFlow();
 
 
     console.log(
