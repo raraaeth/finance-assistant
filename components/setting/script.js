@@ -4648,6 +4648,52 @@ function formatResultValue(
     data
 
 ){
+       /* =============================================
+       CHECKBOX RESULT DARI FINANCIAL DISPLAY
+       
+       Financial menyimpan nilai checkbox
+       sementara di data.__display.
+       
+       Contoh:
+       
+       data.__display = {
+           gaji : true,
+           penghasilan_lain : true,
+           hutang_piutang : false,
+           dana_darurat : false,
+           tabungan_kaleng : false
+       }
+    ============================================= */
+
+    if(
+
+        field.type ===
+
+        "checkbox" &&
+
+        data?.__display &&
+
+        Object.prototype.hasOwnProperty.call(
+
+            data.__display,
+
+            field.name
+
+        )
+
+    ){
+
+        return data.__display[field.name]
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
+
+    }
 
     /* =============================================
        CHECKBOX RESULT DARI NORMALIZED VALUE
