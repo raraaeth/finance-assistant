@@ -51,35 +51,45 @@ export async function loadInputData(
 ){
 
     /* =============================================
-       HANYA LOAD DATA YANG DIBUTUHKAN WORKSPACE
+       LOAD KAS DATA
     ============================================= */
 
     if(
 
-    workspace === "kas"
+        workspace === "kas"
 
-){
+    ){
 
-    await loadKasMembers();
-
-}
-
-
-if(
-
-    workspace === "financial"
-
-){
-
-    await loadFinancialActivity();
-
-}
-
-
-return Data;
+        await loadKasMembers();
 
     }
 
+
+    /* =============================================
+       LOAD FINANCIAL DATA
+    ============================================= */
+
+    if(
+
+        workspace === "financial"
+
+    ){
+
+        await loadFinancialActivity();
+
+    }
+
+
+    return Data;
+
+}
+
+
+/* =====================================================
+   LOAD KAS MEMBERS
+===================================================== */
+
+async function loadKasMembers(){
 
     try{
 
@@ -172,7 +182,7 @@ return Data;
 
         console.error(
 
-            "GLOBAL INPUT DATA ERROR:",
+            "GLOBAL INPUT DATA ERROR - KAS MEMBERS:",
 
             error
 
@@ -180,10 +190,8 @@ return Data;
 
     }
 
-
-    return Data;
-
 }
+
 
 /* =====================================================
    LOAD FINANCIAL ACTIVITY
@@ -237,6 +245,7 @@ async function loadFinancialActivity(){
                         item &&
 
                         typeof item.rules ===
+
                             "string"
 
                 )
@@ -288,6 +297,7 @@ export function getKasMembers(){
 
 }
 
+
 export function getFinancialActivity(){
 
     return [
@@ -297,4 +307,3 @@ export function getFinancialActivity(){
     ];
 
 }
-
