@@ -176,6 +176,10 @@ const ACTIVITY = {
    HELPER
 ===================================================== */
 
+/* =====================================================
+   CREATE ACTIVITY FIELDS
+===================================================== */
+
 function createActivityFields(
 
     list
@@ -200,7 +204,11 @@ function createActivityFields(
 
             resultValue :
 
-                item.name
+                item.name,
+
+            activityRule :
+
+                item.rule ?? ""
 
         })
 
@@ -356,6 +364,189 @@ function normalizeRule(
             )
 
     };
+
+}
+
+/* =====================================================
+   ACTIVITY RULE CONTROL
+===================================================== */
+
+function applyActivityRuleControl(
+
+    form,
+    ruleData
+
+){
+
+    if(
+
+        !form ||
+
+        !ruleData
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       RULE STATUS
+    ============================================= */
+
+    const ruleHutang =
+
+        Boolean(
+
+            ruleData.gunakanRuleHutang
+
+        );
+
+
+    const ruleTabungan =
+
+        Boolean(
+
+            ruleData.gunakanRuleTabungan
+
+        );
+
+
+    /* =============================================
+       HUTANG
+    ============================================= */
+
+    const hutangFields =
+
+        form.querySelectorAll(
+
+            '[data-activity-rule="hutang"]'
+
+        );
+
+
+    hutangFields.forEach(
+
+        field => {
+
+            const input =
+
+                field.querySelector(
+
+                    'input[type="checkbox"]'
+
+                );
+
+
+            if(
+
+                !input
+
+            ){
+
+                return;
+
+            }
+
+
+            input.disabled =
+
+                !ruleHutang;
+
+
+            if(
+
+                !ruleHutang
+
+            ){
+
+                input.checked =
+
+                    false;
+
+            }
+
+
+            field.classList.toggle(
+
+                "disabled",
+
+                !ruleHutang
+
+            );
+
+        }
+
+    );
+
+
+    /* =============================================
+       TABUNGAN
+    ============================================= */
+
+    const tabunganFields =
+
+        form.querySelectorAll(
+
+            '[data-activity-rule="tabungan"]'
+
+        );
+
+
+    tabunganFields.forEach(
+
+        field => {
+
+            const input =
+
+                field.querySelector(
+
+                    'input[type="checkbox"]'
+
+                );
+
+
+            if(
+
+                !input
+
+            ){
+
+                return;
+
+            }
+
+
+            input.disabled =
+
+                !ruleTabungan;
+
+
+            if(
+
+                !ruleTabungan
+
+            ){
+
+                input.checked =
+
+                    false;
+
+            }
+
+
+            field.classList.toggle(
+
+                "disabled",
+
+                !ruleTabungan
+
+            );
+
+        }
+
+    );
 
 }
 
