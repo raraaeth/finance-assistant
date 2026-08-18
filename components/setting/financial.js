@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Financial
    File         : financial.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Financial Setting Definition
@@ -16,12 +16,35 @@
    - Activity Tabungan
 
    Principle :
-   Rule Pemasukan dan Pengeluaran wajib digunakan.
+   - Rule Pemasukan wajib
+   - Rule Pengeluaran wajib
+   - Rule Hutang opsional
+   - Rule Tabungan opsional
 
-   Rule Hutang dan Tabungan bersifat opsional.
+   Dependency :
+   - rule_hutang
+       → hutang_piutang
 
-   Activity merupakan konfigurasi Financial
-   yang nantinya digunakan oleh Input Engine.
+   - rule_tabungan
+       → dana_darurat
+       → tabungan_kaleng
+
+   Output :
+   Satu rule menghasilkan satu result.
+   Multiple activity digabung dengan koma.
+
+   Contoh :
+
+   {
+       rules :
+           "rule_pemasukan",
+
+       type :
+           "masuk,hutang,tarik",
+
+       activity :
+           "gaji,penghasilan_lain"
+   }
 ===================================================== */
 
 
@@ -76,12 +99,12 @@ export const FinancialSetting = {
 
             addLabel :
 
-                "＋ Tambah Rule",
+                "＋ Tambah Konfigurasi",
 
 
             formAddLabel :
 
-                "＋ Simpan Rule",
+                "＋ Simpan Konfigurasi",
 
 
             deleteLabel :
@@ -209,7 +232,7 @@ export const FinancialSetting = {
 
                     note :
 
-                        "Opsional. Aktifkan jika Financial menggunakan transaksi hutang dan pembayaran hutang."
+                        "Opsional. Jika diaktifkan, activity Hutang / Piutang akan tersedia pada Financial."
 
                 },
 
@@ -247,7 +270,7 @@ export const FinancialSetting = {
 
                     note :
 
-                        "Opsional. Aktifkan jika Financial menggunakan transaksi tabungan dan penarikan tabungan."
+                        "Opsional. Jika diaktifkan, activity Dana Darurat dan Tabungan Kaleng akan tersedia pada Financial."
 
                 }
 
@@ -311,14 +334,12 @@ export const FinancialSetting = {
 
 
                     /* =====================================
-                       RULE YANG AKTIF
+                       ACTIVE RULE
                     ===================================== */
 
-                    const rules = [
-
+                    const activeRules = [
 
                         "rule_pemasukan",
-
 
                         "rule_pengeluaran"
 
@@ -331,7 +352,7 @@ export const FinancialSetting = {
 
                     ){
 
-                        rules.push(
+                        activeRules.push(
 
                             "rule_hutang"
 
@@ -346,7 +367,7 @@ export const FinancialSetting = {
 
                     ){
 
-                        rules.push(
+                        activeRules.push(
 
                             "rule_tabungan"
 
@@ -364,7 +385,11 @@ export const FinancialSetting = {
 
                         rules :
 
-                            rules,
+                            activeRules.join(
+
+                                ","
+
+                            ),
 
 
                         rule_pemasukan :
@@ -427,7 +452,7 @@ export const FinancialSetting = {
 
             description :
 
-                "Activity yang tersedia untuk Rule Pemasukan.",
+                "Pilih activity yang tersedia untuk pemasukan.",
 
 
             addLabel :
@@ -437,7 +462,7 @@ export const FinancialSetting = {
 
             formAddLabel :
 
-                "＋ Tambahkan",
+                "＋ Simpan Activity",
 
 
             deleteLabel :
@@ -460,111 +485,191 @@ export const FinancialSetting = {
             fields : [
 
 
+                /* =========================================
+                   GAJI
+                ========================================= */
+
                 {
 
                     name :
 
-                        "activity",
+                        "activity_gaji",
 
 
                     label :
 
-                        "Activity Pemasukan",
+                        "Gaji",
 
 
                     type :
 
-                        "select",
-
-
-                    placeholder :
-
-                        "Pilih activity pemasukan",
+                        "checkbox",
 
 
                     required :
 
-                        true,
+                        false,
 
 
-                    options : [
+                    value :
+
+                        false
+
+                },
 
 
-                        {
+                /* =========================================
+                   PENGHASILAN LAIN
+                ========================================= */
 
-                            value :
+                {
 
-                                "gaji",
+                    name :
 
-
-                            label :
-
-                                "Gaji"
-
-                        },
+                        "activity_penghasilan_lain",
 
 
-                        {
+                    label :
 
-                            value :
-
-                                "penghasilan_lain",
+                        "Penghasilan Lain",
 
 
-                            label :
+                    type :
 
-                                "Penghasilan Lain"
-
-                        },
+                        "checkbox",
 
 
-                        {
+                    required :
 
-                            value :
-
-                                "hutang_piutang",
+                        false,
 
 
-                            label :
+                    value :
 
-                                "Hutang / Piutang"
+                        false
 
-                        },
-
-
-                        {
-
-                            value :
-
-                                "dana_darurat",
+                },
 
 
-                            label :
+                /* =========================================
+                   HUTANG / PIUTANG
+                ========================================= */
 
-                                "Dana Darurat"
+                {
 
-                        },
+                    name :
 
-
-                        {
-
-                            value :
-
-                                "tabungan_kaleng",
+                        "activity_hutang_piutang",
 
 
-                            label :
+                    label :
 
-                                "Tabungan Kaleng"
+                        "Hutang / Piutang",
 
-                        }
 
-                    ]
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false,
+
+
+                    value :
+
+                        false,
+
+
+                    dependsOnRule :
+
+                        "rule_hutang"
+
+                },
+
+
+                /* =========================================
+                   DANA DARURAT
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "activity_dana_darurat",
+
+
+                    label :
+
+                        "Dana Darurat",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false,
+
+
+                    value :
+
+                        false,
+
+
+                    dependsOnRule :
+
+                        "rule_tabungan"
+
+                },
+
+
+                /* =========================================
+                   TABUNGAN KALENG
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "activity_tabungan_kaleng",
+
+
+                    label :
+
+                        "Tabungan Kaleng",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false,
+
+
+                    value :
+
+                        false,
+
+
+                    dependsOnRule :
+
+                        "rule_tabungan"
 
                 }
 
             ],
 
+
+            /* =============================================
+               NORMALIZE
+            ============================================= */
 
             normalize :
 
@@ -573,6 +678,102 @@ export const FinancialSetting = {
                     data
 
                 ){
+
+                    const activities = [];
+
+
+                    if(
+
+                        data.activity_gaji
+
+                    ){
+
+                        activities.push(
+
+                            "gaji"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_penghasilan_lain
+
+                    ){
+
+                        activities.push(
+
+                            "penghasilan_lain"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_hutang_piutang
+
+                    ){
+
+                        activities.push(
+
+                            "hutang_piutang"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_dana_darurat
+
+                    ){
+
+                        activities.push(
+
+                            "dana_darurat"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_tabungan_kaleng
+
+                    ){
+
+                        activities.push(
+
+                            "tabungan_kaleng"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        activities.length === 0
+
+                    ){
+
+                        alert(
+
+                            "Pilih minimal satu activity pemasukan."
+
+                        );
+
+
+                        return null;
+
+                    }
+
 
                     return {
 
@@ -588,7 +789,11 @@ export const FinancialSetting = {
 
                         activity :
 
-                            data.activity ?? ""
+                            activities.join(
+
+                                ","
+
+                            )
 
                     };
 
@@ -615,7 +820,7 @@ export const FinancialSetting = {
 
             description :
 
-                "Activity yang tersedia untuk Rule Pengeluaran.",
+                "Pilih activity yang tersedia untuk pengeluaran.",
 
 
             addLabel :
@@ -625,7 +830,7 @@ export const FinancialSetting = {
 
             formAddLabel :
 
-                "＋ Tambahkan",
+                "＋ Simpan Activity",
 
 
             deleteLabel :
@@ -648,223 +853,390 @@ export const FinancialSetting = {
             fields : [
 
 
+                /* =========================================
+                   BELANJA HARIAN
+                ========================================= */
+
                 {
 
                     name :
 
-                        "activity",
+                        "activity_belanja_harian",
 
 
                     label :
 
-                        "Activity Pengeluaran",
+                        "Belanja Harian",
 
 
                     type :
 
-                        "select",
-
-
-                    placeholder :
-
-                        "Pilih activity pengeluaran",
+                        "checkbox",
 
 
                     required :
 
-                        true,
+                        false
 
+                },
 
-                    options : [
 
+                /* =========================================
+                   BELANJA BULANAN
+                ========================================= */
 
-                        {
+                {
 
-                            value :
+                    name :
 
-                                "belanja_harian",
+                        "activity_belanja_bulanan",
 
 
-                            label :
+                    label :
 
-                                "Belanja Harian"
+                        "Belanja Bulanan",
 
-                        },
 
+                    type :
 
-                        {
+                        "checkbox",
 
-                            value :
 
-                                "belanja_bulanan",
+                    required :
 
+                        false
 
-                            label :
+                },
 
-                                "Belanja Bulanan"
 
-                        },
+                /* =========================================
+                   KEBUTUHAN ANAK
+                ========================================= */
 
+                {
 
-                        {
+                    name :
 
-                            value :
+                        "activity_kebutuhan_anak",
 
-                                "kebutuhan_anak",
 
+                    label :
 
-                            label :
+                        "Kebutuhan Anak",
 
-                                "Kebutuhan Anak"
 
-                        },
+                    type :
 
+                        "checkbox",
 
-                        {
 
-                            value :
+                    required :
 
-                                "tagihan",
+                        false
 
+                },
 
-                            label :
 
-                                "Tagihan"
+                /* =========================================
+                   TAGIHAN
+                ========================================= */
 
-                        },
+                {
 
+                    name :
 
-                        {
+                        "activity_tagihan",
 
-                            value :
 
-                                "belanja_online",
+                    label :
 
+                        "Tagihan",
 
-                            label :
 
-                                "Belanja Online"
+                    type :
 
-                        },
+                        "checkbox",
 
 
-                        {
+                    required :
 
-                            value :
+                        false
 
-                                "biaya_perbaikan",
+                },
 
 
-                            label :
+                /* =========================================
+                   BELANJA ONLINE
+                ========================================= */
 
-                                "Biaya Perbaikan"
+                {
 
-                        },
+                    name :
 
+                        "activity_belanja_online",
 
-                        {
 
-                            value :
+                    label :
 
-                                "makan_diluar",
+                        "Belanja Online",
 
 
-                            label :
+                    type :
 
-                                "Makan di Luar"
+                        "checkbox",
 
-                        },
 
+                    required :
 
-                        {
+                        false
 
-                            value :
+                },
 
-                                "refreshing",
 
+                /* =========================================
+                   BIAYA PERBAIKAN
+                ========================================= */
 
-                            label :
+                {
 
-                                "Refreshing"
+                    name :
 
-                        },
+                        "activity_biaya_perbaikan",
 
 
-                        {
+                    label :
 
-                            value :
+                        "Biaya Perbaikan",
 
-                                "biaya_tahunan",
 
+                    type :
 
-                            label :
+                        "checkbox",
 
-                                "Biaya Tahunan"
 
-                        },
+                    required :
 
+                        false
 
-                        {
+                },
 
-                            value :
 
-                                "pengeluaran_lain",
+                /* =========================================
+                   MAKAN DI LUAR
+                ========================================= */
 
+                {
 
-                            label :
+                    name :
 
-                                "Pengeluaran Lain"
+                        "activity_makan_diluar",
 
-                        },
 
+                    label :
 
-                        {
+                        "Makan di Luar",
 
-                            value :
 
-                                "hutang_piutang",
+                    type :
 
+                        "checkbox",
 
-                            label :
 
-                                "Hutang / Piutang"
+                    required :
 
-                        },
+                        false
 
+                },
 
-                        {
 
-                            value :
+                /* =========================================
+                   REFRESHING
+                ========================================= */
 
-                                "dana_darurat",
+                {
 
+                    name :
 
-                            label :
+                        "activity_refreshing",
 
-                                "Dana Darurat"
 
-                        },
+                    label :
 
+                        "Refreshing",
 
-                        {
 
-                            value :
+                    type :
 
-                                "tabungan_kaleng",
+                        "checkbox",
 
 
-                            label :
+                    required :
 
-                                "Tabungan Kaleng"
+                        false
 
-                        }
+                },
 
-                    ]
+
+                /* =========================================
+                   BIAYA TAHUNAN
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "activity_biaya_tahunan",
+
+
+                    label :
+
+                        "Biaya Tahunan",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   PENGELUARAN LAIN
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "activity_pengeluaran_lain",
+
+
+                    label :
+
+                        "Pengeluaran Lain",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   HUTANG / PIUTANG
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "activity_hutang_piutang",
+
+
+                    label :
+
+                        "Hutang / Piutang",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false,
+
+
+                    dependsOnRule :
+
+                        "rule_hutang"
+
+                },
+
+
+                /* =========================================
+                   DANA DARURAT
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "activity_dana_darurat",
+
+
+                    label :
+
+                        "Dana Darurat",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false,
+
+
+                    dependsOnRule :
+
+                        "rule_tabungan"
+
+                },
+
+
+                /* =========================================
+                   TABUNGAN KALENG
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "activity_tabungan_kaleng",
+
+
+                    label :
+
+                        "Tabungan Kaleng",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false,
+
+
+                    dependsOnRule :
+
+                        "rule_tabungan"
 
                 }
 
             ],
 
+
+            /* =============================================
+               NORMALIZE
+            ============================================= */
 
             normalize :
 
@@ -873,6 +1245,222 @@ export const FinancialSetting = {
                     data
 
                 ){
+
+                    const activities = [];
+
+
+                    if(
+
+                        data.activity_belanja_harian
+
+                    ){
+
+                        activities.push(
+
+                            "belanja_harian"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_belanja_bulanan
+
+                    ){
+
+                        activities.push(
+
+                            "belanja_bulanan"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_kebutuhan_anak
+
+                    ){
+
+                        activities.push(
+
+                            "kebutuhan_anak"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_tagihan
+
+                    ){
+
+                        activities.push(
+
+                            "tagihan"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_belanja_online
+
+                    ){
+
+                        activities.push(
+
+                            "belanja_online"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_biaya_perbaikan
+
+                    ){
+
+                        activities.push(
+
+                            "biaya_perbaikan"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_makan_diluar
+
+                    ){
+
+                        activities.push(
+
+                            "makan_diluar"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_refreshing
+
+                    ){
+
+                        activities.push(
+
+                            "refreshing"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_biaya_tahunan
+
+                    ){
+
+                        activities.push(
+
+                            "biaya_tahunan"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_pengeluaran_lain
+
+                    ){
+
+                        activities.push(
+
+                            "pengeluaran_lain"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_hutang_piutang
+
+                    ){
+
+                        activities.push(
+
+                            "hutang_piutang"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_dana_darurat
+
+                    ){
+
+                        activities.push(
+
+                            "dana_darurat"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_tabungan_kaleng
+
+                    ){
+
+                        activities.push(
+
+                            "tabungan_kaleng"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        activities.length === 0
+
+                    ){
+
+                        alert(
+
+                            "Pilih minimal satu activity pengeluaran."
+
+                        );
+
+
+                        return null;
+
+                    }
+
 
                     return {
 
@@ -888,7 +1476,11 @@ export const FinancialSetting = {
 
                         activity :
 
-                            data.activity ?? ""
+                            activities.join(
+
+                                ","
+
+                            )
 
                     };
 
@@ -925,7 +1517,7 @@ export const FinancialSetting = {
 
             formAddLabel :
 
-                "＋ Tambahkan",
+                "＋ Simpan Activity",
 
 
             deleteLabel :
@@ -952,46 +1544,32 @@ export const FinancialSetting = {
 
                     name :
 
-                        "activity",
+                        "activity_hutang_piutang",
 
 
                     label :
 
-                        "Activity Hutang",
+                        "Hutang / Piutang",
 
 
                     type :
 
-                        "select",
-
-
-                    placeholder :
-
-                        "Pilih activity hutang",
+                        "checkbox",
 
 
                     required :
 
-                        true,
+                        false,
 
 
-                    options : [
+                    value :
+
+                        false,
 
 
-                        {
+                    dependsOnRule :
 
-                            value :
-
-                                "hutang_piutang",
-
-
-                            label :
-
-                                "Hutang / Piutang"
-
-                        }
-
-                    ]
+                        "rule_hutang"
 
                 }
 
@@ -1005,6 +1583,42 @@ export const FinancialSetting = {
                     data
 
                 ){
+
+                    const activities = [];
+
+
+                    if(
+
+                        data.activity_hutang_piutang
+
+                    ){
+
+                        activities.push(
+
+                            "hutang_piutang"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        activities.length === 0
+
+                    ){
+
+                        alert(
+
+                            "Pilih activity hutang."
+
+                        );
+
+
+                        return null;
+
+                    }
+
 
                     return {
 
@@ -1020,7 +1634,11 @@ export const FinancialSetting = {
 
                         activity :
 
-                            data.activity ?? ""
+                            activities.join(
+
+                                ","
+
+                            )
 
                     };
 
@@ -1057,7 +1675,7 @@ export const FinancialSetting = {
 
             formAddLabel :
 
-                "＋ Tambahkan",
+                "＋ Simpan Activity",
 
 
             deleteLabel :
@@ -1080,69 +1698,87 @@ export const FinancialSetting = {
             fields : [
 
 
+                /* =========================================
+                   DANA DARURAT
+                ========================================= */
+
                 {
 
                     name :
 
-                        "activity",
+                        "activity_dana_darurat",
 
 
                     label :
 
-                        "Activity Tabungan",
+                        "Dana Darurat",
 
 
                     type :
 
-                        "select",
-
-
-                    placeholder :
-
-                        "Pilih activity tabungan",
+                        "checkbox",
 
 
                     required :
 
-                        true,
+                        false,
 
 
-                    options : [
+                    value :
+
+                        false,
 
 
-                        {
+                    dependsOnRule :
 
-                            value :
+                        "rule_tabungan"
 
-                                "dana_darurat",
-
-
-                            label :
-
-                                "Dana Darurat"
-
-                        },
+                },
 
 
-                        {
+                /* =========================================
+                   TABUNGAN KALENG
+                ========================================= */
 
-                            value :
+                {
 
-                                "tabungan_kaleng",
+                    name :
+
+                        "activity_tabungan_kaleng",
 
 
-                            label :
+                    label :
 
-                                "Tabungan Kaleng"
+                        "Tabungan Kaleng",
 
-                        }
 
-                    ]
+                    type :
+
+                        "checkbox",
+
+
+                    required :
+
+                        false,
+
+
+                    value :
+
+                        false,
+
+
+                    dependsOnRule :
+
+                        "rule_tabungan"
 
                 }
 
             ],
 
+
+            /* =============================================
+               NORMALIZE
+            ============================================= */
 
             normalize :
 
@@ -1151,6 +1787,57 @@ export const FinancialSetting = {
                     data
 
                 ){
+
+                    const activities = [];
+
+
+                    if(
+
+                        data.activity_dana_darurat
+
+                    ){
+
+                        activities.push(
+
+                            "dana_darurat"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        data.activity_tabungan_kaleng
+
+                    ){
+
+                        activities.push(
+
+                            "tabungan_kaleng"
+
+                        );
+
+                    }
+
+
+                    if(
+
+                        activities.length === 0
+
+                    ){
+
+                        alert(
+
+                            "Pilih minimal satu activity tabungan."
+
+                        );
+
+
+                        return null;
+
+                    }
+
 
                     return {
 
@@ -1166,7 +1853,11 @@ export const FinancialSetting = {
 
                         activity :
 
-                            data.activity ?? ""
+                            activities.join(
+
+                                ","
+
+                            )
 
                     };
 
