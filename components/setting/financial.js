@@ -390,6 +390,89 @@ function applyActivityRuleControl(
 
     }
 
+   /* =====================================================
+   GET FINANCIAL RULE STATE
+===================================================== */
+
+function getFinancialRuleState(){
+
+    const result =
+
+        document.querySelector(
+
+            '[data-section="financial_rules"] .global-setting-result-item'
+
+        );
+
+
+    if(
+
+        !result ||
+
+        !result.dataset.value
+
+    ){
+
+        return {
+
+            gunakanRulePemasukan :
+                true,
+
+            gunakanRulePengeluaran :
+                true,
+
+            gunakanRuleHutang :
+                false,
+
+            gunakanRuleTabungan :
+                false
+
+        };
+
+    }
+
+
+    try{
+
+        return JSON.parse(
+
+            result.dataset.value
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Financial Rule State Error:",
+
+            error
+
+        );
+
+
+        return {
+
+            gunakanRulePemasukan :
+                true,
+
+            gunakanRulePengeluaran :
+                true,
+
+            gunakanRuleHutang :
+                false,
+
+            gunakanRuleTabungan :
+                false
+
+        };
+
+    }
+
+}
+
 
     /* =============================================
        RULE STATUS
