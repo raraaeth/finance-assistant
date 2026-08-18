@@ -389,6 +389,7 @@ function applyActivityRuleControl(
         return;
 
     }
+}
 
    /* =====================================================
    GET FINANCIAL RULE STATE
