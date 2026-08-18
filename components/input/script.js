@@ -54,6 +54,12 @@ import {
 
 } from "./transaction.js";
 
+import {
+
+    loadInputData
+
+} from "./data.js";
+
 
 /* =====================================================
    STATE
@@ -344,6 +350,15 @@ export const Input = {
             return;
 
         }
+/* =============================================
+   LOAD INPUT DATA
+============================================= */
+
+await loadInputData(
+
+    result.workspace
+
+);
 
 
         /* =============================================
