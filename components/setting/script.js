@@ -4716,48 +4716,65 @@ function formatResultValue(
 
     ){
 
-        const values =
+        const resultSource =
 
-            String(
+    field.resultField
 
-                data?.waktu ?? ""
+        ?
 
-            )
+        data?.[
 
-            .split(",")
+            field.resultField
 
-            .map(
+        ]
 
-                item =>
+        :
 
-                    item.trim()
-
-            )
-
-            .filter(
-
-                Boolean
-
-            );
+        data?.waktu;
 
 
-        return values.includes(
+const values =
 
-            String(
+    String(
 
-                field.resultValue
+        resultSource ?? ""
 
-            )
+    )
 
-        )
+    .split(",")
 
-            ?
+    .map(
 
-            "Ya"
+        item =>
 
-            :
+            item.trim()
 
-            "Tidak";
+    )
+
+    .filter(
+
+        Boolean
+
+    );
+
+
+return values.includes(
+
+    String(
+
+        field.resultValue
+
+    )
+
+)
+
+    ?
+
+    "Ya"
+
+    :
+
+    "Tidak";
 
     }
 
