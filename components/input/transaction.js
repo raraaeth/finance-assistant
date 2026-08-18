@@ -44,6 +44,13 @@ import {
 } from "./flow.js";
 
 
+import {
+
+    renderTransactionItem
+
+} from "./renderer.js";
+
+
 /* =====================================================
    INIT
 ===================================================== */
@@ -174,35 +181,35 @@ function completeTransaction(
     State.resetCurrent();
 
 
-/* =============================================
-   RESET FORM DOM
-============================================= */
+    /* =============================================
+       RESET FORM DOM
+    ============================================= */
 
-resetTransactionForm();
-
-
-/* =============================================
-   HIDE ADD BUTTON
-============================================= */
-
-hideAddButton();
+    resetTransactionForm();
 
 
-/* =============================================
-   RENDER LIST
-============================================= */
+    /* =============================================
+       HIDE ADD BUTTON
+    ============================================= */
 
-renderTransactionList();
-
-
-updateSummary();
+    hideAddButton();
 
 
-/* =============================================
-   START NEW TRANSACTION
-============================================= */
+    /* =============================================
+       RENDER LIST
+    ============================================= */
 
-startFlow();
+    renderTransactionList();
+
+
+    updateSummary();
+
+
+    /* =============================================
+       START NEW TRANSACTION
+    ============================================= */
+
+    startFlow();
 
 
     console.log(
@@ -214,6 +221,7 @@ startFlow();
     );
 
 }
+
 
 /* =====================================================
    RESET FORM
@@ -493,6 +501,10 @@ export function renderTransactionList(){
     list.innerHTML = "";
 
 
+    /* =============================================
+       RENDER EACH TRANSACTION
+    ============================================= */
+
     State.transactions.forEach(
 
         (
@@ -505,152 +517,34 @@ export function renderTransactionList(){
 
             const item =
 
-                document.createElement(
+                renderTransactionItem(
 
-                    "div"
+                    transaction,
+
+                    index,
+
+                    deleteTransaction
 
                 );
 
 
-            item.className =
-
-                "global-input-list-item";
-
-
-            item.innerHTML =
-
-            `
-
-                <div>
-
-                    <strong>
-
-                        ${
-
-                            getTypeLabel(
-
-                                transaction.type
-
-                            )
-
-                        }
-
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    ${
-
-                        escapeHTML(
-
-                            transaction.member
-
-                        )
-
-                    }
-
-                </div>
-
-
-                <div>
-
-                    ${
-
-                        formatCurrency(
-
-                            transaction.amount
-
-                        )
-
-                    }
-
-                </div>
-
-
-                <div>
-
-                    ${
-
-                        escapeHTML(
-
-                            getCategoryLabel(
-
-                                transaction
-
-                            )
-
-                        )
-
-                    }
-
-                </div>
-
-
-                ${
-
-                    transaction.note
-
-                    ?
-
-                    `
-
-                        <div>
-
-                            ${
-
-                                escapeHTML(
-
-                                    transaction.note
-
-                                )
-
-                            }
-
-                        </div>
-
-                    `
-
-                    :
-
-                    ""
-
-                }
-
-
-                <div
-
-                    class="global-input-item-actions">
-
-                    <button
-
-                        type="button"
-
-                        data-delete="${index}">
-
-                        Hapus
-
-                    </button>
-
-                </div>
-
-            `;
-
-
-            list.appendChild(
+            if(
 
                 item
 
-            );
+            ){
+
+                list.appendChild(
+
+                    item
+
+                );
+
+            }
 
         }
 
     );
-
-
-    bindListActions();
 
 }
 
@@ -810,22 +704,35 @@ function updateSummary(){
     let totalExpense = 0;
 
 
+    /* =============================================
+       CALCULATE
+    ============================================= */
+
     State.transactions.forEach(
 
         transaction => {
 
             const amount =
 
-                Number(
+                getTransactionAmount(
 
-                    transaction.amount
+                    transaction
 
-                ) || 0;
+                );
+
+
+            const type =
+
+                getTransactionType(
+
+                    transaction
+
+                );
 
 
             if(
 
-                transaction.type ===
+                type ===
 
                 "masuk"
 
@@ -840,7 +747,7 @@ function updateSummary(){
 
             else if(
 
-                transaction.type ===
+                type ===
 
                 "keluar"
 
@@ -856,6 +763,10 @@ function updateSummary(){
 
     );
 
+
+    /* =============================================
+       TOTAL COUNT
+    ============================================= */
 
     if(
 
@@ -874,6 +785,10 @@ function updateSummary(){
     }
 
 
+    /* =============================================
+       INCOME
+    ============================================= */
+
     if(
 
         income
@@ -891,6 +806,10 @@ function updateSummary(){
     }
 
 
+    /* =============================================
+       EXPENSE
+    ============================================= */
+
     if(
 
         expense
@@ -907,6 +826,10 @@ function updateSummary(){
 
     }
 
+
+    /* =============================================
+       FOOTER
+    ============================================= */
 
     const footer =
 
@@ -1257,6 +1180,152 @@ function getCategoryLabel(
         "-"
 
     );
+
+}
+
+
+/* =====================================================
+   GET TRANSACTION TYPE
+===================================================== */
+
+function getTransactionType(
+
+    transaction
+
+){
+
+    const steps =
+
+        State.config?.steps
+
+        ??
+
+        [];
+
+
+    /* =============================================
+       AMBIL SELECT PERTAMA
+       → JENIS UTAMA TRANSAKSI
+    ============================================= */
+
+    const typeField =
+
+        steps.find(
+
+            field =>
+
+                field.type ===
+
+                "select"
+
+        );
+
+
+    if(
+
+        typeField &&
+
+        transaction[typeField.id] !==
+
+        undefined
+
+    ){
+
+        return transaction[typeField.id];
+
+    }
+
+
+    /* =============================================
+       FALLBACK
+    ============================================= */
+
+    return (
+
+        transaction.jenis
+
+        ??
+
+        transaction.type
+
+        ??
+
+        ""
+
+    );
+
+}
+
+
+/* =====================================================
+   GET TRANSACTION AMOUNT
+===================================================== */
+
+function getTransactionAmount(
+
+    transaction
+
+){
+
+    const steps =
+
+        State.config?.steps
+
+        ??
+
+        [];
+
+
+    /* =============================================
+       AMBIL NUMBER FIELD PERTAMA
+       → NOMINAL UTAMA TRANSAKSI
+    ============================================= */
+
+    const amountField =
+
+        steps.find(
+
+            field =>
+
+                field.type ===
+
+                "number"
+
+        );
+
+
+    if(
+
+        amountField &&
+
+        transaction[amountField.id] !==
+
+        undefined
+
+    ){
+
+        return Number(
+
+            transaction[amountField.id]
+
+        ) || 0;
+
+    }
+
+
+    /* =============================================
+       FALLBACK
+    ============================================= */
+
+    return Number(
+
+        transaction.nominal
+
+        ??
+
+        transaction.amount
+
+    ) || 0;
 
 }
 
