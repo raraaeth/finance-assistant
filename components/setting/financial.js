@@ -278,52 +278,28 @@ function normalizeActivity(
 
     };
 
+/* =============================================
+   DATA UNTUK RESULT DISPLAY
+============================================= */
 
-    /* =============================================
-       SIMPAN NILAI CHECKBOX UNTUK UI RESULT
-       
-       Dibuat non-enumerable supaya:
-       
-       - formatResultValue() masih bisa membaca
-       - JSON.stringify() tidak memasukkannya
-         ke payload Sheet
-    ============================================= */
+result.__display = {};
 
-    fields.forEach(
 
-        field => {
+fields.forEach(
 
-            Object.defineProperty(
+    field => {
 
-                result,
+        result.__display[field.name] =
 
-                field.name,
+            Boolean(
 
-                {
-
-                    value :
-
-                        Boolean(
-
-                            data[field.name]
-
-                        ),
-
-                    enumerable :
-
-                        false,
-
-                    configurable :
-
-                        true
-
-                }
+                data[field.name]
 
             );
 
-        }
+    }
 
-    );
+);
 
 
     return result;
