@@ -19,7 +19,10 @@
 const DATA_SOURCE = {
 
     kasMembers :
-        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas_member"
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas_member",
+
+    financialActivity :
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/financial_activity"
 
 };
 
@@ -30,7 +33,9 @@ const DATA_SOURCE = {
 
 const Data = {
 
-    kasMembers : []
+    kasMembers : [],
+
+    financialActivity : []
 
 };
 
@@ -51,11 +56,27 @@ export async function loadInputData(
 
     if(
 
-        workspace !== "kas"
+    workspace === "kas"
 
-    ){
+){
 
-        return Data;
+    await loadKasMembers();
+
+}
+
+
+if(
+
+    workspace === "financial"
+
+){
+
+    await loadFinancialActivity();
+
+}
+
+
+return Data;
 
     }
 
@@ -164,9 +185,97 @@ export async function loadInputData(
 
 }
 
+/* =====================================================
+   LOAD FINANCIAL ACTIVITY
+===================================================== */
+
+async function loadFinancialActivity(){
+
+    try{
+
+        const response =
+
+            await fetch(
+
+                DATA_SOURCE.financialActivity
+
+            );
+
+
+        if(
+
+            !response.ok
+
+        ){
+
+            throw new Error(
+
+                `HTTP ${response.status}`
+
+            );
+
+        }
+
+
+        const raw =
+
+            await response.json();
+
+
+        Data.financialActivity =
+
+            Array.isArray(raw)
+
+                ?
+
+            raw
+
+                .filter(
+
+                    item =>
+
+                        item &&
+
+                        typeof item.rules ===
+                            "string"
+
+                )
+
+                :
+
+            [];
+
+
+        console.log(
+
+            "GLOBAL INPUT DATA - FINANCIAL ACTIVITY:",
+
+            Data.financialActivity
+
+        );
+
+    }
+
+    catch(error){
+
+        Data.financialActivity = [];
+
+
+        console.error(
+
+            "GLOBAL INPUT DATA ERROR - FINANCIAL ACTIVITY:",
+
+            error
+
+        );
+
+    }
+
+}
+
 
 /* =====================================================
-   GET KAS MEMBERS
+   GET DATA
 ===================================================== */
 
 export function getKasMembers(){
@@ -178,3 +287,14 @@ export function getKasMembers(){
     ];
 
 }
+
+export function getFinancialActivity(){
+
+    return [
+
+        ...Data.financialActivity
+
+    ];
+
+}
+
