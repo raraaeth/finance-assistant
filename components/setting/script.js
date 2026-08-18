@@ -497,6 +497,25 @@ export const Setting = {
         const data =
 
             collectAllResults();
+       /* =============================================
+   FINANCIAL AUTO RULE
+============================================= */
+
+if(
+
+    currentWorkspace ===
+
+    "financial"
+
+){
+
+    applyFinancialAutoRules(
+
+        data
+
+    );
+
+}
 
 
         console.log(
@@ -5022,6 +5041,228 @@ function collectAllResults(){
 
 
     return output;
+
+}
+
+/* =====================================================
+   FINANCIAL AUTO RULE
+===================================================== */
+
+function applyFinancialAutoRules(
+
+    data
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            data
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CARI PENENTUAN RULE
+    ============================================= */
+
+    const ruleItem =
+
+        data.find(
+
+            item =>
+
+                item.section ===
+
+                "financial_rules"
+
+        );
+
+
+    if(
+
+        !ruleItem ||
+
+        !ruleItem.data
+
+    ){
+
+        return;
+
+    }
+
+
+    const rules =
+
+        ruleItem.data;
+
+
+    /* =============================================
+       ACTIVITY PEMASUKAN
+    ============================================= */
+
+    const pemasukanItem =
+
+        data.find(
+
+            item =>
+
+                item.section ===
+
+                "financial_activity_pemasukan"
+
+        );
+
+
+    const pemasukanActivity =
+
+        pemasukanItem?.data?.activity ??
+
+        "";
+
+
+    /* =============================================
+       ACTIVITY PENGELUARAN
+    ============================================= */
+
+    const pengeluaranItem =
+
+        data.find(
+
+            item =>
+
+                item.section ===
+
+                "financial_activity_pengeluaran"
+
+        );
+
+
+    const pengeluaranActivity =
+
+        pengeluaranItem?.data?.activity ??
+
+        "";
+
+
+    /* =============================================
+       RULE HUTANG
+       
+       Dibuat otomatis jika:
+       
+       gunakanRuleHutang = true
+    ============================================= */
+
+    if(
+
+        rules.gunakanRuleHutang ===
+
+        true
+
+    ){
+
+        data.push({
+
+            section :
+
+                "financial_auto_rule_hutang",
+
+            data : {
+
+                rules :
+
+                    "rule_hutang",
+
+                type :
+
+                    "hutang,bayar",
+
+                activity :
+
+                    "hutang_piutang"
+
+            }
+
+        });
+
+    }
+
+
+    /* =============================================
+       RULE TABUNGAN
+       
+       Dibuat otomatis jika:
+       
+       gunakanRuleTabungan = true
+    ============================================= */
+
+    if(
+
+        rules.gunakanRuleTabungan ===
+
+        true
+
+    ){
+
+        data.push({
+
+            section :
+
+                "financial_auto_rule_tabungan",
+
+            data : {
+
+                rules :
+
+                    "rule_tabungan",
+
+                type :
+
+                    "nabung,tarik",
+
+                activity :
+
+                    "dana_darurat,tabungan_kaleng"
+
+            }
+
+        });
+
+    }
+
+
+    /* =============================================
+       DEBUG
+    ============================================= */
+
+    console.log(
+
+        "FINANCIAL AUTO RULE",
+
+        {
+
+            rules :
+
+                rules,
+
+            pemasukan :
+
+                pemasukanActivity,
+
+            pengeluaran :
+
+                pengeluaranActivity
+
+        }
+
+    );
 
 }
 
