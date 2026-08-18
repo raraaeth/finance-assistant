@@ -5267,6 +5267,139 @@ function applyFinancialAutoRules(
 
 }
 
+/* =====================================================
+   FINANCIAL AUTO RULE ACTIVITY
+===================================================== */
+
+function getFinancialSelectedActivities(
+
+    data
+
+){
+
+    const activities = new Set();
+
+
+    /* =============================================
+       ACTIVITY PEMASUKAN
+    ============================================= */
+
+    const pemasukan =
+
+        data.find(
+
+            item =>
+
+                item.section ===
+
+                "financial_activity_pemasukan"
+
+        );
+
+
+    if(
+
+        pemasukan?.data?.activity
+
+    ){
+
+        String(
+
+            pemasukan.data.activity
+
+        )
+
+        .split(",")
+
+        .map(
+
+            item => item.trim()
+
+        )
+
+        .filter(Boolean)
+
+        .forEach(
+
+            item => {
+
+                activities.add(
+
+                    item
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    /* =============================================
+       ACTIVITY PENGELUARAN
+    ============================================= */
+
+    const pengeluaran =
+
+        data.find(
+
+            item =>
+
+                item.section ===
+
+                "financial_activity_pengeluaran"
+
+        );
+
+
+    if(
+
+        pengeluaran?.data?.activity
+
+    ){
+
+        String(
+
+            pengeluaran.data.activity
+
+        )
+
+        .split(",")
+
+        .map(
+
+            item => item.trim()
+
+        )
+
+        .filter(Boolean)
+
+        .forEach(
+
+            item => {
+
+                activities.add(
+
+                    item
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    return [
+
+        ...activities
+
+    ];
+
+}
+
 
 /* =====================================================
    ESCAPE SELECTOR
