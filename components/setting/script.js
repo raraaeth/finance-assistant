@@ -1517,6 +1517,24 @@ if(
 
         field.name;
 
+   /* =============================================
+   MODULE ACTIVITY RULE
+   Dipakai module yang membutuhkan
+   kontrol checkbox berdasarkan rule.
+============================================= */
+
+if(
+
+    field.activityRule
+
+){
+
+    wrapper.dataset.activityRule =
+
+        field.activityRule;
+
+}
+
 
     /* =============================================
        CONDITIONAL METADATA
