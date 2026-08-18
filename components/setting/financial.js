@@ -12,10 +12,23 @@
    1. Penentuan Rule
    2. Activity Pemasukan
    3. Activity Pengeluaran
-   4. Activity Hutang
-   5. Activity Tabungan
 
-   Output Rule :
+   Rule :
+   - Rule Pemasukan wajib digunakan
+   - Rule Pengeluaran wajib digunakan
+   - Rule Hutang opsional
+   - Rule Tabungan opsional
+
+   Activity :
+   - Activity Hutang mengikuti Rule Hutang
+   - Activity Dana Darurat dan Tabungan Kaleng
+     mengikuti Rule Tabungan
+
+   Auto Rule :
+   - Rule Hutang dibuat oleh Controller
+   - Rule Tabungan dibuat oleh Controller
+
+   Output Activity :
    {
        rules    : "...",
        type     : "...",
@@ -23,15 +36,11 @@
    }
 
    Catatan :
-   - Rule Pemasukan wajib
-   - Rule Pengeluaran wajib
-   - Rule Hutang opsional
-   - Rule Tabungan opsional
    - Activity menggunakan checkbox
-   - Activity Hutang dikunci jika Rule Hutang tidak aktif
-   - Activity Tabungan dikunci jika Rule Tabungan tidak aktif
+   - Checkbox yang disabled tidak dapat dipilih
    - Result checkbox ditampilkan Ya / Tidak
-   - Field checkbox UI tidak menjadi activity payload
+   - Field checkbox UI tidak ikut masuk sebagai
+     field mentah ke payload normalize
 ===================================================== */
 
 
@@ -49,7 +58,6 @@ const ACTIVITY = {
     pemasukan : [
 
         {
-
             name :
 
                 "gaji",
@@ -57,12 +65,10 @@ const ACTIVITY = {
             label :
 
                 "Gaji"
-
         },
 
 
         {
-
             name :
 
                 "penghasilan_lain",
@@ -70,12 +76,10 @@ const ACTIVITY = {
             label :
 
                 "Penghasilan Lain"
-
         },
 
 
         {
-
             name :
 
                 "hutang_piutang",
@@ -87,12 +91,10 @@ const ACTIVITY = {
             rule :
 
                 "hutang"
-
         },
 
 
         {
-
             name :
 
                 "dana_darurat",
@@ -104,12 +106,10 @@ const ACTIVITY = {
             rule :
 
                 "tabungan"
-
         },
 
 
         {
-
             name :
 
                 "tabungan_kaleng",
@@ -121,7 +121,6 @@ const ACTIVITY = {
             rule :
 
                 "tabungan"
-
         }
 
     ],
@@ -134,7 +133,6 @@ const ACTIVITY = {
     pengeluaran : [
 
         {
-
             name :
 
                 "belanja_harian",
@@ -142,12 +140,10 @@ const ACTIVITY = {
             label :
 
                 "Belanja Harian"
-
         },
 
 
         {
-
             name :
 
                 "belanja_bulanan",
@@ -155,12 +151,10 @@ const ACTIVITY = {
             label :
 
                 "Belanja Bulanan"
-
         },
 
 
         {
-
             name :
 
                 "kebutuhan_anak",
@@ -168,12 +162,10 @@ const ACTIVITY = {
             label :
 
                 "Kebutuhan Anak"
-
         },
 
 
         {
-
             name :
 
                 "tagihan",
@@ -181,12 +173,10 @@ const ACTIVITY = {
             label :
 
                 "Tagihan"
-
         },
 
 
         {
-
             name :
 
                 "belanja_online",
@@ -194,12 +184,10 @@ const ACTIVITY = {
             label :
 
                 "Belanja Online"
-
         },
 
 
         {
-
             name :
 
                 "biaya_perbaikan",
@@ -207,12 +195,10 @@ const ACTIVITY = {
             label :
 
                 "Biaya Perbaikan"
-
         },
 
 
         {
-
             name :
 
                 "makan_diluar",
@@ -220,12 +206,10 @@ const ACTIVITY = {
             label :
 
                 "Makan di Luar"
-
         },
 
 
         {
-
             name :
 
                 "refreshing",
@@ -233,12 +217,10 @@ const ACTIVITY = {
             label :
 
                 "Refreshing"
-
         },
 
 
         {
-
             name :
 
                 "biaya_tahunan",
@@ -246,12 +228,10 @@ const ACTIVITY = {
             label :
 
                 "Biaya Tahunan"
-
         },
 
 
         {
-
             name :
 
                 "pengeluaran_lain",
@@ -259,12 +239,10 @@ const ACTIVITY = {
             label :
 
                 "Pengeluaran Lain"
-
         },
 
 
         {
-
             name :
 
                 "hutang_piutang",
@@ -276,12 +254,10 @@ const ACTIVITY = {
             rule :
 
                 "hutang"
-
         },
 
 
         {
-
             name :
 
                 "dana_darurat",
@@ -293,12 +269,10 @@ const ACTIVITY = {
             rule :
 
                 "tabungan"
-
         },
 
 
         {
-
             name :
 
                 "tabungan_kaleng",
@@ -310,62 +284,6 @@ const ACTIVITY = {
             rule :
 
                 "tabungan"
-
-        }
-
-    ],
-
-
-    /* =================================================
-       HUTANG
-    ================================================= */
-
-    hutang : [
-
-        {
-
-            name :
-
-                "hutang_piutang",
-
-            label :
-
-                "Hutang / Piutang"
-
-        }
-
-    ],
-
-
-    /* =================================================
-       TABUNGAN
-    ================================================= */
-
-    tabungan : [
-
-        {
-
-            name :
-
-                "dana_darurat",
-
-            label :
-
-                "Dana Darurat"
-
-        },
-
-
-        {
-
-            name :
-
-                "tabungan_kaleng",
-
-            label :
-
-                "Tabungan Kaleng"
-
         }
 
     ]
@@ -391,21 +309,17 @@ function createActivityFields(
 
                 item.name,
 
-
             label :
 
                 item.label,
-
 
             type :
 
                 "checkbox",
 
-
             resultValue :
 
                 item.name,
-
 
             activityRule :
 
@@ -465,9 +379,10 @@ function normalizeActivity(
 
 
     /* =============================================
-       RESULT UTAMA
-
-       Struktur ini yang menjadi hasil Financial.
+       HASIL FINAL
+       
+       Hanya tiga field ini menjadi payload
+       activity sebenarnya.
     ============================================= */
 
     const result = {
@@ -488,10 +403,10 @@ function normalizeActivity(
 
 
     /* =============================================
-       RESULT DISPLAY
-
-       Digunakan hanya untuk menampilkan
-       Ya / Tidak pada result card.
+       DATA DISPLAY
+       
+       Dipakai Controller untuk menampilkan
+       hasil checkbox sebagai Ya / Tidak.
     ============================================= */
 
     result.__display = {};
@@ -535,7 +450,6 @@ function normalizeRule(
 
             "financial",
 
-
         gunakanRulePemasukan :
 
             Boolean(
@@ -543,7 +457,6 @@ function normalizeRule(
                 data.gunakanRulePemasukan
 
             ),
-
 
         gunakanRulePengeluaran :
 
@@ -553,7 +466,6 @@ function normalizeRule(
 
             ),
 
-
         gunakanRuleHutang :
 
             Boolean(
@@ -561,7 +473,6 @@ function normalizeRule(
                 data.gunakanRuleHutang
 
             ),
-
 
         gunakanRuleTabungan :
 
@@ -592,29 +503,8 @@ function getFinancialRuleState(){
 
 
     /* =============================================
-       DEFAULT STATE
+       DEFAULT
     ============================================= */
-
-    const defaultState = {
-
-        gunakanRulePemasukan :
-
-            true,
-
-        gunakanRulePengeluaran :
-
-            true,
-
-        gunakanRuleHutang :
-
-            false,
-
-        gunakanRuleTabungan :
-
-            false
-
-    };
-
 
     if(
 
@@ -624,14 +514,36 @@ function getFinancialRuleState(){
 
     ){
 
-        return defaultState;
+        return {
+
+            gunakanRulePemasukan :
+
+                true,
+
+            gunakanRulePengeluaran :
+
+                true,
+
+            gunakanRuleHutang :
+
+                false,
+
+            gunakanRuleTabungan :
+
+                false
+
+        };
 
     }
 
 
+    /* =============================================
+       PARSE
+    ============================================= */
+
     try{
 
-        const state =
+        const data =
 
             JSON.parse(
 
@@ -646,34 +558,31 @@ function getFinancialRuleState(){
 
                 Boolean(
 
-                    state.gunakanRulePemasukan
+                    data.gunakanRulePemasukan
 
                 ),
-
 
             gunakanRulePengeluaran :
 
                 Boolean(
 
-                    state.gunakanRulePengeluaran
+                    data.gunakanRulePengeluaran
 
                 ),
-
 
             gunakanRuleHutang :
 
                 Boolean(
 
-                    state.gunakanRuleHutang
+                    data.gunakanRuleHutang
 
                 ),
-
 
             gunakanRuleTabungan :
 
                 Boolean(
 
-                    state.gunakanRuleTabungan
+                    data.gunakanRuleTabungan
 
                 )
 
@@ -692,7 +601,25 @@ function getFinancialRuleState(){
         );
 
 
-        return defaultState;
+        return {
+
+            gunakanRulePemasukan :
+
+                true,
+
+            gunakanRulePengeluaran :
+
+                true,
+
+            gunakanRuleHutang :
+
+                false,
+
+            gunakanRuleTabungan :
+
+                false
+
+        };
 
     }
 
@@ -747,7 +674,11 @@ function applyActivityRuleControl(
 
 
     /* =============================================
-       HUTANG ACTIVITY
+       HUTANG
+       
+       Berlaku untuk:
+       - Pemasukan
+       - Pengeluaran
     ============================================= */
 
     const hutangFields =
@@ -815,7 +746,11 @@ function applyActivityRuleControl(
 
 
     /* =============================================
-       TABUNGAN ACTIVITY
+       TABUNGAN
+       
+       Berlaku untuk:
+       - Pemasukan
+       - Pengeluaran
     ============================================= */
 
     const tabunganFields =
@@ -907,13 +842,15 @@ export const FinancialSetting = {
 
     /* =================================================
        SECTIONS
+       
+       HANYA 3 SECTION
     ================================================= */
 
     sections : [
 
 
         /* =============================================
-           PENENTUAN RULE
+           1. PENENTUAN RULE
         ============================================= */
 
         {
@@ -970,128 +907,102 @@ export const FinancialSetting = {
 
 
                 {
-
                     name :
 
                         "gunakanRulePemasukan",
-
 
                     label :
 
                         "Gunakan Rule Pemasukan",
 
-
                     type :
 
                         "checkbox",
-
 
                     value :
 
                         true,
 
-
                     required :
 
                         false
-
                 },
 
 
                 {
-
                     name :
 
                         "gunakanRulePengeluaran",
-
 
                     label :
 
                         "Gunakan Rule Pengeluaran",
 
-
                     type :
 
                         "checkbox",
-
 
                     value :
 
                         true,
 
-
                     required :
 
                         false
-
                 },
 
 
                 {
-
                     name :
 
                         "gunakanRuleHutang",
-
 
                     label :
 
                         "Gunakan Rule Hutang",
 
-
                     type :
 
                         "checkbox",
-
 
                     value :
 
                         false,
 
-
                     required :
 
                         false,
 
-
                     note :
 
                         "Opsional. Aktifkan jika Financial menggunakan transaksi hutang dan pembayaran hutang."
-
                 },
 
 
                 {
-
                     name :
 
                         "gunakanRuleTabungan",
-
 
                     label :
 
                         "Gunakan Rule Tabungan",
 
-
                     type :
 
                         "checkbox",
-
 
                     value :
 
                         false,
 
-
                     required :
 
                         false,
 
-
                     note :
 
                         "Opsional. Aktifkan jika Financial menggunakan transaksi tabungan dan penarikan tabungan."
-
                 }
 
             ],
@@ -1105,7 +1016,7 @@ export const FinancialSetting = {
 
 
         /* =============================================
-           ACTIVITY PEMASUKAN
+           2. ACTIVITY PEMASUKAN
         ============================================= */
 
         {
@@ -1206,7 +1117,7 @@ export const FinancialSetting = {
 
 
         /* =============================================
-           ACTIVITY PENGELUARAN
+           3. ACTIVITY PENGELUARAN
         ============================================= */
 
         {
@@ -1298,170 +1209,6 @@ export const FinancialSetting = {
                         form,
 
                         getFinancialRuleState()
-
-                    );
-
-                }
-
-        },
-
-
-        /* =============================================
-           ACTIVITY HUTANG
-        ============================================= */
-
-        {
-
-            id :
-
-                "financial_activity_hutang",
-
-
-            title :
-
-                "🤝 Activity Hutang",
-
-
-            description :
-
-                "Activity untuk Rule Hutang. Rule ini bersifat opsional.",
-
-
-            addLabel :
-
-                "＋ Tambah Activity",
-
-
-            formAddLabel :
-
-                "＋ Tambahkan",
-
-
-            deleteLabel :
-
-                "Hapus",
-
-
-            autoCloseForm :
-
-                true,
-
-
-            uniqueFields : [
-
-                "activity"
-
-            ],
-
-
-            fields :
-
-                createActivityFields(
-
-                    ACTIVITY.hutang
-
-                ),
-
-
-            normalize :
-
-                function(
-
-                    data
-
-                ){
-
-                    return normalizeActivity(
-
-                        data,
-
-                        this.fields,
-
-                        "rule_hutang",
-
-                        "hutang,bayar"
-
-                    );
-
-                }
-
-        },
-
-
-        /* =============================================
-           ACTIVITY TABUNGAN
-        ============================================= */
-
-        {
-
-            id :
-
-                "financial_activity_tabungan",
-
-
-            title :
-
-                "🏦 Activity Tabungan",
-
-
-            description :
-
-                "Activity untuk Rule Tabungan. Rule ini bersifat opsional.",
-
-
-            addLabel :
-
-                "＋ Tambah Activity",
-
-
-            formAddLabel :
-
-                "＋ Tambahkan",
-
-
-            deleteLabel :
-
-                "Hapus",
-
-
-            autoCloseForm :
-
-                true,
-
-
-            uniqueFields : [
-
-                "activity"
-
-            ],
-
-
-            fields :
-
-                createActivityFields(
-
-                    ACTIVITY.tabungan
-
-                ),
-
-
-            normalize :
-
-                function(
-
-                    data
-
-                ){
-
-                    return normalizeActivity(
-
-                        data,
-
-                        this.fields,
-
-                        "rule_tabungan",
-
-                        "nabung,tarik"
 
                     );
 
