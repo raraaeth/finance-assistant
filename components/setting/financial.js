@@ -827,7 +827,26 @@ export const FinancialSetting = {
 
                 }
 
-        },
+        
+
+       onRender :
+
+    function(
+
+        form
+
+    ){
+
+        applyActivityRuleControl(
+
+            form,
+
+            getFinancialRuleState()
+
+        );
+
+    }
+},
 
 
         /* =============================================
@@ -908,6 +927,23 @@ export const FinancialSetting = {
                     );
 
                 }
+   onRender :
+
+    function(
+
+        form
+
+    ){
+
+        applyActivityRuleControl(
+
+            form,
+
+            getFinancialRuleState()
+
+        );
+
+    }
 
         },
 
