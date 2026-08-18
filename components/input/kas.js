@@ -17,25 +17,15 @@
    → Keterangan
 ===================================================== */
 
-
 /* =====================================================
-   MEMBER
-   TEMPORARY HARDCODE
-
-   Nanti sumbernya dipindahkan ke Setting.
+   IMPORT
 ===================================================== */
 
-const MEMBERS = [
+import {
 
-    "Budi",
+    getKasMembers
 
-    "Ani",
-
-    "Rina",
-
-    "Doni"
-
-];
+} from "./data.js";
 
 
 /* =====================================================
@@ -155,7 +145,7 @@ export const Kas = {
 
     members :
 
-        MEMBERS,
+    getKasMembers(),
 
 
     /* =============================================
@@ -233,21 +223,9 @@ export const Kas = {
 
             options :
 
-                MEMBERS.map(
+    () =>
 
-                    name => ({
-
-                        value :
-
-                            name,
-
-                        label :
-
-                            name
-
-                    })
-
-                )
+        getKasMembers()
 
         },
 
