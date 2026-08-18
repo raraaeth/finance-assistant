@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Financial
    File         : financial.js
-   Version      : 3.0.0
+   Version      : 4.0.0
 
    Description :
    Financial Setting
@@ -28,8 +28,10 @@
    - Rule Hutang opsional
    - Rule Tabungan opsional
    - Activity menggunakan checkbox
+   - Activity Hutang dikunci jika Rule Hutang tidak aktif
+   - Activity Tabungan dikunci jika Rule Tabungan tidak aktif
    - Result checkbox ditampilkan Ya / Tidak
-   - Field checkbox UI tidak ikut masuk payload JSON
+   - Field checkbox UI tidak menjadi activity payload
 ===================================================== */
 
 
@@ -39,142 +41,337 @@
 
 const ACTIVITY = {
 
+
+    /* =================================================
+       PEMASUKAN
+    ================================================= */
+
     pemasukan : [
 
         {
-            name : "gaji",
-            label : "Gaji"
+
+            name :
+
+                "gaji",
+
+            label :
+
+                "Gaji"
+
         },
 
-        {
-            name : "penghasilan_lain",
-            label : "Penghasilan Lain"
-        },
 
         {
-            name : "hutang_piutang",
-            label : "Hutang / Piutang",
-            rule : "hutang"
+
+            name :
+
+                "penghasilan_lain",
+
+            label :
+
+                "Penghasilan Lain"
+
         },
 
-        {
-            name : "dana_darurat",
-            label : "Dana Darurat",
-            rule : "tabungan"
-        },
 
         {
-            name : "tabungan_kaleng",
-            label : "Tabungan Kaleng",
-            rule : "tabungan"
+
+            name :
+
+                "hutang_piutang",
+
+            label :
+
+                "Hutang / Piutang",
+
+            rule :
+
+                "hutang"
+
+        },
+
+
+        {
+
+            name :
+
+                "dana_darurat",
+
+            label :
+
+                "Dana Darurat",
+
+            rule :
+
+                "tabungan"
+
+        },
+
+
+        {
+
+            name :
+
+                "tabungan_kaleng",
+
+            label :
+
+                "Tabungan Kaleng",
+
+            rule :
+
+                "tabungan"
+
         }
 
     ],
 
+
+    /* =================================================
+       PENGELUARAN
+    ================================================= */
 
     pengeluaran : [
 
         {
-            name : "belanja_harian",
-            label : "Belanja Harian"
+
+            name :
+
+                "belanja_harian",
+
+            label :
+
+                "Belanja Harian"
+
         },
 
-        {
-            name : "belanja_bulanan",
-            label : "Belanja Bulanan"
-        },
 
         {
-            name : "kebutuhan_anak",
-            label : "Kebutuhan Anak"
+
+            name :
+
+                "belanja_bulanan",
+
+            label :
+
+                "Belanja Bulanan"
+
         },
 
-        {
-            name : "tagihan",
-            label : "Tagihan"
-        },
 
         {
-            name : "belanja_online",
-            label : "Belanja Online"
+
+            name :
+
+                "kebutuhan_anak",
+
+            label :
+
+                "Kebutuhan Anak"
+
         },
 
-        {
-            name : "biaya_perbaikan",
-            label : "Biaya Perbaikan"
-        },
 
         {
-            name : "makan_diluar",
-            label : "Makan di Luar"
+
+            name :
+
+                "tagihan",
+
+            label :
+
+                "Tagihan"
+
         },
 
-        {
-            name : "refreshing",
-            label : "Refreshing"
-        },
 
         {
-            name : "biaya_tahunan",
-            label : "Biaya Tahunan"
+
+            name :
+
+                "belanja_online",
+
+            label :
+
+                "Belanja Online"
+
         },
 
-        {
-            name : "pengeluaran_lain",
-            label : "Pengeluaran Lain"
-        },
 
         {
-            name : "hutang_piutang",
-            label : "Hutang / Piutang",
-            rule : "hutang"
+
+            name :
+
+                "biaya_perbaikan",
+
+            label :
+
+                "Biaya Perbaikan"
+
         },
 
-        {
-            name : "dana_darurat",
-            label : "Dana Darurat",
-            rule : "tabungan"
-        },
 
         {
-            name : "tabungan_kaleng",
-            label : "Tabungan Kaleng",
-            rule : "tabungan"
+
+            name :
+
+                "makan_diluar",
+
+            label :
+
+                "Makan di Luar"
+
+        },
+
+
+        {
+
+            name :
+
+                "refreshing",
+
+            label :
+
+                "Refreshing"
+
+        },
+
+
+        {
+
+            name :
+
+                "biaya_tahunan",
+
+            label :
+
+                "Biaya Tahunan"
+
+        },
+
+
+        {
+
+            name :
+
+                "pengeluaran_lain",
+
+            label :
+
+                "Pengeluaran Lain"
+
+        },
+
+
+        {
+
+            name :
+
+                "hutang_piutang",
+
+            label :
+
+                "Hutang / Piutang",
+
+            rule :
+
+                "hutang"
+
+        },
+
+
+        {
+
+            name :
+
+                "dana_darurat",
+
+            label :
+
+                "Dana Darurat",
+
+            rule :
+
+                "tabungan"
+
+        },
+
+
+        {
+
+            name :
+
+                "tabungan_kaleng",
+
+            label :
+
+                "Tabungan Kaleng",
+
+            rule :
+
+                "tabungan"
+
         }
 
     ],
 
+
+    /* =================================================
+       HUTANG
+    ================================================= */
 
     hutang : [
 
         {
-            name : "hutang_piutang",
-            label : "Hutang / Piutang"
+
+            name :
+
+                "hutang_piutang",
+
+            label :
+
+                "Hutang / Piutang"
+
         }
 
     ],
 
 
+    /* =================================================
+       TABUNGAN
+    ================================================= */
+
     tabungan : [
 
         {
-            name : "dana_darurat",
-            label : "Dana Darurat"
+
+            name :
+
+                "dana_darurat",
+
+            label :
+
+                "Dana Darurat"
+
         },
 
+
         {
-            name : "tabungan_kaleng",
-            label : "Tabungan Kaleng"
+
+            name :
+
+                "tabungan_kaleng",
+
+            label :
+
+                "Tabungan Kaleng"
+
         }
 
     ]
 
 };
 
-
-/* =====================================================
-   HELPER
-===================================================== */
 
 /* =====================================================
    CREATE ACTIVITY FIELDS
@@ -194,17 +391,21 @@ function createActivityFields(
 
                 item.name,
 
+
             label :
 
                 item.label,
+
 
             type :
 
                 "checkbox",
 
+
             resultValue :
 
                 item.name,
+
 
             activityRule :
 
@@ -237,7 +438,7 @@ function normalizeActivity(
 
 
     /* =============================================
-       AMBIL CHECKBOX YANG AKTIF
+       AMBIL CHECKBOX AKTIF
     ============================================= */
 
     fields.forEach(
@@ -264,10 +465,9 @@ function normalizeActivity(
 
 
     /* =============================================
-       HASIL FINAL
-       
-       Hanya tiga field ini yang menjadi
-       payload sebenarnya.
+       RESULT UTAMA
+
+       Struktur ini yang menjadi hasil Financial.
     ============================================= */
 
     const result = {
@@ -286,28 +486,32 @@ function normalizeActivity(
 
     };
 
-/* =============================================
-   DATA UNTUK RESULT DISPLAY
-============================================= */
 
-result.__display = {};
+    /* =============================================
+       RESULT DISPLAY
+
+       Digunakan hanya untuk menampilkan
+       Ya / Tidak pada result card.
+    ============================================= */
+
+    result.__display = {};
 
 
-fields.forEach(
+    fields.forEach(
 
-    field => {
+        field => {
 
-        result.__display[field.name] =
+            result.__display[field.name] =
 
-            Boolean(
+                Boolean(
 
-                data[field.name]
+                    data[field.name]
 
-            );
+                );
 
-    }
+        }
 
-);
+    );
 
 
     return result;
@@ -331,6 +535,7 @@ function normalizeRule(
 
             "financial",
 
+
         gunakanRulePemasukan :
 
             Boolean(
@@ -338,6 +543,7 @@ function normalizeRule(
                 data.gunakanRulePemasukan
 
             ),
+
 
         gunakanRulePengeluaran :
 
@@ -347,6 +553,7 @@ function normalizeRule(
 
             ),
 
+
         gunakanRuleHutang :
 
             Boolean(
@@ -354,6 +561,7 @@ function normalizeRule(
                 data.gunakanRuleHutang
 
             ),
+
 
         gunakanRuleTabungan :
 
@@ -367,6 +575,130 @@ function normalizeRule(
 
 }
 
+
+/* =====================================================
+   GET FINANCIAL RULE STATE
+===================================================== */
+
+function getFinancialRuleState(){
+
+    const result =
+
+        document.querySelector(
+
+            '[data-section="financial_rules"] .global-setting-result-item'
+
+        );
+
+
+    /* =============================================
+       DEFAULT STATE
+    ============================================= */
+
+    const defaultState = {
+
+        gunakanRulePemasukan :
+
+            true,
+
+        gunakanRulePengeluaran :
+
+            true,
+
+        gunakanRuleHutang :
+
+            false,
+
+        gunakanRuleTabungan :
+
+            false
+
+    };
+
+
+    if(
+
+        !result ||
+
+        !result.dataset.value
+
+    ){
+
+        return defaultState;
+
+    }
+
+
+    try{
+
+        const state =
+
+            JSON.parse(
+
+                result.dataset.value
+
+            );
+
+
+        return {
+
+            gunakanRulePemasukan :
+
+                Boolean(
+
+                    state.gunakanRulePemasukan
+
+                ),
+
+
+            gunakanRulePengeluaran :
+
+                Boolean(
+
+                    state.gunakanRulePengeluaran
+
+                ),
+
+
+            gunakanRuleHutang :
+
+                Boolean(
+
+                    state.gunakanRuleHutang
+
+                ),
+
+
+            gunakanRuleTabungan :
+
+                Boolean(
+
+                    state.gunakanRuleTabungan
+
+                )
+
+        };
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Financial Rule State Error:",
+
+            error
+
+        );
+
+
+        return defaultState;
+
+    }
+
+}
+
+
 /* =====================================================
    ACTIVITY RULE CONTROL
 ===================================================== */
@@ -374,6 +706,7 @@ function normalizeRule(
 function applyActivityRuleControl(
 
     form,
+
     ruleData
 
 ){
@@ -389,90 +722,6 @@ function applyActivityRuleControl(
         return;
 
     }
-}
-
-   /* =====================================================
-   GET FINANCIAL RULE STATE
-===================================================== */
-
-function getFinancialRuleState(){
-
-    const result =
-
-        document.querySelector(
-
-            '[data-section="financial_rules"] .global-setting-result-item'
-
-        );
-
-
-    if(
-
-        !result ||
-
-        !result.dataset.value
-
-    ){
-
-        return {
-
-            gunakanRulePemasukan :
-                true,
-
-            gunakanRulePengeluaran :
-                true,
-
-            gunakanRuleHutang :
-                false,
-
-            gunakanRuleTabungan :
-                false
-
-        };
-
-    }
-
-
-    try{
-
-        return JSON.parse(
-
-            result.dataset.value
-
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "Financial Rule State Error:",
-
-            error
-
-        );
-
-
-        return {
-
-            gunakanRulePemasukan :
-                true,
-
-            gunakanRulePengeluaran :
-                true,
-
-            gunakanRuleHutang :
-                false,
-
-            gunakanRuleTabungan :
-                false
-
-        };
-
-    }
-
-}
 
 
     /* =============================================
@@ -498,7 +747,7 @@ function getFinancialRuleState(){
 
 
     /* =============================================
-       HUTANG
+       HUTANG ACTIVITY
     ============================================= */
 
     const hutangFields =
@@ -566,7 +815,7 @@ function getFinancialRuleState(){
 
 
     /* =============================================
-       TABUNGAN
+       TABUNGAN ACTIVITY
     ============================================= */
 
     const tabunganFields =
@@ -662,6 +911,7 @@ export const FinancialSetting = {
 
     sections : [
 
+
         /* =============================================
            PENENTUAN RULE
         ============================================= */
@@ -706,8 +956,11 @@ export const FinancialSetting = {
             uniqueFields : [
 
                 "gunakanRulePemasukan",
+
                 "gunakanRulePengeluaran",
+
                 "gunakanRuleHutang",
+
                 "gunakanRuleTabungan"
 
             ],
@@ -715,23 +968,28 @@ export const FinancialSetting = {
 
             fields : [
 
+
                 {
 
                     name :
 
                         "gunakanRulePemasukan",
 
+
                     label :
 
                         "Gunakan Rule Pemasukan",
+
 
                     type :
 
                         "checkbox",
 
+
                     value :
 
                         true,
+
 
                     required :
 
@@ -746,17 +1004,21 @@ export const FinancialSetting = {
 
                         "gunakanRulePengeluaran",
 
+
                     label :
 
                         "Gunakan Rule Pengeluaran",
+
 
                     type :
 
                         "checkbox",
 
+
                     value :
 
                         true,
+
 
                     required :
 
@@ -771,21 +1033,26 @@ export const FinancialSetting = {
 
                         "gunakanRuleHutang",
 
+
                     label :
 
                         "Gunakan Rule Hutang",
+
 
                     type :
 
                         "checkbox",
 
+
                     value :
 
                         false,
 
+
                     required :
 
                         false,
+
 
                     note :
 
@@ -800,21 +1067,26 @@ export const FinancialSetting = {
 
                         "gunakanRuleTabungan",
 
+
                     label :
 
                         "Gunakan Rule Tabungan",
+
 
                     type :
 
                         "checkbox",
 
+
                     value :
 
                         false,
 
+
                     required :
 
                         false,
+
 
                     note :
 
@@ -909,28 +1181,28 @@ export const FinancialSetting = {
 
                     );
 
+                },
+
+
+            onRender :
+
+                function(
+
+                    form
+
+                ){
+
+                    applyActivityRuleControl(
+
+                        form,
+
+                        getFinancialRuleState()
+
+                    );
+
                 }
 
-        
-
-       onRender :
-
-    function(
-
-        form
-
-    ){
-
-        applyActivityRuleControl(
-
-            form,
-
-            getFinancialRuleState()
-
-        );
-
-    }
-},
+        },
 
 
         /* =============================================
@@ -1010,24 +1282,26 @@ export const FinancialSetting = {
 
                     );
 
+                },
+
+
+            onRender :
+
+                function(
+
+                    form
+
+                ){
+
+                    applyActivityRuleControl(
+
+                        form,
+
+                        getFinancialRuleState()
+
+                    );
+
                 }
-   onRender :
-
-    function(
-
-        form
-
-    ){
-
-        applyActivityRuleControl(
-
-            form,
-
-            getFinancialRuleState()
-
-        );
-
-    }
 
         },
 
