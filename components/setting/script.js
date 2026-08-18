@@ -1256,6 +1256,27 @@ function renderForm(
 
     );
 
+   /* =============================================
+   MODULE RENDER HOOK
+============================================= */
+
+if(
+
+    typeof section.onRender ===
+
+    "function"
+
+){
+
+    section.onRender(
+
+        form,
+
+        sectionElement
+
+    );
+
+}
 
     /* =============================================
        FOCUS
