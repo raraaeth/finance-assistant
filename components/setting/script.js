@@ -5196,19 +5196,57 @@ function applyFinancialAutoRules(
     }
 
 
-    /* =============================================
-       RULE TABUNGAN
-       
-       Dibuat otomatis jika:
-       
-       gunakanRuleTabungan = true
-    ============================================= */
+/* =============================================
+   RULE TABUNGAN
+
+   Mengikuti activity tabungan yang
+   benar-benar dipilih user.
+============================================= */
+
+if(
+
+    rules.gunakanRuleTabungan ===
+    true
+
+){
+
+    const tabunganActivity = [
+
+        ...new Set(
+
+            (
+
+                pemasukanActivity
+                + ","
+                + pengeluaranActivity
+
+            )
+
+            .split(",")
+
+            .map(
+
+                item =>
+                    item.trim()
+
+            )
+
+            .filter(
+
+                item =>
+                    item === "dana_darurat" ||
+                    item === "tabungan_kaleng"
+
+            )
+
+        )
+
+    ];
+
 
     if(
 
-        rules.gunakanRuleTabungan ===
-
-        true
+        tabunganActivity.length > 0
 
     ){
 
@@ -5230,7 +5268,7 @@ function applyFinancialAutoRules(
 
                 activity :
 
-                    "dana_darurat,tabungan_kaleng"
+                    tabunganActivity.join(",")
 
             }
 
@@ -5238,6 +5276,7 @@ function applyFinancialAutoRules(
 
     }
 
+}
 
     /* =============================================
        DEBUG
