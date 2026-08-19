@@ -27,6 +27,9 @@ const DATA_SOURCE = {
     savingBanks :
         "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank",
 
+   payrollDailyRules :
+       "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_daily_rules",
+
     payrollMonthlyRules :
         "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_monthly_rules"
    
@@ -44,6 +47,8 @@ const Data = {
     financialActivity : [],
 
     savingBanks : [],
+
+    payrollDailyRules : [],
 
     payrollMonthlyRules : []
 
@@ -100,6 +105,20 @@ export async function loadInputData(
 ){
 
     await loadSavingBanks();
+
+   }
+
+/* =============================================
+       LOAD DAILY DATA
+============================================= */
+        
+   if(
+
+    workspace === "payroll-daily"
+
+){
+
+    await loadPayrollDailyRules();
 
    }
 
@@ -425,6 +444,95 @@ async function loadSavingBanks(){
 }
 
 /* =====================================================
+   LOAD PAYROLL DAILY RULES
+===================================================== */
+
+async function loadPayrollDailyRules(){
+
+    try{
+
+        const response =
+
+            await fetch(
+
+                DATA_SOURCE.payrollDailyRules
+
+            );
+
+
+        if(
+
+            !response.ok
+
+        ){
+
+            throw new Error(
+
+                `HTTP ${response.status}`
+
+            );
+
+        }
+
+
+        const raw =
+
+            await response.json();
+
+
+        Data.payrollDailyRules =
+
+            Array.isArray(raw)
+
+                ?
+
+            raw
+
+                .filter(
+
+                    item =>
+
+                        item &&
+
+                        typeof item.type_rule ===
+
+                            "string"
+
+                )
+
+                :
+
+            [];
+
+
+        console.log(
+
+            "GLOBAL INPUT DATA - PAYROLL DAILY RULES:",
+
+            Data.payrollDailyRules
+
+        );
+
+    }
+
+    catch(error){
+
+        Data.payrollDailyRules = [];
+
+
+        console.error(
+
+            "GLOBAL INPUT DATA ERROR - PAYROLL DAILY RULES:",
+
+            error
+
+        );
+
+    }
+
+}
+
+/* =====================================================
    LOAD PAYROLL MONTHLY RULES
 ===================================================== */
 
@@ -544,6 +652,16 @@ export function getSavingBanks(){
     return [
 
         ...Data.savingBanks
+
+    ];
+
+}
+
+export function getPayrollDailyRules(){
+
+    return [
+
+        ...Data.payrollDailyRules
 
     ];
 
