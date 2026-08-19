@@ -11,6 +11,8 @@
 
    Flow :
 
+       Status
+         ↓
        Nama
          ↓
        Grade 1
@@ -20,12 +22,15 @@
        Qty
 
    Principle :
-   - Tanggal disediakan oleh Controller.
    - Status selalu "masuk".
+   - Status ditampilkan sebagai input pertama.
+   - User tidak perlu memilih status lain.
+   - Tanggal disediakan oleh Controller.
    - User memilih Nama dari payroll_daily_rules.
    - Grade 1 hanya muncul jika tersedia.
    - Grade 2 hanya muncul jika tersedia.
-   - Level dengan satu pilihan dapat diisi otomatis.
+   - Level dengan satu pilihan dapat diisi otomatis
+     oleh hierarchy engine.
    - User tidak mengetik Nama / Grade.
    - Qty wajib diisi.
 ===================================================== */
@@ -243,17 +248,97 @@ export function getDailyWorkRule(
 
 export const Daily = {
 
+
+    /* =================================================
+       WORKSPACE
+    ================================================= */
+
     workspace :
 
         "payroll-daily",
 
+
+    /* =================================================
+       TITLE
+    ================================================= */
 
     title :
 
         "Payroll Daily",
 
 
+    /* =================================================
+       INPUT STEPS
+    ================================================= */
+
     steps : [
+
+
+        /* =================================================
+           STATUS
+           
+           Status Payroll Daily selalu "masuk".
+           
+           User melihat status,
+           tetapi tidak perlu memilih.
+        ================================================= */
+
+        {
+
+            id :
+
+                "status",
+
+
+            label :
+
+                "Status",
+
+
+            type :
+
+                "select",
+
+
+            value :
+
+                "masuk",
+
+
+            required :
+
+                true,
+
+
+            disabled :
+
+                true,
+
+
+            options : [
+
+                {
+
+                    value :
+
+                        "masuk",
+
+
+                    label :
+
+                        "Masuk"
+
+                }
+
+            ],
+
+
+            note :
+
+                "Status Payroll Daily otomatis menggunakan Masuk."
+
+        },
+
 
         /* =================================================
            NAMA
@@ -265,27 +350,33 @@ export const Daily = {
 
                 "nama",
 
+
             label :
 
                 "Nama",
+
 
             type :
 
                 "select",
 
+
             placeholder :
 
                 "Pilih nama",
 
+
             required :
 
                 true,
+
 
             options :
 
                 () =>
 
                     getDailyNamaOptions(),
+
 
             note :
 
@@ -307,21 +398,26 @@ export const Daily = {
 
                 "grade_1",
 
+
             label :
 
                 "Grade 1",
+
 
             type :
 
                 "select",
 
+
             placeholder :
 
                 "Pilih grade 1",
 
+
             required :
 
                 false,
+
 
             showWhen :
 
@@ -341,6 +437,7 @@ export const Daily = {
 
                     ).length > 0,
 
+
             options :
 
                 values =>
@@ -350,6 +447,7 @@ export const Daily = {
                         values
 
                     ),
+
 
             note :
 
@@ -361,8 +459,8 @@ export const Daily = {
         /* =================================================
            GRADE 2
            
-           Hanya muncul jika kombinasi Nama +
-           Grade 1 mempunyai Grade 2.
+           Hanya muncul jika kombinasi
+           Nama + Grade 1 mempunyai Grade 2.
         ================================================= */
 
         {
@@ -371,21 +469,26 @@ export const Daily = {
 
                 "grade_2",
 
+
             label :
 
                 "Grade 2",
+
 
             type :
 
                 "select",
 
+
             placeholder :
 
                 "Pilih grade 2",
 
+
             required :
 
                 false,
+
 
             showWhen :
 
@@ -413,6 +516,7 @@ export const Daily = {
 
                     ).length > 0,
 
+
             options :
 
                 values =>
@@ -422,6 +526,7 @@ export const Daily = {
                         values
 
                     ),
+
 
             note :
 
@@ -435,8 +540,7 @@ export const Daily = {
            
            WAJIB.
            
-           Qty digunakan oleh Payroll Daily Engine
-           untuk menghitung :
+           Payroll Daily Engine menggunakan :
            
                nominal × qty
         ================================================= */
@@ -447,29 +551,36 @@ export const Daily = {
 
                 "qty",
 
+
             label :
 
                 "Qty",
+
 
             type :
 
                 "number",
 
+
             placeholder :
 
                 "Contoh: 100",
+
 
             required :
 
                 true,
 
+
             min :
 
                 1,
 
+
             step :
 
                 1,
+
 
             showWhen :
 
@@ -480,6 +591,7 @@ export const Daily = {
                         values.nama
 
                     ),
+
 
             note :
 
@@ -492,10 +604,6 @@ export const Daily = {
 
     /* =================================================
        DEFAULT VALUES
-       
-       Status Payroll Daily selalu masuk.
-       
-       Tidak ditampilkan sebagai field.
     ================================================= */
 
     defaults : {
