@@ -25,7 +25,10 @@ const DATA_SOURCE = {
         "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/financial_activity",
 
     savingBanks :
-    "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank"
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank",
+
+    payrollMonthlyRules :
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_monthly_rules"
    
 };
 
@@ -40,7 +43,9 @@ const Data = {
 
     financialActivity : [],
 
-    savingBanks : []
+    savingBanks : [],
+
+    payrollMonthlyRules : []
 
 };
 
@@ -95,6 +100,20 @@ export async function loadInputData(
 ){
 
     await loadSavingBanks();
+
+   }
+
+/* =============================================
+       LOAD MONTHLY DATA
+============================================= */
+     
+   if(
+
+    workspace === "payroll-monthly"
+
+){
+
+    await loadPayrollMonthlyRules();
 
    }
 
@@ -405,6 +424,95 @@ async function loadSavingBanks(){
 
 }
 
+/* =====================================================
+   LOAD PAYROLL MONTHLY RULES
+===================================================== */
+
+async function loadPayrollMonthlyRules(){
+
+    try{
+
+        const response =
+
+            await fetch(
+
+                DATA_SOURCE.payrollMonthlyRules
+
+            );
+
+
+        if(
+
+            !response.ok
+
+        ){
+
+            throw new Error(
+
+                `HTTP ${response.status}`
+
+            );
+
+        }
+
+
+        const raw =
+
+            await response.json();
+
+
+        Data.payrollMonthlyRules =
+
+            Array.isArray(raw)
+
+                ?
+
+            raw
+
+                .filter(
+
+                    item =>
+
+                        item &&
+
+                        typeof item.type_rule ===
+
+                            "string"
+
+                )
+
+                :
+
+            [];
+
+
+        console.log(
+
+            "GLOBAL INPUT DATA - PAYROLL MONTHLY RULES:",
+
+            Data.payrollMonthlyRules
+
+        );
+
+    }
+
+    catch(error){
+
+        Data.payrollMonthlyRules = [];
+
+
+        console.error(
+
+            "GLOBAL INPUT DATA ERROR - PAYROLL MONTHLY RULES:",
+
+            error
+
+        );
+
+    }
+
+}
+
 
 /* =====================================================
    GET DATA
@@ -436,6 +544,16 @@ export function getSavingBanks(){
     return [
 
         ...Data.savingBanks
+
+    ];
+
+}
+
+export function getPayrollMonthlyRules(){
+
+    return [
+
+        ...Data.payrollMonthlyRules
 
     ];
 
