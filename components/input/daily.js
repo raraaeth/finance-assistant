@@ -3,7 +3,7 @@
    Component    : Global Input
    Workspace    : Payroll Daily
    File         : daily.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Global Input Configuration
@@ -24,20 +24,20 @@
    Principle :
    - Status selalu "masuk".
    - Status ditampilkan sebagai input pertama.
-   - User tidak perlu memilih status lain.
    - Tanggal disediakan oleh Controller.
    - User memilih Nama dari payroll_daily_rules.
-   - Grade 1 hanya muncul jika tersedia.
-   - Grade 2 hanya muncul jika tersedia.
-   - Level dengan satu pilihan dapat diisi otomatis
-     oleh hierarchy engine.
+   - Grade 1 hanya digunakan jika tersedia.
+   - Grade 2 hanya digunakan jika tersedia.
+   - Level dengan satu pilihan dapat di-resolve
+     otomatis oleh hierarchy engine.
    - User tidak mengetik Nama / Grade.
    - Qty wajib diisi.
+   - Payroll Daily menggunakan nominal × qty.
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT
+   IMPORT DATA
 ===================================================== */
 
 import {
@@ -47,13 +47,22 @@ import {
 } from "./data.js";
 
 
+/* =====================================================
+   IMPORT HIERARCHY
+===================================================== */
+
 import {
 
     getNamaOptions,
+
     getGrade1Options,
+
     getGrade2Options,
+
     resolveHierarchy,
+
     isComplete,
+
     findMatchingRule
 
 } from "./hierarchy.js";
@@ -113,13 +122,11 @@ function getDailyNamaOptions(){
 
 function getDailyGrade1Options(
 
-    values
+    values = {}
 
 ){
 
     if(
-
-        !values ||
 
         !values.nama
 
@@ -147,13 +154,11 @@ function getDailyGrade1Options(
 
 function getDailyGrade2Options(
 
-    values
+    values = {}
 
 ){
 
     if(
-
-        !values ||
 
         !values.nama ||
 
@@ -180,7 +185,83 @@ function getDailyGrade2Options(
 
 
 /* =====================================================
-   RESOLVE HIERARCHY
+   GET SINGLE OPTION
+=====================================================
+
+   Jika hanya ada satu pilihan,
+   nilai tersebut dapat digunakan otomatis.
+===================================================== */
+
+function getSingleOption(
+
+    options
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+        ||
+
+        options.length !== 1
+
+    ){
+
+        return null;
+
+    }
+
+
+    return options[0]?.value ??
+
+        null;
+
+}
+
+
+/* =====================================================
+   RESOLVE DAILY HIERARCHY
+=====================================================
+
+   Fungsi utama Payroll Daily.
+
+   Contoh :
+
+       nama = headrest
+
+           ↓
+
+       grade_1 kosong
+       grade_2 kosong
+
+
+   Contoh :
+
+       nama = sepatu
+
+           ↓
+
+       grade_1 = sneaker
+       grade_2 = trendy
+
+
+   Contoh :
+
+       nama = baju
+
+           ↓
+
+       grade_1 mempunyai beberapa pilihan
+
+           ↓
+
+       user harus memilih grade_1
+
 ===================================================== */
 
 export function resolveDailyHierarchy(
@@ -201,6 +282,112 @@ export function resolveDailyHierarchy(
 
 
 /* =====================================================
+   RESOLVE DAILY VALUES
+=====================================================
+
+   Wrapper khusus input Payroll Daily.
+
+   Fungsi ini memastikan :
+
+   1. Nama sudah ada
+   2. Grade 1 otomatis jika hanya satu
+   3. Grade 2 otomatis jika hanya satu
+
+   Nilai user tetap dipertahankan jika sudah dipilih.
+
+===================================================== */
+
+export function resolveDailyValues(
+
+    values = {}
+
+){
+
+    const result = {
+
+        status :
+
+            "masuk",
+
+
+        nama :
+
+            values.nama ??
+
+            "",
+
+
+        grade_1 :
+
+            values.grade_1 ??
+
+            "",
+
+
+        grade_2 :
+
+            values.grade_2 ??
+
+            "",
+
+
+        qty :
+
+            values.qty ??
+
+            ""
+
+    };
+
+
+    /* =================================================
+       TANPA NAMA
+    ================================================= */
+
+    if(
+
+        !result.nama
+
+    ){
+
+        return result;
+
+    }
+
+
+    /* =================================================
+       RESOLVE HIERARCHY
+    ================================================= */
+
+    const resolved =
+
+        resolveDailyHierarchy(
+
+            result
+
+        );
+
+
+    result.grade_1 =
+
+        resolved.grade_1 ??
+
+        "";
+
+
+    result.grade_2 =
+
+        resolved.grade_2 ??
+
+        "";
+
+
+    return result;
+
+}
+
+
+/* =====================================================
    CHECK COMPLETE
 ===================================================== */
 
@@ -210,13 +397,113 @@ export function isDailyComplete(
 
 ){
 
-    return isComplete(
+    const resolved =
 
-        getRules(),
+        resolveDailyValues(
 
-        values
+            values
 
-    );
+        );
+
+
+    /* =================================================
+       NAMA
+    ================================================= */
+
+    if(
+
+        !resolved.nama
+
+    ){
+
+        return false;
+
+    }
+
+
+    /* =================================================
+       HIERARCHY
+    ================================================= */
+
+    if(
+
+        !isComplete(
+
+            getRules(),
+
+            resolved
+
+        )
+
+    ){
+
+        return false;
+
+    }
+
+
+    /* =================================================
+       QTY
+    ================================================= */
+
+    if(
+
+        resolved.qty ===
+
+        undefined
+
+        ||
+
+        resolved.qty ===
+
+        null
+
+        ||
+
+        String(
+
+            resolved.qty
+
+        ).trim() ===
+
+        ""
+
+    ){
+
+        return false;
+
+    }
+
+
+    const qty =
+
+        Number(
+
+            resolved.qty
+
+        );
+
+
+    if(
+
+        !Number.isFinite(
+
+            qty
+
+        )
+
+        ||
+
+        qty < 1
+
+    ){
+
+        return false;
+
+    }
+
+
+    return true;
 
 }
 
@@ -231,13 +518,142 @@ export function getDailyWorkRule(
 
 ){
 
+    const resolved =
+
+        resolveDailyValues(
+
+            values
+
+        );
+
+
     return findMatchingRule(
 
         getRules(),
 
-        values
+        resolved
 
     );
+
+}
+
+
+/* =====================================================
+   GET DAILY NOMINAL
+=====================================================
+
+   Mengambil nominal dari matching rule.
+
+   Tidak melakukan perhitungan qty di sini.
+
+===================================================== */
+
+export function getDailyNominal(
+
+    values = {}
+
+){
+
+    const rule =
+
+        getDailyWorkRule(
+
+            values
+
+        );
+
+
+    if(
+
+        !rule
+
+    ){
+
+        return 0;
+
+    }
+
+
+    const nominal =
+
+        Number(
+
+            rule.nominal
+
+        );
+
+
+    return Number.isFinite(
+
+        nominal
+
+    )
+
+        ?
+
+    nominal
+
+        :
+
+    0;
+
+}
+
+
+/* =====================================================
+   CALCULATE DAILY AMOUNT
+=====================================================
+
+   Rumus Payroll Daily :
+
+       nominal × qty
+
+===================================================== */
+
+export function calculateDailyAmount(
+
+    values = {}
+
+){
+
+    const nominal =
+
+        getDailyNominal(
+
+            values
+
+        );
+
+
+    const qty =
+
+        Number(
+
+            values.qty
+
+        );
+
+
+    if(
+
+        !Number.isFinite(
+
+            qty
+
+        )
+
+        ||
+
+        qty < 1
+
+    ){
+
+        return 0;
+
+    }
+
+
+    return nominal * qty;
 
 }
 
@@ -268,6 +684,15 @@ export const Daily = {
 
 
     /* =================================================
+       SUBTITLE
+    ================================================= */
+
+    subtitle :
+
+        "Catat hasil kerja Payroll Daily",
+
+
+    /* =================================================
        INPUT STEPS
     ================================================= */
 
@@ -277,10 +702,9 @@ export const Daily = {
         /* =================================================
            STATUS
            
-           Status Payroll Daily selalu "masuk".
+           Selalu "masuk".
            
-           User melihat status,
-           tetapi tidak perlu memilih.
+           Diletakkan paling awal.
         ================================================= */
 
         {
@@ -388,8 +812,11 @@ export const Daily = {
         /* =================================================
            GRADE 1
            
-           Hanya muncul jika Nama mempunyai
-           Grade 1 pada rule.
+           Ditampilkan hanya jika Nama
+           memiliki Grade 1.
+           
+           Jika hanya satu pilihan,
+           hierarchy dapat mengisinya otomatis.
         ================================================= */
 
         {
@@ -421,21 +848,30 @@ export const Daily = {
 
             showWhen :
 
-                values =>
+                values => {
 
-                    Boolean(
+                    if(
 
-                        values.nama
+                        !values.nama
 
-                    )
+                    ){
 
-                    &&
+                        return false;
 
-                    getDailyGrade1Options(
+                    }
 
-                        values
 
-                    ).length > 0,
+                    return (
+
+                        getDailyGrade1Options(
+
+                            values
+
+                        ).length > 0
+
+                    );
+
+                },
 
 
             options :
@@ -459,7 +895,7 @@ export const Daily = {
         /* =================================================
            GRADE 2
            
-           Hanya muncul jika kombinasi
+           Ditampilkan hanya jika kombinasi
            Nama + Grade 1 mempunyai Grade 2.
         ================================================= */
 
@@ -492,29 +928,32 @@ export const Daily = {
 
             showWhen :
 
-                values =>
+                values => {
 
-                    Boolean(
+                    if(
 
-                        values.nama
+                        !values.nama ||
 
-                    )
+                        !values.grade_1
 
-                    &&
+                    ){
 
-                    Boolean(
+                        return false;
 
-                        values.grade_1
+                    }
 
-                    )
 
-                    &&
+                    return (
 
-                    getDailyGrade2Options(
+                        getDailyGrade2Options(
 
-                        values
+                            values
 
-                    ).length > 0,
+                        ).length > 0
+
+                    );
+
+                },
 
 
             options :
@@ -540,8 +979,8 @@ export const Daily = {
            
            WAJIB.
            
-           Payroll Daily Engine menggunakan :
-           
+           Rumus :
+
                nominal × qty
         ================================================= */
 
@@ -651,6 +1090,100 @@ export function getDailyNama(){
 
 
 /* =====================================================
+   GET GRADE 1 OPTIONS
+===================================================== */
+
+export function getDailyGrade1(
+
+    values = {}
+
+){
+
+    return getDailyGrade1Options(
+
+        values
+
+    );
+
+}
+
+
+/* =====================================================
+   GET GRADE 2 OPTIONS
+===================================================== */
+
+export function getDailyGrade2(
+
+    values = {}
+
+){
+
+    return getDailyGrade2Options(
+
+        values
+
+    );
+
+}
+
+
+/* =====================================================
+   GET SINGLE GRADE 1
+===================================================== */
+
+export function getDailyAutoGrade1(
+
+    nama
+
+){
+
+    return getSingleOption(
+
+        getDailyGrade1Options({
+
+            nama :
+
+                nama
+
+        })
+
+    );
+
+}
+
+
+/* =====================================================
+   GET SINGLE GRADE 2
+===================================================== */
+
+export function getDailyAutoGrade2(
+
+    nama,
+
+    grade1
+
+){
+
+    return getSingleOption(
+
+        getDailyGrade2Options({
+
+            nama :
+
+                nama,
+
+            grade_1 :
+
+                grade1
+
+        })
+
+    );
+
+}
+
+
+/* =====================================================
    DEBUG
 ===================================================== */
 
@@ -662,7 +1195,7 @@ export function debugDailyInput(
 
     const resolved =
 
-        resolveDailyHierarchy(
+        resolveDailyValues(
 
             values
 
@@ -673,7 +1206,7 @@ export function debugDailyInput(
 
         isDailyComplete(
 
-            values
+            resolved
 
         );
 
@@ -682,7 +1215,25 @@ export function debugDailyInput(
 
         getDailyWorkRule(
 
-            values
+            resolved
+
+        );
+
+
+    const nominal =
+
+        getDailyNominal(
+
+            resolved
+
+        );
+
+
+    const amount =
+
+        calculateDailyAmount(
+
+            resolved
 
         );
 
@@ -707,7 +1258,19 @@ export function debugDailyInput(
 
             rule :
 
-                rule
+                rule,
+
+            nominal :
+
+                nominal,
+
+            qty :
+
+                resolved.qty,
+
+            amount :
+
+                amount
 
         }
 
@@ -730,7 +1293,19 @@ export function debugDailyInput(
 
         rule :
 
-            rule
+            rule,
+
+        nominal :
+
+            nominal,
+
+        qty :
+
+            resolved.qty,
+
+        amount :
+
+            amount
 
     };
 
