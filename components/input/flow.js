@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : flow.js
-   Version      : 1.1.0
+   Version      : 1.2.0
 
    Description :
    Global Input Flow Controller
@@ -13,32 +13,37 @@
    - Next field
    - Completed fields remain visible
    - Condition multi-select
+   - Multiple condition inputs
+   - Dynamic condition fields
+   - Status change reset
    - Terminal attendance status
 
-   Principle :
+   Attendance Flow :
 
-   Normal field :
-       input
-          ↓
-       complete
-          ↓
-       next field
+   Status
+      ↓
+   Shift (optional)
+      ↓
+   Tambahkan Kondisi
+      ↓
+   [ Telat ]
+   [ Izin Telat ]
+   [ Izin Pulang ]
+   [ Lembur ]
+      ↓
+   Field yang dicentang tampil
+      ↓
+   Semua input selesai
+      ↓
+   Flow complete
 
-   Condition field :
-       checkbox
-          ↓
-       collect all checked values
-          ↓
-       remain on condition field
-          ↓
-       next field
+   Terminal :
 
-   Terminal status :
-       cuti
-       sakit
-       absen
-          ↓
-       flow complete
+   cuti
+   sakit
+   absen
+      ↓
+   Flow complete
 ===================================================== */
 
 
@@ -76,6 +81,32 @@ export function startFlow(){
 
 
 /* =====================================================
+   GET CONTAINER
+===================================================== */
+
+function getContainer(){
+
+    return document.getElementById(
+
+        "global-input-form"
+
+    );
+
+}
+
+
+/* =====================================================
+   GET STEPS
+===================================================== */
+
+function getSteps(){
+
+    return State.config?.steps ?? [];
+
+}
+
+
+/* =====================================================
    RENDER FLOW
 ===================================================== */
 
@@ -83,11 +114,7 @@ export function renderFlow(){
 
     const container =
 
-        document.getElementById(
-
-            "global-input-form"
-
-        );
+        getContainer();
 
 
     if(
@@ -103,14 +130,8 @@ export function renderFlow(){
 
     const steps =
 
-        State.config?.steps ??
+        getSteps();
 
-        [];
-
-
-    /* =================================================
-       FIND NEXT VALID FIELD
-    ================================================= */
 
     let field =
 
@@ -120,6 +141,10 @@ export function renderFlow(){
 
         ];
 
+
+    /* =================================================
+       FIND NEXT VISIBLE FIELD
+    ================================================= */
 
     while(
 
@@ -167,7 +192,28 @@ export function renderFlow(){
 
 
     /* =================================================
-       RENDER ONLY NEW FIELD
+       PREVENT DUPLICATE FIELD
+    ================================================= */
+
+    if(
+
+        isFieldRendered(
+
+            container,
+
+            field.id
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =================================================
+       RENDER FIELD
     ================================================= */
 
     renderField(
@@ -208,7 +254,7 @@ function handleFieldComplete(
 
     console.log(
 
-        "Flow field complete:",
+        "Flow selesai:",
 
         field.id,
 
@@ -217,17 +263,30 @@ function handleFieldComplete(
     );
 
 
-    /* =================================================
-       CONDITION FIELD
-       
-       Condition adalah multi-select.
+    const steps =
 
-       Checkbox dapat berubah berkali-kali.
-       Karena itu JANGAN langsung menaikkan
-       State.step setiap kali checkbox berubah.
+        getSteps();
+
+
+    const fieldIndex =
+
+        steps.indexOf(
+
+            field
+
+        );
+
+
+    /* =================================================
+       CONDITION
        
-       Value tetap sudah disimpan oleh field.js
-       ke State.values.
+       Checkbox tidak menaikkan State.step.
+
+       Sebaliknya :
+
+       1. Bersihkan field kondisi lama
+       2. Cari semua field yang aktif
+       3. Render SEMUA field hasil checklist
     ================================================= */
 
     if(
@@ -238,14 +297,13 @@ function handleFieldComplete(
 
     ){
 
-        console.log(
+        handleConditionChange(
 
-            "Condition updated:",
+            fieldIndex,
 
             value
 
         );
-
 
         return;
 
@@ -253,23 +311,141 @@ function handleFieldComplete(
 
 
     /* =================================================
+       STATUS
+       
+       Status adalah special field.
+
+       Jika status berubah :
+
+       1. Semua field setelah status
+          harus dibersihkan.
+       2. Jika terminal :
+          langsung selesai.
+       3. Jika normal :
+          mulai ulang flow setelah status.
+    ================================================= */
+
+    if(
+
+        field.id ===
+
+            "status"
+
+    ){
+
+        handleStatusChange(
+
+            fieldIndex,
+
+            value
+
+        );
+
+        return;
+
+    }
+
+
+    /* =================================================
+       DYNAMIC CONDITION INPUT
+       
+       Field seperti :
+
+       telat
+       izin_telat
+       izin_pulang
+       lembur_jam
+
+       tidak boleh langsung maju satu step
+       seperti progressive field biasa.
+
+       Semua field yang dipilih checkbox harus
+       selesai terlebih dahulu.
+    ================================================= */
+
+    if(
+
+        isConditionInput(
+
+            field
+
+        )
+
+    ){
+
+        handleConditionInputComplete(
+
+            fieldIndex
+
+        );
+
+        return;
+
+    }
+
+
+    /* =================================================
+       NORMAL FIELD
+    ================================================= */
+
+    State.step =
+
+        fieldIndex + 1;
+
+
+    renderFlow();
+
+}
+
+
+/* =====================================================
+   STATUS CHANGE
+===================================================== */
+
+function handleStatusChange(
+
+    statusIndex,
+
+    value
+
+){
+
+    /* =================================================
+       CLEAR SEMUA FIELD SETELAH STATUS
+    ================================================= */
+
+    clearFieldsAfter(
+
+        statusIndex
+
+    );
+
+
+    /* =================================================
        TERMINAL STATUS
        
-       Attendance status :
-
        cuti
        sakit
        absen
+       
+       Tidak perlu :
 
-       Setelah status dipilih, tidak perlu
-       shift ataupun condition.
+       shift
+       condition
+       telat
+       izin
+       lembur
     ================================================= */
 
     if(
 
         isTerminalStatus(
 
-            field,
+            getSteps()[
+
+                statusIndex
+
+            ],
 
             value
 
@@ -288,6 +464,89 @@ function handleFieldComplete(
 
         flowComplete();
 
+        return;
+
+    }
+
+
+    /* =================================================
+       STATUS NORMAL
+       
+       Masuk
+       Lembur
+
+       Lanjut ke field setelah status.
+    ================================================= */
+
+    State.step =
+
+        statusIndex + 1;
+
+
+    renderFlow();
+
+}
+
+
+/* =====================================================
+   CONDITION CHANGE
+===================================================== */
+
+function handleConditionChange(
+
+    conditionIndex,
+
+    value
+
+){
+
+    console.log(
+
+        "Condition updated:",
+
+        value
+
+    );
+
+
+    /* =================================================
+       HAPUS SEMUA FIELD HASIL KONDISI SEBELUMNYA
+    ================================================= */
+
+    clearFieldsAfter(
+
+        conditionIndex
+
+    );
+
+
+    /* =================================================
+       CONDITION KOSONG
+       
+       Jangan lanjut otomatis.
+
+       User masih bisa memilih kondisi
+       atau menekan Tambah Transaksi.
+    ================================================= */
+
+    if(
+
+        !Array.isArray(
+
+            value
+
+        )
+
+        ||
+
+        value.length === 0
+
+    ){
+
+        State.step =
+
+            conditionIndex;
+
 
         return;
 
@@ -295,13 +554,761 @@ function handleFieldComplete(
 
 
     /* =================================================
-       NEXT
+       RENDER SEMUA FIELD AKTIF
+       
+       Contoh :
+
+       Telat + Lembur
+
+       Maka :
+
+       Telat
+       Lembur Jam
+
+       tampil bersamaan.
     ================================================= */
 
-    State.step++;
+    renderConditionFields(
+
+        conditionIndex
+
+    );
+
+}
 
 
-    renderFlow();
+/* =====================================================
+   RENDER CONDITION FIELDS
+===================================================== */
+
+function renderConditionFields(
+
+    conditionIndex
+
+){
+
+    const container =
+
+        getContainer();
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const steps =
+
+        getSteps();
+
+
+    const activeFields = [];
+
+
+    /* =================================================
+       CARI SEMUA FIELD SETELAH CONDITION
+       YANG SEKARANG VISIBLE
+    ================================================= */
+
+    for(
+
+        let index =
+
+            conditionIndex + 1;
+
+        index <
+
+            steps.length;
+
+        index++
+
+    ){
+
+        const field =
+
+            steps[index];
+
+
+        if(
+
+            !field
+
+        ){
+
+            continue;
+
+        }
+
+
+        if(
+
+            !isVisible(
+
+                field
+
+            )
+
+        ){
+
+            continue;
+
+        }
+
+
+        activeFields.push({
+
+            field,
+
+            index
+
+        });
+
+    }
+
+
+    /* =================================================
+       TIDAK ADA FIELD INPUT
+    ================================================= */
+
+    if(
+
+        activeFields.length === 0
+
+    ){
+
+        State.step =
+
+            conditionIndex;
+
+
+        return;
+
+    }
+
+
+    /* =================================================
+       RENDER SEMUA FIELD
+    ================================================= */
+
+    activeFields.forEach(
+
+        item => {
+
+            if(
+
+                isFieldRendered(
+
+                    container,
+
+                    item.field.id
+
+                )
+
+            ){
+
+                return;
+
+            }
+
+
+            renderField(
+
+                item.field,
+
+                container,
+
+                handleFieldComplete
+
+            );
+
+        }
+
+    );
+
+
+    /* =================================================
+       CURSOR
+
+       Cursor berada pada field terakhir
+       dari kelompok condition.
+    ================================================= */
+
+    State.step =
+
+        activeFields[
+
+            activeFields.length - 1
+
+        ].index;
+
+}
+
+
+/* =====================================================
+   CONDITION INPUT COMPLETE
+===================================================== */
+
+function handleConditionInputComplete(
+
+    fieldIndex
+
+){
+
+    const conditionIndex =
+
+        findConditionIndexBefore(
+
+            fieldIndex
+
+        );
+
+
+    /* =================================================
+       Jika tidak ditemukan condition,
+       perlakukan sebagai field normal.
+    ================================================= */
+
+    if(
+
+        conditionIndex === -1
+
+    ){
+
+        State.step =
+
+            fieldIndex + 1;
+
+
+        renderFlow();
+
+        return;
+
+    }
+
+
+    /* =================================================
+       CEK SEMUA FIELD CONDITION
+    ================================================= */
+
+    if(
+
+        areConditionInputsComplete(
+
+            conditionIndex
+
+        )
+
+    ){
+
+        console.log(
+
+            "Semua condition input selesai."
+
+        );
+
+
+        flowComplete();
+
+        return;
+
+    }
+
+
+    console.log(
+
+        "Masih ada condition input yang belum selesai."
+
+    );
+
+}
+
+
+/* =====================================================
+   FIND CONDITION INDEX
+===================================================== */
+
+function findConditionIndexBefore(
+
+    fieldIndex
+
+){
+
+    const steps =
+
+        getSteps();
+
+
+    for(
+
+        let index =
+
+            fieldIndex - 1;
+
+        index >= 0;
+
+        index--
+
+    ){
+
+        const field =
+
+            steps[index];
+
+
+        if(
+
+            field?.type ===
+
+                "condition"
+
+        ){
+
+            return index;
+
+        }
+
+    }
+
+
+    return -1;
+
+}
+
+
+/* =====================================================
+   CHECK CONDITION INPUT COMPLETE
+===================================================== */
+
+function areConditionInputsComplete(
+
+    conditionIndex
+
+){
+
+    const steps =
+
+        getSteps();
+
+
+    const conditionValue =
+
+        State.values?.[
+
+            steps[conditionIndex]?.id
+
+        ];
+
+
+    if(
+
+        !Array.isArray(
+
+            conditionValue
+
+        )
+
+        ||
+
+        conditionValue.length === 0
+
+    ){
+
+        return false;
+
+    }
+
+
+    const activeFields = [];
+
+
+    /* =================================================
+       SEMUA FIELD SETELAH CONDITION
+       YANG MASIH VISIBLE
+    ================================================= */
+
+    for(
+
+        let index =
+
+            conditionIndex + 1;
+
+        index <
+
+            steps.length;
+
+        index++
+
+    ){
+
+        const field =
+
+            steps[index];
+
+
+        if(
+
+            !field
+
+        ){
+
+            continue;
+
+        }
+
+
+        if(
+
+            !isVisible(
+
+                field
+
+            )
+
+        ){
+
+            continue;
+
+        }
+
+
+        activeFields.push(
+
+            field
+
+        );
+
+    }
+
+
+    /* =================================================
+       TIDAK ADA FIELD
+    ================================================= */
+
+    if(
+
+        activeFields.length === 0
+
+    ){
+
+        return true;
+
+    }
+
+
+    /* =================================================
+       SETIAP FIELD AKTIF HARUS SUDAH DIISI
+    ================================================= */
+
+    return activeFields.every(
+
+        field => {
+
+            const value =
+
+                State.values?.[
+
+                    field.id
+
+                ];
+
+
+            return (
+
+                value !==
+
+                    undefined
+
+                &&
+
+                value !==
+
+                    null
+
+                &&
+
+                String(
+
+                    value
+
+                ).trim() !==
+
+                    ""
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   IS CONDITION INPUT
+===================================================== */
+
+function isConditionInput(
+
+    field
+
+){
+
+    if(
+
+        !field
+
+    ){
+
+        return false;
+
+    }
+
+
+    /* =================================================
+       Cari condition sebelumnya.
+
+       Jika field berada setelah condition,
+       dan condition aktif, maka field dianggap
+       sebagai dynamic condition input.
+    ================================================= */
+
+    const steps =
+
+        getSteps();
+
+
+    const fieldIndex =
+
+        steps.indexOf(
+
+            field
+
+        );
+
+
+    if(
+
+        fieldIndex === -1
+
+    ){
+
+        return false;
+
+    }
+
+
+    return (
+
+        findConditionIndexBefore(
+
+            fieldIndex
+
+        ) !==
+
+            -1
+
+    );
+
+}
+
+
+/* =====================================================
+   CLEAR FIELDS AFTER
+===================================================== */
+
+function clearFieldsAfter(
+
+    index
+
+){
+
+    const container =
+
+        getContainer();
+
+
+    const steps =
+
+        getSteps();
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =================================================
+       HAPUS STATE
+    ================================================= */
+
+    for(
+
+        let i =
+
+            index + 1;
+
+        i <
+
+            steps.length;
+
+        i++
+
+    ){
+
+        const field =
+
+            steps[i];
+
+
+        if(
+
+            !field
+
+        ){
+
+            continue;
+
+        }
+
+
+        delete State.values[
+
+            field.id
+
+        ];
+
+    }
+
+
+    /* =================================================
+       HAPUS DOM FIELD
+    ================================================= */
+
+    for(
+
+        let i =
+
+            index + 1;
+
+        i <
+
+            steps.length;
+
+        i++
+
+    ){
+
+        const field =
+
+            steps[i];
+
+
+        if(
+
+            !field
+
+        ){
+
+            continue;
+
+        }
+
+
+        const elements =
+
+            container.querySelectorAll(
+
+                `[data-field="${field.id}"]`
+
+            );
+
+
+        elements.forEach(
+
+            element => {
+
+                const wrapper =
+
+                    element.closest(
+
+                        ".global-input-field"
+
+                    );
+
+
+                if(
+
+                    wrapper
+
+                ){
+
+                    wrapper.remove();
+
+                }
+
+                else{
+
+                    element.remove();
+
+                }
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   IS FIELD RENDERED
+===================================================== */
+
+function isFieldRendered(
+
+    container,
+
+    fieldId
+
+){
+
+    if(
+
+        !container
+
+        ||
+
+        !fieldId
+
+    ){
+
+        return false;
+
+    }
+
+
+    return Boolean(
+
+        container.querySelector(
+
+            `[data-field="${fieldId}"]`
+
+        )
+
+    );
 
 }
 
@@ -317,11 +1324,6 @@ function isTerminalStatus(
     value
 
 ){
-
-    /* =================================================
-       Hanya field status yang boleh menjadi
-       terminal status.
-    ================================================= */
 
     if(
 
@@ -354,14 +1356,6 @@ function isTerminalStatus(
 
         .toLowerCase();
 
-
-    /* =================================================
-       TERMINAL ATTENDANCE STATUS
-
-       cuti
-       sakit
-       absen
-    ================================================= */
 
     return (
 
@@ -459,13 +1453,6 @@ function flowComplete(){
 
     );
 
-
-    /* =================================================
-       Jangan langsung memasukkan transaksi di sini.
-
-       Transaction.js akan mengambil alih
-       pada tahap berikutnya.
-    ================================================= */
 
     document.dispatchEvent(
 
