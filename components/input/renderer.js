@@ -922,6 +922,91 @@ function getDisplayValue(
 
     }
 
+       /* =============================================
+       CUSTOM DISPLAY
+    ============================================= */
+
+    if(
+
+        typeof field.display ===
+
+            "function"
+
+    ){
+
+        try{
+
+            return escapeHTML(
+
+                field.display(
+
+                    value,
+
+                    transaction
+
+                )
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "Renderer display error:",
+
+                error
+
+            );
+
+        }
+
+    }
+
+
+    /* =============================================
+       CUSTOM FORMAT
+    ============================================= */
+
+    if(
+
+        typeof field.format ===
+
+            "function"
+
+    ){
+
+        try{
+
+            return escapeHTML(
+
+                field.format(
+
+                    value,
+
+                    transaction
+
+                )
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "Renderer format error:",
+
+                error
+
+            );
+
+        }
+
+    }
+
 
     /* =============================================
        NUMBER
