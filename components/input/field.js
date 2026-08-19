@@ -158,7 +158,40 @@ export function renderField(
 
     }
 
+/* =================================================
+   CONDITION
 
+   Checkbox group untuk progressive condition.
+================================================= */
+
+if(
+
+    field.type ===
+    "condition"
+
+){
+
+    renderCondition(
+
+        field,
+        wrapper,
+        onComplete
+
+    );
+
+
+    container.appendChild(
+
+        wrapper
+
+    );
+
+
+    return;
+
+}
+
+   
     /* =================================================
        NORMAL INPUT
     ================================================= */
@@ -580,6 +613,355 @@ function createInputElement(
 
 }
 
+/* =====================================================
+   RENDER CONDITION
+===================================================== */
+
+function renderCondition(
+
+    field,
+
+    wrapper,
+
+    onComplete
+
+){
+
+    const conditionList =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    conditionList.className =
+
+        "global-input-condition-list";
+
+
+    const options =
+
+        getOptions(
+
+            field
+
+        );
+
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    options.forEach(
+
+        option => {
+
+            const value =
+
+                typeof option ===
+
+                "object"
+
+                    ?
+
+                option.value
+
+                    :
+
+                option;
+
+
+            const label =
+
+                typeof option ===
+
+                "object"
+
+                    ?
+
+                option.label ??
+
+                option.value
+
+                    :
+
+                option;
+
+
+            if(
+
+                !value
+
+            ){
+
+                return;
+
+            }
+
+
+            /* =========================================
+               ITEM
+            ========================================= */
+
+            const item =
+
+                document.createElement(
+
+                    "label"
+
+                );
+
+
+            item.className =
+
+                "global-input-condition-item";
+
+
+            /* =========================================
+               CHECKBOX
+            ========================================= */
+
+            const checkbox =
+
+                document.createElement(
+
+                    "input"
+
+                );
+
+
+            checkbox.type =
+
+                "checkbox";
+
+
+            checkbox.value =
+
+                value;
+
+
+            checkbox.dataset.condition =
+
+                value;
+
+
+            /* =========================================
+               LABEL
+            ========================================= */
+
+            const text =
+
+                document.createElement(
+
+                    "span"
+
+                );
+
+
+            text.textContent =
+
+                label;
+
+
+            item.appendChild(
+
+                checkbox
+
+            );
+
+
+            item.appendChild(
+
+                text
+
+            );
+
+
+            conditionList.appendChild(
+
+                item
+
+            );
+
+
+            /* =========================================
+               CHANGE
+            ========================================= */
+
+            checkbox.addEventListener(
+
+                "change",
+
+                () => {
+
+                    updateConditionValue(
+
+                        field,
+
+                        conditionList,
+
+                        onComplete
+
+                    );
+
+                }
+
+            );
+
+        }
+
+    );
+
+
+    wrapper.appendChild(
+
+        conditionList
+
+    );
+
+
+    /* =============================================
+       NOTE
+    ============================================= */
+
+    if(
+
+        field.note
+
+    ){
+
+        const note =
+
+            document.createElement(
+
+                "small"
+
+            );
+
+
+        note.className =
+
+            "global-input-field-note";
+
+
+        note.textContent =
+
+            field.note;
+
+
+        wrapper.appendChild(
+
+            note
+
+        );
+
+    }
+
+}
+/* =====================================================
+   UPDATE CONDITION VALUE
+===================================================== */
+
+function updateConditionValue(
+
+    field,
+
+    container,
+
+    onComplete
+
+){
+
+    const checkboxes =
+
+        container.querySelectorAll(
+
+            'input[type="checkbox"]'
+
+        );
+
+
+    const values = [];
+
+
+    checkboxes.forEach(
+
+        checkbox => {
+
+            if(
+
+                checkbox.checked
+
+            ){
+
+                values.push(
+
+                    checkbox.value
+
+                );
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       SAVE STATE
+
+       Array kosong tetap disimpan.
+       Ini penting supaya kondisi bisa
+       berubah kembali saat user uncheck.
+    ============================================= */
+
+    State.values[
+
+        field.id
+
+    ] =
+
+        values;
+
+
+    /* =============================================
+       CALLBACK
+
+       Kirim array kondisi ke flow.
+    ============================================= */
+
+    if(
+
+        typeof onComplete ===
+
+            "function"
+
+    ){
+
+        onComplete(
+
+            field,
+
+            values
+
+        );
+
+    }
+
+}
 
 /* =====================================================
    CUSTOM SELECT
