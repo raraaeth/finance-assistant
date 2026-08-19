@@ -3,7 +3,7 @@
    Component    : Global Input
    Workspace    : Payroll Monthly
    File         : monthly.js
-   Version      : 1.0.1
+   Version      : 1.0.2
 
    Description :
    Global Input Configuration
@@ -20,6 +20,16 @@
    izin_telat
    izin_pulang
    lembur_jam
+
+   Principle :
+   - Status mengikuti rule payroll monthly
+   - Shift bersifat optional
+   - Shift hanya muncul jika rule_shift tersedia
+   - Telat bersifat optional dan dihitung dalam menit
+   - Izin Telat bersifat optional dan dihitung dalam jam
+   - Izin Pulang bersifat optional dan dihitung dalam jam
+   - Lembur Jam bersifat optional dan dihitung dalam jam
+   - Status lembur = lembur harian
 ===================================================== */
 
 
@@ -36,6 +46,11 @@ import {
 
 /* =====================================================
    HELPERS
+===================================================== */
+
+
+/* =====================================================
+   GET RULES
 ===================================================== */
 
 function getRules(){
@@ -113,7 +128,7 @@ function getRuleByName(
 
 
 /* =====================================================
-   CHECK RULE
+   HAS RULE
 ===================================================== */
 
 function hasRule(
@@ -136,7 +151,7 @@ function hasRule(
 
 
 /* =====================================================
-   CHECK RULE NAME
+   HAS RULE NAME
 ===================================================== */
 
 function hasRuleName(
@@ -159,7 +174,7 @@ function hasRuleName(
 
 
 /* =====================================================
-   STRING LIST
+   PARSE STRING LIST
 ===================================================== */
 
 function parseList(
@@ -203,7 +218,7 @@ function parseList(
 
 
 /* =====================================================
-   LABEL
+   FORMAT LABEL
 ===================================================== */
 
 function formatLabel(
@@ -251,9 +266,9 @@ function getStatusOptions(){
 
 
     /* =================================================
-       RULE MASUK
+       STATUS DARI RULE MASUK
 
-       Status :
+       Contoh :
 
        masuk
        sakit
@@ -339,18 +354,14 @@ function getStatusOptions(){
 
 
     /* =================================================
-       RULE LEMBUR HARIAN
+       STATUS LEMBUR
 
-       Status :
+       Lembur harian berasal dari rule :
 
-       lembur
-
-       Sumber :
-
-       rule_tambah
-       nama    = lembur
-       kondisi = lembur_harian
-       waktu   = harian
+       type_rule = rule_tambah
+       nama      = lembur
+       kondisi   = lembur_harian
+       waktu     = harian
     ================================================= */
 
     const lemburRule =
@@ -390,35 +401,31 @@ function getStatusOptions(){
 
         lemburRule
 
+        &&
+
+        !options.some(
+
+            option =>
+
+                option.value ===
+
+                    "lembur"
+
+        )
+
     ){
 
-        if(
+        options.push({
 
-            !options.some(
+            value :
 
-                option =>
+                "lembur",
 
-                    option.value ===
+            label :
 
-                        "lembur"
+                "Lembur"
 
-            )
-
-        ){
-
-            options.push({
-
-                value :
-
-                    "lembur",
-
-                label :
-
-                    "Lembur"
-
-            });
-
-        }
+        });
 
     }
 
@@ -442,6 +449,12 @@ function getShiftOptions(){
 
         );
 
+
+    /* =================================================
+       TIDAK ADA RULE SHIFT
+
+       Maka pilihan shift tidak tersedia.
+    ================================================= */
 
     if(
 
@@ -484,10 +497,10 @@ function getShiftOptions(){
 
 
 /* =====================================================
-   PAYROLL MONTHLY CONFIG
+   MONTHLY INPUT CONFIG
 ===================================================== */
 
-export const MonthlyInput = {
+export const Monthly = {
 
     workspace :
 
@@ -528,17 +541,23 @@ export const MonthlyInput = {
 
         /* =================================================
            STATUS
+        =================================================
 
-           Status berasal dari payroll_monthly_rules.
+           Status berasal dari :
 
-           rule_masuk :
+           rule_masuk
                masuk
                sakit
                cuti
                absen
 
-           rule_tambah :
+           dan :
+
+           rule_tambah
                lembur_harian
+
+           Jika rule lembur harian tersedia,
+           status "lembur" tersedia.
         ================================================= */
 
         {
@@ -574,14 +593,17 @@ export const MonthlyInput = {
 
         /* =================================================
            SHIFT
+        =================================================
 
            OPTIONAL.
 
-           Hanya muncul jika rule_shift tersedia.
+           Shift hanya tersedia jika :
 
-           Pilihan berasal dari :
+           type_rule = rule_shift
 
-           rule_shift.waktu
+           Contoh :
+
+           pagi,siang,malam
         ================================================= */
 
         {
@@ -647,16 +669,24 @@ export const MonthlyInput = {
 
         /* =================================================
            TELAT
+        =================================================
 
            OPTIONAL.
 
-           Hitungan :
+           Satuan :
 
            MENIT
 
-           Range :
+           Contoh :
 
-           5 - 60
+           5
+           10
+           15
+           30
+           60
+
+           Digunakan untuk keterlambatan
+           sampai dengan 60 menit.
         ================================================= */
 
         {
@@ -711,22 +741,23 @@ export const MonthlyInput = {
 
             note :
 
-                "Masukkan keterlambatan dalam menit (5–60 menit)."
+                "Opsional. Masukkan keterlambatan dalam menit (5–60 menit)."
 
         },
 
 
         /* =================================================
            IZIN TELAT
+        =================================================
 
            OPTIONAL.
 
-           Hitungan :
+           Satuan :
 
            JAM
 
            Digunakan untuk keterlambatan
-           lebih dari 1 jam.
+           di atas 1 jam.
         ================================================= */
 
         {
@@ -777,17 +808,18 @@ export const MonthlyInput = {
 
             note :
 
-                "Digunakan jika keterlambatan lebih dari 1 jam. Masukkan dalam jam."
+                "Opsional. Jika keterlambatan lebih dari 1 jam, masukkan jumlah jam."
 
         },
 
 
         /* =================================================
            IZIN PULANG
+        =================================================
 
            OPTIONAL.
 
-           Hitungan :
+           Satuan :
 
            JAM
         ================================================= */
@@ -840,13 +872,14 @@ export const MonthlyInput = {
 
             note :
 
-                "Masukkan waktu izin pulang dalam jam."
+                "Opsional. Masukkan waktu izin pulang dalam jam."
 
         },
 
 
         /* =================================================
            LEMBUR JAM
+        =================================================
 
            OPTIONAL.
 
@@ -858,7 +891,7 @@ export const MonthlyInput = {
 
                lembur harian
 
-           Field ini :
+           Sedangkan field ini :
 
                lembur berdasarkan jumlah jam.
         ================================================= */
@@ -921,7 +954,7 @@ export const MonthlyInput = {
 
             note :
 
-                "Masukkan jumlah jam lembur."
+                "Opsional. Masukkan jumlah jam lembur."
 
         }
 
@@ -931,11 +964,27 @@ export const MonthlyInput = {
 
 
 /* =====================================================
+   BACKWARD COMPATIBILITY
+=====================================================
+
+   Jika ada file lama yang masih menggunakan :
+
+       MonthlyInput
+
+   tetap akan bekerja.
+===================================================== */
+
+export const MonthlyInput =
+
+    Monthly;
+
+
+/* =====================================================
    GET CONFIG
 ===================================================== */
 
 export function getMonthlyInputConfig(){
 
-    return MonthlyInput;
+    return Monthly;
 
 }
