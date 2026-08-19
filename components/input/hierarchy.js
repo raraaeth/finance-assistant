@@ -27,15 +27,23 @@
    - Level dengan banyak pilihan ditampilkan sebagai select.
    - Struktur mengikuti payroll_daily_rules.
 ===================================================== */
+/* =====================================================
+   IMPORT
+===================================================== */
 
+import {
+
+    getPayrollDailyRules
+
+} from "./data.js";
 
 /* =====================================================
    CONSTANT
 ===================================================== */
 
-const RULE_TYPE =
+const rules =
 
-    "rule_work";
+    getPayrollDailyRules();
 
 
 /* =====================================================
