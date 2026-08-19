@@ -1622,3 +1622,105 @@ body.input-open{
     }
 
 }
+/* =====================================================
+   PAYROLL MONTHLY
+   CONDITION CHECKBOX
+===================================================== */
+
+.global-input-condition-list{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    column-gap:24px;
+
+    row-gap:18px;
+
+    width:100%;
+
+    margin-top:4px;
+
+}
+
+
+/* =====================================================
+   CONDITION ITEM
+===================================================== */
+
+.global-input-condition-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    width:100%;
+
+    margin:0;
+
+    padding:0;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   CONDITION LABEL
+===================================================== */
+
+.global-input-condition-item span{
+
+    order:1;
+
+    flex:1;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   CHECKBOX
+===================================================== */
+
+.global-input-condition-item input[type="checkbox"]{
+
+    order:2;
+
+    width:18px;
+
+    height:18px;
+
+    min-width:18px;
+
+    margin:0 0 0 10px;
+
+    padding:0;
+
+    cursor:pointer;
+
+    appearance:auto;
+
+}
+
+
+/* =====================================================
+   NOTE
+===================================================== */
+
+.global-input-condition-list
++
+.global-input-field-note{
+
+    margin-top:16px;
+
+}
+
