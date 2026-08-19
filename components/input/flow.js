@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : flow.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Global Input Flow Controller
@@ -12,6 +12,33 @@
    - Field visibility
    - Next field
    - Completed fields remain visible
+   - Condition multi-select
+   - Terminal attendance status
+
+   Principle :
+
+   Normal field :
+       input
+          ↓
+       complete
+          ↓
+       next field
+
+   Condition field :
+       checkbox
+          ↓
+       collect all checked values
+          ↓
+       remain on condition field
+          ↓
+       next field
+
+   Terminal status :
+       cuti
+       sakit
+       absen
+          ↓
+       flow complete
 ===================================================== */
 
 
@@ -81,9 +108,9 @@ export function renderFlow(){
         [];
 
 
-    /* =============================================
+    /* =================================================
        FIND NEXT VALID FIELD
-    ============================================= */
+    ================================================= */
 
     let field =
 
@@ -110,6 +137,7 @@ export function renderFlow(){
 
         State.step++;
 
+
         field =
 
             steps[
@@ -121,9 +149,9 @@ export function renderFlow(){
     }
 
 
-    /* =============================================
+    /* =================================================
        COMPLETE
-    ============================================= */
+    ================================================= */
 
     if(
 
@@ -138,9 +166,9 @@ export function renderFlow(){
     }
 
 
-    /* =============================================
+    /* =================================================
        RENDER ONLY NEW FIELD
-    ============================================= */
+    ================================================= */
 
     renderField(
 
@@ -167,9 +195,20 @@ function handleFieldComplete(
 
 ){
 
+    if(
+
+        !field
+
+    ){
+
+        return;
+
+    }
+
+
     console.log(
 
-        "Flow selesai:",
+        "Flow field complete:",
 
         field.id,
 
@@ -178,14 +217,171 @@ function handleFieldComplete(
     );
 
 
-    /* =============================================
+    /* =================================================
+       CONDITION FIELD
+       
+       Condition adalah multi-select.
+
+       Checkbox dapat berubah berkali-kali.
+       Karena itu JANGAN langsung menaikkan
+       State.step setiap kali checkbox berubah.
+       
+       Value tetap sudah disimpan oleh field.js
+       ke State.values.
+    ================================================= */
+
+    if(
+
+        field.type ===
+
+            "condition"
+
+    ){
+
+        console.log(
+
+            "Condition updated:",
+
+            value
+
+        );
+
+
+        return;
+
+    }
+
+
+    /* =================================================
+       TERMINAL STATUS
+       
+       Attendance status :
+
+       cuti
+       sakit
+       absen
+
+       Setelah status dipilih, tidak perlu
+       shift ataupun condition.
+    ================================================= */
+
+    if(
+
+        isTerminalStatus(
+
+            field,
+
+            value
+
+        )
+
+    ){
+
+        console.log(
+
+            "Terminal attendance status:",
+
+            value
+
+        );
+
+
+        flowComplete();
+
+
+        return;
+
+    }
+
+
+    /* =================================================
        NEXT
-    ============================================= */
+    ================================================= */
 
     State.step++;
 
 
     renderFlow();
+
+}
+
+
+/* =====================================================
+   TERMINAL STATUS
+===================================================== */
+
+function isTerminalStatus(
+
+    field,
+
+    value
+
+){
+
+    /* =================================================
+       Hanya field status yang boleh menjadi
+       terminal status.
+    ================================================= */
+
+    if(
+
+        !field
+
+        ||
+
+        field.id !==
+
+            "status"
+
+    ){
+
+        return false;
+
+    }
+
+
+    const status =
+
+        String(
+
+            value ??
+
+            ""
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+
+    /* =================================================
+       TERMINAL ATTENDANCE STATUS
+
+       cuti
+       sakit
+       absen
+    ================================================= */
+
+    return (
+
+        status ===
+
+            "cuti"
+
+        ||
+
+        status ===
+
+            "sakit"
+
+        ||
+
+        status ===
+
+            "absen"
+
+    );
 
 }
 
@@ -202,9 +398,13 @@ function isVisible(
 
     if(
 
+        !field
+
+        ||
+
         typeof field.showWhen !==
 
-        "function"
+            "function"
 
     ){
 
@@ -213,11 +413,34 @@ function isVisible(
     }
 
 
-    return field.showWhen(
+    try{
 
-        State.values
+        return Boolean(
 
-    );
+            field.showWhen(
+
+                State.values
+
+            )
+
+        );
+
+    }
+
+    catch(error){
+
+        console.warn(
+
+            "Global Input flow showWhen error:",
+
+            error
+
+        );
+
+
+        return false;
+
+    }
 
 }
 
@@ -237,15 +460,12 @@ function flowComplete(){
     );
 
 
-    /*
-
-       Jangan langsung memasukkan transaksi
-       di sini.
+    /* =================================================
+       Jangan langsung memasukkan transaksi di sini.
 
        Transaction.js akan mengambil alih
        pada tahap berikutnya.
-
-    */
+    ================================================= */
 
     document.dispatchEvent(
 
