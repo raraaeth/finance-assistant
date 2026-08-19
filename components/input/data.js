@@ -22,8 +22,11 @@ const DATA_SOURCE = {
         "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas_member",
 
     financialActivity :
-        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/financial_activity"
+        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/financial_activity",
 
+    savingBanks :
+    "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank"
+   
 };
 
 
@@ -35,7 +38,9 @@ const Data = {
 
     kasMembers : [],
 
-    financialActivity : []
+    financialActivity : [],
+
+    savingBanks : []
 
 };
 
@@ -78,6 +83,20 @@ export async function loadInputData(
         await loadFinancialActivity();
 
     }
+   
+/* =============================================
+       LOAD SAVING DATA
+============================================= */
+   
+   if(
+
+    workspace === "saving"
+
+){
+
+    await loadSavingBanks();
+
+   }
 
 
     return Data;
@@ -282,6 +301,110 @@ async function loadFinancialActivity(){
 
 }
 
+/* =====================================================
+   LOAD SAVING MEMBERS
+===================================================== */
+
+async function loadSavingBanks(){
+
+    try{
+
+        const response =
+
+            await fetch(
+
+                DATA_SOURCE.savingBanks
+
+            );
+
+
+        if(
+
+            !response.ok
+
+        ){
+
+            throw new Error(
+
+                `HTTP ${response.status}`
+
+            );
+
+        }
+
+
+        const raw =
+
+            await response.json();
+
+
+        Data.savingBanks =
+
+            Array.isArray(raw)
+
+                ?
+
+            raw
+
+                .filter(
+
+                    item =>
+
+                        item &&
+
+                        typeof item.nama === "string" &&
+
+                        item.nama.trim() !== ""
+
+                )
+
+                .map(
+
+                    item => ({
+
+                        value :
+
+                            item.nama.trim(),
+
+                        label :
+
+                            item.nama.trim()
+
+                    })
+
+                )
+
+                :
+
+            [];
+
+
+        console.log(
+
+            "GLOBAL INPUT DATA - SAVING BANKS:",
+
+            Data.savingBanks
+
+        );
+
+    }
+
+    catch(error){
+
+        Data.savingBanks = [];
+
+        console.error(
+
+            "GLOBAL INPUT DATA ERROR - SAVING BANKS:",
+
+            error
+
+        );
+
+    }
+
+}
+
 
 /* =====================================================
    GET DATA
@@ -303,6 +426,16 @@ export function getFinancialActivity(){
     return [
 
         ...Data.financialActivity
+
+    ];
+
+}
+
+export function getSavingBanks(){
+
+    return [
+
+        ...Data.savingBanks
 
     ];
 
