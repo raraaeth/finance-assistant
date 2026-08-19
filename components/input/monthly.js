@@ -574,7 +574,13 @@ function getConditionOptions(){
 
             note :
 
-                "Masukkan keterlambatan dalam menit (5–60 menit)."
+                "Masukkan keterlambatan dalam menit (5–60 menit).",
+           
+           display :
+
+            value =>
+
+                `${value} menit`
 
         });
 
@@ -607,7 +613,13 @@ function getConditionOptions(){
 
             note :
 
-                "Untuk keterlambatan lebih dari 1 jam. Masukkan jumlah jam."
+                "Untuk keterlambatan lebih dari 1 jam. Masukkan jumlah jam.",
+
+           display :
+
+            value =>
+
+                `${value} jam`
 
         });
 
@@ -640,7 +652,13 @@ function getConditionOptions(){
 
             note :
 
-                "Masukkan waktu izin pulang dalam jam."
+                "Masukkan waktu izin pulang dalam jam.",
+
+           display :
+
+            value =>
+
+                `${value} jam`
 
         });
 
@@ -673,7 +691,13 @@ function getConditionOptions(){
 
             note :
 
-                "Masukkan jumlah jam lembur."
+                "Masukkan jumlah jam lembur.",
+
+           display :
+
+            value =>
+
+                `${value} jam`
 
         });
 
