@@ -38,15 +38,6 @@ import {
 } from "./data.js";
 
 /* =====================================================
-   CONSTANT
-===================================================== */
-
-const rules =
-
-    getPayrollDailyRules();
-
-
-/* =====================================================
    NORMALIZE VALUE
 ===================================================== */
 
@@ -79,22 +70,24 @@ export function getWorkRules(
 
 ){
 
-    if(
+    const source =
 
-        !Array.isArray(
+        Array.isArray(
 
             rules
 
         )
 
-    ){
+            ?
 
-        return [];
+        rules
 
-    }
+            :
+
+        getPayrollDailyRules();
 
 
-    return rules.filter(
+    return source.filter(
 
         rule =>
 
@@ -102,7 +95,7 @@ export function getWorkRules(
 
             rule.type_rule ===
 
-                RULE_TYPE
+                "rule_work"
 
     );
 
