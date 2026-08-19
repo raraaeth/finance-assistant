@@ -2128,12 +2128,6 @@ export const MonthlySetting = {
 
                 }
 
-        }
-
-    ]
-
-};
-
         },
 
 
