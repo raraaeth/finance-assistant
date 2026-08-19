@@ -3,7 +3,7 @@
    Component    : Global Input
    Workspace    : Payroll Monthly
    File         : monthly.js
-   Version      : 1.0.2
+   Version      : 1.1.0
 
    Description :
    Global Input Configuration
@@ -21,14 +21,32 @@
    izin_pulang
    lembur_jam
 
+   Flow :
+   Tanggal
+       ↓
+   Status
+       ↓
+   Shift (jika rule_shift tersedia)
+       ↓
+   Tambahkan Kondisi
+       ↓
+   Pilih kondisi yang diperlukan
+       ↓
+   Isi nilai kondisi
+       ↓
+   Tambahkan
+
    Principle :
-   - Status mengikuti rule payroll monthly
-   - Shift bersifat optional
-   - Shift hanya muncul jika rule_shift tersedia
-   - Telat bersifat optional dan dihitung dalam menit
-   - Izin Telat bersifat optional dan dihitung dalam jam
-   - Izin Pulang bersifat optional dan dihitung dalam jam
-   - Lembur Jam bersifat optional dan dihitung dalam jam
+   - Tanggal sudah disediakan oleh Global Input
+   - Status wajib
+   - Shift optional
+   - Kondisi tambahan semuanya optional
+   - User tidak dipaksa mengisi kondisi
+   - Kondisi hanya aktif jika dicentang
+   - Telat menggunakan menit
+   - Izin Telat menggunakan jam
+   - Izin Pulang menggunakan jam
+   - Lembur menggunakan jam
    - Status lembur = lembur harian
 ===================================================== */
 
@@ -174,7 +192,7 @@ function hasRuleName(
 
 
 /* =====================================================
-   PARSE STRING LIST
+   PARSE LIST
 ===================================================== */
 
 function parseList(
@@ -258,6 +276,23 @@ function formatLabel(
 
 /* =====================================================
    STATUS OPTIONS
+=====================================================
+
+   Status normal berasal dari rule_masuk.
+
+   Contoh :
+
+   masuk
+   sakit
+   cuti
+   absen
+
+   Status lembur berasal dari :
+
+   rule_tambah
+   nama    = lembur
+   kondisi = lembur_harian
+   waktu   = harian
 ===================================================== */
 
 function getStatusOptions(){
@@ -266,14 +301,7 @@ function getStatusOptions(){
 
 
     /* =================================================
-       STATUS DARI RULE MASUK
-
-       Contoh :
-
-       masuk
-       sakit
-       cuti
-       absen
+       RULE MASUK
     ================================================= */
 
     getRules()
@@ -354,14 +382,7 @@ function getStatusOptions(){
 
 
     /* =================================================
-       STATUS LEMBUR
-
-       Lembur harian berasal dari rule :
-
-       type_rule = rule_tambah
-       nama      = lembur
-       kondisi   = lembur_harian
-       waktu     = harian
+       LEMBUR HARIAN
     ================================================= */
 
     const lemburRule =
@@ -437,6 +458,15 @@ function getStatusOptions(){
 
 /* =====================================================
    SHIFT OPTIONS
+=====================================================
+
+   Shift hanya tersedia jika rule_shift ada.
+
+   Contoh :
+
+   rule_shift.waktu
+
+   "pagi,siang,malam"
 ===================================================== */
 
 function getShiftOptions(){
@@ -449,12 +479,6 @@ function getShiftOptions(){
 
         );
 
-
-    /* =================================================
-       TIDAK ADA RULE SHIFT
-
-       Maka pilihan shift tidak tersedia.
-    ================================================= */
 
     if(
 
@@ -497,7 +521,323 @@ function getShiftOptions(){
 
 
 /* =====================================================
-   MONTHLY INPUT CONFIG
+   CONDITION OPTIONS
+=====================================================
+
+   Ini adalah daftar kondisi tambahan yang nantinya
+   akan ditampilkan sebagai pilihan checkbox.
+
+   Ketersediaan setiap kondisi tetap mengikuti rule.
+
+   Telat
+       → rule_telat
+
+   Izin Telat
+       → rule_izin dengan nama izin_telat
+         atau rule_telat dengan nama izin_telat
+
+   Izin Pulang
+       → rule_izin dengan nama izin_pulang
+
+   Lembur
+       → rule_lembur_jam
+===================================================== */
+
+function getConditionOptions(){
+
+    const options = [];
+
+
+    /* =================================================
+       TELAT
+    ================================================= */
+
+    if(
+
+        hasRuleName(
+
+            "telat"
+
+        )
+
+    ){
+
+        options.push({
+
+            value :
+
+                "telat",
+
+            label :
+
+                "Telat",
+
+            note :
+
+                "Masukkan keterlambatan dalam menit (5–60 menit)."
+
+        });
+
+    }
+
+
+    /* =================================================
+       IZIN TELAT
+    ================================================= */
+
+    if(
+
+        hasRuleName(
+
+            "izin_telat"
+
+        )
+
+    ){
+
+        options.push({
+
+            value :
+
+                "izin_telat",
+
+            label :
+
+                "Izin Telat",
+
+            note :
+
+                "Untuk keterlambatan lebih dari 1 jam. Masukkan jumlah jam."
+
+        });
+
+    }
+
+
+    /* =================================================
+       IZIN PULANG
+    ================================================= */
+
+    if(
+
+        hasRuleName(
+
+            "izin_pulang"
+
+        )
+
+    ){
+
+        options.push({
+
+            value :
+
+                "izin_pulang",
+
+            label :
+
+                "Izin Pulang",
+
+            note :
+
+                "Masukkan waktu izin pulang dalam jam."
+
+        });
+
+    }
+
+
+    /* =================================================
+       LEMBUR JAM
+    ================================================= */
+
+    if(
+
+        hasRuleName(
+
+            "lembur_jam"
+
+        )
+
+    ){
+
+        options.push({
+
+            value :
+
+                "lembur_jam",
+
+            label :
+
+                "Lembur",
+
+            note :
+
+                "Masukkan jumlah jam lembur."
+
+        });
+
+    }
+
+
+    return options;
+
+}
+
+
+/* =====================================================
+   CONDITION CONFIG
+=====================================================
+
+   Konfigurasi masing-masing kondisi.
+
+   Dipisahkan agar nanti field.js dapat menggunakan
+   konfigurasi ini tanpa mengubah struktur output
+   Attendance.
+===================================================== */
+
+const CONDITION_CONFIG = {
+
+    telat : {
+
+        id :
+
+            "telat",
+
+        label :
+
+            "Telat",
+
+        type :
+
+            "number",
+
+        placeholder :
+
+            "Contoh: 15",
+
+        min :
+
+            5,
+
+        max :
+
+            60,
+
+        step :
+
+            1,
+
+        note :
+
+            "Masukkan keterlambatan dalam menit (5–60 menit)."
+
+    },
+
+
+    izin_telat : {
+
+        id :
+
+            "izin_telat",
+
+        label :
+
+            "Izin Telat",
+
+        type :
+
+            "number",
+
+        placeholder :
+
+            "Contoh: 2",
+
+        min :
+
+            1,
+
+        step :
+
+            1,
+
+        note :
+
+            "Jika keterlambatan lebih dari 1 jam, masukkan jumlah jam."
+
+    },
+
+
+    izin_pulang : {
+
+        id :
+
+            "izin_pulang",
+
+        label :
+
+            "Izin Pulang",
+
+        type :
+
+            "number",
+
+        placeholder :
+
+            "Contoh: 2",
+
+        min :
+
+            1,
+
+        step :
+
+            1,
+
+        note :
+
+            "Masukkan waktu izin pulang dalam jam."
+
+    },
+
+
+    lembur_jam : {
+
+        id :
+
+            "lembur_jam",
+
+        label :
+
+            "Lembur",
+
+        type :
+
+            "number",
+
+        placeholder :
+
+            "Contoh: 2",
+
+        min :
+
+            1,
+
+        step :
+
+            1,
+
+        note :
+
+            "Masukkan jumlah jam lembur."
+
+    }
+
+};
+
+
+/* =====================================================
+   PAYROLL MONTHLY CONFIG
 ===================================================== */
 
 export const Monthly = {
@@ -515,49 +855,11 @@ export const Monthly = {
     steps : [
 
         /* =================================================
-           DATE
-        ================================================= */
-
-        {
-
-            id :
-
-                "date",
-
-            label :
-
-                "Tanggal",
-
-            type :
-
-                "date",
-
-            required :
-
-                true
-
-        },
-
-
-        /* =================================================
            STATUS
-        =================================================
-
-           Status berasal dari :
-
-           rule_masuk
-               masuk
-               sakit
-               cuti
-               absen
-
-           dan :
-
-           rule_tambah
-               lembur_harian
-
-           Jika rule lembur harian tersedia,
-           status "lembur" tersedia.
+           
+           Tanggal TIDAK dibuat di sini.
+           
+           Global Input sudah menyediakan tanggal.
         ================================================= */
 
         {
@@ -593,17 +895,10 @@ export const Monthly = {
 
         /* =================================================
            SHIFT
-        =================================================
-
+           
            OPTIONAL.
 
-           Shift hanya tersedia jika :
-
-           type_rule = rule_shift
-
-           Contoh :
-
-           pagi,siang,malam
+           Hanya muncul jika rule_shift tersedia.
         ================================================= */
 
         {
@@ -668,25 +963,82 @@ export const Monthly = {
 
 
         /* =================================================
+           TAMBAHKAN KONDISI
+           
+           Field ini menjadi titik masuk kondisi
+           tambahan.
+
+           Nantinya field.js akan menggunakan
+           conditionOptions untuk menampilkan checkbox.
+        ================================================= */
+
+        {
+
+            id :
+
+                "conditions",
+
+            label :
+
+                "Tambahkan Kondisi",
+
+            type :
+
+                "condition",
+
+            required :
+
+                false,
+
+            showWhen :
+
+                values =>
+
+                    (
+
+                        values.status ===
+
+                            "masuk"
+
+                        ||
+
+                        values.status ===
+
+                            "lembur"
+
+                    ),
+
+            options :
+
+                () =>
+
+                    getConditionOptions(),
+
+            conditionOptions :
+
+                () =>
+
+                    getConditionOptions(),
+
+            placeholder :
+
+                "Tambahkan",
+
+            note :
+
+                "Pilih kondisi yang terjadi pada hari ini. Semua kondisi bersifat opsional."
+
+        },
+
+
+        /* =================================================
            TELAT
-        =================================================
+           
+           KONDISI :
 
-           OPTIONAL.
-
-           Satuan :
-
-           MENIT
-
-           Contoh :
-
-           5
-           10
-           15
-           30
-           60
-
-           Digunakan untuk keterlambatan
-           sampai dengan 60 menit.
+           conditions.includes("telat")
+           
+           Field tetap optional.
         ================================================= */
 
         {
@@ -727,13 +1079,15 @@ export const Monthly = {
 
                 values =>
 
-                    values.status ===
+                    Array.isArray(
 
-                        "masuk"
+                        values.conditions
+
+                    )
 
                     &&
 
-                    hasRuleName(
+                    values.conditions.includes(
 
                         "telat"
 
@@ -741,23 +1095,17 @@ export const Monthly = {
 
             note :
 
-                "Opsional. Masukkan keterlambatan dalam menit (5–60 menit)."
+                "Masukkan keterlambatan dalam menit (5–60 menit)."
 
         },
 
 
         /* =================================================
            IZIN TELAT
-        =================================================
+           
+           KONDISI :
 
-           OPTIONAL.
-
-           Satuan :
-
-           JAM
-
-           Digunakan untuk keterlambatan
-           di atas 1 jam.
+           conditions.includes("izin_telat")
         ================================================= */
 
         {
@@ -794,13 +1142,15 @@ export const Monthly = {
 
                 values =>
 
-                    values.status ===
+                    Array.isArray(
 
-                        "masuk"
+                        values.conditions
+
+                    )
 
                     &&
 
-                    hasRuleName(
+                    values.conditions.includes(
 
                         "izin_telat"
 
@@ -808,20 +1158,17 @@ export const Monthly = {
 
             note :
 
-                "Opsional. Jika keterlambatan lebih dari 1 jam, masukkan jumlah jam."
+                "Jika keterlambatan lebih dari 1 jam, masukkan jumlah jam."
 
         },
 
 
         /* =================================================
            IZIN PULANG
-        =================================================
+           
+           KONDISI :
 
-           OPTIONAL.
-
-           Satuan :
-
-           JAM
+           conditions.includes("izin_pulang")
         ================================================= */
 
         {
@@ -858,13 +1205,15 @@ export const Monthly = {
 
                 values =>
 
-                    values.status ===
+                    Array.isArray(
 
-                        "masuk"
+                        values.conditions
+
+                    )
 
                     &&
 
-                    hasRuleName(
+                    values.conditions.includes(
 
                         "izin_pulang"
 
@@ -872,28 +1221,17 @@ export const Monthly = {
 
             note :
 
-                "Opsional. Masukkan waktu izin pulang dalam jam."
+                "Masukkan waktu izin pulang dalam jam."
 
         },
 
 
         /* =================================================
            LEMBUR JAM
-        =================================================
+           
+           KONDISI :
 
-           OPTIONAL.
-
-           Ini berbeda dengan :
-
-           status = lembur
-
-           Status lembur :
-
-               lembur harian
-
-           Sedangkan field ini :
-
-               lembur berdasarkan jumlah jam.
+           conditions.includes("lembur_jam")
         ================================================= */
 
         {
@@ -904,7 +1242,7 @@ export const Monthly = {
 
             label :
 
-                "Lembur Jam",
+                "Lembur",
 
             type :
 
@@ -930,23 +1268,15 @@ export const Monthly = {
 
                 values =>
 
-                    (
+                    Array.isArray(
 
-                        values.status ===
-
-                            "masuk"
-
-                        ||
-
-                        values.status ===
-
-                            "lembur"
+                        values.conditions
 
                     )
 
                     &&
 
-                    hasRuleName(
+                    values.conditions.includes(
 
                         "lembur_jam"
 
@@ -954,24 +1284,36 @@ export const Monthly = {
 
             note :
 
-                "Opsional. Masukkan jumlah jam lembur."
+                "Masukkan jumlah jam lembur."
 
         }
 
-    ]
+    ],
+
+
+    /* =================================================
+       CONDITION CONFIG
+       
+       Disediakan sebagai metadata global untuk
+       renderer/controller jika diperlukan.
+    ================================================= */
+
+    conditionOptions :
+
+        () =>
+
+            getConditionOptions(),
+
+
+    conditionFields :
+
+        CONDITION_CONFIG
 
 };
 
 
 /* =====================================================
    BACKWARD COMPATIBILITY
-=====================================================
-
-   Jika ada file lama yang masih menggunakan :
-
-       MonthlyInput
-
-   tetap akan bekerja.
 ===================================================== */
 
 export const MonthlyInput =
