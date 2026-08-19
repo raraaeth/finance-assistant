@@ -2133,3 +2133,137 @@ export const MonthlySetting = {
     ]
 
 };
+
+        },
+
+
+        /* =================================================
+           PENGATURAN RULE SHIFT
+           
+           Menentukan apakah Payroll Monthly
+           menggunakan Rule Shift atau tidak.
+           
+           Jika aktif :
+           - Rule Shift akan dibuat oleh Controller.
+           - Global Input akan menyediakan input Shift.
+           
+           Jika tidak aktif :
+           - Rule Shift tidak dibuat.
+           - Global Input tidak menyediakan input Shift.
+        ================================================= */
+
+        {
+
+            id :
+
+                "monthly_rules",
+
+
+            title :
+
+                "⚙️ Penentuan Rule",
+
+
+            description :
+
+                "Tentukan rule tambahan Payroll Monthly yang akan digunakan.",
+
+
+            addLabel :
+
+                "＋ Simpan Rule",
+
+
+            formAddLabel :
+
+                "＋ Simpan Rule",
+
+
+            deleteLabel :
+
+                "Hapus",
+
+
+            uniqueFields : [
+
+                "gunakanRuleShift"
+
+            ],
+
+
+            autoCloseForm :
+
+                true,
+
+
+            fields : [
+
+                {
+
+                    name :
+
+                        "gunakanRuleShift",
+
+
+                    label :
+
+                        "Gunakan Rule Shift",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    value :
+
+                        false,
+
+
+                    required :
+
+                        false,
+
+
+                    note :
+
+                        "Opsional. Aktifkan jika Payroll Monthly menggunakan shift kerja. Dengan mengaktifkan fitur ini, akan menambah input keterangan soal shift pada pencatatan attendance."
+
+                }
+
+            ],
+
+
+            normalize :
+
+                function(
+
+                    data
+
+                ){
+
+                    return {
+
+                        type :
+
+                            "payroll_monthly",
+
+
+                        gunakanRuleShift :
+
+                            Boolean(
+
+                                data.gunakanRuleShift
+
+                            )
+
+                    };
+
+                }
+
+        }
+
+    ]
+
+};
+
