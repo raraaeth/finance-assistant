@@ -351,10 +351,10 @@ function getFieldLabel(
 
 
     /* =============================================
-       FUNCTION LABEL
+       DYNAMIC LABEL
 
        Label dapat berupa function yang menerima
-       State.values untuk label dinamis.
+       State.values.
     ============================================= */
 
     if(
@@ -1466,6 +1466,7 @@ function openCustomPicker(
 
 }
 
+
 /* =====================================================
    SELECT CUSTOM OPTION
 ===================================================== */
@@ -1491,18 +1492,16 @@ function selectCustomOption(
 ){
 
     /* =================================================
-       SET VALUE
+       SAVE VALUE
     ================================================= */
 
     hidden.value =
 
-        value ??
-
-        "";
+        value;
 
 
     /* =================================================
-       DISPLAY VALUE
+       UPDATE DISPLAY
     ================================================= */
 
     const valueElement =
@@ -1522,79 +1521,141 @@ function selectCustomOption(
 
         valueElement.textContent =
 
-            label ??
-
-            value ??
-
-            "Pilih...";
+            label;
 
     }
 
 
     /* =================================================
-       SELECT STATE
+       STATE
     ================================================= */
 
-    if(
+    button.classList.add(
 
-        hidden.value !== ""
+        "has-value"
 
-    ){
-
-        button.classList.add(
-
-            "has-value"
-
-        );
-
-    }
-
-    else{
-
-        button.classList.remove(
-
-            "has-value"
-
-        );
-
-    }
+    );
 
 
     /* =================================================
-       NOTE
+       UPDATE NOTE
 
-       Prioritas :
+       PRIORITY :
 
        option.note
-           ↓
+       ↓
        field.note
-           ↓
-       kosong
+       ↓
+       empty
+    ================================================= */
+
+    note.textContent =
+
+        getOptionNoteFromOption(
+
+            field,
+
+            option
+
+        );
+
+
+    /* =================================================
+       CLOSE PICKER
+    ================================================= */
+
+    closeCustomPicker();
+
+
+    /* =================================================
+       SUBMIT
+
+       Custom select tetap mengikuti
+       mekanisme flow lama.
+    ================================================= */
+
+    submitValue(
+
+        field,
+
+        value,
+
+        onComplete
+
+    );
+
+}
+
+
+/* =====================================================
+   SUBMIT FIELD
+===================================================== */
+
+function submitField(
+
+    field,
+
+    element,
+
+    onComplete
+
+){
+
+    const value =
+
+        String(
+
+            element.value ??
+
+            ""
+
+        ).trim();
+
+
+    submitValue(
+
+        field,
+
+        value,
+
+        onComplete
+
+    );
+
+}
+
+
+/* =====================================================
+   SUBMIT VALUE
+===================================================== */
+
+function submitValue(
+
+    field,
+
+    value,
+
+    onComplete
+
+){
+
+    /* =================================================
+       VALIDATION
     ================================================= */
 
     if(
 
-        note
+        !value
 
     ){
 
-        note.textContent =
-
-            getOptionNote(
-
-                field,
-
-                value,
-
-                option
-
-            );
+        return;
 
     }
 
 
     /* =================================================
-       UPDATE STATE
+       SAVE VALUE
     ================================================= */
 
     State.values[
@@ -1607,14 +1668,7 @@ function selectCustomOption(
 
 
     /* =================================================
-       CLOSE PICKER
-    ================================================= */
-
-    closeCustomPicker();
-
-
-    /* =================================================
-       COMPLETE FIELD
+       CALLBACK
     ================================================= */
 
     if(
@@ -1648,19 +1702,14 @@ function getOptions(
 
 ){
 
-    if(
-
-        !field
-
-    ){
-
-        return [];
-
-    }
-
-
     /* =================================================
        FUNCTION OPTIONS
+
+       Contoh Kas :
+
+       options : values =>
+
+           CATEGORY[values.type] ?? []
     ================================================= */
 
     if(
@@ -1671,37 +1720,19 @@ function getOptions(
 
     ){
 
-        try{
+        return (
 
-            return (
+            field.options(
 
-                field.options(
+                State.values
 
-                    State.values
+            )
 
-                )
+            ??
 
-                ??
+            []
 
-                []
-
-            );
-
-        }
-
-        catch(error){
-
-            console.warn(
-
-                "Field options error:",
-
-                error
-
-            );
-
-            return [];
-
-        }
+        );
 
     }
 
@@ -1710,26 +1741,15 @@ function getOptions(
        STATIC OPTIONS
     ================================================= */
 
-    if(
+    return (
 
-        Array.isArray(
+        field.options
 
-            field.options
+        ??
 
-        )
+        []
 
-    ){
-
-        return [
-
-            ...field.options
-
-        ];
-
-    }
-
-
-    return [];
+    );
 
 }
 
@@ -1746,6 +1766,39 @@ function getOptionLabel(
 
 ){
 
+    if(
+
+        value ===
+
+        undefined
+
+        ||
+
+        value ===
+
+        null
+
+        ||
+
+        value ===
+
+        ""
+
+    ){
+
+        return (
+
+            field.placeholder
+
+            ??
+
+            "Pilih..."
+
+        );
+
+    }
+
+
     const options =
 
         getOptions(
@@ -1753,6 +1806,25 @@ function getOptionLabel(
             field
 
         );
+
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        return String(
+
+            value
+
+        );
+
+    }
 
 
     const option =
@@ -1776,17 +1848,21 @@ function getOptionLabel(
                     item;
 
 
-                return String(
+                return (
 
-                    optionValue
+                    String(
 
-                )
+                        optionValue
 
-                ===
+                    )
 
-                String(
+                    ===
 
-                    value
+                    String(
+
+                        value
+
+                    )
 
                 );
 
@@ -1797,23 +1873,13 @@ function getOptionLabel(
 
     if(
 
-        option &&
+        option ===
 
-        typeof option ===
-
-            "object"
+        undefined
 
     ){
 
         return String(
-
-            option.label
-
-            ??
-
-            option.value
-
-            ??
 
             value
 
@@ -1822,15 +1888,19 @@ function getOptionLabel(
     }
 
 
-    return String(
+    return typeof option ===
 
-        value
+        "object"
 
-        ??
+            ?
 
-        ""
+        option.label ??
 
-    );
+        option.value
+
+            :
+
+        option;
 
 }
 
@@ -1843,56 +1913,42 @@ function getOptionNote(
 
     field,
 
-    value,
-
-    selectedOption
+    value
 
 ){
 
-    /* =================================================
-       OPTION NOTE
-
-       Prioritas tertinggi.
-    ================================================= */
-
     if(
 
-        selectedOption &&
+        value ===
 
-        typeof selectedOption ===
+        undefined
 
-            "object" &&
+        ||
 
-        selectedOption.note !==
+        value ===
 
-            undefined &&
+        null
 
-        selectedOption.note !==
+        ||
 
-            null &&
+        value ===
 
-        String(
-
-            selectedOption.note
-
-        ).trim() !== ""
+        ""
 
     ){
 
-        return String(
+        return (
 
-            selectedOption.note
+            field.note
+
+            ??
+
+            ""
 
         );
 
     }
 
-
-    /* =================================================
-       CARI OPTION BERDASARKAN VALUE
-
-       Dibutuhkan saat initial render / reset.
-    ================================================= */
 
     const options =
 
@@ -1901,6 +1957,29 @@ function getOptionNote(
             field
 
         );
+
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        return (
+
+            field.note
+
+            ??
+
+            ""
+
+        );
+
+    }
 
 
     const option =
@@ -1924,17 +2003,21 @@ function getOptionNote(
                     item;
 
 
-                return String(
+                return (
 
-                    optionValue
+                    String(
 
-                )
+                        optionValue
 
-                ===
+                    )
 
-                String(
+                    ===
 
-                    value
+                    String(
+
+                        value
+
+                    )
 
                 );
 
@@ -1942,6 +2025,29 @@ function getOptionNote(
 
         );
 
+
+    return getOptionNoteFromOption(
+
+        field,
+
+        option
+
+    );
+
+}
+
+
+/* =====================================================
+   GET OPTION NOTE FROM OPTION
+===================================================== */
+
+function getOptionNoteFromOption(
+
+    field,
+
+    option
+
+){
 
     /* =================================================
        OPTION NOTE
@@ -1953,247 +2059,32 @@ function getOptionNote(
 
         typeof option ===
 
-            "object" &&
+        "object"
 
-        option.note !==
+        &&
 
-            undefined &&
-
-        option.note !==
-
-            null &&
-
-        String(
-
-            option.note
-
-        ).trim() !== ""
+        option.note
 
     ){
 
-        return String(
-
-            option.note
-
-        );
+        return option.note;
 
     }
 
 
     /* =================================================
        FIELD NOTE
-
-       Fallback apabila option tidak memiliki note.
     ================================================= */
 
-    if(
+    return (
 
-        field &&
+        field.note
 
-        field.note !==
+        ??
 
-            undefined &&
-
-        field.note !==
-
-            null
-
-    ){
-
-        return String(
-
-            field.note
-
-        );
-
-    }
-
-
-    return "";
-
-}
-
-
-/* =====================================================
-   SUBMIT FIELD
-===================================================== */
-
-function submitField(
-
-    field,
-
-    element,
-
-    onComplete
-
-){
-
-    if(
-
-        !field ||
-
-        !element
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =================================================
-       VALUE
-    ================================================= */
-
-    const value =
-
-        element.value;
-
-
-    /* =================================================
-       REQUIRED
-    ================================================= */
-
-    if(
-
-        field.required &&
-
-        String(
-
-            value
-
-        ).trim() === ""
-
-    ){
-
-        element.classList.add(
-
-            "is-invalid"
-
-        );
-
-
-        return;
-
-    }
-
-
-    element.classList.remove(
-
-        "is-invalid"
+        ""
 
     );
-
-
-    /* =================================================
-       STATE
-    ================================================= */
-
-    State.values[
-
-        field.id
-
-    ] =
-
-        normalizeFieldValue(
-
-            field,
-
-            value
-
-        );
-
-
-    /* =================================================
-       COMPLETE
-    ================================================= */
-
-    if(
-
-        typeof onComplete ===
-
-            "function"
-
-    ){
-
-        onComplete(
-
-            field,
-
-            State.values[
-
-                field.id
-
-            ]
-
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   NORMALIZE FIELD VALUE
-===================================================== */
-
-function normalizeFieldValue(
-
-    field,
-
-    value
-
-){
-
-    /* =================================================
-       NUMBER
-    ================================================= */
-
-    if(
-
-        field.type ===
-
-        "number"
-
-    ){
-
-        if(
-
-            String(
-
-                value
-
-            ).trim() === ""
-
-        ){
-
-            return "";
-
-        }
-
-
-        return String(
-
-            value
-
-        )
-
-        .replace(
-
-            /[^0-9.-]/g,
-
-            ""
-
-        );
-
-    }
-
-
-    /* =================================================
-       DEFAULT
-    ================================================= */
-
-    return value;
 
 }
 
@@ -2253,436 +2144,13 @@ function closeCustomPicker(){
 
 }
 
-
 /* =====================================================
-   RESET FIELD
+   GET OPTION LABEL
 ===================================================== */
 
-export function resetField(
+function getOptionLabel(
 
     field,
-
-    wrapper
-
-){
-
-    if(
-
-        !field ||
-
-        !wrapper
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =================================================
-       STATE
-    ================================================= */
-
-    if(
-
-        State.values
-
-    ){
-
-        delete State.values[
-
-            field.id
-
-        ];
-
-    }
-
-
-    /* =================================================
-       NORMAL INPUT
-    ================================================= */
-
-    const input =
-
-        wrapper.querySelector(
-
-            `[data-field="${field.id}"]`
-
-        );
-
-
-    if(
-
-        input &&
-
-        input.tagName !==
-
-            "BUTTON"
-
-    ){
-
-        if(
-
-            input.type ===
-
-                "hidden"
-
-        ){
-
-            input.value =
-
-                "";
-
-        }
-
-        else{
-
-            input.value =
-
-                "";
-
-        }
-
-    }
-
-
-    /* =================================================
-       CUSTOM SELECT
-    ================================================= */
-
-    const customSelect =
-
-        wrapper.querySelector(
-
-            ".global-input-custom-select"
-
-        );
-
-
-    if(
-
-        customSelect
-
-    ){
-
-        const valueElement =
-
-            customSelect.querySelector(
-
-                ".global-input-custom-value"
-
-            );
-
-
-        if(
-
-            valueElement
-
-        ){
-
-            valueElement.textContent =
-
-                field.placeholder ??
-
-                "Pilih...";
-
-        }
-
-
-        customSelect.classList.remove(
-
-            "has-value"
-
-        );
-
-    }
-
-
-    /* =================================================
-       NOTE RESET
-
-       Setelah reset, kembali ke field.note.
-       Bukan note option sebelumnya.
-    ================================================= */
-
-    const note =
-
-        wrapper.querySelector(
-
-            ".global-input-field-note"
-
-        );
-
-
-    if(
-
-        note
-
-    ){
-
-        note.textContent =
-
-            field.note ??
-
-            "";
-
-    }
-
-}
-
-
-/* =====================================================
-   UPDATE FIELD
-===================================================== */
-
-export function updateField(
-
-    field,
-
-    wrapper
-
-){
-
-    if(
-
-        !field ||
-
-        !wrapper
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =================================================
-       LABEL
-    ================================================= */
-
-    const label =
-
-        wrapper.querySelector(
-
-            "label"
-
-        );
-
-
-    if(
-
-        label
-
-    ){
-
-        label.textContent =
-
-            getFieldLabel(
-
-                field
-
-            );
-
-    }
-
-
-    /* =================================================
-       CUSTOM SELECT
-    ================================================= */
-
-    if(
-
-        field.type ===
-
-        "select"
-
-    ){
-
-        updateCustomSelect(
-
-            field,
-
-            wrapper
-
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   UPDATE CUSTOM SELECT
-===================================================== */
-
-function updateCustomSelect(
-
-    field,
-
-    wrapper
-
-){
-
-    const button =
-
-        wrapper.querySelector(
-
-            ".global-input-custom-select"
-
-        );
-
-
-    const hidden =
-
-        wrapper.querySelector(
-
-            `input[type="hidden"][data-field="${field.id}"]`
-
-        );
-
-
-    const note =
-
-        wrapper.querySelector(
-
-            ".global-input-field-note"
-
-        );
-
-
-    if(
-
-        !button ||
-
-        !hidden
-
-    ){
-
-        return;
-
-    }
-
-
-    const value =
-
-        State.values?.[
-
-            field.id
-
-        ]
-
-        ??
-
-        hidden.value
-
-        ??
-
-        "";
-
-
-    hidden.value =
-
-        value;
-
-
-    const valueElement =
-
-        button.querySelector(
-
-            ".global-input-custom-value"
-
-        );
-
-
-    if(
-
-        valueElement
-
-    ){
-
-        valueElement.textContent =
-
-            value !== ""
-
-                ?
-
-            getOptionLabel(
-
-                field,
-
-                value
-
-            )
-
-                :
-
-            field.placeholder ??
-
-            "Pilih...";
-
-    }
-
-
-    if(
-
-        value !== ""
-
-    ){
-
-        button.classList.add(
-
-            "has-value"
-
-        );
-
-    }
-
-    else{
-
-        button.classList.remove(
-
-            "has-value"
-
-        );
-
-    }
-
-
-    /* =================================================
-       NOTE
-
-       option.note → field.note
-    ================================================= */
-
-    if(
-
-        note
-
-    ){
-
-        note.textContent =
-
-            getOptionNote(
-
-                field,
-
-                value
-
-            );
-
-    }
-
-}
-
-/* =====================================================
-   SET FIELD VALUE
-===================================================== */
-
-export function setFieldValue(
-
-    field,
-
-    wrapper,
 
     value
 
@@ -2690,358 +2158,35 @@ export function setFieldValue(
 
     if(
 
-        !field ||
+        value ===
 
-        !wrapper
+        undefined
 
-    ){
+        ||
 
-        return;
+        value ===
 
-    }
+        null
 
+        ||
 
-    /* =================================================
-       STATE
-    ================================================= */
-
-    State.values[
-
-        field.id
-
-    ] =
-
-        value;
-
-
-    /* =================================================
-       NORMAL INPUT
-    ================================================= */
-
-    if(
-
-        field.type !==
-
-        "select"
-
-    ){
-
-        const input =
-
-            wrapper.querySelector(
-
-                `[data-field="${field.id}"]`
-
-            );
-
-
-        if(
-
-            input
-
-        ){
-
-            input.value =
-
-                value
-
-                ??
-
-                "";
-
-        }
-
-
-        return;
-
-    }
-
-
-    /* =================================================
-       CUSTOM SELECT
-    ================================================= */
-
-    const hidden =
-
-        wrapper.querySelector(
-
-            `input[type="hidden"][data-field="${field.id}"]`
-
-        );
-
-
-    const button =
-
-        wrapper.querySelector(
-
-            ".global-input-custom-select"
-
-        );
-
-
-    const note =
-
-        wrapper.querySelector(
-
-            ".global-input-field-note"
-
-        );
-
-
-    if(
-
-        hidden
-
-    ){
-
-        hidden.value =
-
-            value
-
-            ??
-
-            "";
-
-    }
-
-
-    if(
-
-        button
-
-    ){
-
-        const valueElement =
-
-            button.querySelector(
-
-                ".global-input-custom-value"
-
-            );
-
-
-        if(
-
-            valueElement
-
-        ){
-
-            valueElement.textContent =
-
-                value !== ""
-
-                    ?
-
-                getOptionLabel(
-
-                    field,
-
-                    value
-
-                )
-
-                    :
-
-                field.placeholder ??
-
-                "Pilih...";
-
-        }
-
-
-        if(
-
-            value !== ""
-
-        ){
-
-            button.classList.add(
-
-                "has-value"
-
-            );
-
-        }
-
-        else{
-
-            button.classList.remove(
-
-                "has-value"
-
-            );
-
-        }
-
-    }
-
-
-    /* =================================================
-       NOTE
-    ================================================= */
-
-    if(
-
-        note
-
-    ){
-
-        note.textContent =
-
-            getOptionNote(
-
-                field,
-
-                value
-
-            );
-
-    }
-
-}
-
-
-/* =====================================================
-   CLEAR FIELD VALUE
-===================================================== */
-
-export function clearFieldValue(
-
-    field,
-
-    wrapper
-
-){
-
-    if(
-
-        !field ||
-
-        !wrapper
-
-    ){
-
-        return;
-
-    }
-
-
-    setFieldValue(
-
-        field,
-
-        wrapper,
+        value ===
 
         ""
 
-    );
+    ){
 
+        return (
 
-    /* =================================================
-       RESET NOTE
-    ================================================= */
+            field.placeholder
 
-    const note =
+            ??
 
-        wrapper.querySelector(
-
-            ".global-input-field-note"
+            "Pilih..."
 
         );
 
-
-    if(
-
-        note
-
-    ){
-
-        note.textContent =
-
-            field.note ??
-
-            "";
-
     }
-
-}
-
-
-/* =====================================================
-   REFRESH FIELD OPTIONS
-===================================================== */
-
-export function refreshFieldOptions(
-
-    field,
-
-    wrapper
-
-){
-
-    if(
-
-        !field ||
-
-        !wrapper ||
-
-        field.type !==
-
-        "select"
-
-    ){
-
-        return;
-
-    }
-
-
-    const hidden =
-
-        wrapper.querySelector(
-
-            `input[type="hidden"][data-field="${field.id}"]`
-
-        );
-
-
-    const button =
-
-        wrapper.querySelector(
-
-            ".global-input-custom-select"
-
-        );
-
-
-    if(
-
-        !hidden ||
-
-        !button
-
-    ){
-
-        return;
-
-    }
-
-
-    const currentValue =
-
-        State.values?.[
-
-            field.id
-
-        ]
-
-        ??
-
-        hidden.value
-
-        ??
-
-        "";
 
 
     const options =
@@ -3053,38 +2198,61 @@ export function refreshFieldOptions(
         );
 
 
-    const exists =
+    if(
 
-        options.some(
+        !Array.isArray(
 
-            option => {
+            options
+
+        )
+
+    ){
+
+        return String(
+
+            value
+
+        );
+
+    }
+
+
+    const option =
+
+        options.find(
+
+            item => {
 
                 const optionValue =
 
-                    typeof option ===
+                    typeof item ===
 
                     "object"
 
                         ?
 
-                    option.value
+                    item.value
 
                         :
 
-                    option;
+                    item;
 
 
-                return String(
+                return (
 
-                    optionValue
+                    String(
 
-                )
+                        optionValue
 
-                ===
+                    )
 
-                String(
+                    ===
 
-                    currentValue
+                    String(
+
+                        value
+
+                    )
 
                 );
 
@@ -3093,338 +2261,218 @@ export function refreshFieldOptions(
         );
 
 
-    /* =================================================
-       VALUE NO LONGER EXISTS
-    ================================================= */
-
     if(
 
-        currentValue !== "" &&
+        option ===
 
-        !exists
+        undefined
 
     ){
 
-        setFieldValue(
+        return String(
 
-            field,
+            value
 
-            wrapper,
+        );
+
+    }
+
+
+    return typeof option ===
+
+        "object"
+
+            ?
+
+        option.label ??
+
+        option.value
+
+            :
+
+        option;
+
+}
+
+
+/* =====================================================
+   GET OPTION NOTE
+===================================================== */
+
+function getOptionNote(
+
+    field,
+
+    value
+
+){
+
+    if(
+
+        value ===
+
+        undefined
+
+        ||
+
+        value ===
+
+        null
+
+        ||
+
+        value ===
+
+        ""
+
+    ){
+
+        return (
+
+            field.note
+
+            ??
 
             ""
 
         );
 
-
-        return;
-
     }
 
 
-    /* =================================================
-       REFRESH DISPLAY
-    ================================================= */
+    const options =
 
-    updateCustomSelect(
-
-        field,
-
-        wrapper
-
-    );
-
-}
-
-
-/* =====================================================
-   VALIDATE FIELD
-===================================================== */
-
-export function validateField(
-
-    field,
-
-    value
-
-){
-
-    if(
-
-        !field
-
-    ){
-
-        return true;
-
-    }
-
-
-    /* =================================================
-       OPTIONAL FIELD
-    ================================================= */
-
-    if(
-
-        !field.required &&
-
-        String(
-
-            value ??
-
-            ""
-
-        ).trim() === ""
-
-    ){
-
-        return true;
-
-    }
-
-
-    /* =================================================
-       REQUIRED
-    ================================================= */
-
-    if(
-
-        field.required &&
-
-        (
-
-            value ===
-
-                undefined
-
-            ||
-
-            value ===
-
-                null
-
-            ||
-
-            String(
-
-                value
-
-            ).trim() === ""
-
-        )
-
-    ){
-
-        return false;
-
-    }
-
-
-    /* =================================================
-       CUSTOM VALIDATION
-    ================================================= */
-
-    if(
-
-        typeof field.validate ===
-
-            "function"
-
-    ){
-
-        try{
-
-            return Boolean(
-
-                field.validate(
-
-                    value,
-
-                    State.values
-
-                )
-
-            );
-
-        }
-
-        catch(error){
-
-            console.warn(
-
-                "Field validation error:",
-
-                error
-
-            );
-
-            return false;
-
-        }
-
-    }
-
-
-    return true;
-
-}
-
-
-/* =====================================================
-   FIELD NOTE HELPER
-===================================================== */
-
-export function getFieldNote(
-
-    field,
-
-    value
-
-){
-
-    return getOptionNote(
-
-        field,
-
-        value
-
-    );
-
-}
-
-
-/* =====================================================
-   FIELD DISPLAY LABEL
-===================================================== */
-
-export function getResolvedFieldLabel(
-
-    field
-
-){
-
-    return getFieldLabel(
-
-        field
-
-    );
-
-}
-
-
-/* =====================================================
-   FIELD OPTIONS PUBLIC
-===================================================== */
-
-export function getResolvedFieldOptions(
-
-    field
-
-){
-
-    return getOptions(
-
-        field
-
-    );
-
-}
-
-
-/* =====================================================
-   FIELD OPTION NOTE PUBLIC
-===================================================== */
-
-export function getResolvedOptionNote(
-
-    field,
-
-    value
-
-){
-
-    return getOptionNote(
-
-        field,
-
-        value
-
-    );
-
-}
-
-
-/* =====================================================
-   FIELD VALUE PUBLIC
-===================================================== */
-
-export function getFieldValue(
-
-    field
-
-){
-
-    if(
-
-        !field
-
-    ){
-
-        return "";
-
-    }
-
-
-    return State.values?.[
-
-        field.id
-
-    ]
-
-    ??
-
-    "";
-
-}
-
-
-/* =====================================================
-   FIELD HAS VALUE
-===================================================== */
-
-export function fieldHasValue(
-
-    field
-
-){
-
-    const value =
-
-        getFieldValue(
+        getOptions(
 
             field
 
         );
 
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        return (
+
+            field.note
+
+            ??
+
+            ""
+
+        );
+
+    }
+
+
+    const option =
+
+        options.find(
+
+            item => {
+
+                const optionValue =
+
+                    typeof item ===
+
+                    "object"
+
+                        ?
+
+                    item.value
+
+                        :
+
+                    item;
+
+
+                return (
+
+                    String(
+
+                        optionValue
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    )
+
+                );
+
+            }
+
+        );
+
+
+    return getOptionNoteFromOption(
+
+        field,
+
+        option
+
+    );
+
+}
+
+
+/* =====================================================
+   GET OPTION NOTE FROM OPTION
+===================================================== */
+
+function getOptionNoteFromOption(
+
+    field,
+
+    option
+
+){
+
+    /* =================================================
+       OPTION NOTE
+    ================================================= */
+
+    if(
+
+        option &&
+
+        typeof option ===
+
+        "object"
+
+        &&
+
+        option.note
+
+    ){
+
+        return option.note;
+
+    }
+
+
+    /* =================================================
+       FIELD NOTE
+    ================================================= */
 
     return (
 
-        value !==
+        field.note
 
-            undefined
+        ??
 
-        &&
-
-        value !==
-
-            null
-
-        &&
-
-        String(
-
-            value
-
-        ).trim() !== ""
+        ""
 
     );
 
@@ -3432,22 +2480,23 @@ export function fieldHasValue(
 
 
 /* =====================================================
-   REFRESH FIELD LABEL
+   CLOSE CUSTOM PICKER
 ===================================================== */
 
-export function refreshFieldLabel(
+function closeCustomPicker(){
 
-    field,
+    const picker =
 
-    wrapper
+        document.querySelector(
 
-){
+            ".global-input-picker"
+
+        );
+
 
     if(
 
-        !field ||
-
-        !wrapper
+        !picker
 
     ){
 
@@ -3456,448 +2505,31 @@ export function refreshFieldLabel(
     }
 
 
-    const label =
-
-        wrapper.querySelector(
-
-            "label"
-
-        );
-
+    /* =================================================
+       REMOVE ESC HANDLER
+    ================================================= */
 
     if(
 
-        !label
+        picker._escapeHandler
 
     ){
 
-        return;
+        document.removeEventListener(
+
+            "keydown",
+
+            picker._escapeHandler
+
+        );
 
     }
 
 
-    label.textContent =
+    /* =================================================
+       REMOVE
+    ================================================= */
 
-        getFieldLabel(
-
-            field
-
-        );
+    picker.remove();
 
 }
-
-
-/* =====================================================
-   REFRESH FIELD NOTE
-===================================================== */
-
-export function refreshFieldNote(
-
-    field,
-
-    wrapper
-
-){
-
-    if(
-
-        !field ||
-
-        !wrapper
-
-    ){
-
-        return;
-
-    }
-
-
-    const note =
-
-        wrapper.querySelector(
-
-            ".global-input-field-note"
-
-        );
-
-
-    if(
-
-        !note
-
-    ){
-
-        return;
-
-    }
-
-
-    const value =
-
-        getFieldValue(
-
-            field
-
-        );
-
-
-    note.textContent =
-
-        getOptionNote(
-
-            field,
-
-            value
-
-        );
-
-}
-
-
-/* =====================================================
-   REFRESH FIELD UI
-===================================================== */
-
-export function refreshField(
-
-    field,
-
-    wrapper
-
-){
-
-    if(
-
-        !field ||
-
-        !wrapper
-
-    ){
-
-        return;
-
-    }
-
-
-    refreshFieldLabel(
-
-        field,
-
-        wrapper
-
-    );
-
-
-    if(
-
-        field.type ===
-
-        "select"
-
-    ){
-
-        refreshFieldOptions(
-
-            field,
-
-            wrapper
-
-        );
-
-    }
-
-    else{
-
-        const input =
-
-            wrapper.querySelector(
-
-                `[data-field="${field.id}"]`
-
-            );
-
-
-        if(
-
-            input
-
-        ){
-
-            input.value =
-
-                getFieldValue(
-
-                    field
-
-                );
-
-        }
-
-    }
-
-
-    refreshFieldNote(
-
-        field,
-
-        wrapper
-
-    );
-
-}
-
-
-/* =====================================================
-   DESTROY FIELD
-===================================================== */
-
-export function destroyField(
-
-    field,
-
-    wrapper
-
-){
-
-    if(
-
-        !wrapper
-
-    ){
-
-        return;
-
-    }
-
-
-    closeCustomPicker();
-
-
-    if(
-
-        field &&
-
-        State.values
-
-    ){
-
-        delete State.values[
-
-            field.id
-
-        ];
-
-    }
-
-
-    wrapper.remove();
-
-}
-
-
-/* =====================================================
-   FIELD INPUT EVENT
-===================================================== */
-
-export function bindFieldInput(
-
-    field,
-
-    element,
-
-    onComplete
-
-){
-
-    if(
-
-        !field ||
-
-        !element
-
-    ){
-
-        return;
-
-    }
-
-
-    element.addEventListener(
-
-        "input",
-
-        () => {
-
-            State.values[
-
-                field.id
-
-            ] =
-
-                normalizeFieldValue(
-
-                    field,
-
-                    element.value
-
-                );
-
-        }
-
-    );
-
-
-    element.addEventListener(
-
-        "change",
-
-        () => {
-
-            submitField(
-
-                field,
-
-                element,
-
-                onComplete
-
-            );
-
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   FIELD COMPLETE
-===================================================== */
-
-export function completeField(
-
-    field,
-
-    value,
-
-    onComplete
-
-){
-
-    if(
-
-        !field
-
-    ){
-
-        return;
-
-    }
-
-
-    const normalizedValue =
-
-        normalizeFieldValue(
-
-            field,
-
-            value
-
-        );
-
-
-    if(
-
-        !validateField(
-
-            field,
-
-            normalizedValue
-
-        )
-
-    ){
-
-        return false;
-
-    }
-
-
-    State.values[
-
-        field.id
-
-    ] =
-
-        normalizedValue;
-
-
-    if(
-
-        typeof onComplete ===
-
-            "function"
-
-    ){
-
-        onComplete(
-
-            field,
-
-            normalizedValue
-
-        );
-
-    }
-
-
-    return true;
-
-}
-
-
-/* =====================================================
-   EXPORT DEFAULT
-===================================================== */
-
-export default {
-
-    renderField,
-
-    resetField,
-
-    updateField,
-
-    setFieldValue,
-
-    clearFieldValue,
-
-    refreshFieldOptions,
-
-    refreshField,
-
-    validateField,
-
-    getFieldNote,
-
-    getResolvedFieldLabel,
-
-    getResolvedFieldOptions,
-
-    getResolvedOptionNote,
-
-    getFieldValue,
-
-    fieldHasValue,
-
-    refreshFieldLabel,
-
-    refreshFieldNote,
-
-    destroyField,
-
-    bindFieldInput,
-
-    completeField
-
-};
