@@ -64,6 +64,17 @@ import {
 
 } from "./field.js";
 
+/* =====================================================
+   PAYROLL DAILY HIERARCHY
+===================================================== */
+
+import {
+
+    resolveDailyHierarchy
+
+} from "./daily.js";
+
+
 
 /* =====================================================
    START FLOW
@@ -309,6 +320,35 @@ function handleFieldComplete(
 
     }
 
+   /* =================================================
+   PAYROLL DAILY HIERARCHY
+================================================= */
+
+if(
+
+    field.id ===
+
+        "nama"
+
+    &&
+
+    State.workspace ===
+
+        "payroll-daily"
+
+){
+
+    handleDailyHierarchyChange(
+
+        fieldIndex,
+
+        value
+
+    );
+
+    return;
+
+}
 
     /* =================================================
        STATUS
@@ -391,6 +431,151 @@ function handleFieldComplete(
     State.step =
 
         fieldIndex + 1;
+
+
+    renderFlow();
+
+}
+
+/* =====================================================
+   PAYROLL DAILY HIERARCHY CHANGE
+===================================================== */
+
+function handleDailyHierarchyChange(
+
+    namaIndex,
+
+    value
+
+){
+
+    /* =============================================
+       SIMPAN NAMA BARU
+    ============================================= */
+
+    State.values.nama =
+
+        String(
+
+            value ??
+
+            ""
+
+        ).trim();
+
+
+    /* =============================================
+       BERSIHKAN FIELD SETELAH NAMA
+
+       Ini menghapus :
+
+       grade_1
+       grade_2
+       qty
+
+       dari pilihan Nama sebelumnya.
+    ============================================= */
+
+    clearFieldsAfter(
+
+        namaIndex
+
+    );
+
+
+    /* =============================================
+       RESOLVE HIERARCHY
+    ============================================= */
+
+    const resolved =
+
+        resolveDailyHierarchy(
+
+            State.values
+
+        );
+
+
+    /* =============================================
+       APPLY GRADE 1
+    ============================================= */
+
+    if(
+
+        resolved.grade_1
+
+    ){
+
+        State.values.grade_1 =
+
+            resolved.grade_1;
+
+    }
+
+    else{
+
+        delete State.values.grade_1;
+
+    }
+
+
+    /* =============================================
+       APPLY GRADE 2
+    ============================================= */
+
+    if(
+
+        resolved.grade_2
+
+    ){
+
+        State.values.grade_2 =
+
+            resolved.grade_2;
+
+    }
+
+    else{
+
+        delete State.values.grade_2;
+
+    }
+
+
+    console.log(
+
+        "PAYROLL DAILY HIERARCHY RESOLVED:",
+
+        {
+
+            nama :
+
+                State.values.nama,
+
+            grade_1 :
+
+                State.values.grade_1 ??
+
+                "",
+
+            grade_2 :
+
+                State.values.grade_2 ??
+
+                ""
+
+        }
+
+    );
+
+
+    /* =============================================
+       LANJUT FLOW
+    ============================================= */
+
+    State.step =
+
+        namaIndex + 1;
 
 
     renderFlow();
@@ -1394,7 +1579,55 @@ function isVisible(
 
         !field
 
-        ||
+    ){
+
+        return false;
+
+    }
+
+
+    /* =================================================
+       PAYROLL DAILY AUTO RESOLVED
+    ================================================= */
+
+    if(
+
+        State.workspace ===
+
+            "payroll-daily"
+
+        &&
+
+        (
+
+            field.id ===
+
+                "grade_1"
+
+            ||
+
+            field.id ===
+
+                "grade_2"
+
+        )
+
+        &&
+
+        State.values?.[
+
+            field.id
+
+        ]
+
+    ){
+
+        return false;
+
+    }
+
+
+    if(
 
         typeof field.showWhen !==
 
@@ -1405,7 +1638,6 @@ function isVisible(
         return true;
 
     }
-
 
     try{
 
