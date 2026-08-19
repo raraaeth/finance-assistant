@@ -3,7 +3,7 @@
    Component    : Global Input
    Workspace    : Payroll Monthly
    File         : monthly.js
-   Version      : 1.1.0
+   Version      : 1.1.1
 
    Description :
    Global Input Configuration
@@ -60,11 +60,6 @@ import {
     getPayrollMonthlyRules
 
 } from "./data.js";
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
 
 
 /* =====================================================
@@ -524,23 +519,20 @@ function getShiftOptions(){
    CONDITION OPTIONS
 =====================================================
 
-   Ini adalah daftar kondisi tambahan yang nantinya
-   akan ditampilkan sebagai pilihan checkbox.
-
-   Ketersediaan setiap kondisi tetap mengikuti rule.
+   Daftar kondisi tambahan yang ditampilkan
+   sebagai checkbox.
 
    Telat
-       → rule_telat
+       → telat
 
    Izin Telat
-       → rule_izin dengan nama izin_telat
-         atau rule_telat dengan nama izin_telat
+       → izin_telat
 
    Izin Pulang
-       → rule_izin dengan nama izin_pulang
+       → izin_pulang
 
    Lembur
-       → rule_lembur_jam
+       → lembur_jam
 ===================================================== */
 
 function getConditionOptions(){
@@ -575,12 +567,12 @@ function getConditionOptions(){
             note :
 
                 "Masukkan keterlambatan dalam menit (5–60 menit).",
-           
-           display :
 
-            value =>
+            display :
 
-                `${value} menit`
+                value =>
+
+                    `${value} menit`
 
         });
 
@@ -615,11 +607,11 @@ function getConditionOptions(){
 
                 "Untuk keterlambatan lebih dari 1 jam. Masukkan jumlah jam.",
 
-           display :
+            display :
 
-            value =>
+                value =>
 
-                `${value} jam`
+                    `${value} jam`
 
         });
 
@@ -654,11 +646,11 @@ function getConditionOptions(){
 
                 "Masukkan waktu izin pulang dalam jam.",
 
-           display :
+            display :
 
-            value =>
+                value =>
 
-                `${value} jam`
+                    `${value} jam`
 
         });
 
@@ -693,11 +685,11 @@ function getConditionOptions(){
 
                 "Masukkan jumlah jam lembur.",
 
-           display :
+            display :
 
-            value =>
+                value =>
 
-                `${value} jam`
+                    `${value} jam`
 
         });
 
@@ -714,10 +706,6 @@ function getConditionOptions(){
 =====================================================
 
    Konfigurasi masing-masing kondisi.
-
-   Dipisahkan agar nanti field.js dapat menggunakan
-   konfigurasi ini tanpa mengubah struktur output
-   Attendance.
 ===================================================== */
 
 const CONDITION_CONFIG = {
@@ -735,6 +723,12 @@ const CONDITION_CONFIG = {
         type :
 
             "number",
+
+        display :
+
+            value =>
+
+                `${value} menit`,
 
         placeholder :
 
@@ -773,6 +767,12 @@ const CONDITION_CONFIG = {
 
             "number",
 
+        display :
+
+            value =>
+
+                `${value} jam`,
+
         placeholder :
 
             "Contoh: 2",
@@ -806,6 +806,12 @@ const CONDITION_CONFIG = {
 
             "number",
 
+        display :
+
+            value =>
+
+                `${value} jam`,
+
         placeholder :
 
             "Contoh: 2",
@@ -838,6 +844,12 @@ const CONDITION_CONFIG = {
         type :
 
             "number",
+
+        display :
+
+            value =>
+
+                `${value} jam`,
 
         placeholder :
 
@@ -880,9 +892,9 @@ export const Monthly = {
 
         /* =================================================
            STATUS
-           
+
            Tanggal TIDAK dibuat di sini.
-           
+
            Global Input sudah menyediakan tanggal.
         ================================================= */
 
@@ -919,10 +931,15 @@ export const Monthly = {
 
         /* =================================================
            SHIFT
-           
+
            OPTIONAL.
 
            Hanya muncul jika rule_shift tersedia.
+
+           Status :
+
+               masuk
+               lembur
         ================================================= */
 
         {
@@ -988,12 +1005,23 @@ export const Monthly = {
 
         /* =================================================
            TAMBAHKAN KONDISI
-           
+
            Field ini menjadi titik masuk kondisi
            tambahan.
 
-           Nantinya field.js akan menggunakan
-           conditionOptions untuk menampilkan checkbox.
+           Kondisi hanya tersedia untuk :
+
+               masuk
+               lembur
+
+           Status :
+
+               sakit
+               cuti
+               absen
+
+           langsung dapat ditambahkan tanpa
+           kondisi tambahan.
         ================================================= */
 
         {
@@ -1057,12 +1085,10 @@ export const Monthly = {
 
         /* =================================================
            TELAT
-           
+
            KONDISI :
 
            conditions.includes("telat")
-           
-           Field tetap optional.
         ================================================= */
 
         {
@@ -1078,6 +1104,21 @@ export const Monthly = {
             type :
 
                 "number",
+
+            /* =============================================
+               DISPLAY
+
+               Jangan dianggap sebagai nominal rupiah.
+
+               Renderer akan menggunakan field.display
+               sebelum format number/currency.
+            ============================================= */
+
+            display :
+
+                value =>
+
+                    `${value} menit`,
 
             placeholder :
 
@@ -1126,7 +1167,7 @@ export const Monthly = {
 
         /* =================================================
            IZIN TELAT
-           
+
            KONDISI :
 
            conditions.includes("izin_telat")
@@ -1145,6 +1186,18 @@ export const Monthly = {
             type :
 
                 "number",
+
+            /* =============================================
+               DISPLAY
+
+               Nilai adalah jam, bukan nominal rupiah.
+            ============================================= */
+
+            display :
+
+                value =>
+
+                    `${value} jam`,
 
             placeholder :
 
@@ -1189,7 +1242,7 @@ export const Monthly = {
 
         /* =================================================
            IZIN PULANG
-           
+
            KONDISI :
 
            conditions.includes("izin_pulang")
@@ -1208,6 +1261,18 @@ export const Monthly = {
             type :
 
                 "number",
+
+            /* =============================================
+               DISPLAY
+
+               Nilai adalah jam, bukan nominal rupiah.
+            ============================================= */
+
+            display :
+
+                value =>
+
+                    `${value} jam`,
 
             placeholder :
 
@@ -1252,7 +1317,7 @@ export const Monthly = {
 
         /* =================================================
            LEMBUR JAM
-           
+
            KONDISI :
 
            conditions.includes("lembur_jam")
@@ -1271,6 +1336,18 @@ export const Monthly = {
             type :
 
                 "number",
+
+            /* =============================================
+               DISPLAY
+
+               Nilai adalah jam, bukan nominal rupiah.
+            ============================================= */
+
+            display :
+
+                value =>
+
+                    `${value} jam`,
 
             placeholder :
 
@@ -1317,9 +1394,9 @@ export const Monthly = {
 
     /* =================================================
        CONDITION CONFIG
-       
-       Disediakan sebagai metadata global untuk
-       renderer/controller jika diperlukan.
+
+       Metadata global untuk renderer/controller
+       jika diperlukan.
     ================================================= */
 
     conditionOptions :
