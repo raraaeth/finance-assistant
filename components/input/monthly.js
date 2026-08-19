@@ -31,7 +31,7 @@ import {
 
     getPayrollMonthlyRules
 
-} from "../data.js";
+} from "./data.js";
 
 
 /* =====================================================
