@@ -517,7 +517,26 @@ if(
     );
 
 }
+       
+/* =============================================
+   PAYROLL MONTHLY AUTO RULE
+============================================= */
 
+if(
+
+    currentWorkspace ===
+
+    "payroll-monthly"
+
+){
+
+    applyMonthlyAutoRules(
+
+        data
+
+    );
+
+}
 
         console.log(
 
@@ -5541,5 +5560,173 @@ function escapeHTML(
             "&#039;"
 
         );
+
+}
+
+/* =====================================================
+   APPLY MONTHLY AUTO RULES
+===================================================== */
+
+function applyMonthlyAutoRules(
+
+    data
+
+){
+
+    /* =============================================
+       CARI SETTING MONTHLY
+    ============================================= */
+
+    const setting =
+
+        data.find(
+
+            item =>
+
+                item &&
+
+                item.section ===
+
+                    "monthly_rules"
+
+        );
+
+
+    if(
+
+        !setting
+
+        ||
+
+        !setting.data
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CEK RULE SHIFT
+    ============================================= */
+
+    const gunakanRuleShift =
+
+        Boolean(
+
+            setting.data.gunakanRuleShift
+
+        );
+
+
+    if(
+
+        !gunakanRuleShift
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       BUAT RULE SHIFT
+       
+       Rule ini hanya untuk konfigurasi
+       input Attendance.
+    ============================================= */
+
+    const ruleShift = {
+
+        type_rule :
+
+            "rule_shift",
+
+        nama :
+
+            "shift",
+
+        kondisi :
+
+            "masuk",
+
+        waktu :
+
+            "pagi,siang,malam",
+
+        nominal :
+
+            "",
+
+        nilai_start :
+
+            "",
+
+        nilai_end :
+
+            "",
+
+        berlaku_start :
+
+            "",
+
+        berlaku_end :
+
+            ""
+
+    };
+
+
+    /* =============================================
+       CEK DUPLICATE
+       
+       Jangan membuat rule_shift kedua.
+    ============================================= */
+
+    const alreadyExists =
+
+        data.some(
+
+            item =>
+
+                item &&
+
+                item.data &&
+
+                item.data.type_rule ===
+
+                    "rule_shift"
+
+        );
+
+
+    if(
+
+        alreadyExists
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       TAMBAHKAN RULE SHIFT
+    ============================================= */
+
+    data.push({
+
+        section :
+
+            "rule_shift",
+
+        data :
+
+            ruleShift
+
+    });
 
 }
