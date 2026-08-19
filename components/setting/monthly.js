@@ -2155,12 +2155,12 @@ export const MonthlySetting = {
 
             title :
 
-                "⚙️ Penentuan Rule",
+                "⚙️ Rule Shift Kerja",
 
 
             description :
 
-                "Tentukan rule tambahan Payroll Monthly yang akan digunakan.",
+                "Tentukan rule shift kerja di Payroll Monthly",
 
 
             addLabel :
