@@ -782,6 +782,97 @@ function getDisplayLabel(
        DEFAULT LABEL
     ============================================= */
 
+    return resolveFieldLabel(
+
+        field,
+
+        transaction
+
+    );
+
+}
+
+/* =====================================================
+   RESOLVE FIELD LABEL
+===================================================== */
+
+function resolveFieldLabel(
+
+    field,
+
+    transaction
+
+){
+
+    if(
+
+        !field
+
+    ){
+
+        return "";
+
+    }
+
+
+    /* =============================================
+       DYNAMIC LABEL
+       
+       label dapat berupa function:
+
+       values =>
+           values.jenis === "transfer"
+               ? "Bank Asal"
+               : "Bank"
+    ============================================= */
+
+    if(
+
+        typeof field.label ===
+
+            "function"
+
+    ){
+
+        try{
+
+            return escapeHTML(
+
+                field.label(
+
+                    transaction
+
+                )
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "Renderer label error:",
+
+                error
+
+            );
+
+            return escapeHTML(
+
+                field.id
+
+            );
+
+        }
+
+    }
+
+
+    /* =============================================
+       STATIC LABEL
+    ============================================= */
+
     return escapeHTML(
 
         field.label ??
@@ -791,7 +882,6 @@ function getDisplayLabel(
     );
 
 }
-
 
 /* =====================================================
    DISPLAY VALUE
