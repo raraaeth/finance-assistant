@@ -1585,48 +1585,6 @@ function isVisible(
 
     }
 
-
-    /* =================================================
-       PAYROLL DAILY AUTO RESOLVED
-    ================================================= */
-
-    if(
-
-        State.workspace ===
-
-            "payroll-daily"
-
-        &&
-
-        (
-
-            field.id ===
-
-                "grade_1"
-
-            ||
-
-            field.id ===
-
-                "grade_2"
-
-        )
-
-        &&
-
-        State.values?.[
-
-            field.id
-
-        ]
-
-    ){
-
-        return false;
-
-    }
-
-
     if(
 
         typeof field.showWhen !==
