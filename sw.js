@@ -110,6 +110,8 @@ const STATIC_ASSETS = [
 
     BASE_PATH + "/js/navigation.js",
 
+    BASE_PATH + "/js/pwa.js",
+
     BASE_PATH + "/js/storage.js",
 
     BASE_PATH + "/js/utils.js",
