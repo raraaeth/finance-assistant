@@ -44,7 +44,7 @@ const CONFIG = {
 
     interval :
 
-        15000
+        5000
 
 };
 
