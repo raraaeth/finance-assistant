@@ -1,19 +1,27 @@
-
 /* ==========================================
    GOOGLE AUTH
 ========================================== */
 
 const Auth = {
 
-    clientId: "768306848932-j88fhhepq1o6d2jr6itv5c1v8020uf3a.apps.googleusercontent.com",
+    clientId:
 
-    redirectUri: "https://raraaeth.github.io/finance-assistant/auth/callback.html",
+        "768306848932-j88fhhepq1o6d2jr6itv5c1v8020uf3a.apps.googleusercontent.com",
+
+    redirectUri:
+
+        "https://raraaeth.github.io/finance-assistant/auth/callback.html",
 
     scopes: [
+
         "openid",
+
         "email",
+
         "profile",
+
         "https://www.googleapis.com/auth/drive.file"
+
     ],
 
     client: null,
@@ -31,9 +39,17 @@ init();
 
 function init(){
 
-    console.log("Auth loaded");
+    console.log(
 
-    if(isCallbackPage()){
+        "Auth loaded"
+
+    );
+
+    if(
+
+        isCallbackPage()
+
+    ){
 
         handleCallback();
 
@@ -41,11 +57,23 @@ function init(){
 
     }
 
-    const session = loadSession();
+    const session =
 
-    if(session){
+        loadSession();
 
-        console.log("Auto Login", session);
+    if(
+
+        session
+
+    ){
+
+        console.log(
+
+            "Auto Login",
+
+            session
+
+        );
 
         return;
 
@@ -58,131 +86,334 @@ function init(){
    PAGE
 ========================================== */
 
-function isCallbackPage() {
+function isCallbackPage(){
 
-    return location.pathname.endsWith("/auth/callback.html");
+    return location.pathname.endsWith(
+
+        "/auth/callback.html"
+
+    );
 
 }
-
 
 
 /* ==========================================
    LOGIN
 ========================================== */
 
-export async function loginGoogle() {
+export async function loginGoogle(){
 
     await requestAuthorization();
 
 }
-window.loginGoogle = loginGoogle;
 
-async function requestAuthorization() {
+window.loginGoogle =
 
-    const verifier = await generateCodeVerifier();
+    loginGoogle;
 
-    const challenge = await generateCodeChallenge(verifier);
 
-    saveCodeVerifier(verifier);
+/* ==========================================
+   REQUEST AUTHORIZATION
+========================================== */
 
-    const params = new URLSearchParams({
+async function requestAuthorization(){
 
-        client_id: Auth.clientId,
+    const verifier =
 
-        redirect_uri: Auth.redirectUri,
+        await generateCodeVerifier();
 
-        response_type: "code",
+    const challenge =
 
-        scope: Auth.scopes.join(" "),
+        await generateCodeChallenge(
 
-        code_challenge: challenge,
+            verifier
 
-        code_challenge_method: "S256",
+        );
 
-        access_type: "offline",
+    saveCodeVerifier(
 
-        prompt: "consent"
+        verifier
 
-    });
+    );
+
+    const params =
+
+        new URLSearchParams({
+
+            client_id:
+
+                Auth.clientId,
+
+            redirect_uri:
+
+                Auth.redirectUri,
+
+            response_type:
+
+                "code",
+
+            scope:
+
+                Auth.scopes.join(
+
+                    " "
+
+                ),
+
+            code_challenge:
+
+                challenge,
+
+            code_challenge_method:
+
+                "S256",
+
+            access_type:
+
+                "offline",
+
+            prompt:
+
+                "consent"
+
+        });
 
     location.href =
+
         "https://accounts.google.com/o/oauth2/v2/auth?"
-        + params.toString();
+
+        +
+
+        params.toString();
 
 }
 
-async function generateCodeVerifier() {
 
-    const random = new Uint8Array(32);
+/* ==========================================
+   PKCE
+========================================== */
 
-    crypto.getRandomValues(random);
+async function generateCodeVerifier(){
 
-    return base64UrlEncode(random);
+    const random =
 
-}
+        new Uint8Array(
 
-function base64UrlEncode(buffer) {
+            32
 
-    return btoa(String.fromCharCode(...buffer))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=/g, "");
+        );
 
-}
+    crypto.getRandomValues(
 
-async function generateCodeChallenge(verifier) {
+        random
 
-    const encoder = new TextEncoder();
+    );
 
-    const data = encoder.encode(verifier);
+    return base64UrlEncode(
 
-    const hash = await crypto.subtle.digest("SHA-256", data);
+        random
 
-    return base64UrlEncode(new Uint8Array(hash));
+    );
 
 }
 
-function saveCodeVerifier(verifier) {
+
+function base64UrlEncode(buffer){
+
+    return btoa(
+
+        String.fromCharCode(
+
+            ...buffer
+
+        )
+
+    )
+
+        .replace(
+
+            /\+/g,
+
+            "-"
+
+        )
+
+        .replace(
+
+            /\//g,
+
+            "_"
+
+        )
+
+        .replace(
+
+            /=/g,
+
+            ""
+
+        );
+
+}
+
+
+async function generateCodeChallenge(verifier){
+
+    const encoder =
+
+        new TextEncoder();
+
+    const data =
+
+        encoder.encode(
+
+            verifier
+
+        );
+
+    const hash =
+
+        await crypto.subtle.digest(
+
+            "SHA-256",
+
+            data
+
+        );
+
+    return base64UrlEncode(
+
+        new Uint8Array(
+
+            hash
+
+        )
+
+    );
+
+}
+
+
+/* ==========================================
+   CODE VERIFIER STORAGE
+========================================== */
+
+function saveCodeVerifier(verifier){
 
     sessionStorage.setItem(
+
         "code_verifier",
+
         verifier
+
     );
 
 }
 
-function getCodeVerifier() {
+
+function getCodeVerifier(){
 
     return sessionStorage.getItem(
+
         "code_verifier"
+
     );
 
 }
 
-function removeCodeVerifier() {
+
+function removeCodeVerifier(){
 
     sessionStorage.removeItem(
+
         "code_verifier"
+
     );
 
 }
+
+
+/* ==========================================
+   LOAD ONBOARDING DATA
+========================================== */
+
+function loadOnboardingData(){
+
+    const data =
+
+        localStorage.getItem(
+
+            "finance-assistant"
+
+        );
+
+    if(
+
+        !data
+
+    ){
+
+        return null;
+
+    }
+
+    try{
+
+        return JSON.parse(
+
+            data
+
+        );
+
+    }catch(error){
+
+        console.error(
+
+            "Failed to load onboarding data",
+
+            error
+
+        );
+
+        return null;
+
+    }
+
+}
+
 
 /* ==========================================
    CALLBACK
 ========================================== */
 
-    async function handleCallback(){
+async function handleCallback(){
 
-    const params=new URLSearchParams(
-        location.search
-    );
+    const params =
 
-    const code=params.get("code");
+        new URLSearchParams(
 
-    if(!code){
+            location.search
+
+        );
+
+    const code =
+
+        params.get(
+
+            "code"
+
+        );
+
+    if(
+
+        !code
+
+    ){
 
         console.error(
+
             "Authorization code not found."
+
         );
 
         return;
@@ -190,16 +421,27 @@ function removeCodeVerifier() {
     }
 
     console.log(
+
         "Authorization Code:",
+
         code
+
     );
 
-    const verifier=getCodeVerifier();
+    const verifier =
 
-    if(!verifier){
+        getCodeVerifier();
+
+    if(
+
+        !verifier
+
+    ){
 
         console.error(
+
             "Code verifier not found."
+
         );
 
         return;
@@ -207,73 +449,208 @@ function removeCodeVerifier() {
     }
 
     console.log(
+
         "Code Verifier:",
+
         verifier
+
     );
 
-   const form=new URLSearchParams();
 
-form.append(
-    "action",
-    "login"
-);
+    /* ==========================================
+       LOAD ONBOARDING
+    ========================================== */
 
-form.append(
-    "code",
-    code
-);
+    const onboarding =
 
-form.append(
-    "verifier",
-    verifier
-);
-       
-       const response=await fetch(
+        loadOnboardingData();
 
-        "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
+    console.log(
 
-        {
+        "Onboarding Data:",
 
-            method:"POST",
+        onboarding
 
-        body:form
+    );
+
+
+    /* ==========================================
+       REQUEST DATA
+    ========================================== */
+
+    const form =
+
+        new URLSearchParams();
+
+    form.append(
+
+        "action",
+
+        "login"
+
+    );
+
+    form.append(
+
+        "code",
+
+        code
+
+    );
+
+    form.append(
+
+        "verifier",
+
+        verifier
+
+    );
+
+
+    /* ==========================================
+       ONBOARDING DATA
+    ========================================== */
+
+    if(
+
+        onboarding
+
+    ){
+
+        form.append(
+
+            "displayName",
+
+            onboarding.displayName || ""
+
+        );
+
+        form.append(
+
+            "currency",
+
+            onboarding.currency || "IDR"
+
+        );
+
+        form.append(
+
+            "theme",
+
+            onboarding.theme || "system"
+
+        );
+
+        form.append(
+
+            "onboardingCompleted",
+
+            onboarding.onboardingCompleted === true
+
+                ? "true"
+
+                : "false"
+
+        );
 
     }
 
-);
 
-const result=await response.json();
+    /* ==========================================
+       REQUEST APPS SCRIPT
+    ========================================== */
 
-console.log(
-    "Apps Script Response:",
-    result
-);
+    const response =
 
-if(!result.success){
+        await fetch(
 
-    console.error(result);
+            "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
 
-    return;
+            {
 
-}
+                method:
 
-saveSession(result);
+                    "POST",
 
-console.log(
+                body:
 
-    "Session Saved",
+                    form
 
-    result
+            }
 
-);
+        );
 
-removeCodeVerifier();
+    const result =
 
-console.log("Redirecting...");
+        await response.json();
 
-location.replace(
-    "../pages/index.html"
-);
+    console.log(
+
+        "Apps Script Response:",
+
+        result
+
+    );
+
+
+    if(
+
+        !result.success
+
+    ){
+
+        console.error(
+
+            result
+
+        );
+
+        return;
+
+    }
+
+
+    /* ==========================================
+       SAVE SESSION
+    ========================================== */
+
+    saveSession(
+
+        result
+
+    );
+
+    console.log(
+
+        "Session Saved",
+
+        result
+
+    );
+
+
+    /* ==========================================
+       CLEANUP
+    ========================================== */
+
+    removeCodeVerifier();
+
+
+    /* ==========================================
+       REDIRECT
+    ========================================== */
+
+    console.log(
+
+        "Redirecting..."
+
+    );
+
+    location.replace(
+
+        "../pages/index.html"
+
+    );
 
 }
 
@@ -284,17 +661,24 @@ location.replace(
 
 function saveSession(session){
 
-    Auth.session = session;
+    Auth.session =
+
+        session;
 
     localStorage.setItem(
 
         "finance_session",
 
-        JSON.stringify(session)
+        JSON.stringify(
+
+            session
+
+        )
 
     );
 
 }
+
 
 /*=========================================
    LOAD SESSION
@@ -302,13 +686,19 @@ function saveSession(session){
 
 export function loadSession(){
 
-    const data = localStorage.getItem(
+    const data =
 
-        "finance_session"
+        localStorage.getItem(
 
-    );
+            "finance_session"
 
-    if(!data){
+        );
+
+    if(
+
+        !data
+
+    ){
 
         return null;
 
@@ -316,7 +706,13 @@ export function loadSession(){
 
     try{
 
-        Auth.session = JSON.parse(data);
+        Auth.session =
+
+            JSON.parse(
+
+                data
+
+            );
 
         return Auth.session;
 
@@ -341,7 +737,9 @@ export function loadSession(){
 
 export function logout(){
 
-    Auth.session = null;
+    Auth.session =
+
+        null;
 
     localStorage.removeItem(
 
