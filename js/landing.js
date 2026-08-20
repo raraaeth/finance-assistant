@@ -105,7 +105,9 @@ function init(){
 
                 ".module-slide"
 
-            );
+            )
+
+        );
 
 
     State.dots =
@@ -116,7 +118,9 @@ function init(){
 
                 ".module-slider-dot"
 
-            );
+            )
+
+        );
 
 
     if(
