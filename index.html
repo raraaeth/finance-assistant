@@ -99,253 +99,423 @@
 
 
     <!-- ==========================================
-         FEATURES / MODULES
-    ========================================== -->
+     MODULES
+========================================== -->
 
-    <section class="modules-section">
+<section class="modules">
 
-        <h2>
+    <h2>
 
-            Modul Utama
+        Modul Utama
 
-        </h2>
+    </h2>
 
+    <p class="modules-description">
 
-        <!-- ======================================
-             MODULE GRID
-             
-             3 x 2
-        ====================================== -->
+        Pilih modul untuk melihat gambaran
+        aplikasi Finance Assistant.
 
-        <div class="module-grid">
+    </p>
 
 
-            <!-- ==================================
-                 FINANCIAL
-            ================================== -->
+    <!-- ======================================
+         MODULE GRID
+    ======================================= -->
 
-            <button
-
-                type="button"
-
-                class="module-card"
-
-                data-module="financial"
-
-            >
-
-                <span class="module-icon">
-
-                    💰
-
-                </span>
-
-                <span class="module-name">
-
-                    Financial
-
-                </span>
-
-            </button>
+    <div class="module-grid">
 
 
-            <!-- ==================================
-                 SAVING
-            ================================== -->
+        <!-- SAVING -->
 
-            <button
+        <button
+            type="button"
+            class="module-card"
+            data-module="saving">
 
-                type="button"
+            <span class="module-icon">
 
-                class="module-card"
+                🏦
 
-                data-module="saving"
+            </span>
 
-            >
+            <span class="module-name">
 
-                <span class="module-icon">
+                Saving
 
-                    🏦
+            </span>
 
-                </span>
+        </button>
 
-                <span class="module-name">
+
+        <!-- FINANCIAL -->
+
+        <button
+            type="button"
+            class="module-card"
+            data-module="financial">
+
+            <span class="module-icon">
+
+                📊
+
+            </span>
+
+            <span class="module-name">
+
+                Financial
+
+            </span>
+
+        </button>
+
+
+        <!-- KAS -->
+
+        <button
+            type="button"
+            class="module-card"
+            data-module="kas">
+
+            <span class="module-icon">
+
+                👥
+
+            </span>
+
+            <span class="module-name">
+
+                Kas
+
+            </span>
+
+        </button>
+
+
+        <!-- PAYROLL MONTHLY -->
+
+        <button
+            type="button"
+            class="module-card"
+            data-module="payroll-monthly">
+
+            <span class="module-icon">
+
+                💼
+
+            </span>
+
+            <span class="module-name">
+
+                Payroll Monthly
+
+            </span>
+
+        </button>
+
+
+        <!-- PAYROLL DAILY -->
+
+        <button
+            type="button"
+            class="module-card"
+            data-module="payroll-daily">
+
+            <span class="module-icon">
+
+                💰
+
+            </span>
+
+            <span class="module-name">
+
+                Payroll Daily
+
+            </span>
+
+        </button>
+
+
+        <!-- AIRDROP -->
+
+        <button
+            type="button"
+            class="module-card"
+            data-module="airdrop">
+
+            <span class="module-icon">
+
+                🪂
+
+            </span>
+
+            <span class="module-name">
+
+                Airdrop
+
+            </span>
+
+        </button>
+
+
+    </div>
+
+</section>
+    <!-- ==========================================
+     MODULE SLIDER
+========================================== -->
+
+<section class="module-slider-section">
+
+    <div class="module-slider">
+
+
+        <!-- ==================================
+             SAVING
+        =================================== -->
+
+        <article
+            class="module-slide"
+            data-slide="saving">
+
+            <img
+                src="assets/landing/saving.webp"
+                alt="Saving">
+
+            <div class="module-slide-content">
+
+                <h3>
 
                     Saving
 
-                </span>
+                </h3>
 
-            </button>
+                <p>
 
+                    Kelola tabungan dan target
+                    keuangan dengan lebih terarah.
 
-            <!-- ==================================
-                 KAS BERSAMA
-            ================================== -->
+                </p>
 
-            <button
+            </div>
 
-                type="button"
-
-                class="module-card"
-
-                data-module="kas"
-
-            >
-
-                <span class="module-icon">
-
-                    👥
-
-                </span>
-
-                <span class="module-name">
-
-                    Kas Bersama
-
-                </span>
-
-            </button>
+        </article>
 
 
-            <!-- ==================================
-                 PAYROLL MONTHLY
-            ================================== -->
+        <!-- ==================================
+             FINANCIAL
+        =================================== -->
 
-            <button
+        <article
+            class="module-slide"
+            data-slide="financial">
 
-                type="button"
+            <img
+                src="assets/landing/financial.webp"
+                alt="Financial">
 
-                class="module-card"
+            <div class="module-slide-content">
 
-                data-module="payroll-monthly"
+                <h3>
 
-            >
+                    Financial
 
-                <span class="module-icon">
+                </h3>
 
-                    💼
+                <p>
 
-                </span>
+                    Pantau pemasukan, pengeluaran,
+                    dan kondisi keuangan.
 
-                <span class="module-name">
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <!-- ==================================
+             KAS
+        =================================== -->
+
+        <article
+            class="module-slide"
+            data-slide="kas">
+
+            <img
+                src="assets/landing/kas.webp"
+                alt="Kas">
+
+            <div class="module-slide-content">
+
+                <h3>
+
+                    Kas
+
+                </h3>
+
+                <p>
+
+                    Kelola kas bersama dengan
+                    pencatatan yang lebih rapi.
+
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <!-- ==================================
+             PAYROLL MONTHLY
+        =================================== -->
+
+        <article
+            class="module-slide"
+            data-slide="payroll-monthly">
+
+            <img
+                src="assets/landing/payroll-monthly.webp"
+                alt="Payroll Monthly">
+
+            <div class="module-slide-content">
+
+                <h3>
 
                     Payroll Monthly
 
-                </span>
+                </h3>
 
-            </button>
+                <p>
+
+                    Kelola perhitungan payroll
+                    bulanan secara terstruktur.
+
+                </p>
+
+            </div>
+
+        </article>
 
 
-            <!-- ==================================
-                 PAYROLL DAILY
-            ================================== -->
+        <!-- ==================================
+             PAYROLL DAILY
+        =================================== -->
 
-            <button
+        <article
+            class="module-slide"
+            data-slide="payroll-daily">
 
-                type="button"
+            <img
+                src="assets/landing/payroll-daily.webp"
+                alt="Payroll Daily">
 
-                class="module-card"
+            <div class="module-slide-content">
 
-                data-module="payroll-daily"
-
-            >
-
-                <span class="module-icon">
-
-                    🕐
-
-                </span>
-
-                <span class="module-name">
+                <h3>
 
                     Payroll Daily
 
-                </span>
+                </h3>
 
-            </button>
+                <p>
+
+                    Catat pekerjaan harian dan
+                    perhitungan berdasarkan hasil kerja.
+
+                </p>
+
+            </div>
+
+        </article>
 
 
-            <!-- ==================================
-                 AIRDROP
-            ================================== -->
+        <!-- ==================================
+             AIRDROP
+        =================================== -->
 
-            <button
+        <article
+            class="module-slide"
+            data-slide="airdrop">
 
-                type="button"
+            <img
+                src="assets/landing/airdrop.webp"
+                alt="Airdrop">
 
-                class="module-card"
+            <div class="module-slide-content">
 
-                data-module="airdrop"
-
-            >
-
-                <span class="module-icon">
-
-                    🪂
-
-                </span>
-
-                <span class="module-name">
+                <h3>
 
                     Airdrop
 
-                </span>
+                </h3>
 
-            </button>
+                <p>
 
+                    Ruang untuk pengelolaan dan
+                    pencatatan aktivitas airdrop.
 
-        </div>
-
-
-        <!-- ==========================================
-             APP SLIDE
-        ========================================== -->
-
-        <div
-
-            class="app-slide-section"
-
-            id="app-slide-section"
-
-        >
-
-
-            <div
-
-                class="app-slide"
-
-                id="app-slide"
-
-            >
-
-                <!--
-
-                    Konten slide akan dibuat
-                    oleh landing.js.
-
-                -->
+                </p>
 
             </div>
 
-
-            <!-- ======================================
-                 SLIDE INDICATOR
-            ====================================== -->
-
-            <div
-
-                class="app-slide-dots"
-
-                id="app-slide-dots"
-
-            >
-
-            </div>
+        </article>
 
 
-        </div>
+    </div>
 
-    </section>
+
+    <!-- ======================================
+         INDICATORS
+    ======================================= -->
+
+    <div class="module-slider-indicators">
+
+
+        <button
+            type="button"
+            class="module-slider-dot"
+            data-slide-dot="saving">
+        </button>
+
+
+        <button
+            type="button"
+            class="module-slider-dot"
+            data-slide-dot="financial">
+        </button>
+
+
+        <button
+            type="button"
+            class="module-slider-dot"
+            data-slide-dot="kas">
+        </button>
+
+
+        <button
+            type="button"
+            class="module-slider-dot"
+            data-slide-dot="payroll-monthly">
+        </button>
+
+
+        <button
+            type="button"
+            class="module-slider-dot"
+            data-slide-dot="payroll-daily">
+        </button>
+
+
+        <button
+            type="button"
+            class="module-slider-dot"
+            data-slide-dot="airdrop">
+        </button>
+
+
+    </div>
+
+            </section>
 
 
     <!-- ==========================================
