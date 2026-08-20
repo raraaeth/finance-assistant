@@ -5,7 +5,7 @@
    VERSION : 1.0.0
 
    Handles :
-   - App shell cache
+   - PWA application shell
    - Global CSS cache
    - Global JS cache
    - Application assets cache
@@ -16,14 +16,21 @@
 
    IMPORTANT :
 
-   Landing assets are intentionally excluded.
+   PWA hanya berjalan pada :
 
-   Landing :
+       /finance-assistant/pages/
+
+   Root landing page :
+
+       /finance-assistant/
+
+   tidak menjadi bagian dari PWA cache.
+
+   Landing assets juga tidak dicache :
+
    - landing.css
    - landing.js
    - images/slide/*
-
-   are NOT part of the PWA application cache.
 ===================================================== */
 
 
@@ -41,6 +48,11 @@ const BASE_PATH =
     "/finance-assistant";
 
 
+const APP_PATH =
+
+    BASE_PATH + "/pages";
+
+
 /* =====================================================
    STATIC CACHE
 ===================================================== */
@@ -51,7 +63,7 @@ const STATIC_ASSETS = [
        APPLICATION ENTRY
     ================================================ */
 
-    BASE_PATH + "/pages/",
+    APP_PATH + "/",
 
 
     /* ================================================
@@ -109,11 +121,11 @@ const STATIC_ASSETS = [
        HEADER
     ================================================ */
 
-    BASE_PATH + "/component/header/assets/financial-banner.webp",
+    BASE_PATH + "/components/header/assets/financial-banner.webp",
 
-    BASE_PATH + "/component/header/assets/saving-banner.webp",
+    BASE_PATH + "/components/header/assets/saving-banner.webp",
 
-    BASE_PATH + "/component/header/assets/payroll-banner.webp",
+    BASE_PATH + "/components/header/assets/payroll-banner.webp",
 
 
     /* ================================================
@@ -323,14 +335,16 @@ self.addEventListener(
 
 
         /* --------------------------------------------
-           Hanya handle repository sendiri
+           Hanya handle aplikasi PWA
+           
+           /finance-assistant/pages/
         -------------------------------------------- */
 
         if(
 
             !url.pathname.startsWith(
 
-                BASE_PATH
+                APP_PATH
 
             )
 
@@ -377,8 +391,8 @@ self.addEventListener(
            
            Network First
            
-           Supaya auth dan redirect
-           tetap menggunakan kondisi terbaru.
+           Auth dan redirect tetap mendapatkan
+           kondisi terbaru dari server.
         -------------------------------------------- */
 
         if(
@@ -485,7 +499,7 @@ async function cacheFirst(
                 );
 
 
-            cache.put(
+            await cache.put(
 
                 request,
 
@@ -563,7 +577,7 @@ async function networkFirst(
                 );
 
 
-            cache.put(
+            await cache.put(
 
                 request,
 
@@ -618,7 +632,7 @@ async function networkFirst(
 
                 headers : {
 
-                    "Content-Type":
+                    "Content-Type" :
 
                         "text/plain; charset=utf-8"
 
