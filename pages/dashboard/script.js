@@ -270,16 +270,12 @@ function render(){
             </p>
 
             <button
+    id="install-pwa"
+    class="install-button">
 
-                id="installApp"
+    📲 Install Finance Assistant
 
-                class="install-button"
-
-            >
-
-                📲 Install Finance Assistant
-
-            </button>
+</button>
 
         </section>
 
