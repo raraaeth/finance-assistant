@@ -962,3 +962,494 @@ max-width:400px
     }
 
 }
+
+/* =====================================================
+   MODULES
+===================================================== */
+
+.modules{
+
+    margin-bottom:60px;
+
+}
+
+
+.modules-description{
+
+    margin-bottom:28px;
+
+    color:#6B7280;
+
+}
+
+
+/* =====================================================
+   MODULE GRID
+===================================================== */
+
+.module-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            3,
+
+            1fr
+
+        );
+
+    gap:16px;
+
+}
+
+
+/* =====================================================
+   MODULE CARD
+===================================================== */
+
+.module-card{
+
+    margin:0;
+
+    width:100%;
+
+    min-height:100px;
+
+    padding:18px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:20px;
+
+    background:#FFFFFF;
+
+    color:#1F2937;
+
+    box-shadow:
+
+        0 5px 18px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .05
+
+        );
+
+    cursor:pointer;
+
+    transition:
+
+        transform .25s ease,
+
+        box-shadow .25s ease,
+
+        border-color .25s ease;
+
+}
+
+
+.module-card:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+
+        0 12px 25px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .08
+
+        );
+
+}
+
+
+.module-card.active{
+
+    border-color:#2563EB;
+
+    box-shadow:
+
+        0 10px 25px
+
+        rgba(
+
+            37,
+
+            99,
+
+            235,
+
+            .15
+
+        );
+
+}
+
+
+/* =====================================================
+   MODULE ICON
+===================================================== */
+
+.module-icon{
+
+    font-size:28px;
+
+    line-height:1;
+
+}
+
+
+.module-name{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   MODULE SLIDER SECTION
+===================================================== */
+
+.module-slider-section{
+
+    margin-bottom:80px;
+
+}
+
+
+.module-slider{
+
+    position:relative;
+
+    width:100%;
+
+    overflow:hidden;
+
+    border-radius:28px;
+
+    background:#FFFFFF;
+
+    box-shadow:
+
+        0 10px 30px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .08
+
+        );
+
+}
+
+
+/* =====================================================
+   MODULE SLIDE
+===================================================== */
+
+.module-slide{
+
+    display:none;
+
+    width:100%;
+
+    animation:
+
+        moduleSlideIn .45s ease;
+
+}
+
+
+.module-slide.active{
+
+    display:block;
+
+}
+
+
+.module-slide img{
+
+    display:block;
+
+    width:100%;
+
+    height:auto;
+
+    object-fit:cover;
+
+}
+
+
+/* =====================================================
+   SLIDE CONTENT
+===================================================== */
+
+.module-slide-content{
+
+    padding:24px 28px 28px;
+
+}
+
+
+.module-slide-content h3{
+
+    margin:0 0 8px;
+
+    font-size:24px;
+
+    line-height:1.2;
+
+}
+
+
+.module-slide-content p{
+
+    margin:0;
+
+    color:#6B7280;
+
+}
+
+
+/* =====================================================
+   SLIDER INDICATORS
+===================================================== */
+
+.module-slider-indicators{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:18px;
+
+}
+
+
+.module-slider-dot{
+
+    width:8px;
+
+    min-width:8px;
+
+    height:8px;
+
+    min-height:8px;
+
+    margin:0;
+
+    padding:0;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#CBD5E1;
+
+    cursor:pointer;
+
+    transition:
+
+        width .25s ease,
+
+        background .25s ease,
+
+        transform .25s ease;
+
+}
+
+
+.module-slider-dot:hover{
+
+    transform:none;
+
+    box-shadow:none;
+
+}
+
+
+.module-slider-dot.active{
+
+    width:24px;
+
+    background:#2563EB;
+
+    border-radius:999px;
+
+}
+
+
+/* =====================================================
+   SLIDE ANIMATION
+===================================================== */
+
+@keyframes moduleSlideIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateX(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateX(0);
+
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE MODULE
+===================================================== */
+
+@media(
+
+max-width:768px
+
+){
+
+    .module-grid{
+
+        grid-template-columns:
+
+            repeat(
+
+                3,
+
+                1fr
+
+            );
+
+        gap:10px;
+
+    }
+
+
+    .module-card{
+
+        min-height:86px;
+
+        padding:12px 6px;
+
+        border-radius:16px;
+
+    }
+
+
+    .module-icon{
+
+        font-size:23px;
+
+    }
+
+
+    .module-name{
+
+        font-size:12px;
+
+    }
+
+
+    .module-slider{
+
+        border-radius:22px;
+
+    }
+
+
+    .module-slide-content{
+
+        padding:20px;
+
+    }
+
+
+    .module-slide-content h3{
+
+        font-size:20px;
+
+    }
+
+}
+
+
+@media(
+
+max-width:420px
+
+){
+
+    .module-grid{
+
+        gap:8px;
+
+    }
+
+
+    .module-card{
+
+        min-height:80px;
+
+    }
+
+
+    .module-icon{
+
+        font-size:21px;
+
+    }
+
+
+    .module-name{
+
+        font-size:11px;
+
+    }
+
+}
