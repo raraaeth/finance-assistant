@@ -28,6 +28,7 @@
 
 <body>
 
+
     <!-- ==========================================
          HERO
     ========================================== -->
@@ -98,10 +99,10 @@
 
 
     <!-- ==========================================
-         FEATURES
+         FEATURES / MODULES
     ========================================== -->
 
-    <section>
+    <section class="modules-section">
 
         <h2>
 
@@ -109,39 +110,240 @@
 
         </h2>
 
-        <ul>
 
-            <li>
+        <!-- ======================================
+             MODULE GRID
+             
+             3 x 2
+        ====================================== -->
 
-                💰 Financial
+        <div class="module-grid">
 
-            </li>
 
-            <li>
+            <!-- ==================================
+                 FINANCIAL
+            ================================== -->
 
-                🏦 Saving
+            <button
 
-            </li>
+                type="button"
 
-            <li>
+                class="module-card"
 
-                💼 Payroll
+                data-module="financial"
 
-            </li>
+            >
 
-            <li>
+                <span class="module-icon">
 
-                👥 Kas Bersama
+                    💰
 
-            </li>
+                </span>
 
-            <li>
+                <span class="module-name">
 
-                📊 Statistik & Laporan
+                    Financial
 
-            </li>
+                </span>
 
-        </ul>
+            </button>
+
+
+            <!-- ==================================
+                 SAVING
+            ================================== -->
+
+            <button
+
+                type="button"
+
+                class="module-card"
+
+                data-module="saving"
+
+            >
+
+                <span class="module-icon">
+
+                    🏦
+
+                </span>
+
+                <span class="module-name">
+
+                    Saving
+
+                </span>
+
+            </button>
+
+
+            <!-- ==================================
+                 KAS BERSAMA
+            ================================== -->
+
+            <button
+
+                type="button"
+
+                class="module-card"
+
+                data-module="kas"
+
+            >
+
+                <span class="module-icon">
+
+                    👥
+
+                </span>
+
+                <span class="module-name">
+
+                    Kas Bersama
+
+                </span>
+
+            </button>
+
+
+            <!-- ==================================
+                 PAYROLL MONTHLY
+            ================================== -->
+
+            <button
+
+                type="button"
+
+                class="module-card"
+
+                data-module="payroll-monthly"
+
+            >
+
+                <span class="module-icon">
+
+                    💼
+
+                </span>
+
+                <span class="module-name">
+
+                    Payroll Monthly
+
+                </span>
+
+            </button>
+
+
+            <!-- ==================================
+                 PAYROLL DAILY
+            ================================== -->
+
+            <button
+
+                type="button"
+
+                class="module-card"
+
+                data-module="payroll-daily"
+
+            >
+
+                <span class="module-icon">
+
+                    🕐
+
+                </span>
+
+                <span class="module-name">
+
+                    Payroll Daily
+
+                </span>
+
+            </button>
+
+
+            <!-- ==================================
+                 AIRDROP
+            ================================== -->
+
+            <button
+
+                type="button"
+
+                class="module-card"
+
+                data-module="airdrop"
+
+            >
+
+                <span class="module-icon">
+
+                    🪂
+
+                </span>
+
+                <span class="module-name">
+
+                    Airdrop
+
+                </span>
+
+            </button>
+
+
+        </div>
+
+
+        <!-- ==========================================
+             APP SLIDE
+        ========================================== -->
+
+        <div
+
+            class="app-slide-section"
+
+            id="app-slide-section"
+
+        >
+
+
+            <div
+
+                class="app-slide"
+
+                id="app-slide"
+
+            >
+
+                <!--
+
+                    Konten slide akan dibuat
+                    oleh landing.js.
+
+                -->
+
+            </div>
+
+
+            <!-- ======================================
+                 SLIDE INDICATOR
+            ====================================== -->
+
+            <div
+
+                class="app-slide-dots"
+
+                id="app-slide-dots"
+
+            >
+
+            </div>
+
+
+        </div>
 
     </section>
 
@@ -238,25 +440,31 @@
 
             <li>
 
-                🚧 Saving
+                ✅ Saving
 
             </li>
 
             <li>
 
-                🚧 Payroll
+               ✅ Payroll Daily
 
             </li>
 
             <li>
 
-                🚧 Kas Bersama
+               ✅ Payroll Monthly
 
             </li>
 
             <li>
 
-                🚀 AI Assistant
+               🚧 ✅ Kas Bersama
+
+            </li>
+
+            <li>
+
+                 Airdop
 
             </li>
 
@@ -285,6 +493,7 @@
         </p>
 
         <button
+
             id="register-app">
 
             Daftar Sekarang
@@ -294,11 +503,18 @@
     </section>
 
 
+    <!-- ==========================================
+         APP SCRIPT
+    ========================================== -->
+
     <script
+
         type="module"
+
         src="js/app.js">
 
     </script>
+
 
 </body>
 
