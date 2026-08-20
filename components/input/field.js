@@ -1114,9 +1114,15 @@ function renderCustomSelect(
 
     hidden.value =
 
-        field.value ??
+    State.values?.[field.id]
 
-        "";
+    ??
+
+    field.value
+
+    ??
+
+    "";
 
 
     hidden.dataset.field =
