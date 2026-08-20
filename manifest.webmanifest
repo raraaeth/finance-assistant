@@ -1,0 +1,26 @@
+{
+    "name": "Finance Assistant",
+    "short_name": "Finance Assistant",
+    "description": "Personal finance platform untuk mengelola keuangan dengan lebih mudah dan terarah.",
+    "start_url": "/finance-assistant/pages/",
+    "scope": "/finance-assistant/pages/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#F6F8FC",
+    "theme_color": "#2563EB",
+
+    "icons": [
+        {
+            "src": "/finance-assistant/assets/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/finance-assistant/assets/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
