@@ -2,8 +2,13 @@
    Finance Assistant
    FILE : pwa.js
    DESCRIPTION : PWA Service Worker Registration
+   VERSION : 1.0.0
 ===================================================== */
 
+
+/* =====================================================
+   SERVICE WORKER
+===================================================== */
 
 if (
 
