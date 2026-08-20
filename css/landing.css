@@ -2,7 +2,7 @@
    Finance Assistant
    FILE : landing.css
    DESCRIPTION : Landing Page
-   VERSION : 1.0.0
+   VERSION : 2.0.0
 ===================================================== */
 
 
@@ -172,7 +172,11 @@ button{
 
     cursor:pointer;
 
-    transition:.25s;
+    transition:
+
+        transform .25s,
+
+        box-shadow .25s;
 
 }
 
@@ -183,19 +187,19 @@ button:hover{
 
     box-shadow:
 
-    0 12px 25px
+        0 12px 25px
 
-    rgba(
+        rgba(
 
-        37,
+            37,
 
-        99,
+            99,
 
-        235,
+            235,
 
-        .25
+            .25
 
-    );
+        );
 
 }
 
@@ -223,6 +227,412 @@ section h2{
 section p{
 
     color:#6B7280;
+
+}
+
+
+/* =====================================================
+   MODULE SECTION
+===================================================== */
+
+.modules-section{
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   MODULE GRID
+===================================================== */
+
+.module-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            3,
+
+            1fr
+
+        );
+
+    gap:16px;
+
+    margin-top:28px;
+
+}
+
+
+/* =====================================================
+   MODULE CARD
+===================================================== */
+
+.module-card{
+
+    width:100%;
+
+    min-height:130px;
+
+    margin:0;
+
+    padding:24px 18px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    background:#fff;
+
+    color:#1F2937;
+
+    border:
+
+        1px solid
+
+        #E5E7EB;
+
+    border-radius:22px;
+
+    box-shadow:
+
+        0 8px 25px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .05
+
+        );
+
+    transition:
+
+        transform .25s,
+
+        box-shadow .25s,
+
+        border-color .25s,
+
+        background .25s;
+
+}
+
+
+/* =====================================================
+   MODULE CARD HOVER
+===================================================== */
+
+.module-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:
+
+        0 14px 32px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .10
+
+        );
+
+}
+
+
+/* =====================================================
+   MODULE CARD ACTIVE
+===================================================== */
+
+.module-card.active{
+
+    border-color:#2563EB;
+
+    background:#F5F9FF;
+
+    box-shadow:
+
+        0 12px 30px
+
+        rgba(
+
+            37,
+
+            99,
+
+            235,
+
+            .12
+
+        );
+
+}
+
+
+/* =====================================================
+   MODULE ICON
+===================================================== */
+
+.module-icon{
+
+    width:52px;
+
+    height:52px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:16px;
+
+    background:#F1F5F9;
+
+    font-size:28px;
+
+}
+
+
+/* =====================================================
+   MODULE NAME
+===================================================== */
+
+.module-name{
+
+    font-size:16px;
+
+    font-weight:700;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   APP SLIDE SECTION
+===================================================== */
+
+.app-slide-section{
+
+    margin-top:40px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    min-height:520px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:30px;
+
+    border-radius:32px;
+
+    background:
+
+        linear-gradient(
+
+            135deg,
+
+            #EEF4FF,
+
+            #F8FAFC
+
+        );
+
+    box-shadow:
+
+        0 15px 40px
+
+        rgba(
+
+            15,
+
+            23,
+
+            42,
+
+            .06
+
+        );
+
+}
+
+
+/* =====================================================
+   APP SLIDE
+===================================================== */
+
+.app-slide{
+
+    width:100%;
+
+    min-height:460px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    position:relative;
+
+}
+
+
+/* =====================================================
+   APP SLIDE IMAGE
+===================================================== */
+
+.app-slide img{
+
+    display:block;
+
+    width:100%;
+
+    max-width:900px;
+
+    height:auto;
+
+    max-height:460px;
+
+    object-fit:contain;
+
+    border-radius:24px;
+
+    transition:
+
+        opacity .4s ease,
+
+        transform .4s ease;
+
+}
+
+
+/* =====================================================
+   SLIDE TRANSITION
+===================================================== */
+
+.app-slide img.changing{
+
+    opacity:0;
+
+    transform:
+
+        translateY(12px)
+
+        scale(.98);
+
+}
+
+
+/* =====================================================
+   SLIDE DOTS
+===================================================== */
+
+.app-slide-dots{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    margin-top:18px;
+
+}
+
+
+/* =====================================================
+   DOT
+===================================================== */
+
+.app-slide-dot{
+
+    width:8px;
+
+    height:8px;
+
+    padding:0;
+
+    margin:0;
+
+    border-radius:50%;
+
+    border:none;
+
+    background:#CBD5E1;
+
+    cursor:pointer;
+
+    transition:
+
+        width .25s,
+
+        background .25s,
+
+        transform .25s;
+
+}
+
+
+/* =====================================================
+   ACTIVE DOT
+===================================================== */
+
+.app-slide-dot.active{
+
+    width:24px;
+
+    border-radius:999px;
+
+    background:#2563EB;
+
+}
+
+
+/* =====================================================
+   AIRDROP / COMING SOON
+===================================================== */
+
+.module-card[data-module="airdrop"]{
+
+    opacity:.75;
+
+}
+
+
+.module-card[data-module="airdrop"]:hover{
+
+    opacity:1;
 
 }
 
@@ -340,30 +750,185 @@ max-width:768px
 
 ){
 
-.hero{
+    .hero{
 
-    min-height:auto;
+        min-height:auto;
 
-    padding:90px 0;
+        padding:90px 0;
+
+    }
+
+
+    .hero h1{
+
+        font-size:42px;
+
+    }
+
+
+    section h2{
+
+        font-size:28px;
+
+    }
+
+
+    button{
+
+        width:100%;
+
+    }
+
+
+    /* =============================================
+       MOBILE MODULE GRID
+
+       Tetap 3 x 2 secara konsep,
+       tetapi dibuat 2 kolom agar nyaman
+       di layar mobile.
+    ============================================= */
+
+    .module-grid{
+
+        grid-template-columns:
+
+            repeat(
+
+                2,
+
+                1fr
+
+            );
+
+        gap:12px;
+
+    }
+
+
+    .module-card{
+
+        min-height:115px;
+
+        padding:18px 12px;
+
+        border-radius:18px;
+
+    }
+
+
+    .module-icon{
+
+        width:44px;
+
+        height:44px;
+
+        font-size:24px;
+
+        border-radius:14px;
+
+    }
+
+
+    .module-name{
+
+        font-size:14px;
+
+    }
+
+
+    /* =============================================
+       APP SLIDE MOBILE
+    ============================================= */
+
+    .app-slide-section{
+
+        min-height:300px;
+
+        padding:16px;
+
+        border-radius:24px;
+
+    }
+
+
+    .app-slide{
+
+        min-height:280px;
+
+    }
+
+
+    .app-slide img{
+
+        max-height:280px;
+
+        border-radius:18px;
+
+    }
+
 
 }
 
-.hero h1{
 
-    font-size:42px;
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
 
-}
+@media(
 
-section h2{
+max-width:420px
 
-    font-size:28px;
+){
 
-}
+    section,
 
-button{
+    header{
 
-    width:100%;
+        width:
 
-}
+            calc(
+
+                100% - 28px
+
+            );
+
+    }
+
+
+    .module-grid{
+
+        gap:10px;
+
+    }
+
+
+    .module-card{
+
+        min-height:105px;
+
+    }
+
+
+    .app-slide-section{
+
+        margin-top:28px;
+
+        min-height:240px;
+
+    }
+
+
+    .app-slide{
+
+        min-height:220px;
+
+    }
+
+
+    .app-slide img{
+
+        max-height:220px;
+
+    }
 
 }
