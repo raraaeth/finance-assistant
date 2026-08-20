@@ -1,4 +1,15 @@
 /* ==========================================
+   IMPORT
+========================================== */
+import {
+
+    saveUser,
+
+    saveTheme
+
+} from "./storage.js";
+
+/* ==========================================
    GOOGLE AUTH
 ========================================== */
 
@@ -608,6 +619,45 @@ async function handleCallback(){
         return;
 
     }
+
+   /* ==========================================
+   RESTORE ACCOUNT DATA
+========================================== */
+
+const accountData =
+
+    result.workspace?.accountData;
+
+
+if(
+
+    accountData
+
+){
+
+    saveUser(
+
+        accountData
+
+    );
+
+
+    saveTheme(
+
+        accountData.theme
+
+    );
+
+
+    console.log(
+
+        "Account Data Restored:",
+
+        accountData
+
+    );
+
+}
 
 
     /* ==========================================
