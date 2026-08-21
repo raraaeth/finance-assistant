@@ -44,6 +44,12 @@ import {
 
 } from "./process.js";
 
+import {
+
+    Statistics
+
+} from "./statistics.js";
+
 
 import {
 
@@ -107,6 +113,7 @@ export async function init(){
         ============================================= */
 
         await Process.init();
+        Statistics.init();
 
 
         /* =============================================
