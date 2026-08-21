@@ -40,7 +40,7 @@
 
 const CACHE_NAME =
 
-    "finance-assistant-v1";
+    "finance-assistant-v2";
 
 
 const BASE_PATH =
@@ -176,7 +176,9 @@ const STATIC_ASSETS = [
 
     BASE_PATH + "/assets/images/hero/hero-saving.png",
 
-    BASE_PATH + "/assets/images/hero/hero-payroll.png"
+    BASE_PATH + "/assets/images/hero/hero-payroll.png",
+
+    BASE_PATH + "/assets/images/hero/hero-airdrop.png"
 
 ];
 
