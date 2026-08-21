@@ -555,3 +555,297 @@
     }
 
 }
+
+/* =====================================================
+   TRANSACTION LIST
+===================================================== */
+
+#statistics-transaction-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:0;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   TRANSACTION ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    width:100%;
+
+    min-height:82px;
+
+    padding:16px 18px;
+
+    box-sizing:border-box;
+
+    border-bottom:1px solid var(--border);
+
+    background:transparent;
+
+}
+
+
+/* =====================================================
+   LAST TRANSACTION
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item:last-child{
+
+    border-bottom:none;
+
+}
+
+
+/* =====================================================
+   TRANSACTION INFO
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    justify-content:center;
+
+    gap:4px;
+
+    min-width:0;
+
+    flex:1;
+
+    text-align:left;
+
+}
+
+
+/* =====================================================
+   PROJECT
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info strong{
+
+    display:block;
+
+    width:100%;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text);
+
+    font-size:16px;
+
+    line-height:1.25;
+
+    font-weight:750;
+
+    text-align:left;
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info small{
+
+    display:block;
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.3;
+
+    text-align:left;
+
+}
+
+
+/* =====================================================
+   WALLET / TYPE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info p{
+
+    display:block;
+
+    width:100%;
+
+    margin:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.3;
+
+    text-align:left;
+
+}
+
+
+/* =====================================================
+   STATUS / REWARD
+===================================================== */
+
+#statistics-transaction-list
+.transaction-amount{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-end;
+
+    flex-shrink:0;
+
+    min-width:96px;
+
+    color:var(--text);
+
+    font-size:13px;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+    text-align:right;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:600px
+
+){
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        min-height:76px;
+
+        padding:14px 16px;
+
+        gap:12px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info strong{
+
+        font-size:15px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info small{
+
+        font-size:11px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info p{
+
+        font-size:11px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-amount{
+
+        min-width:88px;
+
+        font-size:12px;
+
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREEN
+===================================================== */
+
+@media(
+
+    max-width:380px
+
+){
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        padding:13px 14px;
+
+        gap:8px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info strong{
+
+        font-size:14px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-amount{
+
+        min-width:78px;
+
+        font-size:11px;
+
+    }
+
+   }
