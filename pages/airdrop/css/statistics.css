@@ -1,0 +1,557 @@
+/* =====================================================
+   Finance Assistant
+   Page        : Airdrop
+   Module      : Statistics
+   File        : statistics.css
+   Version     : 1.0.0
+
+   Description :
+   Airdrop Statistics Styling
+
+   Theme Aware :
+   - Light
+   - Dark
+   - Green
+   - Pink
+
+   Components :
+   - Filter
+   - Chart
+   - Airdrop List
+   - Status
+   - Reward
+   - Pagination
+===================================================== */
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+#statistics-filter{
+
+    width:100%;
+
+}
+
+
+#statistics-filter-list{
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   CHART
+===================================================== */
+
+#statistics-chart{
+
+    width:100%;
+
+}
+
+
+#statistics-chart-canvas{
+
+    display:block;
+
+    width:100% !important;
+
+    max-width:100%;
+
+    min-height:220px;
+
+}
+
+
+/* =====================================================
+   TRANSACTION LIST
+===================================================== */
+
+#statistics-transaction-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   TRANSACTION ITEM
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:14px;
+
+    width:100%;
+
+    min-height:72px;
+
+    padding:13px 14px;
+
+    box-sizing:border-box;
+
+    border-radius:16px;
+
+    background:var(--surface);
+
+    overflow:hidden;
+
+    transition:
+
+        transform .2s ease,
+
+        background .2s ease;
+
+}
+
+
+/* =====================================================
+   TRANSACTION ITEM HOVER
+===================================================== */
+
+#statistics-transaction-list
+.transaction-item:hover{
+
+    transform:
+
+        translateY(-1px);
+
+}
+
+
+/* =====================================================
+   TRANSACTION INFO
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+    min-width:0;
+
+    flex:1;
+
+}
+
+
+/* =====================================================
+   PROJECT
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info strong{
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text);
+
+    font-size:15px;
+
+    line-height:1.3;
+
+    font-weight:750;
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info small{
+
+    color:var(--text-secondary);
+
+    font-size:11px;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   WALLET / TYPE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-info p{
+
+    margin:1px 0 0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   STATUS / REWARD
+===================================================== */
+
+#statistics-transaction-list
+.transaction-amount{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-end;
+
+    justify-content:center;
+
+    gap:3px;
+
+    flex-shrink:0;
+
+    min-width:72px;
+
+    text-align:right;
+
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+#statistics-transaction-list
+.transaction-amount strong{
+
+    color:var(--text);
+
+    font-size:13px;
+
+    line-height:1.25;
+
+    font-weight:750;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   REWARD
+===================================================== */
+
+#statistics-transaction-list
+.transaction-amount small{
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.25;
+
+    font-weight:600;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+#statistics-show-more{
+
+    width:100%;
+
+    margin-top:14px;
+
+}
+
+
+/* =====================================================
+   PAGINATION CONTAINER
+===================================================== */
+
+.statistics-pagination{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   PAGINATION BUTTON
+===================================================== */
+
+.statistics-pagination button{
+
+    min-width:110px;
+
+    min-height:38px;
+
+    padding:8px 12px;
+
+    border:0;
+
+    border-radius:12px;
+
+    background:var(--surface);
+
+    color:var(--text);
+
+    font-size:12px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:
+
+        transform .2s ease,
+
+        opacity .2s ease,
+
+        background .2s ease;
+
+}
+
+
+/* =====================================================
+   PAGINATION BUTTON HOVER
+===================================================== */
+
+.statistics-pagination button:not(:disabled):hover{
+
+    transform:
+
+        translateY(-1px);
+
+    background:
+
+        var(--surface-secondary);
+
+}
+
+
+/* =====================================================
+   PAGINATION DISABLED
+===================================================== */
+
+.statistics-pagination button:disabled{
+
+    opacity:.4;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =====================================================
+   PAGINATION PAGE
+===================================================== */
+
+.statistics-pagination span{
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    font-weight:700;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:600px
+
+){
+
+    #statistics-chart-canvas{
+
+        min-height:200px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        min-height:68px;
+
+        padding:12px;
+
+        border-radius:14px;
+
+        gap:10px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info strong{
+
+        font-size:14px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info small{
+
+        font-size:10px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info p{
+
+        font-size:11px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-amount{
+
+        min-width:68px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-amount strong{
+
+        font-size:12px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-amount small{
+
+        font-size:11px;
+
+    }
+
+
+    .statistics-pagination button{
+
+        min-width:96px;
+
+        min-height:36px;
+
+        padding:7px 9px;
+
+        font-size:11px;
+
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREEN
+===================================================== */
+
+@media(
+
+    max-width:380px
+
+){
+
+    #statistics-transaction-list
+    .transaction-item{
+
+        align-items:flex-start;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-amount{
+
+        min-width:62px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info strong{
+
+        font-size:13px;
+
+    }
+
+
+    #statistics-transaction-list
+    .transaction-info p{
+
+        max-width:150px;
+
+    }
+
+
+    .statistics-pagination{
+
+        gap:6px;
+
+    }
+
+
+    .statistics-pagination button{
+
+        min-width:82px;
+
+        padding:7px 6px;
+
+    }
+
+}
