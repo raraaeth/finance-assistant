@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Home
    File        : home.css
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Airdrop Home Styling
@@ -19,6 +19,8 @@
    - Summary Grid
    - Summary Icon
    - Reminder
+   - Reminder Focus
+   - Reminder Shimmer
 ===================================================== */
 
 
@@ -276,6 +278,7 @@
 
 }
 
+
 /* =====================================================
    REMINDER LIST
 ===================================================== */
@@ -303,6 +306,8 @@
 
 .airdrop-reminder-item{
 
+    position:relative;
+
     display:flex;
 
     align-items:center;
@@ -322,6 +327,151 @@
     border-radius:14px;
 
     background:var(--surface);
+
+    overflow:hidden;
+
+    transition:
+
+        transform .55s ease,
+
+        box-shadow .55s ease;
+
+}
+
+
+/* =====================================================
+   REMINDER FOCUS
+===================================================== */
+
+.airdrop-reminder-item.airdrop-reminder-focus{
+
+    transform:
+
+        translateY(-4px)
+
+        scale(1.012);
+
+    box-shadow:
+
+        0 6px 18px
+
+        rgba(
+
+            0,
+
+            0,
+
+            0,
+
+            .08
+
+        );
+
+}
+
+
+/* =====================================================
+   REMINDER SHIMMER
+===================================================== */
+
+.airdrop-reminder-item.airdrop-reminder-focus::after{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+
+    left:-120%;
+
+    width:65%;
+
+    height:100%;
+
+    pointer-events:none;
+
+    background:
+
+        linear-gradient(
+
+            105deg,
+
+            transparent 0%,
+
+            transparent 35%,
+
+            rgba(
+
+                255,
+
+                255,
+
+                255,
+
+                0
+
+            ) 42%,
+
+            rgba(
+
+                255,
+
+                255,
+
+                255,
+
+                .20
+
+            ) 50%,
+
+            rgba(
+
+                255,
+
+                255,
+
+                255,
+
+                0
+
+            ) 58%,
+
+            transparent 65%,
+
+            transparent 100%
+
+        );
+
+    animation:
+
+        airdrop-reminder-shimmer
+
+        1.4s
+
+        ease-in-out
+
+        forwards;
+
+}
+
+
+/* =====================================================
+   SHIMMER KEYFRAMES
+===================================================== */
+
+@keyframes airdrop-reminder-shimmer{
+
+    0%{
+
+        left:-120%;
+
+    }
+
+    100%{
+
+        left:140%;
+
+    }
 
 }
 
@@ -492,7 +642,6 @@
     }
 
 
-
     #airdrop-reminder-viewport{
 
         height:210px;
@@ -525,6 +674,17 @@
     .airdrop-reminder-deadline{
 
         font-size:11px;
+
+    }
+
+
+    .airdrop-reminder-item.airdrop-reminder-focus{
+
+        transform:
+
+            translateY(-3px)
+
+            scale(1.008);
 
     }
 
