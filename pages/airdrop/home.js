@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Home
    File        : home.js
-   Version     : 2.0.0
+   Version     : 2.1.0
 
    Description :
    Airdrop Home Controller
@@ -15,6 +15,7 @@
    - Hero
    - Summary
    - Reminder
+   - Reminder Animation
    - Helper
 ===================================================== */
 
@@ -67,7 +68,7 @@ import {
 
 import {
 
-    rupiah
+    usd
 
 } from "../../js/utils.js";
 
@@ -295,25 +296,73 @@ function renderSummary(){
     }
 
 
+    /* =============================================
+       DATA
+    ============================================= */
+
     const totalReward =
 
-        Process.summary.totalReward;
+        Number(
+
+            Process.summary?.totalReward
+
+        ) || 0;
 
 
     const totalAirdrop =
 
-        Process.data.length;
+        Array.isArray(
+
+            Process.data
+
+        )
+
+        ?
+
+        Process.data.length
+
+        :
+
+        0;
 
 
     const totalOngoing =
 
-        Process.ongoing.length;
+        Array.isArray(
+
+            Process.ongoing
+
+        )
+
+        ?
+
+        Process.ongoing.length
+
+        :
+
+        0;
 
 
     const totalWinner =
 
-        Process.win.length;
+        Array.isArray(
 
+            Process.win
+
+        )
+
+        ?
+
+        Process.win.length
+
+        :
+
+        0;
+
+
+    /* =============================================
+       HTML
+    ============================================= */
 
     card.innerHTML =
 
@@ -338,7 +387,7 @@ function renderSummary(){
 
                 class="airdrop-home-total-value">
 
-                Rp 0
+                $0
 
             </strong>
 
@@ -352,9 +401,17 @@ function renderSummary(){
         <div class="airdrop-home-grid">
 
 
-            <!-- TOTAL AIRDROP -->
+            <!-- ======================================
+                 TOTAL AIRDROP
+            ======================================= -->
 
             <div class="airdrop-home-item">
+
+                <div class="airdrop-home-item-icon">
+
+                    🎯
+
+                </div>
 
                 <span>
 
@@ -371,9 +428,17 @@ function renderSummary(){
             </div>
 
 
-            <!-- ONGOING -->
+            <!-- ======================================
+                 ONGOING
+            ======================================= -->
 
             <div class="airdrop-home-item">
+
+                <div class="airdrop-home-item-icon">
+
+                    ⏳
+
+                </div>
 
                 <span>
 
@@ -390,9 +455,17 @@ function renderSummary(){
             </div>
 
 
-            <!-- WINNER -->
+            <!-- ======================================
+                 WINNER
+            ======================================= -->
 
             <div class="airdrop-home-item">
+
+                <div class="airdrop-home-item-icon">
+
+                    🏆
+
+                </div>
 
                 <span>
 
@@ -415,7 +488,7 @@ function renderSummary(){
 
 
     /* =============================================
-       NUMBER ANIMATION
+       TOTAL REWARD ANIMATION
     ============================================= */
 
     const element =
@@ -439,7 +512,7 @@ function renderSummary(){
 
             totalReward,
 
-            rupiah,
+            usd,
 
             1800
 
@@ -505,6 +578,12 @@ function renderReminder(){
         section.classList.add(
 
             "hidden"
+
+        );
+
+        clearInterval(
+
+            State.reminderTimer
 
         );
 
@@ -730,6 +809,10 @@ function initReminderAnimation(){
 
         list.children;
 
+
+    /* =============================================
+       THREE OR LESS
+    ============================================= */
 
     if(
 
