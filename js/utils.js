@@ -237,6 +237,44 @@ export function formatTime(
 }
 
 /* =====================================================
+   USD
+===================================================== */
+
+export function usd(
+
+    value = 0
+
+){
+
+    return Number(
+
+        value
+
+    ).toLocaleString(
+
+        "en-US",
+
+        {
+
+            style :
+
+                "currency",
+
+            currency :
+
+                "USD",
+
+            minimumFractionDigits : 0,
+
+            maximumFractionDigits : 0
+
+        }
+
+    );
+
+}
+
+/* =====================================================
    GLOBAL FORMATTER
 ===================================================== */
 
@@ -247,4 +285,8 @@ window.rupiah =
 window.shortRupiah =
 
     shortRupiah;
+
+window.usd =
+
+    usd;
 
