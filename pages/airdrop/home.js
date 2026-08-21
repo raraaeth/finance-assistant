@@ -860,7 +860,7 @@ function initReminderAnimation(){
 
     if(
 
-        items.length <= 3
+        items.length <= 2
 
     ){
 
@@ -936,7 +936,7 @@ function initReminderAnimation(){
 
                 },
 
-                2500
+                2000
 
             );
 
