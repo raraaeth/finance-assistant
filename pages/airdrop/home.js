@@ -810,19 +810,11 @@ function initReminderAnimation(){
         list.children;
 
 
-    /* =============================================
-       THREE OR LESS
-    ============================================= */
-
     if(
 
-        items.length <= 3
+        !items.length
 
     ){
-
-        list.style.transform =
-
-            "translateY(0)";
 
         return;
 
@@ -858,6 +850,107 @@ function initReminderAnimation(){
 
         gap;
 
+
+    /* =============================================
+       JUMLAH ITEM <= 3
+       
+       Tetap animasi tetapi hanya bergerak
+       sedikit supaya item tidak hilang.
+    ============================================= */
+
+    if(
+
+        items.length <= 3
+
+    ){
+
+        const smallMovement =
+
+            Math.min(
+
+                12,
+
+                Math.max(
+
+                    4,
+
+                    itemHeight * 0.12
+
+                )
+
+            );
+
+
+        State.reminderTimer =
+
+            setInterval(
+
+                () => {
+
+                    position +=
+
+                        direction *
+
+                        smallMovement;
+
+
+                    if(
+
+                        position >=
+
+                        smallMovement
+
+                    ){
+
+                        position =
+
+                            smallMovement;
+
+                        direction =
+
+                            -1;
+
+                    }
+
+
+                    else if(
+
+                        position <= 0
+
+                    ){
+
+                        position =
+
+                            0;
+
+                        direction =
+
+                            1;
+
+                    }
+
+
+                    list.style.transform =
+
+                        `translateY(-${position}px)`;
+
+                },
+
+                2500
+
+            );
+
+
+        return;
+
+    }
+
+
+    /* =============================================
+       LEBIH DARI 3 ITEM
+       
+       Bergerak per item.
+    ============================================= */
 
     const maxPosition =
 
@@ -937,7 +1030,7 @@ function initReminderAnimation(){
 
         );
 
-}
+}                
 
 
 /* =====================================================
