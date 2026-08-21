@@ -326,18 +326,109 @@ function renderDistribution(){
     }
 
 
-    const data = [
+    /* =============================================
+       DATA STATUS
+    ============================================= */
 
-        Process.summary.totalOngoing,
+    const ongoing =
 
-        Process.summary.totalEnded,
+        Number(
 
-        Process.summary.totalWin,
+            Process.summary?.totalOngoing
 
-        Process.summary.totalNotWin
+        ) || 0;
+
+
+    const ended =
+
+        Number(
+
+            Process.summary?.totalEnded
+
+        ) || 0;
+
+
+    const win =
+
+        Number(
+
+            Process.summary?.totalWin
+
+        ) || 0;
+
+
+    const notWin =
+
+        Number(
+
+            Process.summary?.totalNotWin
+
+        ) || 0;
+
+
+    const labels = [
+
+        "Ongoing",
+
+        "Ended",
+
+        "Win",
+
+        "Not Win"
 
     ];
 
+
+    const values = [
+
+        ongoing,
+
+        ended,
+
+        win,
+
+        notWin
+
+    ];
+
+
+    /* =============================================
+       CEK DATA
+    ============================================= */
+
+    const total =
+
+        values.reduce(
+
+            (
+
+                sum,
+
+                value
+
+            ) =>
+
+                sum + value,
+
+            0
+
+        );
+
+
+    if(
+
+        total <= 0
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       DONUT
+    ============================================= */
 
     Chart.renderDoughnut({
 
@@ -345,24 +436,34 @@ function renderDistribution(){
 
             "#summary-distribution-chart",
 
-        labels : [
 
-            "Ongoing",
+        labels,
 
-            "Ended",
 
-            "Win",
+        datasets : [
 
-            "Not Win"
+            {
 
-        ],
+                data :
 
-        data
+                    values,
+
+                backgroundColor : [
+
+                    "#F59E0B", // Ongoing
+                    "#94A3B8", // Ended
+                    "#22C55E", // Win
+                    "#EF4444"  // Not Win
+
+                ]
+
+            }
+
+        ]
 
     });
 
 }
-
 
 /* =====================================================
    WALLET DISTRIBUTION
