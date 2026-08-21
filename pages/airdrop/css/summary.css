@@ -1,0 +1,745 @@
+/* =====================================================
+   Finance Assistant
+   Workspace   : Airdrop
+   Module      : Summary
+   File        : summary.css
+   Version     : 1.0.0
+
+   Description :
+   Summary Page Airdrop
+===================================================== */
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+#summary-page .section{
+
+    margin-bottom:32px;
+
+}
+
+
+/* =====================================================
+   OVERVIEW
+===================================================== */
+
+.summary-total{
+
+    text-align:center;
+
+}
+
+
+.summary-total p{
+
+    margin:0;
+
+}
+
+
+.summary-total h2{
+
+    margin-top:8px;
+
+}
+
+
+/* =====================================================
+   SUMMARY GRID
+===================================================== */
+
+.summary-grid{
+
+    margin-top:20px;
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            2,
+
+            1fr
+
+        );
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   SUMMARY ITEM
+===================================================== */
+
+.summary-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    padding:16px;
+
+    border-radius:16px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   AIRDROP OVERVIEW
+===================================================== */
+
+.airdrop-summary-overview{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+
+/* =====================================================
+   TOTAL AIRDROP
+===================================================== */
+
+.airdrop-summary-total{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:6px;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+    text-align:center;
+
+}
+
+
+.airdrop-summary-total-icon{
+
+    width:42px;
+
+    height:42px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:#F5F7FB;
+
+    font-size:22px;
+
+}
+
+
+.airdrop-summary-total-label{
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+}
+
+
+.airdrop-summary-total strong{
+
+    font-size:30px;
+
+    font-weight:800;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   AIRDROP STATUS GRID
+===================================================== */
+
+.airdrop-summary-status-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            4,
+
+            1fr
+
+        );
+
+    gap:12px;
+
+}
+
+
+.airdrop-summary-status{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:6px;
+
+    min-height:92px;
+
+    padding:12px 8px;
+
+    border-radius:16px;
+
+    background:var(--surface);
+
+    text-align:center;
+
+}
+
+
+.airdrop-summary-status-icon{
+
+    width:34px;
+
+    height:34px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:10px;
+
+    background:#F5F7FB;
+
+    font-size:18px;
+
+}
+
+
+.airdrop-summary-status span:not(
+
+    .airdrop-summary-status-icon
+
+){
+
+    font-size:11px;
+
+    font-weight:600;
+
+    color:var(--text-secondary);
+
+}
+
+
+.airdrop-summary-status strong{
+
+    font-size:21px;
+
+    font-weight:800;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   DISTRIBUTION
+===================================================== */
+
+#summary-distribution-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:24px;
+
+}
+
+
+/* =====================================================
+   DONUT CHART
+===================================================== */
+
+#summary-distribution-chart{
+
+    display:block;
+
+    width:260px !important;
+
+    height:260px !important;
+
+    margin:auto;
+
+}
+
+
+/* =====================================================
+   DISTRIBUTION LIST
+===================================================== */
+
+#summary-distribution-list{
+
+    width:100%;
+
+    margin-top:24px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+}
+
+
+/* =====================================================
+   WALLET ITEM
+===================================================== */
+
+.airdrop-wallet-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   WALLET HEADER
+===================================================== */
+
+.airdrop-wallet-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+
+.airdrop-wallet-header strong{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+.airdrop-wallet-header span{
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   WALLET BAR LIST
+===================================================== */
+
+.airdrop-wallet-bars{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   WALLET BAR ROW
+===================================================== */
+
+.airdrop-wallet-bar-row{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+
+/* =====================================================
+   WALLET BAR LABEL
+===================================================== */
+
+.airdrop-wallet-bar-label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+}
+
+
+.airdrop-wallet-bar-label span{
+
+    width:20px;
+
+    flex-shrink:0;
+
+    font-size:14px;
+
+}
+
+
+.airdrop-wallet-bar-label small{
+
+    flex:1;
+
+    font-size:12px;
+
+    color:var(--text-secondary);
+
+}
+
+
+.airdrop-wallet-bar-label strong{
+
+    font-size:12px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   WALLET BAR
+===================================================== */
+
+.airdrop-wallet-bar-track{
+
+    width:100%;
+
+    height:10px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:#edf2ff;
+
+}
+
+
+/* =====================================================
+   WALLET BAR FILL
+===================================================== */
+
+.airdrop-wallet-bar-fill{
+
+    height:100%;
+
+    min-width:4px;
+
+    border-radius:999px;
+
+    background:linear-gradient(
+
+        90deg,
+
+        #4f7cff,
+
+        #6fa4ff
+
+    );
+
+    transition:
+
+        width .5s ease;
+
+}
+
+
+/* =====================================================
+   STATUS VARIANTS
+===================================================== */
+
+.airdrop-wallet-ongoing
+.airdrop-wallet-bar-fill{
+
+    background:linear-gradient(
+
+        90deg,
+
+        #f59e0b,
+
+        #fbbf24
+
+    );
+
+}
+
+
+.airdrop-wallet-ended
+.airdrop-wallet-bar-fill{
+
+    background:linear-gradient(
+
+        90deg,
+
+        #64748b,
+
+        #94a3b8
+
+    );
+
+}
+
+
+.airdrop-wallet-win
+.airdrop-wallet-bar-fill{
+
+    background:linear-gradient(
+
+        90deg,
+
+        #22c55e,
+
+        #4ade80
+
+    );
+
+}
+
+
+.airdrop-wallet-not-win
+.airdrop-wallet-bar-fill{
+
+    background:linear-gradient(
+
+        90deg,
+
+        #ef4444,
+
+        #f87171
+
+    );
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.summary-empty{
+
+    padding:20px 10px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:600px
+
+){
+
+    .airdrop-summary-status-grid{
+
+        grid-template-columns:
+
+            repeat(
+
+                2,
+
+                1fr
+
+            );
+
+        gap:10px;
+
+    }
+
+
+    .airdrop-summary-status{
+
+        min-height:86px;
+
+    }
+
+
+    .airdrop-summary-total{
+
+        padding:16px;
+
+    }
+
+
+    .airdrop-summary-total strong{
+
+        font-size:28px;
+
+    }
+
+
+    #summary-distribution-card{
+
+        padding:16px;
+
+    }
+
+
+    #summary-distribution-chart{
+
+        width:230px !important;
+
+        height:230px !important;
+
+    }
+
+
+    #summary-distribution-list{
+
+        gap:20px;
+
+    }
+
+
+    .airdrop-wallet-header strong{
+
+        font-size:14px;
+
+    }
+
+
+    .airdrop-wallet-bar-track{
+
+        height:9px;
+
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREEN
+===================================================== */
+
+@media(
+
+    max-width:380px
+
+){
+
+    .airdrop-summary-status-grid{
+
+        gap:8px;
+
+    }
+
+
+    .airdrop-summary-status{
+
+        min-height:82px;
+
+        padding:10px 6px;
+
+    }
+
+
+    .airdrop-summary-status-icon{
+
+        width:30px;
+
+        height:30px;
+
+        font-size:16px;
+
+    }
+
+
+    .airdrop-summary-status strong{
+
+        font-size:19px;
+
+    }
+
+
+    #summary-distribution-chart{
+
+        width:210px !important;
+
+        height:210px !important;
+
+    }
+
+
+    .airdrop-wallet-bar-track{
+
+        height:8px;
+
+    }
+
+}
