@@ -807,7 +807,11 @@ function initReminderAnimation(){
 
     const items =
 
-        list.children;
+        Array.from(
+
+            list.children
+
+        );
 
 
     if(
@@ -821,64 +825,47 @@ function initReminderAnimation(){
     }
 
 
-    let position = 0;
+    /* =============================================
+       RESET
+    ============================================= */
 
-    let direction = 1;
+    list.style.transition =
 
+        "none";
 
-    const itemHeight =
+    list.style.transform =
 
-        items[0].offsetHeight;
-
-
-    const gap =
-
-        parseFloat(
-
-            getComputedStyle(
-
-                list
-
-            ).gap
-
-        ) || 0;
-
-
-    const step =
-
-        itemHeight +
-
-        gap;
+        "translateY(0)";
 
 
     /* =============================================
-       JUMLAH ITEM <= 3
+       HITUNG TINGGI LIST
+    ============================================= */
+
+    const listHeight =
+
+        list.scrollHeight;
+
+
+    const viewportHeight =
+
+        viewport.clientHeight;
+
+
+    /* =============================================
+       JIKA TINGGI LIST MASIH CUKUP
        
-       Tetap animasi tetapi hanya bergerak
-       sedikit supaya item tidak hilang.
+       Tetap jalankan animasi kecil supaya
+       reminder tidak terasa mati.
     ============================================= */
 
     if(
 
-        items.length <= 2
+        listHeight <= viewportHeight
 
     ){
 
-        const smallMovement =
-
-            Math.min(
-
-                12,
-
-                Math.max(
-
-                    4,
-
-                    itemHeight * 0.12
-
-                )
-
-            );
+        const movement = 12;
 
 
         State.reminderTimer =
@@ -887,56 +874,38 @@ function initReminderAnimation(){
 
                 () => {
 
-                    position +=
+                    list.style.transition =
 
-                        direction *
-
-                        smallMovement;
-
-
-                    if(
-
-                        position >=
-
-                        smallMovement
-
-                    ){
-
-                        position =
-
-                            smallMovement;
-
-                        direction =
-
-                            -1;
-
-                    }
-
-
-                    else if(
-
-                        position <= 0
-
-                    ){
-
-                        position =
-
-                            0;
-
-                        direction =
-
-                            1;
-
-                    }
+                        "transform 1.8s ease-in-out";
 
 
                     list.style.transform =
 
-                        `translateY(-${position}px)`;
+                        `translateY(-${movement}px)`;
+
+
+                    setTimeout(
+
+                        () => {
+
+                            list.style.transition =
+
+                                "transform 1.8s ease-in-out";
+
+
+                            list.style.transform =
+
+                                "translateY(0)";
+
+                        },
+
+                        2000
+
+                    );
 
                 },
 
-                2000
+                5500
 
             );
 
@@ -947,91 +916,150 @@ function initReminderAnimation(){
 
 
     /* =============================================
-       LEBIH DARI 3 ITEM
+       POSISI AKHIR
        
-       Bergerak per item.
+       List digeser ke bawah sampai
+       seluruh isi keluar dari viewport.
     ============================================= */
 
-    const maxPosition =
+    const exitDistance =
 
-        Math.max(
+        viewportHeight +
 
-            0,
+        listHeight;
 
-            (
 
-                items.length -
+    /* =============================================
+       START ANIMATION
+    ============================================= */
 
-                3
+    function animate(){
 
-            ) *
+        /* -----------------------------------------
+           PASTIKAN LIST MULAI DARI ATAS
+        ----------------------------------------- */
 
-            step
+        list.style.transition =
+
+            "none";
+
+        list.style.transform =
+
+            "translateY(0)";
+
+
+        /* -----------------------------------------
+           BERIKAN WAKTU UNTUK MEMBACA
+        ----------------------------------------- */
+
+        setTimeout(
+
+            () => {
+
+                list.style.transition =
+
+                    "transform 6s ease-in-out";
+
+
+                list.style.transform =
+
+                    `translateY(${exitDistance}px)`;
+
+
+                /* ---------------------------------
+                   SETELAH KELUAR
+
+                   Tunggu 2 detik.
+                --------------------------------- */
+
+                setTimeout(
+
+                    () => {
+
+                        list.style.transition =
+
+                            "none";
+
+
+                        /* -------------------------
+                           MUNCUL DARI BAWAH
+                        ------------------------- */
+
+                        list.style.transform =
+
+                            `translateY(${exitDistance}px)`;
+
+
+                        requestAnimationFrame(
+
+                            () => {
+
+                                requestAnimationFrame(
+
+                                    () => {
+
+                                        list.style.transition =
+
+                                            "transform 6s ease-in-out";
+
+
+                                        list.style.transform =
+
+                                            "translateY(0)";
+
+                                    }
+
+                                );
+
+                            }
+
+                        );
+
+                    },
+
+                    2000
+
+                );
+
+            },
+
+            2500
 
         );
 
+    }
+
+
+    /* =============================================
+       RUN
+    ============================================= */
+
+    animate();
+
+
+    /* =============================================
+       LOOP
+       
+       Durasi:
+       
+       2.5 detik baca
+       6 detik turun
+       2 detik kosong
+       6 detik naik
+       = 16.5 detik
+    ============================================= */
 
     State.reminderTimer =
 
         setInterval(
 
-            () => {
+            animate,
 
-                position +=
-
-                    direction *
-
-                    step;
-
-
-                if(
-
-                    position >=
-
-                    maxPosition
-
-                ){
-
-                    position =
-
-                        maxPosition;
-
-                    direction =
-
-                        -1;
-
-                }
-
-
-                else if(
-
-                    position <= 0
-
-                ){
-
-                    position =
-
-                        0;
-
-                    direction =
-
-                        1;
-
-                }
-
-
-                list.style.transform =
-
-                    `translateY(-${position}px)`;
-
-            },
-
-            3500
+            16500
 
         );
 
-}                
-
+}
 
 /* =====================================================
    REMAINING DAYS
