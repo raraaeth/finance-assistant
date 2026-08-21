@@ -67,7 +67,7 @@ import {
 
 import {
 
-    usd
+    rupiah
 
 } from "../../js/utils.js";
 
@@ -76,14 +76,21 @@ import {
    STATE
 ===================================================== */
 
-const user =
+const State = {
 
-    loadUser();
+    user :
 
+        loadUser(),
 
-let reminderAnimation =
+    reminderTimer :
 
-    null;
+        null,
+
+    reminderDirection :
+
+        1
+
+};
 
 
 /* =====================================================
@@ -92,137 +99,81 @@ let reminderAnimation =
 
 export async function init(){
 
-    /* =============================================
-       HEADER
-    ============================================= */
+    try {
 
-    await Header.render({
+        /* =============================================
+           PROCESS
+        ============================================= */
 
-        container :
-
-            "#header-container",
-
-        theme :
-
-            "airdrop"
-
-    });
+        await Process.init();
 
 
-    /* =============================================
-       HERO
-    ============================================= */
+        /* =============================================
+           HEADER
+        ============================================= */
 
-    renderHero();
+        await Header.render({
 
+            container :
 
-    /* =============================================
-       PROCESS
-    ============================================= */
+                "#header-container",
 
-    initProcess();
+            theme :
 
+                "airdrop"
 
-    /* =============================================
-       SUMMARY
-    ============================================= */
-
-    renderSummary();
+        });
 
 
-    /* =============================================
-       REMINDER
-    ============================================= */
+        /* =============================================
+           HERO
+        ============================================= */
 
-    renderReminder();
-
-
-    /* =============================================
-       PROFILE
-    ============================================= */
-
-    await Profile.render({
-
-        container :
-
-            "#profile-page"
-
-    });
-
-}
+        renderHero();
 
 
-/* =====================================================
-   PROCESS
-===================================================== */
+        /* =============================================
+           SUMMARY
+        ============================================= */
 
-function initProcess(){
+        renderSummary();
 
-    /*
-     * Process sudah menjadi business engine
-     * workspace Airdrop.
-     *
-     * Jika data sudah diproses oleh engine,
-     * Home langsung menggunakan hasilnya.
-     */
 
-    if(
+        /* =============================================
+           REMINDER
+        ============================================= */
 
-        !Process
+        renderReminder();
 
-    ){
 
-        console.warn(
+        /* =============================================
+           PROFILE
+        ============================================= */
 
-            "Airdrop Process tidak tersedia."
+        await Profile.render({
 
-        );
+            container :
 
-        return;
+                "#profile-page"
+
+        });
+
 
     }
 
+    catch(
 
-    /*
-     * Jika Process memiliki init()
-     * tetapi belum dijalankan, jalankan.
-     *
-     * Bagian ini dibuat defensif agar
-     * tidak merusak workspace ketika
-     * engine nantinya dipindahkan ke
-     * app.js / workspace loader.
-     */
-
-    if(
-
-        typeof Process.init ===
-
-        "function"
+        error
 
     ){
 
-        /*
-         * Jangan memaksa init apabila
-         * data sudah tersedia.
-         */
+        console.error(
 
-        if(
+            "Airdrop Home gagal dimuat:",
 
-            !Array.isArray(
+            error
 
-                Process.data
-
-            )
-
-            ||
-
-            Process.data.length === 0
-
-        ){
-
-            Process.init();
-
-        }
+        );
 
     }
 
@@ -239,7 +190,7 @@ function renderHero(){
 
         capitalize(
 
-            user?.displayName ??
+            State.user?.displayName ??
 
             "Guest"
 
@@ -264,7 +215,7 @@ function renderHero(){
         );
 
 
-    const image =
+    const banner =
 
         document.getElementById(
 
@@ -294,27 +245,22 @@ function renderHero(){
 
         description.textContent =
 
-            CONFIG.hero?.description ??
-
-            "Pantau airdrop dan reward kamu.";
+            CONFIG.hero.description;
 
     }
 
 
     if(
 
-        image
+        banner
 
     ){
 
-        image.src =
+        banner.src =
 
-            CONFIG.hero?.image ??
+            CONFIG.hero.image;
 
-            "";
-
-
-        image.alt =
+        banner.alt =
 
             "Airdrop";
 
@@ -349,9 +295,24 @@ function renderSummary(){
     }
 
 
-    const data =
+    const totalReward =
 
-        getSummaryData();
+        Process.summary.totalReward;
+
+
+    const totalAirdrop =
+
+        Process.data.length;
+
+
+    const totalOngoing =
+
+        Process.ongoing.length;
+
+
+    const totalWinner =
+
+        Process.win.length;
 
 
     card.innerHTML =
@@ -362,9 +323,9 @@ function renderSummary(){
              TOTAL REWARD
         =========================================== -->
 
-        <div class="airdrop-summary-total">
+        <div class="airdrop-home-total">
 
-            <span class="airdrop-summary-label">
+            <span class="airdrop-home-total-label">
 
                 Total Reward
 
@@ -373,11 +334,11 @@ function renderSummary(){
 
             <strong
 
-                id="airdrop-summary-reward"
+                id="airdrop-home-total-reward"
 
-                class="airdrop-summary-value">
+                class="airdrop-home-total-value">
 
-                $0
+                Rp 0
 
             </strong>
 
@@ -385,22 +346,15 @@ function renderSummary(){
 
 
         <!-- ==========================================
-             STATUS SUMMARY
+             SUMMARY GRID
         =========================================== -->
 
-        <div class="airdrop-summary-grid">
+        <div class="airdrop-home-grid">
 
 
-            <!-- ALL AIRDROP -->
+            <!-- TOTAL AIRDROP -->
 
-            <div class="airdrop-summary-item">
-
-                <div class="airdrop-summary-icon">
-
-                    🎯
-
-                </div>
-
+            <div class="airdrop-home-item">
 
                 <span>
 
@@ -408,10 +362,9 @@ function renderSummary(){
 
                 </span>
 
-
                 <strong>
 
-                    ${data.total}
+                    ${totalAirdrop}
 
                 </strong>
 
@@ -420,14 +373,7 @@ function renderSummary(){
 
             <!-- ONGOING -->
 
-            <div class="airdrop-summary-item">
-
-                <div class="airdrop-summary-icon">
-
-                    ⏳
-
-                </div>
-
+            <div class="airdrop-home-item">
 
                 <span>
 
@@ -435,10 +381,9 @@ function renderSummary(){
 
                 </span>
 
-
                 <strong>
 
-                    ${data.ongoing}
+                    ${totalOngoing}
 
                 </strong>
 
@@ -447,14 +392,7 @@ function renderSummary(){
 
             <!-- WINNER -->
 
-            <div class="airdrop-summary-item">
-
-                <div class="airdrop-summary-icon">
-
-                    🏆
-
-                </div>
-
+            <div class="airdrop-home-item">
 
                 <span>
 
@@ -462,10 +400,9 @@ function renderSummary(){
 
                 </span>
 
-
                 <strong>
 
-                    ${data.win}
+                    ${totalWinner}
 
                 </strong>
 
@@ -477,179 +414,38 @@ function renderSummary(){
     `;
 
 
-    /*
-     * Number animation.
-     */
+    /* =============================================
+       NUMBER ANIMATION
+    ============================================= */
 
-    Animation.number(
+    const element =
 
         document.getElementById(
 
-            "airdrop-summary-reward"
-
-        ),
-
-        data.totalReward,
-
-        usd,
-
-        1800
-
-    );
-
-}
-
-
-/* =====================================================
-   SUMMARY DATA
-===================================================== */
-
-function getSummaryData(){
-
-    /*
-     * Process menjadi sumber utama.
-     */
-
-    const data =
-
-        Array.isArray(
-
-            Process?.data
-
-        )
-
-            ?
-
-            Process.data
-
-            :
-
-            [];
-
-
-    /*
-     * TOTAL AIRDROP
-     *
-     * Semua entry dihitung:
-     *
-     * campaign
-     * retro
-     * testnet
-     * daily
-     * bansos
-     * dll.
-     */
-
-    const total =
-
-        data.length;
-
-
-    /*
-     * TOTAL REWARD
-     *
-     * Hanya nominal reward yang
-     * memang tersedia.
-     */
-
-    const totalReward =
-
-        data.reduce(
-
-            (
-
-                total,
-
-                item
-
-            ) => {
-
-                return (
-
-                    total +
-
-                    toNumber(
-
-                        item?.reward ??
-
-                        item?.["$reward"]
-
-                    )
-
-                );
-
-            },
-
-            0
+            "airdrop-home-total-reward"
 
         );
 
 
-    /*
-     * ONGOING
-     */
+    if(
 
-    const ongoing =
+        element
 
-        data.filter(
+    ){
 
-            item =>
+        Animation.number(
 
-                String(
+            element,
 
-                    item?.status ??
+            totalReward,
 
-                    ""
+            rupiah,
 
-                )
+            1800
 
-                .toLowerCase()
+        );
 
-                ===
-
-                "ongoing"
-
-        ).length;
-
-
-    /*
-     * WINNER
-     */
-
-    const win =
-
-        data.filter(
-
-            item =>
-
-                String(
-
-                    item?.status ??
-
-                    ""
-
-                )
-
-                .toLowerCase()
-
-                ===
-
-                "win"
-
-        ).length;
-
-
-    return {
-
-        total,
-
-        totalReward,
-
-        ongoing,
-
-        win
-
-    };
+    }
 
 }
 
@@ -669,7 +465,7 @@ function renderReminder(){
         );
 
 
-    const container =
+    const list =
 
         document.getElementById(
 
@@ -678,19 +474,11 @@ function renderReminder(){
         );
 
 
-    /*
-     * HTML reminder hanya khusus
-     * workspace Airdrop.
-     *
-     * Kalau HTML belum ditambahkan,
-     * Home tidak error.
-     */
-
     if(
 
         !section ||
 
-        !container
+        !list
 
     ){
 
@@ -701,8 +489,12 @@ function renderReminder(){
 
     const reminders =
 
-        getReminders();
+        Process.getReminders();
 
+
+    /* =============================================
+       NO REMINDER
+    ============================================= */
 
     if(
 
@@ -716,10 +508,6 @@ function renderReminder(){
 
         );
 
-        container.innerHTML =
-
-            "";
-
         return;
 
     }
@@ -732,327 +520,59 @@ function renderReminder(){
     );
 
 
-    /*
-     * Maksimal 3 reminder.
-     */
+    /* =============================================
+       MAXIMUM 3 VISIBLE ITEMS
+    ============================================= */
 
-    container.innerHTML =
+    list.innerHTML =
 
         reminders
 
-            .slice(
-
-                0,
-
-                3
-
-            )
-
             .map(
 
-                createReminder
+                createReminderItem
 
             )
 
             .join("");
 
 
-    /*
-     * Hentikan animation lama
-     * jika Home di-init ulang.
-     */
-
-    if(
-
-        reminderAnimation
-
-        &&
-
-        typeof reminderAnimation.stop ===
-
-        "function"
-
-    ){
-
-        reminderAnimation.stop();
-
-    }
-
-
-    /*
-     * Jalankan vertical loop
-     * hanya jika lebih dari satu item.
-     */
-
-    if(
-
-        reminders.length > 1
-
-    ){
-
-        reminderAnimation =
-
-            Animation.verticalLoop(
-
-                container,
-
-                {
-
-                    duration :
-
-                        9000,
-
-                    pause :
-
-                        1400
-
-                }
-
-            );
-
-    }
+    initReminderAnimation();
 
 }
 
 
 /* =====================================================
-   GET REMINDERS
+   REMINDER ITEM
 ===================================================== */
 
-function getReminders(){
-
-    const data =
-
-        Array.isArray(
-
-            Process?.data
-
-        )
-
-            ?
-
-            Process.data
-
-            :
-
-            [];
-
-
-    const now =
-
-        new Date();
-
-
-    /*
-     * Reminder hanya campaign.
-     *
-     * Syarat:
-     *
-     * - type campaign
-     * - status ongoing
-     * - memiliki end
-     */
-
-    return data
-
-        .filter(
-
-            item => {
-
-                const type =
-
-                    String(
-
-                        item?.type ??
-
-                        ""
-
-                    )
-
-                    .toLowerCase();
-
-
-                const status =
-
-                    String(
-
-                        item?.status ??
-
-                        ""
-
-                    )
-
-                    .toLowerCase();
-
-
-                return (
-
-                    type ===
-
-                    "campaign"
-
-                    &&
-
-                    status ===
-
-                    "ongoing"
-
-                    &&
-
-                    item?.end
-
-                );
-
-            }
-
-        )
-
-        .map(
-
-            item => {
-
-                const endDate =
-
-                    parseDate(
-
-                        item.end
-
-                    );
-
-
-                if(
-
-                    !endDate
-
-                ){
-
-                    return null;
-
-                }
-
-
-                const diff =
-
-                    Math.ceil(
-
-                        (
-
-                            endDate.getTime() -
-
-                            now.getTime()
-
-                        ) /
-
-                        86400000
-
-                    );
-
-
-                return {
-
-                    ...item,
-
-                    endDate,
-
-                    daysLeft :
-
-                        diff
-
-                };
-
-            }
-
-        )
-
-        .filter(
-
-            item =>
-
-                item
-
-                &&
-
-                item.daysLeft >= 0
-
-        )
-
-        .sort(
-
-            (
-
-                a,
-
-                b
-
-            ) =>
-
-                a.endDate -
-
-                b.endDate
-
-        );
-
-}
-
-
-/* =====================================================
-   CREATE REMINDER
-===================================================== */
-
-function createReminder(
+function createReminderItem(
 
     item
 
 ){
 
-    const project =
+    const remaining =
 
-        escapeHTML(
+        getRemainingDays(
 
-            item.project ??
-
-            "-"
+            item.endDate
 
         );
 
 
-    const wallet =
-
-        formatWallet(
-
-            item.nama
-
-        );
-
-
-    const type =
-
-        capitalize(
-
-            item.type ??
-
-            "campaign"
-
-        );
-
-
-    const days =
-
-        item.daysLeft;
-
-
-    let message =
+    let deadlineText =
 
         "";
 
 
     if(
 
-        days === 0
+        remaining === 0
 
     ){
 
-        message =
+        deadlineText =
 
             "Berakhir hari ini";
 
@@ -1060,21 +580,33 @@ function createReminder(
 
     else if(
 
-        days === 1
+        remaining === 1
 
     ){
 
-        message =
+        deadlineText =
 
-            "Berakhir 1 hari lagi";
+            "Berakhir besok";
 
     }
 
-    else{
+    else if(
 
-        message =
+        remaining > 1
 
-            `Berakhir ${days} hari lagi`;
+    ){
+
+        deadlineText =
+
+            `Berakhir ${remaining} hari lagi`;
+
+    }
+
+    else {
+
+        deadlineText =
+
+            "Campaign telah berakhir";
 
     }
 
@@ -1083,38 +615,65 @@ function createReminder(
 
         <article
 
-            class="airdrop-reminder-item"
+            class="airdrop-reminder-item">
 
-
-            data-project="${project}">
 
             <div
 
                 class="airdrop-reminder-main">
 
+
                 <strong>
 
-                    ${project}
+                    ${escapeHTML(
+
+                        item.project
+
+                    )}
 
                 </strong>
 
 
                 <span>
 
-                    ${wallet} · ${type}
+                    ${escapeHTML(
+
+                        formatWallet(
+
+                            item.wallet
+
+                        )
+
+                    )}
+
+                    ·
+
+                    ${escapeHTML(
+
+                        formatType(
+
+                            item.type
+
+                        )
+
+                    )}
 
                 </span>
+
 
             </div>
 
 
-            <strong
+            <div
 
-                class="airdrop-reminder-time">
+                class="airdrop-reminder-deadline">
 
-                ${message}
 
-            </strong>
+                ${deadlineText}
+
+
+            </div>
+
 
         </article>
 
@@ -1124,7 +683,277 @@ function createReminder(
 
 
 /* =====================================================
-   WALLET FORMAT
+   REMINDER ANIMATION
+===================================================== */
+
+function initReminderAnimation(){
+
+    const viewport =
+
+        document.getElementById(
+
+            "airdrop-reminder-viewport"
+
+        );
+
+
+    const list =
+
+        document.getElementById(
+
+            "airdrop-reminder-list"
+
+        );
+
+
+    if(
+
+        !viewport ||
+
+        !list
+
+    ){
+
+        return;
+
+    }
+
+
+    clearInterval(
+
+        State.reminderTimer
+
+    );
+
+
+    const items =
+
+        list.children;
+
+
+    if(
+
+        items.length <= 3
+
+    ){
+
+        list.style.transform =
+
+            "translateY(0)";
+
+        return;
+
+    }
+
+
+    let position = 0;
+
+    let direction = 1;
+
+
+    const itemHeight =
+
+        items[0].offsetHeight;
+
+
+    const gap =
+
+        parseFloat(
+
+            getComputedStyle(
+
+                list
+
+            ).gap
+
+        ) || 0;
+
+
+    const step =
+
+        itemHeight +
+
+        gap;
+
+
+    const maxPosition =
+
+        Math.max(
+
+            0,
+
+            (
+
+                items.length -
+
+                3
+
+            ) *
+
+            step
+
+        );
+
+
+    State.reminderTimer =
+
+        setInterval(
+
+            () => {
+
+                position +=
+
+                    direction *
+
+                    step;
+
+
+                if(
+
+                    position >=
+
+                    maxPosition
+
+                ){
+
+                    position =
+
+                        maxPosition;
+
+                    direction =
+
+                        -1;
+
+                }
+
+
+                else if(
+
+                    position <= 0
+
+                ){
+
+                    position =
+
+                        0;
+
+                    direction =
+
+                        1;
+
+                }
+
+
+                list.style.transform =
+
+                    `translateY(-${position}px)`;
+
+            },
+
+            3500
+
+        );
+
+}
+
+
+/* =====================================================
+   REMAINING DAYS
+===================================================== */
+
+function getRemainingDays(
+
+    date
+
+){
+
+    if(
+
+        !date
+
+    ){
+
+        return -1;
+
+    }
+
+
+    const today =
+
+        startOfDay(
+
+            new Date()
+
+        );
+
+
+    const end =
+
+        startOfDay(
+
+            date
+
+        );
+
+
+    return Math.ceil(
+
+        (
+
+            end.getTime() -
+
+            today.getTime()
+
+        )
+
+        /
+
+        86400000
+
+    );
+
+}
+
+
+/* =====================================================
+   DATE
+===================================================== */
+
+function startOfDay(
+
+    date
+
+){
+
+    const result =
+
+        new Date(
+
+            date
+
+        );
+
+
+    result.setHours(
+
+        0,
+
+        0,
+
+        0,
+
+        0
+
+    );
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   FORMAT WALLET
 ===================================================== */
 
 function formatWallet(
@@ -1172,10 +1001,10 @@ function formatWallet(
 
 
 /* =====================================================
-   DATE
+   FORMAT TYPE
 ===================================================== */
 
-function parseDate(
+function formatType(
 
     value
 
@@ -1187,107 +1016,67 @@ function parseDate(
 
     ){
 
-        return null;
+        return "-";
 
     }
 
 
-    const parts =
+    return String(
 
-        String(
+        value
 
-            value
+    )
+
+        .replace(
+
+            /_/g,
+
+            " "
 
         )
 
-        .split("-")
+        .replace(
 
-        .map(
+            /\b\w/g,
 
-            Number
+            letter =>
 
-        );
-
-
-    if(
-
-        parts.length !== 3
-
-    ){
-
-        return null;
-
-    }
-
-
-    const date =
-
-        new Date(
-
-            parts[0],
-
-            parts[1] - 1,
-
-            parts[2]
+                letter.toUpperCase()
 
         );
-
-
-    return Number.isNaN(
-
-        date.getTime()
-
-    )
-
-        ?
-
-        null
-
-        :
-
-        date;
 
 }
 
 
 /* =====================================================
-   NUMBER
+   CAPITALIZE
 ===================================================== */
 
-function toNumber(
+function capitalize(
 
-    value
+    text
 
 ){
 
-    const number =
+    return String(
 
-        Number(
+        text
 
-            value
+    ).replace(
 
-        );
+        /\b\w/g,
 
+        letter =>
 
-    return Number.isFinite(
+            letter.toUpperCase()
 
-        number
-
-    )
-
-        ?
-
-        number
-
-        :
-
-        0;
+    );
 
 }
 
 
 /* =====================================================
-   HTML
+   ESCAPE HTML
 ===================================================== */
 
 function escapeHTML(
@@ -1343,32 +1132,5 @@ function escapeHTML(
             "&#039;"
 
         );
-
-}
-
-
-/* =====================================================
-   CAPITALIZE
-===================================================== */
-
-function capitalize(
-
-    text
-
-){
-
-    return String(
-
-        text
-
-    ).replace(
-
-        /\b\w/g,
-
-        letter =>
-
-            letter.toUpperCase()
-
-    );
 
 }
