@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Home
    File        : home.css
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Airdrop Home Styling
@@ -17,6 +17,7 @@
    Components :
    - Total Reward
    - Summary Grid
+   - Summary Icon
    - Reminder
 ===================================================== */
 
@@ -156,13 +157,13 @@
 
     justify-content:center;
 
-    gap:8px;
+    gap:6px;
 
     min-width:0;
 
-    min-height:92px;
+    min-height:112px;
 
-    padding:16px 10px;
+    padding:14px 8px;
 
     box-sizing:border-box;
 
@@ -176,10 +177,43 @@
 
 
 /* =====================================================
+   SUMMARY ICON
+===================================================== */
+
+.airdrop-home-item-icon{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:38px;
+
+    height:38px;
+
+    margin-bottom:2px;
+
+    border-radius:12px;
+
+    background:var(--surface-secondary);
+
+    font-size:22px;
+
+    line-height:1;
+
+    flex-shrink:0;
+
+}
+
+
+/* =====================================================
    SUMMARY LABEL
 ===================================================== */
 
 .airdrop-home-item span{
+
+    display:block;
 
     color:var(--text-secondary);
 
@@ -197,6 +231,8 @@
 ===================================================== */
 
 .airdrop-home-item strong{
+
+    display:block;
 
     color:var(--text);
 
@@ -421,11 +457,26 @@
 
     .airdrop-home-item{
 
-        min-height:84px;
+        min-height:104px;
 
-        padding:14px 8px;
+        padding:12px 6px;
 
         border-radius:16px;
+
+        gap:5px;
+
+    }
+
+
+    .airdrop-home-item-icon{
+
+        width:34px;
+
+        height:34px;
+
+        border-radius:11px;
+
+        font-size:20px;
 
     }
 
@@ -501,9 +552,20 @@
 
     .airdrop-home-item{
 
-        padding:
+        min-height:100px;
 
-            12px 6px;
+        padding:10px 5px;
+
+    }
+
+
+    .airdrop-home-item-icon{
+
+        width:32px;
+
+        height:32px;
+
+        font-size:18px;
 
     }
 
