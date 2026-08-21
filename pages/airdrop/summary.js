@@ -174,13 +174,13 @@ function renderOverview(){
 
                 <span class="airdrop-summary-total-icon">
 
-                    🎯
+                    🎁
 
                 </span>
 
                 <span class="airdrop-summary-total-label">
 
-                    Total Airdrop
+                    Total Campaign Airdrop
 
                 </span>
 
@@ -248,7 +248,7 @@ function renderOverview(){
 
                     <span class="airdrop-summary-status-icon">
 
-                        ❌
+                        👾
 
                     </span>
 
