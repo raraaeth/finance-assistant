@@ -1096,7 +1096,21 @@ function loadWorkspaceList(
 
                 "financial"
 
-        }
+        },
+
+{
+    id : "airdrop",
+
+    icon : "🎁",
+
+    title : "Airdrop",
+
+    active :
+
+        current?.workspace ===
+
+        "airdrop"
+}
 
     ];
 
