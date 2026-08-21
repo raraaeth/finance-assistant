@@ -351,6 +351,10 @@
 
         scale(1.012);
 
+    background:
+
+        var(--surface-secondary);
+
     box-shadow:
 
         0 6px 18px
@@ -369,6 +373,33 @@
 
 }
 
+
+/* =====================================================
+   FOCUS TEXT
+===================================================== */
+
+.airdrop-reminder-item.airdrop-reminder-focus
+.airdrop-reminder-main strong{
+
+    font-weight:800;
+
+}
+
+
+.airdrop-reminder-item.airdrop-reminder-focus
+.airdrop-reminder-main span{
+
+    font-weight:600;
+
+}
+
+
+.airdrop-reminder-item.airdrop-reminder-focus
+.airdrop-reminder-deadline{
+
+    font-weight:700;
+
+}
 
 /* =====================================================
    REMINDER SHIMMER
