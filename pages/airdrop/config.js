@@ -1,7 +1,7 @@
 /* =====================================================
    Finance Assistant
    Page        : Airdrop
-   Module      : Core
+   Module      : Config
    File        : config.js
    Version     : 1.0.0
 
@@ -9,133 +9,22 @@
    Airdrop Configuration
 
    Sections :
+   - Hero
    - API
-   - Sheet
-   - Status
-   - Type
-   - Wallet
-   - Home
-   - Statistics
-   - Summary
 ===================================================== */
 
 
 /* =====================================================
-   API
+   CONFIG
 ===================================================== */
 
 export const CONFIG = {
 
-    /* =================================================
-       API
-    ================================================= */
+    /* =============================================
+       HERO
+    ============================================= */
 
-    api : {
-
-        airdrop :
-
-            "",
-
-        activity :
-
-            ""
-
-    },
-
-
-    /* =================================================
-       SHEET
-    ================================================= */
-
-    sheet : {
-
-        name :
-
-            "airdrop"
-
-    },
-
-
-    /* =================================================
-       STATUS
-    ================================================= */
-
-    status : {
-
-        WIN :
-
-            "win",
-
-        ONGOING :
-
-            "ongoing",
-
-        ENDED :
-
-            "ended",
-
-        NOT_WIN :
-
-            "not_win"
-
-    },
-
-
-    /* =================================================
-       TYPE
-    ================================================= */
-
-    type : {
-
-        TESTNET :
-
-            "testnet",
-
-        RETRO :
-
-            "retro",
-
-        BANSOS :
-
-            "bansos",
-
-        DAILY :
-
-            "daily",
-
-        CAMPAIGN :
-
-            "campaign"
-
-    },
-
-
-    /* =================================================
-       WALLET
-    ================================================= */
-
-    wallet : {
-
-        MAIN :
-
-            "main_wallet",
-
-        SECOND :
-
-            "second_wallet",
-
-        GATE :
-
-            "gate_wallet"
-
-    },
-
-
-    /* =================================================
-       HOME
-    ================================================= */
-
-    home : {
+    hero : {
 
         title :
 
@@ -143,45 +32,28 @@ export const CONFIG = {
 
         description :
 
-            "Pantau airdrop, campaign, dan hasil reward kamu."
+            "Pantau aktivitas airdrop, campaign, reward, dan hasil yang kamu dapatkan.",
+
+        image :
+
+            "../assets/images/hero/hero-airdrop.png"
 
     },
 
 
-    /* =================================================
-       STATISTICS
-    ================================================= */
+    /* =============================================
+       API
+    ============================================= */
 
-    statistics : {
+    api : {
 
-        defaultPeriod :
+        airdrop :
 
-            "all",
+            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/airdrop",
 
-        perPage :
+        rules :
 
-            5
-
-    },
-
-
-    /* =================================================
-       SUMMARY
-    ================================================= */
-
-    summary : {
-
-        winLimit :
-
-            5,
-
-        ongoingLimit :
-
-            5,
-
-        endedLimit :
-
-            5
+            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/airdrop_rules"
 
     }
 
