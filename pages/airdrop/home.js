@@ -760,21 +760,12 @@ function createReminderItem(
 
 }
 
-
 /* =====================================================
    REMINDER ANIMATION
+   Fade Out → Pause → Fade In
 ===================================================== */
 
 function initReminderAnimation(){
-
-    const viewport =
-
-        document.getElementById(
-
-            "airdrop-reminder-viewport"
-
-        );
-
 
     const list =
 
@@ -787,8 +778,6 @@ function initReminderAnimation(){
 
     if(
 
-        !viewport ||
-
         !list
 
     ){
@@ -798,7 +787,7 @@ function initReminderAnimation(){
     }
 
 
-    clearInterval(
+    clearTimeout(
 
         State.reminderTimer
 
@@ -807,11 +796,7 @@ function initReminderAnimation(){
 
     const items =
 
-        Array.from(
-
-            list.children
-
-        );
+        list.children;
 
 
     if(
@@ -825,242 +810,113 @@ function initReminderAnimation(){
     }
 
 
-    /* =============================================
-       RESET
-    ============================================= */
-
     list.style.transition =
 
         "none";
 
-    list.style.transform =
+    list.style.opacity =
 
-        "translateY(0)";
-
-
-    /* =============================================
-       HITUNG TINGGI LIST
-    ============================================= */
-
-    const listHeight =
-
-        list.scrollHeight;
+        "1";
 
 
-    const viewportHeight =
+    function cycle(){
 
-        viewport.clientHeight;
-
-
-    /* =============================================
-       JIKA TINGGI LIST MASIH CUKUP
-       
-       Tetap jalankan animasi kecil supaya
-       reminder tidak terasa mati.
-    ============================================= */
-
-    if(
-
-        listHeight <= viewportHeight
-
-    ){
-
-        const movement = 12;
-
-
-        State.reminderTimer =
-
-            setInterval(
-
-                () => {
-
-                    list.style.transition =
-
-                        "transform 1.8s ease-in-out";
-
-
-                    list.style.transform =
-
-                        `translateY(-${movement}px)`;
-
-
-                    setTimeout(
-
-                        () => {
-
-                            list.style.transition =
-
-                                "transform 1.8s ease-in-out";
-
-
-                            list.style.transform =
-
-                                "translateY(0)";
-
-                        },
-
-                        2000
-
-                    );
-
-                },
-
-                5500
-
-            );
-
-
-        return;
-
-    }
-
-
-    /* =============================================
-       POSISI AKHIR
-       
-       List digeser ke bawah sampai
-       seluruh isi keluar dari viewport.
-    ============================================= */
-
-    const exitDistance =
-
-        viewportHeight +
-
-        listHeight;
-
-
-    /* =============================================
-       START ANIMATION
-    ============================================= */
-
-    function animate(){
-
-        /* -----------------------------------------
-           PASTIKAN LIST MULAI DARI ATAS
-        ----------------------------------------- */
+        /* =============================================
+           TAMPIL NORMAL
+        ============================================= */
 
         list.style.transition =
 
-            "none";
+            "opacity 3s ease-in-out";
 
-        list.style.transform =
+        list.style.opacity =
 
-            "translateY(0)";
-
-
-        /* -----------------------------------------
-           BERIKAN WAKTU UNTUK MEMBACA
-        ----------------------------------------- */
-
-        setTimeout(
-
-            () => {
-
-                list.style.transition =
-
-                    "transform 6s ease-in-out";
+            "1";
 
 
-                list.style.transform =
+        /* =============================================
+           TUNGGU AGAR BISA DIBACA
+        ============================================= */
 
-                    `translateY(${exitDistance}px)`;
+        State.reminderTimer =
 
+            setTimeout(
 
-                /* ---------------------------------
-                   SETELAH KELUAR
+                () => {
 
-                   Tunggu 2 detik.
-                --------------------------------- */
+                    /* ==============================
+                       FADE OUT
+                    ============================== */
 
-                setTimeout(
+                    list.style.transition =
 
-                    () => {
+                        "opacity 3s ease-in-out";
 
-                        list.style.transition =
+                    list.style.opacity =
 
-                            "none";
-
-
-                        /* -------------------------
-                           MUNCUL DARI BAWAH
-                        ------------------------- */
-
-                        list.style.transform =
-
-                            `translateY(${exitDistance}px)`;
+                        "0";
 
 
-                        requestAnimationFrame(
+                    /* ==============================
+                       SETELAH FADE OUT
+                       
+                       Tunggu 1 detik
+                    ============================== */
+
+                    State.reminderTimer =
+
+                        setTimeout(
 
                             () => {
 
-                                requestAnimationFrame(
+                                /* ==================
+                                   FADE IN
+                                ================== */
 
-                                    () => {
+                                list.style.transition =
 
-                                        list.style.transition =
+                                    "opacity 3s ease-in-out";
 
-                                            "transform 6s ease-in-out";
+                                list.style.opacity =
+
+                                    "1";
 
 
-                                        list.style.transform =
+                                /* ==================
+                                   Setelah muncul
+                                   ulangi
+                                ================== */
 
-                                            "translateY(0)";
+                                State.reminderTimer =
 
-                                    }
+                                    setTimeout(
 
-                                );
+                                        cycle,
 
-                            }
+                                        3000
+
+                                    );
+
+                            },
+
+                            1000
 
                         );
 
-                    },
+                },
 
-                    2000
+                3000
 
-                );
-
-            },
-
-            2500
-
-        );
+            );
 
     }
 
 
-    /* =============================================
-       RUN
-    ============================================= */
-
-    animate();
-
-
-    /* =============================================
-       LOOP
-       
-       Durasi:
-       
-       2.5 detik baca
-       6 detik turun
-       2 detik kosong
-       6 detik naik
-       = 16.5 detik
-    ============================================= */
-
-    State.reminderTimer =
-
-        setInterval(
-
-            animate,
-
-            16500
-
-        );
+    cycle();
 
 }
 
+            
 /* =====================================================
    REMAINING DAYS
 ===================================================== */
