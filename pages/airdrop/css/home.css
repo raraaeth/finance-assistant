@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Home
    File        : home.css
-   Version     : 2.0.0
+   Version     : 1.0.0
 
    Description :
    Airdrop Home Styling
@@ -16,7 +16,7 @@
 
    Components :
    - Total Reward
-   - Summary
+   - Summary Grid
    - Reminder
 ===================================================== */
 
@@ -31,7 +31,7 @@
 
     flex-direction:column;
 
-    gap:12px;
+    gap:14px;
 
     padding:20px;
 
@@ -46,7 +46,7 @@
    TOTAL REWARD
 ===================================================== */
 
-.airdrop-summary-total{
+.airdrop-home-total{
 
     display:flex;
 
@@ -56,13 +56,13 @@
 
     justify-content:center;
 
-    gap:7px;
+    gap:8px;
 
     width:100%;
 
     min-height:130px;
 
-    padding:22px 18px;
+    padding:22px;
 
     box-sizing:border-box;
 
@@ -79,13 +79,13 @@
    TOTAL REWARD LABEL
 ===================================================== */
 
-.airdrop-summary-label{
+.airdrop-home-total-label{
 
     color:var(--text-secondary);
 
     font-size:14px;
 
-    line-height:1.3;
+    line-height:1.35;
 
     font-weight:600;
 
@@ -96,13 +96,13 @@
    TOTAL REWARD VALUE
 ===================================================== */
 
-.airdrop-summary-value{
+.airdrop-home-total-value{
 
     color:var(--text);
 
-    font-size:34px;
+    font-size:32px;
 
-    line-height:1.15;
+    line-height:1.2;
 
     font-weight:800;
 
@@ -117,7 +117,7 @@
    SUMMARY GRID
 ===================================================== */
 
-.airdrop-summary-grid{
+.airdrop-home-grid{
 
     display:grid;
 
@@ -137,7 +137,7 @@
 
         );
 
-    gap:10px;
+    gap:12px;
 
 }
 
@@ -146,7 +146,7 @@
    SUMMARY ITEM
 ===================================================== */
 
-.airdrop-summary-item{
+.airdrop-home-item{
 
     display:flex;
 
@@ -156,13 +156,13 @@
 
     justify-content:center;
 
-    gap:6px;
+    gap:8px;
 
     min-width:0;
 
-    min-height:112px;
+    min-height:92px;
 
-    padding:14px 8px;
+    padding:16px 10px;
 
     box-sizing:border-box;
 
@@ -176,45 +176,16 @@
 
 
 /* =====================================================
-   SUMMARY ICON
-===================================================== */
-
-.airdrop-summary-icon{
-
-    width:42px;
-
-    height:42px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    flex-shrink:0;
-
-    border-radius:14px;
-
-    background:var(--surface-secondary);
-
-    font-size:22px;
-
-    line-height:1;
-
-}
-
-
-/* =====================================================
    SUMMARY LABEL
 ===================================================== */
 
-.airdrop-summary-item span{
+.airdrop-home-item span{
 
     color:var(--text-secondary);
 
-    font-size:12px;
+    font-size:13px;
 
-    line-height:1.25;
+    line-height:1.3;
 
     font-weight:600;
 
@@ -225,26 +196,15 @@
    SUMMARY VALUE
 ===================================================== */
 
-.airdrop-summary-item strong{
+.airdrop-home-item strong{
 
     color:var(--text);
 
     font-size:24px;
 
-    line-height:1.1;
+    line-height:1.15;
 
     font-weight:800;
-
-}
-
-
-/* =====================================================
-   REMINDER SECTION
-===================================================== */
-
-#airdrop-reminder{
-
-    overflow:hidden;
 
 }
 
@@ -272,7 +232,7 @@
 
     height:210px;
 
-    padding:14px 16px;
+    padding:16px 18px;
 
     box-sizing:border-box;
 
@@ -295,6 +255,10 @@
 
     width:100%;
 
+    transition:
+
+        transform 1.8s ease-in-out;
+
     will-change:transform;
 
 }
@@ -316,13 +280,13 @@
 
     width:100%;
 
-    min-height:58px;
+    min-height:56px;
 
     padding:12px 14px;
 
     box-sizing:border-box;
 
-    border-radius:16px;
+    border-radius:14px;
 
     background:var(--surface);
 
@@ -347,7 +311,7 @@
 
 
 /* =====================================================
-   REMINDER PROJECT
+   PROJECT
 ===================================================== */
 
 .airdrop-reminder-main strong{
@@ -370,7 +334,7 @@
 
 
 /* =====================================================
-   REMINDER META
+   WALLET / TYPE
 ===================================================== */
 
 .airdrop-reminder-main span{
@@ -391,20 +355,20 @@
 
 
 /* =====================================================
-   REMINDER TIME
+   DEADLINE
 ===================================================== */
 
-.airdrop-reminder-time{
+.airdrop-reminder-deadline{
 
     flex-shrink:0;
 
-    color:var(--text);
+    color:var(--text-secondary);
 
     font-size:12px;
 
     line-height:1.3;
 
-    font-weight:700;
+    font-weight:600;
 
     text-align:right;
 
@@ -430,7 +394,7 @@
     }
 
 
-    .airdrop-summary-total{
+    .airdrop-home-total{
 
         min-height:120px;
 
@@ -441,61 +405,41 @@
     }
 
 
-    .airdrop-summary-label{
+    .airdrop-home-total-value{
 
-        font-size:13px;
-
-    }
-
-
-    .airdrop-summary-value{
-
-        font-size:30px;
+        font-size:29px;
 
     }
 
 
-    .airdrop-summary-grid{
+    .airdrop-home-grid{
 
-        gap:8px;
+        gap:10px;
 
     }
 
 
-    .airdrop-summary-item{
+    .airdrop-home-item{
 
-        min-height:104px;
+        min-height:84px;
 
-        padding:12px 6px;
+        padding:14px 8px;
 
         border-radius:16px;
 
     }
 
 
-    .airdrop-summary-icon{
+    .airdrop-home-item span{
 
-        width:36px;
-
-        height:36px;
-
-        border-radius:12px;
-
-        font-size:20px;
+        font-size:12px;
 
     }
 
 
-    .airdrop-summary-item span{
+    .airdrop-home-item strong{
 
-        font-size:11px;
-
-    }
-
-
-    .airdrop-summary-item strong{
-
-        font-size:22px;
+        font-size:21px;
 
     }
 
@@ -504,18 +448,18 @@
 
         height:200px;
 
-        padding:12px;
+        padding:14px 12px;
 
     }
 
 
     .airdrop-reminder-item{
 
-        min-height:56px;
+        min-height:54px;
 
         padding:11px 12px;
 
-        border-radius:14px;
+        border-radius:13px;
 
     }
 
@@ -529,7 +473,7 @@
 
     .airdrop-reminder-main span,
 
-    .airdrop-reminder-time{
+    .airdrop-reminder-deadline{
 
         font-size:11px;
 
@@ -548,31 +492,32 @@
 
 ){
 
-    .airdrop-summary-item{
+    .airdrop-home-grid{
 
-        min-height:100px;
+        gap:8px;
+
+    }
+
+
+    .airdrop-home-item{
 
         padding:
 
-            10px 5px;
+            12px 6px;
 
     }
 
 
-    .airdrop-summary-icon{
+    .airdrop-home-item span{
 
-        width:34px;
+        font-size:11px;
 
-        height:34px;
+    }
+
+
+    .airdrop-home-item strong{
 
         font-size:19px;
-
-    }
-
-
-    .airdrop-summary-item strong{
-
-        font-size:20px;
 
     }
 
@@ -588,7 +533,7 @@
     }
 
 
-    .airdrop-reminder-time{
+    .airdrop-reminder-deadline{
 
         text-align:left;
 
