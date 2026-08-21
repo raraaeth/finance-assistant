@@ -762,7 +762,7 @@ function createReminderItem(
 
 /* =====================================================
    REMINDER ANIMATION
-   Fade Out → Pause → Fade In
+   Highlight + Shimmer
 ===================================================== */
 
 function initReminderAnimation(){
@@ -787,6 +787,10 @@ function initReminderAnimation(){
     }
 
 
+    /* =============================================
+       CLEAR PREVIOUS TIMER
+    ============================================= */
+
     clearTimeout(
 
         State.reminderTimer
@@ -796,7 +800,11 @@ function initReminderAnimation(){
 
     const items =
 
-        list.children;
+        Array.from(
+
+            list.children
+
+        );
 
 
     if(
@@ -810,112 +818,95 @@ function initReminderAnimation(){
     }
 
 
-    list.style.transition =
+    /* =============================================
+       RESET ALL ITEMS
+    ============================================= */
 
-        "none";
+    items.forEach(
 
-    list.style.opacity =
+        item => {
 
-        "1";
+            item.classList.remove(
 
+                "airdrop-reminder-focus"
 
-    function cycle(){
+            );
 
-        /* =============================================
-           TAMPIL NORMAL
-        ============================================= */
+        }
 
-        list.style.transition =
-
-            "opacity 3s ease-in-out";
-
-        list.style.opacity =
-
-            "1";
+    );
 
 
-        /* =============================================
-           TUNGGU AGAR BISA DIBACA
-        ============================================= */
+    /* =============================================
+       STATE
+    ============================================= */
+
+    let activeIndex = 0;
+
+
+    /* =============================================
+       APPLY FOCUS
+    ============================================= */
+
+    function applyFocus(){
+
+        items.forEach(
+
+            (item, index) => {
+
+                item.classList.toggle(
+
+                    "airdrop-reminder-focus",
+
+                    index === activeIndex
+
+                );
+
+            }
+
+        );
+
+
+        /* =========================================
+           NEXT ITEM
+        ========================================= */
+
+        activeIndex++;
+
+
+        if(
+
+            activeIndex >=
+
+            items.length
+
+        ){
+
+            activeIndex = 0;
+
+        }
+
 
         State.reminderTimer =
 
             setTimeout(
 
-                () => {
+                applyFocus,
 
-                    /* ==============================
-                       FADE OUT
-                    ============================== */
-
-                    list.style.transition =
-
-                        "opacity 3s ease-in-out";
-
-                    list.style.opacity =
-
-                        "0";
-
-
-                    /* ==============================
-                       SETELAH FADE OUT
-                       
-                       Tunggu 1 detik
-                    ============================== */
-
-                    State.reminderTimer =
-
-                        setTimeout(
-
-                            () => {
-
-                                /* ==================
-                                   FADE IN
-                                ================== */
-
-                                list.style.transition =
-
-                                    "opacity 3s ease-in-out";
-
-                                list.style.opacity =
-
-                                    "1";
-
-
-                                /* ==================
-                                   Setelah muncul
-                                   ulangi
-                                ================== */
-
-                                State.reminderTimer =
-
-                                    setTimeout(
-
-                                        cycle,
-
-                                        3000
-
-                                    );
-
-                            },
-
-                            1000
-
-                        );
-
-                },
-
-                3000
+                2800
 
             );
 
     }
 
 
-    cycle();
+    /* =============================================
+       START
+    ============================================= */
+
+    applyFocus();
 
 }
-
             
 /* =====================================================
    REMAINING DAYS
