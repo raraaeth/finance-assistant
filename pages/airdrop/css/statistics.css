@@ -3,24 +3,15 @@
    Page        : Airdrop
    Module      : Statistics
    File        : statistics.css
-   Version     : 1.1.0
+   Version     : 2.0.0
 
    Description :
-   Airdrop Statistics Styling
+   Airdrop Statistics Page
 
-   Theme Aware :
-   - Light
-   - Dark
-   - Green
-   - Pink
-
-   Components :
-   - Filter
-   - Chart
-   - Transaction List
-   - Transaction Item
-   - Status
-   - Pagination
+   Pattern :
+   - Same layout as Kas
+   - Airdrop status logic
+   - Theme aware
 ===================================================== */
 
 
@@ -30,14 +21,121 @@
 
 #statistics-filter{
 
-    width:100%;
+    margin-bottom:24px;
 
 }
 
 
-#statistics-filter-list{
+/* =====================================================
+   FILTER CARD
+===================================================== */
+
+#statistics-filter .card{
+
+    padding:20px;
+
+}
+
+
+/* =====================================================
+   FILTER GRID
+===================================================== */
+
+.filter-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            auto-fit,
+
+            minmax(
+
+                150px,
+
+                1fr
+
+            )
+
+        );
+
+    gap:16px;
+
+}
+
+
+/* =====================================================
+   FILTER ITEM
+===================================================== */
+
+.filter-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+/* =====================================================
+   FILTER LABEL
+===================================================== */
+
+.filter-label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:var(
+
+        --text-secondary
+
+    );
+
+}
+
+
+/* =====================================================
+   FILTER SELECT
+===================================================== */
+
+.filter-select{
 
     width:100%;
+
+    height:46px;
+
+    padding:0 14px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#F5F7FB;
+
+    font-size:14px;
+
+    color:var(
+
+        --text-primary
+
+    );
+
+    outline:none;
+
+    transition:.2s;
+
+}
+
+
+.filter-select:focus{
+
+    background:#EEF3FF;
 
 }
 
@@ -48,7 +146,14 @@
 
 #statistics-chart{
 
-    width:100%;
+    margin-bottom:32px;
+
+}
+
+
+#statistics-chart .card{
+
+    padding:20px;
 
 }
 
@@ -59,9 +164,18 @@
 
     width:100% !important;
 
-    max-width:100%;
+    min-height:260px;
 
-    min-height:220px;
+}
+
+
+/* =====================================================
+   TRANSACTION
+===================================================== */
+
+#statistics-transaction{
+
+    margin-bottom:32px;
 
 }
 
@@ -78,8 +192,6 @@
 
     gap:0;
 
-    width:100%;
-
 }
 
 
@@ -87,46 +199,27 @@
    TRANSACTION ITEM
 ===================================================== */
 
-#statistics-transaction-list
 .transaction-item{
 
     display:flex;
 
-    align-items:center;
-
     justify-content:space-between;
+
+    align-items:flex-start;
 
     gap:16px;
 
     width:100%;
 
-    min-height:82px;
-
-    padding:16px 18px;
+    padding:16px 0;
 
     box-sizing:border-box;
 
-    border-bottom:1px solid var(--border);
+    border-bottom:
 
-    background:transparent;
+        1px solid
 
-    transition:
-
-        background .2s ease;
-
-}
-
-
-/* =====================================================
-   TRANSACTION ITEM HOVER
-===================================================== */
-
-#statistics-transaction-list
-.transaction-item:hover{
-
-    background:
-
-        var(--surface-secondary);
+        var(--border-color);
 
 }
 
@@ -135,7 +228,6 @@
    LAST TRANSACTION
 ===================================================== */
 
-#statistics-transaction-list
 .transaction-item:last-child{
 
     border-bottom:none;
@@ -147,8 +239,11 @@
    TRANSACTION INFO
 ===================================================== */
 
-#statistics-transaction-list
 .transaction-info{
+
+    flex:1;
+
+    min-width:0;
 
     display:flex;
 
@@ -156,13 +251,9 @@
 
     align-items:flex-start;
 
-    justify-content:center;
+    justify-content:flex-start;
 
     gap:4px;
-
-    min-width:0;
-
-    flex:1;
 
     text-align:left;
 
@@ -173,7 +264,6 @@
    PROJECT
 ===================================================== */
 
-#statistics-transaction-list
 .transaction-info strong{
 
     display:block;
@@ -186,13 +276,17 @@
 
     white-space:nowrap;
 
-    color:var(--text);
+    font-size:15px;
 
-    font-size:16px;
+    line-height:1.3;
 
-    line-height:1.25;
+    font-weight:600;
 
-    font-weight:750;
+    color:var(
+
+        --text-primary
+
+    );
 
     text-align:left;
 
@@ -203,16 +297,19 @@
    DATE
 ===================================================== */
 
-#statistics-transaction-list
 .transaction-info small{
 
     display:block;
 
-    color:var(--text-secondary);
-
     font-size:12px;
 
     line-height:1.3;
+
+    color:var(
+
+        --text-secondary
+
+    );
 
     text-align:left;
 
@@ -223,14 +320,13 @@
    WALLET / TYPE
 ===================================================== */
 
-#statistics-transaction-list
 .transaction-info p{
 
     display:block;
 
     width:100%;
 
-    margin:0;
+    margin:4px 0 0;
 
     overflow:hidden;
 
@@ -238,11 +334,15 @@
 
     white-space:nowrap;
 
-    color:var(--text-secondary);
-
-    font-size:12px;
+    font-size:13px;
 
     line-height:1.3;
+
+    color:var(
+
+        --text-secondary
+
+    );
 
     text-align:left;
 
@@ -250,29 +350,28 @@
 
 
 /* =====================================================
-   STATUS / REWARD
+   STATUS
 ===================================================== */
 
-#statistics-transaction-list
 .transaction-amount{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:flex-end;
 
     flex-shrink:0;
 
-    min-width:96px;
+    min-width:90px;
 
-    color:var(--text);
+    padding-top:4px;
 
-    font-size:13px;
+    font-size:15px;
 
     line-height:1.3;
 
     font-weight:700;
+
+    color:var(
+
+        --text-primary
+
+    );
 
     text-align:right;
 
@@ -282,35 +381,50 @@
 
 
 /* =====================================================
-   STATUS ICON
+   AIRDROP STATUS
 ===================================================== */
 
-#statistics-transaction-list
-.transaction-amount::first-letter{
+.transaction-win{
 
-    font-size:14px;
+    color:#22C55E;
+
+}
+
+
+.transaction-not-win{
+
+    color:#EF4444;
+
+}
+
+
+.transaction-ongoing{
+
+    color:#F59E0B;
+
+}
+
+
+.transaction-ended{
+
+    color:var(
+
+        --text-secondary
+
+    );
 
 }
 
 
 /* =====================================================
-   PAGINATION
-===================================================== */
-
-#statistics-show-more{
-
-    width:100%;
-
-    margin-top:14px;
-
-}
-
-
-/* =====================================================
-   PAGINATION CONTAINER
+   STATISTICS PAGINATION
 ===================================================== */
 
 .statistics-pagination{
+
+    margin-top:20px;
+
+    padding:12px;
 
     display:flex;
 
@@ -318,9 +432,11 @@
 
     justify-content:space-between;
 
-    gap:10px;
+    gap:12px;
 
-    width:100%;
+    border-radius:16px;
+
+    background:var(--surface);
 
 }
 
@@ -331,41 +447,27 @@
 
 .statistics-pagination button{
 
-    display:flex;
+    padding:10px 14px;
 
-    align-items:center;
-
-    justify-content:center;
-
-    min-width:110px;
-
-    min-height:38px;
-
-    padding:8px 12px;
-
-    border:0;
+    border:none;
 
     border-radius:12px;
 
-    background:var(--surface);
+    background:#9ca3af;
 
-    color:var(--text);
+    color:#1f2937;
 
-    font-size:12px;
+    font-size:14px;
 
-    line-height:1.2;
-
-    font-weight:700;
+    font-weight:600;
 
     cursor:pointer;
 
     transition:
 
-        transform .2s ease,
-
         opacity .2s ease,
 
-        background .2s ease;
+        transform .15s ease;
 
 }
 
@@ -377,39 +479,23 @@
 .statistics-pagination
 button:not(:disabled):hover{
 
-    transform:
-
-        translateY(-1px);
-
-    background:
-
-        var(--surface-secondary);
+    opacity:.85;
 
 }
 
 
 /* =====================================================
-   PAGINATION BUTTON ACTIVE
-===================================================== */
-
-.statistics-pagination
-button:not(:disabled):active{
-
-    transform:
-
-        translateY(0);
-
-}
-
-
-/* =====================================================
-   PAGINATION DISABLED
+   DISABLED
 ===================================================== */
 
 .statistics-pagination
 button:disabled{
 
-    opacity:.4;
+    opacity:.45;
+
+    background:#9ca3af;
+
+    color:#1f2937;
 
     cursor:not-allowed;
 
@@ -417,26 +503,32 @@ button:disabled{
 
 
 /* =====================================================
-   PAGINATION PAGE
+   PAGE INFO
 ===================================================== */
 
 .statistics-pagination span{
 
-    display:flex;
+    color:var(--text);
 
-    align-items:center;
+    font-size:14px;
 
-    justify-content:center;
-
-    color:var(--text-secondary);
-
-    font-size:12px;
-
-    line-height:1.2;
-
-    font-weight:700;
+    font-weight:600;
 
     white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   PRESS
+===================================================== */
+
+.statistics-pagination
+button:not(:disabled):active{
+
+    transform:
+
+        scale(.97);
 
 }
 
@@ -451,38 +543,36 @@ button:disabled{
 
 ){
 
-    /* ================================================
-       CHART
-    ================================================ */
+    #statistics-filter .card{
+
+        padding:16px;
+
+    }
+
+
+    #statistics-chart .card{
+
+        padding:16px;
+
+    }
+
 
     #statistics-chart-canvas{
 
-        min-height:200px;
+        min-height:220px;
 
     }
 
 
-    /* ================================================
-       TRANSACTION ITEM
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-item{
-
-        min-height:76px;
-
-        padding:14px 16px;
 
         gap:12px;
 
+        padding:15px 0;
+
     }
 
 
-    /* ================================================
-       PROJECT
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-info strong{
 
         font-size:15px;
@@ -490,11 +580,6 @@ button:disabled{
     }
 
 
-    /* ================================================
-       DATE
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-info small{
 
         font-size:11px;
@@ -502,37 +587,25 @@ button:disabled{
     }
 
 
-    /* ================================================
-       WALLET / TYPE
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-info p{
-
-        font-size:11px;
-
-    }
-
-
-    /* ================================================
-       STATUS
-    ================================================ */
-
-    #statistics-transaction-list
-    .transaction-amount{
-
-        min-width:88px;
 
         font-size:12px;
 
     }
 
 
-    /* ================================================
-       PAGINATION
-    ================================================ */
+    .transaction-amount{
+
+        min-width:82px;
+
+        font-size:13px;
+
+    }
+
 
     .statistics-pagination{
+
+        padding:10px;
 
         gap:8px;
 
@@ -541,13 +614,16 @@ button:disabled{
 
     .statistics-pagination button{
 
-        min-width:96px;
+        padding:9px 11px;
 
-        min-height:36px;
+        font-size:12px;
 
-        padding:7px 9px;
+    }
 
-        font-size:11px;
+
+    .statistics-pagination span{
+
+        font-size:12px;
 
     }
 
@@ -564,27 +640,15 @@ button:disabled{
 
 ){
 
-    /* ================================================
-       TRANSACTION ITEM
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-item{
 
-        min-height:72px;
-
-        padding:13px 14px;
-
         gap:8px;
+
+        padding:14px 0;
 
     }
 
 
-    /* ================================================
-       PROJECT
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-info strong{
 
         font-size:14px;
@@ -592,11 +656,6 @@ button:disabled{
     }
 
 
-    /* ================================================
-       DATE
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-info small{
 
         font-size:10px;
@@ -604,35 +663,21 @@ button:disabled{
     }
 
 
-    /* ================================================
-       WALLET / TYPE
-    ================================================ */
-
-    #statistics-transaction-list
     .transaction-info p{
-
-        font-size:10px;
-
-    }
-
-
-    /* ================================================
-       STATUS
-    ================================================ */
-
-    #statistics-transaction-list
-    .transaction-amount{
-
-        min-width:78px;
 
         font-size:11px;
 
     }
 
 
-    /* ================================================
-       PAGINATION
-    ================================================ */
+    .transaction-amount{
+
+        min-width:76px;
+
+        font-size:11px;
+
+    }
+
 
     .statistics-pagination{
 
@@ -643,13 +688,9 @@ button:disabled{
 
     .statistics-pagination button{
 
-        min-width:82px;
+        padding:8px 9px;
 
-        min-height:34px;
-
-        padding:7px 6px;
-
-        font-size:10px;
+        font-size:11px;
 
     }
 
