@@ -41,6 +41,9 @@ import * as PayrollDaily from
 import * as Financial from
     "../pages/financial/home.js";
 
+import * as Airdrop from
+    "../pages/airdrop/home.js";
+
 /* =====================================================
    STATE
 ===================================================== */
@@ -64,7 +67,10 @@ const WORKSPACE = {
         PayrollDaily,
    
    "financial" :
-        Financial
+        Financial,
+
+    "airdrop" :
+        Airdrop
 
 };
 
