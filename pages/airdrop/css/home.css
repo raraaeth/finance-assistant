@@ -1,0 +1,542 @@
+/* =====================================================
+   Finance Assistant
+   Page        : Airdrop
+   Module      : Home
+   File        : home.css
+   Version     : 1.0.0
+
+   Description :
+   Airdrop Home Styling
+
+   Theme Aware :
+   - Light
+   - Dark
+   - Green
+   - Pink
+
+   Components :
+   - Total Reward
+   - Summary Grid
+   - Reminder
+===================================================== */
+
+
+/* =====================================================
+   SUMMARY CARD
+===================================================== */
+
+#summary-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   TOTAL REWARD
+===================================================== */
+
+.airdrop-home-total{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    width:100%;
+
+    min-height:130px;
+
+    padding:22px;
+
+    box-sizing:border-box;
+
+    border-radius:20px;
+
+    background:var(--surface);
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   TOTAL REWARD LABEL
+===================================================== */
+
+.airdrop-home-total-label{
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    line-height:1.35;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   TOTAL REWARD VALUE
+===================================================== */
+
+.airdrop-home-total-value{
+
+    color:var(--text);
+
+    font-size:32px;
+
+    line-height:1.2;
+
+    font-weight:800;
+
+    letter-spacing:-.5px;
+
+    word-break:break-word;
+
+}
+
+
+/* =====================================================
+   SUMMARY GRID
+===================================================== */
+
+.airdrop-home-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            3,
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+        );
+
+    gap:12px;
+
+}
+
+
+/* =====================================================
+   SUMMARY ITEM
+===================================================== */
+
+.airdrop-home-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    min-width:0;
+
+    min-height:92px;
+
+    padding:16px 10px;
+
+    box-sizing:border-box;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   SUMMARY LABEL
+===================================================== */
+
+.airdrop-home-item span{
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+    line-height:1.3;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   SUMMARY VALUE
+===================================================== */
+
+.airdrop-home-item strong{
+
+    color:var(--text);
+
+    font-size:24px;
+
+    line-height:1.15;
+
+    font-weight:800;
+
+}
+
+
+/* =====================================================
+   REMINDER CARD
+===================================================== */
+
+#airdrop-reminder-card{
+
+    padding:0;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   REMINDER VIEWPORT
+===================================================== */
+
+#airdrop-reminder-viewport{
+
+    width:100%;
+
+    height:210px;
+
+    padding:16px 18px;
+
+    box-sizing:border-box;
+
+    overflow:hidden;
+
+}
+
+
+/* =====================================================
+   REMINDER LIST
+===================================================== */
+
+#airdrop-reminder-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    width:100%;
+
+    transition:
+
+        transform 1.8s ease-in-out;
+
+    will-change:transform;
+
+}
+
+
+/* =====================================================
+   REMINDER ITEM
+===================================================== */
+
+.airdrop-reminder-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:14px;
+
+    width:100%;
+
+    min-height:56px;
+
+    padding:12px 14px;
+
+    box-sizing:border-box;
+
+    border-radius:14px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   REMINDER MAIN
+===================================================== */
+
+.airdrop-reminder-main{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   PROJECT
+===================================================== */
+
+.airdrop-reminder-main strong{
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text);
+
+    font-size:15px;
+
+    line-height:1.25;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   WALLET / TYPE
+===================================================== */
+
+.airdrop-reminder-main span{
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   DEADLINE
+===================================================== */
+
+.airdrop-reminder-deadline{
+
+    flex-shrink:0;
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.3;
+
+    font-weight:600;
+
+    text-align:right;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:600px
+
+){
+
+    #summary-card{
+
+        padding:16px 12px;
+
+        gap:10px;
+
+    }
+
+
+    .airdrop-home-total{
+
+        min-height:120px;
+
+        padding:20px 16px;
+
+        border-radius:18px;
+
+    }
+
+
+    .airdrop-home-total-value{
+
+        font-size:29px;
+
+    }
+
+
+    .airdrop-home-grid{
+
+        gap:10px;
+
+    }
+
+
+    .airdrop-home-item{
+
+        min-height:84px;
+
+        padding:14px 8px;
+
+        border-radius:16px;
+
+    }
+
+
+    .airdrop-home-item span{
+
+        font-size:12px;
+
+    }
+
+
+    .airdrop-home-item strong{
+
+        font-size:21px;
+
+    }
+
+
+    #airdrop-reminder-viewport{
+
+        height:200px;
+
+        padding:14px 12px;
+
+    }
+
+
+    .airdrop-reminder-item{
+
+        min-height:54px;
+
+        padding:11px 12px;
+
+        border-radius:13px;
+
+    }
+
+
+    .airdrop-reminder-main strong{
+
+        font-size:14px;
+
+    }
+
+
+    .airdrop-reminder-main span,
+
+    .airdrop-reminder-deadline{
+
+        font-size:11px;
+
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREEN
+===================================================== */
+
+@media(
+
+    max-width:380px
+
+){
+
+    .airdrop-home-grid{
+
+        gap:8px;
+
+    }
+
+
+    .airdrop-home-item{
+
+        padding:
+
+            12px 6px;
+
+    }
+
+
+    .airdrop-home-item span{
+
+        font-size:11px;
+
+    }
+
+
+    .airdrop-home-item strong{
+
+        font-size:19px;
+
+    }
+
+
+    .airdrop-reminder-item{
+
+        align-items:flex-start;
+
+        flex-direction:column;
+
+        gap:5px;
+
+    }
+
+
+    .airdrop-reminder-deadline{
+
+        text-align:left;
+
+    }
+
+}
