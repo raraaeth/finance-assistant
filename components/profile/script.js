@@ -655,6 +655,19 @@ function initSession(){
 
         loadUser();
 
+
+    console.log(
+
+        "===== PROFILE SESSION ====="
+
+    );
+
+    console.log(
+
+        State.session
+
+    );
+
 }
 
 
