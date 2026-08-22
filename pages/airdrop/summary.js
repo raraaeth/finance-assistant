@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Summary
    File        : summary.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Airdrop Summary Controller
@@ -16,6 +16,7 @@
    - Distribution
    - Wallet Distribution
    - Detail Preparation
+   - Detail Rendering
    - Helper
 ===================================================== */
 
@@ -91,16 +92,31 @@ Summary.init = function(){
     }
 
 
+    /* =============================================
+       BUILD DATA
+    ============================================= */
+
     buildWalletData();
 
     buildDetail();
 
+
+    /* =============================================
+       RENDER SUMMARY
+    ============================================= */
 
     renderOverview();
 
     renderDistribution();
 
     renderWalletDistribution();
+
+
+    /* =============================================
+       RENDER AIRDROP DETAIL
+    ============================================= */
+
+    renderDetail();
 
 
     Summary.initialized =
@@ -168,7 +184,9 @@ function renderOverview(){
         <div class="airdrop-summary-overview">
 
 
-            <!-- TOTAL -->
+            <!-- ======================================
+                 TOTAL
+            ======================================= -->
 
             <div class="airdrop-summary-total">
 
@@ -193,10 +211,14 @@ function renderOverview(){
             </div>
 
 
-            <!-- STATUS GRID -->
+            <!-- ======================================
+                 STATUS GRID
+            ======================================= -->
 
             <div class="airdrop-summary-status-grid">
 
+
+                <!-- ONGOING -->
 
                 <div class="airdrop-summary-status">
 
@@ -221,6 +243,8 @@ function renderOverview(){
                 </div>
 
 
+                <!-- WIN -->
+
                 <div class="airdrop-summary-status">
 
                     <span class="airdrop-summary-status-icon">
@@ -244,6 +268,8 @@ function renderOverview(){
                 </div>
 
 
+                <!-- NOT WIN -->
+
                 <div class="airdrop-summary-status">
 
                     <span class="airdrop-summary-status-icon">
@@ -266,6 +292,8 @@ function renderOverview(){
 
                 </div>
 
+
+                <!-- ENDED -->
 
                 <div class="airdrop-summary-status">
 
@@ -451,8 +479,11 @@ function renderDistribution(){
                 backgroundColor : [
 
                     "#F59E0B", // Ongoing
+
                     "#94A3B8", // Ended
+
                     "#22C55E", // Win
+
                     "#EF4444"  // Not Win
 
                 ]
@@ -464,6 +495,7 @@ function renderDistribution(){
     });
 
 }
+
 
 /* =====================================================
    WALLET DISTRIBUTION
@@ -870,7 +902,7 @@ function buildWalletData(){
 
 
 /* =====================================================
-   DETAIL
+   DETAIL PREPARATION
 ===================================================== */
 
 function buildDetail(){
@@ -916,6 +948,431 @@ function buildDetail(){
             )
 
     };
+
+}
+
+
+/* =====================================================
+   DETAIL RENDER
+===================================================== */
+
+function renderDetail(){
+
+    const section =
+
+        document.getElementById(
+
+            "summary-airdrop-detail"
+
+        );
+
+
+    const card =
+
+        document.getElementById(
+
+            "summary-airdrop-detail-card"
+
+        );
+
+
+    if(
+
+        !section ||
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    const win =
+
+        Summary.detail.win;
+
+
+    const ongoing =
+
+        Summary.detail.ongoing;
+
+
+    const ended =
+
+        Summary.detail.ended;
+
+
+    /* =============================================
+       NO DETAIL
+    ============================================= */
+
+    if(
+
+        !win.length &&
+
+        !ongoing.length &&
+
+        !ended.length
+
+    ){
+
+        section.classList.add(
+
+            "hidden"
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       SHOW SECTION
+    ============================================= */
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    /* =============================================
+       RENDER WIN
+    ============================================= */
+
+    renderDetailGroup({
+
+        group :
+
+            document.getElementById(
+
+                "airdrop-detail-win"
+
+            ),
+
+        count :
+
+            document.getElementById(
+
+                "airdrop-detail-win-count"
+
+            ),
+
+        list :
+
+            document.getElementById(
+
+                "airdrop-detail-win-list"
+
+            ),
+
+        data :
+
+            win,
+
+        type :
+
+            "win"
+
+    });
+
+
+    /* =============================================
+       RENDER ONGOING
+    ============================================= */
+
+    renderDetailGroup({
+
+        group :
+
+            document.getElementById(
+
+                "airdrop-detail-ongoing"
+
+            ),
+
+        count :
+
+            document.getElementById(
+
+                "airdrop-detail-ongoing-count"
+
+            ),
+
+        list :
+
+            document.getElementById(
+
+                "airdrop-detail-ongoing-list"
+
+            ),
+
+        data :
+
+            ongoing,
+
+        type :
+
+            "ongoing"
+
+    });
+
+
+    /* =============================================
+       RENDER ENDED
+    ============================================= */
+
+    renderDetailGroup({
+
+        group :
+
+            document.getElementById(
+
+                "airdrop-detail-ended"
+
+            ),
+
+        count :
+
+            document.getElementById(
+
+                "airdrop-detail-ended-count"
+
+            ),
+
+        list :
+
+            document.getElementById(
+
+                "airdrop-detail-ended-list"
+
+            ),
+
+        data :
+
+            ended,
+
+        type :
+
+            "ended"
+
+    });
+
+}
+
+
+/* =====================================================
+   DETAIL GROUP
+===================================================== */
+
+function renderDetailGroup({
+
+    group,
+
+    count,
+
+    list,
+
+    data,
+
+    type
+
+}){
+
+    if(
+
+        !group ||
+
+        !count ||
+
+        !list
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       EMPTY GROUP
+    ============================================= */
+
+    if(
+
+        !data.length
+
+    ){
+
+        group.classList.add(
+
+            "hidden"
+
+        );
+
+        count.textContent =
+
+            "0";
+
+        list.innerHTML =
+
+            "";
+
+        return;
+
+    }
+
+
+    /* =============================================
+       SHOW GROUP
+    ============================================= */
+
+    group.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    count.textContent =
+
+        String(
+
+            data.length
+
+        );
+
+
+    list.innerHTML =
+
+        data
+
+            .map(
+
+                item =>
+
+                    createDetailItem(
+
+                        item,
+
+                        type
+
+                    )
+
+            )
+
+            .join("");
+
+}
+
+
+/* =====================================================
+   DETAIL ITEM
+===================================================== */
+
+function createDetailItem(
+
+    item,
+
+    type
+
+){
+
+    const project =
+
+        escapeHTML(
+
+            item.project ||
+
+            "-"
+
+        );
+
+
+    /* =============================================
+       WIN
+    ============================================= */
+
+    if(
+
+        type === "win"
+
+    ){
+
+        const reward =
+
+            Number(
+
+                item.reward
+
+            ) || 0;
+
+
+        return `
+
+            <div class="airdrop-detail-item">
+
+
+                <div class="airdrop-detail-item-info">
+
+                    <strong>
+
+                        ${project}
+
+                    </strong>
+
+                </div>
+
+
+                <strong class="airdrop-detail-item-reward">
+
+                    ${
+
+                        usd(
+
+                            reward
+
+                        )
+
+                    }
+
+                </strong>
+
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =============================================
+       ONGOING / ENDED
+    ============================================= */
+
+    return `
+
+        <div class="airdrop-detail-item">
+
+
+            <div class="airdrop-detail-item-info">
+
+                <strong>
+
+                    ${project}
+
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    `;
 
 }
 
@@ -1020,6 +1477,67 @@ function formatText(
             letter =>
 
                 letter.toUpperCase()
+
+        );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+
+    value
+
+){
+
+    return String(
+
+        value ??
+
+        ""
+
+    )
+
+        .replace(
+
+            /&/g,
+
+            "&amp;"
+
+        )
+
+        .replace(
+
+            /</g,
+
+            "&lt;"
+
+        )
+
+        .replace(
+
+            />/g,
+
+            "&gt;"
+
+        )
+
+        .replace(
+
+            /"/g,
+
+            "&quot;"
+
+        )
+
+        .replace(
+
+            /'/g,
+
+            "&#039;"
 
         );
 
