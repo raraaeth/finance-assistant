@@ -10,7 +10,9 @@
    Sections :
    - Import
    - Module Registry
-   - Workspace Validation
+   - Session
+   - Workspace
+   - Validation
    - Init
 ===================================================== */
 
@@ -73,21 +75,26 @@ const WORKSPACE = {
 
         Financial,
 
+
     saving:
 
         Saving,
+
 
     kas:
 
         Kas,
 
+
     "payroll-daily":
 
         PayrollDaily,
 
+
     "payroll-monthly":
 
         PayrollMonthly,
+
 
     airdrop:
 
@@ -97,7 +104,7 @@ const WORKSPACE = {
 
 
 /* =====================================================
-   GET MODULES
+   SESSION MODULES
 ===================================================== */
 
 function getModules(){
@@ -123,7 +130,7 @@ function getModules(){
 
 
 /* =====================================================
-   GET ACTIVE WORKSPACE
+   ACTIVE WORKSPACE
 ===================================================== */
 
 function getActiveWorkspace(){
@@ -148,7 +155,7 @@ function getActiveWorkspace(){
 
 
 /* =====================================================
-   VALIDATE WORKSPACE
+   MODULE VALIDATION
 ===================================================== */
 
 function isModuleActive(
@@ -186,9 +193,9 @@ export async function initWorkspace(){
         getActiveWorkspace();
 
 
-    /* ---------------------------------------------
-       Tidak ada workspace dipilih
-    --------------------------------------------- */
+    /* =============================================
+       NO ACTIVE WORKSPACE
+    ============================================= */
 
     if(
 
@@ -198,7 +205,7 @@ export async function initWorkspace(){
 
         console.log(
 
-            "Belum ada workspace aktif."
+            "Belum ada workspace yang dipilih."
 
         );
 
@@ -207,13 +214,18 @@ export async function initWorkspace(){
     }
 
 
-    /* ---------------------------------------------
-       Module tidak tersedia
-    --------------------------------------------- */
+    /* =============================================
+       MODULE NOT FOUND
+    ============================================= */
+
+    const module =
+
+        WORKSPACE[active];
+
 
     if(
 
-        !WORKSPACE[active]
+        !module
 
     ){
 
@@ -228,9 +240,9 @@ export async function initWorkspace(){
     }
 
 
-    /* ---------------------------------------------
-       Module belum aktif
-    --------------------------------------------- */
+    /* =============================================
+       MODULE INACTIVE
+    ============================================= */
 
     if(
 
@@ -253,9 +265,9 @@ export async function initWorkspace(){
     }
 
 
-    /* ---------------------------------------------
-       Start Module
-    --------------------------------------------- */
+    /* =============================================
+       START MODULE
+    ============================================= */
 
     console.log(
 
@@ -266,7 +278,7 @@ export async function initWorkspace(){
     );
 
 
-    await WORKSPACE[active].init();
+    await module.init();
 
 }
 
