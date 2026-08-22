@@ -59,7 +59,7 @@ export function loadUser(){
 
         console.error(
 
-            "Failed to load user",
+            "Failed to load user:",
 
             error
 
@@ -140,7 +140,7 @@ export function loadWorkspace(){
 
         console.error(
 
-            "Failed to load workspace",
+            "Failed to load workspace:",
 
             error
 
