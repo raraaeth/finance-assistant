@@ -3,14 +3,16 @@
    Page        : Kas
    Module      : Config
    File        : config.js
-   Version     : 2.0.0
+   Version     : 3.0.0
 
    Description :
    Kas Configuration
 
    Sections :
+   - Module
    - Hero
    - API
+   - Data
 ===================================================== */
 
 
@@ -19,6 +21,24 @@
 ===================================================== */
 
 export const CONFIG = {
+
+
+    /* =============================================
+       MODULE
+    ============================================= */
+
+    module : {
+
+        key :
+
+            "kas",
+
+        name :
+
+            "Kas Bersama"
+
+    },
+
 
     /* =============================================
        HERO
@@ -47,13 +67,26 @@ export const CONFIG = {
 
     api : {
 
+        endpoint :
+
+            "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec"
+
+    },
+
+
+    /* =============================================
+       DATA
+    ============================================= */
+
+    data : {
+
         transaction :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas",
+            "kas",
 
         member :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas_member"
+            "kas_member"
 
     }
 
