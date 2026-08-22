@@ -3,7 +3,7 @@
    Page        : Saving
    Module      : Statistics
    File        : statistics.js
-   Version     : 3.0.0
+   Version     : 3.1.0
 
    Description :
    Statistics Controller
@@ -166,6 +166,7 @@ function initializeFilter(){
 
 }
 
+
 /* =====================================================
    RENDER CHART
 ===================================================== */
@@ -211,6 +212,7 @@ Statistics.renderChart = function(){
     });
 
 };
+
 
 /* =====================================================
    RENDER TRANSACTION
@@ -303,7 +305,9 @@ Statistics.renderTransaction = function(){
                         </strong>
 
                         <small>
-                        ${formatDate(item.date)}
+
+                            ${formatDate(item.date)}
+
                         </small>
 
                         ${
@@ -479,6 +483,7 @@ Statistics.refresh = function(){
 
 };
 
+
 /* =====================================================
    APPLY FILTER
 ===================================================== */
@@ -516,11 +521,24 @@ function buildChart(){
 
         item=>{
 
+            /* =========================================
+               FORMAT DATE FOR CHART LABEL
+            ========================================= */
+
+            const label =
+
+                formatDate(
+
+                    item.date
+
+                );
+
+
             if(
 
                 !chart[
 
-                    item.tanggal
+                    label
 
                 ]
 
@@ -528,11 +546,12 @@ function buildChart(){
 
                 chart[
 
-                    item.tanggal
+                    label
 
                 ] = 0;
 
             }
+
 
             switch(
 
@@ -544,7 +563,7 @@ function buildChart(){
 
                     chart[
 
-                        item.tanggal
+                        label
 
                     ] +=
 
@@ -552,11 +571,12 @@ function buildChart(){
 
                     break;
 
+
                 case "keluar":
 
                     chart[
 
-                        item.tanggal
+                        label
 
                     ] -=
 
