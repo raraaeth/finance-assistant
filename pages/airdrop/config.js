@@ -3,14 +3,16 @@
    Page        : Airdrop
    Module      : Config
    File        : config.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Airdrop Configuration
 
    Sections :
+   - Module
    - Hero
    - API
+   - Data
 ===================================================== */
 
 
@@ -19,6 +21,24 @@
 ===================================================== */
 
 export const CONFIG = {
+
+
+    /* =============================================
+       MODULE
+    ============================================= */
+
+    module : {
+
+        key :
+
+            "airdrop",
+
+        name :
+
+            "Airdrop"
+
+    },
+
 
     /* =============================================
        HERO
@@ -47,13 +67,26 @@ export const CONFIG = {
 
     api : {
 
+        endpoint :
+
+            "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec"
+
+    },
+
+
+    /* =============================================
+       DATA
+    ============================================= */
+
+    data : {
+
         airdrop :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/airdrop",
+            "airdrop",
 
         rules :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/airdrop_rules"
+            "airdrop_rules"
 
     }
 
