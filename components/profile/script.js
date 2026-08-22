@@ -1,10 +1,8 @@
 /* =====================================================
-   Finance Assistant
-   Component   : Profile
-   File        : profile.js
-
-   Description :
-   Profile Component Controller
+   GLOBAL PROFILE
+   FILE        : script.js
+   DESCRIPTION : Global Profile Component
+   VERSION     : 3.1.0
 ===================================================== */
 
 
@@ -31,6 +29,8 @@ import {
 
     loadSession,
 
+    loginGoogle,
+
     logout
 
 } from "../../js/auth.js";
@@ -42,144 +42,70 @@ import {
 
 const State = {
 
-    user :
+    session : null,
 
-        null,
+    user : null,
 
+    workspace : [],
 
-    session :
+    container : null,
 
-        null,
-
-
-    workspace :
-
-        [],
-
-
-    theme :
-
-        null
+    eventsBound : false
 
 };
 
 
 /* =====================================================
-   MODULE CONFIG
+   THEME
 ===================================================== */
 
-const MODULE_CONFIG = [
+const THEMES = [
 
     {
 
-        id :
+        id : "light",
 
-            "financial",
+        icon : "☀️",
 
+        title : "Light",
 
-        icon :
-
-            "💰",
-
-
-        title :
-
-            "Financial"
+        description : "Tampilan terang"
 
     },
 
-
     {
 
-        id :
+        id : "dark",
 
-            "saving",
+        icon : "🌙",
 
+        title : "Dark",
 
-        icon :
-
-            "🏦",
-
-
-        title :
-
-            "Saving"
+        description : "Tampilan gelap"
 
     },
 
-
     {
 
-        id :
+        id : "green",
 
-            "kas",
+        icon : "🌿",
 
+        title : "Green",
 
-        icon :
-
-            "👥",
-
-
-        title :
-
-            "Kas Bersama"
+        description : "Tampilan hijau"
 
     },
 
-
     {
 
-        id :
+        id : "pink",
 
-            "payroll-daily",
+        icon : "🌸",
 
+        title : "Pink",
 
-        icon :
-
-            "💼",
-
-
-        title :
-
-            "Payroll Daily"
-
-    },
-
-
-    {
-
-        id :
-
-            "payroll-monthly",
-
-
-        icon :
-
-            "💵",
-
-
-        title :
-
-            "Payroll Monthly"
-
-    },
-
-
-    {
-
-        id :
-
-            "airdrop",
-
-
-        icon :
-
-            "🎁",
-
-
-        title :
-
-            "Airdrop"
+        description : "Tampilan pink"
 
     }
 
@@ -187,31 +113,529 @@ const MODULE_CONFIG = [
 
 
 /* =====================================================
-   INIT
+   MODULE CONFIG
 ===================================================== */
 
-export function initProfile(){
+const MODULES = [
 
-    initUser();
+    {
 
-    initSession();
+        id : "financial",
 
-    initTheme();
+        icon : "📊",
 
-    initWorkspace();
+        title : "Financial"
+
+    },
+
+    {
+
+        id : "saving",
+
+        icon : "🏦",
+
+        title : "Saving"
+
+    },
+
+    {
+
+        id : "kas",
+
+        icon : "👥",
+
+        title : "Kas Bersama"
+
+    },
+
+    {
+
+        id : "payroll-daily",
+
+        icon : "💰",
+
+        title : "Payroll Daily"
+
+    },
+
+    {
+
+        id : "payroll-monthly",
+
+        icon : "💼",
+
+        title : "Payroll Monthly"
+
+    },
+
+    {
+
+        id : "airdrop",
+
+        icon : "🎁",
+
+        title : "Airdrop"
+
+    }
+
+];
+
+
+/* =====================================================
+   RENDER THEME
+===================================================== */
+
+function renderTheme(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-theme-options"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const current =
+
+        loadTheme();
+
+
+    container.innerHTML =
+
+        THEMES
+
+        .map(
+
+            theme => `
+
+                <button
+
+                    type="button"
+
+                    class="profile-theme-option
+
+                    ${
+
+                        current === theme.id
+
+                        ?
+
+                        "active"
+
+                        :
+
+                        ""
+
+                    }"
+
+                    data-theme="${theme.id}"
+
+                >
+
+                    <span
+
+                        class="profile-theme-icon"
+
+                    >
+
+                        ${theme.icon}
+
+                    </span>
+
+
+                    <span
+
+                        class="profile-theme-info"
+
+                    >
+
+                        <strong>
+
+                            ${theme.title}
+
+                        </strong>
+
+
+                        <small>
+
+                            ${theme.description}
+
+                        </small>
+
+                    </span>
+
+
+                    <span
+
+                        class="profile-theme-check"
+
+                    >
+
+                        ✓
+
+                    </span>
+
+                </button>
+
+            `
+
+        )
+
+        .join(
+
+            ""
+
+        );
 
 }
 
 
 /* =====================================================
-   USER
+   THEME EVENT
 ===================================================== */
 
-function initUser(){
+function initThemeEvent(){
 
-    State.user =
+    const container =
 
-        loadUser();
+        document.getElementById(
+
+            "profile-theme-options"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    container.addEventListener(
+
+        "click",
+
+        event => {
+
+            const button =
+
+                event.target.closest(
+
+                    "[data-theme]"
+
+                );
+
+
+            if(
+
+                !button
+
+            ){
+
+                return;
+
+            }
+
+
+            const theme =
+
+                button.dataset.theme;
+
+
+            applyTheme(
+
+                theme
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   APPLY THEME
+===================================================== */
+
+function applyTheme(
+
+    theme
+
+){
+
+    saveTheme(
+
+        theme
+
+    );
+
+
+    if(
+
+        theme === "light"
+
+    ){
+
+        document.documentElement
+
+            .removeAttribute(
+
+                "data-theme"
+
+            );
+
+    }else{
+
+        document.documentElement
+
+            .setAttribute(
+
+                "data-theme",
+
+                theme
+
+            );
+
+    }
+
+
+    renderTheme();
+
+}
+
+
+/* =====================================================
+   INIT THEME
+===================================================== */
+
+function initTheme(){
+
+    const theme =
+
+        loadTheme();
+
+
+    if(
+
+        theme === "light"
+
+    ){
+
+        document.documentElement
+
+            .removeAttribute(
+
+                "data-theme"
+
+            );
+
+        return;
+
+    }
+
+
+    document.documentElement
+
+        .setAttribute(
+
+            "data-theme",
+
+            theme
+
+        );
+
+}
+
+
+/* =====================================================
+   BASE
+===================================================== */
+
+const BASE =
+
+    new URL(
+
+        "./",
+
+        import.meta.url
+
+    ).href;
+
+
+/* =====================================================
+   COMPONENT
+===================================================== */
+
+export const Profile = {
+
+    async render({
+
+        container
+
+    }){
+
+        State.container =
+
+            document.querySelector(
+
+                container
+
+            );
+
+
+        if(
+
+            !State.container
+
+        ){
+
+            return;
+
+        }
+
+
+        await loadStyle();
+
+
+        const response =
+
+            await fetch(
+
+                BASE +
+
+                "index.html"
+
+            );
+
+
+        if(
+
+            !response.ok
+
+        ){
+
+            console.error(
+
+                "Profile HTML gagal dimuat:",
+
+                response.status
+
+            );
+
+            return;
+
+        }
+
+
+        State.container.innerHTML =
+
+            await response.text();
+
+
+        init();
+
+    }
+
+};
+
+
+/* =====================================================
+   LOAD STYLE
+===================================================== */
+
+async function loadStyle(){
+
+    const id =
+
+        "profile-component-style";
+
+
+    if(
+
+        document.getElementById(
+
+            id
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    const link =
+
+        document.createElement(
+
+            "link"
+
+        );
+
+
+    link.id =
+
+        id;
+
+
+    link.rel =
+
+        "stylesheet";
+
+
+    link.href =
+
+        BASE +
+
+        "style.css";
+
+
+    document.head.appendChild(
+
+        link
+
+    );
+
+}
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+function init(){
+
+    initTheme();
+
+    initSession();
+
+    initEvent();
+
+    render();
+
+    renderTheme();
+
+    initThemeEvent();
 
 }
 
@@ -226,27 +650,555 @@ function initSession(){
 
         loadSession();
 
+
+    State.user =
+
+        loadUser();
+
 }
 
 
 /* =====================================================
-   THEME
+   RENDER
 ===================================================== */
 
-function initTheme(){
+function render(){
 
-    State.theme =
+    if(
 
-        loadTheme();
+        !State.session
+
+    ){
+
+        renderLogin();
+
+        return;
+
+    }
+
+
+    renderUserCard();
+
+    renderWorkspaceCard();
+
+    renderMenuCard();
+
+    renderLogoutCard();
 
 }
 
 
 /* =====================================================
-   LOAD WORKSPACE LIST
+   LOGIN
+===================================================== */
+
+function renderLogin(){
+
+    const login =
+
+        document.getElementById(
+
+            "profile-login"
+
+        );
+
+
+    const dashboard =
+
+        document.getElementById(
+
+            "profile-dashboard"
+
+        );
+
+
+    if(
+
+        !login ||
+
+        !dashboard
+
+    ){
+
+        return;
+
+    }
+
+
+    login.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    dashboard.classList.add(
+
+        "hidden"
+
+    );
+
+
+    login.innerHTML =
+
+    `
+
+        <div class="profile-login">
+
+            <img
+
+                class="profile-login-image"
+
+                src="${getAvatar()}"
+
+                alt="Guest"
+
+            >
+
+
+            <h2 class="profile-login-title">
+
+                Finance Assistant
+
+            </h2>
+
+
+            <p class="profile-login-description">
+
+                Masuk menggunakan akun Google
+
+                untuk membuat workspace
+
+                pribadimu.
+
+            </p>
+
+
+            <button
+
+                id="profile-login-button"
+
+                class="profile-login-button"
+
+            >
+
+                Masuk dengan Google
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   GOOGLE LOGIN
+===================================================== */
+
+async function onGoogleLogin(){
+
+    const button =
+
+        document.getElementById(
+
+            "profile-login-button"
+
+        );
+
+
+    if(
+
+        !button
+
+    ){
+
+        return;
+
+    }
+
+
+    button.disabled =
+
+        true;
+
+
+    button.textContent =
+
+        "Menyiapkan Workspace...";
+
+
+    await loginGoogle();
+
+}
+
+
+/* =====================================================
+   USER
+===================================================== */
+
+function renderUserCard(){
+
+    const login =
+
+        document.getElementById(
+
+            "profile-login"
+
+        );
+
+
+    const dashboard =
+
+        document.getElementById(
+
+            "profile-dashboard"
+
+        );
+
+
+    if(
+
+        !login ||
+
+        !dashboard
+
+    ){
+
+        return;
+
+    }
+
+
+    login.classList.add(
+
+        "hidden"
+
+    );
+
+
+    dashboard.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    const name =
+
+        State.user?.displayName
+
+        ??
+
+        "Guest";
+
+
+    const email =
+
+        State.session?.user?.email
+
+        ??
+
+        "-";
+
+
+    const user =
+
+        document.getElementById(
+
+            "profile-user"
+
+        );
+
+
+    if(
+
+        !user
+
+    ){
+
+        return;
+
+    }
+
+
+    user.innerHTML =
+
+    `
+
+        <article
+
+            class="profile-card profile-user"
+
+        >
+
+            <img
+
+                class="profile-avatar"
+
+                src="${getAvatar()}"
+
+                alt="${name}"
+
+            >
+
+
+            <span
+
+                class="profile-greeting"
+
+            >
+
+                ${getGreeting()}
+
+            </span>
+
+
+            <h2
+
+                class="profile-name"
+
+            >
+
+                ${name}
+
+            </h2>
+
+
+            <p
+
+                class="profile-email"
+
+            >
+
+                ${email}
+
+            </p>
+
+
+            <p
+
+                class="profile-description"
+
+            >
+
+                Kelola akun dan workspace
+
+                Finance Assistant milikmu.
+
+            </p>
+
+        </article>
+
+    `;
+
+}
+
+
+/* =====================================================
+   AVATAR
+===================================================== */
+
+function getAvatar(){
+
+    if(
+
+        State.user?.avatar
+
+    ){
+
+        return State.user.avatar;
+
+    }
+
+
+    if(
+
+        State.session?.user?.picture
+
+    ){
+
+        return State.session.user.picture;
+
+    }
+
+
+    return (
+
+        BASE +
+
+        "assets/avatar.webp"
+
+    );
+
+}
+
+
+/* =====================================================
+   GREETING
+===================================================== */
+
+function getGreeting(){
+
+    const hour =
+
+        new Date()
+
+        .getHours();
+
+
+    if(
+
+        hour < 11
+
+    ){
+
+        return "🌅 Selamat Pagi";
+
+    }
+
+
+    if(
+
+        hour < 15
+
+    ){
+
+        return "☀️ Selamat Siang";
+
+    }
+
+
+    if(
+
+        hour < 18
+
+    ){
+
+        return "🌇 Selamat Sore";
+
+    }
+
+
+    return "🌙 Selamat Malam";
+
+}
+
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+function renderWorkspaceCard(){
+
+    initWorkspace();
+
+
+    const container =
+
+        document.getElementById(
+
+            "profile-workspace"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const active =
+
+        State.workspace.filter(
+
+            item => item.active
+
+        );
+
+
+    const inactive =
+
+        State.workspace.filter(
+
+            item => !item.active
+
+        );
+
+
+    container.innerHTML =
+
+    `
+
+        <article class="profile-card">
+
+            <h2 class="profile-title">
+
+                Workspace
+
+            </h2>
+
+
+            <div class="profile-workspace">
+
+                ${
+
+                    renderWorkspaceGroup(
+
+                        "🟢 Active",
+
+                        active
+
+                    )
+
+                }
+
+
+                ${
+
+                    renderWorkspaceGroup(
+
+                        "🟡 Inactive",
+
+                        inactive
+
+                    )
+
+                }
+
+
+                ${
+
+                    renderCreateWorkspace()
+
+                }
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/* =====================================================
+   LOAD WORKSPACE
 ===================================================== */
 
 function loadWorkspaceList(){
+
+    const current =
+
+        loadWorkspace();
+
 
     const modules =
 
@@ -259,20 +1211,15 @@ function loadWorkspaceList(){
         {};
 
 
-    const current =
+    return MODULES.map(
 
-        loadWorkspace();
+        module => {
 
-
-    return MODULE_CONFIG.map(
-
-        config => {
-
-            const module =
+            const workspace =
 
                 modules[
 
-                    config.id
+                    module.id
 
                 ];
 
@@ -281,22 +1228,22 @@ function loadWorkspaceList(){
 
                 id :
 
-                    config.id,
+                    module.id,
 
 
                 icon :
 
-                    config.icon,
+                    module.icon,
 
 
                 title :
 
-                    config.title,
+                    module.title,
 
 
                 active :
 
-                    module
+                    workspace
                     ?.active
 
                     === true,
@@ -305,16 +1252,16 @@ function loadWorkspaceList(){
                 selected :
 
                     current
-                    ?.module
+                    ?.workspace
 
                     ===
 
-                    config.id,
+                    module.id,
 
 
                 folderId :
 
-                    module
+                    workspace
                     ?.folderId
 
                     ||
@@ -344,35 +1291,577 @@ function initWorkspace(){
 
 
 /* =====================================================
-   GET ACTIVE WORKSPACE
+   GROUP
 ===================================================== */
 
-function getActiveWorkspace(){
+function renderWorkspaceGroup(
 
-    return State.workspace.filter(
+    title,
 
-        workspace =>
+    items
 
-            workspace.active
+){
 
-    );
+    return `
+
+        <div class="workspace-group">
+
+            <div class="workspace-group-title">
+
+                ${title}
+
+            </div>
+
+
+            ${
+
+                items.length
+
+                ?
+
+                items
+
+                    .map(
+
+                        createWorkspaceItem
+
+                    )
+
+                    .join(
+
+                        ""
+
+                    )
+
+                :
+
+                `
+
+                    <div class="workspace-empty">
+
+                        Belum ada Workspace
+
+                    </div>
+
+                `
+
+            }
+
+        </div>
+
+    `;
 
 }
 
 
 /* =====================================================
-   GET INACTIVE WORKSPACE
+   ITEM
 ===================================================== */
 
-function getInactiveWorkspace(){
+function createWorkspaceItem(
 
-    return State.workspace.filter(
+    item
 
-        workspace =>
+){
 
-            !workspace.active
+    return `
+
+        <button
+
+            class="workspace-item"
+
+            type="button"
+
+            data-id="${item.id}"
+
+            ${
+
+                item.active
+
+                ?
+
+                ""
+
+                :
+
+                "disabled"
+
+            }
+
+        >
+
+            <div class="workspace-left">
+
+                <div class="workspace-icon">
+
+                    ${item.icon}
+
+                </div>
+
+
+                <span class="workspace-name">
+
+                    ${item.title}
+
+                </span>
+
+            </div>
+
+
+            <span
+
+                class="workspace-status
+
+                ${
+
+                    item.active
+
+                    ?
+
+                    "active"
+
+                    :
+
+                    "inactive"
+
+                }"
+
+            >
+
+                ${
+
+                    item.active
+
+                    ?
+
+                    "Aktif"
+
+                    :
+
+                    "Inactive"
+
+                }
+
+            </span>
+
+        </button>
+
+    `;
+
+}
+
+
+/* =====================================================
+   CREATE WORKSPACE
+===================================================== */
+
+function renderCreateWorkspace(){
+
+    return `
+
+        <button
+
+            class="workspace-create"
+
+            type="button"
+
+        >
+
+            ➕ Create Workspace
+
+        </button>
+
+    `;
+
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+function renderMenuCard(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-menu"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const menu = [
+
+        {
+
+            id : "settings",
+
+            icon : "⚙️",
+
+            title : "Pengaturan",
+
+            description :
+
+                "Tema, Bahasa dan Mata Uang"
+
+        },
+
+        {
+
+            id : "sync",
+
+            icon : "☁️",
+
+            title : "Sinkronisasi & Tentang",
+
+            description :
+
+                "Google Drive dan Informasi"
+
+        },
+
+        {
+
+            id : "guide",
+
+            icon : "📖",
+
+            title : "Panduan",
+
+            description :
+
+                "Dokumentasi dan README"
+
+        }
+
+    ];
+
+
+    container.innerHTML =
+
+        menu
+
+            .map(
+
+                createMenuItem
+
+            )
+
+            .join(
+
+                ""
+
+            );
+
+}
+
+
+/* =====================================================
+   MENU ITEM
+===================================================== */
+
+function createMenuItem(
+
+    item
+
+){
+
+    return `
+
+        <article
+
+            class="profile-menu-item"
+
+            data-id="${item.id}"
+
+        >
+
+            <div class="profile-menu-left">
+
+                <div class="profile-menu-icon">
+
+                    ${item.icon}
+
+                </div>
+
+
+                <div class="profile-menu-content">
+
+                    <div class="profile-menu-title">
+
+                        ${item.title}
+
+                    </div>
+
+
+                    <div class="profile-menu-description">
+
+                        ${item.description}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <span class="profile-menu-arrow">
+
+                ›
+
+            </span>
+
+        </article>
+
+    `;
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function renderLogoutCard(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-logout"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+
+    `
+
+        <button
+
+            id="profile-logout-button"
+
+            class="profile-logout-button"
+
+            type="button"
+
+        >
+
+            🚪 Keluar dari Akun
+
+        </button>
+
+    `;
+
+}
+
+
+/* =====================================================
+   EVENT
+===================================================== */
+
+function initEvent(){
+
+    if(
+
+        State.eventsBound
+
+    ){
+
+        return;
+
+    }
+
+
+    document.addEventListener(
+
+        "click",
+
+        onClick
 
     );
+
+
+    State.eventsBound =
+
+        true;
+
+}
+
+
+/* =====================================================
+   CLICK
+===================================================== */
+
+function onClick(
+
+    event
+
+){
+
+    const loginButton =
+
+        event.target.closest(
+
+            "#profile-login-button"
+
+        );
+
+
+    if(
+
+        loginButton
+
+    ){
+
+        onGoogleLogin();
+
+        return;
+
+    }
+
+
+    const workspace =
+
+        event.target.closest(
+
+            ".workspace-item"
+
+        );
+
+
+    if(
+
+        workspace
+
+    ){
+
+        onWorkspace(
+
+            workspace.dataset.id
+
+        );
+
+        return;
+
+    }
+
+
+    const createWorkspace =
+
+        event.target.closest(
+
+            ".workspace-create"
+
+        );
+
+
+    if(
+
+        createWorkspace
+
+    ){
+
+        console.log(
+
+            "Create Workspace"
+
+        );
+
+        return;
+
+    }
+
+
+    const menu =
+
+        event.target.closest(
+
+            ".profile-menu-item"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        openMenu(
+
+            menu.dataset.id
+
+        );
+
+        return;
+
+    }
+
+
+    const settingsBack =
+
+        event.target.closest(
+
+            "#profile-settings-back"
+
+        );
+
+
+    if(
+
+        settingsBack
+
+    ){
+
+        closeSettings();
+
+        return;
+
+    }
+
+
+    const logoutButton =
+
+        event.target.closest(
+
+            "#profile-logout-button"
+
+        );
+
+
+    if(
+
+        logoutButton
+
+    ){
+
+        onLogout();
+
+    }
 
 }
 
@@ -404,21 +1893,13 @@ function onWorkspace(
 
     ){
 
-        console.warn(
-
-            "Workspace tidak ditemukan:",
-
-            id
-
-        );
-
         return;
 
     }
 
 
     /* =============================================
-       INACTIVE
+       INACTIVE WORKSPACE
     ============================================= */
 
     if(
@@ -427,20 +1908,10 @@ function onWorkspace(
 
     ){
 
-        console.warn(
-
-            `Workspace "${id}" belum dibuat.`
-
-        );
-
         return;
 
     }
 
-
-    /* =============================================
-       CURRENT WORKSPACE
-    ============================================= */
 
     const current =
 
@@ -450,7 +1921,7 @@ function onWorkspace(
     if(
 
         current
-        ?.module
+        ?.workspace
 
         ===
 
@@ -463,22 +1934,16 @@ function onWorkspace(
     }
 
 
-    /* =============================================
-       SAVE WORKSPACE
-    ============================================= */
-
     saveWorkspace({
 
-        module :
+        ...current,
+
+        workspace :
 
             id
 
     });
 
-
-    /* =============================================
-       RELOAD
-    ============================================= */
 
     location.reload();
 
@@ -486,159 +1951,33 @@ function onWorkspace(
 
 
 /* =====================================================
-   RENDER WORKSPACE CARD
+   OPEN MENU
 ===================================================== */
 
-function renderWorkspaceCard(
+function openMenu(
 
-    workspace
+    id
 
 ){
 
-    return `
-
-        <button
-
-            class="workspace-card
-
-            ${
-
-                workspace.selected
-
-                ?
-
-                "selected"
-
-                :
-
-                ""
-
-            }
-
-            ${
-
-                workspace.active
-
-                ?
-
-                "active"
-
-                :
-
-                "inactive"
-
-            }"
-
-            data-workspace="${
-
-                workspace.id
-
-            }"
-
-        >
-
-            <div
-
-                class="workspace-icon"
-
-            >
-
-                ${
-
-                    workspace.icon
-
-                }
-
-            </div>
-
-
-            <div
-
-                class="workspace-content"
-
-            >
-
-                <h4>
-
-                    ${
-
-                        workspace.title
-
-                    }
-
-                </h4>
-
-
-                <span>
-
-                    ${
-
-                        workspace.active
-
-                        ?
-
-                        "Active"
-
-                        :
-
-                        "Inactive"
-
-                    }
-
-                </span>
-
-            </div>
-
-        </button>
-
-    `;
-
-}
-
-
-/* =====================================================
-   RENDER ACTIVE WORKSPACE
-===================================================== */
-
-function renderActiveWorkspace(){
-
-    const workspaces =
-
-        getActiveWorkspace();
-
-
     if(
 
-        !workspaces.length
+        id === "settings"
 
     ){
 
-        return `
+        openSettings();
 
-            <div
-
-                class="workspace-empty"
-
-            >
-
-                Belum ada workspace aktif.
-
-            </div>
-
-        `;
+        return;
 
     }
 
 
-    return workspaces.map(
+    console.log(
 
-        renderWorkspaceCard
+        "Open",
 
-    )
-
-    .join(
-
-        ""
+        id
 
     );
 
@@ -646,266 +1985,69 @@ function renderActiveWorkspace(){
 
 
 /* =====================================================
-   RENDER INACTIVE WORKSPACE
+   SETTINGS OVERLAY
 ===================================================== */
 
-function renderInactiveWorkspace(){
+function openSettings(){
 
-    const workspaces =
-
-        getInactiveWorkspace();
-
-
-    if(
-
-        !workspaces.length
-
-    ){
-
-        return "";
-
-    }
-
-
-    return workspaces.map(
-
-        renderWorkspaceCard
-
-    )
-
-    .join(
-
-        ""
-
-    );
-
-}
-
-
-/* =====================================================
-   RENDER WORKSPACE
-===================================================== */
-
-export function renderWorkspace(){
-
-    return `
-
-        <section
-
-            class="profile-section"
-
-        >
-
-            <div
-
-                class="profile-section-header"
-
-            >
-
-                <h3>
-
-                    Workspace
-
-                </h3>
-
-            </div>
-
-
-            <div
-
-                class="workspace-group"
-
-            >
-
-                <h4
-
-                    class="workspace-label"
-
-                >
-
-                    Active
-
-                </h4>
-
-
-                <div
-
-                    class="workspace-list"
-
-                >
-
-                    ${
-
-                        renderActiveWorkspace()
-
-                    }
-
-                </div>
-
-            </div>
-
-
-            <div
-
-                class="workspace-group"
-
-            >
-
-                <h4
-
-                    class="workspace-label"
-
-                >
-
-                    Inactive
-
-                </h4>
-
-
-                <div
-
-                    class="workspace-list"
-
-                >
-
-                    ${
-
-                        renderInactiveWorkspace()
-
-                    }
-
-                </div>
-
-            </div>
-
-
-            <button
-
-                id="createWorkspace"
-
-                class="create-workspace"
-
-            >
-
-                + Create Workspace
-
-            </button>
-
-        </section>
-
-    `;
-
-}
-
-
-/* =====================================================
-   WORKSPACE EVENT
-===================================================== */
-
-export function bindWorkspaceEvents(){
-
-    document
-
-        .querySelectorAll(
-
-            "[data-workspace]"
-
-        )
-
-        .forEach(
-
-            element => {
-
-                element.addEventListener(
-
-                    "click",
-
-                    () => {
-
-                        const id =
-
-                            element.dataset
-                            .workspace;
-
-
-                        onWorkspace(
-
-                            id
-
-                        );
-
-                    }
-
-                );
-
-            }
-
-        );
-
-
-    const createButton =
+    const overlay =
 
         document.getElementById(
 
-            "createWorkspace"
+            "profile-settings-overlay"
 
         );
 
 
     if(
 
-        createButton
+        !overlay
 
     ){
 
-        createButton.addEventListener(
-
-            "click",
-
-            () => {
-
-                console.log(
-
-                    "Create Workspace"
-
-                );
-
-            }
-
-        );
+        return;
 
     }
+
+
+    overlay.classList.remove(
+
+        "hidden"
+
+    );
 
 }
 
 
 /* =====================================================
-   THEME CHANGE
+   CLOSE SETTINGS
 ===================================================== */
 
-function onTheme(
+function closeSettings(){
 
-    theme
+    const overlay =
 
-){
+        document.getElementById(
 
-    saveTheme(
+            "profile-settings-overlay"
 
-        theme
-
-    );
+        );
 
 
-    State.theme =
+    if(
 
-        theme;
+        !overlay
+
+    ){
+
+        return;
+
+    }
 
 
-    document.documentElement.setAttribute(
+    overlay.classList.add(
 
-        "data-theme",
-
-        theme
+        "hidden"
 
     );
 
@@ -918,23 +2060,21 @@ function onTheme(
 
 function onLogout(){
 
+    if(
+
+        !confirm(
+
+            "Yakin ingin keluar?"
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
     logout();
 
 }
-
-
-/* =====================================================
-   EXPORT
-===================================================== */
-
-export {
-
-    State,
-
-    onWorkspace,
-
-    onTheme,
-
-    onLogout
-
-};
