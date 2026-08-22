@@ -2,14 +2,15 @@
    Finance Assistant
    Module      : Workspace
    File        : workspace.js
-   Version     : 3.0.0
+   Version     : 4.0.0
 
    Description :
    Workspace Controller
 
    Sections :
    - Import
-   - State
+   - Module Registry
+   - Workspace Validation
    - Init
 ===================================================== */
 
@@ -24,88 +25,237 @@ import {
 
 } from "./storage.js";
 
+
+import {
+
+    loadSession
+
+} from "./auth.js";
+
+
 import * as Saving from
 
     "../pages/saving/home.js";
+
 
 import * as Kas from
 
     "../pages/kas/home.js";
 
+
 import * as PayrollMonthly from
+
     "../pages/payroll-monthly/home.js";
 
+
 import * as PayrollDaily from
+
     "../pages/payroll-daily/home.js";
 
+
 import * as Financial from
+
     "../pages/financial/home.js";
 
+
 import * as Airdrop from
+
     "../pages/airdrop/home.js";
 
+
 /* =====================================================
-   STATE
+   MODULE REGISTRY
 ===================================================== */
-
-const workspace =
-
-    loadWorkspace();
 
 const WORKSPACE = {
 
-    saving :
-        Saving,
+    financial:
 
-    kas :
-        Kas,
-
-    "payroll-monthly" :
-        PayrollMonthly,
-
-    "payroll-daily" :
-        PayrollDaily,
-   
-   "financial" :
         Financial,
 
-    "airdrop" :
+    saving:
+
+        Saving,
+
+    kas:
+
+        Kas,
+
+    "payroll-daily":
+
+        PayrollDaily,
+
+    "payroll-monthly":
+
+        PayrollMonthly,
+
+    airdrop:
+
         Airdrop
 
 };
 
 
 /* =====================================================
-   INIT
+   GET MODULES
+===================================================== */
+
+function getModules(){
+
+    const session =
+
+        loadSession();
+
+
+    return (
+
+        session
+        ?.workspace
+        ?.modules
+
+        ||
+
+        {}
+
+    );
+
+}
+
+
+/* =====================================================
+   GET ACTIVE WORKSPACE
+===================================================== */
+
+function getActiveWorkspace(){
+
+    const workspace =
+
+        loadWorkspace();
+
+
+    return (
+
+        workspace
+        ?.module
+
+        ||
+
+        null
+
+    );
+
+}
+
+
+/* =====================================================
+   VALIDATE WORKSPACE
+===================================================== */
+
+function isModuleActive(
+
+    moduleName
+
+){
+
+    const modules =
+
+        getModules();
+
+
+    return (
+
+        modules
+        ?.[moduleName]
+        ?.active
+
+        === true
+
+    );
+
+}
+
+
+/* =====================================================
+   INIT WORKSPACE
 ===================================================== */
 
 export async function initWorkspace(){
 
     const active =
 
-        workspace?.workspace ??
+        getActiveWorkspace();
 
-        "saving";
 
-    const module =
-
-        WORKSPACE[active];
+    /* ---------------------------------------------
+       Tidak ada workspace dipilih
+    --------------------------------------------- */
 
     if(
 
-        !module
+        !active
 
     ){
 
-        console.warn(
+        console.log(
 
-            `Workspace "${active}" tidak ditemukan.`
+            "Belum ada workspace aktif."
 
         );
 
         return;
 
     }
+
+
+    /* ---------------------------------------------
+       Module tidak tersedia
+    --------------------------------------------- */
+
+    if(
+
+        !WORKSPACE[active]
+
+    ){
+
+        console.warn(
+
+            `Module "${active}" tidak ditemukan.`
+
+        );
+
+        return;
+
+    }
+
+
+    /* ---------------------------------------------
+       Module belum aktif
+    --------------------------------------------- */
+
+    if(
+
+        !isModuleActive(
+
+            active
+
+        )
+
+    ){
+
+        console.warn(
+
+            `Workspace "${active}" belum aktif.`
+
+        );
+
+        return;
+
+    }
+
+
+    /* ---------------------------------------------
+       Start Module
+    --------------------------------------------- */
 
     console.log(
 
@@ -115,7 +265,8 @@ export async function initWorkspace(){
 
     );
 
-    await module.init();
+
+    await WORKSPACE[active].init();
 
 }
 
