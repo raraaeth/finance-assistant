@@ -165,6 +165,18 @@ export async function init(){
 
 );
 
+       console.log(
+    "===== FINANCIAL RAW FIRST =====",
+    API.raw[0]
+);
+
+console.log(
+    "===== FINANCIAL RAW KEYS =====",
+    Object.keys(
+        API.raw[0] || {}
+    )
+);
+
     }
 
     catch(error){
