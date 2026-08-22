@@ -157,11 +157,13 @@ export async function init(){
 
         await API.load(
 
-            CONFIG.api.financial,
+    CONFIG.api.endpoint,
 
-            CONFIG.api.activity
+    CONFIG.data.financial,
 
-        );
+    CONFIG.data.activity
+
+);
 
     }
 
