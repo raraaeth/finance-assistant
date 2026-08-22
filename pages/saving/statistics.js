@@ -303,9 +303,7 @@ Statistics.renderTransaction = function(){
                         </strong>
 
                         <small>
-
-                            ${item.tanggal}
-
+                        ${formatDate(item.date)}
                         </small>
 
                         ${
