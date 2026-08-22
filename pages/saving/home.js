@@ -2,7 +2,7 @@
    HOME
    FILE : home.js
    DESCRIPTION : Home Controller
-   VERSION : 2.0.0
+   VERSION : 2.1.0
 ===================================================== */
 
 
@@ -116,9 +116,11 @@ export async function init(){
 
     await API.load(
 
-        CONFIG.api.transaction,
+        CONFIG.api.endpoint,
 
-        CONFIG.api.bank
+        CONFIG.data.saving,
+
+        CONFIG.data.bank
 
     );
 
@@ -507,7 +509,7 @@ function renderSetting(){
 
 
                 <div
-                    class="profile-menu-icon">
+                class="profile-menu-icon">
 
                     ⚙️
 
@@ -591,4 +593,3 @@ function renderSetting(){
     }
 
 }
-
