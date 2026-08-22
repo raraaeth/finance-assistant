@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Summary
    File        : summary.js
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Airdrop Summary Controller
@@ -17,6 +17,7 @@
    - Wallet Distribution
    - Detail Preparation
    - Detail Rendering
+   - Detail Pagination
    - Helper
 ===================================================== */
 
@@ -64,7 +65,19 @@ export const Summary = {
 
         ended : []
 
-    }
+    },
+
+    pagination : {
+
+        win : 1,
+
+        ongoing : 1,
+
+        ended : 1
+
+    },
+
+    perPage : 3
 
 };
 
@@ -90,6 +103,21 @@ Summary.init = function(){
         return;
 
     }
+
+
+    /* =============================================
+       RESET PAGINATION
+    ============================================= */
+
+    Summary.pagination = {
+
+        win : 1,
+
+        ongoing : 1,
+
+        ended : 1
+
+    };
 
 
     /* =============================================
@@ -196,11 +224,13 @@ function renderOverview(){
 
                 </span>
 
+
                 <span class="airdrop-summary-total-label">
 
                     Total Campaign Airdrop
 
                 </span>
+
 
                 <strong>
 
@@ -228,11 +258,13 @@ function renderOverview(){
 
                     </span>
 
+
                     <span>
 
                         Ongoing
 
                     </span>
+
 
                     <strong>
 
@@ -253,11 +285,13 @@ function renderOverview(){
 
                     </span>
 
+
                     <span>
 
                         Win
 
                     </span>
+
 
                     <strong>
 
@@ -278,11 +312,13 @@ function renderOverview(){
 
                     </span>
 
+
                     <span>
 
                         Not Win
 
                     </span>
+
 
                     <strong>
 
@@ -303,11 +339,13 @@ function renderOverview(){
 
                     </span>
 
+
                     <span>
 
                         Ended
 
                     </span>
+
 
                     <strong>
 
@@ -354,79 +392,41 @@ function renderDistribution(){
     }
 
 
-    /* =============================================
-       DATA STATUS
-    ============================================= */
-
-    const ongoing =
+    const data = [
 
         Number(
 
             Process.summary?.totalOngoing
 
-        ) || 0;
+        ) || 0,
 
-
-    const ended =
 
         Number(
 
             Process.summary?.totalEnded
 
-        ) || 0;
+        ) || 0,
 
-
-    const win =
 
         Number(
 
             Process.summary?.totalWin
 
-        ) || 0;
+        ) || 0,
 
-
-    const notWin =
 
         Number(
 
             Process.summary?.totalNotWin
 
-        ) || 0;
-
-
-    const labels = [
-
-        "Ongoing",
-
-        "Ended",
-
-        "Win",
-
-        "Not Win"
+        ) || 0
 
     ];
 
-
-    const values = [
-
-        ongoing,
-
-        ended,
-
-        win,
-
-        notWin
-
-    ];
-
-
-    /* =============================================
-       CEK DATA
-    ============================================= */
 
     const total =
 
-        values.reduce(
+        data.reduce(
 
             (
 
@@ -454,10 +454,6 @@ function renderDistribution(){
     }
 
 
-    /* =============================================
-       DONUT
-    ============================================= */
-
     Chart.renderDoughnut({
 
         canvas :
@@ -465,32 +461,20 @@ function renderDistribution(){
             "#summary-distribution-chart",
 
 
-        labels,
+        labels : [
+
+            "Ongoing",
+
+            "Ended",
+
+            "Win",
+
+            "Not Win"
+
+        ],
 
 
-        datasets : [
-
-            {
-
-                data :
-
-                    values,
-
-                backgroundColor : [
-
-                    "#F59E0B", // Ongoing
-
-                    "#94A3B8", // Ended
-
-                    "#22C55E", // Win
-
-                    "#EF4444"  // Not Win
-
-                ]
-
-            }
-
-        ]
+        data
 
     });
 
@@ -772,11 +756,13 @@ function createWalletBar(
 
                 </span>
 
+
                 <small>
 
                     ${label}
 
                 </small>
+
 
                 <strong>
 
@@ -911,39 +897,27 @@ function buildDetail(){
 
         win :
 
-            Process.win.map(
+            sortNewest(
 
-                item => ({
-
-                    ...item
-
-                })
+                Process.win
 
             ),
 
 
         ongoing :
 
-            Process.ongoing.map(
+            sortNewest(
 
-                item => ({
-
-                    ...item
-
-                })
+                Process.ongoing
 
             ),
 
 
         ended :
 
-            Process.ended.map(
+            sortNewest(
 
-                item => ({
-
-                    ...item
-
-                })
+                Process.ended
 
             )
 
@@ -953,7 +927,90 @@ function buildDetail(){
 
 
 /* =====================================================
-   DETAIL RENDER
+   SORT NEWEST
+===================================================== */
+
+function sortNewest(
+
+    data
+
+){
+
+    return [
+
+        ...(
+
+            Array.isArray(
+
+                data
+
+            )
+
+                ?
+
+                data
+
+                :
+
+                []
+
+        )
+
+    ].sort(
+
+        (
+
+            a,
+
+            b
+
+        ) => {
+
+            const dateA =
+
+                a?.date
+
+                    ?
+
+                    new Date(
+
+                        a.date
+
+                    ).getTime()
+
+                    :
+
+                    0;
+
+
+            const dateB =
+
+                b?.date
+
+                    ?
+
+                    new Date(
+
+                        b.date
+
+                    ).getTime()
+
+                    :
+
+                    0;
+
+
+            return dateB - dateA;
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   DETAIL
 ===================================================== */
 
 function renderDetail(){
@@ -967,20 +1024,9 @@ function renderDetail(){
         );
 
 
-    const card =
-
-        document.getElementById(
-
-            "summary-airdrop-detail-card"
-
-        );
-
-
     if(
 
-        !section ||
-
-        !card
+        !section
 
     ){
 
@@ -989,32 +1035,18 @@ function renderDetail(){
     }
 
 
-    const win =
+    const hasData =
 
-        Summary.detail.win;
+        Summary.detail.win.length ||
 
+        Summary.detail.ongoing.length ||
 
-    const ongoing =
+        Summary.detail.ended.length;
 
-        Summary.detail.ongoing;
-
-
-    const ended =
-
-        Summary.detail.ended;
-
-
-    /* =============================================
-       NO DETAIL
-    ============================================= */
 
     if(
 
-        !win.length &&
-
-        !ongoing.length &&
-
-        !ended.length
+        !hasData
 
     ){
 
@@ -1029,10 +1061,6 @@ function renderDetail(){
     }
 
 
-    /* =============================================
-       SHOW SECTION
-    ============================================= */
-
     section.classList.remove(
 
         "hidden"
@@ -1041,124 +1069,76 @@ function renderDetail(){
 
 
     /* =============================================
-       RENDER WIN
+       WIN
     ============================================= */
 
     renderDetailGroup({
 
+        type :
+
+            "win",
+
         group :
 
-            document.getElementById(
-
-                "airdrop-detail-win"
-
-            ),
+            "airdrop-detail-win",
 
         count :
 
-            document.getElementById(
-
-                "airdrop-detail-win-count"
-
-            ),
+            "airdrop-detail-win-count",
 
         list :
 
-            document.getElementById(
-
-                "airdrop-detail-win-list"
-
-            ),
-
-        data :
-
-            win,
-
-        type :
-
-            "win"
+            "airdrop-detail-win-list"
 
     });
 
 
     /* =============================================
-       RENDER ONGOING
+       ONGOING
     ============================================= */
 
     renderDetailGroup({
 
+        type :
+
+            "ongoing",
+
         group :
 
-            document.getElementById(
-
-                "airdrop-detail-ongoing"
-
-            ),
+            "airdrop-detail-ongoing",
 
         count :
 
-            document.getElementById(
-
-                "airdrop-detail-ongoing-count"
-
-            ),
+            "airdrop-detail-ongoing-count",
 
         list :
 
-            document.getElementById(
-
-                "airdrop-detail-ongoing-list"
-
-            ),
-
-        data :
-
-            ongoing,
-
-        type :
-
-            "ongoing"
+            "airdrop-detail-ongoing-list"
 
     });
 
 
     /* =============================================
-       RENDER ENDED
+       ENDED
     ============================================= */
 
     renderDetailGroup({
 
+        type :
+
+            "ended",
+
         group :
 
-            document.getElementById(
-
-                "airdrop-detail-ended"
-
-            ),
+            "airdrop-detail-ended",
 
         count :
 
-            document.getElementById(
-
-                "airdrop-detail-ended-count"
-
-            ),
+            "airdrop-detail-ended-count",
 
         list :
 
-            document.getElementById(
-
-                "airdrop-detail-ended-list"
-
-            ),
-
-        data :
-
-            ended,
-
-        type :
-
-            "ended"
+            "airdrop-detail-ended-list"
 
     });
 
@@ -1171,25 +1151,50 @@ function renderDetail(){
 
 function renderDetailGroup({
 
+    type,
+
     group,
 
     count,
 
-    list,
-
-    data,
-
-    type
+    list
 
 }){
 
+    const groupElement =
+
+        document.getElementById(
+
+            group
+
+        );
+
+
+    const countElement =
+
+        document.getElementById(
+
+            count
+
+        );
+
+
+    const listElement =
+
+        document.getElementById(
+
+            list
+
+        );
+
+
     if(
 
-        !group ||
+        !groupElement ||
 
-        !count ||
+        !countElement ||
 
-        !list
+        !listElement
 
     ){
 
@@ -1198,8 +1203,13 @@ function renderDetailGroup({
     }
 
 
+    const data =
+
+        Summary.detail[type] || [];
+
+
     /* =============================================
-       EMPTY GROUP
+       EMPTY
     ============================================= */
 
     if(
@@ -1208,17 +1218,17 @@ function renderDetailGroup({
 
     ){
 
-        group.classList.add(
+        groupElement.classList.add(
 
             "hidden"
 
         );
 
-        count.textContent =
+        countElement.textContent =
 
             "0";
 
-        list.innerHTML =
+        listElement.innerHTML =
 
             "";
 
@@ -1227,18 +1237,14 @@ function renderDetailGroup({
     }
 
 
-    /* =============================================
-       SHOW GROUP
-    ============================================= */
-
-    group.classList.remove(
+    groupElement.classList.remove(
 
         "hidden"
 
     );
 
 
-    count.textContent =
+    countElement.textContent =
 
         String(
 
@@ -1247,9 +1253,85 @@ function renderDetailGroup({
         );
 
 
-    list.innerHTML =
+    /* =============================================
+       PAGINATION
+    ============================================= */
 
-        data
+    const totalPage =
+
+        Math.max(
+
+            1,
+
+            Math.ceil(
+
+                data.length /
+
+                Summary.perPage
+
+            )
+
+        );
+
+
+    let page =
+
+        Summary.pagination[type] || 1;
+
+
+    if(
+
+        page > totalPage
+
+    ){
+
+        page = totalPage;
+
+        Summary.pagination[type] =
+
+            page;
+
+    }
+
+
+    const start =
+
+        (
+
+            page - 1
+
+        )
+
+        *
+
+        Summary.perPage;
+
+
+    const end =
+
+        start +
+
+        Summary.perPage;
+
+
+    const pageData =
+
+        data.slice(
+
+            start,
+
+            end
+
+        );
+
+
+    /* =============================================
+       RENDER ITEMS
+    ============================================= */
+
+    listElement.innerHTML =
+
+        pageData
 
             .map(
 
@@ -1266,6 +1348,23 @@ function renderDetailGroup({
             )
 
             .join("");
+
+
+    /* =============================================
+       PAGINATION
+    ============================================= */
+
+    renderDetailPagination(
+
+        listElement,
+
+        type,
+
+        page,
+
+        totalPage
+
+    );
 
 }
 
@@ -1293,6 +1392,35 @@ function createDetailItem(
         );
 
 
+    const wallet =
+
+        formatText(
+
+            item.wallet
+
+        );
+
+
+    const campaignType =
+
+        formatText(
+
+            item.type
+
+        );
+
+
+    const tanggal =
+
+        escapeHTML(
+
+            item.tanggal ||
+
+            "-"
+
+        );
+
+
     /* =============================================
        WIN
     ============================================= */
@@ -1314,10 +1442,15 @@ function createDetailItem(
 
         return `
 
-            <div class="airdrop-detail-item">
+            <article
+
+                class="airdrop-detail-item">
 
 
-                <div class="airdrop-detail-item-info">
+                <div
+
+                    class="airdrop-detail-item-info">
+
 
                     <strong>
 
@@ -1325,10 +1458,43 @@ function createDetailItem(
 
                     </strong>
 
+
+                    <div
+
+                        class="airdrop-detail-item-meta">
+
+
+                        <span>
+
+                            👛 ${escapeHTML(wallet)}
+
+                        </span>
+
+
+                        <span>
+
+                            🎯 ${escapeHTML(campaignType)}
+
+                        </span>
+
+
+                        <span>
+
+                            📅 ${tanggal}
+
+                        </span>
+
+
+                    </div>
+
+
                 </div>
 
 
-                <strong class="airdrop-detail-item-reward">
+                <strong
+
+                    class="airdrop-detail-item-reward">
+
 
                     ${
 
@@ -1340,10 +1506,11 @@ function createDetailItem(
 
                     }
 
+
                 </strong>
 
 
-            </div>
+            </article>
 
         `;
 
@@ -1356,10 +1523,15 @@ function createDetailItem(
 
     return `
 
-        <div class="airdrop-detail-item">
+        <article
+
+            class="airdrop-detail-item">
 
 
-            <div class="airdrop-detail-item-info">
+            <div
+
+                class="airdrop-detail-item-info">
+
 
                 <strong>
 
@@ -1367,14 +1539,342 @@ function createDetailItem(
 
                 </strong>
 
+
+                <div
+
+                    class="airdrop-detail-item-meta">
+
+
+                    <span>
+
+                        👛 ${escapeHTML(wallet)}
+
+                    </span>
+
+
+                    <span>
+
+                        🎯 ${escapeHTML(campaignType)}
+
+                    </span>
+
+
+                    <span>
+
+                        📅 ${tanggal}
+
+                    </span>
+
+
+                </div>
+
+
             </div>
 
 
-        </div>
+        </article>
 
     `;
 
 }
+
+
+/* =====================================================
+   DETAIL PAGINATION
+===================================================== */
+
+function renderDetailPagination(
+
+    listElement,
+
+    type,
+
+    page,
+
+    totalPage
+
+){
+
+    /* =============================================
+       REMOVE OLD PAGINATION
+    ============================================= */
+
+    const oldPagination =
+
+        listElement.parentElement.querySelector(
+
+            `.airdrop-detail-pagination[data-type="${type}"]`
+
+        );
+
+
+    if(
+
+        oldPagination
+
+    ){
+
+        oldPagination.remove();
+
+    }
+
+
+    /* =============================================
+       ONLY ONE PAGE
+    ============================================= */
+
+    if(
+
+        totalPage <= 1
+
+    ){
+
+        return;
+
+    }
+
+
+    const pagination =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    pagination.className =
+
+        "airdrop-detail-pagination";
+
+
+    pagination.dataset.type =
+
+        type;
+
+
+    pagination.innerHTML =
+
+    `
+
+        <button
+
+            type="button"
+
+            class="airdrop-detail-page-button"
+
+            data-detail-prev="${type}"
+
+            ${
+
+                page <= 1
+
+                    ?
+
+                    "disabled"
+
+                    :
+
+                    ""
+
+            }>
+
+
+            ◀ Sebelumnya
+
+        </button>
+
+
+        <span
+
+            class="airdrop-detail-page-info">
+
+
+            ${page}
+
+            /
+
+            ${totalPage}
+
+
+        </span>
+
+
+        <button
+
+            type="button"
+
+            class="airdrop-detail-page-button"
+
+            data-detail-next="${type}"
+
+            ${
+
+                page >= totalPage
+
+                    ?
+
+                    "disabled"
+
+                    :
+
+                    ""
+
+            }>
+
+
+            Berikutnya ▶
+
+        </button>
+
+    `;
+
+
+    listElement.parentElement.appendChild(
+
+        pagination
+
+    );
+
+}
+
+
+/* =====================================================
+   DETAIL PAGINATION EVENT
+===================================================== */
+
+document.addEventListener(
+
+    "click",
+
+    event => {
+
+        const prev =
+
+            event.target.closest(
+
+                "[data-detail-prev]"
+
+            );
+
+
+        if(
+
+            prev
+
+        ){
+
+            const type =
+
+                prev.dataset.detailPrev;
+
+
+            if(
+
+                Summary.pagination[type] > 1
+
+            ){
+
+                Summary.pagination[type]--;
+
+                renderDetailGroup({
+
+                    type,
+
+                    group :
+
+                        `airdrop-detail-${type}`,
+
+                    count :
+
+                        `airdrop-detail-${type}-count`,
+
+                    list :
+
+                        `airdrop-detail-${type}-list`
+
+                });
+
+            }
+
+
+            return;
+
+        }
+
+
+        const next =
+
+            event.target.closest(
+
+                "[data-detail-next]"
+
+            );
+
+
+        if(
+
+            next
+
+        ){
+
+            const type =
+
+                next.dataset.detailNext;
+
+
+            const data =
+
+                Summary.detail[type] || [];
+
+
+            const totalPage =
+
+                Math.ceil(
+
+                    data.length /
+
+                    Summary.perPage
+
+                );
+
+
+            if(
+
+                Summary.pagination[type] <
+
+                totalPage
+
+            ){
+
+                Summary.pagination[type]++;
+
+
+                renderDetailGroup({
+
+                    type,
+
+                    group :
+
+                        `airdrop-detail-${type}`,
+
+                    count :
+
+                        `airdrop-detail-${type}-count`,
+
+                    list :
+
+                        `airdrop-detail-${type}-list`
+
+                });
+
+            }
+
+        }
+
+    }
+
+);
 
 
 /* =====================================================
