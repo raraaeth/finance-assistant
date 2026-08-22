@@ -2,8 +2,19 @@
    GLOBAL NAVIGATION
    FILE : navigation.js
    DESCRIPTION : Bottom Navigation Controller
-   VERSION : 5.0.0
+   VERSION : 5.1.0
 ===================================================== */
+
+
+/* =====================================================
+   IMPORT
+===================================================== */
+
+import {
+
+    Profile
+
+} from "../components/profile/script.js";
 
 
 /* =====================================================
@@ -53,6 +64,20 @@ const MENU = [
     }
 
 ];
+
+
+/* =====================================================
+   PAGE STATE
+===================================================== */
+
+const PAGE_STATE = {
+
+    profileLoaded :
+
+        false
+
+};
+
 
 /* =====================================================
    INIT
@@ -132,6 +157,8 @@ function renderNavigation(
 
                 data-page="${item.id}"
 
+                type="button"
+
             >
 
                 <span
@@ -206,7 +233,7 @@ function registerNavigation(
    SHOW PAGE
 ===================================================== */
 
-function showPage(
+async function showPage(
 
     page
 
@@ -236,6 +263,7 @@ function showPage(
 
         });
 
+
     const activePage =
 
         document.getElementById(
@@ -244,15 +272,25 @@ function showPage(
 
         );
 
+
     if(
 
         !activePage
 
     ){
 
+        console.warn(
+
+            "Page tidak ditemukan:",
+
+            `${page}-page`
+
+        );
+
         return;
 
     }
+
 
     activePage.classList.remove(
 
@@ -266,11 +304,107 @@ function showPage(
 
     );
 
+
     updateNavigation(
 
         page
 
     );
+
+
+    /* =================================================
+       PROFILE
+    ================================================= */
+
+    if(
+
+        page === "profile"
+
+        &&
+
+        !PAGE_STATE.profileLoaded
+
+    ){
+
+        await loadProfile();
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD PROFILE
+===================================================== */
+
+async function loadProfile(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-page"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        console.error(
+
+            "Container #profile-page tidak ditemukan."
+
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        console.log(
+
+            "Loading Profile..."
+
+        );
+
+
+        await Profile.render({
+
+            container :
+
+                "#profile-page"
+
+        });
+
+
+        PAGE_STATE.profileLoaded =
+
+            true;
+
+
+        console.log(
+
+            "Profile loaded."
+
+        );
+
+    }catch(error){
+
+        console.error(
+
+            "Profile gagal dimuat:",
+
+            error
+
+        );
+
+    }
 
 }
 
@@ -299,7 +433,7 @@ function updateNavigation(
 
                 "active",
 
-                item.dataset.page===page
+                item.dataset.page === page
 
             );
 
