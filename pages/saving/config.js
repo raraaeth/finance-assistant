@@ -3,7 +3,7 @@
    Page        : Saving
    Module      : Config
    File        : config.js
-   Version     : 3.0.0
+   Version     : 4.0.0
 
    Description :
    Saving Configuration
@@ -12,6 +12,7 @@
    - Module
    - Hero
    - API
+   - DATA
 ===================================================== */
 
 
