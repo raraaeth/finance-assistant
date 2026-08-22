@@ -38,6 +38,29 @@ API.load = async function(
 
 ){
 
+    console.log(
+
+        "===== API LOAD ====="
+
+    );
+
+    console.log(
+
+        "RAW URL:",
+
+        rawUrl
+
+    );
+
+    console.log(
+
+        "DATA URL:",
+
+        dataUrl
+
+    );
+
+
     const [
 
         raw,
