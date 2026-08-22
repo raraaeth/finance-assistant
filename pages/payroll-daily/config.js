@@ -3,7 +3,7 @@
    Page        : Payroll Daily
    Module      : Config
    File        : config.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Payroll Daily Configuration
@@ -18,15 +18,34 @@ export const CONFIG = {
 
 
     /* =================================================
+       MODULE
+    ================================================= */
+
+    module : {
+
+        key :
+
+            "payrollDaily",
+
+        name :
+
+            "Payroll Daily"
+
+    },
+
+
+    /* =================================================
        APP
     ================================================= */
 
     app : {
 
         name :
+
             "Payroll Daily",
 
         version :
+
             "1.0.0"
 
     },
@@ -38,11 +57,9 @@ export const CONFIG = {
 
     api : {
 
-        daily :
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_daily",
+        endpoint :
 
-        rules :
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_daily_rules"
+            "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec"
 
     },
 
@@ -54,9 +71,11 @@ export const CONFIG = {
     sheet : {
 
         daily :
+
             "payroll_daily",
 
         rules :
+
             "payroll_daily_rules"
 
     },
@@ -69,18 +88,23 @@ export const CONFIG = {
     data : {
 
         statusMasuk :
+
             "masuk",
 
         productionName :
+
             "nama",
 
         grade1 :
+
             "grade_1",
 
         grade2 :
+
             "grade_2",
 
         quantity :
+
             "qty"
 
     },
@@ -93,15 +117,19 @@ export const CONFIG = {
     rule : {
 
         typeWork :
+
             "rule_work",
 
         typeAdd :
+
             "rule_tambah",
 
         typeDeduct :
+
             "rule_potong",
 
         typeSalary :
+
             "rule_gaji"
 
     },
@@ -115,7 +143,7 @@ export const CONFIG = {
 
         /* ---------------------------------------------
            Prioritas pencarian tarif
-           --------------------------------------------- */
+        --------------------------------------------- */
 
         priority : [
 
@@ -137,9 +165,11 @@ export const CONFIG = {
     period : {
 
         salary :
+
             "bulanan",
 
         daily :
+
             "harian"
 
     },
@@ -152,9 +182,11 @@ export const CONFIG = {
     currency : {
 
         code :
+
             "IDR",
 
         locale :
+
             "id-ID"
 
     },
@@ -167,9 +199,11 @@ export const CONFIG = {
     hero : {
 
         description :
+
             "Lihat hasil kerja dan penghasilan kamu hari ini.",
 
         image :
+
             "../assets/images/hero/hero-payroll.png"
 
     }
