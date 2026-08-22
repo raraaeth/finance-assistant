@@ -799,6 +799,457 @@
 
 }
 
+/* =====================================================
+   AIRDROP DETAIL
+===================================================== */
+
+#summary-airdrop-detail{
+
+    margin-top:32px;
+
+}
+
+
+/* =====================================================
+   DETAIL CARD
+===================================================== */
+
+#summary-airdrop-detail-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:28px;
+
+}
+
+
+/* =====================================================
+   DETAIL GROUP
+===================================================== */
+
+.airdrop-detail-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.airdrop-detail-group.hidden{
+
+    display:none;
+
+}
+
+
+/* =====================================================
+   DETAIL HEADER
+===================================================== */
+
+.airdrop-detail-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    margin-bottom:14px;
+
+}
+
+
+.airdrop-detail-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+.airdrop-detail-title strong{
+
+    font-size:17px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+.airdrop-detail-icon{
+
+    font-size:22px;
+
+    line-height:1;
+
+}
+
+
+.airdrop-detail-count{
+
+    min-width:28px;
+
+    text-align:right;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   DETAIL LIST
+===================================================== */
+
+.airdrop-detail-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+/* =====================================================
+   DETAIL ITEM
+===================================================== */
+
+.airdrop-detail-item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    padding:16px 0;
+
+    border-bottom:
+
+        1px solid
+
+        var(--border-color);
+
+}
+
+
+.airdrop-detail-item:first-child{
+
+    padding-top:4px;
+
+}
+
+
+.airdrop-detail-item:last-child{
+
+    border-bottom:none;
+
+}
+
+
+/* =====================================================
+   DETAIL INFO
+===================================================== */
+
+.airdrop-detail-item-info{
+
+    flex:1;
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+
+.airdrop-detail-item-info > strong{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   DETAIL META
+===================================================== */
+
+.airdrop-detail-item-meta{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    align-items:center;
+
+    gap:6px 14px;
+
+}
+
+
+.airdrop-detail-item-meta span{
+
+    font-size:12px;
+
+    line-height:1.5;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   REWARD
+===================================================== */
+
+.airdrop-detail-item-reward{
+
+    flex-shrink:0;
+
+    white-space:nowrap;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:#22C55E;
+
+}
+
+
+/* =====================================================
+   DETAIL PAGINATION
+===================================================== */
+
+.airdrop-detail-pagination{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    margin-top:14px;
+
+    padding-top:14px;
+
+    border-top:
+
+        1px solid
+
+        var(--border-color);
+
+}
+
+
+/* =====================================================
+   PAGINATION BUTTON
+===================================================== */
+
+.airdrop-detail-page-button{
+
+    min-width:108px;
+
+    height:38px;
+
+    padding:0 14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#F5F7FB;
+
+    color:#2563EB;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+
+        background .2s ease,
+
+        transform .15s ease,
+
+        opacity .2s ease;
+
+}
+
+
+.airdrop-detail-page-button:hover{
+
+    background:#EEF3FF;
+
+}
+
+
+.airdrop-detail-page-button:active{
+
+    transform:scale(.97);
+
+}
+
+
+.airdrop-detail-page-button:disabled{
+
+    opacity:.4;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =====================================================
+   PAGE INFO
+===================================================== */
+
+.airdrop-detail-page-info{
+
+    flex:1;
+
+    text-align:center;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:var(--text-secondary);
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.airdrop-detail-group .summary-empty{
+
+    padding:20px 10px;
+
+    text-align:center;
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   WIN
+===================================================== */
+
+.airdrop-detail-win
+
+.airdrop-detail-item-reward{
+
+    color:#22C55E;
+
+}
+
+
+/* =====================================================
+   ONGOING
+===================================================== */
+
+.airdrop-detail-ongoing
+
+.airdrop-detail-item-info > strong{
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   ENDED
+===================================================== */
+
+.airdrop-detail-ended
+
+.airdrop-detail-item-info > strong{
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    .airdrop-detail-item{
+
+        gap:12px;
+
+    }
+
+
+    .airdrop-detail-item-meta{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:2px;
+
+    }
+
+
+    .airdrop-detail-item-reward{
+
+        font-size:14px;
+
+    }
+
+
+    .airdrop-detail-page-button{
+
+        min-width:96px;
+
+        padding:0 10px;
+
+        font-size:11px;
+
+    }
+
+}
+
 
 /* =====================================================
    MOBILE
