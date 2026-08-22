@@ -2,15 +2,28 @@
    Finance Assistant
    Module      : API
    File        : api.js
-   Version     : 3.0.0
+   Version     : 4.0.0
 
    Description :
-   OpenSheet API Engine
+   Apps Script Module API Engine
 
    Sections :
+   - Import
    - State
+   - Session
    - Load
 ===================================================== */
+
+
+/* =====================================================
+   IMPORT
+===================================================== */
+
+import {
+
+    loadSession
+
+} from "./auth.js";
 
 
 /* =====================================================
@@ -27,22 +40,165 @@ export const API = {
 
 
 /* =====================================================
+   SESSION
+===================================================== */
+
+function getSpreadsheetId(){
+
+    const session =
+
+        loadSession();
+
+
+    return (
+
+        session
+        ?.workspace
+        ?.spreadsheet
+        ?.id
+
+        ||
+
+        null
+
+    );
+
+}
+
+
+/* =====================================================
    LOAD
 ===================================================== */
 
 API.load = async function(
 
-    rawUrl,
+    endpoint,
 
-    dataUrl
+    rawSheet,
+
+    dataSheet
 
 ){
+
+    /* =============================================
+       Spreadsheet
+    ============================================= */
+
+    const spreadsheetId =
+
+        getSpreadsheetId();
+
+
+    if(
+
+        !spreadsheetId
+
+    ){
+
+        throw new Error(
+
+            "Finance Core Spreadsheet ID tidak ditemukan"
+
+        );
+
+    }
+
+
+    /* =============================================
+       Endpoint
+    ============================================= */
+
+    if(
+
+        !endpoint
+
+    ){
+
+        throw new Error(
+
+            "API endpoint tidak ditemukan"
+
+        );
+
+    }
+
+
+    /* =============================================
+       URLs
+    ============================================= */
+
+    const rawUrl =
+
+        endpoint
+
+        +
+
+        "?action=module"
+
+        +
+
+        "&spreadsheetId="
+
+        +
+
+        encodeURIComponent(
+
+            spreadsheetId
+
+        )
+
+        +
+
+        "&sheet="
+
+        +
+
+        encodeURIComponent(
+
+            rawSheet
+
+        );
+
+
+    const dataUrl =
+
+        endpoint
+
+        +
+
+        "?action=module"
+
+        +
+
+        "&spreadsheetId="
+
+        +
+
+        encodeURIComponent(
+
+            spreadsheetId
+
+        )
+
+        +
+
+        "&sheet="
+
+        +
+
+        encodeURIComponent(
+
+            dataSheet
+
+        );
+
 
     console.log(
 
         "===== API LOAD ====="
 
     );
+
 
     console.log(
 
@@ -51,6 +207,7 @@ API.load = async function(
         rawUrl
 
     );
+
 
     console.log(
 
@@ -61,11 +218,15 @@ API.load = async function(
     );
 
 
+    /* =============================================
+       Request
+    ============================================= */
+
     const [
 
-        raw,
+        rawResponse,
 
-        data
+        dataResponse
 
     ] = await Promise.all([
 
@@ -83,12 +244,142 @@ API.load = async function(
 
     ]);
 
+
+    /* =============================================
+       Response Validation
+    ============================================= */
+
+    if(
+
+        !rawResponse.ok
+
+    ){
+
+        throw new Error(
+
+            `Raw API gagal: ${rawResponse.status}`
+
+        );
+
+    }
+
+
+    if(
+
+        !dataResponse.ok
+
+    ){
+
+        throw new Error(
+
+            `Data API gagal: ${dataResponse.status}`
+
+        );
+
+    }
+
+
+    /* =============================================
+       JSON
+    ============================================= */
+
+    const rawResult =
+
+        await rawResponse.json();
+
+
+    const dataResult =
+
+        await dataResponse.json();
+
+
+    /* =============================================
+       API Error
+    ============================================= */
+
+    if(
+
+        rawResult.success !== true
+
+    ){
+
+        throw new Error(
+
+            rawResult.error
+
+            ||
+
+            rawResult.message
+
+            ||
+
+            "Raw API gagal"
+
+        );
+
+    }
+
+
+    if(
+
+        dataResult.success !== true
+
+    ){
+
+        throw new Error(
+
+            dataResult.error
+
+            ||
+
+            dataResult.message
+
+            ||
+
+            "Data API gagal"
+
+        );
+
+    }
+
+
+    /* =============================================
+       SAVE STATE
+    ============================================= */
+
     API.raw =
 
-        await raw.json();
+        rawResult.data
+
+        ||
+
+        [];
+
 
     API.data =
 
-        await data.json();
+        dataResult.data
+
+        ||
+
+        [];
+
+
+    console.log(
+
+        "API raw:",
+
+        API.raw
+
+    );
+
+
+    console.log(
+
+        "API data:",
+
+        API.data
+
+    );
 
 };
