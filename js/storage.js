@@ -2,12 +2,13 @@
    GLOBAL STORAGE
    FILE : storage.js
    DESCRIPTION : Local Storage Engine
-   VERSION : 2.0.0
+   VERSION : 3.0.0
 
    Sections :
    - Key
    - User
    - Workspace
+   - Theme
 ===================================================== */
 
 
@@ -26,17 +27,50 @@ const KEY =
 
 export function loadUser(){
 
-    return JSON.parse(
+    const data =
 
         localStorage.getItem(
 
             KEY
 
-        )
+        );
 
-    );
+
+    if(
+
+        !data
+
+    ){
+
+        return null;
+
+    }
+
+
+    try{
+
+        return JSON.parse(
+
+            data
+
+        );
+
+    }catch(error){
+
+        console.error(
+
+            "Failed to load user",
+
+            error
+
+        );
+
+        return null;
+
+    }
 
 }
+
 
 export function saveUser(
 
@@ -63,29 +97,65 @@ export function saveUser(
    WORKSPACE
 ===================================================== */
 
+const WORKSPACE_KEY =
+
+    `${KEY}-workspace`;
+
+
+/* =====================================================
+   LOAD WORKSPACE
+===================================================== */
+
 export function loadWorkspace(){
 
-    return JSON.parse(
+    const data =
 
         localStorage.getItem(
 
-            `${KEY}-workspace`
+            WORKSPACE_KEY
 
-        )
+        );
 
-    ) ?? {
 
-        app :
+    if(
 
-            "saving",
+        !data
 
-        workspace :
+    ){
 
-            "saving"
+        return null;
 
-    };
+    }
+
+
+    try{
+
+        return JSON.parse(
+
+            data
+
+        );
+
+    }catch(error){
+
+        console.error(
+
+            "Failed to load workspace",
+
+            error
+
+        );
+
+        return null;
+
+    }
 
 }
+
+
+/* =====================================================
+   SAVE WORKSPACE
+===================================================== */
 
 export function saveWorkspace(
 
@@ -95,7 +165,7 @@ export function saveWorkspace(
 
     localStorage.setItem(
 
-        `${KEY}-workspace`,
+        WORKSPACE_KEY,
 
         JSON.stringify(
 
@@ -106,6 +176,22 @@ export function saveWorkspace(
     );
 
 }
+
+
+/* =====================================================
+   REMOVE WORKSPACE
+===================================================== */
+
+export function removeWorkspace(){
+
+    localStorage.removeItem(
+
+        WORKSPACE_KEY
+
+    );
+
+}
+
 
 /* =====================================================
    THEME
