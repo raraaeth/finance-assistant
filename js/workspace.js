@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Workspace
    File        : workspace.js
-   Version     : 4.0.0
+   Version     : 4.1.0
 
    Description :
    Workspace Controller
@@ -143,7 +143,7 @@ function getActiveWorkspace(){
     return (
 
         workspace
-        ?.module
+        ?.workspace
 
         ||
 
