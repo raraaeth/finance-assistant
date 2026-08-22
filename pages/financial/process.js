@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Financial
    File        : process.js
-   Version     : 1.1.0
+   Version     : 1.1.1
 
    Description :
    Financial Processing Engine
@@ -146,53 +146,85 @@ export const Process = {
                     Boolean
 
                 );
-       /* =============================================
-   DEBUG RULE RESULT
-============================================= */
-
-console.log(
-    "========== FINANCIAL RULE TEST =========="
-);
 
 
-console.log(
-    "[TEST] Hutang:",
-    Process.data.find(
-        item =>
-            item.jenis === "hutang" &&
-            item.type === "hutang_piutang"
-    )
-);
+        /* =============================================
+           DEBUG RULE RESULT
+        ============================================= */
+
+        console.log(
+
+            "========== FINANCIAL RULE TEST =========="
+
+        );
 
 
-console.log(
-    "[TEST] Bayar Hutang:",
-    Process.data.find(
-        item =>
-            item.jenis === "bayar" &&
-            item.type === "hutang_piutang"
-    )
-);
+        console.log(
+
+            "[TEST] Hutang:",
+
+            Process.data.find(
+
+                item =>
+
+                    item.jenis === "hutang" &&
+
+                    item.type === "hutang_piutang"
+
+            )
+
+        );
 
 
-console.log(
-    "[TEST] Nabung Dana Darurat:",
-    Process.data.find(
-        item =>
-            item.jenis === "nabung" &&
-            item.type === "dana_darurat"
-    )
-);
+        console.log(
+
+            "[TEST] Bayar Hutang:",
+
+            Process.data.find(
+
+                item =>
+
+                    item.jenis === "bayar" &&
+
+                    item.type === "hutang_piutang"
+
+            )
+
+        );
 
 
-console.log(
-    "[TEST] Tarik Dana Darurat:",
-    Process.data.find(
-        item =>
-            item.jenis === "tarik" &&
-            item.type === "dana_darurat"
-    )
-);
+        console.log(
+
+            "[TEST] Nabung Dana Darurat:",
+
+            Process.data.find(
+
+                item =>
+
+                    item.jenis === "nabung" &&
+
+                    item.type === "dana_darurat"
+
+            )
+
+        );
+
+
+        console.log(
+
+            "[TEST] Tarik Dana Darurat:",
+
+            Process.data.find(
+
+                item =>
+
+                    item.jenis === "tarik" &&
+
+                    item.type === "dana_darurat"
+
+            )
+
+        );
 
 
         /* =============================================
@@ -355,7 +387,7 @@ function normalizeTransaction(
 
     /* =============================================
        CASHFLOW CATEGORY
-       
+
        Ditentukan dari rule_pemasukan /
        rule_pengeluaran.
     ============================================= */
@@ -371,7 +403,7 @@ function normalizeTransaction(
 
     /* =============================================
        ENGINE FLAGS
-       
+
        Satu transaksi boleh mempunyai
        lebih dari satu fungsi.
     ============================================= */
@@ -425,48 +457,40 @@ function normalizeTransaction(
 
         jenis :
 
-
             jenis,
 
 
         type :
-
 
             type,
 
 
         nominal :
 
-
             nominal,
 
 
         keterangan :
-
 
             item.keterangan ?? "",
 
 
         category :
 
-
             category,
 
 
         debtAction :
-
 
             debtAction,
 
 
         savingAction :
 
-
             savingAction,
 
 
         nama :
-
 
             buildActivityName(
 
@@ -551,9 +575,7 @@ function findRules(
 
             return (
 
-                typeMatch
-
-                &&
+                typeMatch &&
 
                 activityMatch
 
@@ -687,9 +709,7 @@ function getDebtAction(
 
     if(
 
-        jenis === "hutang"
-
-        &&
+        jenis === "hutang" &&
 
         type === "hutang_piutang"
 
@@ -702,9 +722,7 @@ function getDebtAction(
 
     if(
 
-        jenis === "bayar"
-
-        &&
+        jenis === "bayar" &&
 
         type === "hutang_piutang"
 
@@ -810,7 +828,6 @@ function calculateSummary(
 
         item => {
 
-
             if(
 
                 item.category ===
@@ -849,18 +866,15 @@ function calculateSummary(
 
         income :
 
-
             income,
 
 
         expense :
 
-
             expense,
 
 
         balance :
-
 
             income -
 
@@ -1013,7 +1027,45 @@ function parseLocalDate(
     }
 
 
-    const parts =
+    /* =============================================
+       Jika sudah berupa Date
+    ============================================= */
+
+    if(
+
+        value instanceof Date
+
+    ){
+
+        if(
+
+            Number.isNaN(
+
+                value.getTime()
+
+            )
+
+        ){
+
+            return null;
+
+        }
+
+
+        return new Date(
+
+            value.getFullYear(),
+
+            value.getMonth(),
+
+            value.getDate()
+
+        );
+
+    }
+
+
+    const text =
 
         String(
 
@@ -1021,13 +1073,112 @@ function parseLocalDate(
 
         )
 
-        .split("-")
+        .trim();
 
-        .map(
 
-            Number
+    /* =============================================
+       ISO DATE
+
+       Contoh:
+
+       2026-07-01T00:00:00.000Z
+       2026-07-01T00:00:00Z
+    ============================================= */
+
+    const isoMatch =
+
+        text.match(
+
+            /^(\d{4})-(\d{2})-(\d{2})/
 
         );
+
+
+    if(
+
+        isoMatch
+
+    ){
+
+        const year =
+
+            Number(
+
+                isoMatch[1]
+
+            );
+
+
+        const month =
+
+            Number(
+
+                isoMatch[2]
+
+            );
+
+
+        const day =
+
+            Number(
+
+                isoMatch[3]
+
+            );
+
+
+        const date =
+
+            new Date(
+
+                year,
+
+                month - 1,
+
+                day
+
+            );
+
+
+        if(
+
+            Number.isNaN(
+
+                date.getTime()
+
+            )
+
+        ){
+
+            return null;
+
+        }
+
+
+        return date;
+
+    }
+
+
+    /* =============================================
+       FALLBACK
+
+       Format lama:
+
+       YYYY-MM-DD
+    ============================================= */
+
+    const parts =
+
+        text
+
+            .split("-")
+
+            .map(
+
+                Number
+
+            );
 
 
     if(
