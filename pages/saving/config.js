@@ -3,12 +3,13 @@
    Page        : Saving
    Module      : Config
    File        : config.js
-   Version     : 2.0.0
+   Version     : 3.0.0
 
    Description :
    Saving Configuration
 
    Sections :
+   - Module
    - Hero
    - API
 ===================================================== */
@@ -19,6 +20,24 @@
 ===================================================== */
 
 export const CONFIG = {
+
+
+    /* =============================================
+       MODULE
+    ============================================= */
+
+    module : {
+
+        key :
+
+            "saving",
+
+        name :
+
+            "Saving"
+
+    },
+
 
     /* =============================================
        HERO
@@ -47,13 +66,26 @@ export const CONFIG = {
 
     api : {
 
-        transaction :
+        endpoint :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving",
+            "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec"
+
+    },
+
+
+    /* =============================================
+       DATA
+    ============================================= */
+
+    data : {
+
+        saving :
+
+            "saving",
 
         bank :
 
-            "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank"
+            "saving_bank"
 
     }
 
