@@ -37,6 +37,12 @@ import {
 
 } from "./config.js";
 
+import {
+
+    API
+
+} from "../../js/api.js";
+
 
 import {
 
@@ -112,12 +118,49 @@ export async function init(){
 
     try {
 
-        /* =============================================
-           PROCESS
-        ============================================= */
+/* =============================================
+   LOAD DATA
+============================================= */
 
-        await Process.init();
+await API.load(
 
+    CONFIG.data.airdrop,
+
+    CONFIG.data.rules
+
+);
+       console.log(
+    "===== AIRDROP RAW FIRST =====",
+    API.raw?.[0]
+);
+
+
+console.log(
+    "===== AIRDROP RAW KEYS =====",
+    API.raw?.[0]
+        ? Object.keys(API.raw[0])
+        : []
+);
+
+
+console.log(
+    "===== AIRDROP DATA =====",
+    API.data
+);
+
+
+console.log(
+    "===== AIRDROP DATA FIRST =====",
+    API.data?.[0]
+);
+
+
+console.log(
+    "===== AIRDROP DATA KEYS =====",
+    API.data?.[0]
+        ? Object.keys(API.data[0])
+        : []
+);
 
         /* =============================================
            HEADER
