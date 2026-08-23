@@ -2,10 +2,15 @@
    Finance Assistant
    Module      : Workspace
    File        : workspace.js
-   Version     : 4.1.0
+   Version     : 4.2.0
 
    Description :
    Workspace Controller
+
+   Workspace Status :
+   - Active
+   - Inactive
+   - Not Created
 
    Sections :
    - Import
@@ -105,6 +110,21 @@ const WORKSPACE = {
 
 /* =====================================================
    SESSION MODULES
+
+   Hanya berisi workspace
+   yang sudah dibuat.
+
+   Contoh:
+
+   {
+       financial: {
+           active: true
+       },
+
+       airdrop: {
+           active: false
+       }
+   }
 ===================================================== */
 
 function getModules(){
@@ -131,6 +151,15 @@ function getModules(){
 
 /* =====================================================
    ACTIVE WORKSPACE
+
+   Workspace aktif dibaca
+   dari local storage.
+
+   Contoh:
+
+   {
+       workspace: "financial"
+   }
 ===================================================== */
 
 function getActiveWorkspace(){
@@ -155,7 +184,47 @@ function getActiveWorkspace(){
 
 
 /* =====================================================
-   MODULE VALIDATION
+   MODULE EXISTS
+
+   Workspace hanya dianggap tersedia
+   jika benar-benar ada di modules.
+
+   Workspace yang belum dibuat
+   tidak akan ditemukan di sini.
+===================================================== */
+
+function isModuleExists(
+
+    moduleName
+
+){
+
+    const modules =
+
+        getModules();
+
+
+    return (
+
+        modules
+        ?.[moduleName]
+
+        !==
+
+        undefined
+
+    );
+
+}
+
+
+/* =====================================================
+   MODULE ACTIVE
+
+   Workspace dianggap aktif
+   hanya jika:
+
+   active === true
 ===================================================== */
 
 function isModuleActive(
@@ -215,7 +284,39 @@ export async function initWorkspace(){
 
 
     /* =============================================
+       WORKSPACE NOT CREATED
+
+       Workspace tidak ada
+       di hasil scan backend.
+    ============================================= */
+
+    if(
+
+        !isModuleExists(
+
+            active
+
+        )
+
+    ){
+
+        console.warn(
+
+            `Workspace "${active}" belum dibuat.`
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
        MODULE NOT FOUND
+
+       Workspace ada di backend,
+       tetapi belum terdaftar
+       di frontend registry.
     ============================================= */
 
     const module =
@@ -256,7 +357,7 @@ export async function initWorkspace(){
 
         console.warn(
 
-            `Workspace "${active}" belum aktif.`
+            `Workspace "${active}" sedang tidak aktif.`
 
         );
 
