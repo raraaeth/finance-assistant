@@ -130,6 +130,29 @@ export async function init(){
     CONFIG.data.member
 
 );
+   console.log(
+    "===== KAS RAW FIRST =====",
+    API.raw[0]
+);
+
+console.log(
+    "===== KAS RAW KEYS =====",
+    Object.keys(
+        API.raw[0] || {}
+    )
+);
+
+console.log(
+    "===== KAS MEMBER FIRST =====",
+    API.data[0]
+);
+
+console.log(
+    "===== KAS MEMBER KEYS =====",
+    Object.keys(
+        API.data[0] || {}
+    )
+);
 
     Process.init(
 
