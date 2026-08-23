@@ -7,18 +7,19 @@
    Description :
    Workspace Controller
 
-   Workspace Status :
-   - Active
-   - Inactive
-   - Not Created
+   Workspace Logic :
 
-   Sections :
-   - Import
-   - Module Registry
-   - Session
-   - Workspace
-   - Validation
-   - Init
+   exists
+   = workspace sudah dibuat
+     dan sheet yang diperlukan tersedia.
+
+   active
+   = workspace yang sedang dipilih user
+     di local storage.
+
+   Workspace yang belum dibuat
+   tidak boleh dijalankan.
+
 ===================================================== */
 
 
@@ -110,21 +111,6 @@ const WORKSPACE = {
 
 /* =====================================================
    SESSION MODULES
-
-   Hanya berisi workspace
-   yang sudah dibuat.
-
-   Contoh:
-
-   {
-       financial: {
-           active: true
-       },
-
-       airdrop: {
-           active: false
-       }
-   }
 ===================================================== */
 
 function getModules(){
@@ -151,15 +137,6 @@ function getModules(){
 
 /* =====================================================
    ACTIVE WORKSPACE
-
-   Workspace aktif dibaca
-   dari local storage.
-
-   Contoh:
-
-   {
-       workspace: "financial"
-   }
 ===================================================== */
 
 function getActiveWorkspace(){
@@ -184,16 +161,17 @@ function getActiveWorkspace(){
 
 
 /* =====================================================
-   MODULE EXISTS
+   WORKSPACE VALIDATION
 
-   Workspace hanya dianggap tersedia
-   jika benar-benar ada di modules.
+   exists hanya menentukan apakah
+   workspace benar-benar sudah dibuat.
 
-   Workspace yang belum dibuat
-   tidak akan ditemukan di sini.
+   active workspace ditentukan oleh
+   workspace yang dipilih user
+   melalui local storage.
 ===================================================== */
 
-function isModuleExists(
+function workspaceExists(
 
     moduleName
 
@@ -208,41 +186,7 @@ function isModuleExists(
 
         modules
         ?.[moduleName]
-
-        !==
-
-        undefined
-
-    );
-
-}
-
-
-/* =====================================================
-   MODULE ACTIVE
-
-   Workspace dianggap aktif
-   hanya jika:
-
-   active === true
-===================================================== */
-
-function isModuleActive(
-
-    moduleName
-
-){
-
-    const modules =
-
-        getModules();
-
-
-    return (
-
-        modules
-        ?.[moduleName]
-        ?.active
+        ?.exists
 
         === true
 
@@ -284,39 +228,7 @@ export async function initWorkspace(){
 
 
     /* =============================================
-       WORKSPACE NOT CREATED
-
-       Workspace tidak ada
-       di hasil scan backend.
-    ============================================= */
-
-    if(
-
-        !isModuleExists(
-
-            active
-
-        )
-
-    ){
-
-        console.warn(
-
-            `Workspace "${active}" belum dibuat.`
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
        MODULE NOT FOUND
-
-       Workspace ada di backend,
-       tetapi belum terdaftar
-       di frontend registry.
     ============================================= */
 
     const module =
@@ -342,12 +254,12 @@ export async function initWorkspace(){
 
 
     /* =============================================
-       MODULE INACTIVE
+       WORKSPACE NOT CREATED
     ============================================= */
 
     if(
 
-        !isModuleActive(
+        !workspaceExists(
 
             active
 
@@ -357,7 +269,7 @@ export async function initWorkspace(){
 
         console.warn(
 
-            `Workspace "${active}" sedang tidak aktif.`
+            `Workspace "${active}" belum dibuat.`
 
         );
 
