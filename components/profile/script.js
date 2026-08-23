@@ -1224,71 +1224,100 @@ function loadWorkspaceList(){
         {};
 
 
-    return MODULES.map(
+    return MODULES
 
-        module => {
+        .filter(
 
-            const workspace =
+            module => {
 
-                modules[
+                return (
 
-                    module.id
+                    modules[
+                        module.id
+                    ]
 
-                ];
+                    ?.exists
 
+                    === true
 
-            return {
+                );
 
-                id :
+            }
 
-                    module.id,
+        )
 
+        .map(
 
-                icon :
+            module => {
 
-                    module.icon,
+                const workspace =
 
-
-                title :
-
-                    module.title,
-
-
-                active :
-
-                    workspace
-                    ?.active
-
-                    === true,
+                    modules[
+                        module.id
+                    ];
 
 
-                selected :
+                return {
 
-                    current
-                    ?.workspace
+                    id :
 
-                    ===
-
-                    module.id,
+                        module.id,
 
 
-                folderId :
+                    icon :
 
-                    workspace
-                    ?.folderId
+                        module.icon,
 
-                    ||
 
-                    null
+                    title :
 
-            };
+                        module.title,
 
-        }
 
-    );
+                    /*
+                     * Workspace aktif hanya jika
+                     * workspace ini sedang dipilih.
+                    */
+
+                    active :
+
+                        current
+                        ?.workspace
+
+                        ===
+
+                        module.id,
+
+
+                    /*
+                     * Menandakan workspace memang
+                     * sudah dibuat dan tersedia.
+                    */
+
+                    exists :
+
+                        workspace
+                        ?.exists
+
+                        === true,
+
+
+                    selected :
+
+                        current
+                        ?.workspace
+
+                        ===
+
+                        module.id
+
+                };
+
+            }
+
+        );
 
 }
-
 
 /* =====================================================
    INIT WORKSPACE
@@ -1387,20 +1416,6 @@ function createWorkspaceItem(
 
             data-id="${item.id}"
 
-            ${
-
-                item.active
-
-                ?
-
-                ""
-
-                :
-
-                "disabled"
-
-            }
-
         >
 
             <div class="workspace-left">
@@ -1447,7 +1462,7 @@ function createWorkspaceItem(
 
                     ?
 
-                    "Aktif"
+                    "Active"
 
                     :
 
@@ -1462,7 +1477,6 @@ function createWorkspaceItem(
     `;
 
 }
-
 
 /* =====================================================
    CREATE WORKSPACE
@@ -1911,13 +1925,14 @@ function onWorkspace(
     }
 
 
-    /* =============================================
-       INACTIVE WORKSPACE
-    ============================================= */
+    /*
+     * Semua workspace yang tampil
+     * sudah dibuat dan tersedia.
+    */
 
     if(
 
-        !workspace.active
+        !workspace.exists
 
     ){
 
@@ -1930,6 +1945,10 @@ function onWorkspace(
 
         loadWorkspace();
 
+
+    /*
+     * Sudah menjadi workspace aktif.
+    */
 
     if(
 
@@ -1946,6 +1965,11 @@ function onWorkspace(
 
     }
 
+
+    /*
+     * Simpan workspace baru
+     * sebagai workspace aktif.
+    */
 
     saveWorkspace({
 
