@@ -1053,7 +1053,6 @@ function toNumber(
 /* =====================================================
    HELPER : DATE
 ===================================================== */
-
 function parseDate(
 
     value
@@ -1071,6 +1070,37 @@ function parseDate(
     }
 
 
+    /* =============================================
+       NORMALIZE API DATE
+
+       API sekarang dapat mengirim:
+
+       2026-08-22T00:00:00.000Z
+
+       Ambil hanya:
+
+       2026-08-22
+
+       supaya tidak terkena timezone.
+    ============================================= */
+
+    const dateString =
+
+        String(
+
+            value
+
+        )
+
+        .slice(
+
+            0,
+
+            10
+
+        );
+
+
     const [
 
         year,
@@ -1081,15 +1111,11 @@ function parseDate(
 
     ] =
 
-        String(
+        dateString
 
-            value
+            .split("-")
 
-        )
-
-        .split("-")
-
-        .map(Number);
+            .map(Number);
 
 
     if(
@@ -1138,7 +1164,7 @@ function parseDate(
     return date;
 
 }
-
+      
 
 /* =====================================================
    HELPER : STATUS
