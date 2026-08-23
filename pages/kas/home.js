@@ -123,11 +123,13 @@ export async function init(){
 
     await API.load(
 
-        CONFIG.api.transaction,
+    CONFIG.api.endpoint,
 
-        CONFIG.api.member
+    CONFIG.data.transaction,
 
-    );
+    CONFIG.data.member
+
+);
 
     Process.init(
 
