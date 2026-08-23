@@ -243,6 +243,21 @@ API.load = async function(
         )
 
     ]);
+   console.log(
+    "===== API RESPONSE STATUS ====="
+);
+
+console.log(
+    "RAW:",
+    rawResponse.status,
+    rawResponse.ok
+);
+
+console.log(
+    "DATA:",
+    dataResponse.status,
+    dataResponse.ok
+);
 
 
     /* =============================================
