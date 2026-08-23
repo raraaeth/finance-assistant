@@ -955,7 +955,7 @@ function parseDate(
     }
 
 
-    const parts =
+    const text =
 
         String(
 
@@ -963,11 +963,37 @@ function parseDate(
 
         )
 
-        .trim()
+        .trim();
 
-        .split("-")
 
-        .map(Number);
+    /* =============================================
+       AMBIL BAGIAN TANGGAL SAJA
+
+       Support:
+
+       2026-08-25
+
+       2026-08-25T00:00:00.000Z
+    ============================================= */
+
+    const datePart =
+
+        text.slice(
+
+            0,
+
+            10
+
+        );
+
+
+    const parts =
+
+        datePart
+
+            .split("-")
+
+            .map(Number);
 
 
     if(
@@ -987,32 +1013,46 @@ function parseDate(
     }
 
 
+    const [
+
+        year,
+
+        month,
+
+        day
+
+    ] = parts;
+
+
     const date =
 
         new Date(
 
-            parts[0],
+            year,
 
-            parts[1] - 1,
+            month - 1,
 
-            parts[2]
+            day
 
         );
 
 
-    return Number.isNaN(
+    if(
 
-        date.getTime()
+        Number.isNaN(
 
-    )
+            date.getTime()
 
-        ?
+        )
 
-        null
+    ){
 
-        :
+        return null;
 
-        date;
+    }
+
+
+    return date;
 
 }
 
