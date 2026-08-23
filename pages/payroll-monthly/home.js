@@ -177,11 +177,14 @@ export async function init(){
 
         await API.load(
 
+    CONFIG.api.endpoint,
+
     CONFIG.data.attendance,
 
     CONFIG.data.rules
 
 );
+       
        console.log(
     "===== PAYROLL MONTHLY RAW FIRST =====",
     API.raw?.[0]
