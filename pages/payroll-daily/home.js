@@ -174,35 +174,83 @@ export async function init(){
     });
 
 
-    /* =============================================
-       LOAD DATA
-    ============================================= */
+/* =============================================
+   LOAD DATA
+============================================= */
 
-    try{
+try{
 
-        await API.load(
+    await API.load(
 
-            CONFIG.api.daily,
+        CONFIG.api.endpoint,
 
-            CONFIG.api.rules
+        CONFIG.sheet.daily,
 
-        );
+        CONFIG.sheet.rules
 
-    }
+    );
 
-    catch(error){
+}
 
-        console.error(
+catch(error){
 
-            "Payroll Daily API Error:",
+    console.error(
 
-            error
+        "Payroll Daily API Error:",
 
-        );
+        error
 
-        return;
+    );
 
-    }
+    return;
+
+}
+
+
+/* =============================================
+   DEBUG API
+============================================= */
+
+console.log(
+    "===== PAYROLL DAILY RAW FIRST =====",
+    API.raw?.[0]
+);
+
+
+console.log(
+    "===== PAYROLL DAILY RAW KEYS =====",
+    API.raw?.[0]
+        ?
+        Object.keys(
+            API.raw[0]
+        )
+        :
+        []
+);
+
+
+console.log(
+    "===== PAYROLL DAILY DATA =====",
+    API.data
+);
+
+
+console.log(
+    "===== PAYROLL DAILY DATA FIRST =====",
+    API.data?.[0]
+);
+
+
+console.log(
+    "===== PAYROLL DAILY DATA KEYS =====",
+    API.data?.[0]
+        ?
+        Object.keys(
+            API.data[0]
+        )
+        :
+        []
+);
 
 
     /* =============================================
