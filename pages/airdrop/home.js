@@ -125,44 +125,80 @@ export async function init(){
 await API.load(
 
     CONFIG.api.endpoint,
-   
+
     CONFIG.data.airdrop,
 
     CONFIG.data.rules
 
 );
-       console.log(
-    "===== AIRDROP RAW FIRST =====",
-    API.raw?.[0]
-);
 
 
-console.log(
-    "===== AIRDROP RAW KEYS =====",
-    API.raw?.[0]
-        ? Object.keys(API.raw[0])
-        : []
-);
+        /* =============================================
+           DEBUG API
+        ============================================= */
+
+        console.log(
+            "===== AIRDROP RAW FIRST =====",
+            API.raw?.[0]
+        );
 
 
-console.log(
-    "===== AIRDROP DATA =====",
-    API.data
-);
+        console.log(
+            "===== AIRDROP RAW KEYS =====",
+            API.raw?.[0]
+                ? Object.keys(API.raw[0])
+                : []
+        );
 
 
-console.log(
-    "===== AIRDROP DATA FIRST =====",
-    API.data?.[0]
-);
+        console.log(
+            "===== AIRDROP DATA =====",
+            API.data
+        );
 
 
-console.log(
-    "===== AIRDROP DATA KEYS =====",
-    API.data?.[0]
-        ? Object.keys(API.data[0])
-        : []
-);
+        console.log(
+            "===== AIRDROP DATA FIRST =====",
+            API.data?.[0]
+        );
+
+
+        console.log(
+            "===== AIRDROP DATA KEYS =====",
+            API.data?.[0]
+                ? Object.keys(API.data[0])
+                : []
+        );
+
+
+        /* =============================================
+           PROCESS
+        ============================================= */
+
+        Process.init(
+
+            API.raw,
+
+            API.data
+
+        );
+
+
+        /* =============================================
+           DEBUG PROCESS
+        ============================================= */
+
+        console.log(
+            "===== AIRDROP PROCESS DATA =====",
+            Process.data
+        );
+
+
+        console.log(
+            "===== AIRDROP SUMMARY =====",
+            Process.summary
+        );
+
 
         /* =============================================
            HEADER
@@ -189,14 +225,14 @@ console.log(
 
 
         /* =============================================
-           STATISTICS MODULE
+           STATISTICS
         ============================================= */
 
         Statistics.init();
 
 
         /* =============================================
-           SUMMARY MODULE
+           SUMMARY
         ============================================= */
 
         Summary.init();
@@ -228,7 +264,6 @@ console.log(
 
         });
 
-
     }
 
     catch(
@@ -248,7 +283,7 @@ console.log(
     }
 
 }
-
+  
 
 /* =====================================================
    HERO
