@@ -366,14 +366,30 @@ function buildChart(){
             }
 
 
-            const date =
+            /* ======================================
+               DATE
 
-                item.tanggal;
-
+               Gunakan date hasil Process
+               bukan tanggal mentah API.
+            ====================================== */
 
             if(
 
-                !date
+                !(
+
+                    item.date
+
+                    instanceof Date
+
+                )
+
+                ||
+
+                Number.isNaN(
+
+                    item.date.getTime()
+
+                )
 
             ){
 
@@ -382,18 +398,84 @@ function buildChart(){
             }
 
 
+            /* ======================================
+               DATE KEY
+
+               Satu tanggal = satu titik chart
+            ====================================== */
+
+            const year =
+
+                item.date.getFullYear();
+
+
+            const month =
+
+                String(
+
+                    item.date.getMonth() + 1
+
+                )
+
+                .padStart(
+
+                    2,
+
+                    "0"
+
+                );
+
+
+            const day =
+
+                String(
+
+                    item.date.getDate()
+
+                )
+
+                .padStart(
+
+                    2,
+
+                    "0"
+
+                );
+
+
+            const dateKey =
+
+                `${year}-${month}-${day}`;
+
+
             if(
 
-                !chart[date]
+                !chart[dateKey]
 
             ){
 
-                chart[date] = 0;
+                chart[dateKey] = {
+
+                    date :
+
+                        new Date(
+
+                            year,
+
+                            item.date.getMonth(),
+
+                            item.date.getDate()
+
+                        ),
+
+                    reward : 0
+
+                };
 
             }
 
 
-            chart[date] +=
+            chart[dateKey].reward +=
 
                 Number(
 
@@ -412,7 +494,7 @@ function buildChart(){
 
     const entries =
 
-        Object.entries(
+        Object.values(
 
             chart
 
@@ -426,30 +508,18 @@ function buildChart(){
 
                 b
 
-            )=>{
+            ) =>
 
-                return (
+                a.date -
 
-                    new Date(
-
-                        a[0]
-
-                    )
-
-                    -
-
-                    new Date(
-
-                        b[0]
-
-                    )
-
-                );
-
-            }
+                b.date
 
         );
 
+
+    /* =============================================
+       RESULT
+    ============================================= */
 
     return {
 
@@ -457,9 +527,13 @@ function buildChart(){
 
             entries.map(
 
-                entry =>
+                item =>
 
-                    entry[0]
+                    formatDate(
+
+                        item.date
+
+                    )
 
             ),
 
@@ -468,9 +542,9 @@ function buildChart(){
 
             entries.map(
 
-                entry =>
+                item =>
 
-                    entry[1]
+                    item.reward
 
             )
 
