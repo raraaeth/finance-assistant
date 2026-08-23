@@ -12,7 +12,7 @@ import {
 
 
 /* ==========================================
-   GOOGLE AUTH
+   CONFIG
 ========================================== */
 
 const Auth = {
@@ -25,6 +25,11 @@ const Auth = {
     redirectUri:
 
         "https://raraaeth.github.io/finance-assistant/auth/callback.html",
+
+
+    apiUrl:
+
+        "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
 
 
     scopes: [
@@ -63,6 +68,10 @@ function init(){
     );
 
 
+    /* ======================================
+       CALLBACK PAGE
+    ====================================== */
+
     if(
 
         isCallbackPage()
@@ -75,6 +84,10 @@ function init(){
 
     }
 
+
+    /* ======================================
+       AUTO LOGIN
+    ====================================== */
 
     const session =
 
@@ -95,15 +108,13 @@ function init(){
 
         );
 
-        return;
-
     }
 
 }
 
 
 /* ==========================================
-   PAGE
+   CHECK CALLBACK PAGE
 ========================================== */
 
 function isCallbackPage(){
@@ -139,6 +150,10 @@ window.loginGoogle =
 
 async function requestAuthorization(){
 
+    /* ======================================
+       CREATE PKCE
+    ====================================== */
+
     const verifier =
 
         await generateCodeVerifier();
@@ -153,12 +168,20 @@ async function requestAuthorization(){
         );
 
 
+    /* ======================================
+       SAVE VERIFIER
+    ====================================== */
+
     saveCodeVerifier(
 
         verifier
 
     );
 
+
+    /* ======================================
+       GOOGLE PARAMS
+    ====================================== */
 
     const params =
 
@@ -210,6 +233,10 @@ async function requestAuthorization(){
         });
 
 
+    /* ======================================
+       REDIRECT GOOGLE
+    ====================================== */
+
     location.href =
 
         "https://accounts.google.com/o/oauth2/v2/auth?"
@@ -252,6 +279,10 @@ async function generateCodeVerifier(){
 }
 
 
+/* ==========================================
+   BASE64 URL ENCODE
+========================================== */
+
 function base64UrlEncode(
 
     buffer
@@ -268,32 +299,36 @@ function base64UrlEncode(
 
     )
 
-        .replace(
+    .replace(
 
-            /\+/g,
+        /\+/g,
 
-            "-"
+        "-"
 
-        )
+    )
 
-        .replace(
+    .replace(
 
-            /\//g,
+        /\//g,
 
-            "_"
+        "_"
 
-        )
+    )
 
-        .replace(
+    .replace(
 
-            /=/g,
+        /=/g,
 
-            ""
+        ""
 
-        );
+    );
 
 }
 
+
+/* ==========================================
+   GENERATE CODE CHALLENGE
+========================================== */
 
 async function generateCodeChallenge(
 
@@ -360,6 +395,10 @@ function saveCodeVerifier(
 }
 
 
+/* ==========================================
+   GET CODE VERIFIER
+========================================== */
+
 function getCodeVerifier(){
 
     return sessionStorage.getItem(
@@ -370,6 +409,10 @@ function getCodeVerifier(){
 
 }
 
+
+/* ==========================================
+   REMOVE CODE VERIFIER
+========================================== */
 
 function removeCodeVerifier(){
 
@@ -450,9 +493,9 @@ async function handleCallback(){
         );
 
 
-        /* ==========================================
+        /* ======================================
            GET AUTHORIZATION CODE
-        ========================================== */
+        ====================================== */
 
         const params =
 
@@ -494,9 +537,9 @@ async function handleCallback(){
         );
 
 
-        /* ==========================================
+        /* ======================================
            GET CODE VERIFIER
-        ========================================== */
+        ====================================== */
 
         const verifier =
 
@@ -525,9 +568,9 @@ async function handleCallback(){
         );
 
 
-        /* ==========================================
+        /* ======================================
            LOAD ONBOARDING
-        ========================================== */
+        ====================================== */
 
         const onboarding =
 
@@ -543,16 +586,16 @@ async function handleCallback(){
         );
 
 
-        /* ==========================================
-           REQUEST DATA
-        ========================================== */
+        /* ======================================
+           BUILD REQUEST PARAMS
+        ====================================== */
 
-        const form =
+        const requestParams =
 
             new URLSearchParams();
 
 
-        form.append(
+        requestParams.set(
 
             "action",
 
@@ -561,7 +604,7 @@ async function handleCallback(){
         );
 
 
-        form.append(
+        requestParams.set(
 
             "code",
 
@@ -570,7 +613,7 @@ async function handleCallback(){
         );
 
 
-        form.append(
+        requestParams.set(
 
             "verifier",
 
@@ -579,9 +622,9 @@ async function handleCallback(){
         );
 
 
-        /* ==========================================
+        /* ======================================
            ONBOARDING DATA
-        ========================================== */
+        ====================================== */
 
         if(
 
@@ -589,34 +632,46 @@ async function handleCallback(){
 
         ){
 
-            form.append(
+            requestParams.set(
 
                 "displayName",
 
-                onboarding.displayName || ""
+                onboarding.displayName
+
+                ||
+
+                ""
 
             );
 
 
-            form.append(
+            requestParams.set(
 
                 "currency",
 
-                onboarding.currency || "IDR"
+                onboarding.currency
+
+                ||
+
+                "IDR"
 
             );
 
 
-            form.append(
+            requestParams.set(
 
                 "theme",
 
-                onboarding.theme || "system"
+                onboarding.theme
+
+                ||
+
+                "system"
 
             );
 
 
-            form.append(
+            requestParams.set(
 
                 "onboardingCompleted",
 
@@ -635,6 +690,23 @@ async function handleCallback(){
         }
 
 
+        /* ======================================
+           API URL
+        ====================================== */
+
+        const url =
+
+            Auth.apiUrl
+
+            +
+
+            "?"
+
+            +
+
+            requestParams.toString();
+
+
         console.log(
 
             "Sending request to Apps Script..."
@@ -642,39 +714,36 @@ async function handleCallback(){
         );
 
 
-        /* ==========================================
+        /* ======================================
            REQUEST APPS SCRIPT
-        ========================================== */
-const response =
 
-    await fetch(
+           Menggunakan GET.
+           Jangan pakai POST fetch seperti
+           sebelumnya.
+        ====================================== */
 
-        "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
+        const response =
 
-        {
+            await fetch(
 
-            method:
+                url,
 
-                "POST",
+                {
 
-            headers: {
+                    method:
 
-                "Content-Type":
+                        "GET",
 
-                    "application/x-www-form-urlencoded"
+                    redirect:
 
-            },
+                        "follow"
 
-            body:
+                }
 
-                form.toString()
+            );
 
-        }
 
-    );
-       
-                        
-           console.log(
+        console.log(
 
             "Response Status:",
 
@@ -707,13 +776,63 @@ const response =
         }
 
 
-        /* ==========================================
-           PARSE RESPONSE
-        ========================================== */
+        /* ======================================
+           GET RESPONSE TEXT
 
-        const result =
+           Dibaca sebagai text dulu supaya
+           lebih mudah melihat response error
+           dari Apps Script.
+        ====================================== */
 
-            await response.json();
+        const text =
+
+            await response.text();
+
+
+        console.log(
+
+            "Apps Script Raw Response:",
+
+            text
+
+        );
+
+
+        /* ======================================
+           PARSE JSON
+        ====================================== */
+
+        let result;
+
+
+        try{
+
+            result =
+
+                JSON.parse(
+
+                    text
+
+                );
+
+        }catch(error){
+
+            console.error(
+
+                "Response bukan JSON valid:",
+
+                text
+
+            );
+
+
+            throw new Error(
+
+                "Response Apps Script bukan JSON valid"
+
+            );
+
+        }
 
 
         console.log(
@@ -724,6 +843,10 @@ const response =
 
         );
 
+
+        /* ======================================
+           CHECK RESULT
+        ====================================== */
 
         if(
 
@@ -744,6 +867,33 @@ const response =
         }
 
 
+        /* ======================================
+           CHECK WORKSPACE
+        ====================================== */
+
+        if(
+
+            result.workspace
+
+            &&
+
+            result.workspace.success === false
+
+        ){
+
+            throw new Error(
+
+                result.workspace.error
+
+                ||
+
+                "Setup Workspace gagal"
+
+            );
+
+        }
+
+
         console.log(
 
             "Login berhasil"
@@ -751,9 +901,9 @@ const response =
         );
 
 
-        /* ==========================================
+        /* ======================================
            RESTORE ACCOUNT DATA
-        ========================================== */
+        ====================================== */
 
         const accountData =
 
@@ -797,9 +947,9 @@ const response =
         }
 
 
-        /* ==========================================
+        /* ======================================
            SAVE SESSION
-        ========================================== */
+        ====================================== */
 
         saveSession(
 
@@ -810,16 +960,14 @@ const response =
 
         console.log(
 
-            "Session Saved",
-
-            result
+            "Session Saved"
 
         );
 
 
-        /* ==========================================
+        /* ======================================
            CLEANUP
-        ========================================== */
+        ====================================== */
 
         removeCodeVerifier();
 
@@ -831,13 +979,15 @@ const response =
         );
 
 
-        /* ==========================================
+        /* ======================================
            REDIRECT
-        ========================================== */
+        ====================================== */
 
-        window.location.href =
+        window.location.replace(
 
-            "/finance-assistant/pages/index.html";
+            "/finance-assistant/pages/index.html"
+
+        );
 
 
     }catch(error){
@@ -862,14 +1012,59 @@ const response =
 
         );
 
+
+        /* ======================================
+           SHOW ERROR ON CALLBACK PAGE
+        ====================================== */
+
+        document.body.innerHTML =
+
+        `
+
+            <div style="
+                font-family: sans-serif;
+                max-width: 600px;
+                margin: 60px auto;
+                padding: 24px;
+                text-align: center;
+            ">
+
+                <h2>
+
+                    Login gagal
+
+                </h2>
+
+                <p>
+
+                    ${error.message}
+
+                </p>
+
+                <button
+                    onclick="
+                        window.location.replace(
+                            '/finance-assistant/pages/index.html'
+                        )
+                    "
+                >
+
+                    Kembali
+
+                </button>
+
+            </div>
+
+        `;
+
     }
 
 }
 
 
-/*=========================================
+/* ==========================================
    SAVE SESSION
-=========================================*/
+========================================== */
 
 function saveSession(
 
@@ -897,9 +1092,9 @@ function saveSession(
 }
 
 
-/*=========================================
+/* ==========================================
    LOAD SESSION
-=========================================*/
+========================================== */
 
 export function loadSession(){
 
@@ -953,9 +1148,9 @@ export function loadSession(){
 }
 
 
-/*=========================================
+/* ==========================================
    LOGOUT
-=========================================*/
+========================================== */
 
 export function logout(){
 
@@ -974,7 +1169,7 @@ export function logout(){
     removeCodeVerifier();
 
 
-    location.replace(
+    window.location.replace(
 
         "/finance-assistant/pages/index.html"
 
