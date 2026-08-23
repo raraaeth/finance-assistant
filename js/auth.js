@@ -1,6 +1,7 @@
 /* ==========================================
    IMPORT
 ========================================== */
+
 import {
 
     saveUser,
@@ -8,6 +9,7 @@ import {
     saveTheme
 
 } from "./storage.js";
+
 
 /* ==========================================
    GOOGLE AUTH
@@ -19,9 +21,11 @@ const Auth = {
 
         "768306848932-j88fhhepq1o6d2jr6itv5c1v8020uf3a.apps.googleusercontent.com",
 
+
     redirectUri:
 
         "https://raraaeth.github.io/finance-assistant/auth/callback.html",
+
 
     scopes: [
 
@@ -34,6 +38,7 @@ const Auth = {
         "https://www.googleapis.com/auth/drive.file"
 
     ],
+
 
     client: null,
 
@@ -48,6 +53,7 @@ const Auth = {
 
 init();
 
+
 function init(){
 
     console.log(
@@ -55,6 +61,7 @@ function init(){
         "Auth loaded"
 
     );
+
 
     if(
 
@@ -68,9 +75,11 @@ function init(){
 
     }
 
+
     const session =
 
         loadSession();
+
 
     if(
 
@@ -118,6 +127,7 @@ export async function loginGoogle(){
 
 }
 
+
 window.loginGoogle =
 
     loginGoogle;
@@ -133,6 +143,7 @@ async function requestAuthorization(){
 
         await generateCodeVerifier();
 
+
     const challenge =
 
         await generateCodeChallenge(
@@ -141,11 +152,13 @@ async function requestAuthorization(){
 
         );
 
+
     saveCodeVerifier(
 
         verifier
 
     );
+
 
     const params =
 
@@ -155,13 +168,16 @@ async function requestAuthorization(){
 
                 Auth.clientId,
 
+
             redirect_uri:
 
                 Auth.redirectUri,
 
+
             response_type:
 
                 "code",
+
 
             scope:
 
@@ -171,23 +187,28 @@ async function requestAuthorization(){
 
                 ),
 
+
             code_challenge:
 
                 challenge,
+
 
             code_challenge_method:
 
                 "S256",
 
+
             access_type:
 
                 "offline",
+
 
             prompt:
 
                 "consent"
 
         });
+
 
     location.href =
 
@@ -214,11 +235,13 @@ async function generateCodeVerifier(){
 
         );
 
+
     crypto.getRandomValues(
 
         random
 
     );
+
 
     return base64UrlEncode(
 
@@ -229,7 +252,11 @@ async function generateCodeVerifier(){
 }
 
 
-function base64UrlEncode(buffer){
+function base64UrlEncode(
+
+    buffer
+
+){
 
     return btoa(
 
@@ -268,11 +295,16 @@ function base64UrlEncode(buffer){
 }
 
 
-async function generateCodeChallenge(verifier){
+async function generateCodeChallenge(
+
+    verifier
+
+){
 
     const encoder =
 
         new TextEncoder();
+
 
     const data =
 
@@ -281,6 +313,7 @@ async function generateCodeChallenge(verifier){
             verifier
 
         );
+
 
     const hash =
 
@@ -291,6 +324,7 @@ async function generateCodeChallenge(verifier){
             data
 
         );
+
 
     return base64UrlEncode(
 
@@ -309,7 +343,11 @@ async function generateCodeChallenge(verifier){
    CODE VERIFIER STORAGE
 ========================================== */
 
-function saveCodeVerifier(verifier){
+function saveCodeVerifier(
+
+    verifier
+
+){
 
     sessionStorage.setItem(
 
@@ -358,6 +396,7 @@ function loadOnboardingData(){
 
         );
 
+
     if(
 
         !data
@@ -367,6 +406,7 @@ function loadOnboardingData(){
         return null;
 
     }
+
 
     try{
 
@@ -386,6 +426,7 @@ function loadOnboardingData(){
 
         );
 
+
         return null;
 
     }
@@ -399,308 +440,422 @@ function loadOnboardingData(){
 
 async function handleCallback(){
 
-    const params =
+    try{
 
-        new URLSearchParams(
 
-            location.search
+        console.log(
 
-        );
-
-    const code =
-
-        params.get(
-
-            "code"
+            "===== CALLBACK START ====="
 
         );
 
-    if(
 
-        !code
+        /* ==========================================
+           GET AUTHORIZATION CODE
+        ========================================== */
 
-    ){
+        const params =
 
-        console.error(
+            new URLSearchParams(
 
-            "Authorization code not found."
+                location.search
+
+            );
+
+
+        const code =
+
+            params.get(
+
+                "code"
+
+            );
+
+
+        if(
+
+            !code
+
+        ){
+
+            throw new Error(
+
+                "Authorization code tidak ditemukan"
+
+            );
+
+        }
+
+
+        console.log(
+
+            "Authorization Code ditemukan"
 
         );
 
-        return;
 
-    }
+        /* ==========================================
+           GET CODE VERIFIER
+        ========================================== */
 
-    console.log(
+        const verifier =
 
-        "Authorization Code:",
+            getCodeVerifier();
 
-        code
 
-    );
+        if(
 
-    const verifier =
+            !verifier
 
-        getCodeVerifier();
+        ){
 
-    if(
+            throw new Error(
 
-        !verifier
+                "Code verifier tidak ditemukan"
 
-    ){
+            );
 
-        console.error(
+        }
 
-            "Code verifier not found."
+
+        console.log(
+
+            "Code Verifier ditemukan"
 
         );
 
-        return;
 
-    }
+        /* ==========================================
+           LOAD ONBOARDING
+        ========================================== */
 
-    console.log(
+        const onboarding =
 
-        "Code Verifier:",
-
-        verifier
-
-    );
+            loadOnboardingData();
 
 
-    /* ==========================================
-       LOAD ONBOARDING
-    ========================================== */
+        console.log(
 
-    const onboarding =
+            "Onboarding Data:",
 
-        loadOnboardingData();
+            onboarding
 
-    console.log(
-
-        "Onboarding Data:",
-
-        onboarding
-
-    );
+        );
 
 
-    /* ==========================================
-       REQUEST DATA
-    ========================================== */
+        /* ==========================================
+           REQUEST DATA
+        ========================================== */
 
-    const form =
+        const form =
 
-        new URLSearchParams();
+            new URLSearchParams();
 
-    form.append(
-
-        "action",
-
-        "login"
-
-    );
-
-    form.append(
-
-        "code",
-
-        code
-
-    );
-
-    form.append(
-
-        "verifier",
-
-        verifier
-
-    );
-
-
-    /* ==========================================
-       ONBOARDING DATA
-    ========================================== */
-
-    if(
-
-        onboarding
-
-    ){
 
         form.append(
 
-            "displayName",
+            "action",
 
-            onboarding.displayName || ""
+            "login"
 
         );
+
 
         form.append(
 
-            "currency",
+            "code",
 
-            onboarding.currency || "IDR"
+            code
 
         );
+
 
         form.append(
 
-            "theme",
+            "verifier",
 
-            onboarding.theme || "system"
-
-        );
-
-        form.append(
-
-            "onboardingCompleted",
-
-            onboarding.onboardingCompleted === true
-
-                ? "true"
-
-                : "false"
+            verifier
 
         );
 
-    }
+
+        /* ==========================================
+           ONBOARDING DATA
+        ========================================== */
+
+        if(
+
+            onboarding
+
+        ){
+
+            form.append(
+
+                "displayName",
+
+                onboarding.displayName || ""
+
+            );
 
 
-    /* ==========================================
-       REQUEST APPS SCRIPT
-    ========================================== */
+            form.append(
 
-    const response =
+                "currency",
 
-        await fetch(
+                onboarding.currency || "IDR"
 
-            "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
+            );
 
-            {
 
-                method:
+            form.append(
 
-                    "POST",
+                "theme",
 
-                body:
+                onboarding.theme || "system"
 
-                    form
+            );
 
-            }
+
+            form.append(
+
+                "onboardingCompleted",
+
+                onboarding.onboardingCompleted === true
+
+                    ?
+
+                    "true"
+
+                    :
+
+                    "false"
+
+            );
+
+        }
+
+
+        console.log(
+
+            "Sending request to Apps Script..."
 
         );
 
-    const result =
 
-        await response.json();
+        /* ==========================================
+           REQUEST APPS SCRIPT
+        ========================================== */
 
-    console.log(
+        const response =
 
-        "Apps Script Response:",
+            await fetch(
 
-        result
+                "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
 
-    );
+                {
+
+                    method:
+
+                        "POST",
+
+                    body:
+
+                        form
+
+                }
+
+            );
 
 
-    if(
+        console.log(
 
-        !result.success
+            "Response Status:",
 
-    ){
+            response.status
 
-        console.error(
+        );
+
+
+        console.log(
+
+            "Response OK:",
+
+            response.ok
+
+        );
+
+
+        if(
+
+            !response.ok
+
+        ){
+
+            throw new Error(
+
+                `Apps Script request gagal: ${response.status}`
+
+            );
+
+        }
+
+
+        /* ==========================================
+           PARSE RESPONSE
+        ========================================== */
+
+        const result =
+
+            await response.json();
+
+
+        console.log(
+
+            "Apps Script Response:",
 
             result
 
         );
 
-        return;
+
+        if(
+
+            !result.success
+
+        ){
+
+            throw new Error(
+
+                result.error
+
+                ||
+
+                "Login gagal"
+
+            );
+
+        }
+
+
+        console.log(
+
+            "Login berhasil"
+
+        );
+
+
+        /* ==========================================
+           RESTORE ACCOUNT DATA
+        ========================================== */
+
+        const accountData =
+
+            result.workspace
+
+            ?.accountData;
+
+
+        if(
+
+            accountData
+
+        ){
+
+            saveUser(
+
+                accountData
+
+            );
+
+
+            saveTheme(
+
+                accountData.theme
+
+                ||
+
+                "system"
+
+            );
+
+
+            console.log(
+
+                "Account Data Restored:",
+
+                accountData
+
+            );
+
+        }
+
+
+        /* ==========================================
+           SAVE SESSION
+        ========================================== */
+
+        saveSession(
+
+            result
+
+        );
+
+
+        console.log(
+
+            "Session Saved",
+
+            result
+
+        );
+
+
+        /* ==========================================
+           CLEANUP
+        ========================================== */
+
+        removeCodeVerifier();
+
+
+        console.log(
+
+            "Redirecting..."
+
+        );
+
+
+        /* ==========================================
+           REDIRECT
+        ========================================== */
+
+        window.location.href =
+
+            "/finance-assistant/pages/index.html";
+
+
+    }catch(error){
+
+        console.error(
+
+            "===== CALLBACK ERROR ====="
+
+        );
+
+
+        console.error(
+
+            error
+
+        );
+
+
+        console.error(
+
+            error.stack
+
+        );
 
     }
-
-   /* ==========================================
-   RESTORE ACCOUNT DATA
-========================================== */
-
-const accountData =
-
-    result.workspace?.accountData;
-
-
-if(
-
-    accountData
-
-){
-
-    saveUser(
-
-        accountData
-
-    );
-
-
-    saveTheme(
-
-        accountData.theme
-
-    );
-
-
-    console.log(
-
-        "Account Data Restored:",
-
-        accountData
-
-    );
-
-}
-
-
-    /* ==========================================
-       SAVE SESSION
-    ========================================== */
-
-    saveSession(
-
-        result
-
-    );
-
-    console.log(
-
-        "Session Saved",
-
-        result
-
-    );
-
-
-    /* ==========================================
-       CLEANUP
-    ========================================== */
-
-    removeCodeVerifier();
-
-
-    /* ==========================================
-       REDIRECT
-    ========================================== */
-
-    console.log(
-
-        "Redirecting..."
-
-    );
-
-    location.replace(
-
-        "../pages/index.html"
-
-    );
 
 }
 
@@ -709,11 +864,16 @@ if(
    SAVE SESSION
 =========================================*/
 
-function saveSession(session){
+function saveSession(
+
+    session
+
+){
 
     Auth.session =
 
         session;
+
 
     localStorage.setItem(
 
@@ -744,6 +904,7 @@ export function loadSession(){
 
         );
 
+
     if(
 
         !data
@@ -753,6 +914,7 @@ export function loadSession(){
         return null;
 
     }
+
 
     try{
 
@@ -764,7 +926,9 @@ export function loadSession(){
 
             );
 
+
         return Auth.session;
+
 
     }catch(error){
 
@@ -773,6 +937,7 @@ export function loadSession(){
             "finance_session"
 
         );
+
 
         return null;
 
@@ -791,17 +956,20 @@ export function logout(){
 
         null;
 
+
     localStorage.removeItem(
 
         "finance_session"
 
     );
 
+
     removeCodeVerifier();
+
 
     location.replace(
 
-        "/finance-assistant/pages/"
+        "/finance-assistant/pages/index.html"
 
     );
 
