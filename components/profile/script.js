@@ -1331,6 +1331,37 @@ function initWorkspace(){
 
 }
 
+/* =====================================================
+   GET AVAILABLE WORKSPACE
+===================================================== */
+
+function getAvailableWorkspace(){
+
+    const modules =
+
+        State.session
+        ?.workspace
+        ?.modules
+
+        ||
+
+        {};
+
+
+    return MODULES.filter(
+
+        module =>
+
+            modules[
+                module.id
+            ]
+            ?.exists
+
+            !== true
+
+    );
+
+}
 
 /* =====================================================
    GROUP
@@ -1808,20 +1839,15 @@ function onClick(
 
     if(
 
-        createWorkspace
+    createWorkspace
 
-    ){
+){
 
-        console.log(
+    onCreateWorkspace();
 
-            "Create Workspace"
+    return;
 
-        );
-
-        return;
-
-    }
-
+}
 
     const menu =
 
@@ -1892,6 +1918,139 @@ function onClick(
 
 }
 
+/* =====================================================
+   CREATE WORKSPACE
+===================================================== */
+
+function onCreateWorkspace(){
+
+    const available =
+
+        getAvailableWorkspace();
+
+
+    /* =============================================
+       NO AVAILABLE WORKSPACE
+    ============================================= */
+
+    if(
+
+        !available.length
+
+    ){
+
+        alert(
+
+            "Semua Workspace sudah dibuat."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       TEMPORARY MODULE SELECT
+    ============================================= */
+
+    const options =
+
+        available
+
+        .map(
+
+            (
+
+                module,
+
+                index
+
+            ) =>
+
+                `${
+
+                    index + 1
+
+                }. ${
+
+                    module.title
+
+                }`
+
+        )
+
+        .join(
+
+            "\n"
+
+        );
+
+
+    const selected =
+
+        prompt(
+
+            `Pilih Workspace yang ingin dibuat:\n\n${options}`
+
+        );
+
+
+    if(
+
+        !selected
+
+    ){
+
+        return;
+
+    }
+
+
+    const index =
+
+        Number(
+
+            selected
+
+        )
+
+        -
+
+        1;
+
+
+    const module =
+
+        available[index];
+
+
+    if(
+
+        !module
+
+    ){
+
+        alert(
+
+            "Pilihan Workspace tidak valid."
+
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+
+        "Create Workspace:",
+
+        module
+
+    );
+
+}
 
 /* =====================================================
    CHANGE WORKSPACE
