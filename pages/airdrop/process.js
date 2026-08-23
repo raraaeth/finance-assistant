@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Process
    File        : process.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Airdrop Data Processing Engine
@@ -12,6 +12,7 @@
    - Fetch Airdrop Data
    - Fetch Airdrop Rules
    - Normalize Data
+   - Normalize Date
    - Calculate Reward
    - Status Grouping
    - Campaign Processing
@@ -114,6 +115,7 @@ export const Process = {
 /* =====================================================
    INIT
 ===================================================== */
+
 Process.init = function(
 
     raw = [],
@@ -124,9 +126,14 @@ Process.init = function(
 
     reset();
 
+
     Process.raw =
 
-        Array.isArray(raw)
+        Array.isArray(
+
+            raw
+
+        )
 
             ?
 
@@ -136,9 +143,14 @@ Process.init = function(
 
             [];
 
+
     Process.rawRules =
 
-        Array.isArray(rules)
+        Array.isArray(
+
+            rules
+
+        )
 
             ?
 
@@ -148,20 +160,25 @@ Process.init = function(
 
             [];
 
+
     processRules();
+
 
     processData();
 
+
     calculateSummary();
+
 
     processCampaigns();
 
+
     processOptions();
+
 
     return Process;
 
 };
-
 
 
 /* =====================================================
@@ -215,7 +232,7 @@ function reset(){
     };
 
 }
-       
+
 
 /* =====================================================
    PROCESS RULES
@@ -296,6 +313,10 @@ function processData(){
 
             item => {
 
+                /* =====================================
+                   STATUS
+                ===================================== */
+
                 const status =
 
                     normalizeStatus(
@@ -304,6 +325,10 @@ function processData(){
 
                     );
 
+
+                /* =====================================
+                   TYPE
+                ===================================== */
 
                 const type =
 
@@ -314,6 +339,10 @@ function processData(){
                     );
 
 
+                /* =====================================
+                   REWARD
+                ===================================== */
+
                 const reward =
 
                     toNumber(
@@ -323,9 +352,26 @@ function processData(){
                     );
 
 
-                const date =
+                /* =====================================
+                   DATE
 
-                    parseDate(
+                   Semua tanggal dari API dinormalisasi
+                   menjadi YYYY-MM-DD terlebih dahulu.
+
+                   Contoh:
+
+                   2026-08-25
+
+                   2026-08-25T00:00:00.000Z
+
+                   keduanya menjadi:
+
+                   2026-08-25
+                ===================================== */
+
+                const tanggal =
+
+                    normalizeDateString(
 
                         item.tanggal
 
@@ -334,7 +380,7 @@ function processData(){
 
                 const start =
 
-                    parseDate(
+                    normalizeDateString(
 
                         item.start
 
@@ -343,12 +389,53 @@ function processData(){
 
                 const end =
 
-                    parseDate(
+                    normalizeDateString(
 
                         item.end
 
                     );
 
+
+                /* =====================================
+                   DATE OBJECT
+
+                   Date dibuat dari YYYY-MM-DD
+                   menggunakan waktu LOCAL.
+
+                   Ini penting supaya tidak terjadi
+                   pergeseran tanggal karena UTC.
+                ===================================== */
+
+                const date =
+
+                    parseDate(
+
+                        tanggal
+
+                    );
+
+
+                const startDate =
+
+                    parseDate(
+
+                        start
+
+                    );
+
+
+                const endDate =
+
+                    parseDate(
+
+                        end
+
+                    );
+
+
+                /* =====================================
+                   NORMALIZED RESULT
+                ===================================== */
 
                 return {
 
@@ -363,16 +450,18 @@ function processData(){
                         ).trim(),
 
 
-                    tanggal :
+                    /*
+                     * String tanggal standar
+                     *
+                     * YYYY-MM-DD
+                     */
 
-                        String(
+                    tanggal,
 
-                            item.tanggal ??
 
-                            ""
-
-                        ).trim(),
-
+                    /*
+                     * Date object lokal
+                     */
 
                     date,
 
@@ -400,36 +489,32 @@ function processData(){
                         ).trim(),
 
 
-                    start :
+                    /*
+                     * String tanggal standar
+                     */
 
-                        String(
-
-                            item.start ??
-
-                            ""
-
-                        ).trim(),
+                    start,
 
 
-                    startDate :
+                    /*
+                     * Date object lokal
+                     */
 
-                        start,
-
-
-                    end :
-
-                        String(
-
-                            item.end ??
-
-                            ""
-
-                        ).trim(),
+                    startDate,
 
 
-                    endDate :
+                    /*
+                     * String tanggal standar
+                     */
 
-                        end,
+                    end,
+
+
+                    /*
+                     * Date object lokal
+                     */
+
+                    endDate,
 
 
                     status,
@@ -437,6 +522,11 @@ function processData(){
 
                     reward,
 
+
+                    /*
+                     * Nilai asli reward
+                     * tetap dipertahankan.
+                     */
 
                     rewardRaw :
 
@@ -475,7 +565,9 @@ function calculateSummary(){
 
                     );
 
+
                     Process.summary.totalWin++;
+
 
                     Process.summary.totalReward +=
 
@@ -492,6 +584,7 @@ function calculateSummary(){
 
                     );
 
+
                     Process.summary.totalNotWin++;
 
                     break;
@@ -505,6 +598,7 @@ function calculateSummary(){
 
                     );
 
+
                     Process.summary.totalOngoing++;
 
                     break;
@@ -517,6 +611,7 @@ function calculateSummary(){
                         item
 
                     );
+
 
                     Process.summary.totalEnded++;
 
@@ -935,6 +1030,182 @@ function isEnded(
 
 
 /* =====================================================
+   NORMALIZE DATE STRING
+===================================================== */
+
+function normalizeDateString(
+
+    value
+
+){
+
+    if(
+
+        value === null ||
+
+        value === undefined
+
+    ){
+
+        return "";
+
+    }
+
+
+    const text =
+
+        String(
+
+            value
+
+        )
+
+        .trim();
+
+
+    if(
+
+        !text
+
+    ){
+
+        return "";
+
+    }
+
+
+    /* =============================================
+       SUPPORT:
+
+       2026-08-25
+
+       2026-08-25T00:00:00.000Z
+
+       2026-08-25T00:00:00Z
+    ============================================= */
+
+    const match =
+
+        text.match(
+
+            /^(\d{4})-(\d{2})-(\d{2})/
+
+        );
+
+
+    if(
+
+        !match
+
+    ){
+
+        return "";
+
+    }
+
+
+    const year =
+
+        Number(
+
+            match[1]
+
+        );
+
+
+    const month =
+
+        Number(
+
+            match[2]
+
+        );
+
+
+    const day =
+
+        Number(
+
+            match[3]
+
+        );
+
+
+    /* =============================================
+       VALIDASI
+    ============================================= */
+
+    if(
+
+        month < 1 ||
+
+        month > 12 ||
+
+        day < 1 ||
+
+        day > 31
+
+    ){
+
+        return "";
+
+    }
+
+
+    /*
+     * Validasi tanggal sebenarnya.
+     *
+     * Contoh:
+     *
+     * 2026-02-31
+     *
+     * tidak dianggap valid.
+     */
+
+    const date =
+
+        new Date(
+
+            year,
+
+            month - 1,
+
+            day
+
+        );
+
+
+    if(
+
+        date.getFullYear() !== year ||
+
+        date.getMonth() !== month - 1 ||
+
+        date.getDate() !== day
+
+    ){
+
+        return "";
+
+    }
+
+
+    /*
+     * Selalu kembalikan format:
+     *
+     * YYYY-MM-DD
+     */
+
+    return (
+
+        `${match[1]}-${match[2]}-${match[3]}`
+
+    );
+
+}
+
+
+/* =====================================================
    DATE
 ===================================================== */
 
@@ -966,45 +1237,9 @@ function parseDate(
         .trim();
 
 
-    /* =============================================
-       AMBIL BAGIAN TANGGAL SAJA
-
-       Support:
-
-       2026-08-25
-
-       2026-08-25T00:00:00.000Z
-    ============================================= */
-
-    const datePart =
-
-        text.slice(
-
-            0,
-
-            10
-
-        );
-
-
-    const parts =
-
-        datePart
-
-            .split("-")
-
-            .map(Number);
-
-
     if(
 
-        parts.length !== 3 ||
-
-        parts.some(
-
-            Number.isNaN
-
-        )
+        !text
 
     ){
 
@@ -1013,16 +1248,97 @@ function parseDate(
     }
 
 
-    const [
+    /*
+     * Ambil YYYY-MM-DD saja.
+     *
+     * Support:
+     *
+     * 2026-08-25
+     *
+     * 2026-08-25T00:00:00.000Z
+     *
+     * 2026-08-25T00:00:00Z
+     */
 
-        year,
+    const match =
 
-        month,
+        text.match(
 
-        day
+            /^(\d{4})-(\d{2})-(\d{2})/
 
-    ] = parts;
+        );
 
+
+    if(
+
+        !match
+
+    ){
+
+        return null;
+
+    }
+
+
+    const year =
+
+        Number(
+
+            match[1]
+
+        );
+
+
+    const month =
+
+        Number(
+
+            match[2]
+
+        );
+
+
+    const day =
+
+        Number(
+
+            match[3]
+
+        );
+
+
+    /* =============================================
+       VALIDASI DASAR
+    ============================================= */
+
+    if(
+
+        month < 1 ||
+
+        month > 12 ||
+
+        day < 1 ||
+
+        day > 31
+
+    ){
+
+        return null;
+
+    }
+
+
+    /*
+     * PENTING:
+     *
+     * Gunakan constructor numeric.
+     *
+     * Jangan:
+     *
+     * new Date("2026-08-25")
+     *
+     * karena itu dapat diproses sebagai UTC.
+     */
 
     const date =
 
@@ -1037,13 +1353,17 @@ function parseDate(
         );
 
 
+    /* =============================================
+       VALIDASI TANGGAL SEBENARNYA
+    ============================================= */
+
     if(
 
-        Number.isNaN(
+        date.getFullYear() !== year ||
 
-            date.getTime()
+        date.getMonth() !== month - 1 ||
 
-        )
+        date.getDate() !== day
 
     ){
 
@@ -1313,7 +1633,7 @@ function normalizeStatus(
 
     }
 
-};
+}
 
 
 /* =====================================================
