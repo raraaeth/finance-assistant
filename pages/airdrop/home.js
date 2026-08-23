@@ -199,6 +199,20 @@ await API.load(
             Process.summary
         );
 
+       console.log(
+    "===== AIRDROP CAMPAIGN END DATES =====",
+    Process.campaigns.map(
+        item => ({
+            project : item.project,
+            status : item.status,
+            end : item.end,
+            endDate : item.endDate,
+            endDateIsDate :
+                item.endDate instanceof Date
+        })
+    )
+);
+
 
         /* =============================================
            HEADER
