@@ -3,7 +3,7 @@
    Page        : Kas
    Module      : Statistics
    File        : statistics.js
-   Version     : 3.0.0
+   Version     : 4.0.0
 
    Description :
    Statistics Controller
@@ -99,6 +99,7 @@ function initializeFilter(){
 
         new Date();
 
+
     Statistics.filter.start =
 
         new Date(
@@ -111,9 +112,11 @@ function initializeFilter(){
 
         );
 
+
     Statistics.filter.end =
 
         today;
+
 
     Filter.render({
 
@@ -137,6 +140,7 @@ function initializeFilter(){
 
     });
 
+
     Filter.register({
 
         onPeriod :
@@ -150,6 +154,7 @@ function initializeFilter(){
                 );
 
             },
+
 
         onRange :
 
@@ -178,15 +183,18 @@ Statistics.renderChart = function(){
 
         buildChart();
 
+
     Chart.renderLine({
 
         canvas :
 
             "#statistics-chart-canvas",
 
+
         labels :
 
             chart.labels,
+
 
         datasets : [
 
@@ -229,6 +237,7 @@ Statistics.renderTransaction = function(){
 
         );
 
+
     if(
 
         !list
@@ -238,6 +247,7 @@ Statistics.renderTransaction = function(){
         return;
 
     }
+
 
     list.innerHTML =
 
@@ -260,6 +270,7 @@ Statistics.renderTransaction = function(){
 
         Statistics.perPage;
 
+
     const end =
 
         start +
@@ -268,7 +279,7 @@ Statistics.renderTransaction = function(){
 
 
     /* ==============================================
-       RENDER 5 TRANSACTIONS
+       RENDER TRANSACTIONS
     ============================================== */
 
     Statistics.data
@@ -305,64 +316,129 @@ Statistics.renderTransaction = function(){
 
                 `
 
-                <div class="transaction-item">
+                <div class="transaction-item kas-transaction-item">
 
-                    <div class="transaction-info">
 
-                        <strong>
+                    <!-- =================================
+                         TOP ROW
+                    ================================== -->
 
-                            ${item.kategori}
+                    <div class="kas-transaction-top">
+
+
+                        <span class="kas-transaction-date">
+
+                            ${
+
+                                formatDate(
+
+                                    item.date
+
+                                )
+
+                            }
+
+                        </span>
+
+
+                        <strong
+
+                            class="transaction-amount transaction-${
+
+                                item.jenis
+
+                            }"
+
+                        >
+
+                            ${
+
+                                rupiah(
+
+                                    item.nominal
+
+                                )
+
+                            }
 
                         </strong>
 
-                        <small>
-
-                            ${item.tanggal}
-
-                        </small>
-
-                        ${
-
-                            item.keterangan
-
-                            ?
-
-                            `
-
-                            <p>
-
-                                ${item.keterangan}
-
-                            </p>
-
-                            `
-
-                            :
-
-                            ""
-
-                        }
 
                     </div>
 
 
-                    <div
+                    <!-- =================================
+                         TRANSACTION TYPE
+                    ================================== -->
 
-                        class="transaction-amount transaction-${item.jenis}"
-
-                    >
+                    <div class="kas-transaction-type">
 
                         ${
 
-                            rupiah(
+                            capitalize(
 
-                                item.nominal
+                                item.kategori
 
                             )
 
                         }
 
                     </div>
+
+
+                    <!-- =================================
+                         MEMBER
+                    ================================== -->
+
+                    <div class="kas-transaction-member">
+
+                        ${
+
+                            capitalize(
+
+                                item.nama
+
+                            )
+
+                        }
+
+                    </div>
+
+
+                    <!-- =================================
+                         DESCRIPTION
+                    ================================== -->
+
+                    ${
+
+                        item.keterangan
+
+                        ?
+
+                        `
+
+                        <div class="kas-transaction-description">
+
+                            ${
+
+                                escapeHTML(
+
+                                    item.keterangan
+
+                                )
+
+                            }
+
+                        </div>
+
+                        `
+
+                        :
+
+                        ""
+
+                    }
+
 
                 </div>
 
@@ -384,6 +460,7 @@ Statistics.renderTransaction = function(){
             "statistics-show-more"
 
         );
+
 
     if(
 
@@ -418,6 +495,7 @@ Statistics.renderTransaction = function(){
     `
 
         <div class="statistics-pagination">
+
 
             <button
 
@@ -485,6 +563,7 @@ Statistics.renderTransaction = function(){
 
             </button>
 
+
         </div>
 
     `;
@@ -500,9 +579,12 @@ Statistics.refresh = function(){
 
     Statistics.page = 1;
 
+
     Statistics.applyFilter();
 
+
     Statistics.renderChart();
+
 
     Statistics.renderTransaction();
 
@@ -519,15 +601,36 @@ Statistics.applyFilter = function(){
 
         Process.data.filter(
 
-            item=>
+            item=>{
 
-                item.date >=
+                if(
 
-                Statistics.filter.start &&
+                    !item ||
 
-                item.date <=
+                    !item.date
 
-                Statistics.filter.end
+                ){
+
+                    return false;
+
+                }
+
+
+                return (
+
+                    item.date >=
+
+                    Statistics.filter.start
+
+                    &&
+
+                    item.date <=
+
+                    Statistics.filter.end
+
+                );
+
+            }
 
         );
 
@@ -542,15 +645,54 @@ function buildChart(){
 
     const chart = {};
 
+
     Statistics.data.forEach(
 
         item=>{
+
+            /* ==========================================
+               USE NORMALIZED DATE
+            =========================================== */
+
+            const date =
+
+                item.date;
+
+
+            if(
+
+                !date
+
+            ){
+
+                return;
+
+            }
+
+
+            /* ==========================================
+               DATE KEY
+               
+               YYYY-MM-DD
+               
+               Digunakan sebagai key agar transaksi
+               pada hari yang sama digabung.
+            =========================================== */
+
+            const dateKey =
+
+                formatDateKey(
+
+                    date
+
+                );
+
 
             if(
 
                 !chart[
 
-                    item.tanggal
+                    dateKey
 
                 ]
 
@@ -558,11 +700,12 @@ function buildChart(){
 
                 chart[
 
-                    item.tanggal
+                    dateKey
 
                 ] = 0;
 
             }
+
 
             switch(
 
@@ -574,7 +717,7 @@ function buildChart(){
 
                     chart[
 
-                        item.tanggal
+                        dateKey
 
                     ] +=
 
@@ -582,11 +725,12 @@ function buildChart(){
 
                     break;
 
+
                 case "keluar":
 
                     chart[
 
-                        item.tanggal
+                        dateKey
 
                     ] -=
 
@@ -600,21 +744,72 @@ function buildChart(){
 
     );
 
+
+    /* ==============================================
+       SORT DATE
+    ============================================== */
+
+    const entries =
+
+        Object.entries(
+
+            chart
+
+        )
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            )=>
+
+                a[0].localeCompare(
+
+                    b[0]
+
+                )
+
+        );
+
+
     return {
 
         labels :
 
-            Object.keys(
+            entries.map(
 
-                chart
+                ([
+
+                    date
+
+                ])=>
+
+                    formatDate(
+
+                        date
+
+                    )
 
             ),
 
+
         values :
 
-            Object.values(
+            entries.map(
 
-                chart
+                ([
+
+                    ,
+
+                    value
+
+                ])=>
+
+                    value
 
             )
 
@@ -637,6 +832,7 @@ function handleRange(
 
         new Date();
 
+
     Statistics.filter.start =
 
         new Date(
@@ -655,13 +851,16 @@ function handleRange(
 
         );
 
+
     Statistics.filter.end =
 
         today;
 
+
     Statistics.filter.range =
 
         value;
+
 
     Filter.setDate(
 
@@ -670,6 +869,7 @@ function handleRange(
         Statistics.filter.end
 
     );
+
 
     Filter.setPeriod(
 
@@ -683,11 +883,13 @@ function handleRange(
 
     );
 
+
     Filter.setRange(
 
         value
 
     );
+
 
     Statistics.refresh();
 
@@ -712,6 +914,7 @@ Statistics.applyPeriod = function(
 
         );
 
+
     Statistics.filter.end =
 
         new Date(
@@ -720,15 +923,18 @@ Statistics.applyPeriod = function(
 
         );
 
+
     Statistics.filter.range =
 
         null;
+
 
     Filter.setRange(
 
         null
 
     );
+
 
     Filter.setPeriod(
 
@@ -741,6 +947,7 @@ Statistics.applyPeriod = function(
         )
 
     );
+
 
     Statistics.refresh();
 
@@ -780,6 +987,7 @@ document.addEventListener(
 
             );
 
+
         if(
 
             prev
@@ -811,6 +1019,7 @@ document.addEventListener(
 
             );
 
+
         if(
 
             next
@@ -826,6 +1035,7 @@ document.addEventListener(
                     Statistics.perPage
 
                 );
+
 
             if(
 
@@ -850,6 +1060,11 @@ document.addEventListener(
 
 /* =====================================================
    HELPER
+===================================================== */
+
+
+/* =====================================================
+   FORMAT PERIOD
 ===================================================== */
 
 function formatPeriod(
@@ -881,5 +1096,136 @@ function formatPeriod(
         )
 
     );
+
+}
+
+
+/* =====================================================
+   FORMAT DATE KEY
+===================================================== */
+
+function formatDateKey(
+
+    date
+
+){
+
+    return [
+
+        date.getFullYear(),
+
+        String(
+
+            date.getMonth() + 1
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        ),
+
+        String(
+
+            date.getDate()
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        )
+
+    ].join("-");
+
+}
+
+
+/* =====================================================
+   CAPITALIZE
+===================================================== */
+
+function capitalize(
+
+    value
+
+){
+
+    return String(
+
+        value ?? ""
+
+    )
+
+        .replace(
+
+            /\b\w/g,
+
+            letter =>
+
+                letter.toUpperCase()
+
+        );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+
+    value
+
+){
+
+    return String(
+
+        value ?? ""
+
+    )
+
+        .replace(
+
+            /&/g,
+
+            "&amp;"
+
+        )
+
+        .replace(
+
+            /</g,
+
+            "&lt;"
+
+        )
+
+        .replace(
+
+            />/g,
+
+            "&gt;"
+
+        )
+
+        .replace(
+
+            /"/g,
+
+            "&quot;"
+
+        )
+
+        .replace(
+
+            /'/g,
+
+            "&#039;"
+
+        );
 
 }
