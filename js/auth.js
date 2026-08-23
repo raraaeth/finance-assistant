@@ -485,7 +485,6 @@ async function handleCallback(){
 
     try{
 
-
         console.log(
 
             "===== CALLBACK START ====="
@@ -587,15 +586,15 @@ async function handleCallback(){
 
 
         /* ======================================
-           BUILD REQUEST PARAMS
+           BUILD REQUEST DATA
         ====================================== */
 
-        const requestParams =
+        const form =
 
             new URLSearchParams();
 
 
-        requestParams.set(
+        form.append(
 
             "action",
 
@@ -604,7 +603,7 @@ async function handleCallback(){
         );
 
 
-        requestParams.set(
+        form.append(
 
             "code",
 
@@ -613,7 +612,7 @@ async function handleCallback(){
         );
 
 
-        requestParams.set(
+        form.append(
 
             "verifier",
 
@@ -632,7 +631,7 @@ async function handleCallback(){
 
         ){
 
-            requestParams.set(
+            form.append(
 
                 "displayName",
 
@@ -645,7 +644,7 @@ async function handleCallback(){
             );
 
 
-            requestParams.set(
+            form.append(
 
                 "currency",
 
@@ -658,7 +657,7 @@ async function handleCallback(){
             );
 
 
-            requestParams.set(
+            form.append(
 
                 "theme",
 
@@ -671,7 +670,7 @@ async function handleCallback(){
             );
 
 
-            requestParams.set(
+            form.append(
 
                 "onboardingCompleted",
 
@@ -690,23 +689,6 @@ async function handleCallback(){
         }
 
 
-        /* ======================================
-           API URL
-        ====================================== */
-
-        const url =
-
-            Auth.apiUrl
-
-            +
-
-            "?"
-
-            +
-
-            requestParams.toString();
-
-
         console.log(
 
             "Sending request to Apps Script..."
@@ -717,26 +699,29 @@ async function handleCallback(){
         /* ======================================
            REQUEST APPS SCRIPT
 
-           Menggunakan GET.
-           Jangan pakai POST fetch seperti
-           sebelumnya.
+           POST
+
+           Tidak menggunakan header manual.
+
+           URLSearchParams dikirim langsung
+           sebagai body.
         ====================================== */
 
         const response =
 
             await fetch(
 
-                url,
+                Auth.apiUrl,
 
                 {
 
                     method:
 
-                        "GET",
+                        "POST",
 
-                    redirect:
+                    body:
 
-                        "follow"
+                        form
 
                 }
 
@@ -777,11 +762,7 @@ async function handleCallback(){
 
 
         /* ======================================
-           GET RESPONSE TEXT
-
-           Dibaca sebagai text dulu supaya
-           lebih mudah melihat response error
-           dari Apps Script.
+           RESPONSE TEXT
         ====================================== */
 
         const text =
