@@ -2,7 +2,7 @@
    STATISTICS
    FILE : statistics.css
    DESCRIPTION : Statistics Page
-   VERSION : 1.0.0
+   VERSION : 2.0.0
 ===================================================== */
 
 
@@ -37,19 +37,12 @@
     display:grid;
 
     grid-template-columns:
-
         repeat(
-
             auto-fit,
-
             minmax(
-
                 150px,
-
                 1fr
-
             )
-
         );
 
     gap:16px;
@@ -82,11 +75,8 @@
 
     font-weight:600;
 
-    color:var(
-
-        --text-secondary
-
-    );
+    color:
+        var(--text-secondary);
 
 }
 
@@ -111,15 +101,13 @@
 
     font-size:14px;
 
-    color:var(
-
-        --text-primary
-
-    );
+    color:
+        var(--text-primary);
 
     outline:none;
 
-    transition:.2s;
+    transition:
+        background .2s ease;
 
 }
 
@@ -181,19 +169,22 @@
 
     display:flex;
 
-    justify-content:space-between;
+    flex-direction:column;
 
-    align-items:flex-start;
+    gap:0;
 
-    gap:16px;
-
-    padding:16px 0;
+    padding:18px 0;
 
     border-bottom:
-
         1px solid
-
         var(--border-color);
+
+}
+
+
+.transaction-item:first-child{
+
+    padding-top:0;
 
 }
 
@@ -206,57 +197,44 @@
 
 
 /* =====================================================
-   TRANSACTION INFO
+   KAS TRANSACTION TOP
 ===================================================== */
 
-.transaction-info{
-
-    flex:1;
-
-    min-width:0;
+.kas-transaction-top{
 
     display:flex;
 
-    flex-direction:column;
+    align-items:center;
 
-    gap:4px;
+    justify-content:space-between;
 
-}
+    gap:16px;
 
-
-.transaction-info strong{
-
-    font-size:15px;
-
-    font-weight:600;
-
-    color:var(--text-primary);
-
-}
-
-
-.transaction-info small{
-
-    font-size:12px;
-
-    color:var(--text-secondary);
-
-}
-
-
-.transaction-info p{
-
-    margin:4px 0 0;
-
-    font-size:13px;
-
-    color:var(--text-secondary);
+    width:100%;
 
 }
 
 
 /* =====================================================
-   TRANSACTION AMOUNT
+   DATE
+===================================================== */
+
+.kas-transaction-date{
+
+    font-size:15px;
+
+    font-weight:500;
+
+    color:
+        var(--text-primary);
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   AMOUNT
 ===================================================== */
 
 .transaction-amount{
@@ -265,15 +243,149 @@
 
     font-weight:700;
 
-    color:var(--text-primary);
-
     white-space:nowrap;
+
+    line-height:1.4;
 
 }
 
 
 /* =====================================================
    TRANSACTION TYPE
+===================================================== */
+
+.kas-transaction-type{
+
+    margin-top:10px;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    line-height:1.4;
+
+    color:
+        var(--text-primary);
+
+}
+
+
+/* =====================================================
+   TRANSACTION MEMBER
+===================================================== */
+
+.kas-transaction-member{
+
+    margin-top:5px;
+
+    font-size:14px;
+
+    font-weight:500;
+
+    line-height:1.4;
+
+    color:
+        var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   TRANSACTION DESCRIPTION
+===================================================== */
+
+.kas-transaction-description{
+
+    margin-top:7px;
+
+    font-size:12px;
+
+    font-style:italic;
+
+    line-height:1.5;
+
+    color:
+        var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   TRANSACTION TYPE COLORS
+===================================================== */
+
+
+/*
+   NABUNG
+   Hijau
+*/
+
+.kas-transaction-type:has(+ .kas-transaction-member){
+
+    color:
+        var(--text-primary);
+
+}
+
+
+/*
+   Karena type dan member adalah elemen
+   terpisah, warna berdasarkan kategori
+   dipasang dari parent menggunakan class
+   tambahan jika tersedia.
+*/
+
+
+.transaction-masuk{
+
+    color:#22C55E;
+
+}
+
+
+.transaction-keluar{
+
+    color:#EF4444;
+
+}
+
+
+/* =====================================================
+   KATEGORI COLORS
+===================================================== */
+
+
+/*
+   Class tambahan dapat dipasang pada
+   transaction item jika diperlukan.
+*/
+
+.kas-transaction-item.nabung
+.kas-transaction-type{
+
+    color:#22C55E;
+
+}
+
+
+.kas-transaction-item.hutang
+.kas-transaction-type{
+
+    color:#EF4444;
+
+}
+
+
+.kas-transaction-item.bayar
+.kas-transaction-type{
+
+    color:#3B82F6;
+
+}
+
+
+/* =====================================================
+   TRANSACTION AMOUNT COLORS
 ===================================================== */
 
 .transaction-masuk{
@@ -292,7 +404,8 @@
 
 .transaction-transfer{
 
-    color:var(--text-primary);
+    color:
+        var(--text-primary);
 
 }
 
@@ -317,7 +430,8 @@
 
     border-radius:16px;
 
-    background:var(--surface);
+    background:
+        var(--surface);
 
 }
 
@@ -336,7 +450,7 @@
 
     background:#9ca3af;
 
-    color:#1f2937:
+    color:#1f2937;
 
     font-size:14px;
 
@@ -345,9 +459,7 @@
     cursor:pointer;
 
     transition:
-
         opacity .2s ease,
-
         transform .15s ease;
 
 }
@@ -363,11 +475,11 @@
 
     background:#9ca3af;
 
-    color:#1f2937:
+    color:#1f2937;
 
     cursor:not-allowed;
 
-   }
+}
 
 
 /* =====================================================
@@ -376,7 +488,8 @@
 
 .statistics-pagination span{
 
-    color:var(--text);
+    color:
+        var(--text);
 
     font-size:14px;
 
@@ -394,5 +507,61 @@
 .statistics-pagination button:not(:disabled):active{
 
     transform:scale(.97);
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    .kas-transaction-date{
+
+        font-size:14px;
+
+    }
+
+
+    .transaction-amount{
+
+        font-size:14px;
+
+    }
+
+
+    .kas-transaction-type{
+
+        font-size:15px;
+
+    }
+
+
+    .kas-transaction-member{
+
+        font-size:13px;
+
+    }
+
+
+    .kas-transaction-description{
+
+        font-size:12px;
+
+    }
+
+
+    .statistics-pagination button{
+
+        padding:9px 11px;
+
+        font-size:13px;
+
+    }
 
 }
