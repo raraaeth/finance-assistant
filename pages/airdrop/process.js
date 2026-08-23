@@ -114,33 +114,54 @@ export const Process = {
 /* =====================================================
    INIT
 ===================================================== */
+Process.init = function(
 
-Process.init = async function(){
+    raw = [],
+
+    rules = []
+
+){
 
     reset();
 
+    Process.raw =
 
-    await loadData();
+        Array.isArray(raw)
 
+            ?
+
+            raw
+
+            :
+
+            [];
+
+    Process.rawRules =
+
+        Array.isArray(rules)
+
+            ?
+
+            rules
+
+            :
+
+            [];
 
     processRules();
 
-
     processData();
-
 
     calculateSummary();
 
-
     processCampaigns();
 
-
     processOptions();
-
 
     return Process;
 
 };
+
 
 
 /* =====================================================
@@ -194,109 +215,7 @@ function reset(){
     };
 
 }
-
-
-/* =====================================================
-   LOAD DATA
-===================================================== */
-
-async function loadData(){
-
-    const [
-
-        dataResponse,
-
-        rulesResponse
-
-    ] = await Promise.all([
-
-        fetch(
-
-            CONFIG.api.airdrop
-
-        ),
-
-        fetch(
-
-            CONFIG.api.rules
-
-        )
-
-    ]);
-
-
-    if(
-
-        !dataResponse.ok
-
-    ){
-
-        throw new Error(
-
-            `Gagal mengambil data Airdrop: ${dataResponse.status}`
-
-        );
-
-    }
-
-
-    if(
-
-        !rulesResponse.ok
-
-    ){
-
-        throw new Error(
-
-            `Gagal mengambil rules Airdrop: ${rulesResponse.status}`
-
-        );
-
-    }
-
-
-    const [
-
-        data,
-
-        rules
-
-    ] = await Promise.all([
-
-        dataResponse.json(),
-
-        rulesResponse.json()
-
-    ]);
-
-
-    Process.raw =
-
-        Array.isArray(data)
-
-            ?
-
-            data
-
-            :
-
-            [];
-
-
-    Process.rawRules =
-
-        Array.isArray(rules)
-
-            ?
-
-            rules
-
-            :
-
-            [];
-
-}
-
+       
 
 /* =====================================================
    PROCESS RULES
