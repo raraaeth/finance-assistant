@@ -690,25 +690,101 @@ export const Process = {
     },
 
 
-    /* =================================================
-       GET DATE
-    ================================================= */
+/* =====================================================
+   GET DATE
+===================================================== */
 
-    getDate(
+getDate(
 
-        item
+    item
+
+){
+
+    /* =============================================
+       EXISTING DATE OBJECT
+    ============================================= */
+
+    if(
+
+        item?.dateObject instanceof Date
+
+        &&
+
+        !Number.isNaN(
+
+            item.dateObject.getTime()
+
+        )
 
     ){
 
+        return new Date(
+
+            item.dateObject
+
+        );
+
+    }
+
+
+    /* =============================================
+       RAW DATE
+       
+       API sekarang mengirim:
+       2026-05-28T00:00:00.000Z
+
+       Normalisasi ke tanggal lokal.
+    ============================================= */
+
+    const value =
+
+        item?.tanggal ??
+
+        item?.date;
+
+
+    if(
+
+        !value
+
+    ){
+
+        return null;
+
+    }
+
+
+    /* =============================================
+       ISO DATE
+       
+       Contoh:
+       2026-05-28T00:00:00.000Z
+    ============================================= */
+
+    if(
+
+        typeof value === "string"
+
+        &&
+
+        value.includes("T")
+
+    ){
+
+        const parsed =
+
+            new Date(
+
+                value
+
+            );
+
+
         if(
-
-            item?.dateObject instanceof Date
-
-            &&
 
             !Number.isNaN(
 
-                item.dateObject.getTime()
+                parsed.getTime()
 
             )
 
@@ -716,23 +792,33 @@ export const Process = {
 
             return new Date(
 
-                item.dateObject
+                parsed.getFullYear(),
+
+                parsed.getMonth(),
+
+                parsed.getDate()
 
             );
 
         }
 
+    }
 
-        return Periode.parse(
 
-            item?.tanggal ??
+    /* =============================================
+       OLD DATE FORMAT
+       
+       Contoh:
+       2026-05-28
+    ============================================= */
 
-            item?.date
+    return Periode.parse(
 
-        );
+        value
 
-    },
+    );
 
+},
 
     /* =================================================
        CHECK STATUS
