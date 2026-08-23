@@ -177,11 +177,43 @@ export async function init(){
 
         await API.load(
 
-            CONFIG.api.attendance,
+    CONFIG.data.attendance,
 
-            CONFIG.api.rules
+    CONFIG.data.rules
 
-        );
+);
+       console.log(
+    "===== PAYROLL MONTHLY RAW FIRST =====",
+    API.raw?.[0]
+);
+
+console.log(
+    "===== PAYROLL MONTHLY RAW KEYS =====",
+    Object.keys(
+
+        API.raw?.[0] ?? {}
+
+    )
+);
+
+console.log(
+    "===== PAYROLL MONTHLY DATA =====",
+    API.data
+);
+
+console.log(
+    "===== PAYROLL MONTHLY DATA FIRST =====",
+    API.data?.[0]
+);
+
+console.log(
+    "===== PAYROLL MONTHLY DATA KEYS =====",
+    Object.keys(
+
+        API.data?.[0] ?? {}
+
+    )
+);
 
     }
 
