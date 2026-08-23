@@ -645,29 +645,36 @@ async function handleCallback(){
         /* ==========================================
            REQUEST APPS SCRIPT
         ========================================== */
+const response =
 
-        const response =
+    await fetch(
 
-            await fetch(
+        "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
 
-                "https://script.google.com/macros/s/AKfycbwqjDC7jXtaCACwAp8HeA8ZeEE7NxexBhEPNQpP2JdeY2-n4LmWVg1psD-M3PXwmC-d/exec",
+        {
 
-                {
+            method:
 
-                    method:
+                "POST",
 
-                        "POST",
+            headers: {
 
-                    body:
+                "Content-Type":
 
-                        form
+                    "application/x-www-form-urlencoded"
 
-                }
+            },
 
-            );
+            body:
 
+                form.toString()
 
-        console.log(
+        }
+
+    );
+       
+                        
+           console.log(
 
             "Response Status:",
 
