@@ -24,68 +24,243 @@ export default {
     <p>
       Finance Assistant terdiri dari beberapa module yang
       masing-masing punya tugasnya sendiri.
+      Kamu bisa menggunakan module yang memang sesuai
+      dengan kebutuhanmu.
     </p>
 
 
-    <h3>💰 Tabungan</h3>
+    <!-- =========================================
+         MODULE OVERVIEW
+         ========================================= -->
 
-    <p>
-      Digunakan untuk membantu mencatat dan memantau
-      aktivitas tabungan yang kamu miliki.
-    </p>
+    <div class="module-overview">
 
+      <div class="module-overview-header">
 
-    <h3>🤝 Kas Bersama</h3>
+        <span class="module-overview-icon">
+          ✨
+        </span>
 
-    <p>
-      Untuk mengelola keuangan yang digunakan bersama,
-      sehingga pemasukan dan pengeluaran bisa lebih mudah
-      dipantau.
-    </p>
+        <div>
 
+          <h3>
+            Kenali module di Finance Assistant
+          </h3>
 
-    <h3>💵 Financial</h3>
+          <p>
+            Setiap module dibuat untuk membantu kebutuhan
+            yang berbeda.
+          </p>
 
-    <p>
-      Tempat untuk mengelola aktivitas keuangan dan melihat
-      bagaimana kondisi keuanganmu dari waktu ke waktu.
-    </p>
+        </div>
 
-
-    <h3>📅 Perhitungan Gaji Bulanan</h3>
-
-    <p>
-      Membantu menghitung gaji bulanan berdasarkan data yang
-      digunakan oleh sistem payroll.
-    </p>
+      </div>
 
 
-    <h3>🕐 Perhitungan Gaji Harian</h3>
-
-    <p>
-      Digunakan untuk perhitungan gaji berdasarkan hari kerja,
-      kehadiran, dan aturan yang berlaku.
-    </p>
+      <div class="module-list">
 
 
-    <h3>🔔 Pengingat Airdrop</h3>
+        <!-- Tabungan -->
 
-    <p>
-      Membantu kamu mengingat aktivitas atau deadline airdrop
-      yang sedang kamu ikuti.
-    </p>
+        <a
+          href="?doc=saving"
+          class="module-card"
+          data-doc="saving"
+        >
+
+          <div class="module-icon">
+            💰
+          </div>
+
+          <div class="module-info">
+
+            <h3>
+              Tabungan
+            </h3>
+
+            <p>
+              Digunakan untuk membantu mencatat dan memantau
+              aktivitas tabungan yang kamu miliki.
+            </p>
+
+          </div>
+
+        </a>
+
+
+        <!-- Kas Bersama -->
+
+        <a
+          href="?doc=kas"
+          class="module-card"
+          data-doc="kas"
+        >
+
+          <div class="module-icon">
+            🤝
+          </div>
+
+          <div class="module-info">
+
+            <h3>
+              Kas Bersama
+            </h3>
+
+            <p>
+              Untuk mengelola keuangan yang digunakan bersama,
+              sehingga pemasukan dan pengeluaran bisa lebih
+              mudah dipantau.
+            </p>
+
+          </div>
+
+        </a>
+
+
+        <!-- Financial -->
+
+        <a
+          href="?doc=financial"
+          class="module-card"
+          data-doc="financial"
+        >
+
+          <div class="module-icon">
+            💵
+          </div>
+
+          <div class="module-info">
+
+            <h3>
+              Financial
+            </h3>
+
+            <p>
+              Tempat untuk mengelola aktivitas keuangan dan
+              melihat bagaimana kondisi keuanganmu dari waktu
+              ke waktu.
+            </p>
+
+          </div>
+
+        </a>
+
+
+        <!-- Payroll Monthly -->
+
+        <a
+          href="?doc=monthly"
+          class="module-card"
+          data-doc="monthly"
+        >
+
+          <div class="module-icon">
+            📅
+          </div>
+
+          <div class="module-info">
+
+            <h3>
+              Perhitungan Gaji Bulanan
+            </h3>
+
+            <p>
+              Membantu menghitung gaji bulanan berdasarkan data
+              yang digunakan oleh sistem payroll bulanan berdasar data kehadiran.
+            </p>
+
+          </div>
+
+        </a>
+
+
+        <!-- Payroll Daily -->
+
+        <a
+          href="?doc=daily"
+          class="module-card"
+          data-doc="daily"
+        >
+
+          <div class="module-icon">
+            🕐
+          </div>
+
+          <div class="module-info">
+
+            <h3>
+              Perhitungan Gaji Harian
+            </h3>
+
+            <p>
+              Digunakan untuk perhitungan gaji berdasarkan
+              pendapatan harian, dan aturan yang berlaku.
+            </p>
+
+          </div>
+
+        </a>
+
+
+        <!-- Airdrop -->
+
+        <a
+          href="?doc=airdrop"
+          class="module-card"
+          data-doc="airdrop"
+        >
+
+          <div class="module-icon">
+            🔔
+          </div>
+
+          <div class="module-info">
+
+            <h3>
+              Pengingat Airdrop
+            </h3>
+
+            <p>
+              Membantu kamu mengingat aktivitas atau deadline
+              airdrop yang sedang kamu ikuti.
+            </p>
+
+          </div>
+
+        </a>
+
+
+      </div>
+
+
+      <!-- Footer Card -->
+
+      <div class="module-overview-footer">
+
+        <span>
+          💡
+        </span>
+
+        <p>
+          Kamu tidak harus menggunakan semua module.
+          Gunakan yang memang kamu butuhkan.
+        </p>
+
+      </div>
+
+    </div>
 
 
     <h2>Semua dimulai dari Workspace</h2>
 
     <p>
-      Finance Assistant menggunakan konsep <strong>Workspace</strong>
-      sebagai tempat berbagai data dan pengaturan aplikasi kamu
-      berada.
+      Finance Assistant menggunakan konsep
+      <strong>Workspace</strong> sebagai tempat berbagai
+      data dan pengaturan aplikasi kamu berada.
     </p>
 
     <p>
-      Jadi sebelum mulai menggunakan module yang ada,
+      Sebelum mulai menggunakan module yang ada,
       kamu akan terlebih dahulu menyiapkan Workspace.
       Setelah itu, kamu bisa mengatur data dan mulai
       menggunakan fitur yang kamu butuhkan.
@@ -98,6 +273,7 @@ export default {
       Secara sederhana, alurnya seperti ini:
     </p>
 
+
     <pre><code>
 Kamu
   ↓
@@ -109,8 +285,9 @@ Data Workspace
   ↓
 Module memproses data
   ↓
-Hasil & ringkasan
+Hasil &amp; ringkasan
     </code></pre>
+
 
     <p>
       Kamu tidak perlu memahami proses teknis di baliknya
@@ -123,12 +300,16 @@ Hasil & ringkasan
     <h2>Siap mulai?</h2>
 
     <p>
-      Kalau ini pertama kalinya kamu menggunakan Finance Assistant,
-      sebaiknya mulai dari panduan berikut.
+      Kalau ini pertama kalinya kamu menggunakan
+      Finance Assistant, sebaiknya mulai dari panduan
+      berikut.
     </p>
 
     <p>
-      <a href="?doc=mulai">
+      <a
+        href="?doc=mulai"
+        data-doc="mulai"
+      >
         Mulai menggunakan Finance Assistant →
       </a>
     </p>
