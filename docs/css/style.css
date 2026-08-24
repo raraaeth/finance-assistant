@@ -1,0 +1,840 @@
+/* =========================================================
+   FINANCE ASSISTANT — DOCUMENTATION
+   Global Styles
+   ========================================================= */
+
+
+/* =========================================================
+   1. RESET & BASE
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  background: #ffffff;
+  color: #1f2937;
+
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   2. CSS VARIABLES
+   ========================================================= */
+
+:root {
+
+  /* Layout */
+  --header-height: 64px;
+  --sidebar-width: 260px;
+  --content-max-width: 860px;
+
+  /* Colors */
+  --color-bg: #ffffff;
+  --color-sidebar: #fafafa;
+  --color-text: #1f2937;
+  --color-text-soft: #6b7280;
+  --color-text-muted: #9ca3af;
+
+  --color-border: #e5e7eb;
+  --color-border-soft: #f0f0f0;
+
+  --color-primary: #111827;
+  --color-primary-soft: #f3f4f6;
+
+  --color-hover: #f5f5f5;
+  --color-active: #eeeeee;
+
+  /* Radius */
+  --radius-small: 6px;
+  --radius-medium: 10px;
+  --radius-large: 14px;
+
+  /* Shadow */
+  --shadow-header:
+    0 1px 2px rgba(0, 0, 0, 0.03);
+
+  --shadow-modal:
+    0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   3. HEADER
+   ========================================================= */
+
+.docs-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  height: var(--header-height);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 24px;
+
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--color-border);
+
+  box-shadow: var(--shadow-header);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  gap: 14px;
+}
+
+.header-right {
+  gap: 8px;
+}
+
+
+/* =========================================================
+   4. BRAND
+   ========================================================= */
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+
+  white-space: nowrap;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+
+  color: var(--color-primary);
+}
+
+.brand-label {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+
+/* =========================================================
+   5. BUTTONS
+   ========================================================= */
+
+.icon-button,
+.header-button {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-soft);
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: var(--radius-small);
+
+  font-size: 18px;
+}
+
+.icon-button:hover,
+.header-button:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.header-button {
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 0 10px;
+
+  border-radius: var(--radius-small);
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   6. MAIN LAYOUT
+   ========================================================= */
+
+.docs-layout {
+  display: flex;
+  min-height: calc(100vh - var(--header-height));
+}
+
+
+/* =========================================================
+   7. SIDEBAR
+   ========================================================= */
+
+.docs-sidebar {
+  position: sticky;
+  top: var(--header-height);
+
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--header-height));
+
+  flex-shrink: 0;
+
+  overflow-y: auto;
+
+  background: var(--color-sidebar);
+  border-right: 1px solid var(--color-border);
+
+  transition:
+    transform 0.25s ease,
+    width 0.25s ease;
+}
+
+.sidebar-inner {
+  padding: 28px 16px 40px;
+}
+
+
+/* =========================================================
+   8. SIDEBAR CONTENT
+   ========================================================= */
+
+.sidebar-section {
+  margin-bottom: 28px;
+}
+
+.sidebar-section-title {
+  margin: 0 10px 9px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: var(--color-text-muted);
+}
+
+.sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  list-style: none;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+
+  min-height: 36px;
+
+  padding: 7px 10px;
+
+  border-radius: var(--radius-small);
+
+  font-size: 14px;
+  line-height: 1.4;
+
+  color: var(--color-text-soft);
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.sidebar-link:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.sidebar-link.active {
+  background: var(--color-active);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   9. SIDEBAR OVERLAY
+   ========================================================= */
+
+.sidebar-overlay {
+  display: none;
+
+  position: fixed;
+  inset: 0;
+
+  z-index: 900;
+
+  background: rgba(0, 0, 0, 0.35);
+
+  opacity: 0;
+
+  transition: opacity 0.25s ease;
+}
+
+
+/* =========================================================
+   10. MAIN CONTENT
+   ========================================================= */
+
+.docs-main {
+  flex: 1;
+  min-width: 0;
+
+  padding: 64px 40px 80px;
+}
+
+.docs-article {
+  width: 100%;
+  max-width: var(--content-max-width);
+
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   11. ARTICLE TYPOGRAPHY
+   ========================================================= */
+
+.docs-article h1 {
+  margin-bottom: 24px;
+
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.15;
+
+  letter-spacing: -0.035em;
+
+  color: var(--color-primary);
+}
+
+.docs-article h2 {
+  margin-top: 48px;
+  margin-bottom: 16px;
+
+  font-size: 27px;
+  line-height: 1.3;
+
+  letter-spacing: -0.025em;
+
+  color: var(--color-primary);
+}
+
+.docs-article h3 {
+  margin-top: 32px;
+  margin-bottom: 12px;
+
+  font-size: 20px;
+  line-height: 1.4;
+
+  color: var(--color-primary);
+}
+
+.docs-article p {
+  margin-bottom: 18px;
+
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.docs-article strong {
+  font-weight: 650;
+}
+
+.docs-article ul,
+.docs-article ol {
+  margin: 0 0 20px 24px;
+}
+
+.docs-article li {
+  margin-bottom: 7px;
+}
+
+.docs-article a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+
+/* =========================================================
+   12. ARTICLE CODE
+   ========================================================= */
+
+.docs-article code {
+  padding: 3px 6px;
+
+  border-radius: 5px;
+
+  background: #f3f4f6;
+
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    monospace;
+
+  font-size: 0.9em;
+}
+
+.docs-article pre {
+  margin: 24px 0;
+
+  padding: 18px;
+
+  overflow-x: auto;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+
+  background: #f8f8f8;
+
+  line-height: 1.6;
+}
+
+.docs-article pre code {
+  padding: 0;
+
+  background: transparent;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   13. ARTICLE BLOCKQUOTE
+   ========================================================= */
+
+.docs-article blockquote {
+  margin: 24px 0;
+
+  padding: 14px 18px;
+
+  border-left: 3px solid #d1d5db;
+
+  background: #fafafa;
+
+  color: var(--color-text-soft);
+}
+
+
+/* =========================================================
+   14. ARTICLE IMAGES
+   ========================================================= */
+
+.docs-article img {
+  display: block;
+
+  max-width: 100%;
+  height: auto;
+
+  margin: 28px auto;
+
+  border-radius: var(--radius-large);
+  border: 1px solid var(--color-border);
+}
+
+
+/* =========================================================
+   15. ARTICLE NAVIGATION
+   ========================================================= */
+
+.article-navigation {
+  width: 100%;
+  max-width: var(--content-max-width);
+
+  margin: 80px auto 0;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 16px;
+}
+
+.article-nav-button {
+  display: flex;
+  flex-direction: column;
+
+  padding: 16px 18px;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+
+  background: var(--color-bg);
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.article-nav-button:hover {
+  background: var(--color-hover);
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.article-nav-button.next {
+  text-align: right;
+}
+
+.article-nav-label {
+  margin-bottom: 5px;
+
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.article-nav-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+
+/* =========================================================
+   16. SEARCH MODAL
+   ========================================================= */
+
+.search-modal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 2000;
+
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+
+  padding: 100px 20px 20px;
+}
+
+.search-modal.active {
+  display: flex;
+}
+
+.search-modal-backdrop {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.search-modal-content {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 640px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+
+  background: #ffffff;
+
+  box-shadow: var(--shadow-modal);
+}
+
+.search-header {
+  display: flex;
+  align-items: center;
+
+  padding: 12px;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.search-header input {
+  flex: 1;
+
+  height: 42px;
+
+  padding: 0 12px;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+
+  font-size: 15px;
+}
+
+.search-results {
+  max-height: 420px;
+
+  overflow-y: auto;
+
+  padding: 8px;
+}
+
+.search-result {
+  display: block;
+
+  padding: 12px;
+
+  border-radius: var(--radius-small);
+}
+
+.search-result:hover {
+  background: var(--color-hover);
+}
+
+.search-result-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.search-result-description {
+  margin-top: 3px;
+
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+
+/* =========================================================
+   17. SCROLLBAR
+   ========================================================= */
+
+.docs-sidebar::-webkit-scrollbar,
+.search-results::-webkit-scrollbar,
+.docs-article pre::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.docs-sidebar::-webkit-scrollbar-thumb,
+.search-results::-webkit-scrollbar-thumb,
+.docs-article pre::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #d1d5db;
+}
+
+.docs-sidebar::-webkit-scrollbar-track,
+.search-results::-webkit-scrollbar-track,
+.docs-article pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+/* =========================================================
+   18. TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  :root {
+    --sidebar-width: 230px;
+  }
+
+  .docs-main {
+    padding: 48px 28px 64px;
+  }
+
+}
+
+
+/* =========================================================
+   19. MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  :root {
+    --header-height: 60px;
+  }
+
+
+  /* Header */
+
+  .docs-header {
+    padding: 0 14px;
+  }
+
+  .brand {
+    gap: 5px;
+  }
+
+  .brand-name {
+    font-size: 15px;
+  }
+
+  .brand-label {
+    display: none;
+  }
+
+  .header-button span {
+    display: none;
+  }
+
+
+  /* Sidebar */
+
+  .docs-sidebar {
+    position: fixed;
+
+    top: var(--header-height);
+    left: 0;
+
+    z-index: 950;
+
+    width: min(290px, 82vw);
+    height: calc(100vh - var(--header-height));
+
+    transform: translateX(-100%);
+
+    box-shadow:
+      10px 0 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .docs-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    pointer-events: none;
+  }
+
+  .sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+
+  /* Main */
+
+  .docs-main {
+    width: 100%;
+
+    padding:
+      42px
+      20px
+      50px;
+  }
+
+  .docs-article h1 {
+    font-size: 34px;
+  }
+
+  .docs-article h2 {
+    margin-top: 38px;
+    font-size: 25px;
+  }
+
+  .docs-article h3 {
+    font-size: 19px;
+  }
+
+  .docs-article p {
+    font-size: 15px;
+  }
+
+
+  /* Navigation */
+
+  .article-navigation {
+    grid-template-columns: 1fr;
+
+    margin-top: 56px;
+  }
+
+  .article-nav-button.next {
+    text-align: left;
+  }
+
+}
+
+
+/* =========================================================
+   20. SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+  .docs-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .docs-article h1 {
+    font-size: 30px;
+  }
+
+}
+
+
+/* =========================================================
+   21. REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
+}
