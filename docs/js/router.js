@@ -19,28 +19,28 @@ export const ARTICLES = [
     id: "pengenalan",
     title: "Pengenalan",
     section: "DOKUMENTASI",
-    path: "./started/pengenalan.js"
+    path: "../started/pengenalan.js"
   },
 
   {
     id: "mulai",
     title: "Mulai",
     section: "DOKUMENTASI",
-    path: "./started/mulai.js"
+    path: "../started/mulai.js"
   },
 
   {
     id: "workspace",
     title: "Workspace",
     section: "DOKUMENTASI",
-    path: "./started/workspace.js"
+    path: "../started/workspace.js"
   },
 
   {
     id: "input",
     title: "Pengaturan & Input",
     section: "DOKUMENTASI",
-    path: "./started/input.js"
+    path: "../started/input.js"
   },
 
 
@@ -52,42 +52,42 @@ export const ARTICLES = [
     id: "saving",
     title: "Tabungan",
     section: "FITUR",
-    path: "./module/saving.js"
+    path: "../module/saving.js"
   },
 
   {
     id: "kas",
     title: "Kas Bersama",
     section: "FITUR",
-    path: "./module/kas.js"
+    path: "../module/kas.js"
   },
 
   {
     id: "financial",
     title: "Financial",
     section: "FITUR",
-    path: "./module/financial.js"
+    path: "../module/financial.js"
   },
 
   {
     id: "monthly",
     title: "Perhitungan Gaji Bulanan",
     section: "FITUR",
-    path: "./module/monthly.js"
+    path: "../module/monthly.js"
   },
 
   {
     id: "daily",
     title: "Perhitungan Gaji Harian",
     section: "FITUR",
-    path: "./module/daily.js"
+    path: "../module/daily.js"
   },
 
   {
     id: "airdrop",
     title: "Pengingat Airdrop",
     section: "FITUR",
-    path: "./module/airdrop.js"
+    path: "../module/airdrop.js"
   },
 
 
@@ -99,14 +99,14 @@ export const ARTICLES = [
     id: "akun",
     title: "Akun",
     section: "DATA & PRIVASI",
-    path: "./data-privasi/akun.js"
+    path: "../data-privasi/akun.js"
   },
 
   {
     id: "privacy",
     title: "Data & Privasi",
     section: "DATA & PRIVASI",
-    path: "./data-privasi/privacy.js"
+    path: "../data-privasi/privacy.js"
   }
 
 ];
