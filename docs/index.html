@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Finance Assistant — Dokumentasi</title>
+
+  <meta
+    name="description"
+    content="Dokumentasi resmi Finance Assistant."
+  >
+
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+  <!-- =========================================
+       HEADER
+       ========================================= -->
+  <header class="docs-header">
+
+    <div class="header-left">
+
+      <button
+        id="sidebarToggle"
+        class="icon-button"
+        type="button"
+        aria-label="Buka menu"
+        aria-expanded="false"
+      >
+        ☰
+      </button>
+
+      <a href="./index.html" class="brand">
+        <span class="brand-name">Finance Assistant</span>
+        <span class="brand-label">Dokumentasi</span>
+      </a>
+
+    </div>
+
+    <div class="header-right">
+
+      <button
+        id="searchButton"
+        class="header-button"
+        type="button"
+      >
+        🔍
+        <span>Cari</span>
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================================
+       LAYOUT
+       ========================================= -->
+  <div class="docs-layout">
+
+
+    <!-- =======================================
+         SIDEBAR
+         Isi menu akan dibuat oleh JavaScript
+         ======================================= -->
+    <aside
+      id="sidebar"
+      class="docs-sidebar"
+      aria-label="Navigasi dokumentasi"
+    >
+
+      <div class="sidebar-inner">
+
+        <div id="sidebarContent">
+          <!-- Menu dibuat oleh sidebar.js -->
+        </div>
+
+      </div>
+
+    </aside>
+
+
+    <!-- =======================================
+         OVERLAY MOBILE
+         ======================================= -->
+    <div
+      id="sidebarOverlay"
+      class="sidebar-overlay"
+      aria-hidden="true"
+    ></div>
+
+
+    <!-- =======================================
+         MAIN CONTENT
+         ======================================= -->
+    <main class="docs-main">
+
+      <article
+        id="article"
+        class="docs-article"
+      >
+        <!--
+          Isi artikel akan dimuat oleh JavaScript.
+
+          Contoh:
+          module/saving.js
+          module/kas.js
+          module/monthly.js
+        -->
+      </article>
+
+
+      <!-- =====================================
+           PREVIOUS / NEXT
+           ===================================== -->
+      <nav
+        id="articleNavigation"
+        class="article-navigation"
+        aria-label="Navigasi artikel"
+      >
+        <!--
+          Tombol Sebelumnya dan Berikutnya
+          dibuat oleh JavaScript.
+        -->
+      </nav>
+
+    </main>
+
+  </div>
+
+
+  <!-- =========================================
+       SEARCH MODAL
+       ========================================= -->
+  <div
+    id="searchModal"
+    class="search-modal"
+    aria-hidden="true"
+  >
+
+    <div class="search-modal-backdrop"></div>
+
+    <div
+      class="search-modal-content"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Cari dokumentasi"
+    >
+
+      <div class="search-header">
+
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Cari di dokumentasi..."
+          autocomplete="off"
+        >
+
+        <button
+          id="searchClose"
+          class="icon-button"
+          type="button"
+          aria-label="Tutup pencarian"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div id="searchResults" class="search-results">
+        <!-- Hasil pencarian dibuat oleh JavaScript -->
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================
+       JAVASCRIPT
+       ========================================= -->
+
+  <script type="module" src="./js/app.js"></script>
+
+</body>
+</html>
