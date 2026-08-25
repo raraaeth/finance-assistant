@@ -2,7 +2,7 @@
    GLOBAL PROFILE
    FILE        : script.js
    DESCRIPTION : Global Profile Component
-   VERSION     : 3.1.0
+   VERSION     : 3.2.0
 ===================================================== */
 
 
@@ -179,6 +179,320 @@ const MODULES = [
     }
 
 ];
+
+
+/* =====================================================
+   API
+===================================================== */
+
+const API_URL =
+
+    "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
+
+
+/* =====================================================
+   API REQUEST
+
+   Menggunakan JSONP karena Apps Script
+   Web App digunakan melalui script injection.
+===================================================== */
+
+function apiRequest(
+
+    params
+
+){
+
+    return new Promise(
+
+        (
+
+            resolve,
+
+            reject
+
+        ) => {
+
+
+            /* =============================================
+               CALLBACK NAME
+            ============================================= */
+
+            const callbackName =
+
+                "__financeAssistant_"
+
+                +
+
+                Date.now()
+
+                +
+
+                "_"
+
+                +
+
+                Math.random()
+
+                .toString(
+
+                    36
+
+                )
+
+                .slice(
+
+                    2
+
+                );
+
+
+            /* =============================================
+               CREATE SCRIPT
+            ============================================= */
+
+            const script =
+
+                document.createElement(
+
+                    "script"
+
+                );
+
+
+            /* =============================================
+               TIMEOUT
+            ============================================= */
+
+            const timeout =
+
+                setTimeout(
+
+                    () => {
+
+                        cleanup();
+
+
+                        reject(
+
+                            new Error(
+
+                                "Request ke server terlalu lama"
+
+                            )
+
+                        );
+
+                    },
+
+                    30000
+
+                );
+
+
+            /* =============================================
+               REGISTER CALLBACK
+            ============================================= */
+
+            window[
+
+                callbackName
+
+            ] = function(
+
+                data
+
+            ){
+
+                cleanup();
+
+
+                resolve(
+
+                    data
+
+                );
+
+            };
+
+
+            /* =============================================
+               BUILD PARAMS
+            ============================================= */
+
+            const requestParams =
+
+                new URLSearchParams();
+
+
+            Object.entries(
+
+                params
+
+            )
+
+            .forEach(
+
+                ([
+
+                    key,
+
+                    value
+
+                ]) => {
+
+
+                    if(
+
+                        value !==
+
+                        undefined
+
+                        &&
+
+                        value !==
+
+                        null
+
+                    ){
+
+                        requestParams.set(
+
+                            key,
+
+                            value
+
+                        );
+
+                    }
+
+                }
+
+            );
+
+
+            /* =============================================
+               CALLBACK
+            ============================================= */
+
+            requestParams.set(
+
+                "callback",
+
+                callbackName
+
+            );
+
+
+            /* =============================================
+               BUILD URL
+            ============================================= */
+
+            script.src =
+
+                API_URL
+
+                +
+
+                "?"
+
+                +
+
+                requestParams.toString();
+
+
+            console.log(
+
+                "API Request:",
+
+                script.src
+
+            );
+
+
+            /* =============================================
+               ERROR
+            ============================================= */
+
+            script.onerror = function(){
+
+                cleanup();
+
+
+                reject(
+
+                    new Error(
+
+                        "Gagal menghubungi Apps Script"
+
+                    )
+
+                );
+
+            };
+
+
+            /* =============================================
+               CLEANUP
+            ============================================= */
+
+            function cleanup(){
+
+
+                clearTimeout(
+
+                    timeout
+
+                );
+
+
+                if(
+
+                    window[
+
+                        callbackName
+
+                    ]
+
+                ){
+
+                    delete window[
+
+                        callbackName
+
+                    ];
+
+                }
+
+
+                if(
+
+                    script.parentNode
+
+                ){
+
+                    script.remove();
+
+                }
+
+            }
+
+
+            /* =============================================
+               SEND REQUEST
+            ============================================= */
+
+            document.head.appendChild(
+
+                script
+
+            );
+
+        }
+
+    );
+
+}
 
 
 /* =====================================================
@@ -661,6 +975,7 @@ function initSession(){
         "===== PROFILE SESSION ====="
 
     );
+
 
     console.log(
 
@@ -1233,7 +1548,9 @@ function loadWorkspaceList(){
                 return (
 
                     modules[
+
                         module.id
+
                     ]
 
                     ?.exists
@@ -1253,7 +1570,9 @@ function loadWorkspaceList(){
                 const workspace =
 
                     modules[
+
                         module.id
+
                     ];
 
 
@@ -1274,11 +1593,6 @@ function loadWorkspaceList(){
                         module.title,
 
 
-                    /*
-                     * Workspace aktif hanya jika
-                     * workspace ini sedang dipilih.
-                    */
-
                     active :
 
                         current
@@ -1288,11 +1602,6 @@ function loadWorkspaceList(){
 
                         module.id,
 
-
-                    /*
-                     * Menandakan workspace memang
-                     * sudah dibuat dan tersedia.
-                    */
 
                     exists :
 
@@ -1319,6 +1628,7 @@ function loadWorkspaceList(){
 
 }
 
+
 /* =====================================================
    INIT WORKSPACE
 ===================================================== */
@@ -1330,6 +1640,7 @@ function initWorkspace(){
         loadWorkspaceList();
 
 }
+
 
 /* =====================================================
    GET AVAILABLE WORKSPACE
@@ -1353,8 +1664,11 @@ function getAvailableWorkspace(){
         module =>
 
             modules[
+
                 module.id
+
             ]
+
             ?.exists
 
             !== true
@@ -1362,6 +1676,7 @@ function getAvailableWorkspace(){
     );
 
 }
+
 
 /* =====================================================
    GROUP
@@ -1509,8 +1824,9 @@ function createWorkspaceItem(
 
 }
 
+
 /* =====================================================
-   CREATE WORKSPACE
+   CREATE WORKSPACE BUTTON
 ===================================================== */
 
 function renderCreateWorkspace(){
@@ -1530,6 +1846,706 @@ function renderCreateWorkspace(){
         </button>
 
     `;
+
+}
+
+
+/* =====================================================
+   CREATE WORKSPACE
+
+   Flow:
+
+   Profile
+      ↓
+   Pilih Module
+      ↓
+   Apps Script
+      ↓
+   createModuleWorkspace()
+      ↓
+   Update Session
+      ↓
+   Set Active Workspace
+      ↓
+   Reload
+===================================================== */
+
+async function onCreateWorkspace(){
+
+    const available =
+
+        getAvailableWorkspace();
+
+
+    /* =============================================
+       NO AVAILABLE WORKSPACE
+    ============================================= */
+
+    if(
+
+        !available.length
+
+    ){
+
+        alert(
+
+            "Semua Workspace sudah dibuat."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       MODULE OPTIONS
+    ============================================= */
+
+    const options =
+
+        available
+
+        .map(
+
+            (
+
+                module,
+
+                index
+
+            ) =>
+
+                `${
+
+                    index + 1
+
+                }. ${
+
+                    module.title
+
+                }`
+
+        )
+
+        .join(
+
+            "\n"
+
+        );
+
+
+    const selected =
+
+        prompt(
+
+            `Pilih Workspace yang ingin dibuat:\n\n${options}`
+
+        );
+
+
+    /* =============================================
+       CANCEL
+    ============================================= */
+
+    if(
+
+        !selected
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       GET SELECTED MODULE
+    ============================================= */
+
+    const index =
+
+        Number(
+
+            selected
+
+        )
+
+        -
+
+        1;
+
+
+    const module =
+
+        available[
+
+            index
+
+        ];
+
+
+    /* =============================================
+       INVALID MODULE
+    ============================================= */
+
+    if(
+
+        !module
+
+    ){
+
+        alert(
+
+            "Pilihan Workspace tidak valid."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       SESSION
+    ============================================= */
+
+    const session =
+
+        State.session;
+
+
+    if(
+
+        !session
+
+    ){
+
+        alert(
+
+            "Session tidak ditemukan. Silakan login ulang."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       ACCESS TOKEN
+    ============================================= */
+
+    const accessToken =
+
+        session
+        ?.token
+        ?.accessToken;
+
+
+    if(
+
+        !accessToken
+
+    ){
+
+        alert(
+
+            "Access Token tidak ditemukan. Silakan login ulang."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       FINANCE CORE ID
+    ============================================= */
+
+    const spreadsheetId =
+
+        session
+        ?.workspace
+        ?.spreadsheet
+        ?.id;
+
+
+    if(
+
+        !spreadsheetId
+
+    ){
+
+        alert(
+
+            "Finance Core tidak ditemukan."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CONFIRM
+    ============================================= */
+
+    const confirmed =
+
+        confirm(
+
+            `Buat Workspace "${module.title}"?`
+
+        );
+
+
+    if(
+
+        !confirmed
+
+    ){
+
+        return;
+
+    }
+
+
+    try{
+
+
+        /* =============================================
+           BUTTON LOADING
+        ============================================= */
+
+        const button =
+
+            document.querySelector(
+
+                ".workspace-create"
+
+            );
+
+
+        if(
+
+            button
+
+        ){
+
+            button.disabled =
+
+                true;
+
+
+            button.textContent =
+
+                "Membuat Workspace...";
+
+        }
+
+
+        console.log(
+
+            "===== CREATE WORKSPACE ====="
+
+        );
+
+
+        console.log(
+
+            "Module:",
+
+            module.id
+
+        );
+
+
+        console.log(
+
+            "Spreadsheet:",
+
+            spreadsheetId
+
+        );
+
+
+        /* =============================================
+           REQUEST BACKEND
+        ============================================= */
+
+        const result =
+
+            await apiRequest({
+
+                action :
+
+                    "createModule",
+
+
+                accessToken :
+
+                    accessToken,
+
+
+                spreadsheetId :
+
+                    spreadsheetId,
+
+
+                module :
+
+                    module.id
+
+            });
+
+
+        console.log(
+
+            "Create Workspace Response:",
+
+            result
+
+        );
+
+
+        /* =============================================
+           VALIDATE RESPONSE
+        ============================================= */
+
+        if(
+
+            !result
+
+        ){
+
+            throw new Error(
+
+                "Response server kosong"
+
+            );
+
+        }
+
+
+        if(
+
+            result.success !== true
+
+        ){
+
+            throw new Error(
+
+                result.error
+
+                ||
+
+                "Gagal membuat Workspace"
+
+            );
+
+        }
+
+
+        /* =============================================
+           ENSURE WORKSPACE OBJECT
+        ============================================= */
+
+        if(
+
+            !State.session.workspace
+
+        ){
+
+            State.session.workspace =
+
+                {};
+
+        }
+
+
+        /* =============================================
+           ENSURE MODULES OBJECT
+        ============================================= */
+
+        if(
+
+            !State.session.workspace.modules
+
+        ){
+
+            State.session.workspace.modules =
+
+                {};
+
+        }
+
+
+        /* =============================================
+           UPDATE MODULE STATUS
+
+           Jika backend mengirim result.module,
+           gunakan data dari backend.
+
+           Jika belum, gunakan fallback.
+        ============================================= */
+
+        State.session.workspace.modules[
+
+            module.id
+
+        ] =
+
+            result.module
+
+            ||
+
+            {
+
+                key :
+
+                    module.id,
+
+
+                name :
+
+                    module.title,
+
+
+                exists :
+
+                    true
+
+            };
+
+
+        /* =============================================
+           SAVE UPDATED SESSION
+        ============================================= */
+
+        localStorage.setItem(
+
+            "finance_session",
+
+            JSON.stringify(
+
+                State.session
+
+            )
+
+        );
+
+
+        /* =============================================
+           CURRENT WORKSPACE
+        ============================================= */
+
+        const current =
+
+            loadWorkspace()
+
+            ||
+
+            {};
+
+
+        /* =============================================
+           SET NEW WORKSPACE ACTIVE
+        ============================================= */
+
+        saveWorkspace({
+
+            ...current,
+
+
+            workspace :
+
+                module.id
+
+        });
+
+
+        /* =============================================
+           SUCCESS
+        ============================================= */
+
+        alert(
+
+            `"${module.title}" berhasil dibuat.`
+
+        );
+
+
+        /* =============================================
+           RELOAD
+
+           Setelah reload:
+
+           - Session dibaca ulang
+           - Workspace muncul
+           - Workspace menjadi active
+           - workspace.js dapat menjalankan module
+        ============================================= */
+
+        location.reload();
+
+
+    }catch(error){
+
+
+        console.error(
+
+            "===== CREATE WORKSPACE ERROR ====="
+
+        );
+
+
+        console.error(
+
+            error
+
+        );
+
+
+        alert(
+
+            error.message
+
+            ||
+
+            "Terjadi kesalahan saat membuat Workspace."
+
+        );
+
+
+        /* =============================================
+           RESTORE BUTTON
+        ============================================= */
+
+        const button =
+
+            document.querySelector(
+
+                ".workspace-create"
+
+            );
+
+
+        if(
+
+            button
+
+        ){
+
+            button.disabled =
+
+                false;
+
+
+            button.textContent =
+
+                "➕ Create Workspace";
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   CHANGE WORKSPACE
+===================================================== */
+
+function onWorkspace(
+
+    id
+
+){
+
+    const workspace =
+
+        State.workspace.find(
+
+            item =>
+
+                item.id === id
+
+        );
+
+
+    if(
+
+        !workspace
+
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Semua workspace yang tampil
+     * sudah dibuat dan tersedia.
+    */
+
+    if(
+
+        !workspace.exists
+
+    ){
+
+        return;
+
+    }
+
+
+    const current =
+
+        loadWorkspace();
+
+
+    /*
+     * Sudah menjadi workspace aktif.
+    */
+
+    if(
+
+        current
+        ?.workspace
+
+        ===
+
+        id
+
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Simpan workspace baru
+     * sebagai workspace aktif.
+    */
+
+    saveWorkspace({
+
+        ...current,
+
+
+        workspace :
+
+            id
+
+    });
+
+
+    location.reload();
 
 }
 
@@ -1839,15 +2855,16 @@ function onClick(
 
     if(
 
-    createWorkspace
+        createWorkspace
 
-){
+    ){
 
-    onCreateWorkspace();
+        onCreateWorkspace();
 
-    return;
+        return;
 
-}
+    }
+
 
     const menu =
 
@@ -1915,233 +2932,6 @@ function onClick(
         onLogout();
 
     }
-
-}
-
-/* =====================================================
-   CREATE WORKSPACE
-===================================================== */
-
-function onCreateWorkspace(){
-
-    const available =
-
-        getAvailableWorkspace();
-
-
-    /* =============================================
-       NO AVAILABLE WORKSPACE
-    ============================================= */
-
-    if(
-
-        !available.length
-
-    ){
-
-        alert(
-
-            "Semua Workspace sudah dibuat."
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       TEMPORARY MODULE SELECT
-    ============================================= */
-
-    const options =
-
-        available
-
-        .map(
-
-            (
-
-                module,
-
-                index
-
-            ) =>
-
-                `${
-
-                    index + 1
-
-                }. ${
-
-                    module.title
-
-                }`
-
-        )
-
-        .join(
-
-            "\n"
-
-        );
-
-
-    const selected =
-
-        prompt(
-
-            `Pilih Workspace yang ingin dibuat:\n\n${options}`
-
-        );
-
-
-    if(
-
-        !selected
-
-    ){
-
-        return;
-
-    }
-
-
-    const index =
-
-        Number(
-
-            selected
-
-        )
-
-        -
-
-        1;
-
-
-    const module =
-
-        available[index];
-
-
-    if(
-
-        !module
-
-    ){
-
-        alert(
-
-            "Pilihan Workspace tidak valid."
-
-        );
-
-        return;
-
-    }
-
-
-    console.log(
-
-        "Create Workspace:",
-
-        module
-
-    );
-
-}
-
-/* =====================================================
-   CHANGE WORKSPACE
-===================================================== */
-
-function onWorkspace(
-
-    id
-
-){
-
-    const workspace =
-
-        State.workspace.find(
-
-            item =>
-
-                item.id === id
-
-        );
-
-
-    if(
-
-        !workspace
-
-    ){
-
-        return;
-
-    }
-
-
-    /*
-     * Semua workspace yang tampil
-     * sudah dibuat dan tersedia.
-    */
-
-    if(
-
-        !workspace.exists
-
-    ){
-
-        return;
-
-    }
-
-
-    const current =
-
-        loadWorkspace();
-
-
-    /*
-     * Sudah menjadi workspace aktif.
-    */
-
-    if(
-
-        current
-        ?.workspace
-
-        ===
-
-        id
-
-    ){
-
-        return;
-
-    }
-
-
-    /*
-     * Simpan workspace baru
-     * sebagai workspace aktif.
-    */
-
-    saveWorkspace({
-
-        ...current,
-
-        workspace :
-
-            id
-
-    });
-
-
-    location.reload();
 
 }
 
