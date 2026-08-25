@@ -2,16 +2,19 @@
    Finance Assistant
    Module      : API
    File        : api.js
-   Version     : 4.0.0
+   Version     : 4.1.0
 
    Description :
    Apps Script Module API Engine
 
-   Sections :
-   - Import
-   - State
-   - Session
-   - Load
+   Request Method :
+   JSONP
+
+   Reason :
+   Apps Script Web App tidak dapat
+   di-fetch langsung dari GitHub Pages
+   karena CORS.
+
 ===================================================== */
 
 
@@ -67,6 +70,273 @@ function getSpreadsheetId(){
 
 
 /* =====================================================
+   JSONP REQUEST
+
+   Digunakan untuk request ke
+   Google Apps Script tanpa CORS.
+
+===================================================== */
+
+function jsonpRequest(
+
+    url
+
+){
+
+    return new Promise(
+
+        (
+
+            resolve,
+
+            reject
+
+        ) => {
+
+
+            /* =============================================
+               CALLBACK NAME
+            ============================================= */
+
+            const callbackName =
+
+                "__financeAssistantApi_"
+
+                +
+
+                Date.now()
+
+                +
+
+                "_"
+
+                +
+
+                Math.random()
+
+                .toString(
+
+                    36
+
+                )
+
+                .slice(
+
+                    2
+
+                );
+
+
+            /* =============================================
+               SCRIPT
+            ============================================= */
+
+            const script =
+
+                document.createElement(
+
+                    "script"
+
+                );
+
+
+            /* =============================================
+               TIMEOUT
+            ============================================= */
+
+            const timeout =
+
+                setTimeout(
+
+                    () => {
+
+                        cleanup();
+
+
+                        reject(
+
+                            new Error(
+
+                                "Request API terlalu lama"
+
+                            )
+
+                        );
+
+                    },
+
+                    30000
+
+                );
+
+
+            /* =============================================
+               CALLBACK
+            ============================================= */
+
+            window[
+
+                callbackName
+
+            ] = function(
+
+                data
+
+            ){
+
+                cleanup();
+
+
+                resolve(
+
+                    data
+
+                );
+
+            };
+
+
+            /* =============================================
+               ERROR
+            ============================================= */
+
+            script.onerror = function(){
+
+                cleanup();
+
+
+                reject(
+
+                    new Error(
+
+                        "Gagal menghubungi Apps Script"
+
+                    )
+
+                );
+
+            };
+
+
+            /* =============================================
+               CLEANUP
+            ============================================= */
+
+            function cleanup(){
+
+
+                clearTimeout(
+
+                    timeout
+
+                );
+
+
+                if(
+
+                    window[
+
+                        callbackName
+
+                    ]
+
+                ){
+
+                    delete window[
+
+                        callbackName
+
+                    ];
+
+                }
+
+
+                if(
+
+                    script.parentNode
+
+                ){
+
+                    script.remove();
+
+                }
+
+            }
+
+
+            /* =============================================
+               BUILD URL
+            ============================================= */
+
+            const separator =
+
+                url.includes(
+
+                    "?"
+
+                )
+
+                ?
+
+                "&"
+
+                :
+
+                "?";
+
+
+            script.src =
+
+                url
+
+                +
+
+                separator
+
+                +
+
+                "callback="
+
+                +
+
+                encodeURIComponent(
+
+                    callbackName
+
+                );
+
+
+            /* =============================================
+               DEBUG
+            ============================================= */
+
+            console.log(
+
+                "JSONP Request:",
+
+                script.src
+
+            );
+
+
+            /* =============================================
+               SEND
+            ============================================= */
+
+            document.head.appendChild(
+
+                script
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
    LOAD
 ===================================================== */
 
@@ -80,8 +350,9 @@ API.load = async function(
 
 ){
 
+
     /* =============================================
-       Spreadsheet
+       SPREADSHEET
     ============================================= */
 
     const spreadsheetId =
@@ -105,7 +376,7 @@ API.load = async function(
 
 
     /* =============================================
-       Endpoint
+       ENDPOINT
     ============================================= */
 
     if(
@@ -124,7 +395,7 @@ API.load = async function(
 
 
     /* =============================================
-       URLs
+       RAW URL
     ============================================= */
 
     const rawUrl =
@@ -160,6 +431,10 @@ API.load = async function(
         );
 
 
+    /* =============================================
+       DATA URL
+    ============================================= */
+
     const dataUrl =
 
         endpoint
@@ -193,6 +468,10 @@ API.load = async function(
         );
 
 
+    /* =============================================
+       DEBUG
+    ============================================= */
+
     console.log(
 
         "===== API LOAD ====="
@@ -219,98 +498,84 @@ API.load = async function(
 
 
     /* =============================================
-       Request
+       REQUEST
+
+       Menggunakan JSONP.
+
+       Tidak menggunakan fetch()
+       agar tidak terkena CORS.
     ============================================= */
 
     const [
 
-        rawResponse,
+        rawResult,
 
-        dataResponse
+        dataResult
 
     ] = await Promise.all([
 
-        fetch(
+        jsonpRequest(
 
             rawUrl
 
         ),
 
-        fetch(
+        jsonpRequest(
 
             dataUrl
 
         )
 
     ]);
-   console.log(
-    "===== API RESPONSE STATUS ====="
-);
-
-console.log(
-    "RAW:",
-    rawResponse.status,
-    rawResponse.ok
-);
-
-console.log(
-    "DATA:",
-    dataResponse.status,
-    dataResponse.ok
-);
 
 
     /* =============================================
-       Response Validation
+       DEBUG RESPONSE
+    ============================================= */
+
+    console.log(
+
+        "===== API RESPONSE ====="
+
+    );
+
+
+    console.log(
+
+        "RAW RESULT:",
+
+        rawResult
+
+    );
+
+
+    console.log(
+
+        "DATA RESULT:",
+
+        dataResult
+
+    );
+
+
+    /* =============================================
+       VALIDATE RAW RESPONSE
     ============================================= */
 
     if(
 
-        !rawResponse.ok
+        !rawResult
 
     ){
 
         throw new Error(
 
-            `Raw API gagal: ${rawResponse.status}`
+            "Raw API response kosong"
 
         );
 
     }
 
-
-    if(
-
-        !dataResponse.ok
-
-    ){
-
-        throw new Error(
-
-            `Data API gagal: ${dataResponse.status}`
-
-        );
-
-    }
-
-
-    /* =============================================
-       JSON
-    ============================================= */
-
-    const rawResult =
-
-        await rawResponse.json();
-
-
-    const dataResult =
-
-        await dataResponse.json();
-
-
-    /* =============================================
-       API Error
-    ============================================= */
 
     if(
 
@@ -329,6 +594,25 @@ console.log(
             ||
 
             "Raw API gagal"
+
+        );
+
+    }
+
+
+    /* =============================================
+       VALIDATE DATA RESPONSE
+    ============================================= */
+
+    if(
+
+        !dataResult
+
+    ){
+
+        throw new Error(
+
+            "Data API response kosong"
 
         );
 
@@ -359,7 +643,7 @@ console.log(
 
 
     /* =============================================
-       SAVE STATE
+       SAVE RAW
     ============================================= */
 
     API.raw =
@@ -371,6 +655,10 @@ console.log(
         [];
 
 
+    /* =============================================
+       SAVE DATA
+    ============================================= */
+
     API.data =
 
         dataResult.data
@@ -378,6 +666,17 @@ console.log(
         ||
 
         [];
+
+
+    /* =============================================
+       DEBUG
+    ============================================= */
+
+    console.log(
+
+        "===== API LOAD SUCCESS ====="
+
+    );
 
 
     console.log(
@@ -396,5 +695,28 @@ console.log(
         API.data
 
     );
+
+
+    /* =============================================
+       RETURN
+
+       Optional return agar module
+       yang memanggil API.load()
+       juga bisa menggunakan hasilnya.
+    ============================================= */
+
+    return {
+
+        success : true,
+
+        raw :
+
+            API.raw,
+
+        data :
+
+            API.data
+
+    };
 
 };
