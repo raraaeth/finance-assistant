@@ -2,13 +2,18 @@
    Finance Assistant
    Module      : API
    File        : api.js
-   Version     : 4.1.0
+   Version     : 4.2.0
 
    Description :
    Apps Script Module API Engine
 
    Request Method :
    JSONP
+
+   Update :
+   • Kirim accessToken ke Apps Script
+   • Kompatibel dengan getModuleData()
+   • RAW/DATA menggunakan Google Sheets API
 
    Reason :
    Apps Script Web App tidak dapat
@@ -46,11 +51,22 @@ export const API = {
    SESSION
 ===================================================== */
 
+function getSession(){
+
+    return loadSession();
+
+}
+
+
+/* =====================================================
+   SPREADSHEET ID
+===================================================== */
+
 function getSpreadsheetId(){
 
     const session =
 
-        loadSession();
+        getSession();
 
 
     return (
@@ -59,6 +75,32 @@ function getSpreadsheetId(){
         ?.workspace
         ?.spreadsheet
         ?.id
+
+        ||
+
+        null
+
+    );
+
+}
+
+
+/* =====================================================
+   ACCESS TOKEN
+===================================================== */
+
+function getAccessToken(){
+
+    const session =
+
+        getSession();
+
+
+    return (
+
+        session
+        ?.token
+        ?.accessToken
 
         ||
 
@@ -352,12 +394,28 @@ API.load = async function(
 
 
     /* =============================================
+       SESSION
+    ============================================= */
+
+    const session =
+
+        getSession();
+
+
+    /* =============================================
        SPREADSHEET
     ============================================= */
 
     const spreadsheetId =
 
-        getSpreadsheetId();
+        session
+        ?.workspace
+        ?.spreadsheet
+        ?.id
+
+        ||
+
+        null;
 
 
     if(
@@ -369,6 +427,36 @@ API.load = async function(
         throw new Error(
 
             "Finance Core Spreadsheet ID tidak ditemukan"
+
+        );
+
+    }
+
+
+    /* =============================================
+       ACCESS TOKEN
+    ============================================= */
+
+    const accessToken =
+
+        session
+        ?.token
+        ?.accessToken
+
+        ||
+
+        null;
+
+
+    if(
+
+        !accessToken
+
+    ){
+
+        throw new Error(
+
+            "Access Token tidak ditemukan"
 
         );
 
@@ -428,6 +516,18 @@ API.load = async function(
 
             rawSheet
 
+        )
+
+        +
+
+        "&accessToken="
+
+        +
+
+        encodeURIComponent(
+
+            accessToken
+
         );
 
 
@@ -464,6 +564,18 @@ API.load = async function(
         encodeURIComponent(
 
             dataSheet
+
+        )
+
+        +
+
+        "&accessToken="
+
+        +
+
+        encodeURIComponent(
+
+            accessToken
 
         );
 
