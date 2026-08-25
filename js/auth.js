@@ -3,8 +3,11 @@
 ========================================== */
 
 import {
+
     saveUser,
+
     saveTheme
+
 } from "./storage.js";
 
 
@@ -15,14 +18,17 @@ import {
 const Auth = {
 
     clientId:
+
         "843959535705-0915g6v4o8ejpgf04aghhu0j87p35sh8.apps.googleusercontent.com",
 
 
     redirectUri:
+
         "https://raraaeth.github.io/finance-assistant/auth/callback.html",
 
 
     apiUrl:
+
         "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec",
 
 
@@ -39,7 +45,9 @@ const Auth = {
     ],
 
 
-    session: null
+    session:
+
+        null
 
 };
 
@@ -54,7 +62,9 @@ init();
 function init(){
 
     console.log(
+
         "Auth loaded"
+
     );
 
 
@@ -63,7 +73,9 @@ function init(){
     ====================================== */
 
     if(
+
         isCallbackPage()
+
     ){
 
         handleCallback();
@@ -78,16 +90,22 @@ function init(){
     ====================================== */
 
     const session =
+
         loadSession();
 
 
     if(
+
         session
+
     ){
 
         console.log(
+
             "Auto Login",
+
             session
+
         );
 
     }
@@ -102,7 +120,9 @@ function init(){
 function isCallbackPage(){
 
     return location.pathname.endsWith(
+
         "/auth/callback.html"
+
     );
 
 }
@@ -120,6 +140,7 @@ export async function loginGoogle(){
 
 
 window.loginGoogle =
+
     loginGoogle;
 
 
@@ -134,12 +155,16 @@ async function requestAuthorization(){
     ====================================== */
 
     const verifier =
+
         await generateCodeVerifier();
 
 
     const challenge =
+
         await generateCodeChallenge(
+
             verifier
+
         );
 
 
@@ -148,7 +173,9 @@ async function requestAuthorization(){
     ====================================== */
 
     saveCodeVerifier(
+
         verifier
+
     );
 
 
@@ -157,39 +184,50 @@ async function requestAuthorization(){
     ====================================== */
 
     const params =
+
         new URLSearchParams({
 
             client_id:
+
                 Auth.clientId,
 
 
             redirect_uri:
+
                 Auth.redirectUri,
 
 
             response_type:
+
                 "code",
 
 
             scope:
+
                 Auth.scopes.join(
+
                     " "
+
                 ),
 
 
             code_challenge:
+
                 challenge,
 
 
             code_challenge_method:
+
                 "S256",
 
 
             access_type:
+
                 "offline",
 
 
             prompt:
+
                 "consent"
 
         });
@@ -200,8 +238,11 @@ async function requestAuthorization(){
     ====================================== */
 
     location.href =
+
         "https://accounts.google.com/o/oauth2/v2/auth?"
+
         +
+
         params.toString();
 
 }
@@ -214,18 +255,25 @@ async function requestAuthorization(){
 async function generateCodeVerifier(){
 
     const random =
+
         new Uint8Array(
+
             32
+
         );
 
 
     crypto.getRandomValues(
+
         random
+
     );
 
 
     return base64UrlEncode(
+
         random
+
     );
 
 }
@@ -236,27 +284,43 @@ async function generateCodeVerifier(){
 ========================================== */
 
 function base64UrlEncode(
+
     buffer
+
 ){
 
     return btoa(
 
         String.fromCharCode(
+
             ...buffer
+
         )
 
     )
+
     .replace(
+
         /\+/g,
+
         "-"
+
     )
+
     .replace(
+
         /\//g,
+
         "_"
+
     )
+
     .replace(
+
         /=/g,
+
         ""
+
     );
 
 }
@@ -267,30 +331,44 @@ function base64UrlEncode(
 ========================================== */
 
 async function generateCodeChallenge(
+
     verifier
+
 ){
 
     const encoder =
+
         new TextEncoder();
 
 
     const data =
+
         encoder.encode(
+
             verifier
+
         );
 
 
     const hash =
+
         await crypto.subtle.digest(
+
             "SHA-256",
+
             data
+
         );
 
 
     return base64UrlEncode(
+
         new Uint8Array(
+
             hash
+
         )
+
     );
 
 }
@@ -301,12 +379,17 @@ async function generateCodeChallenge(
 ========================================== */
 
 function saveCodeVerifier(
+
     verifier
+
 ){
 
     sessionStorage.setItem(
+
         "code_verifier",
+
         verifier
+
     );
 
 }
@@ -319,7 +402,9 @@ function saveCodeVerifier(
 function getCodeVerifier(){
 
     return sessionStorage.getItem(
+
         "code_verifier"
+
     );
 
 }
@@ -332,7 +417,9 @@ function getCodeVerifier(){
 function removeCodeVerifier(){
 
     sessionStorage.removeItem(
+
         "code_verifier"
+
     );
 
 }
@@ -345,13 +432,18 @@ function removeCodeVerifier(){
 function loadOnboardingData(){
 
     const data =
+
         localStorage.getItem(
+
             "finance-assistant"
+
         );
 
 
     if(
+
         !data
+
     ){
 
         return null;
@@ -362,14 +454,19 @@ function loadOnboardingData(){
     try{
 
         return JSON.parse(
+
             data
+
         );
 
     }catch(error){
 
         console.error(
+
             "Failed to load onboarding data",
+
             error
+
         );
 
 
@@ -390,7 +487,9 @@ async function handleCallback(){
 
 
         console.log(
+
             "===== CALLBACK START ====="
+
         );
 
 
@@ -399,30 +498,42 @@ async function handleCallback(){
         ====================================== */
 
         const params =
+
             new URLSearchParams(
+
                 location.search
+
             );
 
 
         const code =
+
             params.get(
+
                 "code"
+
             );
 
 
         if(
+
             !code
+
         ){
 
             throw new Error(
+
                 "Authorization code tidak ditemukan"
+
             );
 
         }
 
 
         console.log(
+
             "Authorization Code ditemukan"
+
         );
 
 
@@ -431,22 +542,29 @@ async function handleCallback(){
         ====================================== */
 
         const verifier =
+
             getCodeVerifier();
 
 
         if(
+
             !verifier
+
         ){
 
             throw new Error(
+
                 "Code verifier tidak ditemukan"
+
             );
 
         }
 
 
         console.log(
+
             "Code Verifier ditemukan"
+
         );
 
 
@@ -455,178 +573,322 @@ async function handleCallback(){
         ====================================== */
 
         const onboarding =
+
             loadOnboardingData();
 
 
         console.log(
+
             "Onboarding Data:",
+
             onboarding
-        );
 
-
-        /* ======================================
-           BUILD REQUEST
-        ====================================== */
-
-        const requestParams =
-            new URLSearchParams();
-
-
-        requestParams.set(
-            "action",
-            "login"
-        );
-
-
-        requestParams.set(
-            "code",
-            code
-        );
-
-
-        requestParams.set(
-            "verifier",
-            verifier
-        );
-
-
-        /* ======================================
-           ONBOARDING DATA
-        ====================================== */
-
-        if(
-            onboarding
-        ){
-
-            requestParams.set(
-                "displayName",
-                onboarding.displayName || ""
-            );
-
-
-            requestParams.set(
-                "currency",
-                onboarding.currency || "IDR"
-            );
-
-
-            requestParams.set(
-                "theme",
-                onboarding.theme || "system"
-            );
-
-
-            requestParams.set(
-                "onboardingCompleted",
-
-                onboarding.onboardingCompleted === true
-                    ?
-                    "true"
-                    :
-                    "false"
-            );
-
-        }
-
-
-        /* ======================================
-           API URL
-        ====================================== */
-
-        const url =
-            Auth.apiUrl
-            +
-            "?"
-            +
-            requestParams.toString();
-
-
-        console.log(
-            "Sending request to Apps Script..."
-        );
-
-
-        console.log(
-            "API URL:",
-            url
         );
 
 
         /* ======================================
            REQUEST APPS SCRIPT
+           JSONP
+
+           Tidak menggunakan fetch()
+           karena Apps Script Web App
+           tidak menyediakan CORS header
+           untuk request ini.
         ====================================== */
 
-        const response =
-            await fetch(
-                url,
-                {
-                    method:
-                        "GET",
+        console.log(
 
-                    redirect:
-                        "follow"
+            "Sending request to Apps Script..."
+
+        );
+
+
+        /* ======================================
+           CREATE CALLBACK NAME
+        ====================================== */
+
+        const callbackName =
+
+            "__financeAssistantLogin_"
+
+            +
+
+            Date.now();
+
+
+        /* ======================================
+           JSONP PROMISE
+        ====================================== */
+
+        const result =
+
+            await new Promise(
+
+                (
+
+                    resolve,
+
+                    reject
+
+                ) => {
+
+
+                    const script =
+
+                        document.createElement(
+
+                            "script"
+
+                        );
+
+
+                    /* ==================================
+                       REGISTER CALLBACK
+                    ================================== */
+
+                    window[
+
+                        callbackName
+
+                    ] = function(
+
+                        data
+
+                    ){
+
+                        console.log(
+
+                            "Apps Script Response:",
+
+                            data
+
+                        );
+
+
+                        cleanup();
+
+
+                        resolve(
+
+                            data
+
+                        );
+
+                    };
+
+
+                    /* ==================================
+                       BUILD PARAMS
+                    ================================== */
+
+                    const requestParams =
+
+                        new URLSearchParams();
+
+
+                    requestParams.set(
+
+                        "action",
+
+                        "login"
+
+                    );
+
+
+                    requestParams.set(
+
+                        "code",
+
+                        code
+
+                    );
+
+
+                    requestParams.set(
+
+                        "verifier",
+
+                        verifier
+
+                    );
+
+
+                    requestParams.set(
+
+                        "callback",
+
+                        callbackName
+
+                    );
+
+
+                    /* ==================================
+                       ONBOARDING DATA
+                    ================================== */
+
+                    if(
+
+                        onboarding
+
+                    ){
+
+                        requestParams.set(
+
+                            "displayName",
+
+                            onboarding.displayName
+
+                            ||
+
+                            ""
+
+                        );
+
+
+                        requestParams.set(
+
+                            "currency",
+
+                            onboarding.currency
+
+                            ||
+
+                            "IDR"
+
+                        );
+
+
+                        requestParams.set(
+
+                            "theme",
+
+                            onboarding.theme
+
+                            ||
+
+                            "system"
+
+                        );
+
+
+                        requestParams.set(
+
+                            "onboardingCompleted",
+
+                            onboarding.onboardingCompleted === true
+
+                                ?
+
+                                "true"
+
+                                :
+
+                                "false"
+
+                        );
+
+                    }
+
+
+                    /* ==================================
+                       BUILD SCRIPT URL
+                    ================================== */
+
+                    script.src =
+
+                        Auth.apiUrl
+
+                        +
+
+                        "?"
+
+                        +
+
+                        requestParams.toString();
+
+
+                    console.log(
+
+                        "API URL:",
+
+                        script.src
+
+                    );
+
+
+                    /* ==================================
+                       ERROR
+                    ================================== */
+
+                    script.onerror = function(){
+
+                        cleanup();
+
+
+                        reject(
+
+                            new Error(
+
+                                "Gagal menghubungi Apps Script"
+
+                            )
+
+                        );
+
+                    };
+
+
+                    /* ==================================
+                       CLEANUP
+                    ================================== */
+
+                    function cleanup(){
+
+                        if(
+
+                            window[
+
+                                callbackName
+
+                            ]
+
+                        ){
+
+                            delete window[
+
+                                callbackName
+
+                            ];
+
+                        }
+
+
+                        if(
+
+                            script.parentNode
+
+                        ){
+
+                            script.remove();
+
+                        }
+
+                    }
+
+
+                    /* ==================================
+                       SEND REQUEST
+                    ================================== */
+
+                    document.head.appendChild(
+
+                        script
+
+                    );
+
                 }
+
             );
-
-
-        console.log(
-            "Response Status:",
-            response.status
-        );
-
-
-        if(
-            !response.ok
-        ){
-
-            throw new Error(
-                `Apps Script request gagal: ${response.status}`
-            );
-
-        }
-
-
-        /* ======================================
-           READ RESPONSE
-        ====================================== */
-
-        const text =
-            await response.text();
-
-
-        console.log(
-            "Apps Script Raw Response:",
-            text
-        );
-
-
-        /* ======================================
-           PARSE JSON
-        ====================================== */
-
-        let result;
-
-
-        try{
-
-            result =
-                JSON.parse(
-                    text
-                );
-
-        }catch(error){
-
-            throw new Error(
-                "Response Apps Script bukan JSON valid"
-            );
-
-        }
-
-
-        console.log(
-            "Apps Script Response:",
-            result
-        );
 
 
         /* ======================================
@@ -634,62 +896,176 @@ async function handleCallback(){
         ====================================== */
 
         if(
-            !result.success
+
+            !result
+
         ){
 
             throw new Error(
+
+                "Response Apps Script kosong"
+
+            );
+
+        }
+
+
+        if(
+
+            !result.success
+
+        ){
+
+            throw new Error(
+
                 result.error
+
                 ||
+
                 result.message
+
                 ||
+
                 "Login gagal"
+
+            );
+
+        }
+
+
+        /* ======================================
+           CHECK WORKSPACE
+        ====================================== */
+
+        if(
+
+            result.workspace
+
+            &&
+
+            result.workspace.success === false
+
+        ){
+
+            throw new Error(
+
+                result.workspace.error
+
+                ||
+
+                "Setup Workspace gagal"
+
             );
 
         }
 
 
         console.log(
+
             "Login berhasil"
+
         );
 
 
         /* ======================================
-           SAVE USER
+           RESTORE ACCOUNT DATA
 
-           Tahap awal:
-           ambil langsung dari result.user
+           Data utama sekarang berasal
+           dari Account sheet.
         ====================================== */
 
+        const accountData =
+
+            result.workspace
+
+            ?.accountData
+
+            ||
+
+            null;
+
+
         if(
-            result.user
+
+            accountData
+
         ){
 
             saveUser(
-                result.user
+
+                accountData
+
+            );
+
+
+            saveTheme(
+
+                accountData.theme
+
+                ||
+
+                "system"
+
             );
 
 
             console.log(
-                "User Saved:",
-                result.user
+
+                "Account Data Restored:",
+
+                accountData
+
             );
 
         }
 
 
         /* ======================================
-           SAVE THEME
+           FALLBACK USER
+
+           Tetap mendukung response lama
+           jika backend mengirim result.user.
         ====================================== */
 
-        if(
-            onboarding
+        else if(
+
+            result.user
+
         ){
 
-            saveTheme(
-                onboarding.theme
-                ||
-                "system"
+            saveUser(
+
+                result.user
+
             );
+
+
+            console.log(
+
+                "User Saved:",
+
+                result.user
+
+            );
+
+
+            if(
+
+                onboarding
+
+            ){
+
+                saveTheme(
+
+                    onboarding.theme
+
+                    ||
+
+                    "system"
+
+                );
+
+            }
 
         }
 
@@ -699,12 +1075,16 @@ async function handleCallback(){
         ====================================== */
 
         saveSession(
+
             result
+
         );
 
 
         console.log(
+
             "Session Saved"
+
         );
 
 
@@ -716,7 +1096,9 @@ async function handleCallback(){
 
 
         console.log(
+
             "Redirecting..."
+
         );
 
 
@@ -725,29 +1107,43 @@ async function handleCallback(){
         ====================================== */
 
         window.location.replace(
+
             "/finance-assistant/pages/index.html"
+
         );
 
 
     }catch(error){
 
         console.error(
+
             "===== CALLBACK ERROR ====="
+
         );
 
 
         console.error(
+
             error
+
         );
 
 
         console.error(
+
             error.stack
+
         );
 
+
+        /* ======================================
+           SHOW ERROR
+        ====================================== */
 
         document.body.innerHTML =
+
         `
+
             <div style="
                 font-family: sans-serif;
                 max-width: 600px;
@@ -757,24 +1153,33 @@ async function handleCallback(){
             ">
 
                 <h2>
+
                     Login gagal
+
                 </h2>
 
                 <p>
+
                     ${error.message}
+
                 </p>
 
                 <button
+
                     onclick="
                         window.location.replace(
                             '/finance-assistant/pages/index.html'
                         )
                     "
+
                 >
+
                     Kembali
+
                 </button>
 
             </div>
+
         `;
 
     }
@@ -787,18 +1192,26 @@ async function handleCallback(){
 ========================================== */
 
 function saveSession(
+
     session
+
 ){
 
     Auth.session =
+
         session;
 
 
     localStorage.setItem(
+
         "finance_session",
+
         JSON.stringify(
+
             session
+
         )
+
     );
 
 }
@@ -811,13 +1224,18 @@ function saveSession(
 export function loadSession(){
 
     const data =
+
         localStorage.getItem(
+
             "finance_session"
+
         );
 
 
     if(
+
         !data
+
     ){
 
         return null;
@@ -828,8 +1246,11 @@ export function loadSession(){
     try{
 
         Auth.session =
+
             JSON.parse(
+
                 data
+
             );
 
 
@@ -839,7 +1260,9 @@ export function loadSession(){
     }catch(error){
 
         localStorage.removeItem(
+
             "finance_session"
+
         );
 
 
@@ -857,11 +1280,14 @@ export function loadSession(){
 export function logout(){
 
     Auth.session =
+
         null;
 
 
     localStorage.removeItem(
+
         "finance_session"
+
     );
 
 
@@ -869,7 +1295,9 @@ export function logout(){
 
 
     window.location.replace(
+
         "/finance-assistant/pages/index.html"
+
     );
 
 }
