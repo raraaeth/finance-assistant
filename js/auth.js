@@ -688,200 +688,325 @@ async function handleCallback(){
 
         }
 
+/* ======================================
+   REQUEST APPS SCRIPT
+   JSONP
 
-        console.log(
+   Tidak menggunakan fetch()
+   sehingga tidak terkena CORS.
+====================================== */
 
-            "Sending request to Apps Script..."
+console.log(
 
-        );
+    "Sending request to Apps Script..."
 
-
-        /* ======================================
-           REQUEST APPS SCRIPT
-
-           POST
-
-           Tidak menggunakan header manual.
-
-           URLSearchParams dikirim langsung
-           sebagai body.
-        ====================================== */
-
-        const response =
-
-            await fetch(
-
-                Auth.apiUrl,
-
-                {
-
-                    method:
-
-                        "POST",
-
-                    body:
-
-                        form
-
-                }
-
-            );
+);
 
 
-        console.log(
+/* ======================================
+   CREATE CALLBACK
+====================================== */
 
-            "Response Status:",
+const callbackName =
 
-            response.status
+    "__financeAssistantLogin_" +
 
-        );
-
-
-        console.log(
-
-            "Response OK:",
-
-            response.ok
-
-        );
+    Date.now();
 
 
-        if(
+/* ======================================
+   JSONP PROMISE
+====================================== */
 
-            !response.ok
+const result =
 
-        ){
+    await new Promise(
 
-            throw new Error(
+        (
 
-                `Apps Script request gagal: ${response.status}`
+            resolve,
 
-            );
+            reject
 
-        }
+        ) => {
 
+            window[
 
-        /* ======================================
-           RESPONSE TEXT
-        ====================================== */
+                callbackName
 
-        const text =
+            ] = function(
 
-            await response.text();
+                data
 
+            ){
 
-        console.log(
+                console.log(
 
-            "Apps Script Raw Response:",
+                    "Apps Script Response:",
 
-            text
-
-        );
-
-
-        /* ======================================
-           PARSE JSON
-        ====================================== */
-
-        let result;
-
-
-        try{
-
-            result =
-
-                JSON.parse(
-
-                    text
+                    data
 
                 );
 
-        }catch(error){
 
-            console.error(
+                delete window[
 
-                "Response bukan JSON valid:",
+                    callbackName
 
-                text
+                ];
+
+
+                script.remove();
+
+
+                resolve(
+
+                    data
+
+                );
+
+            };
+
+
+            const script =
+
+                document.createElement(
+
+                    "script"
+
+                );
+
+
+            const params =
+
+                new URLSearchParams();
+
+
+            params.set(
+
+                "action",
+
+                "login"
 
             );
 
 
-            throw new Error(
+            params.set(
 
-                "Response Apps Script bukan JSON valid"
+                "code",
+
+                code
+
+            );
+
+
+            params.set(
+
+                "verifier",
+
+                verifier
+
+            );
+
+
+            params.set(
+
+                "callback",
+
+                callbackName
+
+            );
+
+
+            /* ==================================
+               ONBOARDING
+            ================================== */
+
+            if(
+
+                onboarding
+
+            ){
+
+                params.set(
+
+                    "displayName",
+
+                    onboarding.displayName
+
+                    ||
+
+                    ""
+
+                );
+
+
+                params.set(
+
+                    "currency",
+
+                    onboarding.currency
+
+                    ||
+
+                    "IDR"
+
+                );
+
+
+                params.set(
+
+                    "theme",
+
+                    onboarding.theme
+
+                    ||
+
+                    "system"
+
+                );
+
+
+                params.set(
+
+                    "onboardingCompleted",
+
+                    onboarding.onboardingCompleted === true
+
+                        ?
+
+                        "true"
+
+                        :
+
+                        "false"
+
+                );
+
+            }
+
+
+            script.src =
+
+                Auth.apiUrl
+
+                +
+
+                "?"
+
+                +
+
+                params.toString();
+
+
+            script.onerror = function(){
+
+                delete window[
+
+                    callbackName
+
+                ];
+
+
+                script.remove();
+
+
+                reject(
+
+                    new Error(
+
+                        "Gagal menghubungi Apps Script"
+
+                    )
+
+                );
+
+            };
+
+
+            document.head.appendChild(
+
+                script
 
             );
 
         }
 
-
-        console.log(
-
-            "Apps Script Response:",
-
-            result
-
-        );
+    );
 
 
-        /* ======================================
-           CHECK RESULT
-        ====================================== */
+/* ======================================
+   CHECK RESULT
+====================================== */
 
-        if(
+if(
 
-            !result.success
+    !result
 
-        ){
+){
 
-            throw new Error(
+    throw new Error(
 
-                result.error
+        "Response Apps Script kosong"
 
-                ||
+    );
 
-                "Login gagal"
-
-            );
-
-        }
+}
 
 
-        /* ======================================
-           CHECK WORKSPACE
-        ====================================== */
+if(
 
-        if(
+    !result.success
 
-            result.workspace
+){
 
-            &&
+    throw new Error(
 
-            result.workspace.success === false
+        result.error
 
-        ){
+        ||
 
-            throw new Error(
+        "Login gagal"
 
-                result.workspace.error
+    );
 
-                ||
-
-                "Setup Workspace gagal"
-
-            );
-
-        }
+}
 
 
-        console.log(
+/* ======================================
+   CHECK WORKSPACE
+====================================== */
 
-            "Login berhasil"
+if(
 
-        );
+    result.workspace
+
+    &&
+
+    result.workspace.success === false
+
+){
+
+    throw new Error(
+
+        result.workspace.error
+
+        ||
+
+        "Setup Workspace gagal"
+
+    );
+
+}
 
 
+console.log(
+
+    "Login berhasil"
+
+);
+        
+ 
         /* ======================================
            RESTORE ACCOUNT DATA
         ====================================== */
