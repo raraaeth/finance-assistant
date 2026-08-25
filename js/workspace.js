@@ -1,309 +1,286 @@
-/* =====================================================
-   Finance Assistant
-   Module      : Workspace
-   File        : workspace.js
-   Version     : 4.2.0
+function jsonpRequest(
 
-   Description :
-   Workspace Controller
-
-   Workspace Logic :
-
-   exists
-   = workspace sudah dibuat
-     dan sheet yang diperlukan tersedia.
-
-   active
-   = workspace yang sedang dipilih user
-     di local storage.
-
-   Workspace yang belum dibuat
-   tidak boleh dijalankan.
-
-===================================================== */
-
-
-/* =====================================================
-   IMPORT
-===================================================== */
-
-import {
-
-    loadWorkspace
-
-} from "./storage.js";
-
-
-import {
-
-    loadSession
-
-} from "./auth.js";
-
-
-import * as Saving from
-
-    "../pages/saving/home.js";
-
-
-import * as Kas from
-
-    "../pages/kas/home.js";
-
-
-import * as PayrollMonthly from
-
-    "../pages/payroll-monthly/home.js";
-
-
-import * as PayrollDaily from
-
-    "../pages/payroll-daily/home.js";
-
-
-import * as Financial from
-
-    "../pages/financial/home.js";
-
-
-import * as Airdrop from
-
-    "../pages/airdrop/home.js";
-
-
-/* =====================================================
-   MODULE REGISTRY
-===================================================== */
-
-const WORKSPACE = {
-
-    financial:
-
-        Financial,
-
-
-    saving:
-
-        Saving,
-
-
-    kas:
-
-        Kas,
-
-
-    "payroll-daily":
-
-        PayrollDaily,
-
-
-    "payroll-monthly":
-
-        PayrollMonthly,
-
-
-    airdrop:
-
-        Airdrop
-
-};
-
-
-/* =====================================================
-   SESSION MODULES
-===================================================== */
-
-function getModules(){
-
-    const session =
-
-        loadSession();
-
-
-    return (
-
-        session
-        ?.workspace
-        ?.modules
-
-        ||
-
-        {}
-
-    );
-
-}
-
-
-/* =====================================================
-   ACTIVE WORKSPACE
-===================================================== */
-
-function getActiveWorkspace(){
-
-    const workspace =
-
-        loadWorkspace();
-
-
-    return (
-
-        workspace
-        ?.workspace
-
-        ||
-
-        null
-
-    );
-
-}
-
-
-/* =====================================================
-   WORKSPACE VALIDATION
-
-   exists hanya menentukan apakah
-   workspace benar-benar sudah dibuat.
-
-   active workspace ditentukan oleh
-   workspace yang dipilih user
-   melalui local storage.
-===================================================== */
-
-function workspaceExists(
-
-    moduleName
+    params = {}
 
 ){
 
-    const modules =
+    return new Promise(
 
-        getModules();
+        (
+
+            resolve,
+
+            reject
+
+        ) => {
 
 
-    return (
+            const callbackName =
 
-        modules
-        ?.[moduleName]
-        ?.exists
+                "__financeAssistantWorkspace_"
 
-        === true
+                +
+
+                Date.now()
+
+                +
+
+                "_"
+
+                +
+
+                Math.random()
+
+                .toString(
+
+                    36
+
+                )
+
+                .slice(
+
+                    2
+
+                );
+
+
+            const script =
+
+                document.createElement(
+
+                    "script"
+
+                );
+
+
+            const requestParams =
+
+                new URLSearchParams();
+
+
+            let timeout =
+
+                null;
+
+
+            /* =============================================
+               ADD PARAMS
+            ============================================= */
+
+            Object.entries(
+
+                params
+
+            )
+
+            .forEach(
+
+                ([
+
+                    key,
+
+                    value
+
+                ]) => {
+
+                    if(
+
+                        value !== undefined
+
+                        &&
+
+                        value !== null
+
+                    ){
+
+                        requestParams.set(
+
+                            key,
+
+                            value
+
+                        );
+
+                    }
+
+                }
+
+            );
+
+
+            /* =============================================
+               CALLBACK
+            ============================================= */
+
+            requestParams.set(
+
+                "callback",
+
+                callbackName
+
+            );
+
+
+            /* =============================================
+               CLEANUP
+            ============================================= */
+
+            const cleanup = () => {
+
+                if(
+
+                    timeout
+
+                ){
+
+                    clearTimeout(
+
+                        timeout
+
+                    );
+
+                }
+
+
+                if(
+
+                    window[
+
+                        callbackName
+
+                    ]
+
+                ){
+
+                    delete window[
+
+                        callbackName
+
+                    ];
+
+                }
+
+
+                if(
+
+                    script.parentNode
+
+                ){
+
+                    script.remove();
+
+                }
+
+            };
+
+
+            /* =============================================
+               REGISTER CALLBACK
+            ============================================= */
+
+            window[
+
+                callbackName
+
+            ] = function(
+
+                data
+
+            ){
+
+                cleanup();
+
+
+                resolve(
+
+                    data
+
+                );
+
+            };
+
+
+            /* =============================================
+               SCRIPT ERROR
+            ============================================= */
+
+            script.onerror = function(){
+
+                cleanup();
+
+
+                reject(
+
+                    new Error(
+
+                        "Gagal menghubungi Finance Assistant API"
+
+                    )
+
+                );
+
+            };
+
+
+            /* =============================================
+               TIMEOUT
+            ============================================= */
+
+            timeout =
+
+                setTimeout(
+
+                    () => {
+
+                        cleanup();
+
+
+                        reject(
+
+                            new Error(
+
+                                "Request ke server timeout"
+
+                            )
+
+                        );
+
+                    },
+
+                    30000
+
+                );
+
+
+            /* =============================================
+               BUILD URL
+            ============================================= */
+
+            script.src =
+
+                getApiUrl()
+
+                +
+
+                "?"
+
+                +
+
+                requestParams.toString();
+
+
+            /* =============================================
+               SEND REQUEST
+            ============================================= */
+
+            document.head.appendChild(
+
+                script
+
+            );
+
+        }
 
     );
 
 }
-
-
-/* =====================================================
-   INIT WORKSPACE
-===================================================== */
-
-export async function initWorkspace(){
-
-    const active =
-
-        getActiveWorkspace();
-
-
-    /* =============================================
-       NO ACTIVE WORKSPACE
-    ============================================= */
-
-    if(
-
-        !active
-
-    ){
-
-        console.log(
-
-            "Belum ada workspace yang dipilih."
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       MODULE NOT FOUND
-    ============================================= */
-
-    const module =
-
-        WORKSPACE[active];
-
-
-    if(
-
-        !module
-
-    ){
-
-        console.warn(
-
-            `Module "${active}" tidak ditemukan.`
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       WORKSPACE NOT CREATED
-    ============================================= */
-
-    if(
-
-        !workspaceExists(
-
-            active
-
-        )
-
-    ){
-
-        console.warn(
-
-            `Workspace "${active}" belum dibuat.`
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       START MODULE
-    ============================================= */
-
-    console.log(
-
-        "Workspace aktif:",
-
-        active
-
-    );
-
-
-    await module.init();
-
-}
-
-
-/* =====================================================
-   START
-===================================================== */
-
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    initWorkspace
-
-);
