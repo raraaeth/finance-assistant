@@ -15,7 +15,7 @@ import {
 const Auth = {
 
     clientId:
-        "768306848932-j88fhhepq1o6d2jr6itv5c1v8020uf3a.apps.googleusercontent.com",
+        "843959535705-0915g6v4o8ejpgf04aghhu0j87p35sh8.apps.googleusercontent.com",
 
 
     redirectUri:
