@@ -248,29 +248,28 @@ export async function loginGoogle(){
 
             options: {
 
-                redirectTo:
+    redirectTo:
+        window.location.origin
+        +
+        "/finance-assistant/pages/index.html",
 
-                    window.location.origin
+    scopes:
+        "https://www.googleapis.com/auth/drive.file " +
+        "https://www.googleapis.com/auth/spreadsheets",
 
-                    +
+    queryParams: {
 
-                    "/finance-assistant/pages/index.html",
+        access_type:
+            "offline",
 
+        prompt:
+            "consent"
 
-                queryParams: {
+    }
 
-                    access_type:
+}
 
-                        "offline",
-
-
-                    prompt:
-
-                        "consent"
-
-                }
-
-            }
+                
 
         });
 
