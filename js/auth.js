@@ -174,17 +174,33 @@ async function init(){
 
                 if(
 
-                    session?.user
+    session?.user
 
-                ){
+){
 
-                    restoreUser(
+    restoreUser(
 
-                        session.user
+        session.user
 
-                    );
+    );
 
-                }
+
+    if(
+
+        event === "SIGNED_IN"
+
+    ){
+
+        console.log(
+            "Auth: SIGNED_IN terdeteksi."
+        );
+
+
+        initializeFinanceModule();
+
+    }
+
+}
 
 
                 if(
