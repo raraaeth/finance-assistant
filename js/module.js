@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : MODULE
    File        : module.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
    Google Drive + Google Sheets Engine
@@ -18,6 +18,24 @@
    account
        ↓
    onboarding data
+
+   ACCOUNT RULE :
+
+   User baru
+       ↓
+   onboarding
+       ↓
+   account belum ada
+       ↓
+   WRITE account
+
+   User lama / browser lain
+       ↓
+   account sudah ada
+       ↓
+   READ account
+       ↓
+   JANGAN overwrite
 
    TIDAK menangani:
    - Active Workspace
@@ -107,23 +125,15 @@ export async function initializeModule(
 ){
 
     console.log(
-
         "=========================================="
-
     );
 
-
     console.log(
-
         "===== FINANCE MODULE INITIALIZE ====="
-
     );
 
-
     console.log(
-
         "=========================================="
-
     );
 
 
@@ -164,7 +174,7 @@ export async function initializeModule(
            ONBOARDING
         ====================================== */
 
-        const accountData =
+        const onboardingData =
 
             buildAccountData(
 
@@ -175,9 +185,9 @@ export async function initializeModule(
 
         console.log(
 
-            "Account Data:",
+            "Onboarding / New Account Data:",
 
-            accountData
+            onboardingData
 
         );
 
@@ -253,27 +263,161 @@ export async function initializeModule(
 
 
         /* ======================================
-           WRITE ACCOUNT
+           READ EXISTING ACCOUNT
         ====================================== */
 
-        await writeAccountData(
-
-            accessToken,
-
-            core.id,
-
-            accountSheet.title,
-
-            accountData
-
+        console.log(
+            "=========================================="
         );
+
+        console.log(
+            "===== CHECK EXISTING ACCOUNT ====="
+        );
+
+        console.log(
+            "=========================================="
+        );
+
+
+        const existingAccount =
+
+            await readAccountData(
+
+                accessToken,
+
+                core.id,
+
+                accountSheet.title
+
+            );
 
 
         console.log(
 
-            "Account data berhasil disimpan."
+            "Existing Account:",
+
+            existingAccount
 
         );
+
+
+        /* ======================================
+           ACCOUNT DECISION
+        ====================================== */
+
+        let finalAccountData;
+
+
+        if(
+
+            existingAccount
+
+        ){
+
+            /* ==================================
+               EXISTING ACCOUNT
+
+               Account di Finance Core adalah
+               sumber kebenaran.
+
+               Jangan overwrite dengan:
+               - Google full_name
+               - localStorage
+               - onboarding kosong
+            ================================== */
+
+            console.log(
+
+                "=========================================="
+
+            );
+
+            console.log(
+
+                "ACCOUNT SUDAH ADA"
+
+            );
+
+            console.log(
+
+                "Menggunakan data dari Finance Core."
+
+            );
+
+            console.log(
+
+                "Tidak melakukan overwrite."
+
+            );
+
+            console.log(
+
+                "=========================================="
+
+            );
+
+
+            finalAccountData =
+
+                existingAccount;
+
+
+        }else{
+
+            /* ==================================
+               NEW ACCOUNT
+            ================================== */
+
+            console.log(
+
+                "=========================================="
+
+            );
+
+            console.log(
+
+                "ACCOUNT BELUM ADA"
+
+            );
+
+            console.log(
+
+                "Menyimpan data onboarding."
+
+            );
+
+            console.log(
+
+                "=========================================="
+
+            );
+
+
+            await writeAccountData(
+
+                accessToken,
+
+                core.id,
+
+                accountSheet.title,
+
+                onboardingData
+
+            );
+
+
+            finalAccountData =
+
+                onboardingData;
+
+
+            console.log(
+
+                "Account baru berhasil disimpan."
+
+            );
+
+        }
 
 
         /* ======================================
@@ -336,19 +480,36 @@ export async function initializeModule(
 
             accountData :
 
-                accountData
+                finalAccountData
 
         };
 
 
         console.log(
+            "=========================================="
+        );
 
+        console.log(
             "===== FINANCE MODULE READY ====="
+        );
+
+        console.log(
+            "=========================================="
+        );
+
+
+        console.log(
+
+            "FINAL ACCOUNT DATA:",
+
+            finalAccountData
 
         );
 
 
         console.log(
+
+            "Finance Module Result:",
 
             result
 
@@ -361,15 +522,39 @@ export async function initializeModule(
     }catch(error){
 
         console.error(
+            "=========================================="
+        );
 
+        console.error(
             "===== FINANCE MODULE ERROR ====="
+        );
 
+        console.error(
+            "=========================================="
         );
 
 
         console.error(
 
             error
+
+        );
+
+
+        console.error(
+
+            "Message:",
+
+            error?.message
+
+        );
+
+
+        console.error(
+
+            "Stack:",
+
+            error?.stack
 
         );
 
@@ -1028,6 +1213,191 @@ async function getOrCreateAccountSheet(
             createdSheet.sheetId
 
     };
+
+}
+
+
+/* ==========================================
+   READ ACCOUNT DATA
+========================================== */
+
+async function readAccountData(
+
+    accessToken,
+
+    spreadsheetId,
+
+    sheetName
+
+){
+
+    console.log(
+
+        "Membaca data account..."
+
+    );
+
+
+    const range =
+
+        `${sheetName}!A:B`;
+
+
+    const result =
+
+        await sheetsRequest(
+
+            accessToken,
+
+            `/spreadsheets/${encodeURIComponent(
+
+                spreadsheetId
+
+            )}/values/${encodeURIComponent(
+
+                range
+
+            )}`,
+
+            {
+
+                method :
+
+                    "GET"
+
+            }
+
+        );
+
+
+    const values =
+
+        result?.values
+
+        ||
+
+        [];
+
+
+    /* ======================================
+       EMPTY ACCOUNT
+    ====================================== */
+
+    if(
+
+        values.length < 2
+
+    ){
+
+        console.log(
+
+            "Account belum memiliki data."
+
+        );
+
+
+        return null;
+
+    }
+
+
+    /* ======================================
+       PARSE ACCOUNT
+    ====================================== */
+
+    const account = {};
+
+
+    values.slice(
+
+        1
+
+    )
+
+    .forEach(
+
+        row => {
+
+            const field =
+
+                row?.[0];
+
+
+            const value =
+
+                row?.[1];
+
+
+            if(
+
+                field
+
+            ){
+
+                account[field] =
+
+                    value;
+
+            }
+
+        }
+
+    );
+
+
+    /* ======================================
+       VALIDATE ACCOUNT
+    ====================================== */
+
+    if(
+
+        !account.userId
+
+        &&
+
+        !account.email
+
+        &&
+
+        !account.displayName
+
+    ){
+
+        console.log(
+
+            "Account sheet ada tetapi data account kosong."
+
+        );
+
+
+        return null;
+
+    }
+
+
+    /* ======================================
+       NORMALIZE
+    ====================================== */
+
+    account.onboardingCompleted =
+
+        account.onboardingCompleted === true
+
+        ||
+
+        account.onboardingCompleted === "true";
+
+
+    console.log(
+
+        "Account berhasil dibaca:",
+
+        account
+
+    );
+
+
+    return account;
 
 }
 
