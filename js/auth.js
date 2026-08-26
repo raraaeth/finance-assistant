@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 6.0.0
+   Version     : 7.0.0
 
    Description :
    Supabase Authentication Engine
@@ -12,9 +12,20 @@
    +
    Supabase Session
 
-   NOTE:
-   Google Drive / Sheets belum ditangani
-   oleh file ini.
+   Google :
+   - Identity
+   - Email
+   - Avatar
+   - Google Provider Token
+
+   Finance Assistant :
+   - Display Name
+   - Currency
+   - Theme
+   - Onboarding
+
+   Google Drive / Sheets :
+   Ditangani oleh module.js
 ========================================== */
 
 
@@ -28,22 +39,25 @@ import {
 
 } from "./supabase.js";
 
+
 import {
-   
+
     initializeModule,
-   
+
     saveModuleInfo
-   
+
 } from "./module.js";
+
 
 import {
 
     saveUser,
 
+    loadUser,
+
     saveTheme
 
 } from "./storage.js";
-
 
 
 /* ==========================================
@@ -52,9 +66,9 @@ import {
 
 const Auth = {
 
-    session: null,
+    session : null,
 
-    user: null
+    user : null
 
 };
 
@@ -69,9 +83,15 @@ init();
 async function init(){
 
     console.log(
+        "=========================================="
+    );
 
+    console.log(
         "===== AUTH INITIALIZE ====="
+    );
 
+    console.log(
+        "=========================================="
     );
 
 
@@ -106,6 +126,10 @@ async function init(){
             data.session;
 
 
+        /* ==================================
+           EXISTING SESSION
+        ================================== */
+
         if(
 
             data.session
@@ -117,6 +141,21 @@ async function init(){
                 data.session.user;
 
 
+            console.log(
+                "Existing Supabase Session ditemukan."
+            );
+
+
+            console.log(
+                "Supabase User:",
+                data.session.user
+            );
+
+
+            /* ==================================
+               RESTORE GOOGLE IDENTITY
+            ================================== */
+
             restoreUser(
 
                 data.session.user
@@ -124,12 +163,15 @@ async function init(){
             );
 
 
+            /* ==================================
+               DEBUG PROVIDER TOKEN
+            ================================== */
+
             console.log(
-
-                "Existing Supabase Session:",
-
-                data.session
-
+                "Google Provider Token:",
+                data.session.provider_token
+                    ? "AVAILABLE"
+                    : "MISSING"
             );
 
         }
@@ -150,11 +192,16 @@ async function init(){
             ) => {
 
                 console.log(
+                    "=========================================="
+                );
 
+                console.log(
                     "Auth Event:",
-
                     event
+                );
 
+                console.log(
+                    "=========================================="
                 );
 
 
@@ -172,44 +219,83 @@ async function init(){
                     null;
 
 
-                if(
-
-    session?.user
-
-){
-
-    restoreUser(
-
-        session.user
-
-    );
-
-
-    if(
-
-        event === "SIGNED_IN"
-
-    ){
-
-        console.log(
-            "Auth: SIGNED_IN terdeteksi."
-        );
-
-
-        initializeFinanceModule();
-
-    }
-
-}
-
+                /* ==================================
+                   SIGNED IN / SESSION EXISTS
+                ================================== */
 
                 if(
 
-                    event ===
-
-                    "SIGNED_OUT"
+                    session?.user
 
                 ){
+
+                    console.log(
+                        "Supabase User:",
+                        session.user
+                    );
+
+
+                    /* ==============================
+                       RESTORE IDENTITY
+                    ============================== */
+
+                    restoreUser(
+
+                        session.user
+
+                    );
+
+
+                    /* ==============================
+                       SIGNED IN
+                    ============================== */
+
+                    if(
+
+                        event === "SIGNED_IN"
+
+                    ){
+
+                        console.log(
+                            "Auth: SIGNED_IN terdeteksi."
+                        );
+
+
+                        /*
+                           Jalankan Finance Module.
+
+                           module.js yang menentukan:
+
+                           Account belum ada
+                               ↓
+                           WRITE onboarding
+
+                           Account sudah ada
+                               ↓
+                           READ account
+                        */
+
+                        initializeFinanceModule();
+
+                    }
+
+                }
+
+
+                /* ==================================
+                   SIGNED OUT
+                ================================== */
+
+                if(
+
+                    event === "SIGNED_OUT"
+
+                ){
+
+                    console.log(
+                        "Auth: SIGNED_OUT."
+                    );
+
 
                     Auth.session =
 
@@ -230,11 +316,20 @@ async function init(){
     }catch(error){
 
         console.error(
+            "=========================================="
+        );
 
-            "Auth initialization failed:",
+        console.error(
+            "AUTH INITIALIZATION ERROR"
+        );
 
+        console.error(
+            "=========================================="
+        );
+
+
+        console.error(
             error
-
         );
 
     }
@@ -249,9 +344,15 @@ async function init(){
 export async function loginGoogle(){
 
     console.log(
+        "=========================================="
+    );
 
+    console.log(
         "===== GOOGLE LOGIN ====="
+    );
 
+    console.log(
+        "=========================================="
     );
 
 
@@ -265,35 +366,45 @@ export async function loginGoogle(){
 
         } = await supabase.auth.signInWithOAuth({
 
-            provider:
+            provider :
 
                 "google",
 
 
-            options: {
+            options : {
 
-    redirectTo:
-        window.location.origin
-        +
-        "/finance-assistant/pages/index.html",
+                redirectTo :
 
-    scopes:
-        "https://www.googleapis.com/auth/drive.file " +
-        "https://www.googleapis.com/auth/spreadsheets",
+                    window.location.origin
 
-    queryParams: {
+                    +
 
-        access_type:
-            "offline",
+                    "/finance-assistant/pages/index.html",
 
-        prompt:
-            "consent"
 
-    }
+                scopes :
 
-}
+                    "https://www.googleapis.com/auth/drive.file "
 
-                
+                    +
+
+                    "https://www.googleapis.com/auth/spreadsheets",
+
+
+                queryParams : {
+
+                    access_type :
+
+                        "offline",
+
+
+                    prompt :
+
+                        "consent"
+
+                }
+
+            }
 
         });
 
@@ -310,22 +421,28 @@ export async function loginGoogle(){
 
 
         console.log(
-
             "Google OAuth started:",
-
             data
-
         );
 
 
     }catch(error){
 
         console.error(
+            "=========================================="
+        );
 
-            "Google Login Error:",
+        console.error(
+            "GOOGLE LOGIN ERROR"
+        );
 
+        console.error(
+            "=========================================="
+        );
+
+
+        console.error(
             error
-
         );
 
 
@@ -343,6 +460,7 @@ export async function loginGoogle(){
 window.loginGoogle =
 
     loginGoogle;
+
 
 /* ==========================================
    INITIALIZE FINANCE MODULE
@@ -362,17 +480,28 @@ async function initializeFinanceModule(){
         "=========================================="
     );
 
+
     try{
 
+        /* ======================================
+           SESSION
+        ====================================== */
+
         const session =
+
             Auth.session;
 
 
-        if(!session){
+        if(
+
+            !session
+
+        ){
 
             console.warn(
                 "Module: Session tidak ditemukan."
             );
+
 
             return null;
 
@@ -380,17 +509,26 @@ async function initializeFinanceModule(){
 
 
         console.log(
-            "Module: Session OK"
+            "Module: Session OK."
         );
 
 
+        /* ======================================
+           GOOGLE USER
+        ====================================== */
+
         console.log(
-            "Module: User:",
+            "Module: Google User:",
             session.user
         );
 
 
+        /* ======================================
+           PROVIDER TOKEN
+        ====================================== */
+
         const providerToken =
+
             session.provider_token;
 
 
@@ -402,63 +540,96 @@ async function initializeFinanceModule(){
         );
 
 
-        if(!providerToken){
+        if(
+
+            !providerToken
+
+        ){
 
             throw new Error(
+
                 "Google Provider Token tidak tersedia."
+
             );
 
         }
 
 
-        const metadata =
-            session
-            ?.user
-            ?.user_metadata
+        /* ======================================
+           LOCAL USER / ONBOARDING DATA
+        ====================================== */
+
+        const localUser =
+
+            loadUser()
+
             ||
+
             {};
 
 
+        console.log(
+            "Module: Local Finance Assistant User:",
+            localUser
+        );
+
+
+        /* ======================================
+           IMPORTANT
+
+           Jangan membuat onboarding
+           dari Google metadata.
+
+           Data onboarding berasal dari
+           onboarding/script.js yang sudah
+           disimpan melalui saveUser().
+        ====================================== */
+
         const onboarding = {
 
-            displayName:
+            displayName :
 
-                metadata.full_name
-
-                ||
-
-                metadata.name
-
-                ||
-
-                session
-                ?.user
-                ?.email
+                localUser.displayName
 
                 ||
 
                 "",
 
 
-            currency:
+            currency :
+
+                localUser.currency
+
+                ||
+
                 "IDR",
 
 
-            theme:
+            theme :
+
+                localUser.theme
+
+                ||
+
                 "system",
 
 
-            onboardingCompleted:
-                true
+            onboardingCompleted :
+
+                localUser.onboardingCompleted === true
 
         };
 
 
         console.log(
-            "Module: Onboarding:",
+            "Module: Local Onboarding Data:",
             onboarding
         );
 
+
+        /* ======================================
+           INITIALIZE MODULE
+        ====================================== */
 
         console.log(
             "Module: Memulai Finance Core setup..."
@@ -466,8 +637,11 @@ async function initializeFinanceModule(){
 
 
         const result =
+
             await initializeModule(
+
                 onboarding
+
             );
 
 
@@ -477,20 +651,122 @@ async function initializeFinanceModule(){
         );
 
 
+        /* ======================================
+           SAVE MODULE INFO
+        ====================================== */
+
         if(
+
             result
+
             &&
+
             result.success
+
         ){
 
             saveModuleInfo(
+
                 result
+
             );
 
 
             console.log(
                 "Module: Info berhasil disimpan."
             );
+
+
+            /* ==================================
+               RESTORE ACCOUNT DATA
+
+               Account dari Finance Core
+               adalah source of truth.
+
+               Ini penting untuk browser
+               atau perangkat baru.
+            ================================== */
+
+            if(
+
+                result.accountData
+
+            ){
+
+                console.log(
+                    "Module: Restoring Finance Account Data..."
+                );
+
+
+                console.log(
+                    "Module: Account Data:",
+                    result.accountData
+                );
+
+
+                try{
+
+                    saveUser({
+
+                        ...result.accountData
+
+                    });
+
+
+                    console.log(
+                        "Module: Finance Account berhasil dipulihkan."
+                    );
+
+
+                }catch(error){
+
+                    console.warn(
+                        "Module: Gagal restore Finance Account:",
+                        error
+                    );
+
+                }
+
+
+                /* ==============================
+                   RESTORE THEME
+                ============================== */
+
+                if(
+
+                    result
+                    ?.accountData
+                    ?.theme
+
+                ){
+
+                    try{
+
+                        saveTheme(
+
+                            result.accountData.theme
+
+                        );
+
+
+                        console.log(
+                            "Module: Theme dipulihkan:",
+                            result.accountData.theme
+                        );
+
+
+                    }catch(error){
+
+                        console.warn(
+                            "Module: Gagal restore theme:",
+                            error
+                        );
+
+                    }
+
+                }
+
+            }
 
         }
 
@@ -544,15 +820,28 @@ async function initializeFinanceModule(){
         );
 
 
+        /*
+           Login Supabase tetap berhasil
+           meskipun Drive / Sheets gagal.
+
+           Ini penting supaya error module
+           tidak membuat user dianggap
+           logout.
+        */
+
         return {
 
-            success:
+            success :
+
                 false,
 
 
-            error:
+            error :
+
                 error?.message
+
                 ||
+
                 "Finance Module gagal"
 
         };
@@ -584,11 +873,8 @@ export async function getSession(){
     ){
 
         console.error(
-
             "Get session error:",
-
             error
-
         );
 
 
@@ -796,8 +1082,24 @@ export async function isLoggedIn(){
 
 
 /* ==========================================
-   RESTORE USER
+   RESTORE GOOGLE IDENTITY
 ========================================== */
+
+/*
+   PENTING :
+
+   Function ini hanya memulihkan
+   identity dari Google.
+
+   Jangan gunakan Google full_name
+   untuk menimpa Display Name
+   Finance Assistant yang sudah
+   diberikan user melalui onboarding.
+
+   Finance profile akan dipulihkan
+   kembali dari Finance Core oleh
+   initializeFinanceModule().
+*/
 
 function restoreUser(
 
@@ -817,11 +1119,21 @@ function restoreUser(
 
 
     console.log(
+        "=========================================="
+    );
 
-        "Restoring Supabase User:",
+    console.log(
+        "===== RESTORE GOOGLE IDENTITY ====="
+    );
 
+    console.log(
+        "=========================================="
+    );
+
+
+    console.log(
+        "Google User:",
         user
-
     );
 
 
@@ -835,43 +1147,98 @@ function restoreUser(
 
 
     /* ======================================
+       EXISTING LOCAL FINANCE USER
+    ====================================== */
+
+    const existingUser =
+
+        loadUser()
+
+        ||
+
+        {};
+
+
+    console.log(
+        "Existing Finance User:",
+        existingUser
+    );
+
+
+    /* ======================================
        USER DATA
+
+       Google identity :
+
+       - id
+       - email
+       - avatar
+
+       Finance profile :
+
+       - displayName
+       - currency
+       - theme
+       - onboardingCompleted
     ====================================== */
 
     const userData = {
 
-        id:
+        id :
 
             user.id,
 
 
-        email:
+        email :
 
             user.email
+
+            ||
+
+            existingUser.email
 
             ||
 
             "",
 
 
-        displayName:
+        displayName :
 
-            metadata.full_name
-
-            ||
-
-            metadata.name
-
-            ||
-
-            user.email
+            existingUser.displayName
 
             ||
 
             "",
 
 
-        avatar:
+        currency :
+
+            existingUser.currency
+
+            ||
+
+            "IDR",
+
+
+        theme :
+
+            existingUser.theme
+
+            ||
+
+            "system",
+
+
+        onboardingCompleted :
+
+            existingUser.onboardingCompleted === true,
+
+
+        avatar :
+
+            existingUser.avatar
+
+            ||
 
             metadata.avatar_url
 
@@ -881,7 +1248,7 @@ function restoreUser(
 
             ||
 
-            "",
+            ""
 
     };
 
@@ -898,14 +1265,23 @@ function restoreUser(
 
         );
 
+
+        console.log(
+            "Finance User berhasil disimpan."
+        );
+
+
+        console.log(
+            "Display Name:",
+            userData.displayName
+        );
+
+
     }catch(error){
 
         console.warn(
-
             "saveUser failed:",
-
             error
-
         );
 
     }
@@ -913,24 +1289,16 @@ function restoreUser(
 
     /* ======================================
        THEME
+
+       Hanya gunakan theme lokal.
+
+       Jangan mengambil theme dari
+       Google metadata.
     ====================================== */
-
-    const existingTheme =
-
-        metadata.theme
-
-        ||
-
-        localStorage.getItem(
-
-            "finance_theme"
-
-        );
-
 
     if(
 
-        existingTheme
+        userData.theme
 
     ){
 
@@ -938,18 +1306,22 @@ function restoreUser(
 
             saveTheme(
 
-                existingTheme
+                userData.theme
 
             );
+
+
+            console.log(
+                "Theme:",
+                userData.theme
+            );
+
 
         }catch(error){
 
             console.warn(
-
                 "saveTheme failed:",
-
                 error
-
             );
 
         }
@@ -966,9 +1338,15 @@ function restoreUser(
 export async function logout(){
 
     console.log(
+        "=========================================="
+    );
 
+    console.log(
         "===== LOGOUT ====="
+    );
 
+    console.log(
+        "=========================================="
     );
 
 
@@ -1002,6 +1380,11 @@ export async function logout(){
             null;
 
 
+        console.log(
+            "Supabase logout berhasil."
+        );
+
+
         window.location.replace(
 
             "/finance-assistant/pages/index.html"
@@ -1012,11 +1395,20 @@ export async function logout(){
     }catch(error){
 
         console.error(
+            "=========================================="
+        );
 
-            "Logout failed:",
+        console.error(
+            "LOGOUT FAILED"
+        );
 
+        console.error(
+            "=========================================="
+        );
+
+
+        console.error(
             error
-
         );
 
     }
