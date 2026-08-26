@@ -2,24 +2,41 @@
    Finance Assistant
    Module      : Workspace
    File        : workspace.js
-   Version     : 4.3.0
+   Version     : 5.0.0
 
    Description :
    Workspace Controller
 
+   Tahap 3 :
+
+   Finance Core
+        ↓
+   Cek sheet inti workspace
+        ↓
+   exists
+        ↓
+   Active / Inactive
+
    Workspace Logic :
 
    exists
-   = workspace sudah dibuat
-     dan sheet yang diperlukan tersedia.
+   = kedua sheet inti workspace tersedia.
 
    active
    = workspace yang sedang dipilih user
-     di local storage.
+     melalui local storage.
 
-   Workspace yang belum dibuat
-   tidak boleh dijalankan.
+   Workspace yang belum lengkap
+   tidak dianggap tersedia.
 
+   TIDAK menangani:
+   - Google OAuth
+   - Finance Assistant Folder
+   - Finance Core
+   - Account
+   - Onboarding
+   - Create Workspace
+   - Membuat sheet workspace
 ===================================================== */
 
 
@@ -38,9 +55,18 @@ import {
 
 import {
 
-    loadSession
+    loadSession,
+
+    getGoogleProviderToken
 
 } from "./auth.js";
+
+
+import {
+
+    loadModuleInfo
+
+} from "./module.js";
 
 
 import * as Saving from
@@ -77,80 +103,229 @@ import * as Airdrop from
    CONFIG
 ===================================================== */
 
-const API_URL =
+const WorkspaceConfig = {
 
-    "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
+    sheetsApi :
 
+        "https://sheets.googleapis.com/v4",
 
-/* =====================================================
-   MODULE REGISTRY
-===================================================== */
+    storageKey :
 
-const WORKSPACE = {
-
-    financial:
-
-        Financial,
-
-
-    saving:
-
-        Saving,
-
-
-    kas:
-
-        Kas,
-
-
-    "payroll-daily":
-
-        PayrollDaily,
-
-
-    "payroll-monthly":
-
-        PayrollMonthly,
-
-
-    airdrop:
-
-        Airdrop
+        "finance_workspace_modules"
 
 };
 
 
 /* =====================================================
-   SESSION MODULES
+   WORKSPACE REGISTRY
 ===================================================== */
 
-function getModules(){
+const WORKSPACES = {
 
-    const session =
+    financial : {
 
-        loadSession();
+        id :
+
+            "financial",
+
+        title :
+
+            "Financial",
+
+        sheets : [
+
+            "financial",
+
+            "financial_activity"
+
+        ],
+
+        module :
+
+            Financial
+
+    },
 
 
-    return (
+    saving : {
 
-        session
-        ?.workspace
-        ?.modules
+        id :
 
-        ||
+            "saving",
 
-        {}
+        title :
 
-    );
+            "Saving",
+
+        sheets : [
+
+            "saving",
+
+            "saving_bank"
+
+        ],
+
+        module :
+
+            Saving
+
+    },
+
+
+    kas : {
+
+        id :
+
+            "kas",
+
+        title :
+
+            "Kas Bersama",
+
+        sheets : [
+
+            "kas",
+
+            "kas_member"
+
+        ],
+
+        module :
+
+            Kas
+
+    },
+
+
+    "payroll-daily" : {
+
+        id :
+
+            "payroll-daily",
+
+        title :
+
+            "Payroll Daily",
+
+        sheets : [
+
+            "payroll_daily",
+
+            "payroll_daily_rules"
+
+        ],
+
+        module :
+
+            PayrollDaily
+
+    },
+
+
+    "payroll-monthly" : {
+
+        id :
+
+            "payroll-monthly",
+
+        title :
+
+            "Payroll Monthly",
+
+        sheets : [
+
+            "payroll_monthly",
+
+            "payroll_monthly_rules"
+
+        ],
+
+        module :
+
+            PayrollMonthly
+
+    },
+
+
+    airdrop : {
+
+        id :
+
+            "airdrop",
+
+        title :
+
+            "Airdrop",
+
+        sheets : [
+
+            "airdrop",
+
+            "airdrop_rules"
+
+        ],
+
+        module :
+
+            Airdrop
+
+    }
+
+};
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+const WorkspaceState = {
+
+    modules :
+
+        {},
+
+    active :
+
+        null,
+
+    initialized :
+
+        false
+
+};
+
+
+/* =====================================================
+   GET WORKSPACE CONFIG
+===================================================== */
+
+export function getWorkspaceConfig(){
+
+    return WORKSPACES;
 
 }
 
 
 /* =====================================================
-   ACTIVE WORKSPACE
+   GET WORKSPACE STATUS
 ===================================================== */
 
-function getActiveWorkspace(){
+export function getWorkspaceStatus(){
+
+    return {
+
+        ...WorkspaceState.modules
+
+    };
+
+}
+
+
+/* =====================================================
+   GET ACTIVE WORKSPACE
+===================================================== */
+
+export function getActiveWorkspace(){
 
     const workspace =
 
@@ -172,362 +347,507 @@ function getActiveWorkspace(){
 
 
 /* =====================================================
-   GET API URL
+   GET FINANCE CORE
 ===================================================== */
 
-function getApiUrl(){
+function getFinanceCore(){
 
-    return API_URL;
+    const moduleInfo =
+
+        loadModuleInfo();
+
+
+    if(
+
+        !moduleInfo
+
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+
+        !moduleInfo.financeCore
+
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+
+        !moduleInfo.financeCore.id
+
+    ){
+
+        return null;
+
+    }
+
+
+    return moduleInfo.financeCore;
 
 }
 
 
 /* =====================================================
-   GET ACCESS TOKEN
+   GET GOOGLE PROVIDER TOKEN
 ===================================================== */
 
-function getAccessToken(){
+async function getGoogleToken(){
 
-    const session =
+    const token =
 
-        loadSession();
+        await getGoogleProviderToken();
 
 
-    return (
+    if(
 
-        session
-        ?.token
-        ?.accessToken
+        !token
 
-        ||
+    ){
 
-        session
-        ?.token
-        ?.access_token
+        throw new Error(
 
-        ||
+            "Google Provider Token tidak ditemukan."
 
-        null
+        );
 
-    );
+    }
+
+
+    return token;
 
 }
 
 
 /* =====================================================
-   GET SPREADSHEET ID
+   GET FINANCE CORE SHEETS
 ===================================================== */
 
-function getSpreadsheetId(){
+async function getFinanceCoreSheets(
 
-    const session =
+    accessToken,
 
-        loadSession();
-
-
-    return (
-
-        session
-        ?.workspace
-        ?.spreadsheet
-        ?.id
-
-        ||
-
-        session
-        ?.workspace
-        ?.spreadsheetId
-
-        ||
-
-        null
-
-    );
-
-}
-
-
-/* =====================================================
-   JSONP REQUEST
-===================================================== */
-function jsonpRequest(
-
-    params = {}
+    spreadsheetId
 
 ){
 
-    return new Promise(
+    console.log(
 
-        (
+        "===== CHECK FINANCE CORE SHEETS ====="
 
-            resolve,
-
-            reject
-
-        ) => {
+    );
 
 
-            const callbackName =
+    console.log(
 
-                "__financeAssistantWorkspace_"
+        "Finance Core:",
 
-                +
+        spreadsheetId
 
-                Date.now()
-
-                +
-
-                "_"
-
-                +
-
-                Math.random()
-
-                .toString(
-
-                    36
-
-                )
-
-                .slice(
-
-                    2
-
-                );
+    );
 
 
-            const script =
+    const url =
 
-                document.createElement(
+        WorkspaceConfig.sheetsApi
 
-                    "script"
+        +
 
-                );
+        "/spreadsheets/"
+
+        +
+
+        encodeURIComponent(
+
+            spreadsheetId
+
+        )
+
+        +
+
+        "?fields=spreadsheetId,properties.title,sheets.properties";
 
 
-            const requestParams =
 
-                new URLSearchParams();
+    const response =
+
+        await fetch(
+
+            url,
+
+            {
+
+                method :
+
+                    "GET",
 
 
-            let timeout =
+                headers : {
 
-                null;
+                    Authorization :
+
+                        `Bearer ${accessToken}`
+
+                }
+
+            }
+
+        );
 
 
-            /* =============================================
-               ADD PARAMS
-            ============================================= */
+    const text =
 
-            Object.entries(
+        await response.text();
 
-                params
+
+    let data =
+
+        null;
+
+
+    try{
+
+        data =
+
+            text
+
+            ?
+
+            JSON.parse(
+
+                text
 
             )
 
-            .forEach(
+            :
 
-                ([
+            null;
 
-                    key,
+    }catch(error){
 
-                    value
+        throw new Error(
 
-                ]) => {
+            "Response Google Sheets tidak valid."
 
-                    if(
+        );
 
-                        value !== undefined
+    }
 
-                        &&
 
-                        value !== null
+    if(
 
-                    ){
+        !response.ok
 
-                        requestParams.set(
+    ){
 
-                            key,
+        console.error(
 
-                            value
+            "Google Sheets Error:",
 
-                        );
+            data
 
-                    }
+        );
 
-                }
 
-            );
+        throw new Error(
 
+            data
+            ?.error
+            ?.message
 
-            /* =============================================
-               CALLBACK
-            ============================================= */
+            ||
 
-            requestParams.set(
+            `Google Sheets Error ${response.status}`
 
-                "callback",
+        );
 
-                callbackName
+    }
 
-            );
 
+    const sheets =
 
-            /* =============================================
-               CLEANUP
-            ============================================= */
+        data?.sheets
 
-            const cleanup = () => {
+        ||
 
-                if(
+        [];
 
-                    timeout
 
-                ){
+    return sheets
 
-                    clearTimeout(
+        .map(
 
-                        timeout
+            sheet =>
 
-                    );
+                sheet
+                ?.properties
+                ?.title
 
-                }
+        )
 
+        .filter(
 
-                if(
+            Boolean
 
-                    window[
+        );
 
-                        callbackName
+}
 
-                    ]
 
-                ){
+/* =====================================================
+   CHECK WORKSPACE SHEETS
+===================================================== */
 
-                    delete window[
+function checkWorkspaceSheets(
 
-                        callbackName
+    workspace,
 
-                    ];
+    existingSheets
 
-                }
+){
 
+    const requiredSheets =
 
-                if(
+        workspace.sheets;
 
-                    script.parentNode
 
-                ){
+    const availableSheets =
 
-                    script.remove();
+        existingSheets;
 
-                }
 
-            };
+    const sheetStatus =
 
+        requiredSheets.map(
 
-            /* =============================================
-               REGISTER CALLBACK
-            ============================================= */
+            sheetName => ({
 
-            window[
+                name :
 
-                callbackName
+                    sheetName,
 
-            ] = function(
 
-                data
+                exists :
 
-            ){
+                    availableSheets.includes(
 
-                cleanup();
-
-
-                resolve(
-
-                    data
-
-                );
-
-            };
-
-
-            /* =============================================
-               SCRIPT ERROR
-            ============================================= */
-
-            script.onerror = function(){
-
-                cleanup();
-
-
-                reject(
-
-                    new Error(
-
-                        "Gagal menghubungi Finance Assistant API"
+                        sheetName
 
                     )
 
+            })
+
+        );
+
+
+    const exists =
+
+        sheetStatus.every(
+
+            sheet =>
+
+                sheet.exists === true
+
+        );
+
+
+    return {
+
+        id :
+
+            workspace.id,
+
+
+        title :
+
+            workspace.title,
+
+
+        sheets :
+
+            sheetStatus,
+
+
+        exists :
+
+            exists,
+
+
+        active :
+
+            false
+
+    };
+
+}
+
+
+/* =====================================================
+   REFRESH WORKSPACES
+===================================================== */
+
+export async function refreshWorkspaces(){
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== WORKSPACE REFRESH ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    /* =============================================
+       FINANCE CORE
+    ============================================= */
+
+    const financeCore =
+
+        getFinanceCore();
+
+
+    if(
+
+        !financeCore
+
+    ){
+
+        console.warn(
+
+            "Finance Core belum ditemukan."
+
+        );
+
+
+        WorkspaceState.modules = {};
+
+        WorkspaceState.active = null;
+
+
+        saveWorkspaceStatus(
+
+            {}
+
+        );
+
+
+        return {};
+
+    }
+
+
+    console.log(
+
+        "Finance Core ditemukan:",
+
+        financeCore
+
+    );
+
+
+    /* =============================================
+       GOOGLE TOKEN
+    ============================================= */
+
+    const accessToken =
+
+        await getGoogleToken();
+
+
+    /* =============================================
+       GET SHEETS
+    ============================================= */
+
+    const existingSheets =
+
+        await getFinanceCoreSheets(
+
+            accessToken,
+
+            financeCore.id
+
+        );
+
+
+    console.log(
+
+        "Sheet yang tersedia:",
+
+        existingSheets
+
+    );
+
+
+    /* =============================================
+       CHECK ALL WORKSPACES
+    ============================================= */
+
+    const modules = {};
+
+
+    Object.values(
+
+        WORKSPACES
+
+    )
+
+    .forEach(
+
+        workspace => {
+
+            const status =
+
+                checkWorkspaceSheets(
+
+                    workspace,
+
+                    existingSheets
+
                 );
 
-            };
+
+            modules[
+
+                workspace.id
+
+            ] = status;
 
 
-            /* =============================================
-               TIMEOUT
-            ============================================= */
+            console.log(
 
-            timeout =
+                `Workspace "${workspace.id}"`,
 
-                setTimeout(
+                {
 
-                    () => {
+                    required :
 
-                        cleanup();
+                        workspace.sheets,
 
 
-                        reject(
+                    exists :
 
-                            new Error(
+                        status.exists
 
-                                "Request ke server timeout"
-
-                            )
-
-                        );
-
-                    },
-
-                    30000
-
-                );
-
-
-            /* =============================================
-               BUILD URL
-            ============================================= */
-
-            script.src =
-
-                getApiUrl()
-
-                +
-
-                "?"
-
-                +
-
-                requestParams.toString();
-
-
-            /* =============================================
-               SEND REQUEST
-            ============================================= */
-
-            document.head.appendChild(
-
-                script
+                }
 
             );
 
@@ -535,308 +855,275 @@ function jsonpRequest(
 
     );
 
-}
+
+    /* =============================================
+       ACTIVE WORKSPACE
+    ============================================= */
+
+    const current =
+
+        getActiveWorkspace();
 
 
+    let active =
 
-/* =====================================================
-   UPDATE SESSION
-===================================================== */
-
-function updateSession(
-
-    updater
-
-){
-
-    const session =
-
-        loadSession();
+        null;
 
 
     if(
 
-        !session
+        current
+
+        &&
+
+        modules[current]
+
+        &&
+
+        modules[current].exists
 
     ){
 
-        throw new Error(
+        active =
 
-            "Session tidak ditemukan"
-
-        );
+            current;
 
     }
 
 
-    const updated =
+    /* =============================================
+       APPLY ACTIVE STATUS
+    ============================================= */
 
-        updater(
+    Object.keys(
 
-            session
+        modules
 
-        );
+    )
 
+    .forEach(
+
+        key => {
+
+            modules[key].active =
+
+                key === active;
+
+        }
+
+    );
+
+
+    /* =============================================
+       SAVE STATE
+    ============================================= */
+
+    WorkspaceState.modules =
+
+        modules;
+
+
+    WorkspaceState.active =
+
+        active;
+
+
+    saveWorkspaceStatus(
+
+        modules
+
+    );
+
+
+    console.log(
+
+        "===== WORKSPACE STATUS ====="
+
+    );
+
+
+    console.log(
+
+        modules
+
+    );
+
+
+    console.log(
+
+        "Active Workspace:",
+
+        active
+
+    );
+
+
+    console.log(
+
+        "===== WORKSPACE REFRESH COMPLETE ====="
+
+    );
+
+
+    return modules;
+
+}
+
+
+/* =====================================================
+   SAVE WORKSPACE STATUS
+===================================================== */
+
+function saveWorkspaceStatus(
+
+    modules
+
+){
 
     localStorage.setItem(
 
-        "finance_session",
+        WorkspaceConfig.storageKey,
 
         JSON.stringify(
 
-            updated
+            modules
 
         )
 
     );
 
+}
 
-    return updated;
+
+/* =====================================================
+   LOAD WORKSPACE STATUS
+===================================================== */
+
+export function loadWorkspaceStatus(){
+
+    const data =
+
+        localStorage.getItem(
+
+            WorkspaceConfig.storageKey
+
+        );
+
+
+    if(
+
+        !data
+
+    ){
+
+        return {};
+
+    }
+
+
+    try{
+
+        return JSON.parse(
+
+            data
+
+        );
+
+    }catch(error){
+
+        console.error(
+
+            "Gagal membaca workspace status:",
+
+            error
+
+        );
+
+
+        localStorage.removeItem(
+
+            WorkspaceConfig.storageKey
+
+        );
+
+
+        return {};
+
+    }
 
 }
 
 
 /* =====================================================
-   REFRESH MODULES
-
-   Mengambil status terbaru seluruh module
-   dari Finance Core Spreadsheet.
+   CHECK WORKSPACE EXISTS
 ===================================================== */
 
-export async function refreshModules(){
-
-    const accessToken =
-
-        getAccessToken();
-
-
-    const spreadsheetId =
-
-        getSpreadsheetId();
-
-
-    /* =============================================
-       VALIDATION
-    ============================================= */
-
-    if(
-
-        !accessToken
-
-    ){
-
-        throw new Error(
-
-            "Access Token tidak ditemukan"
-
-        );
-
-    }
-
-
-    if(
-
-        !spreadsheetId
-
-    ){
-
-        throw new Error(
-
-            "Finance Core Spreadsheet ID tidak ditemukan"
-
-        );
-
-    }
-
-
-    /* =============================================
-       REQUEST
-    ============================================= */
-
-    const result =
-
-        await jsonpRequest({
-
-            action:
-
-                "modules",
-
-
-            accessToken:
-
-                accessToken,
-
-
-            spreadsheetId:
-
-                spreadsheetId
-
-        });
-
-
-    /* =============================================
-       VALIDATE RESPONSE
-    ============================================= */
-
-    if(
-
-        !result
-
-    ){
-
-        throw new Error(
-
-            "Response modules kosong"
-
-        );
-
-    }
-
-
-    if(
-
-        !result.success
-
-    ){
-
-        throw new Error(
-
-            result.error
-
-            ||
-
-            "Gagal mengambil data module"
-
-        );
-
-    }
-
-
-    /* =============================================
-       UPDATE SESSION
-    ============================================= */
-
-    updateSession(
-
-        session => ({
-
-            ...session,
-
-
-            workspace:{
-
-                ...(
-
-                    session.workspace
-
-                    ||
-
-                    {}
-                ),
-
-
-                modules:
-
-                    result.modules
-
-                    ||
-
-                    {}
-
-            }
-
-        })
-
-    );
-
-
-    return result.modules;
-
-}
-
-
-/* =====================================================
-   CREATE WORKSPACE
-
-   Membuat sheet module baru
-   di Finance Core Spreadsheet.
-===================================================== */
-
-export async function createWorkspace(
+export function workspaceExists(
 
     moduleKey
 
 ){
 
-    /* =============================================
-       VALIDATION
-    ============================================= */
+    const modules =
 
-    if(
+        WorkspaceState.modules;
 
-        !moduleKey
+    return (
 
-    ){
+        modules
+        ?.[moduleKey]
+        ?.exists
 
-        throw new Error(
+        === true
 
-            "Module Key tidak ditemukan"
+    );
 
-        );
-
-    }
+}
 
 
-    const accessToken =
+/* =====================================================
+   CHECK WORKSPACE ACTIVE
+===================================================== */
 
-        getAccessToken();
+export function workspaceIsActive(
 
+    moduleKey
 
-    const spreadsheetId =
+){
 
-        getSpreadsheetId();
+    return (
 
+        WorkspaceState.active
 
-    if(
+        ===
 
-        !accessToken
+        moduleKey
 
-    ){
+    );
 
-        throw new Error(
-
-            "Access Token tidak ditemukan"
-
-        );
-
-    }
+}
 
 
-    if(
+/* =====================================================
+   SET ACTIVE WORKSPACE
+===================================================== */
 
-        !spreadsheetId
+export function setActiveWorkspace(
 
-    ){
+    moduleKey
 
-        throw new Error(
-
-            "Finance Core Spreadsheet ID tidak ditemukan"
-
-        );
-
-    }
-
+){
 
     console.log(
 
-        "===== CREATE WORKSPACE ====="
+        "===== SET ACTIVE WORKSPACE ====="
 
     );
 
 
     console.log(
 
-        "Module:",
+        "Workspace:",
 
         moduleKey
 
@@ -844,76 +1131,50 @@ export async function createWorkspace(
 
 
     /* =============================================
-       REQUEST API
+       VALIDATE WORKSPACE
     ============================================= */
 
-    const result =
+    const workspace =
 
-        await jsonpRequest({
+        WORKSPACES[
 
-            action:
+            moduleKey
 
-                "createModule",
+        ];
 
-
-            accessToken:
-
-                accessToken,
-
-
-            spreadsheetId:
-
-                spreadsheetId,
-
-
-            module:
-
-                moduleKey
-
-        });
-
-
-    console.log(
-
-        "Create Workspace Response:",
-
-        result
-
-    );
-
-
-    /* =============================================
-       VALIDATE RESPONSE
-    ============================================= */
 
     if(
 
-        !result
+        !workspace
 
     ){
 
         throw new Error(
 
-            "Response create workspace kosong"
+            `Workspace "${moduleKey}" tidak ditemukan.`
 
         );
 
     }
 
 
+    /* =============================================
+       CHECK EXISTS
+    ============================================= */
+
     if(
 
-        !result.success
+        !workspaceExists(
+
+            moduleKey
+
+        )
 
     ){
 
         throw new Error(
 
-            result.error
-
-            ||
-
-            "Gagal membuat workspace"
+            `Workspace "${workspace.title}" belum dibuat.`
 
         );
 
@@ -921,69 +1182,7 @@ export async function createWorkspace(
 
 
     /* =============================================
-       UPDATE SESSION MODULES
-
-       Backend module.gs mengembalikan
-       status modules terbaru.
-    ============================================= */
-
-    if(
-
-        result.modules
-
-    ){
-
-        updateSession(
-
-            session => ({
-
-                ...session,
-
-
-                workspace:{
-
-                    ...(
-
-                        session.workspace
-
-                        ||
-
-                        {}
-                    ),
-
-
-                    modules:
-
-                        result.modules
-
-                }
-
-            })
-
-        );
-
-    }
-
-
-    /* =============================================
-       FALLBACK
-
-       Jika backend belum mengembalikan
-       modules, lakukan refresh manual.
-    ============================================= */
-
-    else{
-
-        await refreshModules();
-
-    }
-
-
-    /* =============================================
-       SET ACTIVE WORKSPACE
-
-       Workspace yang baru dibuat
-       langsung menjadi aktif.
+       SAVE ACTIVE
     ============================================= */
 
     const current =
@@ -1000,58 +1199,58 @@ export async function createWorkspace(
         ...current,
 
 
-        workspace:
+        workspace :
 
             moduleKey
 
     });
 
 
+    /* =============================================
+       UPDATE MEMORY
+    ============================================= */
+
+    WorkspaceState.active =
+
+        moduleKey;
+
+
+    Object.keys(
+
+        WorkspaceState.modules
+
+    )
+
+    .forEach(
+
+        key => {
+
+            WorkspaceState.modules[key].active =
+
+                key === moduleKey;
+
+        }
+
+    );
+
+
+    saveWorkspaceStatus(
+
+        WorkspaceState.modules
+
+    );
+
+
     console.log(
 
-        "Workspace berhasil dibuat:",
+        "Workspace aktif:",
 
         moduleKey
 
     );
 
 
-    return result;
-
-}
-
-
-/* =====================================================
-   WORKSPACE VALIDATION
-
-   exists hanya menentukan apakah
-   workspace benar-benar sudah dibuat.
-
-   active workspace ditentukan oleh
-   workspace yang dipilih user
-   melalui local storage.
-===================================================== */
-
-function workspaceExists(
-
-    moduleName
-
-){
-
-    const modules =
-
-        getModules();
-
-
-    return (
-
-        modules
-        ?.[moduleName]
-        ?.exists
-
-        === true
-
-    );
+    return WorkspaceState.modules;
 
 }
 
@@ -1062,14 +1261,334 @@ function workspaceExists(
 
 export async function initWorkspace(){
 
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== WORKSPACE INITIALIZE ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    try{
+
+        /* =============================================
+           CHECK SESSION
+        ============================================= */
+
+        const session =
+
+            await loadSession();
+
+
+        if(
+
+            !session
+
+        ){
+
+            console.log(
+
+                "Workspace: User belum login."
+
+            );
+
+            return null;
+
+        }
+
+
+        /* =============================================
+           REFRESH STATUS
+        ============================================= */
+
+        await refreshWorkspaces();
+
+
+        /* =============================================
+           ACTIVE
+        ============================================= */
+
+        const active =
+
+            WorkspaceState.active;
+
+
+        if(
+
+            !active
+
+        ){
+
+            console.log(
+
+                "Belum ada Workspace yang dipilih."
+
+            );
+
+
+            return null;
+
+        }
+
+
+        /* =============================================
+           GET MODULE
+        ============================================= */
+
+        const workspace =
+
+            WORKSPACES[
+
+                active
+
+            ];
+
+
+        if(
+
+            !workspace
+
+        ){
+
+            console.warn(
+
+                `Workspace "${active}" tidak ditemukan.`
+
+            );
+
+
+            return null;
+
+        }
+
+
+        /* =============================================
+           VALIDATE EXISTS
+        ============================================= */
+
+        if(
+
+            !workspaceExists(
+
+                active
+
+            ) ){
+
+            console.warn(
+
+                `Workspace "${active}" belum lengkap.`
+
+            );
+
+
+            return null;
+
+        }
+
+
+        /* =============================================
+           START MODULE
+        ============================================= */
+
+        console.log(
+
+            "Workspace aktif:",
+
+            workspace.title
+
+        );
+
+
+        if(
+
+            !workspace.module
+
+        ){
+
+            console.warn(
+
+                `Module "${active}" belum memiliki controller.`
+
+            );
+
+
+            return null;
+
+        }
+
+
+        if(
+
+            typeof workspace.module.init !==
+
+            "function"
+
+        ){
+
+            console.warn(
+
+                `Module "${active}" tidak memiliki fungsi init().`
+
+            );
+
+
+            return null;
+
+        }
+
+
+        await workspace.module.init();
+
+
+        return workspace;
+
+
+    }catch(error){
+
+        console.error(
+
+            "===== WORKSPACE INITIALIZE ERROR ====="
+
+        );
+
+
+        console.error(
+
+            error
+
+        );
+
+
+        return null;
+
+    }
+
+}
+
+
+/* =====================================================
+   GET ALL WORKSPACES
+===================================================== */
+
+export function getWorkspaces(){
+
+    return Object.values(
+
+        WORKSPACES
+
+    )
+
+    .map(
+
+        workspace => {
+
+            const status =
+
+                WorkspaceState
+                .modules
+                ?.[workspace.id]
+
+                ||
+
+                {
+
+                    id :
+
+                        workspace.id,
+
+
+                    title :
+
+                        workspace.title,
+
+
+                    sheets :
+
+                        workspace.sheets.map(
+
+                            name => ({
+
+                                name :
+
+                                    name,
+
+
+                                exists :
+
+                                    false
+
+                            })
+
+                        ),
+
+
+                    exists :
+
+                        false,
+
+
+                    active :
+
+                        false
+
+                };
+
+
+            return {
+
+                ...status
+
+            };
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   GET AVAILABLE WORKSPACES
+===================================================== */
+
+export function getAvailableWorkspaces(){
+
+    return getWorkspaces()
+
+        .filter(
+
+            workspace =>
+
+                workspace.exists === true
+
+        );
+
+}
+
+
+/* =====================================================
+   GET ACTIVE WORKSPACE INFO
+===================================================== */
+
+export function getActiveWorkspaceInfo(){
+
     const active =
 
-        getActiveWorkspace();
+        WorkspaceState.active;
 
-
-    /* =============================================
-       NO ACTIVE WORKSPACE
-    ============================================= */
 
     if(
 
@@ -1077,94 +1596,51 @@ export async function initWorkspace(){
 
     ){
 
-        console.log(
-
-            "Belum ada workspace yang dipilih."
-
-        );
-
-        return;
+        return null;
 
     }
 
 
-    /* =============================================
-       MODULE NOT FOUND
-    ============================================= */
+    return (
 
-    const module =
+        WorkspaceState
+        .modules
+        ?.[active]
 
-        WORKSPACE[active];
+        ||
 
-
-    if(
-
-        !module
-
-    ){
-
-        console.warn(
-
-            `Module "${active}" tidak ditemukan.`
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       WORKSPACE NOT CREATED
-    ============================================= */
-
-    if(
-
-        !workspaceExists(
-
-            active
-
-        )
-
-    ){
-
-        console.warn(
-
-            `Workspace "${active}" belum dibuat.`
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       START MODULE
-    ============================================= */
-
-    console.log(
-
-        "Workspace aktif:",
-
-        active
+        null
 
     );
-
-
-    await module.init();
 
 }
 
 
 /* =====================================================
-   START
+   AUTO INITIALIZE
 ===================================================== */
 
 document.addEventListener(
 
     "DOMContentLoaded",
 
-    initWorkspace
+    () => {
+
+        initWorkspace();
+
+    }
 
 );
+
+
+/* =====================================================
+   EXPORT
+===================================================== */
+
+export {
+
+    WORKSPACES,
+
+    WorkspaceState
+
+};
