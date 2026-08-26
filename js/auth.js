@@ -28,6 +28,13 @@ import {
 
 } from "./supabase.js";
 
+import {
+   
+    initializeModule,
+   
+    saveModuleInfo
+   
+} from "./module.js";
 
 import {
 
@@ -36,6 +43,7 @@ import {
     saveTheme
 
 } from "./storage.js";
+
 
 
 /* ==========================================
@@ -319,6 +327,223 @@ export async function loginGoogle(){
 window.loginGoogle =
 
     loginGoogle;
+
+/* ==========================================
+   INITIALIZE FINANCE MODULE
+========================================== */
+
+async function initializeFinanceModule(){
+
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "===== FINANCE MODULE START ====="
+    );
+
+    console.log(
+        "=========================================="
+    );
+
+    try{
+
+        const session =
+            Auth.session;
+
+
+        if(!session){
+
+            console.warn(
+                "Module: Session tidak ditemukan."
+            );
+
+            return null;
+
+        }
+
+
+        console.log(
+            "Module: Session OK"
+        );
+
+
+        console.log(
+            "Module: User:",
+            session.user
+        );
+
+
+        const providerToken =
+            session.provider_token;
+
+
+        console.log(
+            "Module: Google Provider Token:",
+            providerToken
+                ? "AVAILABLE"
+                : "MISSING"
+        );
+
+
+        if(!providerToken){
+
+            throw new Error(
+                "Google Provider Token tidak tersedia."
+            );
+
+        }
+
+
+        const metadata =
+            session
+            ?.user
+            ?.user_metadata
+            ||
+            {};
+
+
+        const onboarding = {
+
+            displayName:
+
+                metadata.full_name
+
+                ||
+
+                metadata.name
+
+                ||
+
+                session
+                ?.user
+                ?.email
+
+                ||
+
+                "",
+
+
+            currency:
+                "IDR",
+
+
+            theme:
+                "system",
+
+
+            onboardingCompleted:
+                true
+
+        };
+
+
+        console.log(
+            "Module: Onboarding:",
+            onboarding
+        );
+
+
+        console.log(
+            "Module: Memulai Finance Core setup..."
+        );
+
+
+        const result =
+            await initializeModule(
+                onboarding
+            );
+
+
+        console.log(
+            "Module: Initialize result:",
+            result
+        );
+
+
+        if(
+            result
+            &&
+            result.success
+        ){
+
+            saveModuleInfo(
+                result
+            );
+
+
+            console.log(
+                "Module: Info berhasil disimpan."
+            );
+
+        }
+
+
+        console.log(
+            "=========================================="
+        );
+
+        console.log(
+            "===== FINANCE MODULE SUCCESS ====="
+        );
+
+        console.log(
+            "=========================================="
+        );
+
+
+        return result;
+
+
+    }catch(error){
+
+        console.error(
+            "=========================================="
+        );
+
+        console.error(
+            "===== FINANCE MODULE FAILED ====="
+        );
+
+        console.error(
+            "=========================================="
+        );
+
+
+        console.error(
+            "Module Error:",
+            error
+        );
+
+
+        console.error(
+            "Module Error Message:",
+            error?.message
+        );
+
+
+        console.error(
+            "Module Error Stack:",
+            error?.stack
+        );
+
+
+        return {
+
+            success:
+                false,
+
+
+            error:
+                error?.message
+                ||
+                "Finance Module gagal"
+
+        };
+
+    }
+
+}
 
 
 /* ==========================================
