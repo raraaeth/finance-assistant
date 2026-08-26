@@ -937,11 +937,11 @@ async function loadStyle(){
    INIT
 ===================================================== */
 
-function init(){
+async function init(){
 
     initTheme();
 
-    initSession();
+    await initSession();
 
     initEvent();
 
@@ -958,11 +958,11 @@ function init(){
    SESSION
 ===================================================== */
 
-function initSession(){
+async function initSession(){
 
     State.session =
 
-        loadSession();
+        await loadSession();
 
 
     State.user =
