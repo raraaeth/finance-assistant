@@ -2,7 +2,29 @@
    GLOBAL PROFILE
    FILE        : script.js
    DESCRIPTION : Global Profile Component
-   VERSION     : 3.2.0
+   VERSION     : 4.0.0
+
+   Architecture :
+
+   Supabase Auth
+        ↓
+   module.js
+        ↓
+   Finance Core
+        ↓
+   workspace.js
+        ↓
+   Profile
+
+   Profile hanya menangani UI.
+
+   Tidak menangani:
+   - Google Drive API
+   - Google Sheets API
+   - Apps Script API
+   - pembuatan Finance Core
+   - pengecekan sheet secara langsung
+
 ===================================================== */
 
 
@@ -14,13 +36,7 @@ import {
 
     loadUser,
 
-    loadWorkspace,
-
-    saveWorkspace,
-
-    loadTheme,
-
-    saveTheme
+    loadTheme
 
 } from "../../js/storage.js";
 
@@ -36,6 +52,17 @@ import {
 } from "../../js/auth.js";
 
 
+import {
+
+    getWorkspaceState,
+
+    setActiveWorkspace,
+
+    createWorkspace
+
+} from "../../js/workspace.js";
+
+
 /* =====================================================
    STATE
 ===================================================== */
@@ -46,11 +73,19 @@ const State = {
 
     user : null,
 
-    workspace : [],
+    workspace : {
+
+        active : null,
+
+        inactive : []
+
+    },
 
     container : null,
 
-    eventsBound : false
+    eventsBound : false,
+
+    loadingWorkspace : false
 
 };
 
@@ -114,6 +149,8 @@ const THEMES = [
 
 /* =====================================================
    MODULE CONFIG
+
+   Hanya untuk kebutuhan UI.
 ===================================================== */
 
 const MODULES = [
@@ -179,605 +216,6 @@ const MODULES = [
     }
 
 ];
-
-
-/* =====================================================
-   API
-===================================================== */
-
-const API_URL =
-
-    "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
-
-
-/* =====================================================
-   API REQUEST
-
-   Menggunakan JSONP karena Apps Script
-   Web App digunakan melalui script injection.
-===================================================== */
-
-function apiRequest(
-
-    params
-
-){
-
-    return new Promise(
-
-        (
-
-            resolve,
-
-            reject
-
-        ) => {
-
-
-            /* =============================================
-               CALLBACK NAME
-            ============================================= */
-
-            const callbackName =
-
-                "__financeAssistant_"
-
-                +
-
-                Date.now()
-
-                +
-
-                "_"
-
-                +
-
-                Math.random()
-
-                .toString(
-
-                    36
-
-                )
-
-                .slice(
-
-                    2
-
-                );
-
-
-            /* =============================================
-               CREATE SCRIPT
-            ============================================= */
-
-            const script =
-
-                document.createElement(
-
-                    "script"
-
-                );
-
-
-            /* =============================================
-               TIMEOUT
-            ============================================= */
-
-            const timeout =
-
-                setTimeout(
-
-                    () => {
-
-                        cleanup();
-
-
-                        reject(
-
-                            new Error(
-
-                                "Request ke server terlalu lama"
-
-                            )
-
-                        );
-
-                    },
-
-                    30000
-
-                );
-
-
-            /* =============================================
-               REGISTER CALLBACK
-            ============================================= */
-
-            window[
-
-                callbackName
-
-            ] = function(
-
-                data
-
-            ){
-
-                cleanup();
-
-
-                resolve(
-
-                    data
-
-                );
-
-            };
-
-
-            /* =============================================
-               BUILD PARAMS
-            ============================================= */
-
-            const requestParams =
-
-                new URLSearchParams();
-
-
-            Object.entries(
-
-                params
-
-            )
-
-            .forEach(
-
-                ([
-
-                    key,
-
-                    value
-
-                ]) => {
-
-
-                    if(
-
-                        value !==
-
-                        undefined
-
-                        &&
-
-                        value !==
-
-                        null
-
-                    ){
-
-                        requestParams.set(
-
-                            key,
-
-                            value
-
-                        );
-
-                    }
-
-                }
-
-            );
-
-
-            /* =============================================
-               CALLBACK
-            ============================================= */
-
-            requestParams.set(
-
-                "callback",
-
-                callbackName
-
-            );
-
-
-            /* =============================================
-               BUILD URL
-            ============================================= */
-
-            script.src =
-
-                API_URL
-
-                +
-
-                "?"
-
-                +
-
-                requestParams.toString();
-
-
-            console.log(
-
-                "API Request:",
-
-                script.src
-
-            );
-
-
-            /* =============================================
-               ERROR
-            ============================================= */
-
-            script.onerror = function(){
-
-                cleanup();
-
-
-                reject(
-
-                    new Error(
-
-                        "Gagal menghubungi Apps Script"
-
-                    )
-
-                );
-
-            };
-
-
-            /* =============================================
-               CLEANUP
-            ============================================= */
-
-            function cleanup(){
-
-
-                clearTimeout(
-
-                    timeout
-
-                );
-
-
-                if(
-
-                    window[
-
-                        callbackName
-
-                    ]
-
-                ){
-
-                    delete window[
-
-                        callbackName
-
-                    ];
-
-                }
-
-
-                if(
-
-                    script.parentNode
-
-                ){
-
-                    script.remove();
-
-                }
-
-            }
-
-
-            /* =============================================
-               SEND REQUEST
-            ============================================= */
-
-            document.head.appendChild(
-
-                script
-
-            );
-
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   RENDER THEME
-===================================================== */
-
-function renderTheme(){
-
-    const container =
-
-        document.getElementById(
-
-            "profile-theme-options"
-
-        );
-
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
-    const current =
-
-        loadTheme();
-
-
-    container.innerHTML =
-
-        THEMES
-
-        .map(
-
-            theme => `
-
-                <button
-
-                    type="button"
-
-                    class="profile-theme-option
-
-                    ${
-
-                        current === theme.id
-
-                        ?
-
-                        "active"
-
-                        :
-
-                        ""
-
-                    }"
-
-                    data-theme="${theme.id}"
-
-                >
-
-                    <span
-
-                        class="profile-theme-icon"
-
-                    >
-
-                        ${theme.icon}
-
-                    </span>
-
-
-                    <span
-
-                        class="profile-theme-info"
-
-                    >
-
-                        <strong>
-
-                            ${theme.title}
-
-                        </strong>
-
-
-                        <small>
-
-                            ${theme.description}
-
-                        </small>
-
-                    </span>
-
-
-                    <span
-
-                        class="profile-theme-check"
-
-                    >
-
-                        ✓
-
-                    </span>
-
-                </button>
-
-            `
-
-        )
-
-        .join(
-
-            ""
-
-        );
-
-}
-
-
-/* =====================================================
-   THEME EVENT
-===================================================== */
-
-function initThemeEvent(){
-
-    const container =
-
-        document.getElementById(
-
-            "profile-theme-options"
-
-        );
-
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
-    container.addEventListener(
-
-        "click",
-
-        event => {
-
-            const button =
-
-                event.target.closest(
-
-                    "[data-theme]"
-
-                );
-
-
-            if(
-
-                !button
-
-            ){
-
-                return;
-
-            }
-
-
-            const theme =
-
-                button.dataset.theme;
-
-
-            applyTheme(
-
-                theme
-
-            );
-
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   APPLY THEME
-===================================================== */
-
-function applyTheme(
-
-    theme
-
-){
-
-    saveTheme(
-
-        theme
-
-    );
-
-
-    if(
-
-        theme === "light"
-
-    ){
-
-        document.documentElement
-
-            .removeAttribute(
-
-                "data-theme"
-
-            );
-
-    }else{
-
-        document.documentElement
-
-            .setAttribute(
-
-                "data-theme",
-
-                theme
-
-            );
-
-    }
-
-
-    renderTheme();
-
-}
-
-
-/* =====================================================
-   INIT THEME
-===================================================== */
-
-function initTheme(){
-
-    const theme =
-
-        loadTheme();
-
-
-    if(
-
-        theme === "light"
-
-    ){
-
-        document.documentElement
-
-            .removeAttribute(
-
-                "data-theme"
-
-            );
-
-        return;
-
-    }
-
-
-    document.documentElement
-
-        .setAttribute(
-
-            "data-theme",
-
-            theme
-
-        );
-
-}
 
 
 /* =====================================================
@@ -865,7 +303,7 @@ export const Profile = {
             await response.text();
 
 
-        init();
+        await init();
 
     }
 
@@ -941,13 +379,18 @@ async function init(){
 
     initTheme();
 
+
     await initSession();
+
 
     initEvent();
 
+
     render();
 
+
     renderTheme();
+
 
     initThemeEvent();
 
@@ -979,7 +422,18 @@ async function initSession(){
 
     console.log(
 
+        "Session:",
+
         State.session
+
+    );
+
+
+    console.log(
+
+        "User:",
+
+        State.user
 
     );
 
@@ -1108,6 +562,8 @@ function renderLogin(){
 
                 class="profile-login-button"
 
+                type="button"
+
             >
 
                 Masuk dengan Google
@@ -1157,13 +613,37 @@ async function onGoogleLogin(){
         "Menyiapkan Workspace...";
 
 
-    await loginGoogle();
+    try{
+
+        await loginGoogle();
+
+    }catch(error){
+
+        console.error(
+
+            "Profile Google Login Error:",
+
+            error
+
+        );
+
+
+        button.disabled =
+
+            false;
+
+
+        button.textContent =
+
+            "Masuk dengan Google";
+
+    }
 
 }
 
 
 /* =====================================================
-   USER
+   USER CARD
 ===================================================== */
 
 function renderUserCard(){
@@ -1217,16 +697,18 @@ function renderUserCard(){
 
         State.user?.displayName
 
-        ??
+        ||
 
         "Guest";
 
 
     const email =
 
-        State.session?.user?.email
+        State.session
+        ?.user
+        ?.email
 
-        ??
+        ||
 
         "-";
 
@@ -1267,49 +749,33 @@ function renderUserCard(){
 
                 src="${getAvatar()}"
 
-                alt="${name}"
+                alt="${escapeHtml(name)}"
 
             >
 
 
-            <span
-
-                class="profile-greeting"
-
-            >
+            <span class="profile-greeting">
 
                 ${getGreeting()}
 
             </span>
 
 
-            <h2
+            <h2 class="profile-name">
 
-                class="profile-name"
-
-            >
-
-                ${name}
+                ${escapeHtml(name)}
 
             </h2>
 
 
-            <p
+            <p class="profile-email">
 
-                class="profile-email"
-
-            >
-
-                ${email}
+                ${escapeHtml(email)}
 
             </p>
 
 
-            <p
-
-                class="profile-description"
-
-            >
+            <p class="profile-description">
 
                 Kelola akun dan workspace
 
@@ -1343,11 +809,14 @@ function getAvatar(){
 
     if(
 
-        State.session?.user?.picture
+        State.session
+        ?.user
+        ?.user_metadata
+        ?.avatar_url
 
     ){
 
-        return State.session.user.picture;
+        return State.session.user.user_metadata.avatar_url;
 
     }
 
@@ -1415,13 +884,10 @@ function getGreeting(){
 
 
 /* =====================================================
-   WORKSPACE
+   WORKSPACE CARD
 ===================================================== */
 
-function renderWorkspaceCard(){
-
-    initWorkspace();
-
+async function renderWorkspaceCard(){
 
     const container =
 
@@ -1443,24 +909,6 @@ function renderWorkspaceCard(){
     }
 
 
-    const active =
-
-        State.workspace.filter(
-
-            item => item.active
-
-        );
-
-
-    const inactive =
-
-        State.workspace.filter(
-
-            item => !item.active
-
-        );
-
-
     container.innerHTML =
 
     `
@@ -1476,37 +924,11 @@ function renderWorkspaceCard(){
 
             <div class="profile-workspace">
 
-                ${
+                <div class="workspace-loading">
 
-                    renderWorkspaceGroup(
+                    Memeriksa Workspace...
 
-                        "🟢 Active",
-
-                        active
-
-                    )
-
-                }
-
-
-                ${
-
-                    renderWorkspaceGroup(
-
-                        "🟡 Inactive",
-
-                        inactive
-
-                    )
-
-                }
-
-
-                ${
-
-                    renderCreateWorkspace()
-
-                }
+                </div>
 
             </div>
 
@@ -1514,172 +936,360 @@ function renderWorkspaceCard(){
 
     `;
 
-}
+
+    try{
+
+        await loadWorkspaceState();
 
 
-/* =====================================================
-   LOAD WORKSPACE
-===================================================== */
+        renderWorkspaceContent(
 
-function loadWorkspaceList(){
-
-    const current =
-
-        loadWorkspace();
-
-
-    const modules =
-
-        State.session
-        ?.workspace
-        ?.modules
-
-        ||
-
-        {};
-
-
-    return MODULES
-
-        .filter(
-
-            module => {
-
-                return (
-
-                    modules[
-
-                        module.id
-
-                    ]
-
-                    ?.exists
-
-                    === true
-
-                );
-
-            }
-
-        )
-
-        .map(
-
-            module => {
-
-                const workspace =
-
-                    modules[
-
-                        module.id
-
-                    ];
-
-
-                return {
-
-                    id :
-
-                        module.id,
-
-
-                    icon :
-
-                        module.icon,
-
-
-                    title :
-
-                        module.title,
-
-
-                    active :
-
-                        current
-                        ?.workspace
-
-                        ===
-
-                        module.id,
-
-
-                    exists :
-
-                        workspace
-                        ?.exists
-
-                        === true,
-
-
-                    selected :
-
-                        current
-                        ?.workspace
-
-                        ===
-
-                        module.id
-
-                };
-
-            }
+            container
 
         );
 
+    }catch(error){
+
+        console.error(
+
+            "Gagal memuat Workspace:",
+
+            error
+
+        );
+
+
+        container.innerHTML =
+
+        `
+
+            <article class="profile-card">
+
+                <h2 class="profile-title">
+
+                    Workspace
+
+                </h2>
+
+
+                <div class="profile-workspace">
+
+                    <div class="workspace-empty">
+
+                        Gagal memuat Workspace
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        `;
+
+    }
+
 }
 
 
 /* =====================================================
-   INIT WORKSPACE
+   LOAD WORKSPACE STATE
+
+   Semua logic pengecekan workspace
+   dikerjakan oleh workspace.js.
 ===================================================== */
 
-function initWorkspace(){
+async function loadWorkspaceState(){
 
-    State.workspace =
+    if(
 
-        loadWorkspaceList();
+        State.loadingWorkspace
+
+    ){
+
+        return;
+
+    }
+
+
+    State.loadingWorkspace =
+
+        true;
+
+
+    try{
+
+        const result =
+
+            await getWorkspaceState();
+
+
+        State.workspace =
+
+            normalizeWorkspaceState(
+
+                result
+
+            );
+
+
+        console.log(
+
+            "===== PROFILE WORKSPACE ====="
+
+        );
+
+
+        console.log(
+
+            State.workspace
+
+        );
+
+    }finally{
+
+        State.loadingWorkspace =
+
+            false;
+
+    }
 
 }
 
 
 /* =====================================================
-   GET AVAILABLE WORKSPACE
+   NORMALIZE WORKSPACE
+
+   Menjaga Profile tetap sederhana.
 ===================================================== */
 
-function getAvailableWorkspace(){
+function normalizeWorkspaceState(
 
-    const modules =
+    result
 
-        State.session
-        ?.workspace
-        ?.modules
+){
+
+    const active =
+
+        result?.active
 
         ||
 
-        {};
+        null;
 
 
-    return MODULES.filter(
+    const inactive =
 
-        module =>
+        Array.isArray(
 
-            modules[
+            result?.inactive
 
-                module.id
+        )
 
-            ]
+        ?
 
-            ?.exists
+        result.inactive
 
-            !== true
+        :
 
-    );
+        [];
+
+
+    return {
+
+        active :
+
+            normalizeWorkspaceItem(
+
+                active
+
+            ),
+
+
+        inactive :
+
+            inactive
+
+                .map(
+
+                    normalizeWorkspaceItem
+
+                )
+
+                .filter(
+
+                    Boolean
+
+                )
+
+    };
 
 }
 
 
 /* =====================================================
-   GROUP
+   NORMALIZE ITEM
+===================================================== */
+
+function normalizeWorkspaceItem(
+
+    item
+
+){
+
+    if(
+
+        !item
+
+    ){
+
+        return null;
+
+    }
+
+
+    const config =
+
+        MODULES.find(
+
+            module =>
+
+                module.id === item.id
+
+        );
+
+
+    return {
+
+        id :
+
+            item.id,
+
+
+        title :
+
+            item.title
+
+            ||
+
+            config?.title
+
+            ||
+
+            item.id,
+
+
+        icon :
+
+            item.icon
+
+            ||
+
+            config?.icon
+
+            ||
+
+            "📁"
+
+    };
+
+}
+
+
+/* =====================================================
+   RENDER WORKSPACE CONTENT
+===================================================== */
+
+function renderWorkspaceContent(
+
+    container
+
+){
+
+    const active =
+
+        State.workspace.active
+
+        ?
+
+        [
+
+            State.workspace.active
+
+        ]
+
+        :
+
+        [];
+
+
+    const inactive =
+
+        State.workspace.inactive;
+
+
+    const workspaceContainer =
+
+        container.querySelector(
+
+            ".profile-workspace"
+
+        );
+
+
+    if(
+
+        !workspaceContainer
+
+    ){
+
+        return;
+
+    }
+
+
+    workspaceContainer.innerHTML =
+
+    `
+
+        ${
+
+            renderWorkspaceGroup(
+
+                "🟢 Active",
+
+                active
+
+            )
+
+        }
+
+
+        ${
+
+            renderWorkspaceGroup(
+
+                "🟡 Inactive",
+
+                inactive
+
+            )
+
+        }
+
+
+        ${
+
+            renderCreateWorkspace()
+
+        }
+
+    `;
+
+}
+
+
+/* =====================================================
+   WORKSPACE GROUP
 ===================================================== */
 
 function renderWorkspaceGroup(
@@ -1743,7 +1353,7 @@ function renderWorkspaceGroup(
 
 
 /* =====================================================
-   ITEM
+   WORKSPACE ITEM
 ===================================================== */
 
 function createWorkspaceItem(
@@ -1760,7 +1370,7 @@ function createWorkspaceItem(
 
             type="button"
 
-            data-id="${item.id}"
+            data-id="${escapeHtml(item.id)}"
 
         >
 
@@ -1775,7 +1385,7 @@ function createWorkspaceItem(
 
                 <span class="workspace-name">
 
-                    ${item.title}
+                    ${escapeHtml(item.title)}
 
                 </span>
 
@@ -1784,27 +1394,13 @@ function createWorkspaceItem(
 
             <span
 
-                class="workspace-status
-
-                ${
-
-                    item.active
-
-                    ?
-
-                    "active"
-
-                    :
-
-                    "inactive"
-
-                }"
+                class="workspace-status"
 
             >
 
                 ${
 
-                    item.active
+                    item === State.workspace.active
 
                     ?
 
@@ -1826,7 +1422,7 @@ function createWorkspaceItem(
 
 
 /* =====================================================
-   CREATE WORKSPACE BUTTON
+   CREATE WORKSPACE
 ===================================================== */
 
 function renderCreateWorkspace(){
@@ -1851,23 +1447,52 @@ function renderCreateWorkspace(){
 
 
 /* =====================================================
-   CREATE WORKSPACE
+   AVAILABLE WORKSPACE
+===================================================== */
 
-   Flow:
+function getAvailableWorkspace(){
 
-   Profile
-      ↓
-   Pilih Module
-      ↓
-   Apps Script
-      ↓
-   createModuleWorkspace()
-      ↓
-   Update Session
-      ↓
-   Set Active Workspace
-      ↓
-   Reload
+    const activeId =
+
+        State.workspace.active?.id;
+
+
+    const inactiveIds =
+
+        new Set(
+
+            State.workspace.inactive
+
+                .map(
+
+                    item => item.id
+
+                )
+
+        );
+
+
+    return MODULES.filter(
+
+        module =>
+
+            module.id !== activeId
+
+            &&
+
+            !inactiveIds.has(
+
+                module.id
+
+            )
+
+    );
+
+}
+
+
+/* =====================================================
+   CREATE WORKSPACE EVENT
 ===================================================== */
 
 async function onCreateWorkspace(){
@@ -1876,10 +1501,6 @@ async function onCreateWorkspace(){
 
         getAvailableWorkspace();
 
-
-    /* =============================================
-       NO AVAILABLE WORKSPACE
-    ============================================= */
 
     if(
 
@@ -1898,41 +1519,29 @@ async function onCreateWorkspace(){
     }
 
 
-    /* =============================================
-       MODULE OPTIONS
-    ============================================= */
-
     const options =
 
         available
 
-        .map(
+            .map(
 
-            (
+                (
 
-                module,
+                    module,
 
-                index
+                    index
 
-            ) =>
+                ) =>
 
-                `${
+                    `${index + 1}. ${module.title}`
 
-                    index + 1
+            )
 
-                }. ${
+            .join(
 
-                    module.title
+                "\n"
 
-                }`
-
-        )
-
-        .join(
-
-            "\n"
-
-        );
+            );
 
 
     const selected =
@@ -1941,12 +1550,8 @@ async function onCreateWorkspace(){
 
             `Pilih Workspace yang ingin dibuat:\n\n${options}`
 
-        );
+    );
 
-
-    /* =============================================
-       CANCEL
-    ============================================= */
 
     if(
 
@@ -1958,10 +1563,6 @@ async function onCreateWorkspace(){
 
     }
 
-
-    /* =============================================
-       GET SELECTED MODULE
-    ============================================= */
 
     const index =
 
@@ -1978,16 +1579,8 @@ async function onCreateWorkspace(){
 
     const module =
 
-        available[
+        available[index];
 
-            index
-
-        ];
-
-
-    /* =============================================
-       INVALID MODULE
-    ============================================= */
 
     if(
 
@@ -2005,93 +1598,6 @@ async function onCreateWorkspace(){
 
     }
 
-
-    /* =============================================
-       SESSION
-    ============================================= */
-
-    const session =
-
-        State.session;
-
-
-    if(
-
-        !session
-
-    ){
-
-        alert(
-
-            "Session tidak ditemukan. Silakan login ulang."
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       ACCESS TOKEN
-    ============================================= */
-
-    const accessToken =
-
-        session
-        ?.token
-        ?.accessToken;
-
-
-    if(
-
-        !accessToken
-
-    ){
-
-        alert(
-
-            "Access Token tidak ditemukan. Silakan login ulang."
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       FINANCE CORE ID
-    ============================================= */
-
-    const spreadsheetId =
-
-        session
-        ?.workspace
-        ?.spreadsheet
-        ?.id;
-
-
-    if(
-
-        !spreadsheetId
-
-    ){
-
-        alert(
-
-            "Finance Core tidak ditemukan."
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       CONFIRM
-    ============================================= */
 
     const confirmed =
 
@@ -2113,21 +1619,16 @@ async function onCreateWorkspace(){
     }
 
 
+    const button =
+
+        document.querySelector(
+
+            ".workspace-create"
+
+        );
+
+
     try{
-
-
-        /* =============================================
-           BUTTON LOADING
-        ============================================= */
-
-        const button =
-
-            document.querySelector(
-
-                ".workspace-create"
-
-            );
-
 
         if(
 
@@ -2149,227 +1650,37 @@ async function onCreateWorkspace(){
 
         console.log(
 
-            "===== CREATE WORKSPACE ====="
+            "===== PROFILE CREATE WORKSPACE ====="
 
         );
 
 
         console.log(
 
-            "Module:",
+            "Workspace:",
 
-            module.id
-
-        );
-
-
-        console.log(
-
-            "Spreadsheet:",
-
-            spreadsheetId
+            module
 
         );
 
-
-        /* =============================================
-           REQUEST BACKEND
-        ============================================= */
 
         const result =
 
-            await apiRequest({
+            await createWorkspace(
 
-                action :
+                module.id
 
-                    "createModule",
-
-
-                accessToken :
-
-                    accessToken,
-
-
-                spreadsheetId :
-
-                    spreadsheetId,
-
-
-                module :
-
-                    module.id
-
-            });
+            );
 
 
         console.log(
 
-            "Create Workspace Response:",
+            "Create Workspace Result:",
 
             result
 
         );
 
-
-        /* =============================================
-           VALIDATE RESPONSE
-        ============================================= */
-
-        if(
-
-            !result
-
-        ){
-
-            throw new Error(
-
-                "Response server kosong"
-
-            );
-
-        }
-
-
-        if(
-
-            result.success !== true
-
-        ){
-
-            throw new Error(
-
-                result.error
-
-                ||
-
-                "Gagal membuat Workspace"
-
-            );
-
-        }
-
-
-        /* =============================================
-           ENSURE WORKSPACE OBJECT
-        ============================================= */
-
-        if(
-
-            !State.session.workspace
-
-        ){
-
-            State.session.workspace =
-
-                {};
-
-        }
-
-
-        /* =============================================
-           ENSURE MODULES OBJECT
-        ============================================= */
-
-        if(
-
-            !State.session.workspace.modules
-
-        ){
-
-            State.session.workspace.modules =
-
-                {};
-
-        }
-
-
-        /* =============================================
-           UPDATE MODULE STATUS
-
-           Jika backend mengirim result.module,
-           gunakan data dari backend.
-
-           Jika belum, gunakan fallback.
-        ============================================= */
-
-        State.session.workspace.modules[
-
-            module.id
-
-        ] =
-
-            result.module
-
-            ||
-
-            {
-
-                key :
-
-                    module.id,
-
-
-                name :
-
-                    module.title,
-
-
-                exists :
-
-                    true
-
-            };
-
-
-        /* =============================================
-           SAVE UPDATED SESSION
-        ============================================= */
-
-        localStorage.setItem(
-
-            "finance_session",
-
-            JSON.stringify(
-
-                State.session
-
-            )
-
-        );
-
-
-        /* =============================================
-           CURRENT WORKSPACE
-        ============================================= */
-
-        const current =
-
-            loadWorkspace()
-
-            ||
-
-            {};
-
-
-        /* =============================================
-           SET NEW WORKSPACE ACTIVE
-        ============================================= */
-
-        saveWorkspace({
-
-            ...current,
-
-
-            workspace :
-
-                module.id
-
-        });
-
-
-        /* =============================================
-           SUCCESS
-        ============================================= */
 
         alert(
 
@@ -2378,31 +1689,13 @@ async function onCreateWorkspace(){
         );
 
 
-        /* =============================================
-           RELOAD
-
-           Setelah reload:
-
-           - Session dibaca ulang
-           - Workspace muncul
-           - Workspace menjadi active
-           - workspace.js dapat menjalankan module
-        ============================================= */
-
         location.reload();
-
 
     }catch(error){
 
-
         console.error(
 
-            "===== CREATE WORKSPACE ERROR ====="
-
-        );
-
-
-        console.error(
+            "Create Workspace Error:",
 
             error
 
@@ -2411,26 +1704,13 @@ async function onCreateWorkspace(){
 
         alert(
 
-            error.message
+            error?.message
 
             ||
 
-            "Terjadi kesalahan saat membuat Workspace."
+            "Gagal membuat Workspace."
 
         );
-
-
-        /* =============================================
-           RESTORE BUTTON
-        ============================================= */
-
-        const button =
-
-            document.querySelector(
-
-                ".workspace-create"
-
-            );
 
 
         if(
@@ -2459,93 +1739,115 @@ async function onCreateWorkspace(){
    CHANGE WORKSPACE
 ===================================================== */
 
-function onWorkspace(
+async function onWorkspace(
 
     id
 
 ){
 
-    const workspace =
+    if(
 
-        State.workspace.find(
+        !id
 
-            item =>
+    ){
 
-                item.id === id
+        return;
+
+    }
+
+
+    if(
+
+        State.workspace.active?.id === id
+
+    ){
+
+        return;
+
+    }
+
+
+    const exists =
+
+        State.workspace.inactive
+
+            .some(
+
+                item =>
+
+                    item.id === id
+
+            );
+
+
+    if(
+
+        !exists
+
+    ){
+
+        console.warn(
+
+            "Workspace belum tersedia:",
+
+            id
+
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        console.log(
+
+            "===== SET ACTIVE WORKSPACE ====="
 
         );
 
 
-    if(
+        console.log(
 
-        !workspace
-
-    ){
-
-        return;
-
-    }
-
-
-    /*
-     * Semua workspace yang tampil
-     * sudah dibuat dan tersedia.
-    */
-
-    if(
-
-        !workspace.exists
-
-    ){
-
-        return;
-
-    }
-
-
-    const current =
-
-        loadWorkspace();
-
-
-    /*
-     * Sudah menjadi workspace aktif.
-    */
-
-    if(
-
-        current
-        ?.workspace
-
-        ===
-
-        id
-
-    ){
-
-        return;
-
-    }
-
-
-    /*
-     * Simpan workspace baru
-     * sebagai workspace aktif.
-    */
-
-    saveWorkspace({
-
-        ...current,
-
-
-        workspace :
+            "Workspace:",
 
             id
 
-    });
+        );
 
 
-    location.reload();
+        await setActiveWorkspace(
+
+            id
+
+        );
+
+
+        location.reload();
+
+    }catch(error){
+
+        console.error(
+
+            "Set Active Workspace Error:",
+
+            error
+
+        );
+
+
+        alert(
+
+            error?.message
+
+            ||
+
+            "Gagal mengaktifkan Workspace."
+
+        );
+
+    }
 
 }
 
@@ -3041,6 +2343,264 @@ function closeSettings(){
 
 
 /* =====================================================
+   THEME
+===================================================== */
+
+function renderTheme(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-theme-options"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const current =
+
+        loadTheme();
+
+
+    container.innerHTML =
+
+        THEMES
+
+            .map(
+
+                theme => `
+
+                    <button
+
+                        type="button"
+
+                        class="profile-theme-option ${
+                            current === theme.id
+                            ? "active"
+                            : ""
+                        }"
+
+                        data-theme="${theme.id}"
+
+                    >
+
+                        <span class="profile-theme-icon">
+
+                            ${theme.icon}
+
+                        </span>
+
+
+                        <span class="profile-theme-info">
+
+                            <strong>
+
+                                ${theme.title}
+
+                            </strong>
+
+
+                            <small>
+
+                                ${theme.description}
+
+                            </small>
+
+                        </span>
+
+
+                        <span class="profile-theme-check">
+
+                            ✓
+
+                        </span>
+
+                    </button>
+
+                `
+
+            )
+
+            .join(
+
+                ""
+
+            );
+
+}
+
+
+/* =====================================================
+   THEME EVENT
+===================================================== */
+
+function initThemeEvent(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-theme-options"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    container.addEventListener(
+
+        "click",
+
+        event => {
+
+            const button =
+
+                event.target.closest(
+
+                    "[data-theme]"
+
+                );
+
+
+            if(
+
+                !button
+
+            ){
+
+                return;
+
+            }
+
+
+            applyTheme(
+
+                button.dataset.theme
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   APPLY THEME
+===================================================== */
+
+function applyTheme(
+
+    theme
+
+){
+
+    saveTheme(
+
+        theme
+
+    );
+
+
+    if(
+
+        theme === "light"
+
+    ){
+
+        document.documentElement
+
+            .removeAttribute(
+
+                "data-theme"
+
+            );
+
+    }else{
+
+        document.documentElement
+
+            .setAttribute(
+
+                "data-theme",
+
+                theme
+
+            );
+
+    }
+
+
+    renderTheme();
+
+}
+
+
+/* =====================================================
+   INIT THEME
+===================================================== */
+
+function initTheme(){
+
+    const theme =
+
+        loadTheme();
+
+
+    if(
+
+        theme === "light"
+
+    ){
+
+        document.documentElement
+
+            .removeAttribute(
+
+                "data-theme"
+
+            );
+
+        return;
+
+    }
+
+
+    document.documentElement
+
+        .setAttribute(
+
+            "data-theme",
+
+            theme
+
+        );
+
+}
+
+
+/* =====================================================
    LOGOUT
 ===================================================== */
 
@@ -3062,5 +2622,68 @@ function onLogout(){
 
 
     logout();
+
+}
+
+
+/* =====================================================
+   HTML ESCAPE
+===================================================== */
+
+function escapeHtml(
+
+    value
+
+){
+
+    return String(
+
+        value
+
+        ||
+
+        ""
+
+    )
+
+    .replace(
+
+        /&/g,
+
+        "&amp;"
+
+    )
+
+    .replace(
+
+        /</g,
+
+        "&lt;"
+
+    )
+
+    .replace(
+
+        />/g,
+
+        "&gt;"
+
+    )
+
+    .replace(
+
+        /"/g,
+
+        "&quot;"
+
+    )
+
+    .replace(
+
+        /'/g,
+
+        "&#039;"
+
+    );
 
 }
