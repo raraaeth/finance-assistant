@@ -55,11 +55,16 @@ import {
 import {
 
     getWorkspaceState,
-
     setActiveWorkspace
 
 } from "../../js/workspace.js";
 
+
+import {
+
+    createWorkspace
+
+} from "../../js/addworkspace.js";
 
 /* =====================================================
    STATE
