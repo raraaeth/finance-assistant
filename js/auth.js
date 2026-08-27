@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 7.0.0
+   Version     : 7.1.0
 
    Description :
    Supabase Authentication Engine
@@ -17,6 +17,7 @@
    - Email
    - Avatar
    - Google Provider Token
+   - Google Provider Refresh Token
 
    Finance Assistant :
    - Display Name
@@ -26,6 +27,12 @@
 
    Google Drive / Sheets :
    Ditangani oleh module.js
+
+   IMPORTANT :
+   Google Provider Token disimpan secara
+   lokal agar tetap dapat digunakan setelah
+   refresh halaman ketika Supabase session
+   tidak lagi membawa provider_token.
 ========================================== */
 
 
@@ -66,11 +73,193 @@ import {
 
 const Auth = {
 
-    session : null,
+    session :
 
-    user : null
+        null,
+
+    user :
+
+        null
 
 };
+
+
+/* ==========================================
+   GOOGLE TOKEN STORAGE
+========================================== */
+
+/*
+   Supabase session dapat tetap tersedia
+   setelah refresh tetapi provider_token
+   tidak selalu tersedia kembali.
+
+   Karena module.js membutuhkan token Google
+   untuk Google Drive / Sheets, provider token
+   kita persist secara lokal.
+*/
+
+const GOOGLE_TOKEN_KEY =
+
+    "finance_google_provider_token";
+
+
+const GOOGLE_REFRESH_TOKEN_KEY =
+
+    "finance_google_provider_refresh_token";
+
+
+/* ==========================================
+   SAVE GOOGLE PROVIDER TOKENS
+========================================== */
+
+function saveGoogleTokens(
+
+    session
+
+){
+
+    if(
+
+        !session
+
+    ){
+
+        return;
+
+    }
+
+
+    /* ======================================
+       PROVIDER ACCESS TOKEN
+    ====================================== */
+
+    if(
+
+        session.provider_token
+
+    ){
+
+        localStorage.setItem(
+
+            GOOGLE_TOKEN_KEY,
+
+            session.provider_token
+
+        );
+
+
+        console.log(
+
+            "Google Provider Token disimpan."
+
+        );
+
+    }
+
+
+    /* ======================================
+       PROVIDER REFRESH TOKEN
+    ====================================== */
+
+    if(
+
+        session.provider_refresh_token
+
+    ){
+
+        localStorage.setItem(
+
+            GOOGLE_REFRESH_TOKEN_KEY,
+
+            session.provider_refresh_token
+
+        );
+
+
+        console.log(
+
+            "Google Provider Refresh Token disimpan."
+
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   LOAD GOOGLE PROVIDER TOKEN
+========================================== */
+
+function loadGoogleToken(){
+
+    return (
+
+        localStorage.getItem(
+
+            GOOGLE_TOKEN_KEY
+
+        )
+
+        ||
+
+        null
+
+    );
+
+}
+
+
+/* ==========================================
+   LOAD GOOGLE PROVIDER REFRESH TOKEN
+========================================== */
+
+function loadGoogleRefreshToken(){
+
+    return (
+
+        localStorage.getItem(
+
+            GOOGLE_REFRESH_TOKEN_KEY
+
+        )
+
+        ||
+
+        null
+
+    );
+
+}
+
+
+/* ==========================================
+   CLEAR GOOGLE TOKENS
+========================================== */
+
+function clearGoogleTokens(){
+
+    localStorage.removeItem(
+
+        GOOGLE_TOKEN_KEY
+
+    );
+
+
+    localStorage.removeItem(
+
+        GOOGLE_REFRESH_TOKEN_KEY
+
+    );
+
+
+    console.log(
+
+        "Google Provider Token dihapus."
+
+    );
+
+}
 
 
 /* ==========================================
@@ -142,13 +331,33 @@ async function init(){
 
 
             console.log(
+
                 "Existing Supabase Session ditemukan."
+
             );
 
 
             console.log(
+
                 "Supabase User:",
+
                 data.session.user
+
+            );
+
+
+            /* ==================================
+               SAVE PROVIDER TOKEN
+
+               Jika session masih membawa
+               provider token, simpan/update
+               token lokal.
+            ================================== */
+
+            saveGoogleTokens(
+
+                data.session
+
             );
 
 
@@ -167,11 +376,55 @@ async function init(){
                DEBUG PROVIDER TOKEN
             ================================== */
 
-            console.log(
-                "Google Provider Token:",
+            const providerToken =
+
                 data.session.provider_token
-                    ? "AVAILABLE"
-                    : "MISSING"
+
+                ||
+
+                loadGoogleToken();
+
+
+            console.log(
+
+                "Google Provider Token:",
+
+                providerToken
+
+                    ?
+
+                    "AVAILABLE"
+
+                    :
+
+                    "MISSING"
+
+            );
+
+
+            const providerRefreshToken =
+
+                data.session.provider_refresh_token
+
+                ||
+
+                loadGoogleRefreshToken();
+
+
+            console.log(
+
+                "Google Provider Refresh Token:",
+
+                providerRefreshToken
+
+                    ?
+
+                    "AVAILABLE"
+
+                    :
+
+                    "MISSING"
+
             );
 
         }
@@ -205,6 +458,10 @@ async function init(){
                 );
 
 
+                /* ==================================
+                   UPDATE AUTH STATE
+                ================================== */
+
                 Auth.session =
 
                     session;
@@ -220,7 +477,7 @@ async function init(){
 
 
                 /* ==================================
-                   SIGNED IN / SESSION EXISTS
+                   SESSION EXISTS
                 ================================== */
 
                 if(
@@ -230,8 +487,22 @@ async function init(){
                 ){
 
                     console.log(
+
                         "Supabase User:",
+
                         session.user
+
+                    );
+
+
+                    /* ==============================
+                       SAVE GOOGLE TOKENS
+                    ============================== */
+
+                    saveGoogleTokens(
+
+                        session
+
                     );
 
 
@@ -257,14 +528,16 @@ async function init(){
                     ){
 
                         console.log(
+
                             "Auth: SIGNED_IN terdeteksi."
+
                         );
 
 
                         /*
                            Jalankan Finance Module.
 
-                           module.js yang menentukan:
+                           module.js menentukan:
 
                            Account belum ada
                                ↓
@@ -283,6 +556,37 @@ async function init(){
 
 
                 /* ==================================
+                   TOKEN REFRESHED
+                ================================== */
+
+                if(
+
+                    event === "TOKEN_REFRESHED"
+
+                ){
+
+                    console.log(
+
+                        "Auth: TOKEN_REFRESHED."
+
+                    );
+
+
+                    /*
+                       Jika provider token tersedia
+                       setelah refresh, simpan kembali.
+                    */
+
+                    saveGoogleTokens(
+
+                        session
+
+                    );
+
+                }
+
+
+                /* ==================================
                    SIGNED OUT
                 ================================== */
 
@@ -293,7 +597,9 @@ async function init(){
                 ){
 
                     console.log(
+
                         "Auth: SIGNED_OUT."
+
                     );
 
 
@@ -305,6 +611,9 @@ async function init(){
                     Auth.user =
 
                         null;
+
+
+                    clearGoogleTokens();
 
                 }
 
@@ -329,7 +638,9 @@ async function init(){
 
 
         console.error(
+
             error
+
         );
 
     }
@@ -421,8 +732,11 @@ export async function loginGoogle(){
 
 
         console.log(
+
             "Google OAuth started:",
+
             data
+
         );
 
 
@@ -442,7 +756,9 @@ export async function loginGoogle(){
 
 
         console.error(
+
             error
+
         );
 
 
@@ -499,7 +815,9 @@ async function initializeFinanceModule(){
         ){
 
             console.warn(
+
                 "Module: Session tidak ditemukan."
+
             );
 
 
@@ -509,7 +827,9 @@ async function initializeFinanceModule(){
 
 
         console.log(
+
             "Module: Session OK."
+
         );
 
 
@@ -518,8 +838,11 @@ async function initializeFinanceModule(){
         ====================================== */
 
         console.log(
+
             "Module: Google User:",
+
             session.user
+
         );
 
 
@@ -527,16 +850,39 @@ async function initializeFinanceModule(){
            PROVIDER TOKEN
         ====================================== */
 
+        /*
+           Prioritas:
+
+           1. session.provider_token
+           2. localStorage
+
+           Ini memungkinkan module tetap bekerja
+           setelah browser melakukan refresh.
+        */
+
         const providerToken =
 
-            session.provider_token;
+            session.provider_token
+
+            ||
+
+            loadGoogleToken();
 
 
         console.log(
+
             "Module: Google Provider Token:",
+
             providerToken
-                ? "AVAILABLE"
-                : "MISSING"
+
+                ?
+
+                "AVAILABLE"
+
+                :
+
+                "MISSING"
+
         );
 
 
@@ -569,8 +915,11 @@ async function initializeFinanceModule(){
 
 
         console.log(
+
             "Module: Local Finance Assistant User:",
+
             localUser
+
         );
 
 
@@ -622,8 +971,11 @@ async function initializeFinanceModule(){
 
 
         console.log(
+
             "Module: Local Onboarding Data:",
+
             onboarding
+
         );
 
 
@@ -632,7 +984,9 @@ async function initializeFinanceModule(){
         ====================================== */
 
         console.log(
+
             "Module: Memulai Finance Core setup..."
+
         );
 
 
@@ -646,8 +1000,11 @@ async function initializeFinanceModule(){
 
 
         console.log(
+
             "Module: Initialize result:",
+
             result
+
         );
 
 
@@ -673,18 +1030,23 @@ async function initializeFinanceModule(){
 
 
             console.log(
+
                 "Module: Info berhasil disimpan."
+
             );
 
 
             /* ==================================
                RESTORE ACCOUNT DATA
 
-               Account dari Finance Core
-               adalah source of truth.
+               Finance Core account adalah
+               source of truth untuk Finance
+               Assistant profile.
 
-               Ini penting untuk browser
-               atau perangkat baru.
+               Ini digunakan untuk:
+               - browser baru
+               - device baru
+               - localStorage yang hilang
             ================================== */
 
             if(
@@ -694,13 +1056,18 @@ async function initializeFinanceModule(){
             ){
 
                 console.log(
+
                     "Module: Restoring Finance Account Data..."
+
                 );
 
 
                 console.log(
+
                     "Module: Account Data:",
+
                     result.accountData
+
                 );
 
 
@@ -714,15 +1081,20 @@ async function initializeFinanceModule(){
 
 
                     console.log(
+
                         "Module: Finance Account berhasil dipulihkan."
+
                     );
 
 
                 }catch(error){
 
                     console.warn(
+
                         "Module: Gagal restore Finance Account:",
+
                         error
+
                     );
 
                 }
@@ -750,16 +1122,22 @@ async function initializeFinanceModule(){
 
 
                         console.log(
+
                             "Module: Theme dipulihkan:",
+
                             result.accountData.theme
+
                         );
 
 
                     }catch(error){
 
                         console.warn(
+
                             "Module: Gagal restore theme:",
+
                             error
+
                         );
 
                     }
@@ -803,20 +1181,29 @@ async function initializeFinanceModule(){
 
 
         console.error(
+
             "Module Error:",
+
             error
+
         );
 
 
         console.error(
+
             "Module Error Message:",
+
             error?.message
+
         );
 
 
         console.error(
+
             "Module Error Stack:",
+
             error?.stack
+
         );
 
 
@@ -824,9 +1211,8 @@ async function initializeFinanceModule(){
            Login Supabase tetap berhasil
            meskipun Drive / Sheets gagal.
 
-           Ini penting supaya error module
-           tidak membuat user dianggap
-           logout.
+           Error module tidak membuat
+           user dianggap logout.
         */
 
         return {
@@ -873,8 +1259,11 @@ export async function getSession(){
     ){
 
         console.error(
+
             "Get session error:",
+
             error
+
         );
 
 
@@ -895,6 +1284,26 @@ export async function getSession(){
         ||
 
         null;
+
+
+    /*
+       Jika session membawa provider token,
+       simpan/update token lokal.
+    */
+
+    if(
+
+        data.session
+
+    ){
+
+        saveGoogleTokens(
+
+            data.session
+
+        );
+
+    }
 
 
     return data.session;
@@ -1012,6 +1421,17 @@ export async function getValidAccessToken(){
         data.session.user;
 
 
+    /*
+       Persist provider token jika tersedia.
+    */
+
+    saveGoogleTokens(
+
+        data.session
+
+    );
+
+
     return data.session.access_token;
 
 }
@@ -1028,9 +1448,20 @@ export async function getGoogleProviderToken(){
         await getSession();
 
 
+    /*
+       Prioritas:
+
+       1. Session provider_token
+       2. Local storage
+    */
+
     return (
 
         session?.provider_token
+
+        ||
+
+        loadGoogleToken()
 
         ||
 
@@ -1052,9 +1483,20 @@ export async function getGoogleProviderRefreshToken(){
         await getSession();
 
 
+    /*
+       Prioritas:
+
+       1. Session provider_refresh_token
+       2. Local storage
+    */
+
     return (
 
         session?.provider_refresh_token
+
+        ||
+
+        loadGoogleRefreshToken()
 
         ||
 
@@ -1132,8 +1574,11 @@ function restoreUser(
 
 
     console.log(
+
         "Google User:",
+
         user
+
     );
 
 
@@ -1160,8 +1605,11 @@ function restoreUser(
 
 
     console.log(
+
         "Existing Finance User:",
+
         existingUser
+
     );
 
 
@@ -1267,21 +1715,29 @@ function restoreUser(
 
 
         console.log(
+
             "Finance User berhasil disimpan."
+
         );
 
 
         console.log(
+
             "Display Name:",
+
             userData.displayName
+
         );
 
 
     }catch(error){
 
         console.warn(
+
             "saveUser failed:",
+
             error
+
         );
 
     }
@@ -1312,16 +1768,22 @@ function restoreUser(
 
 
             console.log(
+
                 "Theme:",
+
                 userData.theme
+
             );
 
 
         }catch(error){
 
             console.warn(
+
                 "saveTheme failed:",
+
                 error
+
             );
 
         }
@@ -1370,6 +1832,10 @@ export async function logout(){
         }
 
 
+        /* ======================================
+           CLEAR AUTH STATE
+        ====================================== */
+
         Auth.session =
 
             null;
@@ -1380,10 +1846,30 @@ export async function logout(){
             null;
 
 
+        /* ======================================
+           CLEAR GOOGLE TOKENS
+        ====================================== */
+
+        clearGoogleTokens();
+
+
         console.log(
+
             "Supabase logout berhasil."
+
         );
 
+
+        console.log(
+
+            "Google Provider Token dibersihkan."
+
+        );
+
+
+        /* ======================================
+           REDIRECT
+        ====================================== */
 
         window.location.replace(
 
@@ -1408,7 +1894,9 @@ export async function logout(){
 
 
         console.error(
+
             error
+
         );
 
     }
