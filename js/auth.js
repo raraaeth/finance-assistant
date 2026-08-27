@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 8.0.0
+   Version     : 9.0.0
 
    Description :
    Supabase Authentication Engine
@@ -40,9 +40,11 @@
 
    1. Token disimpan lokal
    2. Refresh token disimpan lokal
-   3. Jika access token tidak tersedia,
+   3. Expiry token disimpan lokal
+   4. Jika access token expired /
+      mendekati expired,
       auth.js meminta refresh ke Apps Script
-   4. Apps Script menggunakan refresh token
+   5. Apps Script menggunakan refresh token
       Google untuk mendapatkan access token baru
 
 ========================================== */
@@ -136,12 +138,36 @@ const GOOGLE_AUTH_API =
    Refresh token sedikit lebih awal
    sebelum benar-benar expired.
 
+   Buffer :
    60 detik.
 */
 
 const TOKEN_REFRESH_BUFFER =
 
     60 * 1000;
+
+
+/* ==========================================
+   FALLBACK TOKEN LIFETIME
+========================================== */
+
+/*
+   Google Provider Access Token umumnya
+   berlaku sekitar 1 jam.
+
+   Jika Supabase tidak memberikan
+   provider_token_expires_in,
+   kita gunakan 55 menit sebagai
+   perkiraan expiry.
+
+   Dengan begitu token akan dianggap
+   perlu diperbarui sebelum benar-benar
+   mencapai batas 1 jam.
+*/
+
+const FALLBACK_TOKEN_LIFETIME =
+
+    55 * 60 * 1000;
 
 
 /* ==========================================
@@ -226,12 +252,14 @@ function saveGoogleTokens(
     ====================================== */
 
     /*
-       Supabase provider session kadang
-       tidak memberikan expires_in untuk
-       provider token.
+       Prioritas :
 
-       Karena itu kita hanya menyimpan
-       expiry jika memang tersedia.
+       1. provider_token_expires_in
+       2. fallback 55 menit
+
+       Jangan overwrite expiry yang sudah
+       ada hanya karena Supabase tidak
+       mengirim expires_in.
     */
 
     if(
@@ -240,25 +268,86 @@ function saveGoogleTokens(
 
     ){
 
-        const expiresAt =
+        const expiresIn =
+
+            Number(
+
+                session.provider_token_expires_in
+
+            );
+
+
+        if(
+
+            Number.isFinite(
+
+                expiresIn
+
+            )
+
+            &&
+
+            expiresIn > 0
+
+        ){
+
+            const expiresAt =
+
+                Date.now()
+
+                +
+
+                (
+
+                    expiresIn
+
+                    *
+
+                    1000
+
+                );
+
+
+            localStorage.setItem(
+
+                GOOGLE_TOKEN_EXPIRES_KEY,
+
+                String(
+
+                    expiresAt
+
+                )
+
+            );
+
+
+            console.log(
+
+                "AUTH: Google Provider Token expiry disimpan."
+
+            );
+
+        }
+
+    }
+
+    else if(
+
+        session.provider_token
+
+        &&
+
+        !loadGoogleTokenExpiry()
+
+    ){
+
+        const fallbackExpiresAt =
 
             Date.now()
 
             +
 
-            (
-
-                Number(
-
-                    session.provider_token_expires_in
-
-                )
-
-                *
-
-                1000
-
-            );
+            FALLBACK_TOKEN_LIFETIME;
 
 
         localStorage.setItem(
@@ -267,7 +356,7 @@ function saveGoogleTokens(
 
             String(
 
-                expiresAt
+                fallbackExpiresAt
 
             )
 
@@ -276,7 +365,7 @@ function saveGoogleTokens(
 
         console.log(
 
-            "AUTH: Google Provider Token expiry disimpan."
+            "AUTH: Google Provider Token expiry fallback 55 menit disimpan."
 
         );
 
@@ -372,7 +461,9 @@ function loadGoogleTokenExpiry(){
 
             expiry
 
-        ) ){
+        )
+
+    ){
 
         return null;
 
@@ -397,9 +488,11 @@ function isGoogleTokenExpired(){
 
     /*
        Jika expiry belum diketahui,
-       jangan anggap expired.
+       jangan langsung menganggap expired.
 
-       Token lama tetap dicoba.
+       saveGoogleTokens() akan membuat
+       fallback expiry 55 menit ketika
+       provider token baru tersedia.
     */
 
     if(
@@ -808,8 +901,6 @@ function jsonpRequest(
 ========================================== */
 
 /*
-   Fungsi utama baru.
-
    Flow :
 
    Local Refresh Token
@@ -1088,6 +1179,44 @@ export async function refreshGoogleProviderToken(){
 
         }
 
+        else{
+
+            /*
+               Jika Apps Script tidak
+               mengembalikan expiresIn,
+               gunakan fallback 55 menit.
+            */
+
+            const fallbackExpiresAt =
+
+                Date.now()
+
+                +
+
+                FALLBACK_TOKEN_LIFETIME;
+
+
+            localStorage.setItem(
+
+                GOOGLE_TOKEN_EXPIRES_KEY,
+
+                String(
+
+                    fallbackExpiresAt
+
+                )
+
+            );
+
+
+            console.log(
+
+                "AUTH: Token expiry fallback 55 menit disimpan."
+
+            );
+
+        }
+
 
         /* ==================================
            UPDATE AUTH SESSION MEMORY
@@ -1180,18 +1309,23 @@ export async function refreshGoogleProviderToken(){
 ========================================== */
 
 /*
-   Ini adalah fungsi yang nantinya akan
-   digunakan oleh :
-
-   workspace.js
-   module.js
-   api.js
-
    Prioritas :
 
-   1. Session provider_token
-   2. Local token
-   3. Refresh token jika expired/missing
+   1. Cek apakah local token expired
+   2. Jika expired → refresh
+   3. Session provider token
+   4. Local token
+   5. Refresh token
+
+   IMPORTANT :
+
+   Jangan langsung percaya
+   session.provider_token.
+
+   Token Google dapat tetap terlihat
+   tersedia di Supabase session meskipun
+   access token Google sebenarnya sudah
+   expired.
 */
 
 export async function getValidGoogleProviderToken(){
@@ -1216,44 +1350,6 @@ export async function getValidGoogleProviderToken(){
     const session =
 
         await getSession();
-
-
-    /* ======================================
-       SESSION PROVIDER TOKEN
-    ====================================== */
-
-    const sessionToken =
-
-        session?.provider_token
-
-        ||
-
-        null;
-
-
-    if(
-
-        sessionToken
-
-    ){
-
-        console.log(
-
-            "AUTH: Provider Token tersedia dari Supabase session."
-
-        );
-
-
-        saveGoogleTokens(
-
-            session
-
-        );
-
-
-        return sessionToken;
-
-    }
 
 
     /* ======================================
@@ -1283,7 +1379,7 @@ export async function getValidGoogleProviderToken(){
 
 
     /* ======================================
-       LOCAL TOKEN VALID
+       CHECK EXPIRY FIRST
     ====================================== */
 
     if(
@@ -1292,13 +1388,116 @@ export async function getValidGoogleProviderToken(){
 
         &&
 
-        !isGoogleTokenExpired()
+        isGoogleTokenExpired()
 
     ){
 
         console.log(
 
-            "AUTH: Local Google Token dianggap masih valid."
+            "AUTH: Google Provider Token expired / mendekati expired."
+
+        );
+
+
+        console.log(
+
+            "AUTH: Refresh diperlukan."
+
+        );
+
+
+        return await refreshGoogleProviderToken();
+
+    }
+
+
+    /* ======================================
+       SESSION PROVIDER TOKEN
+    ====================================== */
+
+    const sessionToken =
+
+        session?.provider_token
+
+        ||
+
+        null;
+
+
+    if(
+
+        sessionToken
+
+    ){
+
+        console.log(
+
+            "AUTH: Provider Token tersedia dari Supabase session."
+
+        );
+
+
+        /*
+           Pastikan token dan expiry
+           tersimpan.
+        */
+
+        saveGoogleTokens(
+
+            session
+
+        );
+
+
+        /*
+           Cek kembali setelah save.
+           Ini penting jika saveGoogleTokens()
+           baru membuat fallback expiry.
+        */
+
+        if(
+
+            isGoogleTokenExpired()
+
+        ){
+
+            console.log(
+
+                "AUTH: Session Provider Token sudah mendekati expiry."
+
+            );
+
+
+            console.log(
+
+                "AUTH: Melakukan refresh..."
+
+            );
+
+
+            return await refreshGoogleProviderToken();
+
+        }
+
+
+        return sessionToken;
+
+    }
+
+
+    /* ======================================
+       LOCAL TOKEN
+    ====================================== */
+
+    if(
+
+        localToken
+
+    ){
+
+        console.log(
+
+            "AUTH: Menggunakan Google Provider Token dari localStorage."
 
         );
 
@@ -1309,35 +1508,15 @@ export async function getValidGoogleProviderToken(){
 
 
     /* ======================================
-       TOKEN EXPIRED / MISSING
+       TOKEN MISSING
     ====================================== */
 
-    if(
+    console.log(
 
-        localToken
+        "AUTH: Google Provider Token tidak tersedia."
 
-    ){
+    );
 
-        console.log(
-
-            "AUTH: Local Google Token expired / mendekati expired."
-
-        );
-
-    }else{
-
-        console.log(
-
-            "AUTH: Local Google Token tidak tersedia."
-
-        );
-
-    }
-
-
-    /* ======================================
-       REFRESH
-    ====================================== */
 
     console.log(
 
@@ -1514,55 +1693,27 @@ async function init(){
 
 
             /* ==================================
-               TOKEN REFRESH TEST
-
-               Hanya refresh jika provider
-               token tidak tersedia atau
-               diketahui expired.
-
-               Jika token masih ada dan
-               expiry tidak diketahui,
-               token tidak dipaksa refresh.
+               TOKEN VALIDATION / REFRESH
             ================================== */
 
-            if(
+            try{
 
-                !providerToken
+                await getValidGoogleProviderToken();
 
-                ||
-
-                isGoogleTokenExpired()
-
-            ){
-
-                console.log(
-
-                    "AUTH: Provider Token perlu diperbarui."
-
-                );
-
-
-                try{
-
-                    await refreshGoogleProviderToken();
-
-                }catch(error){
-
-                    console.warn(
-
-                        "AUTH: Automatic Google token refresh gagal:",
-
-                        error?.message
-
-                    );
-
-                }
-
-            }else{
 
                 console.log(
 
                     "AUTH: Google Provider Token siap digunakan."
+
+                );
+
+            }catch(error){
+
+                console.warn(
+
+                    "AUTH: Automatic Google token refresh gagal:",
+
+                    error?.message
 
                 );
 
@@ -1973,16 +2124,10 @@ async function initializeFinanceModule(){
         ====================================== */
 
         /*
-           Prioritas:
-
-           1. Session
-           2. Local Storage
-           3. Refresh Google token
-
-           Untuk sementara initialize module
-           menggunakan getValidGoogleProviderToken()
-           agar kita bisa melihat apakah
-           refresh token bekerja.
+           Gunakan getValidGoogleProviderToken()
+           agar token yang digunakan module
+           sudah melalui pengecekan expiry /
+           refresh.
         */
 
         let providerToken =
@@ -2234,7 +2379,9 @@ async function initializeFinanceModule(){
                 if(
 
                     result
+
                     ?.accountData
+
                     ?.theme
 
                 ){
