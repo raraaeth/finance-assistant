@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : API
    File        : api.js
-   Version     : 4.2.0
+   Version     : 5.0.0
 
    Description :
    Apps Script Module API Engine
@@ -10,15 +10,29 @@
    Request Method :
    JSONP
 
-   Update :
-   • Kirim accessToken ke Apps Script
-   • Kompatibel dengan getModuleData()
-   • RAW/DATA menggunakan Google Sheets API
+   Architecture :
 
-   Reason :
-   Apps Script Web App tidak dapat
-   di-fetch langsung dari GitHub Pages
-   karena CORS.
+   auth.js
+       ↓
+   Google Provider Token
+
+   module.js
+       ↓
+   Finance Core ID
+
+   api.js
+       ↓
+   Apps Script
+       ↓
+   Google Sheets
+
+   Update :
+   • Finance Core diambil dari module.js
+   • Google Provider Token diambil dari auth.js
+   • Tidak lagi menggunakan session.workspace.spreadsheet
+   • Tidak lagi menggunakan session.token.accessToken
+   • loadSession() diperlakukan sebagai async
+   • RAW / DATA tetap menggunakan Apps Script JSONP
 
 ===================================================== */
 
@@ -29,9 +43,18 @@
 
 import {
 
-    loadSession
+    loadSession,
+
+    getGoogleProviderToken
 
 } from "./auth.js";
+
+
+import {
+
+    loadModuleInfo
+
+} from "./module.js";
 
 
 /* =====================================================
@@ -51,9 +74,67 @@ export const API = {
    SESSION
 ===================================================== */
 
-function getSession(){
+async function getSession(){
 
-    return loadSession();
+    return await loadSession();
+
+}
+
+
+/* =====================================================
+   FINANCE CORE
+===================================================== */
+
+function getFinanceCore(){
+
+    const moduleInfo =
+
+        loadModuleInfo();
+
+
+    console.log(
+
+        "API: Finance Module Info:",
+
+        moduleInfo
+
+    );
+
+
+    if(
+
+        !moduleInfo
+
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+
+        !moduleInfo.financeCore
+
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+
+        !moduleInfo.financeCore.id
+
+    ){
+
+        return null;
+
+    }
+
+
+    return moduleInfo.financeCore;
 
 }
 
@@ -64,17 +145,14 @@ function getSession(){
 
 function getSpreadsheetId(){
 
-    const session =
+    const financeCore =
 
-        getSession();
+        getFinanceCore();
 
 
     return (
 
-        session
-        ?.workspace
-        ?.spreadsheet
-        ?.id
+        financeCore?.id
 
         ||
 
@@ -86,21 +164,19 @@ function getSpreadsheetId(){
 
 
 /* =====================================================
-   ACCESS TOKEN
+   GOOGLE PROVIDER TOKEN
 ===================================================== */
 
-function getAccessToken(){
+async function getAccessToken(){
 
-    const session =
+    const token =
 
-        getSession();
+        await getGoogleProviderToken();
 
 
     return (
 
-        session
-        ?.token
-        ?.accessToken
+        token
 
         ||
 
@@ -392,6 +468,26 @@ API.load = async function(
 
 ){
 
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== API LOAD ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
 
     /* =============================================
        SESSION
@@ -399,23 +495,49 @@ API.load = async function(
 
     const session =
 
-        getSession();
+        await getSession();
+
+
+    console.log(
+
+        "API: Session:",
+
+        session
+
+    );
+
+
+    if(
+
+        !session
+
+    ){
+
+        throw new Error(
+
+            "Session tidak ditemukan. Silakan login."
+
+        );
+
+    }
 
 
     /* =============================================
-       SPREADSHEET
+       FINANCE CORE
     ============================================= */
 
     const spreadsheetId =
 
-        session
-        ?.workspace
-        ?.spreadsheet
-        ?.id
+        getSpreadsheetId();
 
-        ||
 
-        null;
+    console.log(
+
+        "API: Finance Core ID:",
+
+        spreadsheetId
+
+    );
 
 
     if(
@@ -426,7 +548,7 @@ API.load = async function(
 
         throw new Error(
 
-            "Finance Core Spreadsheet ID tidak ditemukan"
+            "Finance Core Spreadsheet ID tidak ditemukan."
 
         );
 
@@ -434,18 +556,29 @@ API.load = async function(
 
 
     /* =============================================
-       ACCESS TOKEN
+       GOOGLE PROVIDER TOKEN
     ============================================= */
 
     const accessToken =
 
-        session
-        ?.token
-        ?.accessToken
+        await getAccessToken();
 
-        ||
 
-        null;
+    console.log(
+
+        "API: Google Provider Token:",
+
+        accessToken
+
+        ?
+
+        "AVAILABLE"
+
+        :
+
+        "MISSING"
+
+    );
 
 
     if(
@@ -456,7 +589,7 @@ API.load = async function(
 
         throw new Error(
 
-            "Access Token tidak ditemukan"
+            "Google Provider Token tidak ditemukan. Silakan login ulang."
 
         );
 
@@ -475,11 +608,89 @@ API.load = async function(
 
         throw new Error(
 
-            "API endpoint tidak ditemukan"
+            "API endpoint tidak ditemukan."
 
         );
 
     }
+
+
+    /* =============================================
+       RAW SHEET
+    ============================================= */
+
+    if(
+
+        !rawSheet
+
+    ){
+
+        throw new Error(
+
+            "Raw sheet tidak ditemukan."
+
+        );
+
+    }
+
+
+    /* =============================================
+       DATA SHEET
+    ============================================= */
+
+    if(
+
+        !dataSheet
+
+    ){
+
+        throw new Error(
+
+            "Data sheet tidak ditemukan."
+
+        );
+
+    }
+
+
+    /* =============================================
+       DEBUG CONFIG
+    ============================================= */
+
+    console.log(
+
+        "API Endpoint:",
+
+        endpoint
+
+    );
+
+
+    console.log(
+
+        "RAW Sheet:",
+
+        rawSheet
+
+    );
+
+
+    console.log(
+
+        "DATA Sheet:",
+
+        dataSheet
+
+    );
+
+
+    console.log(
+
+        "Finance Core:",
+
+        spreadsheetId
+
+    );
 
 
     /* =============================================
@@ -581,15 +792,8 @@ API.load = async function(
 
 
     /* =============================================
-       DEBUG
+       DEBUG URL
     ============================================= */
-
-    console.log(
-
-        "===== API LOAD ====="
-
-    );
-
 
     console.log(
 
@@ -647,6 +851,13 @@ API.load = async function(
 
     console.log(
 
+        "=========================================="
+
+    );
+
+
+    console.log(
+
         "===== API RESPONSE ====="
 
     );
@@ -682,7 +893,7 @@ API.load = async function(
 
         throw new Error(
 
-            "Raw API response kosong"
+            "Raw API response kosong."
 
         );
 
@@ -705,7 +916,7 @@ API.load = async function(
 
             ||
 
-            "Raw API gagal"
+            "Raw API gagal."
 
         );
 
@@ -724,7 +935,7 @@ API.load = async function(
 
         throw new Error(
 
-            "Data API response kosong"
+            "Data API response kosong."
 
         );
 
@@ -747,7 +958,7 @@ API.load = async function(
 
             ||
 
-            "Data API gagal"
+            "Data API gagal."
 
         );
 
@@ -760,9 +971,17 @@ API.load = async function(
 
     API.raw =
 
+        Array.isArray(
+
+            rawResult.data
+
+        )
+
+        ?
+
         rawResult.data
 
-        ||
+        :
 
         [];
 
@@ -773,15 +992,23 @@ API.load = async function(
 
     API.data =
 
+        Array.isArray(
+
+            dataResult.data
+
+        )
+
+        ?
+
         dataResult.data
 
-        ||
+        :
 
         [];
 
 
     /* =============================================
-       DEBUG
+       DEBUG DATA
     ============================================= */
 
     console.log(
@@ -802,6 +1029,15 @@ API.load = async function(
 
     console.log(
 
+        "API raw count:",
+
+        API.raw.length
+
+    );
+
+
+    console.log(
+
         "API data:",
 
         API.data
@@ -809,21 +1045,30 @@ API.load = async function(
     );
 
 
+    console.log(
+
+        "API data count:",
+
+        API.data.length
+
+    );
+
+
     /* =============================================
        RETURN
-
-       Optional return agar module
-       yang memanggil API.load()
-       juga bisa menggunakan hasilnya.
     ============================================= */
 
     return {
 
-        success : true,
+        success :
+
+            true,
+
 
         raw :
 
             API.raw,
+
 
         data :
 
