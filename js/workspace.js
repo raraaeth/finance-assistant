@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Workspace
    File        : workspace.js
-   Version     : 5.0.0
+   Version     : 5.1.0
 
    Description :
    Workspace Controller
@@ -25,6 +25,10 @@
    active
    = workspace yang sedang dipilih user
      melalui local storage.
+
+   inactive
+   = workspace sudah lengkap
+     tetapi belum sedang dipilih.
 
    Workspace yang belum lengkap
    tidak dianggap tersedia.
@@ -132,6 +136,10 @@ const WORKSPACES = {
 
             "Financial",
 
+        icon :
+
+            "📊",
+
         sheets : [
 
             "financial",
@@ -156,6 +164,10 @@ const WORKSPACES = {
         title :
 
             "Saving",
+
+        icon :
+
+            "🏦",
 
         sheets : [
 
@@ -182,6 +194,10 @@ const WORKSPACES = {
 
             "Kas Bersama",
 
+        icon :
+
+            "👥",
+
         sheets : [
 
             "kas",
@@ -206,6 +222,10 @@ const WORKSPACES = {
         title :
 
             "Payroll Daily",
+
+        icon :
+
+            "💰",
 
         sheets : [
 
@@ -232,6 +252,10 @@ const WORKSPACES = {
 
             "Payroll Monthly",
 
+        icon :
+
+            "💼",
+
         sheets : [
 
             "payroll_monthly",
@@ -256,6 +280,10 @@ const WORKSPACES = {
         title :
 
             "Airdrop",
+
+        icon :
+
+            "🎁",
 
         sheets : [
 
@@ -368,9 +396,18 @@ function getFinanceCore(){
     }
 
 
+    const financeCore =
+
+        moduleInfo.financeCore;
+
+
     if(
 
-        !moduleInfo.financeCore
+        !financeCore
+
+        ||
+
+        !financeCore.id
 
     ){
 
@@ -379,24 +416,13 @@ function getFinanceCore(){
     }
 
 
-    if(
-
-        !moduleInfo.financeCore.id
-
-    ){
-
-        return null;
-
-    }
-
-
-    return moduleInfo.financeCore;
+    return financeCore;
 
 }
 
 
 /* =====================================================
-   GET GOOGLE PROVIDER TOKEN
+   GET GOOGLE TOKEN
 ===================================================== */
 
 async function getGoogleToken(){
@@ -475,7 +501,6 @@ async function getFinanceCoreSheets(
         "?fields=spreadsheetId,properties.title,sheets.properties";
 
 
-
     const response =
 
         await fetch(
@@ -487,7 +512,6 @@ async function getFinanceCoreSheets(
                 method :
 
                     "GET",
-
 
                 headers : {
 
@@ -531,6 +555,15 @@ async function getFinanceCoreSheets(
             null;
 
     }catch(error){
+
+        console.error(
+
+            "Google Sheets Raw Response:",
+
+            text
+
+        );
+
 
         throw new Error(
 
@@ -618,11 +651,6 @@ function checkWorkspaceSheets(
         workspace.sheets;
 
 
-    const availableSheets =
-
-        existingSheets;
-
-
     const sheetStatus =
 
         requiredSheets.map(
@@ -633,10 +661,9 @@ function checkWorkspaceSheets(
 
                     sheetName,
 
-
                 exists :
 
-                    availableSheets.includes(
+                    existingSheets.includes(
 
                         sheetName
 
@@ -670,12 +697,18 @@ function checkWorkspaceSheets(
             workspace.title,
 
 
+        icon :
+
+            workspace.icon,
+
+
         sheets :
 
             sheetStatus,
 
 
         exists :
+
 
             exists,
 
@@ -741,6 +774,8 @@ export async function refreshWorkspaces(){
         WorkspaceState.modules = {};
 
         WorkspaceState.active = null;
+
+        WorkspaceState.initialized = true;
 
 
         saveWorkspaceStatus(
@@ -842,7 +877,6 @@ export async function refreshWorkspaces(){
 
                         workspace.sheets,
 
-
                     exists :
 
                         status.exists
@@ -857,7 +891,7 @@ export async function refreshWorkspaces(){
 
 
     /* =============================================
-       ACTIVE WORKSPACE
+       CURRENT ACTIVE
     ============================================= */
 
     const current =
@@ -870,6 +904,11 @@ export async function refreshWorkspaces(){
         null;
 
 
+    /*
+     * Workspace hanya boleh menjadi
+     * active jika kedua sheet intinya ada.
+     */
+
     if(
 
         current
@@ -880,7 +919,7 @@ export async function refreshWorkspaces(){
 
         &&
 
-        modules[current].exists
+        modules[current].exists === true
 
     ){
 
@@ -926,6 +965,11 @@ export async function refreshWorkspaces(){
     WorkspaceState.active =
 
         active;
+
+
+    WorkspaceState.initialized =
+
+        true;
 
 
     saveWorkspaceStatus(
@@ -1064,13 +1108,10 @@ export function workspaceExists(
 
 ){
 
-    const modules =
-
-        WorkspaceState.modules;
-
     return (
 
-        modules
+        WorkspaceState
+        .modules
         ?.[moduleKey]
         ?.exists
 
@@ -1131,7 +1172,7 @@ export function setActiveWorkspace(
 
 
     /* =============================================
-       VALIDATE WORKSPACE
+       VALIDATE CONFIG
     ============================================= */
 
     const workspace =
@@ -1159,7 +1200,7 @@ export function setActiveWorkspace(
 
 
     /* =============================================
-       CHECK EXISTS
+       VALIDATE EXISTS
     ============================================= */
 
     if(
@@ -1174,7 +1215,7 @@ export function setActiveWorkspace(
 
         throw new Error(
 
-            `Workspace "${workspace.title}" belum dibuat.`
+            `Workspace "${workspace.title}" belum dibuat lengkap.`
 
         );
 
@@ -1197,7 +1238,6 @@ export function setActiveWorkspace(
     saveWorkspace({
 
         ...current,
-
 
         workspace :
 
@@ -1250,7 +1290,294 @@ export function setActiveWorkspace(
     );
 
 
-    return WorkspaceState.modules;
+    return (
+
+        WorkspaceState.modules
+
+    );
+
+}
+
+
+/* =====================================================
+   GET WORKSPACE STATE
+
+   Digunakan Profile.
+
+   Return:
+
+   {
+       active: {...} | null,
+
+       inactive: [...]
+   }
+
+   Hanya workspace yang exists === true
+   yang dikirim.
+
+===================================================== */
+
+export async function getWorkspaceState(){
+
+    console.log(
+
+        "===== GET WORKSPACE STATE ====="
+
+    );
+
+
+    /*
+     * Pastikan status terbaru sudah
+     * diperiksa dari Finance Core.
+     */
+
+    await refreshWorkspaces();
+
+
+    const activeId =
+
+        WorkspaceState.active;
+
+
+    let active =
+
+        null;
+
+
+    const inactive = [];
+
+
+    Object.values(
+
+        WorkspaceState.modules
+
+    )
+
+    .forEach(
+
+        workspace => {
+
+            if(
+
+                workspace.exists !== true
+
+            ){
+
+                return;
+
+            }
+
+
+            const item = {
+
+                id :
+
+                    workspace.id,
+
+                title :
+
+                    workspace.title,
+
+                icon :
+
+                    workspace.icon,
+
+                sheets :
+
+                    workspace.sheets,
+
+                exists :
+
+                    true
+
+            };
+
+
+            if(
+
+                workspace.id === activeId
+
+            ){
+
+                active =
+
+                    item;
+
+            }else{
+
+                inactive.push(
+
+                    item
+
+                );
+
+            }
+
+        }
+
+    );
+
+
+    const result = {
+
+        active :
+
+            active,
+
+
+        inactive :
+
+            inactive
+
+    };
+
+
+    console.log(
+
+        "Workspace State:",
+
+        result
+
+    );
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   GET ALL WORKSPACES
+===================================================== */
+
+export function getWorkspaces(){
+
+    return Object.values(
+
+        WORKSPACES
+
+    )
+
+    .map(
+
+        workspace => {
+
+            const status =
+
+                WorkspaceState
+                .modules
+                ?.[workspace.id]
+
+                ||
+
+                {
+
+                    id :
+
+                        workspace.id,
+
+                    title :
+
+                        workspace.title,
+
+                    icon :
+
+                        workspace.icon,
+
+                    sheets :
+
+                        workspace.sheets.map(
+
+                            name => ({
+
+                                name :
+
+                                    name,
+
+                                exists :
+
+                                    false
+
+                            })
+
+                        ),
+
+                    exists :
+
+                        false,
+
+                    active :
+
+                        false
+
+                };
+
+
+            return {
+
+                ...status
+
+            };
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   GET AVAILABLE WORKSPACES
+===================================================== */
+
+export function getAvailableWorkspaces(){
+
+    return getWorkspaces()
+
+        .filter(
+
+            workspace =>
+
+                workspace.exists === true
+
+        );
+
+}
+
+
+/* =====================================================
+   GET ACTIVE WORKSPACE INFO
+===================================================== */
+
+export function getActiveWorkspaceInfo(){
+
+    const active =
+
+        WorkspaceState.active;
+
+
+    if(
+
+        !active
+
+    ){
+
+        return null;
+
+    }
+
+
+    return (
+
+        WorkspaceState
+        .modules
+        ?.[active]
+
+        ||
+
+        null
+
+    );
 
 }
 
@@ -1304,6 +1631,14 @@ export async function initWorkspace(){
                 "Workspace: User belum login."
 
             );
+
+
+            WorkspaceState.modules = {};
+
+            WorkspaceState.active = null;
+
+            WorkspaceState.initialized = true;
+
 
             return null;
 
@@ -1385,7 +1720,9 @@ export async function initWorkspace(){
 
                 active
 
-            ) ){
+            )
+
+        ){
 
             console.warn(
 
@@ -1475,143 +1812,6 @@ export async function initWorkspace(){
         return null;
 
     }
-
-}
-
-
-/* =====================================================
-   GET ALL WORKSPACES
-===================================================== */
-
-export function getWorkspaces(){
-
-    return Object.values(
-
-        WORKSPACES
-
-    )
-
-    .map(
-
-        workspace => {
-
-            const status =
-
-                WorkspaceState
-                .modules
-                ?.[workspace.id]
-
-                ||
-
-                {
-
-                    id :
-
-                        workspace.id,
-
-
-                    title :
-
-                        workspace.title,
-
-
-                    sheets :
-
-                        workspace.sheets.map(
-
-                            name => ({
-
-                                name :
-
-                                    name,
-
-
-                                exists :
-
-                                    false
-
-                            })
-
-                        ),
-
-
-                    exists :
-
-                        false,
-
-
-                    active :
-
-                        false
-
-                };
-
-
-            return {
-
-                ...status
-
-            };
-
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   GET AVAILABLE WORKSPACES
-===================================================== */
-
-export function getAvailableWorkspaces(){
-
-    return getWorkspaces()
-
-        .filter(
-
-            workspace =>
-
-                workspace.exists === true
-
-        );
-
-}
-
-
-/* =====================================================
-   GET ACTIVE WORKSPACE INFO
-===================================================== */
-
-export function getActiveWorkspaceInfo(){
-
-    const active =
-
-        WorkspaceState.active;
-
-
-    if(
-
-        !active
-
-    ){
-
-        return null;
-
-    }
-
-
-    return (
-
-        WorkspaceState
-        .modules
-        ?.[active]
-
-        ||
-
-        null
-
-    );
 
 }
 
