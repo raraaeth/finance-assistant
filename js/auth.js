@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 7.1.0
+   Version     : 8.0.0
 
    Description :
    Supabase Authentication Engine
@@ -11,6 +11,8 @@
    Google OAuth
    +
    Supabase Session
+   +
+   Google Provider Token Refresh
 
    Google :
    - Identity
@@ -29,10 +31,20 @@
    Ditangani oleh module.js
 
    IMPORTANT :
-   Google Provider Token disimpan secara
-   lokal agar tetap dapat digunakan setelah
-   refresh halaman ketika Supabase session
-   tidak lagi membawa provider_token.
+
+   Google provider_token dari Supabase
+   tidak selalu tersedia kembali setelah
+   browser refresh.
+
+   Karena itu :
+
+   1. Token disimpan lokal
+   2. Refresh token disimpan lokal
+   3. Jika access token tidak tersedia,
+      auth.js meminta refresh ke Apps Script
+   4. Apps Script menggunakan refresh token
+      Google untuk mendapatkan access token baru
+
 ========================================== */
 
 
@@ -88,16 +100,6 @@ const Auth = {
    GOOGLE TOKEN STORAGE
 ========================================== */
 
-/*
-   Supabase session dapat tetap tersedia
-   setelah refresh tetapi provider_token
-   tidak selalu tersedia kembali.
-
-   Karena module.js membutuhkan token Google
-   untuk Google Drive / Sheets, provider token
-   kita persist secara lokal.
-*/
-
 const GOOGLE_TOKEN_KEY =
 
     "finance_google_provider_token";
@@ -106,6 +108,40 @@ const GOOGLE_TOKEN_KEY =
 const GOOGLE_REFRESH_TOKEN_KEY =
 
     "finance_google_provider_refresh_token";
+
+
+/* ==========================================
+   GOOGLE TOKEN EXPIRY STORAGE
+========================================== */
+
+const GOOGLE_TOKEN_EXPIRES_KEY =
+
+    "finance_google_provider_token_expires_at";
+
+
+/* ==========================================
+   APPS SCRIPT API
+========================================== */
+
+const GOOGLE_AUTH_API =
+
+    "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
+
+
+/* ==========================================
+   TOKEN REFRESH BUFFER
+========================================== */
+
+/*
+   Refresh token sedikit lebih awal
+   sebelum benar-benar expired.
+
+   60 detik.
+*/
+
+const TOKEN_REFRESH_BUFFER =
+
+    60 * 1000;
 
 
 /* ==========================================
@@ -150,7 +186,7 @@ function saveGoogleTokens(
 
         console.log(
 
-            "Google Provider Token disimpan."
+            "AUTH: Google Provider Token disimpan."
 
         );
 
@@ -178,7 +214,69 @@ function saveGoogleTokens(
 
         console.log(
 
-            "Google Provider Refresh Token disimpan."
+            "AUTH: Google Provider Refresh Token disimpan."
+
+        );
+
+    }
+
+
+    /* ======================================
+       TOKEN EXPIRY
+    ====================================== */
+
+    /*
+       Supabase provider session kadang
+       tidak memberikan expires_in untuk
+       provider token.
+
+       Karena itu kita hanya menyimpan
+       expiry jika memang tersedia.
+    */
+
+    if(
+
+        session.provider_token_expires_in
+
+    ){
+
+        const expiresAt =
+
+            Date.now()
+
+            +
+
+            (
+
+                Number(
+
+                    session.provider_token_expires_in
+
+                )
+
+                *
+
+                1000
+
+            );
+
+
+        localStorage.setItem(
+
+            GOOGLE_TOKEN_EXPIRES_KEY,
+
+            String(
+
+                expiresAt
+
+            )
+
+        );
+
+
+        console.log(
+
+            "AUTH: Google Provider Token expiry disimpan."
 
         );
 
@@ -211,7 +309,7 @@ function loadGoogleToken(){
 
 
 /* ==========================================
-   LOAD GOOGLE PROVIDER REFRESH TOKEN
+   LOAD GOOGLE REFRESH TOKEN
 ========================================== */
 
 function loadGoogleRefreshToken(){
@@ -227,6 +325,109 @@ function loadGoogleRefreshToken(){
         ||
 
         null
+
+    );
+
+}
+
+
+/* ==========================================
+   LOAD GOOGLE TOKEN EXPIRY
+========================================== */
+
+function loadGoogleTokenExpiry(){
+
+    const value =
+
+        localStorage.getItem(
+
+            GOOGLE_TOKEN_EXPIRES_KEY
+
+        );
+
+
+    if(
+
+        !value
+
+    ){
+
+        return null;
+
+    }
+
+
+    const expiry =
+
+        Number(
+
+            value
+
+        );
+
+
+    if(
+
+        !Number.isFinite(
+
+            expiry
+
+        ) ){
+
+        return null;
+
+    }
+
+
+    return expiry;
+
+}
+
+
+/* ==========================================
+   CHECK GOOGLE TOKEN EXPIRED
+========================================== */
+
+function isGoogleTokenExpired(){
+
+    const expiresAt =
+
+        loadGoogleTokenExpiry();
+
+
+    /*
+       Jika expiry belum diketahui,
+       jangan anggap expired.
+
+       Token lama tetap dicoba.
+    */
+
+    if(
+
+        !expiresAt
+
+    ){
+
+        return false;
+
+    }
+
+
+    return (
+
+        Date.now()
+
+        >=
+
+        (
+
+            expiresAt
+
+            -
+
+            TOKEN_REFRESH_BUFFER
+
+        )
 
     );
 
@@ -253,11 +454,899 @@ function clearGoogleTokens(){
     );
 
 
-    console.log(
+    localStorage.removeItem(
 
-        "Google Provider Token dihapus."
+        GOOGLE_TOKEN_EXPIRES_KEY
 
     );
+
+
+    console.log(
+
+        "AUTH: Google Provider Token dan Refresh Token dihapus."
+
+    );
+
+}
+
+
+/* ==========================================
+   JSONP REQUEST
+========================================== */
+
+/*
+   Digunakan untuk komunikasi dengan
+   Apps Script Web App dari GitHub Pages.
+
+   Apps Script :
+
+   action=refreshToken
+*/
+
+function jsonpRequest(
+
+    params = {}
+
+){
+
+    return new Promise(
+
+        (
+
+            resolve,
+
+            reject
+
+        ) => {
+
+
+            /* =================================
+               CALLBACK NAME
+            ================================= */
+
+            const callbackName =
+
+                "__financeAssistantAuth_"
+
+                +
+
+                Date.now()
+
+                +
+
+                "_"
+
+                +
+
+                Math.random()
+
+                .toString(
+
+                    36
+
+                )
+
+                .slice(
+
+                    2
+
+                );
+
+
+            /* =================================
+               SCRIPT
+            ================================= */
+
+            const script =
+
+                document.createElement(
+
+                    "script"
+
+                );
+
+
+            /* =================================
+               REQUEST PARAMS
+            ================================= */
+
+            const requestParams =
+
+                new URLSearchParams();
+
+
+            Object.entries(
+
+                params
+
+            )
+
+            .forEach(
+
+                ([
+
+                    key,
+
+                    value
+
+                ]) => {
+
+
+                    if(
+
+                        value !==
+
+                        undefined
+
+                        &&
+
+                        value !==
+
+                        null
+
+                    ){
+
+                        requestParams.set(
+
+                            key,
+
+                            value
+
+                        );
+
+                    }
+
+                }
+
+            );
+
+
+            /* =================================
+               CALLBACK
+            ================================= */
+
+            requestParams.set(
+
+                "callback",
+
+                callbackName
+
+            );
+
+
+            /* =================================
+               TIMEOUT
+            ================================= */
+
+            let timeout =
+
+                null;
+
+
+            /* =================================
+               CLEANUP
+            ================================= */
+
+            const cleanup = () => {
+
+
+                if(
+
+                    timeout
+
+                ){
+
+                    clearTimeout(
+
+                        timeout
+
+                    );
+
+                }
+
+
+                if(
+
+                    window[
+
+                        callbackName
+
+                    ]
+
+                ){
+
+                    delete window[
+
+                        callbackName
+
+                    ];
+
+                }
+
+
+                if(
+
+                    script.parentNode
+
+                ){
+
+                    script.remove();
+
+                }
+
+            };
+
+
+            /* =================================
+               CALLBACK HANDLER
+            ================================= */
+
+            window[
+
+                callbackName
+
+            ] = function(
+
+                data
+
+            ){
+
+                cleanup();
+
+
+                resolve(
+
+                    data
+
+                );
+
+            };
+
+
+            /* =================================
+               SCRIPT ERROR
+            ================================= */
+
+            script.onerror = function(){
+
+                cleanup();
+
+
+                reject(
+
+                    new Error(
+
+                        "Gagal menghubungi Apps Script untuk refresh token."
+
+                    )
+
+                );
+
+            };
+
+
+            /* =================================
+               TIMEOUT
+            ================================= */
+
+            timeout =
+
+                setTimeout(
+
+                    () => {
+
+                        cleanup();
+
+
+                        reject(
+
+                            new Error(
+
+                                "Refresh token request timeout."
+
+                            )
+
+                        );
+
+                    },
+
+                    30000
+
+                );
+
+
+            /* =================================
+               BUILD URL
+            ================================= */
+
+            script.src =
+
+                GOOGLE_AUTH_API
+
+                +
+
+                "?"
+
+                +
+
+                requestParams.toString();
+
+
+            /* =================================
+               DEBUG
+
+               Jangan tampilkan URL karena
+               URL berisi refresh token.
+            ================================= */
+
+            console.log(
+
+                "AUTH: Mengirim request refreshToken ke Apps Script..."
+
+            );
+
+
+            /* =================================
+               SEND
+            ================================= */
+
+            document.head.appendChild(
+
+                script
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* ==========================================
+   REFRESH GOOGLE PROVIDER TOKEN
+========================================== */
+
+/*
+   Fungsi utama baru.
+
+   Flow :
+
+   Local Refresh Token
+          ↓
+      Apps Script
+          ↓
+   refreshAccessToken()
+          ↓
+   Google Access Token Baru
+          ↓
+   Local Storage
+*/
+
+export async function refreshGoogleProviderToken(){
+
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "===== GOOGLE TOKEN REFRESH ====="
+    );
+
+    console.log(
+        "=========================================="
+    );
+
+
+    /* ======================================
+       REFRESH TOKEN
+    ====================================== */
+
+    const refreshToken =
+
+        loadGoogleRefreshToken();
+
+
+    console.log(
+
+        "AUTH: Refresh Token lokal:",
+
+        refreshToken
+
+            ?
+
+            "AVAILABLE"
+
+            :
+
+            "MISSING"
+
+    );
+
+
+    if(
+
+        !refreshToken
+
+    ){
+
+        throw new Error(
+
+            "Google Provider Refresh Token tidak tersedia."
+
+        );
+
+    }
+
+
+    try{
+
+        /* ==================================
+           REQUEST APPS SCRIPT
+        ================================== */
+
+        console.log(
+
+            "AUTH: Meminta access token baru..."
+
+        );
+
+
+        const result =
+
+            await jsonpRequest({
+
+                action :
+
+                    "refreshToken",
+
+
+                refreshToken :
+
+                    refreshToken
+
+            });
+
+
+        /* ==================================
+           DEBUG RESPONSE
+        ================================== */
+
+        console.log(
+
+            "AUTH: Refresh response diterima."
+
+        );
+
+
+        console.log(
+
+            "AUTH: Refresh success:",
+
+            result?.success === true
+
+        );
+
+
+        /* ==================================
+           VALIDATE RESPONSE
+        ================================== */
+
+        if(
+
+            !result
+
+        ){
+
+            throw new Error(
+
+                "Response refresh token kosong."
+
+            );
+
+        }
+
+
+        if(
+
+            result.success !== true
+
+        ){
+
+            throw new Error(
+
+                result.error
+
+                ||
+
+                result.message
+
+                ||
+
+                "Google token refresh gagal."
+
+            );
+
+        }
+
+
+        /* ==================================
+           ACCESS TOKEN
+        ================================== */
+
+        const accessToken =
+
+            result.accessToken
+
+            ||
+
+            result.access_token
+
+            ||
+
+            null;
+
+
+        if(
+
+            !accessToken
+
+        ){
+
+            throw new Error(
+
+                "Apps Script tidak mengembalikan access token baru."
+
+            );
+
+        }
+
+
+        /* ==================================
+           SAVE ACCESS TOKEN
+        ================================== */
+
+        localStorage.setItem(
+
+            GOOGLE_TOKEN_KEY,
+
+            accessToken
+
+        );
+
+
+        console.log(
+
+            "AUTH: Google Provider Token baru berhasil disimpan."
+
+        );
+
+
+        /* ==================================
+           SAVE EXPIRY
+        ================================== */
+
+        const expiresIn =
+
+            result.expiresIn
+
+            ||
+
+            result.expires_in
+
+            ||
+
+            null;
+
+
+        if(
+
+            expiresIn
+
+        ){
+
+            const expiresAt =
+
+                Date.now()
+
+                +
+
+                (
+
+                    Number(
+
+                        expiresIn
+
+                    )
+
+                    *
+
+                    1000
+
+                );
+
+
+            localStorage.setItem(
+
+                GOOGLE_TOKEN_EXPIRES_KEY,
+
+                String(
+
+                    expiresAt
+
+                )
+
+
+            );
+
+
+            console.log(
+
+                "AUTH: Token expiry berhasil disimpan."
+
+            );
+
+        }
+
+
+        /* ==================================
+           UPDATE AUTH SESSION MEMORY
+        ================================== */
+
+        if(
+
+            Auth.session
+
+        ){
+
+            Auth.session = {
+
+                ...Auth.session,
+
+                provider_token :
+
+                    accessToken
+
+            };
+
+        }
+
+
+        /* ==================================
+           SUCCESS
+        ================================== */
+
+        console.log(
+
+            "=========================================="
+
+        );
+
+        console.log(
+
+            "===== GOOGLE TOKEN REFRESH SUCCESS ====="
+
+        );
+
+        console.log(
+
+            "=========================================="
+
+        );
+
+
+        return accessToken;
+
+
+    }catch(error){
+
+        console.error(
+
+            "=========================================="
+
+        );
+
+        console.error(
+
+            "===== GOOGLE TOKEN REFRESH FAILED ====="
+
+        );
+
+        console.error(
+
+            "=========================================="
+
+        );
+
+
+        console.error(
+
+            "AUTH Refresh Error:",
+
+            error
+
+        );
+
+
+        throw error;
+
+    }
+
+}
+
+
+/* ==========================================
+   GET VALID GOOGLE PROVIDER TOKEN
+========================================== */
+
+/*
+   Ini adalah fungsi yang nantinya akan
+   digunakan oleh :
+
+   workspace.js
+   module.js
+   api.js
+
+   Prioritas :
+
+   1. Session provider_token
+   2. Local token
+   3. Refresh token jika expired/missing
+*/
+
+export async function getValidGoogleProviderToken(){
+
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "===== GET VALID GOOGLE TOKEN ====="
+    );
+
+    console.log(
+        "=========================================="
+    );
+
+
+    /* ======================================
+       SESSION
+    ====================================== */
+
+    const session =
+
+        await getSession();
+
+
+    /* ======================================
+       SESSION PROVIDER TOKEN
+    ====================================== */
+
+    const sessionToken =
+
+        session?.provider_token
+
+        ||
+
+        null;
+
+
+    if(
+
+        sessionToken
+
+    ){
+
+        console.log(
+
+            "AUTH: Provider Token tersedia dari Supabase session."
+
+        );
+
+
+        saveGoogleTokens(
+
+            session
+
+        );
+
+
+        return sessionToken;
+
+    }
+
+
+    /* ======================================
+       LOCAL TOKEN
+    ====================================== */
+
+    const localToken =
+
+        loadGoogleToken();
+
+
+    console.log(
+
+        "AUTH: Local Google Token:",
+
+        localToken
+
+            ?
+
+            "AVAILABLE"
+
+            :
+
+            "MISSING"
+
+    );
+
+
+    /* ======================================
+       LOCAL TOKEN VALID
+    ====================================== */
+
+    if(
+
+        localToken
+
+        &&
+
+        !isGoogleTokenExpired()
+
+    ){
+
+        console.log(
+
+            "AUTH: Local Google Token dianggap masih valid."
+
+        );
+
+
+        return localToken;
+
+    }
+
+
+    /* ======================================
+       TOKEN EXPIRED / MISSING
+    ====================================== */
+
+    if(
+
+        localToken
+
+    ){
+
+        console.log(
+
+            "AUTH: Local Google Token expired / mendekati expired."
+
+        );
+
+    }else{
+
+        console.log(
+
+            "AUTH: Local Google Token tidak tersedia."
+
+        );
+
+    }
+
+
+    /* ======================================
+       REFRESH
+    ====================================== */
+
+    console.log(
+
+        "AUTH: Mencoba refresh Google token..."
+
+    );
+
+
+    return await refreshGoogleProviderToken();
 
 }
 
@@ -347,11 +1436,7 @@ async function init(){
 
 
             /* ==================================
-               SAVE PROVIDER TOKEN
-
-               Jika session masih membawa
-               provider token, simpan/update
-               token lokal.
+               SAVE PROVIDER TOKENS
             ================================== */
 
             saveGoogleTokens(
@@ -362,7 +1447,7 @@ async function init(){
 
 
             /* ==================================
-               RESTORE GOOGLE IDENTITY
+               RESTORE USER
             ================================== */
 
             restoreUser(
@@ -373,7 +1458,7 @@ async function init(){
 
 
             /* ==================================
-               DEBUG PROVIDER TOKEN
+               DEBUG TOKEN STATE
             ================================== */
 
             const providerToken =
@@ -383,6 +1468,15 @@ async function init(){
                 ||
 
                 loadGoogleToken();
+
+
+            const providerRefreshToken =
+
+                data.session.provider_refresh_token
+
+                ||
+
+                loadGoogleRefreshToken();
 
 
             console.log(
@@ -402,15 +1496,6 @@ async function init(){
             );
 
 
-            const providerRefreshToken =
-
-                data.session.provider_refresh_token
-
-                ||
-
-                loadGoogleRefreshToken();
-
-
             console.log(
 
                 "Google Provider Refresh Token:",
@@ -426,6 +1511,62 @@ async function init(){
                     "MISSING"
 
             );
+
+
+            /* ==================================
+               TOKEN REFRESH TEST
+
+               Hanya refresh jika provider
+               token tidak tersedia atau
+               diketahui expired.
+
+               Jika token masih ada dan
+               expiry tidak diketahui,
+               token tidak dipaksa refresh.
+            ================================== */
+
+            if(
+
+                !providerToken
+
+                ||
+
+                isGoogleTokenExpired()
+
+            ){
+
+                console.log(
+
+                    "AUTH: Provider Token perlu diperbarui."
+
+                );
+
+
+                try{
+
+                    await refreshGoogleProviderToken();
+
+                }catch(error){
+
+                    console.warn(
+
+                        "AUTH: Automatic Google token refresh gagal:",
+
+                        error?.message
+
+                    );
+
+                }
+
+            }else{
+
+                console.log(
+
+                    "AUTH: Google Provider Token siap digunakan."
+
+                );
+
+            }
 
         }
 
@@ -534,20 +1675,6 @@ async function init(){
                         );
 
 
-                        /*
-                           Jalankan Finance Module.
-
-                           module.js menentukan:
-
-                           Account belum ada
-                               ↓
-                           WRITE onboarding
-
-                           Account sudah ada
-                               ↓
-                           READ account
-                        */
-
                         initializeFinanceModule();
 
                     }
@@ -567,15 +1694,10 @@ async function init(){
 
                     console.log(
 
-                        "Auth: TOKEN_REFRESHED."
+                        "Auth: Supabase TOKEN_REFRESHED."
 
                     );
 
-
-                    /*
-                       Jika provider token tersedia
-                       setelah refresh, simpan kembali.
-                    */
 
                     saveGoogleTokens(
 
@@ -853,20 +1975,41 @@ async function initializeFinanceModule(){
         /*
            Prioritas:
 
-           1. session.provider_token
-           2. localStorage
+           1. Session
+           2. Local Storage
+           3. Refresh Google token
 
-           Ini memungkinkan module tetap bekerja
-           setelah browser melakukan refresh.
+           Untuk sementara initialize module
+           menggunakan getValidGoogleProviderToken()
+           agar kita bisa melihat apakah
+           refresh token bekerja.
         */
 
-        const providerToken =
+        let providerToken =
 
-            session.provider_token
+            null;
 
-            ||
 
-            loadGoogleToken();
+        try{
+
+            providerToken =
+
+                await getValidGoogleProviderToken();
+
+        }catch(error){
+
+            console.error(
+
+                "Module: Gagal mendapatkan Google Provider Token:",
+
+                error
+
+            );
+
+
+            throw error;
+
+        }
 
 
         console.log(
@@ -924,14 +2067,7 @@ async function initializeFinanceModule(){
 
 
         /* ======================================
-           IMPORTANT
-
-           Jangan membuat onboarding
-           dari Google metadata.
-
-           Data onboarding berasal dari
-           onboarding/script.js yang sudah
-           disimpan melalui saveUser().
+           ONBOARDING
         ====================================== */
 
         const onboarding = {
@@ -1038,15 +2174,6 @@ async function initializeFinanceModule(){
 
             /* ==================================
                RESTORE ACCOUNT DATA
-
-               Finance Core account adalah
-               source of truth untuk Finance
-               Assistant profile.
-
-               Ini digunakan untuk:
-               - browser baru
-               - device baru
-               - localStorage yang hilang
             ================================== */
 
             if(
@@ -1286,10 +2413,9 @@ export async function getSession(){
         null;
 
 
-    /*
-       Jika session membawa provider token,
-       simpan/update token lokal.
-    */
+    /* ======================================
+       SAVE PROVIDER TOKENS
+    ====================================== */
 
     if(
 
@@ -1347,7 +2473,7 @@ export async function getUser(){
 
 
 /* ==========================================
-   GET ACCESS TOKEN
+   GET SUPABASE ACCESS TOKEN
 ========================================== */
 
 export async function getAccessToken(){
@@ -1371,7 +2497,7 @@ export async function getAccessToken(){
 
 
 /* ==========================================
-   GET VALID ACCESS TOKEN
+   GET VALID SUPABASE ACCESS TOKEN
 ========================================== */
 
 export async function getValidAccessToken(){
@@ -1421,10 +2547,6 @@ export async function getValidAccessToken(){
         data.session.user;
 
 
-    /*
-       Persist provider token jika tersedia.
-    */
-
     saveGoogleTokens(
 
         data.session
@@ -1449,10 +2571,15 @@ export async function getGoogleProviderToken(){
 
 
     /*
-       Prioritas:
+       Jangan langsung refresh di fungsi ini.
 
-       1. Session provider_token
-       2. Local storage
+       Fungsi ini hanya mengambil token
+       yang tersedia.
+
+       Untuk token yang dijamin valid,
+       gunakan :
+
+       getValidGoogleProviderToken()
     */
 
     return (
@@ -1482,13 +2609,6 @@ export async function getGoogleProviderRefreshToken(){
 
         await getSession();
 
-
-    /*
-       Prioritas:
-
-       1. Session provider_refresh_token
-       2. Local storage
-    */
 
     return (
 
@@ -1526,22 +2646,6 @@ export async function isLoggedIn(){
 /* ==========================================
    RESTORE GOOGLE IDENTITY
 ========================================== */
-
-/*
-   PENTING :
-
-   Function ini hanya memulihkan
-   identity dari Google.
-
-   Jangan gunakan Google full_name
-   untuk menimpa Display Name
-   Finance Assistant yang sudah
-   diberikan user melalui onboarding.
-
-   Finance profile akan dipulihkan
-   kembali dari Finance Core oleh
-   initializeFinanceModule().
-*/
 
 function restoreUser(
 
@@ -1745,11 +2849,6 @@ function restoreUser(
 
     /* ======================================
        THEME
-
-       Hanya gunakan theme lokal.
-
-       Jangan mengambil theme dari
-       Google metadata.
     ====================================== */
 
     if(
