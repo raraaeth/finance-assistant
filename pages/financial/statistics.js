@@ -563,13 +563,12 @@ function refresh(){
 
 }
 
-
 /* =====================================================
    CHART
+   Monthly aggregation
 ===================================================== */
 
 Statistics.renderChart = function(){
-
 
     const canvas =
 
@@ -592,16 +591,141 @@ Statistics.renderChart = function(){
 
 
     /* =============================================
-       GROUP BY DATE
+       FILTER PERIOD
     ============================================= */
 
-    const grouped = {};
+    const start =
 
+        Statistics.filter.start;
+
+
+    const end =
+
+        Statistics.filter.end;
+
+
+    if(
+
+        !start ||
+
+        !end
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       MONTH RANGE
+       
+       Contoh:
+       Juni → Juli → Agustus
+    ============================================= */
+
+    const firstMonth =
+
+        new Date(
+
+            start.getFullYear(),
+
+            start.getMonth(),
+
+            1
+
+        );
+
+
+    const lastMonth =
+
+        new Date(
+
+            end.getFullYear(),
+
+            end.getMonth(),
+
+            1
+
+        );
+
+
+    const months = [];
+
+
+    const cursor =
+
+        new Date(
+
+            firstMonth
+
+        );
+
+
+    while(
+
+        cursor <=
+
+        lastMonth
+
+    ){
+
+        months.push({
+
+            year :
+
+                cursor.getFullYear(),
+
+            month :
+
+                cursor.getMonth(),
+
+            key :
+
+                [
+
+                    cursor.getFullYear(),
+
+                    String(
+
+                        cursor.getMonth() + 1
+
+                    ).padStart(
+
+                        2,
+
+                        "0"
+
+                    )
+
+                ].join("-"),
+
+            income : 0,
+
+            expense : 0
+
+        });
+
+
+        cursor.setMonth(
+
+            cursor.getMonth() + 1
+
+        );
+
+    }
+
+
+    /* =============================================
+       GROUP TRANSACTION BY MONTH
+       
+       Statistics.data sudah melewati filter,
+       jadi jangan filter ulang di sini.
+    ============================================= */
 
     Statistics.data.forEach(
 
         item => {
-
 
             const date =
 
@@ -625,26 +749,43 @@ Statistics.renderChart = function(){
 
             const key =
 
-                formatDateKey(
+                [
 
-                    date
+                    date.getFullYear(),
+
+                    String(
+
+                        date.getMonth() + 1
+
+                    ).padStart(
+
+                        2,
+
+                        "0"
+
+                    )
+
+                ].join("-");
+
+
+            const month =
+
+                months.find(
+
+                    item =>
+
+                        item.key === key
 
                 );
 
 
             if(
 
-                !grouped[key]
+                !month
 
             ){
 
-                grouped[key] = {
-
-                    income : 0,
-
-                    expense : 0
-
-                };
+                return;
 
             }
 
@@ -656,6 +797,17 @@ Statistics.renderChart = function(){
                     item.nominal
 
                 );
+
+
+            if(
+
+                nominal <= 0
+
+            ){
+
+                return;
+
+            }
 
 
             /* =====================================
@@ -670,7 +822,7 @@ Statistics.renderChart = function(){
 
             ){
 
-                grouped[key].income +=
+                month.income +=
 
                     nominal;
 
@@ -689,7 +841,7 @@ Statistics.renderChart = function(){
 
             ){
 
-                grouped[key].expense +=
+                month.expense +=
 
                     nominal;
 
@@ -701,31 +853,20 @@ Statistics.renderChart = function(){
 
 
     /* =============================================
-       SORT DATE
-    ============================================= */
-
-    const dates =
-
-        Object.keys(
-
-            grouped
-
-        ).sort();
-
-
-    /* =============================================
        LABEL
     ============================================= */
 
     const labels =
 
-        dates.map(
+        months.map(
 
-            date =>
+            item =>
 
-                formatChartDate(
+                formatChartMonth(
 
-                    date
+                    item,
+
+                    months
 
                 )
 
@@ -738,28 +879,28 @@ Statistics.renderChart = function(){
 
     const income =
 
-        dates.map(
+        months.map(
 
-            date =>
+            item =>
 
-                grouped[date].income
+                item.income
 
         );
 
 
     const expense =
 
-        dates.map(
+        months.map(
 
-            date =>
+            item =>
 
-                grouped[date].expense
+                item.expense
 
         );
 
 
     /* =============================================
-       RENDER CHART
+       RENDER
     ============================================= */
 
     Chart.renderBar({
@@ -769,10 +910,7 @@ Statistics.renderChart = function(){
             "#statistics-chart-canvas",
 
 
-        labels :
-
-
-            labels,
+        labels,
 
 
         datasets : [
@@ -841,6 +979,7 @@ Statistics.renderChart = function(){
     });
 
 };
+
 
 
 /* =====================================================
@@ -1771,6 +1910,80 @@ function formatChartDate(
                 "short"
 
         }
+
+    );
+
+}
+
+/* =====================================================
+   FORMAT CHART MONTH
+===================================================== */
+
+function formatChartMonth(
+
+    item,
+
+    months
+
+){
+
+    const date =
+
+        new Date(
+
+            item.year,
+
+            item.month,
+
+            1
+
+        );
+
+
+    const multipleYears =
+
+        new Set(
+
+            months.map(
+
+                month =>
+
+                    month.year
+
+            )
+
+        ).size > 1;
+
+
+    return date.toLocaleDateString(
+
+        "id-ID",
+
+        multipleYears
+
+            ?
+
+            {
+
+                month :
+
+                    "short",
+
+                year :
+
+                    "numeric"
+
+            }
+
+            :
+
+            {
+
+                month :
+
+                    "short"
+
+            }
 
     );
 
