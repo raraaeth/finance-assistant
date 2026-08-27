@@ -124,7 +124,9 @@
 
         );
 
-    gap:14px;
+    column-gap:0;
+
+    row-gap:24px;
 
 }
 
@@ -145,7 +147,7 @@
 
     min-height:105px;
 
-    padding:16px;
+    padding:4px 20px;
 
     box-sizing:border-box;
 
@@ -155,6 +157,22 @@
 
 }
 
+.financial-home-expense-item:nth-child(odd){
+
+    border-right:
+
+        1px solid
+
+        var(--border-color);
+
+}
+
+
+.financial-home-expense-item:nth-child(even){
+
+    padding-left:20px;
+
+}
 
 /* =====================================================
    EXPENSE LABEL
