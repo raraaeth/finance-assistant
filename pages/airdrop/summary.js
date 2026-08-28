@@ -85,8 +85,11 @@ export const Summary = {
 /* =====================================================
    INIT
 ===================================================== */
+Summary.init = function(
 
-Summary.init = function(){
+    options = {}
+
+){
 
     if(
 
@@ -103,6 +106,15 @@ Summary.init = function(){
         return;
 
     }
+
+
+    /* =============================================
+       OPTIONS
+    ============================================= */
+
+    const renderDetailEnabled =
+
+        options.renderDetail === true;
 
 
     /* =============================================
@@ -144,7 +156,21 @@ Summary.init = function(){
        RENDER AIRDROP DETAIL
     ============================================= */
 
-    renderDetail();
+    if(
+
+        renderDetailEnabled
+
+    ){
+
+        renderDetail();
+
+    }
+
+    else{
+
+        hideDetail();
+
+    }
 
 
     Summary.initialized =
@@ -152,6 +178,41 @@ Summary.init = function(){
         true;
 
 };
+        
+
+/* =====================================================
+   HIDE DETAIL
+===================================================== */
+
+function hideDetail(){
+
+    const section =
+
+        document.getElementById(
+
+            "summary-airdrop-detail"
+
+        );
+
+
+    if(
+
+        !section
+
+    ){
+
+        return;
+
+    }
+
+
+    section.classList.add(
+
+        "hidden"
+
+    );
+
+}
 
 
 /* =====================================================
