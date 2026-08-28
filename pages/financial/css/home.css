@@ -3,7 +3,7 @@
    Page        : Financial
    Module      : Home
    File        : home.css
-   Version     : 2.2.0
+   Version     : 2.0.0
 
    Description :
    Financial Home Summary Styling
@@ -101,28 +101,6 @@
 
 
 /* =====================================================
-   DIVIDER
-   Theme Aware
-===================================================== */
-
-.financial-home-divider{
-
-    width:100%;
-
-    height:1px;
-
-    margin:2px 0;
-
-    background:var(--border);
-
-    opacity:.65;
-
-    flex-shrink:0;
-
-}
-
-
-/* =====================================================
    EXPENSE GRID
 ===================================================== */
 
@@ -131,12 +109,19 @@
     display:grid;
 
     grid-template-columns:
+
         repeat(
+
             2,
+
             minmax(
+
                 0,
+
                 1fr
+
             )
+
         );
 
     gap:14px;
@@ -216,6 +201,29 @@
 
 
 /* =====================================================
+   DIVIDER
+   Financial Home Summary
+   Theme Aware
+===================================================== */
+
+.financial-home-divider{
+
+    width:100%;
+
+    height:1px;
+
+    margin:2px 0;
+
+    background:var(--border);
+
+    opacity:.65;
+
+    flex-shrink:0;
+
+}
+
+
+/* =====================================================
    HIGHEST EXPENSE
 ===================================================== */
 
@@ -224,12 +232,19 @@
     display:grid;
 
     grid-template-columns:
+
         repeat(
+
             2,
+
             minmax(
+
                 0,
+
                 1fr
+
             )
+
         );
 
     gap:14px;
@@ -336,12 +351,15 @@
 ===================================================== */
 
 @media(
+
     max-width:480px
+
 ){
 
     #home-summary-card{
 
         padding:
+
             20px 16px;
 
         gap:12px;
@@ -356,6 +374,7 @@
     .financial-home-balance{
 
         padding:
+
             22px 16px;
 
         border-radius:18px;
@@ -378,19 +397,6 @@
 
 
     /* ---------------------------------------------
-       DIVIDER
-    --------------------------------------------- */
-
-    .financial-home-divider{
-
-        margin:1px 0;
-
-        opacity:.65;
-
-    }
-
-
-    /* ---------------------------------------------
        EXPENSE
     --------------------------------------------- */
 
@@ -406,6 +412,7 @@
         min-height:92px;
 
         padding:
+
             14px 12px;
 
         border-radius:16px;
@@ -447,6 +454,7 @@
         min-height:110px;
 
         padding:
+
             14px 12px;
 
         border-radius:16px;
@@ -486,228 +494,32 @@
 
 
 /* =====================================================
-   FINANCIAL HOME : INPUT
-   Override Global Profile Component
-
-   IMPORTANT :
-   HTML Input Financial menggunakan:
-   .profile-menu-item
-   .profile-menu-left
-   .profile-menu-icon
-   .profile-menu-content
-   .profile-menu-title
-   .profile-menu-description
-   .profile-menu-arrow
-
-   Jadi selector harus diarahkan melalui #input-card.
+   HOME : HIGHEST EXPENSE VALUE FIX
 ===================================================== */
 
-#input-card .profile-menu-item{
+.financial-home-highest-date{
 
-    display:flex;
+    color:#202733 !important;
 
-    align-items:center;
+    font-size:17px !important;
 
-    width:100%;
+    line-height:1.3;
 
-    min-height:108px;
+    font-weight:700 !important;
 
-    padding:20px;
-
-    box-sizing:border-box;
-
-    background:var(--surface) !important;
-
-    color:var(--text) !important;
-
-    border-radius:18px;
+    font-style:italic;
 
 }
 
 
-/* =====================================================
-   INPUT LEFT
-===================================================== */
+.financial-home-highest-value{
 
-#input-card .profile-menu-left{
-
-    display:flex;
-
-    align-items:center;
-
-    min-width:0;
-
-    width:100%;
-
-}
-
-
-/* =====================================================
-   INPUT ICON
-===================================================== */
-
-#input-card .profile-menu-icon{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    width:56px;
-
-    height:56px;
-
-    flex-shrink:0;
-
-    border-radius:16px;
-
-    background:var(--primary) !important;
-
-    color:#ffffff;
-
-    font-size:28px;
-
-}
-
-
-/* =====================================================
-   INPUT CONTENT
-===================================================== */
-
-#input-card .profile-menu-content{
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-    min-width:0;
-
-    margin-left:18px;
-
-}
-
-
-/* =====================================================
-   INPUT TITLE
-===================================================== */
-
-#input-card .profile-menu-title{
-
-    display:block;
-
-    color:var(--text) !important;
-
-    font-size:32px !important;
-
-    line-height:1.2;
-
-    font-weight:800 !important;
-
-    letter-spacing:-.3px;
-
-}
-
-
-/* =====================================================
-   INPUT DESCRIPTION
-===================================================== */
-
-#input-card .profile-menu-description{
-
-    display:block;
-
-    margin-top:4px;
-
-    color:var(--text-secondary) !important;
+    color:#202733 !important;
 
     font-size:20px !important;
 
-    line-height:1.35;
+    line-height:1.25;
 
-    font-weight:500;
-
-}
-
-
-/* =====================================================
-   INPUT ARROW
-===================================================== */
-
-#input-card .profile-menu-arrow{
-
-    margin-left:auto;
-
-    flex-shrink:0;
-
-    color:var(--text-secondary) !important;
-
-    font-size:32px;
-
-    line-height:1;
-
-}
-
-
-/* =====================================================
-   MOBILE : INPUT
-===================================================== */
-
-@media(
-    max-width:480px
-){
-
-    #input-card .profile-menu-item{
-
-        min-height:108px;
-
-        padding:20px 18px;
-
-        border-radius:18px;
-
-    }
-
-
-    #input-card .profile-menu-icon{
-
-        width:56px;
-
-        height:56px;
-
-        border-radius:16px;
-
-        font-size:28px;
-
-    }
-
-
-    #input-card .profile-menu-content{
-
-        margin-left:16px;
-
-    }
-
-
-    #input-card .profile-menu-title{
-
-        font-size:32px !important;
-
-    }
-
-
-    #input-card .profile-menu-description{
-
-        font-size:19px !important;
-
-    }
-
-
-    #input-card .profile-menu-arrow{
-
-        font-size:32px;
-
-    }
+    font-weight:800 !important;
 
 }
