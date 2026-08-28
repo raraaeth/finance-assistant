@@ -442,6 +442,8 @@ function renderSummary(){
 
             </div>
 
+            <div class="financial-home-divider"></div>
+
 
             <!-- ======================================
                  EXPENSE SUMMARY
@@ -556,6 +558,8 @@ function renderSummary(){
 
             </div>
 
+            
+<div class="financial-home-divider"></div>
 
             <!-- ======================================
                  HIGHEST EXPENSE DAYS
