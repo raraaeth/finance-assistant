@@ -953,3 +953,457 @@
     }
 
 }
+
+
+/* =====================================================
+   FINANCIAL SUMMARY DETAIL
+===================================================== */
+
+#summary-financial-detail{
+
+    margin-top:32px;
+
+}
+
+
+/* =====================================================
+   DETAIL CARD
+===================================================== */
+
+#summary-financial-detail-card{
+
+    padding:20px;
+
+}
+
+
+/* =====================================================
+   DETAIL FILTER
+===================================================== */
+
+.financial-detail-filter{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            2,
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+        );
+
+    gap:14px;
+
+    margin-bottom:24px;
+
+}
+
+
+.financial-detail-filter-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+.financial-detail-filter-item label{
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:var(--text-secondary);
+
+}
+
+
+.financial-detail-filter-item select{
+
+    width:100%;
+
+    height:44px;
+
+    padding:0 12px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#F5F7FB;
+
+    color:var(--text-primary);
+
+    font-size:13px;
+
+    outline:none;
+
+}
+
+
+.financial-detail-filter-item select:focus{
+
+    background:#EEF3FF;
+
+}
+
+
+/* =====================================================
+   DETAIL LIST
+===================================================== */
+
+#summary-financial-detail-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+/* =====================================================
+   DETAIL ITEM
+===================================================== */
+
+.financial-detail-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    padding:16px 0;
+
+    border-bottom:
+
+        1px solid
+
+        var(--border-color);
+
+}
+
+
+.financial-detail-item:first-child{
+
+    padding-top:0;
+
+}
+
+
+.financial-detail-item:last-child{
+
+    border-bottom:none;
+
+}
+
+
+/* =====================================================
+   DETAIL INFO
+===================================================== */
+
+.financial-detail-info{
+
+    flex:1;
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+
+.financial-detail-keyword{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+    line-height:1.4;
+
+}
+
+
+.financial-detail-meta{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    align-items:center;
+
+    gap:6px;
+
+    font-size:12px;
+
+    color:var(--text-secondary);
+
+}
+
+
+.financial-detail-meta span{
+
+    display:inline-flex;
+
+    align-items:center;
+
+}
+
+
+.financial-detail-meta-divider{
+
+    opacity:.5;
+
+}
+
+
+/* =====================================================
+   DETAIL TRANSACTION COUNT
+===================================================== */
+
+.financial-detail-count{
+
+    font-size:12px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   DETAIL AMOUNT
+===================================================== */
+
+.financial-detail-amount{
+
+    flex-shrink:0;
+
+    white-space:nowrap;
+
+    text-align:right;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    color:var(--text-primary);
+
+}
+
+
+/* =====================================================
+   DETAIL TRANSACTION
+===================================================== */
+
+.financial-detail-transactions{
+
+    margin-top:8px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+}
+
+
+.financial-detail-transaction{
+
+    font-size:12px;
+
+    line-height:1.5;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   DETAIL EMPTY
+===================================================== */
+
+.financial-detail-empty{
+
+    padding:24px 10px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+    font-size:13px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+#summary-financial-detail-pagination{
+
+    margin-top:18px;
+
+    padding-top:16px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    border-top:
+
+        1px solid
+
+        var(--border-color);
+
+}
+
+
+#summary-financial-detail-pagination button{
+
+    min-width:80px;
+
+    height:38px;
+
+    padding:0 14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#F5F7FB;
+
+    color:#2563EB;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+
+        background .2s ease,
+
+        transform .15s ease,
+
+        opacity .2s ease;
+
+}
+
+
+#summary-financial-detail-pagination button:hover:not(:disabled){
+
+    background:#EEF3FF;
+
+}
+
+
+#summary-financial-detail-pagination button:active:not(:disabled){
+
+    transform:scale(.97);
+
+}
+
+
+#summary-financial-detail-pagination button:disabled{
+
+    opacity:.4;
+
+    cursor:not-allowed;
+
+}
+
+
+#summary-financial-detail-pagination span{
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:var(--text-secondary);
+
+    white-space:nowrap;
+
+}
+
+
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    .financial-detail-filter{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .financial-detail-item{
+
+        align-items:flex-start;
+
+    }
+
+
+    .financial-detail-keyword{
+
+        font-size:14px;
+
+    }
+
+
+    .financial-detail-amount{
+
+        font-size:14px;
+
+    }
+
+
+    #summary-financial-detail-pagination button{
+
+        min-width:72px;
+
+        padding:0 10px;
+
+    }
+
+}
