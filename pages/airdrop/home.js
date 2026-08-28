@@ -124,8 +124,6 @@ export async function init(){
 
 await API.load(
 
-    CONFIG.api.endpoint,
-
     CONFIG.data.airdrop,
 
     CONFIG.data.rules
