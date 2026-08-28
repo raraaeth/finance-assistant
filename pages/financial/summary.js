@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Financial
    File        : summary.js
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Financial Summary Controller
@@ -15,6 +15,8 @@
    - Financial Position
    - Distribution
    - Distribution List
+   - Summary Detail
+   - Detail Result
    - Calculate Overview
    - Helper
 ===================================================== */
@@ -37,11 +39,19 @@ import {
 
 } from "../../js/chart.js";
 
+
 import {
 
     SummaryDetail
 
 } from "./detail.js";
+
+
+import {
+
+    Filter
+
+} from "../../js/filter.js";
 
 
 import {
@@ -639,7 +649,6 @@ function createSavingCard(
 
                     alt="${escapeHTML(title)}"
 
-
                 >
 
 
@@ -1110,11 +1119,6 @@ function renderDistributionDonut(
     }
 
 
-    /*
-     * Mengikuti metode Saving:
-     * gunakan Chart.renderDoughnut()
-     */
-
     Chart.renderDoughnut({
 
         canvas :
@@ -1496,6 +1500,7 @@ function createDistributionBar(
 
 }
 
+
 /* =====================================================
    SUMMARY DETAIL
 ===================================================== */
@@ -1503,147 +1508,93 @@ function createDistributionBar(
 function renderSummaryDetail(){
 
     const section =
+
         document.getElementById(
+
             "summary-financial-detail"
-        );
 
-
-    const month =
-        document.getElementById(
-            "summary-financial-detail-month"
-        );
-
-
-    const jenis =
-        document.getElementById(
-            "summary-financial-detail-type"
-        );
-
-
-    const category =
-        document.getElementById(
-            "summary-financial-detail-category"
         );
 
 
     const list =
+
         document.getElementById(
+
             "summary-financial-detail-list"
+
         );
 
 
     const pagination =
-    document.getElementById(
-        "summary-financial-detail-pagination"
-    );
+
+        document.getElementById(
+
+            "summary-financial-detail-pagination"
+
+        );
 
 
-/* =============================================
-   OPEN FINANCIAL DETAIL
-============================================= */
+    if(
 
-if(
+        !section
 
-    !section
+    ){
 
-){
+        return;
 
-    return;
-
-}
-
-
-section.classList.remove(
-
-    "hidden"
-
-);
-
-
-/* =============================================
-   VALIDATE DETAIL ELEMENTS
-============================================= */
-
-if(
-
-    !month ||
-    !jenis ||
-    !category ||
-    !list ||
-    !pagination
-
-){
-
-    console.warn(
-
-        "Summary Detail: element HTML belum lengkap."
-
-    );
-
-    return;
-
-}
+    }
 
 
     /* =============================================
-       OPTIONS
+       OPEN FINANCIAL DETAIL
+    ============================================= */
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    /* =============================================
+       VALIDATE RESULT ELEMENTS
+    ============================================= */
+
+    if(
+
+        !list ||
+
+        !pagination
+
+    ){
+
+        console.warn(
+
+            "Summary Detail: element hasil belum lengkap."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       FILTER DATA
     ============================================= */
 
     const months =
+
         SummaryDetail.getMonths();
 
 
     const jenisOptions =
+
         SummaryDetail.getJenis();
 
 
-    month.innerHTML =
-
-        months
-
-            .map(
-
-                value => `
-
-                    <option value="${value}">
-
-                        ${SummaryDetail.formatMonth(value)}
-
-                    </option>
-
-                `
-
-            )
-
-            .join("");
-
-
-    jenis.innerHTML =
-
-        jenisOptions
-
-            .map(
-
-                value => `
-
-                    <option value="${value}">
-
-                        ${formatDetailText(value)}
-
-                    </option>
-
-                `
-
-            )
-
-            .join("");
-
-
-    /* =============================================
-       DEFAULT FILTER
-    ============================================= */
-
     const currentMonth =
+
         getCurrentMonthValue(
 
             months
@@ -1651,89 +1602,171 @@ if(
         );
 
 
-    if(
+    const defaultJenis =
 
-        currentMonth
+        jenisOptions[0] ??
 
-    ){
-
-        month.value =
-            currentMonth;
-
-    }
+        "";
 
 
-    if(
+    const defaultCategories =
 
-        jenisOptions.length
+        SummaryDetail.getCategories(
 
-    ){
+            defaultJenis
 
-        jenis.value =
-            jenisOptions[0];
-
-    }
+        );
 
 
-    renderDetailCategories();
+    const defaultCategory =
 
-    renderDetailResult();
+        defaultCategories[0] ??
+
+        "";
 
 
     /* =============================================
-       EVENTS
+       GLOBAL FILTER
     ============================================= */
 
-    month.addEventListener(
+    const filterContainer =
 
-        "change",
+        getDetailFilterContainer(
 
-        () => {
+            section
 
-            renderDetailResult();
-
-        }
-
-    );
+        );
 
 
-    jenis.addEventListener(
+    if(
 
-        "change",
+        !filterContainer
 
-        () => {
+    ){
 
-            renderDetailCategories();
+        console.warn(
 
-            renderDetailResult();
+            "Summary Detail: container filter global tidak ditemukan."
 
-        }
+        );
 
-    );
+        return;
 
-
-    category.addEventListener(
-
-        "change",
-
-        () => {
-
-            renderDetailResult();
-
-        }
-
-    );
+    }
 
 
-    pagination.addEventListener(
+    Filter.renderDetail({
 
-        "click",
+        container :
+
+            "#" +
+
+            filterContainer.id,
+
+
+        months :
+
+            months,
+
+
+        jenis :
+
+            jenisOptions,
+
+
+        categories :
+
+            defaultCategories,
+
+
+        value : {
+
+            month :
+
+                currentMonth,
+
+            jenis :
+
+                defaultJenis,
+
+            category :
+
+                defaultCategory
+
+        },
+
+
+        /* =========================================
+           JENIS BERUBAH
+        ========================================== */
+
+        onJenisChange :
+
+            jenis => {
+
+                return SummaryDetail.getCategories(
+
+                    jenis
+
+                );
+
+            },
+
+
+        /* =========================================
+           FILTER BERUBAH
+        ========================================== */
+
+        onChange :
+
+            filters => {
+
+                applyDetailFilter(
+
+                    filters
+
+                );
+
+            }
+
+    });
+
+
+    /* =============================================
+       INITIAL FILTER
+    ============================================= */
+
+    applyDetailFilter({
+
+        month :
+
+            currentMonth,
+
+        jenis :
+
+            defaultJenis,
+
+        category :
+
+            defaultCategory
+
+    });
+
+
+    /* =============================================
+       PAGINATION EVENT
+    ============================================= */
+
+    pagination.onclick =
 
         event => {
 
             const button =
+
                 event.target.closest(
+
                     "[data-detail-page]"
+
                 );
 
 
@@ -1749,12 +1782,15 @@ if(
 
 
             const action =
+
                 button.dataset.detailPage;
 
 
             if(
 
-                action === "previous"
+                action ===
+
+                "previous"
 
             ){
 
@@ -1763,9 +1799,11 @@ if(
             }
 
 
-            if(
+            else if(
 
-                action === "next"
+                action ===
+
+                "next"
 
             ){
 
@@ -1776,80 +1814,176 @@ if(
 
             renderDetailResult();
 
-        }
+        };
 
-    );
-
-}            
+}
 
 
 /* =====================================================
-   DETAIL CATEGORY
+   DETAIL FILTER CONTAINER
 ===================================================== */
 
-function renderDetailCategories(){
+function getDetailFilterContainer(
 
-    const category =
+    section
+
+){
+
+    /* =============================================
+       PRIORITAS 1
+
+       Container khusus dari HTML.
+    ============================================= */
+
+    let container =
+
         document.getElementById(
-            "summary-financial-detail-category"
-        );
 
+            "summary-financial-detail-filter"
 
-    const jenis =
-        document.getElementById(
-            "summary-financial-detail-type"
         );
 
 
     if(
 
-        !category ||
-        !jenis
+        container
 
     ){
 
-        return;
+        return container;
 
     }
 
 
-    const categories =
-        SummaryDetail.getCategories(
-            jenis.value
+    /* =============================================
+       PRIORITAS 2
+
+       Class khusus.
+    ============================================= */
+
+    container =
+
+        section.querySelector(
+
+            ".summary-financial-detail-filter"
+
         );
-
-
-    category.innerHTML =
-
-        categories
-
-            .map(
-
-                value => `
-
-                    <option value="${value}">
-
-                        ${formatDetailText(value)}
-
-                    </option>
-
-                `
-
-            )
-
-            .join("");
 
 
     if(
 
-        categories.length
+        container
 
     ){
 
-        category.value =
-            categories[0];
+        if(
+
+            !container.id
+
+        ){
+
+            container.id =
+
+                "summary-financial-detail-filter";
+
+        }
+
+        return container;
 
     }
+
+
+    /* =============================================
+       PRIORITAS 3
+
+       Compatibility dengan HTML filter lama.
+
+       Kalau HTML lama masih memiliki:
+
+       #summary-financial-detail-month
+
+       maka kita cari parent terdekatnya
+       dan menggunakan parent tersebut sebagai
+       container global filter.
+    ============================================= */
+
+    const oldMonth =
+
+        document.getElementById(
+
+            "summary-financial-detail-month"
+
+        );
+
+
+    if(
+
+        oldMonth
+
+    ){
+
+        container =
+
+            oldMonth.parentElement;
+
+
+        if(
+
+            container
+
+        ){
+
+            container.id =
+
+                "summary-financial-detail-filter";
+
+
+            return container;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   APPLY DETAIL FILTER
+===================================================== */
+
+function applyDetailFilter(
+
+    filters = {}
+
+){
+
+    SummaryDetail.setFilter({
+
+        month :
+
+            filters.month ??
+
+            "",
+
+        jenis :
+
+            filters.jenis ??
+
+            "",
+
+        category :
+
+            filters.category ??
+
+            ""
+
+    });
+
+
+    renderDetailResult();
 
 }
 
@@ -1861,19 +1995,27 @@ function renderDetailCategories(){
 function renderDetailResult(){
 
     const list =
+
         document.getElementById(
+
             "summary-financial-detail-list"
+
         );
 
+
     const pagination =
+
         document.getElementById(
+
             "summary-financial-detail-pagination"
+
         );
 
 
     if(
 
         !list ||
+
         !pagination
 
     ){
@@ -1883,30 +2025,8 @@ function renderDetailResult(){
     }
 
 
-    SummaryDetail.setFilter({
-
-        month :
-
-            document.getElementById(
-                "summary-financial-detail-month"
-            )?.value,
-
-        jenis :
-
-            document.getElementById(
-                "summary-financial-detail-type"
-            )?.value,
-
-        category :
-
-            document.getElementById(
-                "summary-financial-detail-category"
-            )?.value
-
-    });
-
-
     const result =
+
         SummaryDetail.getResult();
 
 
@@ -1965,10 +2085,18 @@ function renderDetailResult(){
             ${
 
                 result.hasPrevious
-                    ? ""
-                    : "disabled"
 
-            }>
+                    ?
+
+                    ""
+
+                    :
+
+                    "disabled"
+
+            }
+
+        >
 
             ← Back
 
@@ -1995,10 +2123,18 @@ function renderDetailResult(){
             ${
 
                 result.hasNext
-                    ? ""
-                    : "disabled"
 
-            }>
+                    ?
+
+                    ""
+
+                    :
+
+                    "disabled"
+
+            }
+
+        >
 
             Next →
 
@@ -2029,9 +2165,13 @@ function createDetailGroup(
                 <strong>
 
                     ${escapeHTML(
+
                         formatDetailText(
+
                             group.keyword
+
                         )
+
                     )}
 
                 </strong>
@@ -2051,7 +2191,9 @@ function createDetailGroup(
             <strong class="summary-detail-amount">
 
                 ${formatDetailAmount(
+
                     group.total
+
                 )}
 
             </strong>
@@ -2075,6 +2217,7 @@ function getCurrentMonthValue(
 ){
 
     const now =
+
         new Date();
 
 
@@ -2085,20 +2228,33 @@ function getCurrentMonthValue(
             now.getFullYear(),
 
             String(
+
                 now.getMonth() + 1
+
             ).padStart(
+
                 2,
+
                 "0"
+
             )
 
         ].join("-");
 
 
-    return months.includes(value)
+    return months.includes(
 
-        ? value
+        value
 
-        : months[0] ?? "";
+    )
+
+        ?
+
+        value
+
+        :
+
+        months[0] ?? "";
 
 }
 
@@ -2127,14 +2283,21 @@ function formatDetailText(
     return String(value)
 
         .replace(
+
             /_/g,
+
             " "
+
         )
 
         .replace(
+
             /\b\w/g,
+
             letter =>
+
                 letter.toUpperCase()
+
         );
 
 }
@@ -2157,12 +2320,15 @@ function formatDetailAmount(
         {
 
             style :
+
                 "currency",
 
             currency :
+
                 "IDR",
 
             maximumFractionDigits :
+
                 0
 
         }
@@ -2187,32 +2353,49 @@ function escapeHTML(
 ){
 
     return String(
+
         value ?? ""
+
     )
 
         .replace(
+
             /&/g,
+
             "&amp;"
+
         )
 
         .replace(
+
             /</g,
+
             "&lt;"
+
         )
 
         .replace(
+
             />/g,
+
             "&gt;"
+
         )
 
         .replace(
+
             /"/g,
+
             "&quot;"
+
         )
 
         .replace(
+
             /'/g,
+
             "&#039;"
+
         );
 
 }
@@ -2552,6 +2735,3 @@ function toNumber(
         0;
 
 }
-
-
-
