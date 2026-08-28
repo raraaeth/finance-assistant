@@ -156,13 +156,8 @@ export async function init(){
     try{
 
         await API.load(
-
-    CONFIG.api.endpoint,
-
     CONFIG.data.financial,
-
     CONFIG.data.activity
-
 );
 
        console.log(
