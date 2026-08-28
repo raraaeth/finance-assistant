@@ -1496,6 +1496,696 @@ function createDistributionBar(
 
 }
 
+/* =====================================================
+   SUMMARY DETAIL
+===================================================== */
+
+function renderSummaryDetail(){
+
+    const section =
+        document.getElementById(
+            "summary-detail"
+        );
+
+    const month =
+        document.getElementById(
+            "summary-detail-month"
+        );
+
+    const jenis =
+        document.getElementById(
+            "summary-detail-jenis"
+        );
+
+    const category =
+        document.getElementById(
+            "summary-detail-category"
+        );
+
+    const list =
+        document.getElementById(
+            "summary-detail-list"
+        );
+
+    const pagination =
+        document.getElementById(
+            "summary-detail-pagination"
+        );
+
+
+    if(
+
+        !section ||
+        !month ||
+        !jenis ||
+        !category ||
+        !list ||
+        !pagination
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       OPTIONS
+    ============================================= */
+
+    const months =
+        SummaryDetail.getMonths();
+
+    const jenisOptions =
+        SummaryDetail.getJenis();
+
+
+    month.innerHTML =
+
+        months
+
+            .map(
+
+                value => `
+
+                    <option value="${value}">
+
+                        ${SummaryDetail.formatMonth(value)}
+
+                    </option>
+
+                `
+
+            )
+
+            .join("");
+
+
+    jenis.innerHTML =
+
+        jenisOptions
+
+            .map(
+
+                value => `
+
+                    <option value="${value}">
+
+                        ${formatDetailText(value)}
+
+                    </option>
+
+                `
+
+            )
+
+            .join("");
+
+
+    /* =============================================
+       DEFAULT FILTER
+    ============================================= */
+
+    const currentMonth =
+        getCurrentMonthValue(
+            months
+        );
+
+
+    if(
+
+        currentMonth
+
+    ){
+
+        month.value =
+            currentMonth;
+
+    }
+
+
+    if(
+
+        jenisOptions.length
+
+    ){
+
+        jenis.value =
+            jenisOptions[0];
+
+    }
+
+
+    renderDetailCategories();
+
+
+    renderDetailResult();
+
+
+    /* =============================================
+       EVENTS
+    ============================================= */
+
+    month.addEventListener(
+
+        "change",
+
+        () => {
+
+            renderDetailResult();
+
+        }
+
+    );
+
+
+    jenis.addEventListener(
+
+        "change",
+
+        () => {
+
+            renderDetailCategories();
+
+            renderDetailResult();
+
+        }
+
+    );
+
+
+    category.addEventListener(
+
+        "change",
+
+        () => {
+
+            renderDetailResult();
+
+        }
+
+    );
+
+
+    pagination.addEventListener(
+
+        "click",
+
+        event => {
+
+            const button =
+                event.target.closest(
+                    "[data-detail-page]"
+                );
+
+
+            if(
+
+                !button
+
+            ){
+
+                return;
+
+            }
+
+
+            const action =
+                button.dataset.detailPage;
+
+
+            if(
+
+                action === "previous"
+
+            ){
+
+                SummaryDetail.previous();
+
+            }
+
+
+            if(
+
+                action === "next"
+
+            ){
+
+                SummaryDetail.next();
+
+            }
+
+
+            renderDetailResult();
+
+        }
+
+    );
+
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+}
+
+
+/* =====================================================
+   DETAIL CATEGORY
+===================================================== */
+
+function renderDetailCategories(){
+
+    const category =
+        document.getElementById(
+            "summary-detail-category"
+        );
+
+
+    const jenis =
+        document.getElementById(
+            "summary-detail-jenis"
+        );
+
+
+    if(
+
+        !category ||
+        !jenis
+
+    ){
+
+        return;
+
+    }
+
+
+    const categories =
+        SummaryDetail.getCategories(
+            jenis.value
+        );
+
+
+    category.innerHTML =
+
+        categories
+
+            .map(
+
+                value => `
+
+                    <option value="${value}">
+
+                        ${formatDetailText(value)}
+
+                    </option>
+
+                `
+
+            )
+
+            .join("");
+
+
+    if(
+
+        categories.length
+
+    ){
+
+        category.value =
+            categories[0];
+
+    }
+
+}
+
+
+/* =====================================================
+   DETAIL RESULT
+===================================================== */
+
+function renderDetailResult(){
+
+    const list =
+        document.getElementById(
+            "summary-detail-list"
+        );
+
+    const pagination =
+        document.getElementById(
+            "summary-detail-pagination"
+        );
+
+
+    if(
+
+        !list ||
+        !pagination
+
+    ){
+
+        return;
+
+    }
+
+
+    SummaryDetail.setFilter({
+
+        month :
+
+            document.getElementById(
+                "summary-detail-month"
+            )?.value,
+
+        jenis :
+
+            document.getElementById(
+                "summary-detail-jenis"
+            )?.value,
+
+        category :
+
+            document.getElementById(
+                "summary-detail-category"
+            )?.value
+
+    });
+
+
+    const result =
+        SummaryDetail.getResult();
+
+
+    /* =============================================
+       EMPTY
+    ============================================= */
+
+    if(
+
+        !result.items.length
+
+    ){
+
+        list.innerHTML = `
+
+            <div class="summary-detail-empty">
+
+                Belum ada data.
+
+            </div>
+
+        `;
+
+    }
+
+
+    else{
+
+        list.innerHTML =
+
+            result.items
+
+                .map(
+
+                    createDetailGroup
+
+                )
+
+                .join("");
+
+    }
+
+
+    /* =============================================
+       PAGINATION
+    ============================================= */
+
+    pagination.innerHTML = `
+
+        <button
+
+            type="button"
+
+            data-detail-page="previous"
+
+            ${
+
+                result.hasPrevious
+                    ? ""
+                    : "disabled"
+
+            }>
+
+            ← Back
+
+        </button>
+
+
+        <span>
+
+            ${result.page}
+
+            /
+
+            ${result.totalPages}
+
+        </span>
+
+
+        <button
+
+            type="button"
+
+            data-detail-page="next"
+
+            ${
+
+                result.hasNext
+                    ? ""
+                    : "disabled"
+
+            }>
+
+            Next →
+
+        </button>
+
+    `;
+
+}
+
+
+/* =====================================================
+   DETAIL GROUP
+===================================================== */
+
+function createDetailGroup(
+
+    group
+
+){
+
+    return `
+
+        <article class="summary-detail-item">
+
+
+            <div class="summary-detail-info">
+
+                <strong>
+
+                    ${escapeHTML(
+                        formatDetailText(
+                            group.keyword
+                        )
+                    )}
+
+                </strong>
+
+
+                <small>
+
+                    ${group.count}
+
+                    transaksi
+
+                </small>
+
+            </div>
+
+
+            <strong class="summary-detail-amount">
+
+                ${formatDetailAmount(
+                    group.total
+                )}
+
+            </strong>
+
+
+        </article>
+
+    `;
+
+}
+
+
+/* =====================================================
+   CURRENT MONTH
+===================================================== */
+
+function getCurrentMonthValue(
+
+    months
+
+){
+
+    const now =
+        new Date();
+
+
+    const value =
+
+        [
+
+            now.getFullYear(),
+
+            String(
+                now.getMonth() + 1
+            ).padStart(
+                2,
+                "0"
+            )
+
+        ].join("-");
+
+
+    return months.includes(value)
+
+        ? value
+
+        : months[0] ?? "";
+
+}
+
+
+/* =====================================================
+   FORMAT TEXT
+===================================================== */
+
+function formatDetailText(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return "-";
+
+    }
+
+
+    return String(value)
+
+        .replace(
+            /_/g,
+            " "
+        )
+
+        .replace(
+            /\b\w/g,
+            letter =>
+                letter.toUpperCase()
+        );
+
+}
+
+
+/* =====================================================
+   FORMAT AMOUNT
+===================================================== */
+
+function formatDetailAmount(
+
+    value
+
+){
+
+    return new Intl.NumberFormat(
+
+        "id-ID",
+
+        {
+
+            style :
+                "currency",
+
+            currency :
+                "IDR",
+
+            maximumFractionDigits :
+                0
+
+        }
+
+    ).format(
+
+        Number(value) || 0
+
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+
+    value
+
+){
+
+    return String(
+        value ?? ""
+    )
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
 
 /* =====================================================
    CALCULATE OVERVIEW
