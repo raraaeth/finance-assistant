@@ -126,9 +126,10 @@ Summary.init = function(
     renderFinancialPosition();
 
     renderDistribution();
-    SummaryDetail.init(
-    Summary.data
-);
+
+    SummaryDetail.init();
+
+    renderSummaryDetail();
 
 
     return Summary;
