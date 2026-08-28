@@ -1,213 +1,140 @@
 /* =====================================================
    Finance Assistant
-   GLOBAL MODULE
-   FILE        : sheets.js
-   DESCRIPTION : Google Sheets Read Engine
-   VERSION     : 1.0.0
+   Module      : Google Sheets
+   File        : sheets.js
+   Version     : 2.0.0
 
-   RESPONSIBILITY
-   -----------------------------------------------------
-   sheets.js hanya menangani:
+   Description :
+   Google Sheets Reader Engine
 
-   - Mendapatkan Google Provider Access Token
-   - Mendapatkan Finance Core ID user
-   - Membaca Google Sheets API
-   - Mengembalikan RAW data
+   Architecture :
 
-   TIDAK menangani:
+   auth.js
+       ↓
+   Google Provider Token
+       ↓
+   module.js
+       ↓
+   Finance Core ID
+       ↓
+   sheets.js
+       ↓
+   Google Sheets API
+       ↓
+   RAW / DATA
 
+   Responsibility :
+
+   - Membaca Google Spreadsheet
+   - Membaca Google Sheet
+   - Mengubah values menjadi object
+   - Mengembalikan headers
+   - Mengembalikan data
+
+   Tidak menangani :
+
+   - Login
+   - Logout
    - Supabase Auth
    - Google OAuth
-   - Create Workspace
-   - Create Sheet
-   - Input data
-   - Update data
-   - Delete data
-   - processData()
-   - Rendering UI
-
-   FLOW
-   -----------------------------------------------------
-
-   User
-      ↓
-   auth.js
-      ↓
-   Google Provider Token
-      ↓
-   module.js
-      ↓
-   Finance Core ID
-      ↓
-   sheets.js
-      ↓
-   Google Sheets API
-      ↓
-   RAW
+   - Finance Core creation
+   - Workspace creation
+   - Apps Script
+   - Processing data
+   - UI
 
 ===================================================== */
-
-
-/* =====================================================
-   IMPORT
-===================================================== */
-
-import {
-
-    getValidGoogleProviderToken
-
-} from "./auth.js";
-
-
-import {
-
-    loadModuleInfo
-
-} from "./module.js";
 
 
 /* =====================================================
    CONFIG
 ===================================================== */
 
-const SheetsConfig = {
+const SHEETS_API =
 
-    api :
-
-        "https://sheets.googleapis.com/v4",
-
-    defaultRange :
-
-        "A:Z"
-
-};
+    "https://sheets.googleapis.com/v4";
 
 
 /* =====================================================
-   GET FINANCE CORE
+   READ SHEET
 ===================================================== */
 
 /*
-   Mengambil Finance Core milik user
-   yang sedang login.
+   Contract :
 
-   Spreadsheet ID TIDAK disimpan
-   di config.js.
+       readSheet({
 
-   ID diperoleh dari module.js.
+           accessToken,
+
+           spreadsheetId,
+
+           sheetName
+
+       })
+
+
+   Return :
+
+       {
+
+           headers : [],
+
+           data : []
+
+       }
+
 */
 
-function getFinanceCore(){
 
-    const moduleInfo =
+export async function readSheet({
 
-        loadModuleInfo();
-
-
-    if(
-
-        !moduleInfo
-
-    ){
-
-        throw new Error(
-
-            "Module Info belum tersedia."
-
-        );
-
-    }
-
-
-    const financeCore =
-
-        moduleInfo.financeCore;
-
-
-    if(
-
-        !financeCore
-
-        ||
-
-        !financeCore.id
-
-    ){
-
-        throw new Error(
-
-            "Finance Core belum tersedia."
-
-        );
-
-    }
-
-
-    return financeCore;
-
-}
-
-
-/* =====================================================
-   GET GOOGLE ACCESS TOKEN
-===================================================== */
-
-/*
-   Menggunakan auth.js sebagai satu-satunya
-   sumber Google Provider Token.
-
-   Tidak membaca token dari localStorage
-   secara langsung.
-
-   auth.js yang bertanggung jawab:
-
-   - session
-   - local token
-   - expiry
-   - refresh token
-   - automatic refresh
-*/
-
-async function getGoogleToken(){
-
-    const token =
-
-        await getValidGoogleProviderToken();
-
-
-    if(
-
-        !token
-
-    ){
-
-        throw new Error(
-
-            "Google Provider Token tidak tersedia."
-
-        );
-
-    }
-
-
-    return token;
-
-}
-
-
-/* =====================================================
-   BUILD SHEETS URL
-===================================================== */
-
-function buildSheetsUrl(
+    accessToken,
 
     spreadsheetId,
 
-    sheetName,
+    sheetName
 
-    range
+} = {}){
 
-){
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== GOOGLE SHEETS READ ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    /* =================================================
+       VALIDATION
+    ================================================= */
+
+    if(
+
+        !accessToken
+
+    ){
+
+        throw new Error(
+
+            "Google Provider Token tidak ditemukan."
+
+        );
+
+    }
+
 
     if(
 
@@ -239,37 +166,62 @@ function buildSheetsUrl(
     }
 
 
-    const targetRange =
+    /* =================================================
+       DEBUG
+    ================================================= */
 
-        range
+    console.log(
 
-        ||
+        "Sheets API:",
 
-        SheetsConfig.defaultRange;
+        "Google Sheets API"
 
+    );
+
+
+    console.log(
+
+        "Spreadsheet ID:",
+
+        spreadsheetId
+
+    );
+
+
+    console.log(
+
+        "Sheet:",
+
+        sheetName
+
+    );
+
+
+    /* =================================================
+       RANGE
+    ================================================= */
 
     /*
-       Contoh:
+       Gunakan A:Z untuk mempertahankan
+       kompatibilitas dengan Apps Script
+       versi sebelumnya.
 
-       financial!A:Z
-
-       menjadi:
-
-       financial%21A%3AZ
+       Jika nantinya ada sheet dengan
+       kolom lebih dari Z, bisa diperluas.
     */
 
-    const encodedRange =
+    const range =
 
-        encodeURIComponent(
-
-            `${sheetName}!${targetRange}`
-
-        );
+        `${sheetName}!A:Z`;
 
 
-    return (
+    /* =================================================
+       URL
+    ================================================= */
 
-        SheetsConfig.api
+    const url =
+
+        SHEETS_API
 
         +
 
@@ -289,188 +241,30 @@ function buildSheetsUrl(
 
         +
 
-        encodedRange
-
-    );
-
-}
-
-
-/* =====================================================
-   READ SHEET
-===================================================== */
-
-/*
-   Fungsi utama READ.
-
-   Contoh:
-
-       const raw = await readSheet(
-           "financial"
-       );
-
-   Return:
-
-       [
-           ["tanggal", "kategori", "nominal"],
-           ["2026-08-01", "Makan", "25000"],
-           ...
-       ]
-
-   Ini adalah RAW.
-
-   Processing menjadi DATA dilakukan
-   oleh module masing-masing.
-*/
-
-export async function readSheet(
-
-    sheetName,
-
-    options = {}
-
-){
-
-    console.log(
-
-        "=========================================="
-
-    );
-
-
-    console.log(
-
-        "===== GOOGLE SHEETS READ ====="
-
-    );
-
-
-    console.log(
-
-        "=========================================="
-
-    );
-
-
-    try{
-
-        /* =====================================
-           FINANCE CORE
-        ===================================== */
-
-        const financeCore =
-
-            getFinanceCore();
-
-
-        const spreadsheetId =
-
-            financeCore.id;
-
-
-        console.log(
-
-            "Finance Core:",
-
-            spreadsheetId
-
-        );
-
-
-        /* =====================================
-           GOOGLE TOKEN
-        ===================================== */
-
-        const accessToken =
-
-            await getGoogleToken();
-
-
-        console.log(
-
-            "Google Provider Token:",
-
-            accessToken
-
-                ?
-
-                "AVAILABLE"
-
-                :
-
-                "MISSING"
-
-        );
-
-
-        /* =====================================
-           RANGE
-        ===================================== */
-
-        const range =
-
-            options.range
-
-            ||
-
-            SheetsConfig.defaultRange;
-
-
-        /* =====================================
-           URL
-        ===================================== */
-
-        const url =
-
-            buildSheetsUrl(
-
-                spreadsheetId,
-
-                sheetName,
-
-                range
-
-            );
-
-
-        /*
-           Jangan console.log URL.
-
-           URL memang tidak mengandung token,
-           tetapi tidak perlu memenuhi console
-           dengan URL panjang.
-        */
-
-        console.log(
-
-            "Sheet:",
-
-            sheetName
-
-        );
-
-
-        console.log(
-
-            "Range:",
+        encodeURIComponent(
 
             range
 
         );
 
 
-        console.log(
+    console.log(
 
-            "Mengambil data dari Google Sheets..."
+        "Google Sheets request dibuat."
 
-        );
+    );
 
 
-        /* =====================================
-           REQUEST
-        ===================================== */
+    /* =================================================
+       REQUEST
+    ================================================= */
 
-        const response =
+    let response;
+
+
+    try{
+
+        response =
 
             await fetch(
 
@@ -481,6 +275,7 @@ export async function readSheet(
                     method :
 
                         "GET",
+
 
                     headers : {
 
@@ -494,313 +289,202 @@ export async function readSheet(
 
             );
 
-
-        /* =====================================
-           RESPONSE TEXT
-        ===================================== */
-
-        const text =
-
-            await response.text();
-
-
-        let result =
-
-            null;
-
-
-        try{
-
-            result =
-
-                text
-
-                ?
-
-                JSON.parse(
-
-                    text
-
-                )
-
-                :
-
-                null;
-
-        }catch(error){
-
-            console.error(
-
-                "Google Sheets Raw Response:",
-
-                text
-
-            );
-
-
-            throw new Error(
-
-                "Response Google Sheets bukan JSON yang valid."
-
-            );
-
-        }
-
-
-        /* =====================================
-           GOOGLE API ERROR
-        ===================================== */
-
-        if(
-
-            !response.ok
-
-        ){
-
-            console.error(
-
-                "Google Sheets API Error:",
-
-                result
-
-            );
-
-
-            /*
-               Token mungkin sudah expired
-               walaupun auth.js menganggap
-               token masih valid.
-
-               Untuk tahap pertama ini kita
-               belum melakukan retry otomatis.
-
-               Retry akan kita tambahkan setelah
-               READ dasar berhasil.
-            */
-
-            throw new Error(
-
-                result
-                ?.error
-                ?.message
-
-                ||
-
-                `Google Sheets API Error ${response.status}`
-
-            );
-
-        }
-
-
-        /* =====================================
-           VALUES
-        ===================================== */
-
-        const raw =
-
-            Array.isArray(
-
-                result?.values
-
-            )
-
-            ?
-
-            result.values
-
-            :
-
-            [];
-
-
-        /* =====================================
-           DEBUG
-        ===================================== */
-
-        console.log(
-
-            "Google Sheets READ SUCCESS."
-
-        );
-
-
-        console.log(
-
-            "Spreadsheet:",
-
-            spreadsheetId
-
-        );
-
-
-        console.log(
-
-            "Sheet:",
-
-            sheetName
-
-        );
-
-
-        console.log(
-
-            "RAW rows:",
-
-            raw.length
-
-        );
-
-
-        console.log(
-
-            "RAW:",
-
-            raw
-
-        );
-
-
-        console.log(
-
-            "=========================================="
-
-        );
-
-
-        return raw;
-
-
     }catch(error){
 
         console.error(
 
-            "=========================================="
-
-        );
-
-
-        console.error(
-
-            "===== GOOGLE SHEETS READ FAILED ====="
-
-        );
-
-
-        console.error(
-
-            "=========================================="
-
-        );
-
-
-        console.error(
-
-            "Sheet:",
-
-            sheetName
-
-        );
-
-
-        console.error(
-
-            "Error:",
+            "Google Sheets Network Error:",
 
             error
 
         );
 
 
-        console.error(
+        throw new Error(
 
-            "Message:",
-
-            error?.message
+            "Gagal menghubungi Google Sheets API."
 
         );
-
-
-        throw error;
 
     }
 
-}
+
+    /* =================================================
+       RESPONSE TEXT
+    ================================================= */
+
+    const text =
+
+        await response.text();
 
 
-/* =====================================================
-   READ SHEET OBJECT
-===================================================== */
+    /* =================================================
+       PARSE JSON
+    ================================================= */
 
-/*
-   Helper untuk module yang ingin langsung
-   mendapatkan:
+    let result;
 
-   {
-       headers : [...],
-       data : [...]
-   }
 
-   Tetapi ini tetap BUKAN processData
-   module.
+    try{
 
-   Fungsi ini hanya mengubah format
-   Google Sheets values menjadi object.
+        result =
 
-   Contoh RAW:
+            text
 
-       [
-           ["date", "amount"],
-           ["2026-08-01", "10000"]
-       ]
+            ?
 
-   menjadi:
+            JSON.parse(
 
-       {
-           headers : [
-               "date",
-               "amount"
-           ],
+                text
 
-           data : [
-               {
-                   date : "2026-08-01",
-                   amount : "10000"
-               }
-           ]
-       }
-*/
+            )
 
-export async function readSheetObject(
+            :
 
-    sheetName,
+            null;
 
-    options = {}
+    }catch(error){
 
-){
+        console.error(
 
-    const raw =
+            "Google Sheets Raw Response:",
 
-        await readSheet(
-
-            sheetName,
-
-            options
+            text
 
         );
 
 
+        throw new Error(
+
+            "Response Google Sheets bukan JSON yang valid."
+
+        );
+
+    }
+
+
+    /* =================================================
+       GOOGLE API ERROR
+    ================================================= */
+
     if(
 
-        !raw.length
+        !response.ok
 
     ){
+
+        console.error(
+
+            "=========================================="
+
+        );
+
+
+        console.error(
+
+            "===== GOOGLE SHEETS API ERROR ====="
+
+        );
+
+
+        console.error(
+
+            "=========================================="
+
+        );
+
+
+        console.error(
+
+            "HTTP Status:",
+
+            response.status
+
+        );
+
+
+        console.error(
+
+            "Response:",
+
+            result
+
+        );
+
+
+        const message =
+
+            result
+            ?.error
+            ?.message
+
+            ||
+
+            `Google Sheets API Error ${response.status}`;
+
+
+        throw new Error(
+
+            message
+
+        );
+
+    }
+
+
+    /* =================================================
+       VALUES
+    ================================================= */
+
+    const values =
+
+        Array.isArray(
+
+            result?.values
+
+        )
+
+        ?
+
+        result.values
+
+        :
+
+        [];
+
+
+    console.log(
+
+        "Google Sheets rows:",
+
+        values.length
+
+    );
+
+
+    /* =================================================
+       EMPTY SHEET
+    ================================================= */
+
+    if(
+
+        !values.length
+
+    ){
+
+        console.log(
+
+            `Sheet "${sheetName}" kosong.`
+
+        );
+
 
         return {
 
             headers :
 
                 [],
+
 
             data :
 
@@ -811,30 +495,57 @@ export async function readSheetObject(
     }
 
 
+    /* =================================================
+       HEADER
+    ================================================= */
+
     const headers =
 
-        raw[0]
+        Array.isArray(
 
-            .map(
+            values[0]
 
-                header =>
+        )
 
-                    String(
+        ?
 
-                        header
+        values[0].map(
 
-                        ??
+            header =>
 
-                        ""
+                String(
 
-                    ).trim()
+                    header
 
-            );
+                    ??
 
+                    ""
+
+                ).trim()
+
+        )
+
+        :
+
+        [];
+
+
+    console.log(
+
+        "Headers:",
+
+        headers
+
+    );
+
+
+    /* =================================================
+       DATA
+    ================================================= */
 
     const data =
 
-        raw
+        values
 
             .slice(
 
@@ -858,6 +569,11 @@ export async function readSheetObject(
                             index
 
                         ) => {
+
+                            /*
+                               Header kosong tidak
+                               digunakan sebagai key.
+                            */
 
                             if(
 
@@ -902,11 +618,67 @@ export async function readSheetObject(
             );
 
 
+    /* =================================================
+       DEBUG
+    ================================================= */
+
     console.log(
 
-        "Sheet Object Data:",
+        "Sheet:",
+
+        sheetName
+
+    );
+
+
+    console.log(
+
+        "Headers count:",
+
+        headers.length
+
+    );
+
+
+    console.log(
+
+        "Data count:",
+
+        data.length
+
+    );
+
+
+    console.log(
+
+        "Data:",
 
         data
+
+    );
+
+
+    /* =================================================
+       SUCCESS
+    ================================================= */
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== GOOGLE SHEETS READ SUCCESS ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
 
     );
 
@@ -916,6 +688,7 @@ export async function readSheetObject(
         headers :
 
             headers,
+
 
         data :
 
@@ -931,142 +704,246 @@ export async function readSheetObject(
 ===================================================== */
 
 /*
-   Digunakan jika suatu module membutuhkan
-   lebih dari satu sheet.
+   Helper untuk membaca beberapa sheet
+   secara paralel.
 
-   Contoh:
+   Tidak wajib digunakan oleh api.js,
+   tetapi berguna untuk module lain
+   nantinya.
 
-       const result = await readSheets({
+   Contract :
 
-           main :
+       readSheets({
+
+           accessToken,
+
+           spreadsheetId,
+
+           sheets : [
+
                "financial",
 
-           activity :
                "financial_activity"
 
-       });
+           ]
 
-   Return:
+       })
+
+
+   Return :
 
        {
-           main : [...],
-           activity : [...]
+
+           financial : {
+
+               headers : [],
+
+               data : []
+
+           },
+
+           financial_activity : {
+
+               headers : [],
+
+               data : []
+
+           }
+
        }
 
-   Setiap property tetap RAW.
 */
 
-export async function readSheets(
 
-    sheets,
+export async function readSheets({
 
-    options = {}
+    accessToken,
 
-){
+    spreadsheetId,
+
+    sheets = []
+
+} = {}){
 
     if(
 
-        !sheets
-
-        ||
-
-        typeof sheets !== "object"
-
-    ){
-
-        throw new Error(
-
-            "Daftar sheet tidak valid."
-
-        );
-
-    }
-
-
-    const entries =
-
-        Object.entries(
+        !Array.isArray(
 
             sheets
 
-        );
+        )
 
+        ||
 
-    const result = {};
-
-
-    for(
-
-        const [
-
-            key,
-
-            sheetName
-
-        ]
-
-        of
-
-        entries
+        !sheets.length
 
     ){
 
-        result[key] =
-
-            await readSheet(
-
-                sheetName,
-
-                options
-
-            );
+        return {};
 
     }
 
 
-    return result;
+    console.log(
+
+        "===== READ MULTIPLE SHEETS ====="
+
+    );
+
+
+    const results =
+
+        await Promise.all(
+
+            sheets.map(
+
+                sheetName =>
+
+                    readSheet({
+
+                        accessToken,
+
+                        spreadsheetId,
+
+                        sheetName
+
+                    })
+
+                    .then(
+
+                        result => ({
+
+                            sheetName,
+
+                            result
+
+                        })
+
+                    )
+
+            )
+
+        );
+
+
+    const output = {};
+
+
+    results.forEach(
+
+        ({
+
+            sheetName,
+
+            result
+
+        }) => {
+
+            output[
+
+                sheetName
+
+            ] =
+
+                result;
+
+        }
+
+    );
+
+
+    return output;
 
 }
 
 
 /* =====================================================
-   GET SHEET METADATA
+   GET SHEET VALUES
 ===================================================== */
 
 /*
-   Helper opsional.
+   Versi low-level.
 
-   Digunakan jika suatu saat kita perlu
-   mengetahui daftar sheet yang ada
-   di Finance Core.
+   Digunakan jika suatu saat module
+   membutuhkan raw values asli dari
+   Google Sheets API.
 
-   Ini masih READ ONLY.
+   Return :
 
-   Tidak mengubah spreadsheet.
+       [
+
+           ["Date", "jenis", "nominal"],
+
+           ["2026-08-01", "masuk", "100000"]
+
+       ]
+
 */
 
-export async function getSheets(){
 
-    console.log(
+export async function getSheetValues({
 
-        "===== GET GOOGLE SHEETS ====="
+    accessToken,
 
-    );
+    spreadsheetId,
+
+    sheetName
+
+} = {}){
+
+    if(
+
+        !accessToken
+
+    ){
+
+        throw new Error(
+
+            "Google Provider Token tidak ditemukan."
+
+        );
+
+    }
 
 
-    const financeCore =
+    if(
 
-        getFinanceCore();
+        !spreadsheetId
+
+    ){
+
+        throw new Error(
+
+            "Spreadsheet ID tidak ditemukan."
+
+        );
+
+    }
 
 
-    const accessToken =
+    if(
 
-        await getGoogleToken();
+        !sheetName
+
+    ){
+
+        throw new Error(
+
+            "Nama sheet tidak ditemukan."
+
+        );
+
+    }
+
+
+    const range =
+
+        `${sheetName}!A:Z`;
 
 
     const url =
 
-        SheetsConfig.api
+        SHEETS_API
 
         +
 
@@ -1076,13 +953,21 @@ export async function getSheets(){
 
         encodeURIComponent(
 
-            financeCore.id
+            spreadsheetId
 
         )
 
         +
 
-        "?fields=spreadsheetId,properties.title,sheets.properties";
+        "/values/"
+
+        +
+
+        encodeURIComponent(
+
+            range
+
+        );
 
 
     const response =
@@ -1096,6 +981,7 @@ export async function getSheets(){
                 method :
 
                     "GET",
+
 
                 headers : {
 
@@ -1115,9 +1001,7 @@ export async function getSheets(){
         await response.text();
 
 
-    let result =
-
-        null;
+    let result;
 
 
     try{
@@ -1142,7 +1026,7 @@ export async function getSheets(){
 
         throw new Error(
 
-            "Response Google Sheets metadata tidak valid."
+            "Response Google Sheets tidak valid."
 
         );
 
@@ -1170,42 +1054,37 @@ export async function getSheets(){
     }
 
 
-    const sheets =
+    return (
 
-        result?.sheets
+        Array.isArray(
 
-        ||
-
-        [];
-
-
-    return sheets
-
-        .map(
-
-            sheet =>
-
-                sheet
-                ?.properties
-                ?.title
+            result?.values
 
         )
 
-        .filter(
+        ?
 
-            Boolean
+        result.values
 
-        );
+        :
+
+        []
+
+    );
 
 }
 
 
 /* =====================================================
-   EXPORT CONFIG
+   DEFAULT EXPORT
 ===================================================== */
 
-export {
+export default {
 
-    SheetsConfig
+    readSheet,
+
+    readSheets,
+
+    getSheetValues
 
 };
