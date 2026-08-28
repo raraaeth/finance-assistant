@@ -3,15 +3,37 @@
    Page        : Financial
    Module      : Config
    File        : config.js
-   Version     : 2.0.0
+   Version     : 3.0.0
 
    Description :
    Financial Configuration
 
+   Architecture :
+
+       Financial
+           ↓
+       config.js
+           ↓
+       api.js
+           ↓
+       sheets.js
+           ↓
+       Google Sheets API
+           ↓
+       Finance Core milik user
+
+   CONFIG TIDAK menyimpan :
+   - Apps Script endpoint
+   - Spreadsheet ID
+   - Google Access Token
+
+   Spreadsheet ID dan token ditentukan
+   secara global berdasarkan session /
+   Finance Core user.
+
    Sections :
    - Module
    - Hero
-   - API
    - Data
 ===================================================== */
 
@@ -62,21 +84,15 @@ export const CONFIG = {
 
 
     /* =============================================
-       API
-    ============================================= */
-
-    api : {
-
-        endpoint :
-
-            "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec"
-
-    },
-
-
-
-    /* =============================================
        DATA
+       
+       Nama sheet yang digunakan module.
+       
+       BUKAN endpoint.
+       BUKAN Spreadsheet ID.
+       
+       api.js akan mengambil nama sheet ini
+       lalu meneruskannya ke sheets.js.
     ============================================= */
 
     data : {
