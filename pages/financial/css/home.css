@@ -3,7 +3,7 @@
    Page        : Financial
    Module      : Home
    File        : home.css
-   Version     : 2.1.0
+   Version     : 2.2.0
 
    Description :
    Financial Home Summary Styling
@@ -336,9 +336,7 @@
 ===================================================== */
 
 @media(
-
     max-width:480px
-
 ){
 
     #home-summary-card{
@@ -486,14 +484,108 @@
 
 }
 
-  /* =====================================================
-   FINANCIAL HOME : INPUT OVERRIDE
-   Mengikuti ukuran & warna Summary
+
+/* =====================================================
+   FINANCIAL HOME : INPUT
+   Override Global Profile Component
+
+   IMPORTANT :
+   HTML Input Financial menggunakan:
+   .profile-menu-item
+   .profile-menu-left
+   .profile-menu-icon
+   .profile-menu-content
+   .profile-menu-title
+   .profile-menu-description
+   .profile-menu-arrow
+
+   Jadi selector harus diarahkan melalui #input-card.
 ===================================================== */
 
-#input-card #financial-input-menu{
+#input-card .profile-menu-item{
+
+    display:flex;
+
+    align-items:center;
 
     width:100%;
+
+    min-height:108px;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    background:var(--surface) !important;
+
+    color:var(--text) !important;
+
+    border-radius:18px;
+
+}
+
+
+/* =====================================================
+   INPUT LEFT
+===================================================== */
+
+#input-card .profile-menu-left{
+
+    display:flex;
+
+    align-items:center;
+
+    min-width:0;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   INPUT ICON
+===================================================== */
+
+#input-card .profile-menu-icon{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:56px;
+
+    height:56px;
+
+    flex-shrink:0;
+
+    border-radius:16px;
+
+    background:var(--primary) !important;
+
+    color:#ffffff;
+
+    font-size:28px;
+
+}
+
+
+/* =====================================================
+   INPUT CONTENT
+===================================================== */
+
+#input-card .profile-menu-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    min-width:0;
+
+    margin-left:18px;
 
 }
 
@@ -502,16 +594,19 @@
    INPUT TITLE
 ===================================================== */
 
-#input-card #financial-input-menu
-.profile-menu-title{
+#input-card .profile-menu-title{
+
+    display:block;
 
     color:var(--text) !important;
 
-    font-size:24px !important;
+    font-size:32px !important;
 
-    line-height:1.25;
+    line-height:1.2;
 
     font-weight:800 !important;
+
+    letter-spacing:-.3px;
 
 }
 
@@ -520,12 +615,15 @@
    INPUT DESCRIPTION
 ===================================================== */
 
-#input-card #financial-input-menu
-.profile-menu-description{
+#input-card .profile-menu-description{
+
+    display:block;
+
+    margin-top:4px;
 
     color:var(--text-secondary) !important;
 
-    font-size:18px !important;
+    font-size:20px !important;
 
     line-height:1.35;
 
@@ -535,76 +633,81 @@
 
 
 /* =====================================================
-   INPUT ICON
-===================================================== */
-
-#input-card #financial-input-menu
-.profile-menu-icon{
-
-    width:56px;
-
-    height:56px;
-
-    font-size:28px;
-
-}
-
-
-/* =====================================================
    INPUT ARROW
 ===================================================== */
 
-#input-card #financial-input-menu
-.profile-menu-arrow{
+#input-card .profile-menu-arrow{
+
+    margin-left:auto;
+
+    flex-shrink:0;
 
     color:var(--text-secondary) !important;
 
     font-size:32px;
 
+    line-height:1;
+
 }
 
 
 /* =====================================================
-   MOBILE
+   MOBILE : INPUT
 ===================================================== */
 
-@media (max-width:480px){
+@media(
+    max-width:480px
+){
 
-    #input-card #financial-input-menu
-    .profile-menu-title{
+    #input-card .profile-menu-item{
 
-        font-size:24px !important;
+        min-height:108px;
 
-    }
+        padding:20px 18px;
 
-
-    #input-card #financial-input-menu
-    .profile-menu-description{
-
-        font-size:17px !important;
+        border-radius:18px;
 
     }
 
 
-    #input-card #financial-input-menu
-    .profile-menu-icon{
+    #input-card .profile-menu-icon{
 
-        width:52px;
+        width:56px;
 
-        height:52px;
+        height:56px;
 
-        font-size:26px;
+        border-radius:16px;
+
+        font-size:28px;
+
+    }
+
+
+    #input-card .profile-menu-content{
+
+        margin-left:16px;
 
     }
 
 
-    #input-card #financial-input-menu
-    .profile-menu-arrow{
+    #input-card .profile-menu-title{
 
-        font-size:30px;
+        font-size:32px !important;
 
     }
 
-}  
+
+    #input-card .profile-menu-description{
+
+        font-size:19px !important;
+
+    }
 
 
+    #input-card .profile-menu-arrow{
+
+        font-size:32px;
+
+    }
+
+}
