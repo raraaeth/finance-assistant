@@ -1504,32 +1504,37 @@ function renderSummaryDetail(){
 
     const section =
         document.getElementById(
-            "summary-detail"
+            "summary-financial-detail"
         );
+
 
     const month =
         document.getElementById(
-            "summary-detail-month"
+            "summary-financial-detail-month"
         );
+
 
     const jenis =
         document.getElementById(
-            "summary-detail-jenis"
+            "summary-financial-detail-type"
         );
+
 
     const category =
         document.getElementById(
-            "summary-detail-category"
+            "summary-financial-detail-category"
         );
+
 
     const list =
         document.getElementById(
-            "summary-detail-list"
+            "summary-financial-detail-list"
         );
+
 
     const pagination =
         document.getElementById(
-            "summary-detail-pagination"
+            "summary-financial-detail-pagination"
         );
 
 
@@ -1555,6 +1560,7 @@ function renderSummaryDetail(){
 
     const months =
         SummaryDetail.getMonths();
+
 
     const jenisOptions =
         SummaryDetail.getJenis();
@@ -1608,7 +1614,9 @@ function renderSummaryDetail(){
 
     const currentMonth =
         getCurrentMonthValue(
+
             months
+
         );
 
 
@@ -1637,7 +1645,6 @@ function renderSummaryDetail(){
 
 
     renderDetailCategories();
-
 
     renderDetailResult();
 
@@ -1743,13 +1750,17 @@ function renderSummaryDetail(){
     );
 
 
+    /* =============================================
+       OPEN FINANCIAL DETAIL
+    ============================================= */
+
     section.classList.remove(
 
         "hidden"
 
     );
 
-}
+}            
 
 
 /* =====================================================
@@ -1760,13 +1771,13 @@ function renderDetailCategories(){
 
     const category =
         document.getElementById(
-            "summary-detail-category"
+            "summary-financial-detail-category"
         );
 
 
     const jenis =
         document.getElementById(
-            "summary-detail-jenis"
+            "summary-financial-detail-type"
         );
 
 
@@ -1831,12 +1842,12 @@ function renderDetailResult(){
 
     const list =
         document.getElementById(
-            "summary-detail-list"
+            "summary-financial-detail-list"
         );
 
     const pagination =
         document.getElementById(
-            "summary-detail-pagination"
+            "summary-financial-detail-pagination"
         );
 
 
@@ -1857,19 +1868,19 @@ function renderDetailResult(){
         month :
 
             document.getElementById(
-                "summary-detail-month"
+                "summary-financial-detail-month"
             )?.value,
 
         jenis :
 
             document.getElementById(
-                "summary-detail-jenis"
+                "summary-financial-detail-type"
             )?.value,
 
         category :
 
             document.getElementById(
-                "summary-detail-category"
+                "summary-financial-detail-category"
             )?.value
 
     });
