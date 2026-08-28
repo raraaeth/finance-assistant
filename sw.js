@@ -2,7 +2,7 @@
    Finance Assistant
    FILE : sw.js
    DESCRIPTION : Progressive Web App Service Worker
-   VERSION : 1.0.0
+   VERSION : 1.1.0
 
    Handles :
    - PWA application shell
@@ -31,6 +31,14 @@
    - landing.css
    - landing.js
    - images/slide/*
+
+   GLOBAL JS :
+
+   Semua JavaScript global yang digunakan
+   oleh halaman PWA dimasukkan ke STATIC_ASSETS.
+
+   landing.js DIKECUALIKAN karena hanya
+   digunakan oleh landing page.
 ===================================================== */
 
 
@@ -40,7 +48,7 @@
 
 const CACHE_NAME =
 
-    "finance-assistant-v5";
+    "finance-assistant-v6";
 
 
 const BASE_PATH =
@@ -117,6 +125,8 @@ const STATIC_ASSETS = [
     BASE_PATH + "/js/utils.js",
 
     BASE_PATH + "/js/workspace.js",
+
+    BASE_PATH + "/js/addworkspace.js",
 
 
     /* ================================================
@@ -205,6 +215,15 @@ self.addEventListener(
 
                 cache => {
 
+                    console.log(
+
+                        "SW: Membuka cache:",
+
+                        CACHE_NAME
+
+                    );
+
+
                     return cache.addAll(
 
                         STATIC_ASSETS
@@ -219,7 +238,33 @@ self.addEventListener(
 
                 () => {
 
+                    console.log(
+
+                        "SW: Static assets berhasil dicache."
+
+                    );
+
+
                     return self.skipWaiting();
+
+                }
+
+            )
+
+            .catch(
+
+                error => {
+
+                    console.error(
+
+                        "SW: Gagal melakukan precache:",
+
+                        error
+
+                    );
+
+
+                    throw error;
 
                 }
 
@@ -266,13 +311,24 @@ self.addEventListener(
 
                                 .map(
 
-                                    cacheName =>
+                                    cacheName => {
 
-                                        caches.delete(
+                                        console.log(
+
+                                            "SW: Menghapus cache lama:",
 
                                             cacheName
 
-                                        )
+                                        );
+
+
+                                        return caches.delete(
+
+                                            cacheName
+
+                                        );
+
+                                    }
 
                                 )
 
@@ -285,6 +341,13 @@ self.addEventListener(
                 .then(
 
                     () => {
+
+                        console.log(
+
+                            "SW: Activate selesai."
+
+                        );
+
 
                         return self.clients.claim();
 
@@ -320,7 +383,9 @@ self.addEventListener(
 
         if(
 
-            request.method !== "GET"
+            request.method !==
+
+            "GET"
 
         ){
 
@@ -340,7 +405,7 @@ self.addEventListener(
 
         /* --------------------------------------------
            Hanya handle aplikasi PWA
-           
+
            /finance-assistant/pages/
         -------------------------------------------- */
 
@@ -361,7 +426,7 @@ self.addEventListener(
 
         /* --------------------------------------------
            STATIC ASSETS
-           
+
            Cache First
         -------------------------------------------- */
 
@@ -392,16 +457,18 @@ self.addEventListener(
 
         /* --------------------------------------------
            PAGE / HTML
-           
+
            Network First
-           
+
            Auth dan redirect tetap mendapatkan
            kondisi terbaru dari server.
         -------------------------------------------- */
 
         if(
 
-            request.mode === "navigate"
+            request.mode ===
+
+            "navigate"
 
         ){
 
@@ -438,7 +505,9 @@ function isStaticAsset(
 
         asset => {
 
-            return asset === pathname;
+            return asset ===
+
+                pathname;
 
         }
 
@@ -466,6 +535,10 @@ async function cacheFirst(
         );
 
 
+    /* --------------------------------------------
+       CACHE HIT
+    -------------------------------------------- */
+
     if(
 
         cached
@@ -476,6 +549,10 @@ async function cacheFirst(
 
     }
 
+
+    /* --------------------------------------------
+       CACHE MISS
+    -------------------------------------------- */
 
     try{
 
@@ -524,13 +601,24 @@ async function cacheFirst(
 
     ){
 
+        console.error(
+
+            "SW: Cache First gagal:",
+
+            error
+
+        );
+
+
         return new Response(
 
             "",
 
             {
 
-                status : 503,
+                status :
+
+                    503,
 
                 statusText :
 
@@ -566,6 +654,10 @@ async function networkFirst(
             );
 
 
+        /* --------------------------------------------
+           Simpan response HTML terbaru
+        -------------------------------------------- */
+
         if(
 
             response.ok
@@ -602,6 +694,13 @@ async function networkFirst(
 
     ){
 
+        console.warn(
+
+            "SW: Network gagal, mencoba cache..."
+
+        );
+
+
         const cached =
 
             await caches.match(
@@ -628,7 +727,9 @@ async function networkFirst(
 
             {
 
-                status : 503,
+                status :
+
+                    503,
 
                 statusText :
 
