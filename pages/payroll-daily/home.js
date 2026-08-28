@@ -182,8 +182,6 @@ try{
 
     await API.load(
 
-        CONFIG.api.endpoint,
-
         CONFIG.sheet.daily,
 
         CONFIG.sheet.rules
