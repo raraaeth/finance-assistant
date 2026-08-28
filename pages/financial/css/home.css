@@ -485,71 +485,15 @@
     }
 
 }
-/* =====================================================
-   FINANCIAL HOME : INPUT
+
+  /* =====================================================
+   FINANCIAL HOME : INPUT OVERRIDE
+   Mengikuti ukuran & warna Summary
 ===================================================== */
 
-.financial-home-input-item{
-
-    display:flex;
-
-    align-items:center;
+#input-card #financial-input-menu{
 
     width:100%;
-
-    min-height:108px;
-
-    padding:20px;
-
-    box-sizing:border-box;
-
-    background:var(--surface);
-
-}
-
-
-/* =====================================================
-   INPUT ICON
-===================================================== */
-
-.financial-home-input-icon{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    width:56px;
-
-    height:56px;
-
-    flex-shrink:0;
-
-    border-radius:16px;
-
-    background:var(--primary);
-
-    font-size:28px;
-
-}
-
-
-/* =====================================================
-   INPUT CONTENT
-===================================================== */
-
-.financial-home-input-content{
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-    min-width:0;
-
-    margin-left:18px;
 
 }
 
@@ -558,19 +502,16 @@
    INPUT TITLE
 ===================================================== */
 
-.financial-home-input-title{
+#input-card #financial-input-menu
+.profile-menu-title{
 
-    display:block;
+    color:var(--text) !important;
 
-    color:var(--text);
-
-    font-size:24px;
+    font-size:24px !important;
 
     line-height:1.25;
 
-    font-weight:800;
-
-    letter-spacing:-.3px;
+    font-weight:800 !important;
 
 }
 
@@ -579,15 +520,12 @@
    INPUT DESCRIPTION
 ===================================================== */
 
-.financial-home-input-description{
+#input-card #financial-input-menu
+.profile-menu-description{
 
-    display:block;
+    color:var(--text-secondary) !important;
 
-    margin-top:4px;
-
-    color:var(--text-secondary);
-
-    font-size:18px;
+    font-size:18px !important;
 
     line-height:1.35;
 
@@ -597,20 +535,31 @@
 
 
 /* =====================================================
+   INPUT ICON
+===================================================== */
+
+#input-card #financial-input-menu
+.profile-menu-icon{
+
+    width:56px;
+
+    height:56px;
+
+    font-size:28px;
+
+}
+
+
+/* =====================================================
    INPUT ARROW
 ===================================================== */
 
-.financial-home-input-arrow{
+#input-card #financial-input-menu
+.profile-menu-arrow{
 
-    margin-left:auto;
-
-    flex-shrink:0;
-
-    color:var(--text-secondary);
+    color:var(--text-secondary) !important;
 
     font-size:32px;
-
-    line-height:1;
 
 }
 
@@ -619,59 +568,43 @@
    MOBILE
 ===================================================== */
 
-@media(
+@media (max-width:480px){
 
-    max-width:480px
+    #input-card #financial-input-menu
+    .profile-menu-title{
 
-){
-
-    .financial-home-input-item{
-
-        min-height:100px;
-
-        padding:18px 16px;
+        font-size:24px !important;
 
     }
 
 
-    .financial-home-input-icon{
+    #input-card #financial-input-menu
+    .profile-menu-description{
+
+        font-size:17px !important;
+
+    }
+
+
+    #input-card #financial-input-menu
+    .profile-menu-icon{
 
         width:52px;
 
         height:52px;
-
-        border-radius:15px;
 
         font-size:26px;
 
     }
 
 
-    .financial-home-input-content{
-
-        margin-left:16px;
-
-    }
-
-
-    .financial-home-input-title{
-
-        font-size:24px;
-
-    }
-
-
-    .financial-home-input-description{
-
-        font-size:17px;
-
-    }
-
-
-    .financial-home-input-arrow{
+    #input-card #financial-input-menu
+    .profile-menu-arrow{
 
         font-size:30px;
 
     }
 
-}
+}  
+
+
