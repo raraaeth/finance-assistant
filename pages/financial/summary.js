@@ -1533,25 +1533,56 @@ function renderSummaryDetail(){
 
 
     const pagination =
-        document.getElementById(
-            "summary-financial-detail-pagination"
-        );
+    document.getElementById(
+        "summary-financial-detail-pagination"
+    );
 
 
-    if(
+/* =============================================
+   OPEN FINANCIAL DETAIL
+============================================= */
 
-        !section ||
-        !month ||
-        !jenis ||
-        !category ||
-        !list ||
-        !pagination
+if(
 
-    ){
+    !section
 
-        return;
+){
 
-    }
+    return;
+
+}
+
+
+section.classList.remove(
+
+    "hidden"
+
+);
+
+
+/* =============================================
+   VALIDATE DETAIL ELEMENTS
+============================================= */
+
+if(
+
+    !month ||
+    !jenis ||
+    !category ||
+    !list ||
+    !pagination
+
+){
+
+    console.warn(
+
+        "Summary Detail: element HTML belum lengkap."
+
+    );
+
+    return;
+
+}
 
 
     /* =============================================
@@ -1746,17 +1777,6 @@ function renderSummaryDetail(){
             renderDetailResult();
 
         }
-
-    );
-
-
-    /* =============================================
-       OPEN FINANCIAL DETAIL
-    ============================================= */
-
-    section.classList.remove(
-
-        "hidden"
 
     );
 
