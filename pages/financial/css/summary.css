@@ -3,7 +3,7 @@
    Page        : Financial
    Module      : Summary
    File        : summary.css
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Financial Summary Styling
@@ -113,19 +113,12 @@
     display:grid;
 
     grid-template-columns:
-
         repeat(
-
             2,
-
             minmax(
-
                 0,
-
                 1fr
-
             )
-
         );
 
     gap:12px;
@@ -211,19 +204,12 @@
     display:grid;
 
     grid-template-columns:
-
         repeat(
-
             2,
-
             minmax(
-
                 0,
-
                 1fr
-
             )
-
         );
 
     gap:14px;
@@ -484,9 +470,9 @@
 
 .distribution-group-title{
 
-    color:var(--text);
-
     margin:0;
+
+    color:var(--text);
 
     font-size:16px;
 
@@ -588,13 +574,9 @@
     border-radius:999px;
 
     background:
-
         var(
-
             --surface-secondary,
-
             #e8edf5
-
         );
 
 }
@@ -615,7 +597,6 @@
     border-radius:999px;
 
     transition:
-
         width .5s ease;
 
 }
@@ -628,13 +609,9 @@
 .distribution-bar-fill.income{
 
     background:
-
         var(
-
             --success,
-
             #16a34a
-
         );
 
 }
@@ -647,13 +624,9 @@
 .distribution-bar-fill.expense{
 
     background:
-
         var(
-
             --danger,
-
             #dc2626
-
         );
 
 }
@@ -672,13 +645,9 @@
     margin:18px 0;
 
     background:
-
         var(
-
             --border-color,
-
             #e5e7eb
-
         );
 
 }
@@ -702,14 +671,784 @@
 
 
 /* =====================================================
+   FINANCIAL SUMMARY DETAIL
+===================================================== */
+
+#summary-financial-detail{
+
+    width:100%;
+
+    margin-top:32px;
+
+}
+
+
+/* =====================================================
+   DETAIL TITLE
+===================================================== */
+
+#summary-financial-detail
+.summary-financial-detail-title{
+
+    margin-bottom:16px;
+
+}
+
+
+/* =====================================================
+   DETAIL CARD
+===================================================== */
+
+#summary-financial-detail-card{
+
+    width:100%;
+
+    box-sizing:border-box;
+
+    padding:20px;
+
+    border-radius:20px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   DETAIL FILTER
+===================================================== */
+
+.financial-detail-filter{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    width:100%;
+
+    margin:0 0 20px;
+
+    padding:16px;
+
+    box-sizing:border-box;
+
+    border:1px solid
+        var(
+            --border-color,
+            #e5e7eb
+        );
+
+    border-radius:18px;
+
+    background:
+        var(
+            --surface-secondary,
+            #f8fafc
+        );
+
+}
+
+
+/* =====================================================
+   FILTER ITEM
+===================================================== */
+
+.financial-detail-filter-item{
+
+    display:grid;
+
+    grid-template-columns:
+        32px
+        78px
+        minmax(0,1fr);
+
+    align-items:center;
+
+    column-gap:8px;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   FILTER ICON
+===================================================== */
+
+.financial-detail-filter-item::before{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:32px;
+
+    height:42px;
+
+    color:var(--text);
+
+    font-size:21px;
+
+    line-height:1;
+
+}
+
+
+/* =====================================================
+   FILTER ICON : MONTH
+===================================================== */
+
+.financial-detail-filter-item:nth-child(1)::before{
+
+    content:"🗓️";
+
+}
+
+
+/* =====================================================
+   FILTER ICON : JENIS
+===================================================== */
+
+.financial-detail-filter-item:nth-child(2)::before{
+
+    content:"↕️";
+
+}
+
+
+/* =====================================================
+   FILTER ICON : CATEGORY
+===================================================== */
+
+.financial-detail-filter-item:nth-child(3)::before{
+
+    content:"🔺";
+
+}
+
+
+/* =====================================================
+   FILTER LABEL
+===================================================== */
+
+.financial-detail-filter-item label{
+
+    display:flex;
+
+    align-items:center;
+
+    min-width:0;
+
+    margin:0;
+
+    color:var(--text);
+
+    font-size:14px;
+
+    line-height:1.3;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   FILTER SELECT
+===================================================== */
+
+.financial-detail-filter-item select{
+
+    width:100%;
+
+    min-width:0;
+
+    height:42px;
+
+    padding:
+        0 34px 0 12px;
+
+    box-sizing:border-box;
+
+    border:1px solid
+        var(
+            --border-color,
+            #dfe4ec
+        );
+
+    border-radius:11px;
+
+    background:
+        var(
+            --surface,
+            #ffffff
+        );
+
+    color:var(--text);
+
+    font-size:14px;
+
+    font-weight:500;
+
+    outline:none;
+
+    appearance:auto;
+
+}
+
+
+/* =====================================================
+   FILTER SELECT : FOCUS
+===================================================== */
+
+.financial-detail-filter-item select:focus{
+
+    border-color:
+        var(
+            --primary,
+            #2563eb
+        );
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.10);
+
+}
+
+
+/* =====================================================
+   DETAIL LIST
+===================================================== */
+
+#summary-financial-detail-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   DETAIL ITEM
+===================================================== */
+
+#summary-financial-detail-list
+.summary-detail-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    width:100%;
+
+    min-height:76px;
+
+    padding:16px 18px;
+
+    box-sizing:border-box;
+
+    border:1px solid
+        var(
+            --border-color,
+            #e5e7eb
+        );
+
+    border-radius:16px;
+
+    background:
+        var(
+            --surface,
+            #ffffff
+        );
+
+    box-shadow:
+        0 4px 14px
+        rgba(0,0,0,.035);
+
+}
+
+
+/* =====================================================
+   DETAIL INFO
+===================================================== */
+
+#summary-financial-detail-list
+.summary-detail-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   DETAIL KEYWORD
+===================================================== */
+
+#summary-financial-detail-list
+.summary-detail-info strong{
+
+    display:block;
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text);
+
+    font-size:16px;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   DETAIL COUNT
+===================================================== */
+
+#summary-financial-detail-list
+.summary-detail-info small{
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   DETAIL AMOUNT
+===================================================== */
+
+#summary-financial-detail-list
+.summary-detail-amount{
+
+    flex-shrink:0;
+
+    color:var(--text);
+
+    font-size:16px;
+
+    line-height:1.3;
+
+    font-weight:800;
+
+    text-align:right;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   DETAIL EMPTY
+===================================================== */
+
+#summary-financial-detail-list
+.summary-detail-empty{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    min-height:90px;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    border:1px dashed
+        var(
+            --border-color,
+            #d1d5db
+        );
+
+    border-radius:16px;
+
+    background:
+        var(
+            --surface-secondary,
+            #f8fafc
+        );
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+    text-align:center;
+
+}
+
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+#summary-financial-detail-pagination{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    width:100%;
+
+    margin-top:16px;
+
+    padding-top:16px;
+
+    border-top:1px solid
+        var(
+            --border-color,
+            #e5e7eb
+        );
+
+}
+
+
+/* =====================================================
+   PAGINATION BUTTON
+===================================================== */
+
+#summary-financial-detail-pagination
+button{
+
+    min-width:82px;
+
+    min-height:40px;
+
+    padding:8px 14px;
+
+    border:1px solid
+        var(
+            --border-color,
+            #e5e7eb
+        );
+
+    border-radius:12px;
+
+    background:
+        var(
+            --surface,
+            #ffffff
+        );
+
+    color:
+        var(
+            --primary,
+            #2563eb
+        );
+
+    font-size:13px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+        transform .15s ease,
+        background .2s ease,
+        opacity .2s ease;
+
+}
+
+
+#summary-financial-detail-pagination
+button:hover:not(:disabled){
+
+    background:
+        var(
+            --surface-secondary,
+            #f5f7fb
+        );
+
+}
+
+
+#summary-financial-detail-pagination
+button:active:not(:disabled){
+
+    transform:scale(.97);
+
+}
+
+
+#summary-financial-detail-pagination
+button:disabled{
+
+    opacity:.4;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =====================================================
+   PAGINATION NUMBER
+===================================================== */
+
+#summary-financial-detail-pagination
+span{
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+    font-weight:700;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   GLOBAL FILTER SHEET
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-sheet{
+
+    border-radius:
+        24px 24px 0 0;
+
+    padding:
+        22px 18px;
+
+}
+
+
+/* =====================================================
+   FILTER SHEET HEADER
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-sheet-header h3{
+
+    margin:0 0 6px;
+
+    color:var(--text);
+
+    font-size:20px;
+
+}
+
+
+#summary-financial-detail-filter
+.filter-sheet-header p{
+
+    margin:0;
+
+    color:var(--text-secondary);
+
+    font-size:13px;
+
+    line-height:1.5;
+
+}
+
+
+/* =====================================================
+   FILTER INPUT
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-input{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+    margin-bottom:14px;
+
+}
+
+
+#summary-financial-detail-filter
+.filter-input label{
+
+    color:var(--text);
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   FILTER DATE INPUT
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-input input{
+
+    width:100%;
+
+    min-height:46px;
+
+    padding:0 12px;
+
+    box-sizing:border-box;
+
+    border:1px solid
+        var(
+            --border-color,
+            #d1d5db
+        );
+
+    border-radius:12px;
+
+    background:
+        var(
+            --surface,
+            #ffffff
+        );
+
+    color:var(--text);
+
+    font-size:15px;
+
+}
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+html[data-theme="dark"]
+#summary-financial-detail-card,
+html.dark
+#summary-financial-detail-card{
+
+    background:var(--surface);
+
+}
+
+
+html[data-theme="dark"]
+.financial-detail-filter,
+html.dark
+.financial-detail-filter{
+
+    background:
+        rgba(255,255,255,.04);
+
+    border-color:
+        rgba(255,255,255,.08);
+
+}
+
+
+html[data-theme="dark"]
+.financial-detail-filter-item select,
+html.dark
+.financial-detail-filter-item select{
+
+    background:
+        rgba(255,255,255,.06);
+
+    border-color:
+        rgba(255,255,255,.10);
+
+    color:var(--text);
+
+}
+
+
+html[data-theme="dark"]
+#summary-financial-detail-list
+.summary-detail-item,
+html.dark
+#summary-financial-detail-list
+.summary-detail-item{
+
+    background:var(--surface);
+
+    border-color:
+        rgba(255,255,255,.08);
+
+    box-shadow:
+        0 4px 14px
+        rgba(0,0,0,.12);
+
+}
+
+
+html[data-theme="dark"]
+#summary-financial-detail-list
+.summary-detail-empty,
+html.dark
+#summary-financial-detail-list
+.summary-detail-empty{
+
+    background:
+        rgba(255,255,255,.03);
+
+    border-color:
+        rgba(255,255,255,.10);
+
+}
+
+
+html[data-theme="dark"]
+#summary-financial-detail-pagination
+button,
+html.dark
+#summary-financial-detail-pagination
+button{
+
+    background:var(--surface);
+
+    border-color:
+        rgba(255,255,255,.08);
+
+    color:
+        var(
+            --primary,
+            #60a5fa
+        );
+
+}
+
+
+/* =====================================================
    MOBILE
 ===================================================== */
 
-@media(
-
-    max-width:600px
-
-){
+@media (max-width:600px){
 
     /* ---------------------------------------------
        OVERVIEW
@@ -779,19 +1518,12 @@
     #summary-financial-position-card{
 
         grid-template-columns:
-
             repeat(
-
                 2,
-
                 minmax(
-
                     0,
-
                     1fr
-
                 )
-
             );
 
         gap:10px;
@@ -892,7 +1624,6 @@
     #summary-distribution-card{
 
         padding:
-
             24px 18px 26px;
 
     }
@@ -931,7 +1662,6 @@
 
 
     .distribution-item-header span,
-
     .distribution-item-header strong{
 
         font-size:15px;
@@ -952,1049 +1682,91 @@
 
     }
 
-}
 
-
-/* =====================================================
-   FINANCIAL SUMMARY DETAIL
-===================================================== */
-
-#summary-financial-detail{
-
-    margin-top:32px;
-
-}
-
-
-/* =====================================================
-   DETAIL CARD
-===================================================== */
-
-#summary-financial-detail-card{
-
-    padding:20px;
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER
-===================================================== */
-
-.financial-detail-filter{
-
-    display:grid;
-
-    grid-template-columns:
-
-        repeat(
-
-            2,
-
-            minmax(
-
-                0,
-
-                1fr
-
-            )
-
-        );
-
-    gap:14px;
-
-    margin-bottom:24px;
-
-}
-
-
-.financial-detail-filter-item{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:8px;
-
-}
-
-
-.financial-detail-filter-item label{
-
-    font-size:12px;
-
-    font-weight:600;
-
-    color:var(--text-secondary);
-
-}
-
-
-.financial-detail-filter-item select{
-
-    width:100%;
-
-    height:44px;
-
-    padding:0 12px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#F5F7FB;
-
-    color:var(--text-primary);
-
-    font-size:13px;
-
-    outline:none;
-
-}
-
-
-.financial-detail-filter-item select:focus{
-
-    background:#EEF3FF;
-
-}
-
-
-/* =====================================================
-   DETAIL LIST
-===================================================== */
-
-#summary-financial-detail-list{
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
-
-/* =====================================================
-   DETAIL ITEM
-===================================================== */
-
-.financial-detail-item{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:16px;
-
-    padding:16px 0;
-
-    border-bottom:
-
-        1px solid
-
-        var(--border-color);
-
-}
-
-
-.financial-detail-item:first-child{
-
-    padding-top:0;
-
-}
-
-
-.financial-detail-item:last-child{
-
-    border-bottom:none;
-
-}
-
-
-/* =====================================================
-   DETAIL INFO
-===================================================== */
-
-.financial-detail-info{
-
-    flex:1;
-
-    min-width:0;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
-}
-
-
-.financial-detail-keyword{
-
-    font-size:15px;
-
-    font-weight:700;
-
-    color:var(--text-primary);
-
-    line-height:1.4;
-
-}
-
-
-.financial-detail-meta{
-
-    display:flex;
-
-    flex-wrap:wrap;
-
-    align-items:center;
-
-    gap:6px;
-
-    font-size:12px;
-
-    color:var(--text-secondary);
-
-}
-
-
-.financial-detail-meta span{
-
-    display:inline-flex;
-
-    align-items:center;
-
-}
-
-
-.financial-detail-meta-divider{
-
-    opacity:.5;
-
-}
-
-
-/* =====================================================
-   DETAIL TRANSACTION COUNT
-===================================================== */
-
-.financial-detail-count{
-
-    font-size:12px;
-
-    color:var(--text-secondary);
-
-}
-
-
-/* =====================================================
-   DETAIL AMOUNT
-===================================================== */
-
-.financial-detail-amount{
-
-    flex-shrink:0;
-
-    white-space:nowrap;
-
-    text-align:right;
-
-    font-size:15px;
-
-    font-weight:700;
-
-    color:var(--text-primary);
-
-}
-
-
-/* =====================================================
-   DETAIL TRANSACTION
-===================================================== */
-
-.financial-detail-transactions{
-
-    margin-top:8px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:4px;
-
-}
-
-
-.financial-detail-transaction{
-
-    font-size:12px;
-
-    line-height:1.5;
-
-    color:var(--text-secondary);
-
-}
-
-
-/* =====================================================
-   DETAIL EMPTY
-===================================================== */
-
-.financial-detail-empty{
-
-    padding:24px 10px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    text-align:center;
-
-    font-size:13px;
-
-    color:var(--text-secondary);
-
-}
-
-
-/* =====================================================
-   PAGINATION
-===================================================== */
-
-#summary-financial-detail-pagination{
-
-    margin-top:18px;
-
-    padding-top:16px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:12px;
-
-    border-top:
-
-        1px solid
-
-        var(--border-color);
-
-}
-
-
-#summary-financial-detail-pagination button{
-
-    min-width:80px;
-
-    height:38px;
-
-    padding:0 14px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#F5F7FB;
-
-    color:#2563EB;
-
-    font-size:12px;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:
-
-        background .2s ease,
-
-        transform .15s ease,
-
-        opacity .2s ease;
-
-}
-
-
-#summary-financial-detail-pagination button:hover:not(:disabled){
-
-    background:#EEF3FF;
-
-}
-
-
-#summary-financial-detail-pagination button:active:not(:disabled){
-
-    transform:scale(.97);
-
-}
-
-
-#summary-financial-detail-pagination button:disabled{
-
-    opacity:.4;
-
-    cursor:not-allowed;
-
-}
-
-
-#summary-financial-detail-pagination span{
-
-    font-size:12px;
-
-    font-weight:600;
-
-    color:var(--text-secondary);
-
-    white-space:nowrap;
-
-}
-
-
-
-
-/* =====================================================
-   RESPONSIVE
-===================================================== */
-
-@media(
-
-    max-width:480px
-
-){
-
-    .financial-detail-filter{
-
-        grid-template-columns:1fr;
-
-    }
-
-
-    .financial-detail-item{
-
-        align-items:flex-start;
-
-    }
-
-
-    .financial-detail-keyword{
-
-        font-size:14px;
-
-    }
-
-
-    .financial-detail-amount{
-
-        font-size:14px;
-
-    }
-
-
-    #summary-financial-detail-pagination button{
-
-        min-width:72px;
-
-        padding:0 10px;
-
-    }
-
-}
-/* =====================================================
-   SUMMARY DETAIL
-   UI ENHANCEMENT
-===================================================== */
-
-
-/* =====================================================
-   DETAIL SECTION
-===================================================== */
-
-#summary-financial-detail{
-
-    margin-top: 32px;
-
-}
-
-
-/* =====================================================
-   DETAIL TITLE
-===================================================== */
-
-#summary-financial-detail
-.summary-financial-detail-title{
-
-    margin-bottom: 16px;
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER
-===================================================== */
-
-#summary-financial-detail-filter{
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 14px;
-
-    padding: 18px;
-
-    margin-bottom: 18px;
-
-    background: var(--card-bg, #ffffff);
-
-    border-radius: 20px;
-
-    border: 1px solid
-        var(--border-color, #e5e7eb);
-
-    box-shadow:
-        0 6px 20px
-        rgba(0,0,0,.04);
-
-}
-
-
-/* =====================================================
-   GLOBAL FILTER WRAPPER
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-wrapper{
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 14px;
-
-    width: 100%;
-
-}
-
-
-/* =====================================================
-   PERIOD BUTTON
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-period{
-
-    width: 100%;
-
-    min-height: 52px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 10px;
-
-    padding: 0 16px;
-
-    border: 1px solid
-        var(--border-color, #e5e7eb);
-
-    border-radius: 14px;
-
-    background:
-        var(--input-bg, #f8fafc);
-
-    color:
-        var(--text-primary, #1f2937);
-
-    font-size: 16px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-}
-
-
-#summary-financial-detail-filter
-.filter-period-text{
-
-    flex: 1;
-
-    text-align: left;
-
-}
-
-
-#summary-financial-detail-filter
-.filter-period
-.material-symbols-rounded{
-
-    font-size: 22px;
-
-}
-
-
-/* =====================================================
-   FILTER CHIP GROUP
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-chip-group{
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 8px;
-
-}
-
-
-/* =====================================================
-   FILTER CHIP
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-chip{
-
-    min-height: 42px;
-
-    padding: 8px 10px;
-
-    border-radius: 12px;
-
-    border: 1px solid
-        var(--border-color, #e5e7eb);
-
-    background:
-        var(--input-bg, #f8fafc);
-
-    color:
-        var(--text-secondary, #6b7280);
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition:
-        .2s ease;
-
-}
-
-
-#summary-financial-detail-filter
-.filter-chip.active{
-
-    background:
-        var(--primary-color, #2563eb);
-
-    border-color:
-        var(--primary-color, #2563eb);
-
-    color: #ffffff;
-
-}
-
-
-/* =====================================================
-   DETAIL RESULT CONTAINER
-===================================================== */
-
-#summary-financial-detail-list{
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-
-    margin-top: 4px;
-
-}
-
-
-/* =====================================================
-   DETAIL ITEM
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-item{
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 16px;
-
-    min-height: 76px;
-
-    padding: 16px 18px;
-
-    background:
-        var(--card-bg, #ffffff);
-
-    border: 1px solid
-        var(--border-color, #e5e7eb);
-
-    border-radius: 16px;
-
-    box-shadow:
-        0 4px 14px
-        rgba(0,0,0,.035);
-
-    transition:
-        transform .18s ease,
-        box-shadow .18s ease;
-
-}
-
-
-/* =====================================================
-   DETAIL ITEM LEFT
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-info{
-
-    min-width: 0;
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 5px;
-
-}
-
-
-/* =====================================================
-   KEYWORD
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-info strong{
-
-    font-size: 17px;
-
-    line-height: 1.25;
-
-    color:
-        var(--text-primary, #1f2937);
-
-    font-weight: 700;
-
-}
-
-
-/* =====================================================
-   TRANSACTION COUNT
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-info small{
-
-    font-size: 13px;
-
-    line-height: 1.2;
-
-    color:
-        var(--text-secondary, #6b7280);
-
-}
-
-
-/* =====================================================
-   AMOUNT
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-amount{
-
-    flex-shrink: 0;
-
-    font-size: 17px;
-
-    line-height: 1.2;
-
-    color:
-        var(--text-primary, #1f2937);
-
-    font-weight: 700;
-
-    text-align: right;
-
-}
-
-
-/* =====================================================
-   EMPTY
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-empty{
-
-    padding: 28px 20px;
-
-    text-align: center;
-
-    border-radius: 16px;
-
-    background:
-        var(--card-bg, #ffffff);
-
-    border: 1px dashed
-        var(--border-color, #d1d5db);
-
-    color:
-        var(--text-secondary, #6b7280);
-
-    font-size: 14px;
-
-}
-
-
-/* =====================================================
-   PAGINATION
-===================================================== */
-
-#summary-financial-detail-pagination{
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 12px;
-
-    margin-top: 14px;
-
-    padding: 6px 2px;
-
-}
-
-
-/* =====================================================
-   PAGINATION BUTTON
-===================================================== */
-
-#summary-financial-detail-pagination
-button{
-
-    min-width: 90px;
-
-    min-height: 42px;
-
-    padding: 8px 14px;
-
-    border: 1px solid
-        var(--border-color, #e5e7eb);
-
-    border-radius: 12px;
-
-    background:
-        var(--card-bg, #ffffff);
-
-    color:
-        var(--primary-color, #2563eb);
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-}
-
-
-#summary-financial-detail-pagination
-button:disabled{
-
-    opacity: .4;
-
-    cursor: default;
-
-}
-
-
-/* =====================================================
-   PAGINATION NUMBER
-===================================================== */
-
-#summary-financial-detail-pagination
-span{
-
-    font-size: 14px;
-
-    font-weight: 700;
-
-    color:
-        var(--text-secondary, #6b7280);
-
-}
-
-
-/* =====================================================
-   FILTER SHEET
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-sheet{
-
-    border-radius:
-        24px 24px 0 0;
-
-    padding:
-        22px 18px;
-
-}
-
-
-/* =====================================================
-   FILTER SHEET HEADER
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-sheet-header h3{
-
-    margin: 0 0 6px;
-
-    font-size: 20px;
-
-}
-
-
-#summary-financial-detail-filter
-.filter-sheet-header p{
-
-    margin: 0;
-
-    font-size: 13px;
-
-    line-height: 1.5;
-
-}
-
-
-/* =====================================================
-   FILTER INPUT
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-input{
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 7px;
-
-    margin-bottom: 14px;
-
-}
-
-
-#summary-financial-detail-filter
-.filter-input label{
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-}
-
-
-/* =====================================================
-   FILTER DATE INPUT
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-input input{
-
-    width: 100%;
-
-    min-height: 46px;
-
-    padding: 0 12px;
-
-    border-radius: 12px;
-
-    border: 1px solid
-        var(--border-color, #d1d5db);
-
-    background:
-        var(--input-bg, #f8fafc);
-
-    font-size: 15px;
-
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media (max-width: 480px){
+    /* ---------------------------------------------
+       DETAIL
+    --------------------------------------------- */
 
     #summary-financial-detail{
 
-        margin-top: 28px;
+        margin-top:28px;
 
     }
 
 
-    #summary-financial-detail-filter{
+    #summary-financial-detail-card{
 
-        padding: 15px;
+        padding:16px;
 
-        border-radius: 18px;
-
-        gap: 12px;
+        border-radius:18px;
 
     }
 
 
-    #summary-financial-detail-filter
-    .filter-chip-group{
+    .financial-detail-filter{
+
+        gap:8px;
+
+        padding:14px;
+
+        margin-bottom:16px;
+
+        border-radius:16px;
+
+    }
+
+
+    .financial-detail-filter-item{
 
         grid-template-columns:
-            repeat(3, 1fr);
+            30px
+            62px
+            minmax(0,1fr);
 
-        gap: 6px;
+        column-gap:7px;
+
+    }
+
+
+    .financial-detail-filter-item::before{
+
+        width:30px;
+
+        height:40px;
+
+        font-size:19px;
 
     }
 
 
-    #summary-financial-detail-filter
-    .filter-chip{
+    .financial-detail-filter-item label{
 
-        min-height: 40px;
-
-        padding: 7px 5px;
-
-        font-size: 12px;
+        font-size:13px;
 
     }
 
+
+    .financial-detail-filter-item select{
+
+        height:40px;
+
+        padding:
+            0 28px 0 10px;
+
+        border-radius:10px;
+
+        font-size:13px;
+
+    }
+
+
+    /* ---------------------------------------------
+       DETAIL RESULT
+    --------------------------------------------- */
 
     #summary-financial-detail-list{
 
-        gap: 9px;
+        gap:9px;
 
     }
 
@@ -2002,11 +1774,11 @@ span{
     #summary-financial-detail-list
     .summary-detail-item{
 
-        min-height: 72px;
+        min-height:72px;
 
-        padding: 14px;
+        padding:14px;
 
-        border-radius: 15px;
+        border-radius:15px;
 
     }
 
@@ -2014,7 +1786,7 @@ span{
     #summary-financial-detail-list
     .summary-detail-info strong{
 
-        font-size: 16px;
+        font-size:15px;
 
     }
 
@@ -2022,7 +1794,7 @@ span{
     #summary-financial-detail-list
     .summary-detail-info small{
 
-        font-size: 12px;
+        font-size:12px;
 
     }
 
@@ -2030,7 +1802,20 @@ span{
     #summary-financial-detail-list
     .summary-detail-amount{
 
-        font-size: 15px;
+        font-size:14px;
+
+    }
+
+
+    /* ---------------------------------------------
+       PAGINATION
+    --------------------------------------------- */
+
+    #summary-financial-detail-pagination{
+
+        margin-top:14px;
+
+        padding-top:14px;
 
     }
 
@@ -2038,11 +1823,22 @@ span{
     #summary-financial-detail-pagination
     button{
 
-        min-width: 82px;
+        min-width:76px;
 
-        min-height: 40px;
+        min-height:38px;
 
-        padding: 7px 10px;
+        padding:
+            7px 10px;
+
+        font-size:12px;
+
+    }
+
+
+    #summary-financial-detail-pagination
+    span{
+
+        font-size:12px;
 
     }
 
@@ -2050,410 +1846,71 @@ span{
 
 
 /* =====================================================
-   DARK MODE
+   VERY SMALL MOBILE
 ===================================================== */
 
-html[data-theme="dark"]
-#summary-financial-detail-filter,
-html.dark
-#summary-financial-detail-filter{
+@media (max-width:360px){
 
-    background:
-        var(--card-bg, #1f2937);
+    .financial-detail-filter-item{
 
-    border-color:
-        rgba(255,255,255,.08);
+        grid-template-columns:
+            27px
+            56px
+            minmax(0,1fr);
 
-}
-
-
-html[data-theme="dark"]
-#summary-financial-detail-list
-.summary-detail-item,
-html.dark
-#summary-financial-detail-list
-.summary-detail-item{
-
-    background:
-        var(--card-bg, #1f2937);
-
-    border-color:
-        rgba(255,255,255,.08);
-
-    box-shadow:
-        0 4px 14px
-        rgba(0,0,0,.12);
-
-}
-
-
-html[data-theme="dark"]
-#summary-financial-detail-filter
-.filter-period,
-html.dark
-#summary-financial-detail-filter
-.filter-period{
-
-    background:
-        rgba(255,255,255,.05);
-
-    border-color:
-        rgba(255,255,255,.08);
-
-}
-
-
-html[data-theme="dark"]
-#summary-financial-detail-filter
-.filter-chip,
-html.dark
-#summary-financial-detail-filter
-.filter-chip{
-
-    background:
-        rgba(255,255,255,.05);
-
-    border-color:
-        rgba(255,255,255,.08);
-
-}
-
-
-html[data-theme="dark"]
-#summary-financial-detail-pagination
-button,
-html.dark
-#summary-financial-detail-pagination
-button{
-
-    background:
-        var(--card-bg, #1f2937);
-
-    border-color:
-        rgba(255,255,255,.08);
-
-}
-
-/* =====================================================
-   SUMMARY DETAIL
-   FILTER ROW LAYOUT
-===================================================== */
-
-
-/* =====================================================
-   FILTER CARD
-===================================================== */
-
-#summary-financial-detail-filter{
-
-    padding: 18px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-
-    background:
-        var(--card-bg, #ffffff);
-
-    border-radius: 20px;
-
-    border: 1px solid
-        var(--border-color, #e5e7eb);
-
-}
-
-
-/* =====================================================
-   FILTER WRAPPER
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-wrapper{
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-
-}
-
-
-/* =====================================================
-   PERIOD BUTTON
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-period{
-
-    width: 100%;
-
-    min-height: 48px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 0 12px;
-
-    border: 1px solid
-        var(--border-color, #e5e7eb);
-
-    border-radius: 12px;
-
-    background:
-        var(--input-bg, #f8fafc);
-
-    color:
-        var(--text-primary, #1f2937);
-
-}
-
-
-/* =====================================================
-   PERIOD TEXT
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-period-text{
-
-    flex: 1;
-
-    text-align: left;
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-}
-
-
-/* =====================================================
-   FILTER CHIP GROUP
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-chip-group{
-
-    display: none;
-
-}
-
-
-/* =====================================================
-   CUSTOM DETAIL SELECT ROW
-===================================================== */
-
-/*
- * Karena select detail saat ini menggunakan
- * HTML yang sudah ada, kita atur parent section
- * agar setiap baris terlihat compact.
- */
-
-#summary-financial-detail{
-
-    --detail-filter-height: 46px;
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER SELECT
-===================================================== */
-
-#summary-financial-detail
-select{
-
-    min-height:
-        var(--detail-filter-height);
-
-    padding:
-        0 34px 0 12px;
-
-    border:
-        1px solid
-        var(--border-color, #e5e7eb);
-
-    border-radius: 11px;
-
-    background:
-        var(--input-bg, #f8fafc);
-
-    color:
-        var(--text-primary, #1f2937);
-
-    font-size: 15px;
-
-    font-weight: 500;
-
-    outline: none;
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER CONTAINER
-===================================================== */
-
-#summary-financial-detail
-.summary-detail-filter-row{
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER ICON
-===================================================== */
-
-#summary-financial-detail
-.summary-detail-filter-icon{
-
-    width: 34px;
-
-    flex-shrink: 0;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 22px;
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER LABEL
-===================================================== */
-
-#summary-financial-detail
-.summary-detail-filter-label{
-
-    width: 78px;
-
-    flex-shrink: 0;
-
-    font-size: 14px;
-
-    font-weight: 600;
-
-    color:
-        var(--text-secondary, #6b7280);
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER CONTROL
-===================================================== */
-
-#summary-financial-detail
-.summary-detail-filter-control{
-
-    flex: 1;
-
-    min-width: 0;
-
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media (max-width: 480px){
-
-    #summary-financial-detail-filter{
-
-        padding: 16px;
-
-        border-radius: 18px;
-
-        gap: 8px;
+        column-gap:5px;
 
     }
 
 
-    #summary-financial-detail
-    .summary-detail-filter-row{
+    .financial-detail-filter-item::before{
 
-        gap: 8px;
+        width:27px;
 
-    }
-
-
-    #summary-financial-detail
-    .summary-detail-filter-icon{
-
-        width: 30px;
-
-        font-size: 21px;
+        font-size:18px;
 
     }
 
 
-    #summary-financial-detail
-    .summary-detail-filter-label{
+    .financial-detail-filter-item label{
 
-        width: 62px;
-
-        font-size: 14px;
+        font-size:12px;
 
     }
 
 
-    #summary-financial-detail
-    select{
+    .financial-detail-filter-item select{
 
-        width: 100%;
+        font-size:12px;
 
-        min-height: 44px;
-
-        font-size: 14px;
+        padding-left:8px;
 
     }
 
-}
+
+    #summary-financial-detail-list
+    .summary-detail-item{
+
+        gap:10px;
+
+        padding:13px;
+
+    }
 
 
-/* =====================================================
-   DARK MODE
-===================================================== */
+    #summary-financial-detail-list
+    .summary-detail-info strong{
 
-html[data-theme="dark"]
-#summary-financial-detail-filter,
-html.dark
-#summary-financial-detail-filter{
+        font-size:14px;
 
-    background:
-        var(--card-bg, #1f2937);
-
-    border-color:
-        rgba(255,255,255,.08);
-
-}
+    }
 
 
-html[data-theme="dark"]
-#summary-financial-detail select,
-html.dark
-#summary-financial-detail select{
+    #summary-financial-detail-list
+    .summary-detail-amount{
 
-    background:
-        rgba(255,255,255,.05);
+        font-size:13px;
 
-    border-color:
-        rgba(255,255,255,.08);
+    }
 
 }
