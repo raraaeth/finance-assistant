@@ -545,8 +545,6 @@ function normalizeSheetResult(
 
 API.load = async function(
 
-    endpoint,
-
     rawSheet,
 
     dataSheet
@@ -706,23 +704,6 @@ API.load = async function(
         "DATA Sheet:",
 
         dataSheet
-
-    );
-
-
-    console.log(
-
-        "Apps Script Endpoint:",
-
-        endpoint
-
-            ?
-
-            "IGNORED — MIGRATED TO SHEETS API"
-
-            :
-
-            "NOT USED"
 
     );
 
