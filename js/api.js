@@ -2,37 +2,63 @@
    Finance Assistant
    Module      : API
    File        : api.js
-   Version     : 5.0.0
+   Version     : 6.0.0
 
    Description :
-   Apps Script Module API Engine
+   Global Google Sheets API Engine
 
-   Request Method :
-   JSONP
+   MIGRATION :
 
-   Architecture :
+   SEBELUM :
 
    auth.js
        ↓
    Google Provider Token
-
+       ↓
    module.js
        ↓
    Finance Core ID
-
-   api.js
        ↓
    Apps Script
        ↓
    Google Sheets
 
-   Update :
-   • Finance Core diambil dari module.js
-   • Google Provider Token diambil dari auth.js
-   • Tidak lagi menggunakan session.workspace.spreadsheet
-   • Tidak lagi menggunakan session.token.accessToken
-   • loadSession() diperlakukan sebagai async
-   • RAW / DATA tetap menggunakan Apps Script JSONP
+
+   SEKARANG :
+
+   auth.js
+       ↓
+   Google Provider Token
+       ↓
+   module.js
+       ↓
+   Finance Core ID
+       ↓
+   sheets.js
+       ↓
+   Google Sheets API
+
+
+   RESPONSIBILITY :
+
+   - Mendapatkan session
+   - Mendapatkan Finance Core
+   - Mendapatkan Google Provider Token
+   - Membaca RAW sheet
+   - Membaca DATA sheet
+   - Menyimpan API.raw
+   - Menyimpan API.data
+
+   TIDAK MENANGANI :
+
+   - Authentication
+   - Login
+   - Logout
+   - Create Workspace
+   - Create Sheet
+   - Processing data
+   - Rules
+   - UI
 
 ===================================================== */
 
@@ -45,7 +71,7 @@ import {
 
     loadSession,
 
-    getGoogleProviderToken
+    getValidGoogleProviderToken
 
 } from "./auth.js";
 
@@ -57,15 +83,26 @@ import {
 } from "./module.js";
 
 
+import {
+
+    readSheet
+
+} from "./sheets.js";
+
+
 /* =====================================================
    STATE
 ===================================================== */
 
 export const API = {
 
-    raw : [],
+    raw :
 
-    data : []
+        [],
+
+    data :
+
+        []
 
 };
 
@@ -76,7 +113,41 @@ export const API = {
 
 async function getSession(){
 
-    return await loadSession();
+    console.log(
+
+        "API: Mengambil Supabase session..."
+
+    );
+
+
+    const session =
+
+        await loadSession();
+
+
+    if(
+
+        !session
+
+    ){
+
+        throw new Error(
+
+            "Session tidak ditemukan. Silakan login."
+
+        );
+
+    }
+
+
+    console.log(
+
+        "API: Session tersedia."
+
+    );
+
+
+    return session;
 
 }
 
@@ -107,34 +178,60 @@ function getFinanceCore(){
 
     ){
 
-        return null;
+        throw new Error(
+
+            "Finance Module Info tidak ditemukan."
+
+        );
+
+    }
+
+
+    const financeCore =
+
+        moduleInfo.financeCore;
+
+
+    if(
+
+        !financeCore
+
+    ){
+
+        throw new Error(
+
+            "Finance Core tidak ditemukan."
+
+        );
 
     }
 
 
     if(
 
-        !moduleInfo.financeCore
+        !financeCore.id
 
     ){
 
-        return null;
+        throw new Error(
+
+            "Finance Core Spreadsheet ID tidak ditemukan."
+
+        );
 
     }
 
 
-    if(
+    console.log(
 
-        !moduleInfo.financeCore.id
+        "API: Finance Core:",
 
-    ){
+        financeCore
 
-        return null;
-
-    }
+    );
 
 
-    return moduleInfo.financeCore;
+    return financeCore;
 
 }
 
@@ -150,15 +247,7 @@ function getSpreadsheetId(){
         getFinanceCore();
 
 
-    return (
-
-        financeCore?.id
-
-        ||
-
-        null
-
-    );
+    return financeCore.id;
 
 }
 
@@ -169,287 +258,256 @@ function getSpreadsheetId(){
 
 async function getAccessToken(){
 
-    const token =
+    console.log(
 
-        await getGoogleProviderToken();
-
-
-    return (
-
-        token
-
-        ||
-
-        null
+        "API: Meminta Google Provider Token..."
 
     );
+
+
+    const token =
+
+        await getValidGoogleProviderToken();
+
+
+    if(
+
+        !token
+
+    ){
+
+        throw new Error(
+
+            "Google Provider Token tidak tersedia."
+
+        );
+
+    }
+
+
+    console.log(
+
+        "API: Google Provider Token: AVAILABLE"
+
+    );
+
+
+    return token;
 
 }
 
 
 /* =====================================================
-   JSONP REQUEST
-
-   Digunakan untuk request ke
-   Google Apps Script tanpa CORS.
-
+   READ SHEET
 ===================================================== */
 
-function jsonpRequest(
+/*
+   Semua pembacaan Sheet sekarang
+   diarahkan ke sheets.js.
 
-    url
+   sheets.js menangani :
+
+   Google Sheets API
+   Authorization
+   Spreadsheet ID
+   Sheet name
+   Response parsing
+*/
+
+
+async function readData(
+
+    accessToken,
+
+    spreadsheetId,
+
+    sheetName
 
 ){
 
-    return new Promise(
+    if(
 
-        (
+        !sheetName
 
-            resolve,
+    ){
 
-            reject
+        throw new Error(
 
-        ) => {
+            "Nama sheet tidak ditemukan."
 
+        );
 
-            /* =============================================
-               CALLBACK NAME
-            ============================================= */
+    }
 
-            const callbackName =
 
-                "__financeAssistantApi_"
+    console.log(
 
-                +
+        "API: Membaca sheet:",
 
-                Date.now()
-
-                +
-
-                "_"
-
-                +
-
-                Math.random()
-
-                .toString(
-
-                    36
-
-                )
-
-                .slice(
-
-                    2
-
-                );
-
-
-            /* =============================================
-               SCRIPT
-            ============================================= */
-
-            const script =
-
-                document.createElement(
-
-                    "script"
-
-                );
-
-
-            /* =============================================
-               TIMEOUT
-            ============================================= */
-
-            const timeout =
-
-                setTimeout(
-
-                    () => {
-
-                        cleanup();
-
-
-                        reject(
-
-                            new Error(
-
-                                "Request API terlalu lama"
-
-                            )
-
-                        );
-
-                    },
-
-                    30000
-
-                );
-
-
-            /* =============================================
-               CALLBACK
-            ============================================= */
-
-            window[
-
-                callbackName
-
-            ] = function(
-
-                data
-
-            ){
-
-                cleanup();
-
-
-                resolve(
-
-                    data
-
-                );
-
-            };
-
-
-            /* =============================================
-               ERROR
-            ============================================= */
-
-            script.onerror = function(){
-
-                cleanup();
-
-
-                reject(
-
-                    new Error(
-
-                        "Gagal menghubungi Apps Script"
-
-                    )
-
-                );
-
-            };
-
-
-            /* =============================================
-               CLEANUP
-            ============================================= */
-
-            function cleanup(){
-
-
-                clearTimeout(
-
-                    timeout
-
-                );
-
-
-                if(
-
-                    window[
-
-                        callbackName
-
-                    ]
-
-                ){
-
-                    delete window[
-
-                        callbackName
-
-                    ];
-
-                }
-
-
-                if(
-
-                    script.parentNode
-
-                ){
-
-                    script.remove();
-
-                }
-
-            }
-
-
-            /* =============================================
-               BUILD URL
-            ============================================= */
-
-            const separator =
-
-                url.includes(
-
-                    "?"
-
-                )
-
-                ?
-
-                "&"
-
-                :
-
-                "?";
-
-
-            script.src =
-
-                url
-
-                +
-
-                separator
-
-                +
-
-                "callback="
-
-                +
-
-                encodeURIComponent(
-
-                    callbackName
-
-                );
-
-
-            /* =============================================
-               DEBUG
-            ============================================= */
-
-            console.log(
-
-                "JSONP Request:",
-
-                script.src
-
-            );
-
-
-            /* =============================================
-               SEND
-            ============================================= */
-
-            document.head.appendChild(
-
-                script
-
-            );
-
-        }
+        sheetName
 
     );
+
+
+    const result =
+
+        await readSheet({
+
+            accessToken :
+
+                accessToken,
+
+            spreadsheetId :
+
+                spreadsheetId,
+
+            sheetName :
+
+                sheetName
+
+        });
+
+
+    if(
+
+        !result
+
+    ){
+
+        throw new Error(
+
+            `Response sheet "${sheetName}" kosong.`
+
+        );
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   NORMALIZE SHEET RESULT
+===================================================== */
+
+/*
+   Google Sheets API menghasilkan :
+
+   {
+       headers : [],
+       data : []
+   }
+
+   Tetapi kita juga mengantisipasi
+   sheets.js mengembalikan langsung
+   array data.
+
+*/
+
+function normalizeSheetResult(
+
+    result
+
+){
+
+    /* =============================================
+       ARRAY LANGSUNG
+    ============================================= */
+
+    if(
+
+        Array.isArray(
+
+            result
+
+        )
+
+    ){
+
+        return {
+
+            headers :
+
+                [],
+
+            data :
+
+                result
+
+        };
+
+    }
+
+
+    /* =============================================
+       OBJECT
+    ============================================= */
+
+    if(
+
+        typeof result !==
+
+        "object"
+
+        ||
+
+        result === null
+
+    ){
+
+        return {
+
+            headers :
+
+                [],
+
+            data :
+
+                []
+
+        };
+
+    }
+
+
+    return {
+
+        headers :
+
+            Array.isArray(
+
+                result.headers
+
+            )
+
+            ?
+
+            result.headers
+
+            :
+
+            [],
+
+
+        data :
+
+            Array.isArray(
+
+                result.data
+
+            )
+
+            ?
+
+            result.data
+
+            :
+
+            []
+
+    };
 
 }
 
@@ -457,6 +515,33 @@ function jsonpRequest(
 /* =====================================================
    LOAD
 ===================================================== */
+
+/*
+   Interface lama tetap dipertahankan :
+
+       API.load(
+
+           endpoint,
+
+           rawSheet,
+
+           dataSheet
+
+       )
+
+   Parameter endpoint sekarang
+   tidak lagi digunakan untuk READ.
+
+   Kenapa tetap dipertahankan?
+
+   Agar module lama tidak rusak
+   selama proses migrasi.
+
+   Nantinya parameter endpoint
+   dapat dihapus setelah seluruh
+   module selesai dimigrasikan.
+*/
+
 
 API.load = async function(
 
@@ -477,7 +562,7 @@ API.load = async function(
 
     console.log(
 
-        "===== API LOAD ====="
+        "===== API LOAD — GOOGLE SHEETS API ====="
 
     );
 
@@ -489,9 +574,9 @@ API.load = async function(
     );
 
 
-    /* =============================================
+    /* =================================================
        SESSION
-    ============================================= */
+    ================================================= */
 
     const session =
 
@@ -500,31 +585,24 @@ API.load = async function(
 
     console.log(
 
-        "API: Session:",
+        "API: Supabase User:",
 
-        session
+        session.user?.email
+
+        ||
+
+        session.user?.id
+
+        ||
+
+        "UNKNOWN"
 
     );
 
 
-    if(
-
-        !session
-
-    ){
-
-        throw new Error(
-
-            "Session tidak ditemukan. Silakan login."
-
-        );
-
-    }
-
-
-    /* =============================================
+    /* =================================================
        FINANCE CORE
-    ============================================= */
+    ================================================= */
 
     const spreadsheetId =
 
@@ -540,84 +618,18 @@ API.load = async function(
     );
 
 
-    if(
-
-        !spreadsheetId
-
-    ){
-
-        throw new Error(
-
-            "Finance Core Spreadsheet ID tidak ditemukan."
-
-        );
-
-    }
-
-
-    /* =============================================
-       GOOGLE PROVIDER TOKEN
-    ============================================= */
+    /* =================================================
+       GOOGLE TOKEN
+    ================================================= */
 
     const accessToken =
 
         await getAccessToken();
 
 
-    console.log(
-
-        "API: Google Provider Token:",
-
-        accessToken
-
-        ?
-
-        "AVAILABLE"
-
-        :
-
-        "MISSING"
-
-    );
-
-
-    if(
-
-        !accessToken
-
-    ){
-
-        throw new Error(
-
-            "Google Provider Token tidak ditemukan. Silakan login ulang."
-
-        );
-
-    }
-
-
-    /* =============================================
-       ENDPOINT
-    ============================================= */
-
-    if(
-
-        !endpoint
-
-    ){
-
-        throw new Error(
-
-            "API endpoint tidak ditemukan."
-
-        );
-
-    }
-
-
-    /* =============================================
-       RAW SHEET
-    ============================================= */
+    /* =================================================
+       VALIDATE RAW SHEET
+    ================================================= */
 
     if(
 
@@ -634,9 +646,9 @@ API.load = async function(
     }
 
 
-    /* =============================================
-       DATA SHEET
-    ============================================= */
+    /* =================================================
+       VALIDATE DATA SHEET
+    ================================================= */
 
     if(
 
@@ -653,15 +665,29 @@ API.load = async function(
     }
 
 
-    /* =============================================
+    /* =================================================
        DEBUG CONFIG
-    ============================================= */
+    ================================================= */
 
     console.log(
 
-        "API Endpoint:",
+        "=========================================="
 
-        endpoint
+    );
+
+
+    console.log(
+
+        "API CONFIG"
+
+    );
+
+
+    console.log(
+
+        "Finance Core:",
+
+        spreadsheetId
 
     );
 
@@ -686,141 +712,52 @@ API.load = async function(
 
     console.log(
 
-        "Finance Core:",
-
-        spreadsheetId
-
-    );
-
-
-    /* =============================================
-       RAW URL
-    ============================================= */
-
-    const rawUrl =
+        "Apps Script Endpoint:",
 
         endpoint
 
-        +
+            ?
 
-        "?action=module"
+            "IGNORED — MIGRATED TO SHEETS API"
 
-        +
+            :
 
-        "&spreadsheetId="
-
-        +
-
-        encodeURIComponent(
-
-            spreadsheetId
-
-        )
-
-        +
-
-        "&sheet="
-
-        +
-
-        encodeURIComponent(
-
-            rawSheet
-
-        )
-
-        +
-
-        "&accessToken="
-
-        +
-
-        encodeURIComponent(
-
-            accessToken
-
-        );
-
-
-    /* =============================================
-       DATA URL
-    ============================================= */
-
-    const dataUrl =
-
-        endpoint
-
-        +
-
-        "?action=module"
-
-        +
-
-        "&spreadsheetId="
-
-        +
-
-        encodeURIComponent(
-
-            spreadsheetId
-
-        )
-
-        +
-
-        "&sheet="
-
-        +
-
-        encodeURIComponent(
-
-            dataSheet
-
-        )
-
-        +
-
-        "&accessToken="
-
-        +
-
-        encodeURIComponent(
-
-            accessToken
-
-        );
-
-
-    /* =============================================
-       DEBUG URL
-    ============================================= */
-
-    console.log(
-
-        "RAW URL:",
-
-        rawUrl
+            "NOT USED"
 
     );
 
 
     console.log(
 
-        "DATA URL:",
-
-        dataUrl
+        "=========================================="
 
     );
 
 
-    /* =============================================
-       REQUEST
+    /* =================================================
+       READ RAW + DATA
+    ================================================= */
 
-       Menggunakan JSONP.
+    /*
+       Dibaca paralel supaya lebih cepat.
 
-       Tidak menggunakan fetch()
-       agar tidak terkena CORS.
-    ============================================= */
+       Tidak ada lagi :
+
+           Apps Script JSONP
+               ↓
+           Google Sheets API
+
+       Sekarang langsung :
+
+           Google Sheets API
+               ↓
+           RAW
+           
+           Google Sheets API
+               ↓
+           DATA
+    */
+
 
     const [
 
@@ -830,24 +767,73 @@ API.load = async function(
 
     ] = await Promise.all([
 
-        jsonpRequest(
+        readData(
 
-            rawUrl
+            accessToken,
+
+            spreadsheetId,
+
+            rawSheet
 
         ),
 
-        jsonpRequest(
 
-            dataUrl
+        readData(
+
+            accessToken,
+
+            spreadsheetId,
+
+            dataSheet
 
         )
 
     ]);
 
 
-    /* =============================================
+    /* =================================================
+       NORMALIZE RESULT
+    ================================================= */
+
+    const normalizedRaw =
+
+        normalizeSheetResult(
+
+            rawResult
+
+        );
+
+
+    const normalizedData =
+
+        normalizeSheetResult(
+
+            dataResult
+
+        );
+
+
+    /* =================================================
+       SAVE RAW
+    ================================================= */
+
+    API.raw =
+
+        normalizedRaw.data;
+
+
+    /* =================================================
+       SAVE DATA
+    ================================================= */
+
+    API.data =
+
+        normalizedData.data;
+
+
+    /* =================================================
        DEBUG RESPONSE
-    ============================================= */
+    ================================================= */
 
     console.log(
 
@@ -865,171 +851,25 @@ API.load = async function(
 
     console.log(
 
-        "RAW RESULT:",
+        "RAW Headers:",
 
-        rawResult
+        normalizedRaw.headers
 
     );
 
 
     console.log(
 
-        "DATA RESULT:",
+        "RAW Result:",
 
-        dataResult
-
-    );
-
-
-    /* =============================================
-       VALIDATE RAW RESPONSE
-    ============================================= */
-
-    if(
-
-        !rawResult
-
-    ){
-
-        throw new Error(
-
-            "Raw API response kosong."
-
-        );
-
-    }
-
-
-    if(
-
-        rawResult.success !== true
-
-    ){
-
-        throw new Error(
-
-            rawResult.error
-
-            ||
-
-            rawResult.message
-
-            ||
-
-            "Raw API gagal."
-
-        );
-
-    }
-
-
-    /* =============================================
-       VALIDATE DATA RESPONSE
-    ============================================= */
-
-    if(
-
-        !dataResult
-
-    ){
-
-        throw new Error(
-
-            "Data API response kosong."
-
-        );
-
-    }
-
-
-    if(
-
-        dataResult.success !== true
-
-    ){
-
-        throw new Error(
-
-            dataResult.error
-
-            ||
-
-            dataResult.message
-
-            ||
-
-            "Data API gagal."
-
-        );
-
-    }
-
-
-    /* =============================================
-       SAVE RAW
-    ============================================= */
-
-    API.raw =
-
-        Array.isArray(
-
-            rawResult.data
-
-        )
-
-        ?
-
-        rawResult.data
-
-        :
-
-        [];
-
-
-    /* =============================================
-       SAVE DATA
-    ============================================= */
-
-    API.data =
-
-        Array.isArray(
-
-            dataResult.data
-
-        )
-
-        ?
-
-        dataResult.data
-
-        :
-
-        [];
-
-
-    /* =============================================
-       DEBUG DATA
-    ============================================= */
-
-    console.log(
-
-        "===== API LOAD SUCCESS ====="
+        normalizedRaw.data
 
     );
 
 
     console.log(
 
-        "API raw:",
-
-        API.raw
-
-    );
-
-
-    console.log(
-
-        "API raw count:",
+        "RAW Count:",
 
         API.raw.length
 
@@ -1038,31 +878,79 @@ API.load = async function(
 
     console.log(
 
-        "API data:",
+        "DATA Headers:",
 
-        API.data
+        normalizedData.headers
 
     );
 
 
     console.log(
 
-        "API data count:",
+        "DATA Result:",
+
+        normalizedData.data
+
+    );
+
+
+    console.log(
+
+        "DATA Count:",
 
         API.data.length
 
     );
 
 
-    /* =============================================
-       RETURN
-    ============================================= */
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    /* =================================================
+       SUCCESS
+    ================================================= */
+
+    console.log(
+
+        "===== API LOAD SUCCESS ====="
+
+    );
+
 
     return {
 
         success :
 
             true,
+
+
+        spreadsheetId :
+
+            spreadsheetId,
+
+
+        rawSheet :
+
+            rawSheet,
+
+
+        dataSheet :
+
+            dataSheet,
+
+
+        rawHeaders :
+
+            normalizedRaw.headers,
+
+
+        dataHeaders :
+
+            normalizedData.headers,
 
 
         raw :
@@ -1077,3 +965,49 @@ API.load = async function(
     };
 
 };
+
+
+/* =====================================================
+   GET RAW
+===================================================== */
+
+export function getRaw(){
+
+    return API.raw;
+
+}
+
+
+/* =====================================================
+   GET DATA
+===================================================== */
+
+export function getData(){
+
+    return API.data;
+
+}
+
+
+/* =====================================================
+   CLEAR
+===================================================== */
+
+export function clear(){
+
+    API.raw =
+
+        [];
+
+    API.data =
+
+        [];
+
+}
+
+
+/* =====================================================
+   DEFAULT EXPORT
+===================================================== */
+
+export default API;
