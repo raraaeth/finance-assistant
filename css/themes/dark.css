@@ -837,3 +837,23 @@ html[data-theme="dark"] .attendance-item strong{
     color:var(--text);
 
 }
+
+/* =====================================================
+   FINANCIAL HOME
+   HIGHEST EXPENSE — DARK
+===================================================== */
+
+html[data-theme="dark"]
+.financial-home-highest-date{
+
+    color:var(--text) !important;
+
+}
+
+
+html[data-theme="dark"]
+.financial-home-highest-value{
+
+    color:var(--text) !important;
+
+}
