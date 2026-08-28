@@ -485,3 +485,193 @@
     }
 
 }
+/* =====================================================
+   FINANCIAL HOME : INPUT
+===================================================== */
+
+.financial-home-input-item{
+
+    display:flex;
+
+    align-items:center;
+
+    width:100%;
+
+    min-height:108px;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   INPUT ICON
+===================================================== */
+
+.financial-home-input-icon{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:56px;
+
+    height:56px;
+
+    flex-shrink:0;
+
+    border-radius:16px;
+
+    background:var(--primary);
+
+    font-size:28px;
+
+}
+
+
+/* =====================================================
+   INPUT CONTENT
+===================================================== */
+
+.financial-home-input-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    min-width:0;
+
+    margin-left:18px;
+
+}
+
+
+/* =====================================================
+   INPUT TITLE
+===================================================== */
+
+.financial-home-input-title{
+
+    display:block;
+
+    color:var(--text);
+
+    font-size:24px;
+
+    line-height:1.25;
+
+    font-weight:800;
+
+    letter-spacing:-.3px;
+
+}
+
+
+/* =====================================================
+   INPUT DESCRIPTION
+===================================================== */
+
+.financial-home-input-description{
+
+    display:block;
+
+    margin-top:4px;
+
+    color:var(--text-secondary);
+
+    font-size:18px;
+
+    line-height:1.35;
+
+    font-weight:500;
+
+}
+
+
+/* =====================================================
+   INPUT ARROW
+===================================================== */
+
+.financial-home-input-arrow{
+
+    margin-left:auto;
+
+    flex-shrink:0;
+
+    color:var(--text-secondary);
+
+    font-size:32px;
+
+    line-height:1;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(
+
+    max-width:480px
+
+){
+
+    .financial-home-input-item{
+
+        min-height:100px;
+
+        padding:18px 16px;
+
+    }
+
+
+    .financial-home-input-icon{
+
+        width:52px;
+
+        height:52px;
+
+        border-radius:15px;
+
+        font-size:26px;
+
+    }
+
+
+    .financial-home-input-content{
+
+        margin-left:16px;
+
+    }
+
+
+    .financial-home-input-title{
+
+        font-size:24px;
+
+    }
+
+
+    .financial-home-input-description{
+
+        font-size:17px;
+
+    }
+
+
+    .financial-home-input-arrow{
+
+        font-size:30px;
+
+    }
+
+}
