@@ -123,8 +123,6 @@ export async function init(){
 
     await API.load(
 
-    CONFIG.api.endpoint,
-
     CONFIG.data.transaction,
 
     CONFIG.data.member
