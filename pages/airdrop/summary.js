@@ -453,41 +453,79 @@ function renderDistribution(){
     }
 
 
-    const data = [
+    /* =============================================
+       DATA STATUS
+    ============================================= */
+
+    const ongoing =
 
         Number(
 
             Process.summary?.totalOngoing
 
-        ) || 0,
+        ) || 0;
 
+
+    const ended =
 
         Number(
 
             Process.summary?.totalEnded
 
-        ) || 0,
+        ) || 0;
 
+
+    const win =
 
         Number(
 
             Process.summary?.totalWin
 
-        ) || 0,
+        ) || 0;
 
+
+    const notWin =
 
         Number(
 
             Process.summary?.totalNotWin
 
-        ) || 0
+        ) || 0;
+
+
+    const labels = [
+
+        "Ongoing",
+
+        "Ended",
+
+        "Win",
+
+        "Not Win"
 
     ];
 
 
+    const values = [
+
+        ongoing,
+
+        ended,
+
+        win,
+
+        notWin
+
+    ];
+
+
+    /* =============================================
+       CEK DATA
+    ============================================= */
+
     const total =
 
-        data.reduce(
+        values.reduce(
 
             (
 
@@ -515,6 +553,10 @@ function renderDistribution(){
     }
 
 
+    /* =============================================
+       DONUT
+    ============================================= */
+
     Chart.renderDoughnut({
 
         canvas :
@@ -522,25 +564,35 @@ function renderDistribution(){
             "#summary-distribution-chart",
 
 
-        labels : [
-
-            "Ongoing",
-
-            "Ended",
-
-            "Win",
-
-            "Not Win"
-
-        ],
+        labels : labels,
 
 
-        data
+        datasets : [
+
+            {
+
+                data : values,
+
+                backgroundColor : [
+
+                    "#F59E0B",
+
+                    "#94A3B8",
+
+                    "#22C55E",
+
+                    "#EF4444"
+
+                ]
+
+            }
+
+        ]
 
     });
 
 }
-
+          
 
 /* =====================================================
    WALLET DISTRIBUTION
