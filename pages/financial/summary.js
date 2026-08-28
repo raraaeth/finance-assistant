@@ -37,6 +37,12 @@ import {
 
 } from "../../js/chart.js";
 
+import {
+
+    SummaryDetail
+
+} from "./detail.js";
+
 
 import {
 
