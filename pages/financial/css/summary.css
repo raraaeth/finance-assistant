@@ -2133,3 +2133,327 @@ button{
         rgba(255,255,255,.08);
 
 }
+
+/* =====================================================
+   SUMMARY DETAIL
+   FILTER ROW LAYOUT
+===================================================== */
+
+
+/* =====================================================
+   FILTER CARD
+===================================================== */
+
+#summary-financial-detail-filter{
+
+    padding: 18px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    background:
+        var(--card-bg, #ffffff);
+
+    border-radius: 20px;
+
+    border: 1px solid
+        var(--border-color, #e5e7eb);
+
+}
+
+
+/* =====================================================
+   FILTER WRAPPER
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-wrapper{
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+}
+
+
+/* =====================================================
+   PERIOD BUTTON
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-period{
+
+    width: 100%;
+
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 12px;
+
+    border: 1px solid
+        var(--border-color, #e5e7eb);
+
+    border-radius: 12px;
+
+    background:
+        var(--input-bg, #f8fafc);
+
+    color:
+        var(--text-primary, #1f2937);
+
+}
+
+
+/* =====================================================
+   PERIOD TEXT
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-period-text{
+
+    flex: 1;
+
+    text-align: left;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+}
+
+
+/* =====================================================
+   FILTER CHIP GROUP
+===================================================== */
+
+#summary-financial-detail-filter
+.filter-chip-group{
+
+    display: none;
+
+}
+
+
+/* =====================================================
+   CUSTOM DETAIL SELECT ROW
+===================================================== */
+
+/*
+ * Karena select detail saat ini menggunakan
+ * HTML yang sudah ada, kita atur parent section
+ * agar setiap baris terlihat compact.
+ */
+
+#summary-financial-detail{
+
+    --detail-filter-height: 46px;
+
+}
+
+
+/* =====================================================
+   DETAIL FILTER SELECT
+===================================================== */
+
+#summary-financial-detail
+select{
+
+    min-height:
+        var(--detail-filter-height);
+
+    padding:
+        0 34px 0 12px;
+
+    border:
+        1px solid
+        var(--border-color, #e5e7eb);
+
+    border-radius: 11px;
+
+    background:
+        var(--input-bg, #f8fafc);
+
+    color:
+        var(--text-primary, #1f2937);
+
+    font-size: 15px;
+
+    font-weight: 500;
+
+    outline: none;
+
+}
+
+
+/* =====================================================
+   DETAIL FILTER CONTAINER
+===================================================== */
+
+#summary-financial-detail
+.summary-detail-filter-row{
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+/* =====================================================
+   DETAIL FILTER ICON
+===================================================== */
+
+#summary-financial-detail
+.summary-detail-filter-icon{
+
+    width: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 22px;
+
+}
+
+
+/* =====================================================
+   DETAIL FILTER LABEL
+===================================================== */
+
+#summary-financial-detail
+.summary-detail-filter-label{
+
+    width: 78px;
+
+    flex-shrink: 0;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color:
+        var(--text-secondary, #6b7280);
+
+}
+
+
+/* =====================================================
+   DETAIL FILTER CONTROL
+===================================================== */
+
+#summary-financial-detail
+.summary-detail-filter-control{
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 480px){
+
+    #summary-financial-detail-filter{
+
+        padding: 16px;
+
+        border-radius: 18px;
+
+        gap: 8px;
+
+    }
+
+
+    #summary-financial-detail
+    .summary-detail-filter-row{
+
+        gap: 8px;
+
+    }
+
+
+    #summary-financial-detail
+    .summary-detail-filter-icon{
+
+        width: 30px;
+
+        font-size: 21px;
+
+    }
+
+
+    #summary-financial-detail
+    .summary-detail-filter-label{
+
+        width: 62px;
+
+        font-size: 14px;
+
+    }
+
+
+    #summary-financial-detail
+    select{
+
+        width: 100%;
+
+        min-height: 44px;
+
+        font-size: 14px;
+
+    }
+
+}
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+html[data-theme="dark"]
+#summary-financial-detail-filter,
+html.dark
+#summary-financial-detail-filter{
+
+    background:
+        var(--card-bg, #1f2937);
+
+    border-color:
+        rgba(255,255,255,.08);
+
+}
+
+
+html[data-theme="dark"]
+#summary-financial-detail select,
+html.dark
+#summary-financial-detail select{
+
+    background:
+        rgba(255,255,255,.05);
+
+    border-color:
+        rgba(255,255,255,.08);
+
+}
