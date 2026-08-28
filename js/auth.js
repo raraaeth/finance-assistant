@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 9.0.0
+   Version     : 9.1.0
 
    Description :
    Supabase Authentication Engine
@@ -47,6 +47,15 @@
    5. Apps Script menggunakan refresh token
       Google untuk mendapatkan access token baru
 
+   THEME PERSISTENCE :
+
+   1. Theme pilihan user disimpan lokal
+   2. Refresh browser tidak boleh
+      menimpa theme lokal
+   3. Theme dari Finance Core hanya
+      digunakan sebagai restore awal
+      jika local theme belum tersedia
+
 ========================================== */
 
 
@@ -64,7 +73,6 @@ import {
 import {
 
     initializeModule,
-
     saveModuleInfo
 
 } from "./module.js";
@@ -73,9 +81,7 @@ import {
 import {
 
     saveUser,
-
     loadUser,
-
     saveTheme
 
 } from "./storage.js";
@@ -119,6 +125,15 @@ const GOOGLE_REFRESH_TOKEN_KEY =
 const GOOGLE_TOKEN_EXPIRES_KEY =
 
     "finance_google_provider_token_expires_at";
+
+
+/* ==========================================
+   THEME STORAGE KEY
+========================================== */
+
+const THEME_STORAGE_KEY =
+
+    "finance-assistant-theme";
 
 
 /* ==========================================
@@ -559,6 +574,45 @@ function clearGoogleTokens(){
         "AUTH: Google Provider Token dan Refresh Token dihapus."
 
     );
+
+}
+
+
+/* ==========================================
+   LOAD LOCAL THEME
+========================================== */
+
+function loadLocalTheme(){
+
+    return (
+
+        localStorage.getItem(
+
+            THEME_STORAGE_KEY
+
+        )
+
+        ||
+
+        null
+
+    );
+
+}
+
+
+/* ==========================================
+   CHECK LOCAL THEME
+========================================== */
+
+function hasLocalTheme(){
+
+    const theme =
+
+        loadLocalTheme();
+
+
+    return !!theme;
 
 }
 
@@ -1246,21 +1300,15 @@ export async function refreshGoogleProviderToken(){
         ================================== */
 
         console.log(
-
             "=========================================="
-
         );
 
         console.log(
-
             "===== GOOGLE TOKEN REFRESH SUCCESS ====="
-
         );
 
         console.log(
-
             "=========================================="
-
         );
 
 
@@ -1270,21 +1318,15 @@ export async function refreshGoogleProviderToken(){
     }catch(error){
 
         console.error(
-
             "=========================================="
-
         );
 
         console.error(
-
             "===== GOOGLE TOKEN REFRESH FAILED ====="
-
         );
 
         console.error(
-
             "=========================================="
-
         );
 
 
@@ -2241,7 +2283,7 @@ async function initializeFinanceModule(){
 
                 ||
 
-                "system",
+                "light",
 
 
             onboardingCompleted :
@@ -2345,11 +2387,61 @@ async function initializeFinanceModule(){
 
                 try{
 
-                    saveUser({
+                    /*
+                       Jangan biarkan accountData
+                       menimpa seluruh data lokal
+                       yang sudah dipilih user.
+
+                       Data dari Finance Core tetap
+                       dipulihkan, tetapi nilai lokal
+                       yang sudah ada dipertahankan.
+                    */
+
+                    const currentUser =
+
+                        loadUser()
+
+                        ||
+
+                        {};
+
+
+                    const restoredUser = {
+
+                        ...currentUser,
 
                         ...result.accountData
 
-                    });
+                    };
+
+
+                    /*
+                       Theme lokal memiliki prioritas.
+                    */
+
+                    const localTheme =
+
+                        loadLocalTheme();
+
+
+                    if(
+
+                        localTheme
+
+                    ){
+
+                        restoredUser.theme =
+
+                            localTheme;
+
+                    }
+
+
+                    saveUser(
+
+                        restoredUser
+
+                    );
 
 
                     console.log(
@@ -2374,15 +2466,30 @@ async function initializeFinanceModule(){
 
                 /* ==============================
                    RESTORE THEME
+
+                   Finance Core hanya digunakan
+                   jika local theme belum ada.
                 ============================== */
+
+                const localTheme =
+
+                    loadLocalTheme();
+
+
+                const financeTheme =
+
+                    result
+                    ?.accountData
+                    ?.theme;
+
 
                 if(
 
-                    result
+                    !localTheme
 
-                    ?.accountData
+                    &&
 
-                    ?.theme
+                    financeTheme
 
                 ){
 
@@ -2390,16 +2497,16 @@ async function initializeFinanceModule(){
 
                         saveTheme(
 
-                            result.accountData.theme
+                            financeTheme
 
                         );
 
 
                         console.log(
 
-                            "Module: Theme dipulihkan:",
+                            "Module: Theme dipulihkan dari Finance Core:",
 
-                            result.accountData.theme
+                            financeTheme
 
                         );
 
@@ -2415,6 +2522,22 @@ async function initializeFinanceModule(){
                         );
 
                     }
+
+                }
+
+                else if(
+
+                    localTheme
+
+                ){
+
+                    console.log(
+
+                        "Module: Theme lokal dipertahankan:",
+
+                        localTheme
+
+                    );
 
                 }
 
@@ -2925,7 +3048,7 @@ function restoreUser(
 
             ||
 
-            "system",
+            "light",
 
 
         onboardingCompleted :
@@ -2994,47 +3117,17 @@ function restoreUser(
     }
 
 
-    /* ======================================
-       THEME
-    ====================================== */
+    /*
+       IMPORTANT :
 
-    if(
+       Theme TIDAK disimpan ulang di sini.
 
-        userData.theme
+       restoreUser() hanya memulihkan
+       identitas Finance Assistant.
 
-    ){
-
-        try{
-
-            saveTheme(
-
-                userData.theme
-
-            );
-
-
-            console.log(
-
-                "Theme:",
-
-                userData.theme
-
-            );
-
-
-        }catch(error){
-
-            console.warn(
-
-                "saveTheme failed:",
-
-                error
-
-            );
-
-        }
-
-    }
+       Theme dikontrol oleh localStorage
+       dan initializeFinanceModule().
+    */
 
 }
 
