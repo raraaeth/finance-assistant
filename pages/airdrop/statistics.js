@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Statistics
    File        : statistics.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Airdrop Statistics Controller
@@ -340,18 +340,132 @@ Statistics.renderChart = function(){
    BUILD CHART
 ===================================================== */
 
+/*
+ * CHART MENGGUNAKAN:
+ *
+ * 1 TITIK = 1 BULAN
+ *
+ * Semua reward WIN dalam bulan
+ * yang sama akan dijumlahkan.
+ *
+ * Contoh:
+ *
+ * Juni 2026
+ *   Reward A = $200
+ *   Reward B = $200
+ *   Reward C = $100
+ *
+ * Maka:
+ *
+ * Juni = $500
+ */
+
 function buildChart(){
 
-    const chart = {};
+    const monthly = {};
 
+
+    /* =============================================
+       VALIDATE PERIOD
+    ============================================= */
+
+    if(
+
+        !(
+
+            Statistics.filter.start
+
+            instanceof Date
+
+        )
+
+        ||
+
+        Number.isNaN(
+
+            Statistics.filter.start.getTime()
+
+        )
+
+        ||
+
+        !(
+
+            Statistics.filter.end
+
+            instanceof Date
+
+        )
+
+        ||
+
+        Number.isNaN(
+
+            Statistics.filter.end.getTime()
+
+        )
+
+    ){
+
+        return {
+
+            labels : [],
+
+            values : []
+
+        };
+
+    }
+
+
+    /* =============================================
+       CREATE ALL MONTHS
+       
+       Bulan kosong tetap dibuat.
+       Nilainya akan 0.
+    ============================================= */
+
+    const months =
+
+        createMonthRange(
+
+            Statistics.filter.start,
+
+            Statistics.filter.end
+
+        );
+
+
+    months.forEach(
+
+        month => {
+
+            monthly[month.key] = {
+
+                date :
+
+                    month.date,
+
+                reward :
+
+                    0
+
+            };
+
+        }
+
+    );
+
+
+    /* =============================================
+       COLLECT REWARD
+       
+       CHART HANYA UNTUK WIN
+    ============================================= */
 
     Statistics.data.forEach(
 
         item=>{
-
-            /* ======================================
-               CHART HANYA UNTUK WIN
-            ====================================== */
 
             if(
 
@@ -366,12 +480,9 @@ function buildChart(){
             }
 
 
-            /* ======================================
-               DATE
-
-               Gunakan date hasil Process
-               bukan tanggal mentah API.
-            ====================================== */
+            /* =====================================
+               VALIDATE DATE
+            ===================================== */
 
             if(
 
@@ -398,11 +509,9 @@ function buildChart(){
             }
 
 
-            /* ======================================
-               DATE KEY
-
-               Satu tanggal = satu titik chart
-            ====================================== */
+            /* =====================================
+               MONTH KEY
+            ===================================== */
 
             const year =
 
@@ -426,56 +535,34 @@ function buildChart(){
                 );
 
 
-            const day =
+            const monthKey =
 
-                String(
-
-                    item.date.getDate()
-
-                )
-
-                .padStart(
-
-                    2,
-
-                    "0"
-
-                );
+                `${year}-${month}`;
 
 
-            const dateKey =
-
-                `${year}-${month}-${day}`;
-
+            /* =====================================
+               SAFETY
+               
+               Hanya masukkan bulan yang
+               memang berada dalam range.
+            ===================================== */
 
             if(
 
-                !chart[dateKey]
+                !monthly[monthKey]
 
             ){
 
-                chart[dateKey] = {
-
-                    date :
-
-                        new Date(
-
-                            year,
-
-                            item.date.getMonth(),
-
-                            item.date.getDate()
-
-                        ),
-
-                    reward : 0
-
-                };
+                return;
 
             }
 
 
-            chart[dateKey].reward +=
+            /* =====================================
+               ADD REWARD
+            ===================================== */
+
+            monthly[monthKey].reward +=
 
                 Number(
 
@@ -489,35 +576,6 @@ function buildChart(){
 
 
     /* =============================================
-       SORT DATE
-    ============================================= */
-
-    const entries =
-
-        Object.values(
-
-            chart
-
-        )
-
-        .sort(
-
-            (
-
-                a,
-
-                b
-
-            ) =>
-
-                a.date -
-
-                b.date
-
-        );
-
-
-    /* =============================================
        RESULT
     ============================================= */
 
@@ -525,13 +583,13 @@ function buildChart(){
 
         labels :
 
-            entries.map(
+            months.map(
 
-                item =>
+                month =>
 
-                    formatDate(
+                    formatChartMonth(
 
-                        item.date
+                        month.date
 
                     )
 
@@ -540,15 +598,268 @@ function buildChart(){
 
         values :
 
-            entries.map(
+            months.map(
 
-                item =>
+                month =>
 
-                    item.reward
+                    monthly[month.key]?.reward
+
+                    ||
+
+                    0
 
             )
 
     };
+
+}
+
+
+/* =====================================================
+   CREATE MONTH RANGE
+===================================================== */
+
+/*
+ * Membuat daftar bulan dari:
+ *
+ * Statistics.filter.start
+ *
+ * sampai
+ *
+ * Statistics.filter.end
+ *
+ *
+ * Contoh:
+ *
+ * start = Maret 2026
+ * end   = Agustus 2026
+ *
+ * hasil:
+ *
+ * 2026-03
+ * 2026-04
+ * 2026-05
+ * 2026-06
+ * 2026-07
+ * 2026-08
+ */
+
+function createMonthRange(
+
+    start,
+
+    end
+
+){
+
+    const months = [];
+
+
+    let year =
+
+        start.getFullYear();
+
+
+    let month =
+
+        start.getMonth();
+
+
+    const endYear =
+
+        end.getFullYear();
+
+
+    const endMonth =
+
+        end.getMonth();
+
+
+    while(
+
+        year < endYear
+
+        ||
+
+        (
+
+            year === endYear
+
+            &&
+
+            month <= endMonth
+
+        )
+
+    ){
+
+        const date =
+
+            new Date(
+
+                year,
+
+                month,
+
+                1
+
+            );
+
+
+        const monthValue =
+
+            String(
+
+                month + 1
+
+            )
+
+            .padStart(
+
+                2,
+
+                "0"
+
+            );
+
+
+        months.push({
+
+            key :
+
+                `${year}-${monthValue}`,
+
+            date
+
+        });
+
+
+        month++;
+
+
+        if(
+
+            month > 11
+
+        ){
+
+            month = 0;
+
+            year++;
+
+        }
+
+    }
+
+
+    return months;
+
+}
+
+
+/* =====================================================
+   FORMAT CHART MONTH
+===================================================== */
+
+/*
+ * Digunakan khusus untuk label chart.
+ *
+ * Contoh:
+ *
+ * Januari 2026
+ * Februari 2026
+ * Maret 2026
+ *
+ * Untuk tampilan chart kita gunakan:
+ *
+ * Jan
+ * Feb
+ * Mar
+ *
+ * Jika melewati tahun:
+ *
+ * Nov 25
+ * Des 25
+ * Jan 26
+ */
+
+function formatChartMonth(
+
+    date
+
+){
+
+    if(
+
+        !(
+
+            date instanceof Date
+
+        )
+
+        ||
+
+        Number.isNaN(
+
+            date.getTime()
+
+        )
+
+    ){
+
+        return "-";
+
+    }
+
+
+    const months = [
+
+        "Jan",
+
+        "Feb",
+
+        "Mar",
+
+        "Apr",
+
+        "Mei",
+
+        "Jun",
+
+        "Jul",
+
+        "Agu",
+
+        "Sep",
+
+        "Okt",
+
+        "Nov",
+
+        "Des"
+
+    ];
+
+
+    return (
+
+        months[
+
+            date.getMonth()
+
+        ]
+
+        +
+
+        " " +
+
+        String(
+
+            date.getFullYear()
+
+        ).slice(-2)
+
+    );
 
 }
 
@@ -1173,7 +1484,7 @@ Statistics.applyPeriod = function(
 
         new Date(
 
-        value.end
+            value.end
 
         );
 
