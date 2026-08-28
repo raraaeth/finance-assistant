@@ -3,114 +3,34 @@
    Page        : Financial
    Module      : Home
    File        : home.css
-   Version     : 1.3.0
+   Version     : 2.0.0
 
    Description :
-   Financial Home Styling
-
-   Theme Aware :
-   - Light
-   - Dark
-   - Green
-   - Pink
-
-   Components :
-   - Hero
-   - Home Summary
-   - Balance
-   - Expense Summary
-   - Highest Expense
+   Financial Home Summary Styling
 ===================================================== */
 
 
 /* =====================================================
-   HERO
+   HOME SUMMARY CARD
 ===================================================== */
 
-#hero{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:24px;
-
-}
-
-
-#hero-content{
-
-    flex:1;
-
-    min-width:0;
-
-}
-
-
-#hero-title{
-
-    margin:0;
-
-}
-
-
-#hero-description{
-
-    margin:8px 0 0;
-
-    color:var(--text-secondary);
-
-}
-
-
-#hero-image{
-
-    flex-shrink:0;
-
-}
-
-
-#hero-banner{
-
-    display:block;
-
-    max-width:100%;
-
-    height:auto;
-
-}
-
-
-/* =====================================================
-   SUMMARY CARD
-===================================================== */
-
-#summary-card{
-
-    overflow:hidden;
-
-}
-
-
-/* =====================================================
-   FINANCIAL HOME SUMMARY
-===================================================== */
-
-.financial-home-summary{
+#home-summary-card{
 
     display:flex;
 
     flex-direction:column;
 
-    gap:20px;
+    gap:18px;
+
+    padding:24px;
+
+    box-sizing:border-box;
 
 }
 
 
 /* =====================================================
-   CURRENT BALANCE
+   TOTAL BALANCE
 ===================================================== */
 
 .financial-home-balance{
@@ -123,11 +43,9 @@
 
     justify-content:center;
 
-    gap:8px;
+    width:100%;
 
-    min-height:130px;
-
-    padding:22px;
+    padding:26px 20px;
 
     box-sizing:border-box;
 
@@ -140,11 +58,15 @@
 }
 
 
+/* =====================================================
+   BALANCE LABEL
+===================================================== */
+
 .financial-home-balance-label{
 
     color:var(--text-secondary);
 
-    font-size:14px;
+    font-size:16px;
 
     line-height:1.35;
 
@@ -153,7 +75,15 @@
 }
 
 
+/* =====================================================
+   BALANCE VALUE
+===================================================== */
+
 .financial-home-balance-value{
+
+    display:block;
+
+    margin-top:8px;
 
     color:var(--text);
 
@@ -194,13 +124,7 @@
 
         );
 
-    column-gap:0;
-
-    row-gap:0;
-
-    border-radius:18px;
-
-    overflow:hidden;
+    gap:14px;
 
 }
 
@@ -215,73 +139,19 @@
 
     flex-direction:column;
 
-    align-items:center;
-
-    justify-content:center;
-
-    gap:8px;
+    justify-content:flex-start;
 
     min-width:0;
 
-    min-height:92px;
+    min-height:105px;
 
-    padding:16px 20px;
+    padding:16px;
 
     box-sizing:border-box;
 
+    border-radius:18px;
+
     background:var(--surface);
-
-    text-align:center;
-
-}
-
-
-/* =====================================================
-   VERTICAL DIVIDER
-===================================================== */
-
-.financial-home-expense-item:nth-child(
-
-    odd
-
-){
-
-    border-right:
-
-        1px solid
-
-        var(--border-color);
-
-}
-
-
-/* =====================================================
-   HORIZONTAL DIVIDER
-===================================================== */
-
-/*
- * Karena item menggunakan grid 2 kolom,
- * garis horizontal hanya muncul pada
- * baris pertama jika jumlah item 4.
- */
-
-.financial-home-expense-item:nth-child(
-
-    1
-
-),
-
-.financial-home-expense-item:nth-child(
-
-    2
-
-){
-
-    border-bottom:
-
-        1px solid
-
-        var(--border-color);
 
 }
 
@@ -294,13 +164,11 @@
 
     display:block;
 
-    max-width:100%;
-
     color:var(--text-secondary);
 
-    font-size:13px;
+    font-size:14px;
 
-    line-height:1.35;
+    line-height:1.4;
 
     font-weight:600;
 
@@ -315,15 +183,17 @@
 
     display:block;
 
-    max-width:100%;
+    margin-top:12px;
 
     color:var(--text);
 
-    font-size:21px;
+    font-size:20px;
 
-    line-height:1.2;
+    line-height:1.25;
 
     font-weight:800;
+
+    letter-spacing:-.2px;
 
     word-break:break-word;
 
@@ -334,34 +204,121 @@
    HIGHEST EXPENSE
 ===================================================== */
 
+.financial-home-highest-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            2,
+
+            minmax(
+
+                0,
+
+                1fr
+
+            )
+
+        );
+
+    gap:14px;
+
+}
+
+
+/* =====================================================
+   HIGHEST EXPENSE ITEM
+===================================================== */
+
+.financial-home-highest-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:flex-start;
+
+    min-width:0;
+
+    min-height:125px;
+
+    padding:16px;
+
+    box-sizing:border-box;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   HIGHEST EXPENSE LABEL
+===================================================== */
+
+.financial-home-highest-label{
+
+    display:block;
+
+    color:var(--text-secondary);
+
+    font-size:14px;
+
+    line-height:1.4;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   HIGHEST EXPENSE DATE
+===================================================== */
+
 .financial-home-highest-date{
 
     display:block;
 
+    margin-top:12px;
+
     color:var(--text);
 
-    font-size:15px;
+    font-size:18px;
 
-    line-height:1.3;
+    line-height:1.35;
 
     font-weight:700;
 
+    font-style:italic;
+
 }
 
+
+/* =====================================================
+   HIGHEST EXPENSE VALUE
+===================================================== */
 
 .financial-home-highest-value{
 
     display:block;
 
-    margin-top:3px;
+    margin-top:6px;
 
-    color:var(--text-secondary);
+    color:var(--text);
 
-    font-size:13px;
+    font-size:20px;
 
-    line-height:1.3;
+    line-height:1.25;
 
-    font-weight:600;
+    font-weight:800;
+
+    letter-spacing:-.2px;
+
+    word-break:break-word;
 
 }
 
@@ -372,179 +329,141 @@
 
 @media(
 
-    max-width:600px
+    max-width:480px
 
 ){
 
-    #hero{
+    #home-summary-card{
 
-        gap:16px;
+        padding:
 
-    }
+            20px 16px;
 
-
-    #hero-banner{
-
-        max-width:120px;
+        gap:12px;
 
     }
 
 
-    .financial-home-summary{
-
-        gap:14px;
-
-    }
-
+    /* ---------------------------------------------
+       BALANCE
+    --------------------------------------------- */
 
     .financial-home-balance{
 
-        min-height:120px;
+        padding:
 
-        padding:20px 16px;
+            22px 16px;
 
         border-radius:18px;
 
     }
 
 
+    .financial-home-balance-label{
+
+        font-size:15px;
+
+    }
+
+
     .financial-home-balance-value{
 
-        font-size:29px;
+        font-size:30px;
 
     }
 
+
+    /* ---------------------------------------------
+       EXPENSE
+    --------------------------------------------- */
 
     .financial-home-expense-grid{
-
-        border-radius:16px;
-
-    }
-
-
-    .financial-home-expense-item{
-
-        min-height:88px;
-
-        padding:14px 10px;
-
-        gap:6px;
-
-    }
-
-
-    .financial-home-expense-item span{
-
-        font-size:12px;
-
-    }
-
-
-    .financial-home-expense-item strong{
-
-        font-size:19px;
-
-    }
-
-
-    .financial-home-highest-date{
-
-        font-size:14px;
-
-    }
-
-
-    .financial-home-highest-value{
-
-        font-size:12px;
-
-    }
-
-}
-
-
-/* =====================================================
-   VERY SMALL SCREEN
-===================================================== */
-
-@media(
-
-    max-width:380px
-
-){
-
-    #hero{
 
         gap:10px;
 
     }
 
 
-    #hero-banner{
+    .financial-home-expense-item{
 
-        max-width:100px;
+        min-height:92px;
 
-    }
+        padding:
 
-
-    .financial-home-balance{
-
-        min-height:112px;
-
-        padding:18px 12px;
+            14px 12px;
 
         border-radius:16px;
 
     }
 
 
-    .financial-home-balance-label{
-
-        font-size:13px;
-
-    }
-
-
-    .financial-home-balance-value{
-
-        font-size:26px;
-
-    }
-
-
-    .financial-home-expense-item{
-
-        min-height:82px;
-
-        padding:12px 6px;
-
-    }
-
-
     .financial-home-expense-item span{
 
-        font-size:11px;
+        font-size:13px;
 
     }
 
 
     .financial-home-expense-item strong{
 
-        font-size:17px;
+        margin-top:10px;
+
+        font-size:18px;
+
+        font-weight:800;
 
     }
 
 
-    .financial-home-highest-date{
+    /* ---------------------------------------------
+       HIGHEST EXPENSE
+    --------------------------------------------- */
+
+    .financial-home-highest-grid{
+
+        gap:10px;
+
+    }
+
+
+    .financial-home-highest-item{
+
+        min-height:110px;
+
+        padding:
+
+            14px 12px;
+
+        border-radius:16px;
+
+    }
+
+
+    .financial-home-highest-label{
 
         font-size:13px;
 
     }
 
 
+    .financial-home-highest-date{
+
+        margin-top:10px;
+
+        font-size:17px;
+
+        font-style:italic;
+
+    }
+
+
     .financial-home-highest-value{
 
-        font-size:11px;
+        margin-top:5px;
+
+        font-size:18px;
+
+        font-weight:800;
 
     }
 
@@ -552,21 +471,49 @@
 
 
 /* =====================================================
-   ACCESSIBILITY
+   HOME : HIGHEST EXPENSE VALUE FIX
 ===================================================== */
 
-@media(
+.financial-home-highest-date{
 
-    prefers-reduced-motion:reduce
+    color:#202733 !important;
 
-){
+    font-size:17px !important;
 
-    .financial-home-summary *{
+    line-height:1.3;
 
-        transition:none !important;
+    font-weight:700 !important;
 
-        animation:none !important;
+    font-style:italic;
 
-    }
+}
+
+
+.financial-home-highest-value{
+
+    color:#202733 !important;
+
+    font-size:20px !important;
+
+    line-height:1.25;
+
+    font-weight:800 !important;
+
+}
+
+
+/* =====================================================
+   EXPENSE GRID DIVIDER
+   ONLY ADDITION
+===================================================== */
+
+.financial-home-expense-grid
+.financial-home-expense-item:nth-child(odd){
+
+    border-right:
+
+        1px solid
+
+        var(--border-color);
 
 }
