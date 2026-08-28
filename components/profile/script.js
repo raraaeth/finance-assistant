@@ -36,10 +36,11 @@ import {
 
     loadUser,
 
-    loadTheme
+    loadTheme,
+
+    saveTheme
 
 } from "../../js/storage.js";
-
 
 import {
 
