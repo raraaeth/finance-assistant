@@ -3,7 +3,7 @@
    Page        : Airdrop
    Module      : Summary
    File        : summary.css
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Airdrop Summary Styling
@@ -22,7 +22,7 @@
 
 #summary-page .section{
 
-    margin-bottom:32px;
+    margin-bottom:20px;
 
 }
 
@@ -235,7 +235,7 @@
 
     align-items:center;
 
-    gap:24px;
+    gap:18px;
 
 }
 
@@ -267,13 +267,13 @@
 
     width:100%;
 
-    margin-top:8px;
+    margin-top:4px;
 
     display:flex;
 
     flex-direction:column;
 
-    gap:18px;
+    gap:14px;
 
 }
 
@@ -541,6 +541,17 @@
    AIRDROP DETAIL
 ===================================================== */
 
+#summary-airdrop-detail{
+
+    margin-top:0;
+
+}
+
+
+/* =====================================================
+   DETAIL CARD
+===================================================== */
+
 #summary-airdrop-detail-card{
 
     display:flex;
@@ -567,11 +578,22 @@
 }
 
 
+.airdrop-detail-group.hidden{
+
+    display:none;
+
+}
+
+
+/* =====================================================
+   DETAIL GROUP SEPARATOR
+===================================================== */
+
 .airdrop-detail-group + .airdrop-detail-group{
 
-    margin-top:22px;
+    margin-top:14px;
 
-    padding-top:20px;
+    padding-top:14px;
 
     border-top:
 
@@ -594,9 +616,9 @@
 
     justify-content:space-between;
 
-    gap:12px;
+    gap:16px;
 
-    margin-bottom:12px;
+    margin-bottom:10px;
 
 }
 
@@ -611,16 +633,14 @@
 
     align-items:center;
 
-    gap:9px;
-
-    min-width:0;
+    gap:10px;
 
 }
 
 
 .airdrop-detail-title strong{
 
-    font-size:15px;
+    font-size:17px;
 
     font-weight:700;
 
@@ -651,7 +671,9 @@
 
     background:var(--surface-secondary);
 
-    font-size:17px;
+    font-size:22px;
+
+    line-height:1;
 
 }
 
@@ -659,241 +681,6 @@
 /* =====================================================
    DETAIL COUNT
 ===================================================== */
-
-.airdrop-detail-count{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    min-width:28px;
-
-    height:28px;
-
-    padding:0 8px;
-
-    box-sizing:border-box;
-
-    border-radius:999px;
-
-    background:var(--surface-secondary);
-
-    color:var(--text-secondary);
-
-    font-size:12px;
-
-    font-weight:700;
-
-}
-
-
-/* =====================================================
-   DETAIL LIST
-===================================================== */
-
-.airdrop-detail-list{
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
-
-/* =====================================================
-   DETAIL ITEM
-===================================================== */
-
-.airdrop-detail-item{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:14px;
-
-    min-width:0;
-
-    padding:13px 0;
-
-    border-bottom:
-
-        1px solid
-
-        var(--border-color);
-
-}
-
-
-.airdrop-detail-item:first-child{
-
-    padding-top:4px;
-
-}
-
-
-.airdrop-detail-item:last-child{
-
-    padding-bottom:4px;
-
-    border-bottom:none;
-
-}
-
-
-/* =====================================================
-   DETAIL ITEM INFO
-===================================================== */
-
-.airdrop-detail-item-info{
-
-    flex:1;
-
-    min-width:0;
-
-}
-
-
-.airdrop-detail-item-info strong{
-
-    display:block;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-
-    font-size:14px;
-
-    line-height:1.35;
-
-    font-weight:600;
-
-    color:var(--text-primary);
-
-}
-
-
-/* =====================================================
-   DETAIL REWARD
-===================================================== */
-
-.airdrop-detail-item-reward{
-
-    flex-shrink:0;
-
-    white-space:nowrap;
-
-    font-size:14px;
-
-    line-height:1.3;
-
-    font-weight:700;
-
-    color:#22C55E;
-
-}
-
-/* =====================================================
-   AIRDROP DETAIL
-===================================================== */
-
-#summary-airdrop-detail{
-
-    margin-top:32px;
-
-}
-
-
-/* =====================================================
-   DETAIL CARD
-===================================================== */
-
-#summary-airdrop-detail-card{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:28px;
-
-}
-
-
-/* =====================================================
-   DETAIL GROUP
-===================================================== */
-
-.airdrop-detail-group{
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
-
-.airdrop-detail-group.hidden{
-
-    display:none;
-
-}
-
-
-/* =====================================================
-   DETAIL HEADER
-===================================================== */
-
-.airdrop-detail-header{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:16px;
-
-    margin-bottom:14px;
-
-}
-
-
-.airdrop-detail-title{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-}
-
-
-.airdrop-detail-title strong{
-
-    font-size:17px;
-
-    font-weight:700;
-
-    color:var(--text-primary);
-
-}
-
-
-.airdrop-detail-icon{
-
-    font-size:22px;
-
-    line-height:1;
-
-}
-
 
 .airdrop-detail-count{
 
@@ -937,7 +724,7 @@
 
     gap:16px;
 
-    padding:16px 0;
+    padding:13px 0;
 
     border-bottom:
 
@@ -956,6 +743,8 @@
 
 
 .airdrop-detail-item:last-child{
+
+    padding-bottom:4px;
 
     border-bottom:none;
 
@@ -1345,14 +1134,14 @@
 
     .airdrop-detail-header{
 
-        margin-bottom:10px;
+        margin-bottom:8px;
 
     }
 
 
     .airdrop-detail-item{
 
-        padding:12px 0;
+        padding:11px 0;
 
     }
 
@@ -1367,6 +1156,15 @@
     .airdrop-detail-item-reward{
 
         font-size:13px;
+
+    }
+
+
+    .airdrop-detail-group + .airdrop-detail-group{
+
+        margin-top:12px;
+
+        padding-top:12px;
 
     }
 
