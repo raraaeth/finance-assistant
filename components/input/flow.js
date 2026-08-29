@@ -2,48 +2,48 @@
    Finance Assistant
    Component    : Global Input
    File         : flow.js
-   Version      : 1.2.0
+   Version      : 2.0.0
 
    Description :
    Global Input Flow Controller
 
-   Handles :
-   - Progressive field
-   - Field visibility
-   - Next field
-   - Completed fields remain visible
-   - Condition multi-select
-   - Multiple condition inputs
-   - Dynamic condition fields
-   - Status change reset
-   - Terminal attendance status
+   PRINCIPLE :
 
-   Attendance Flow :
+   Flow hanya bertugas mengumpulkan input.
 
-   Status
-      ↓
-   Shift (optional)
-      ↓
-   Tambahkan Kondisi
-      ↓
-   [ Telat ]
-   [ Izin Telat ]
-   [ Izin Pulang ]
-   [ Lembur ]
-      ↓
-   Field yang dicentang tampil
-      ↓
-   Semua input selesai
-      ↓
-   Flow complete
+   Enter / Change
+       ↓
+   lanjut ke field berikutnya
 
-   Terminal :
+   Field terakhir selesai
+       ↓
+   FLOW COMPLETE
+       ↓
+   Tombol "Tambahkan" muncul
 
-   cuti
-   sakit
-   absen
-      ↓
-   Flow complete
+   Klik "Tambahkan"
+       ↓
+   ditangani transaction.js
+
+   Klik "Konfirmasi"
+       ↓
+   ditangani transaction.js
+   ↓
+   Apps Script
+
+   IMPORTANT :
+
+   Enter TIDAK:
+   - menambahkan transaction
+   - mengirim Apps Script
+   - menjalankan confirm
+   - menjalankan completeTransaction()
+
+   Hanya tombol Tambahkan yang boleh
+   memasukkan data ke State.transactions.
+
+   Hanya tombol Konfirmasi yang boleh
+   mengirim data ke Apps Script.
 ===================================================== */
 
 
@@ -64,6 +64,7 @@ import {
 
 } from "./field.js";
 
+
 /* =====================================================
    PAYROLL DAILY HIERARCHY
 ===================================================== */
@@ -73,17 +74,6 @@ import {
     resolveDailyHierarchy
 
 } from "./daily.js";
-
-/* =====================================================
-   INPUT
-===================================================== */
-
-import {
-
-    saveInput
-
-} from "../../js/write.js";
-
 
 
 /* =====================================================
@@ -164,7 +154,7 @@ export function renderFlow(){
 
 
     /* =================================================
-       FIND NEXT VISIBLE FIELD
+       CARI FIELD VISIBLE BERIKUTNYA
     ================================================= */
 
     while(
@@ -183,7 +173,6 @@ export function renderFlow(){
 
         State.step++;
 
-
         field =
 
             steps[
@@ -196,7 +185,17 @@ export function renderFlow(){
 
 
     /* =================================================
-       COMPLETE
+       SEMUA FIELD SUDAH SELESAI
+       
+       STOP DI SINI.
+
+       Jangan memasukkan transaksi.
+       Jangan konfirmasi.
+       Jangan kirim Apps Script.
+
+       Hanya dispatch event agar
+       transaction.js menampilkan
+       tombol Tambahkan.
     ================================================= */
 
     if(
@@ -273,17 +272,6 @@ function handleFieldComplete(
     }
 
 
-    console.log(
-
-        "Flow selesai:",
-
-        field.id,
-
-        value
-
-    );
-
-
     const steps =
 
         getSteps();
@@ -298,16 +286,36 @@ function handleFieldComplete(
         );
 
 
+    if(
+
+        fieldIndex === -1
+
+    ){
+
+        return;
+
+    }
+
+
+    console.log(
+
+        "FIELD COMPLETE:",
+
+        field.id,
+
+        value
+
+    );
+
+
     /* =================================================
-       CONDITION
+       CONDITION FIELD
        
-       Checkbox tidak menaikkan State.step.
+       Checkbox condition bukan field biasa.
 
-       Sebaliknya :
-
-       1. Bersihkan field kondisi lama
-       2. Cari semua field yang aktif
-       3. Render SEMUA field hasil checklist
+       Setelah condition dipilih,
+       semua field condition aktif
+       ditampilkan bersamaan.
     ================================================= */
 
     if(
@@ -330,49 +338,40 @@ function handleFieldComplete(
 
     }
 
-   /* =================================================
-   PAYROLL DAILY HIERARCHY
-================================================= */
 
-if(
+    /* =================================================
+       PAYROLL DAILY HIERARCHY
+    ================================================= */
 
-    field.id ===
+    if(
 
-        "nama"
+        field.id ===
 
-    &&
+            "nama"
 
-    State.workspace ===
+        &&
 
-        "payroll-daily"
+        State.workspace ===
 
-){
+            "payroll-daily"
 
-    handleDailyHierarchyChange(
+    ){
 
-        fieldIndex,
+        handleDailyHierarchyChange(
 
-        value
+            fieldIndex,
 
-    );
+            value
 
-    return;
+        );
 
-}
+        return;
+
+    }
+
 
     /* =================================================
        STATUS
-       
-       Status adalah special field.
-
-       Jika status berubah :
-
-       1. Semua field setelah status
-          harus dibersihkan.
-       2. Jika terminal :
-          langsung selesai.
-       3. Jika normal :
-          mulai ulang flow setelah status.
     ================================================= */
 
     if(
@@ -397,45 +396,18 @@ if(
 
 
     /* =================================================
-       DYNAMIC CONDITION INPUT
-       
-       Field seperti :
-
-       telat
-       izin_telat
-       izin_pulang
-       lembur_jam
-
-       tidak boleh langsung maju satu step
-       seperti progressive field biasa.
-
-       Semua field yang dipilih checkbox harus
-       selesai terlebih dahulu.
-    ================================================= */
-
-    if(
-
-        isConditionInput(
-
-            field
-
-        )
-
-    ){
-
-        handleConditionInputComplete(
-
-            fieldIndex
-
-        );
-
-        return;
-
-    }
-
-
-    /* =================================================
        NORMAL FIELD
+       
+       Field condition input juga diperlakukan
+       sebagai field biasa setelah nilainya
+       berhasil disimpan.
+
+       TAPI :
+
+       Jangan pernah flowComplete()
+       hanya karena field condition selesai.
+
+       Flow harus bergerak ke field berikutnya.
     ================================================= */
 
     State.step =
@@ -446,6 +418,7 @@ if(
     renderFlow();
 
 }
+
 
 /* =====================================================
    PAYROLL DAILY HIERARCHY CHANGE
@@ -459,9 +432,9 @@ function handleDailyHierarchyChange(
 
 ){
 
-    /* =============================================
-       SIMPAN NAMA BARU
-    ============================================= */
+    /* =================================================
+       SIMPAN NAMA
+    ================================================= */
 
     State.values.nama =
 
@@ -474,17 +447,9 @@ function handleDailyHierarchyChange(
         ).trim();
 
 
-    /* =============================================
+    /* =================================================
        BERSIHKAN FIELD SETELAH NAMA
-
-       Ini menghapus :
-
-       grade_1
-       grade_2
-       qty
-
-       dari pilihan Nama sebelumnya.
-    ============================================= */
+    ================================================= */
 
     clearFieldsAfter(
 
@@ -493,9 +458,9 @@ function handleDailyHierarchyChange(
     );
 
 
-    /* =============================================
+    /* =================================================
        RESOLVE HIERARCHY
-    ============================================= */
+    ================================================= */
 
     const resolved =
 
@@ -506,9 +471,9 @@ function handleDailyHierarchyChange(
         );
 
 
-    /* =============================================
-       APPLY GRADE 1
-    ============================================= */
+    /* =================================================
+       GRADE 1
+    ================================================= */
 
     if(
 
@@ -529,9 +494,9 @@ function handleDailyHierarchyChange(
     }
 
 
-    /* =============================================
-       APPLY GRADE 2
-    ============================================= */
+    /* =================================================
+       GRADE 2
+    ================================================= */
 
     if(
 
@@ -579,9 +544,9 @@ function handleDailyHierarchyChange(
     );
 
 
-    /* =============================================
+    /* =================================================
        LANJUT FLOW
-    ============================================= */
+    ================================================= */
 
     State.step =
 
@@ -606,7 +571,16 @@ function handleStatusChange(
 ){
 
     /* =================================================
-       CLEAR SEMUA FIELD SETELAH STATUS
+       SIMPAN STATUS
+    ================================================= */
+
+    State.values.status =
+
+        value;
+
+
+    /* =================================================
+       CLEAR FIELD SETELAH STATUS
     ================================================= */
 
     clearFieldsAfter(
@@ -619,17 +593,16 @@ function handleStatusChange(
     /* =================================================
        TERMINAL STATUS
        
-       cuti
-       sakit
-       absen
-       
-       Tidak perlu :
+       Cuti
+       Sakit
+       Absen
 
-       shift
-       condition
-       telat
-       izin
-       lembur
+       Status terminal tidak memiliki
+       field tambahan.
+
+       Flow selesai → tombol Tambahkan.
+
+       Tetap TIDAK menambahkan transaksi.
     ================================================= */
 
     if(
@@ -666,11 +639,6 @@ function handleStatusChange(
 
     /* =================================================
        STATUS NORMAL
-       
-       Masuk
-       Lembur
-
-       Lanjut ke field setelah status.
     ================================================= */
 
     State.step =
@@ -705,7 +673,7 @@ function handleConditionChange(
 
 
     /* =================================================
-       HAPUS SEMUA FIELD HASIL KONDISI SEBELUMNYA
+       BERSIHKAN FIELD CONDITION SEBELUMNYA
     ================================================= */
 
     clearFieldsAfter(
@@ -718,10 +686,9 @@ function handleConditionChange(
     /* =================================================
        CONDITION KOSONG
        
-       Jangan lanjut otomatis.
+       Jangan flowComplete.
 
-       User masih bisa memilih kondisi
-       atau menekan Tambah Transaksi.
+       Tetap berada di condition.
     ================================================= */
 
     if(
@@ -742,25 +709,23 @@ function handleConditionChange(
 
             conditionIndex;
 
-
         return;
 
     }
 
 
     /* =================================================
-       RENDER SEMUA FIELD AKTIF
+       SIMPAN CONDITION
        
-       Contoh :
+       Biasanya renderField sudah menyimpan
+       State.values.
 
-       Telat + Lembur
+       Tidak perlu menulis ulang di sini.
+    ================================================= */
 
-       Maka :
 
-       Telat
-       Lembur Jam
-
-       tampil bersamaan.
+    /* =================================================
+       RENDER SEMUA CONDITION INPUT
     ================================================= */
 
     renderConditionFields(
@@ -807,8 +772,18 @@ function renderConditionFields(
 
 
     /* =================================================
-       CARI SEMUA FIELD SETELAH CONDITION
-       YANG SEKARANG VISIBLE
+       CARI FIELD SETELAH CONDITION
+       YANG VISIBLE
+
+       IMPORTANT :
+
+       "keterangan" dan field normal setelah
+       condition juga bisa berada di sini.
+
+       Karena itu kita hanya menentukan
+       field condition berdasarkan struktur
+       config, bukan menganggap seluruh field
+       setelah condition sebagai condition input.
     ================================================= */
 
     for(
@@ -856,6 +831,31 @@ function renderConditionFields(
         }
 
 
+        /* =================================================
+           STOP PENCARIAN CONDITION INPUT
+           
+           Field dengan ID keterangan dianggap
+           sebagai field normal terakhir.
+
+           Jangan masukkan ke kelompok
+           condition input.
+        ================================================= */
+
+        if(
+
+            isFinalInputField(
+
+                field
+
+            )
+
+        ){
+
+            break;
+
+        }
+
+
         activeFields.push({
 
             field,
@@ -868,7 +868,9 @@ function renderConditionFields(
 
 
     /* =================================================
-       TIDAK ADA FIELD INPUT
+       TIDAK ADA CONDITION INPUT
+       
+       Tetap lanjutkan flow secara normal.
     ================================================= */
 
     if(
@@ -879,8 +881,10 @@ function renderConditionFields(
 
         State.step =
 
-            conditionIndex;
+            conditionIndex + 1;
 
+
+        renderFlow();
 
         return;
 
@@ -888,7 +892,7 @@ function renderConditionFields(
 
 
     /* =================================================
-       RENDER SEMUA FIELD
+       RENDER SEMUA CONDITION INPUT
     ================================================= */
 
     activeFields.forEach(
@@ -930,8 +934,11 @@ function renderConditionFields(
     /* =================================================
        CURSOR
 
-       Cursor berada pada field terakhir
-       dari kelompok condition.
+       Cursor berada di condition input terakhir.
+
+       Setelah field terakhir condition selesai,
+       renderFlow() akan mencari field berikutnya,
+       misalnya "keterangan".
     ================================================= */
 
     State.step =
@@ -946,14 +953,96 @@ function renderConditionFields(
 
 
 /* =====================================================
-   CONDITION INPUT COMPLETE
+   FINAL INPUT FIELD
 ===================================================== */
 
-function handleConditionInputComplete(
+function isFinalInputField(
 
-    fieldIndex
+    field
 
 ){
+
+    if(
+
+        !field
+
+    ){
+
+        return false;
+
+    }
+
+
+    /* =================================================
+       KETERANGAN ADALAH FIELD TERAKHIR.
+
+       Enter pada field ini hanya menyebabkan
+       flowComplete() melalui renderFlow().
+
+       TIDAK MENAMBAHKAN TRANSAKSI.
+    ================================================= */
+
+    return (
+
+        field.id ===
+
+            "keterangan"
+
+    );
+
+}
+
+
+/* =====================================================
+   FIELD CONDITION INPUT
+       
+   Digunakan hanya untuk kebutuhan
+   pengecekan internal.
+
+   Tidak pernah melakukan complete transaction.
+===================================================== */
+
+function isConditionInput(
+
+    field
+
+){
+
+    if(
+
+        !field
+
+    ){
+
+        return false;
+
+    }
+
+
+    const steps =
+
+        getSteps();
+
+
+    const fieldIndex =
+
+        steps.indexOf(
+
+            field
+
+        );
+
+
+    if(
+
+        fieldIndex === -1
+
+    ){
+
+        return false;
+
+    }
+
 
     const conditionIndex =
 
@@ -964,62 +1053,30 @@ function handleConditionInputComplete(
         );
 
 
-    /* =================================================
-       Jika tidak ditemukan condition,
-       perlakukan sebagai field normal.
-    ================================================= */
-
     if(
 
         conditionIndex === -1
 
     ){
 
-        State.step =
-
-            fieldIndex + 1;
-
-
-        renderFlow();
-
-        return;
+        return false;
 
     }
 
 
     /* =================================================
-       CEK SEMUA FIELD CONDITION
+       Field setelah condition dianggap condition
+       input hanya jika field tersebut BUKAN field
+       final seperti keterangan.
     ================================================= */
 
-    if(
+    return !
 
-        areConditionInputsComplete(
+        isFinalInputField(
 
-            conditionIndex
-
-        )
-
-    ){
-
-        console.log(
-
-            "Semua condition input selesai."
+            field
 
         );
-
-
-        flowComplete();
-
-        return;
-
-    }
-
-
-    console.log(
-
-        "Masih ada condition input yang belum selesai."
-
-    );
 
 }
 
@@ -1068,247 +1125,30 @@ function findConditionIndexBefore(
 
         }
 
+
+        /* =================================================
+           Jangan mencari melewati field normal.
+
+           Ini mencegah field seperti keterangan
+           dianggap sebagai condition input.
+        ================================================= */
+
+        if(
+
+            field?.id ===
+
+                "keterangan"
+
+        ){
+
+            break;
+
+        }
+
     }
 
 
     return -1;
-
-}
-
-
-/* =====================================================
-   CHECK CONDITION INPUT COMPLETE
-===================================================== */
-
-function areConditionInputsComplete(
-
-    conditionIndex
-
-){
-
-    const steps =
-
-        getSteps();
-
-
-    const conditionValue =
-
-        State.values?.[
-
-            steps[conditionIndex]?.id
-
-        ];
-
-
-    if(
-
-        !Array.isArray(
-
-            conditionValue
-
-        )
-
-        ||
-
-        conditionValue.length === 0
-
-    ){
-
-        return false;
-
-    }
-
-
-    const activeFields = [];
-
-
-    /* =================================================
-       SEMUA FIELD SETELAH CONDITION
-       YANG MASIH VISIBLE
-    ================================================= */
-
-    for(
-
-        let index =
-
-            conditionIndex + 1;
-
-        index <
-
-            steps.length;
-
-        index++
-
-    ){
-
-        const field =
-
-            steps[index];
-
-
-        if(
-
-            !field
-
-        ){
-
-            continue;
-
-        }
-
-
-        if(
-
-            !isVisible(
-
-                field
-
-            )
-
-        ){
-
-            continue;
-
-        }
-
-
-        activeFields.push(
-
-            field
-
-        );
-
-    }
-
-
-    /* =================================================
-       TIDAK ADA FIELD
-    ================================================= */
-
-    if(
-
-        activeFields.length === 0
-
-    ){
-
-        return true;
-
-    }
-
-
-    /* =================================================
-       SETIAP FIELD AKTIF HARUS SUDAH DIISI
-    ================================================= */
-
-    return activeFields.every(
-
-        field => {
-
-            const value =
-
-                State.values?.[
-
-                    field.id
-
-                ];
-
-
-            return (
-
-                value !==
-
-                    undefined
-
-                &&
-
-                value !==
-
-                    null
-
-                &&
-
-                String(
-
-                    value
-
-                ).trim() !==
-
-                    ""
-
-            );
-
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   IS CONDITION INPUT
-===================================================== */
-
-function isConditionInput(
-
-    field
-
-){
-
-    if(
-
-        !field
-
-    ){
-
-        return false;
-
-    }
-
-
-    /* =================================================
-       Cari condition sebelumnya.
-
-       Jika field berada setelah condition,
-       dan condition aktif, maka field dianggap
-       sebagai dynamic condition input.
-    ================================================= */
-
-    const steps =
-
-        getSteps();
-
-
-    const fieldIndex =
-
-        steps.indexOf(
-
-            field
-
-        );
-
-
-    if(
-
-        fieldIndex === -1
-
-    ){
-
-        return false;
-
-    }
-
-
-    return (
-
-        findConditionIndexBefore(
-
-            fieldIndex
-
-        ) !==
-
-            -1
-
-    );
 
 }
 
@@ -1388,7 +1228,7 @@ function clearFieldsAfter(
 
 
     /* =================================================
-       HAPUS DOM FIELD
+       HAPUS DOM
     ================================================= */
 
     for(
@@ -1595,6 +1435,7 @@ function isVisible(
 
     }
 
+
     if(
 
         typeof field.showWhen !==
@@ -1606,6 +1447,7 @@ function isVisible(
         return true;
 
     }
+
 
     try{
 
@@ -1641,181 +1483,54 @@ function isVisible(
 
 /* =====================================================
    FLOW COMPLETE
+       
+   INI ADALAH BATAS FLOW.
+
+   Tidak ada transaksi yang dibuat di sini.
+
+   Tidak ada Apps Script.
+
+   Tidak ada confirm.
+
+   Hanya memberi tahu transaction.js
+   bahwa semua input sudah selesai.
 ===================================================== */
 
-async function flowComplete(){
+function flowComplete(){
 
     console.log(
 
-        "Semua field selesai:",
+        "INPUT FLOW COMPLETE:",
 
         State.values
 
     );
 
 
-    /* =============================================
-       FINAL DATA
-    ============================================= */
+    document.dispatchEvent(
 
-    const data = {
+        new CustomEvent(
 
-        ...State.values
-
-    };
-
-
-    /* =============================================
-       SAVE INPUT
-       
-       Flow :
-       
-       flow.js
-          ↓
-       write.js
-          ↓
-       Apps Script
-          ↓
-       input.gs
-    ============================================= */
-
-    try{
-
-        console.log(
-
-            "INPUT SAVE START",
+            "global-input-flow-complete",
 
             {
 
-                workspace :
+                detail : {
 
-                    State.workspace,
+                    values :
 
-                data :
+                        {
 
-                    data
+                            ...State.values
 
-            }
-
-        );
-
-
-        const result =
-
-            await saveInput(
-
-                State.workspace,
-
-                data
-
-            );
-
-
-        console.log(
-
-            "INPUT SAVE RESULT",
-
-            result
-
-        );
-
-
-        /* =========================================
-           SAVE FAILED
-        ========================================= */
-
-        if(
-
-            !result?.success
-
-        ){
-
-            throw new Error(
-
-                result?.error
-
-                ||
-
-                result?.message
-
-                ||
-
-                "Gagal menyimpan input."
-
-            );
-
-        }
-
-
-        /* =========================================
-           FLOW COMPLETE EVENT
-           
-           Event baru dikirim SETELAH
-           backend berhasil menyimpan.
-        ========================================= */
-
-        document.dispatchEvent(
-
-            new CustomEvent(
-
-                "global-input-flow-complete",
-
-                {
-
-                    detail : {
-
-                        values :
-
-                            {
-
-                                ...data
-
-                            },
-
-                        result :
-
-                            result
-
-                    }
+                        }
 
                 }
 
-            )
+            }
 
-        );
+        )
 
-
-        console.log(
-
-            "INPUT SAVE SUCCESS"
-
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "INPUT SAVE ERROR:",
-
-            error
-
-        );
-
-
-        alert(
-
-            "Gagal menyimpan input:\n" +
-
-            error.message
-
-        );
-
-    }
+    );
 
 }
-
-
-    
-
