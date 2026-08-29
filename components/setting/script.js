@@ -76,9 +76,9 @@ import {
 
 import {
 
-    API
+    saveSetting
 
-} from "../../js/api.js";
+} from "../../js/write.js";
 
 
 
