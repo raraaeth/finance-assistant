@@ -74,6 +74,16 @@ import {
 
 } from "./daily.js";
 
+/* =====================================================
+   INPUT
+===================================================== */
+
+import {
+
+    saveInput
+
+} from "../../js/write.js";
+
 
 
 /* =====================================================
@@ -1633,7 +1643,7 @@ function isVisible(
    FLOW COMPLETE
 ===================================================== */
 
-function flowComplete(){
+async function flowComplete(){
 
     console.log(
 
@@ -1644,30 +1654,165 @@ function flowComplete(){
     );
 
 
-    document.dispatchEvent(
+    /* =============================================
+       FINAL DATA
+    ============================================= */
 
-        new CustomEvent(
+    const data = {
 
-            "global-input-flow-complete",
+        ...State.values
+
+    };
+
+
+    /* =============================================
+       SAVE INPUT
+       
+       Flow :
+       
+       flow.js
+          ↓
+       write.js
+          ↓
+       Apps Script
+          ↓
+       input.gs
+    ============================================= */
+
+    try{
+
+        console.log(
+
+            "INPUT SAVE START",
 
             {
 
-                detail : {
+                workspace :
 
-                    values :
+                    State.workspace,
 
-                        {
+                data :
 
-                            ...State.values
-
-                        }
-
-                }
+                    data
 
             }
 
-        )
+        );
 
-    );
+
+        const result =
+
+            await saveInput(
+
+                State.workspace,
+
+                data
+
+            );
+
+
+        console.log(
+
+            "INPUT SAVE RESULT",
+
+            result
+
+        );
+
+
+        /* =========================================
+           SAVE FAILED
+        ========================================= */
+
+        if(
+
+            !result?.success
+
+        ){
+
+            throw new Error(
+
+                result?.error
+
+                ||
+
+                result?.message
+
+                ||
+
+                "Gagal menyimpan input."
+
+            );
+
+        }
+
+
+        /* =========================================
+           FLOW COMPLETE EVENT
+           
+           Event baru dikirim SETELAH
+           backend berhasil menyimpan.
+        ========================================= */
+
+        document.dispatchEvent(
+
+            new CustomEvent(
+
+                "global-input-flow-complete",
+
+                {
+
+                    detail : {
+
+                        values :
+
+                            {
+
+                                ...data
+
+                            },
+
+                        result :
+
+                            result
+
+                    }
+
+                }
+
+            )
+
+        );
+
+
+        console.log(
+
+            "INPUT SAVE SUCCESS"
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "INPUT SAVE ERROR:",
+
+            error
+
+        );
+
+
+        alert(
+
+            "Gagal menyimpan input:\n" +
+
+            error.message
+
+        );
+
+    }
 
 }
+
