@@ -1730,6 +1730,25 @@ async function init(){
 
             );
 
+           /* ==================================
+   CHECK ONBOARDING
+================================== */
+
+const currentUser =
+
+    loadUser();
+
+
+if(
+
+    currentUser?.onboardingCompleted === true
+
+){
+
+    redirectToDashboard();
+
+}
+
 
             /* ==================================
                DEBUG TOKEN STATE
