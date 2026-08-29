@@ -74,6 +74,12 @@ import {
 
 } from "./financial.js";
 
+import {
+
+    API
+
+} from "../../js/api.js";
+
 
 
 /* =====================================================
@@ -486,94 +492,197 @@ export const Setting = {
     },
 
 
-    /* =================================================
-       CONFIRM
-    ================================================= */
+/* =====================================================
+   CONFIRM
+===================================================== */
 
-    confirm(){
+async confirm(){
 
-        closeCustomPicker();
+    closeCustomPicker();
 
 
-        const data =
+    /* =============================================
+       COLLECT RESULT
+    ============================================= */
 
-            collectAllResults();
-       /* =============================================
-   FINANCIAL AUTO RULE
-============================================= */
+    const data =
 
-if(
+        collectAllResults();
 
-    currentWorkspace ===
 
-    "financial"
+    /* =============================================
+       FINANCIAL AUTO RULE
+    ============================================= */
 
-){
+    if(
 
-    applyFinancialAutoRules(
+        currentWorkspace ===
 
-        data
+        "financial"
+
+    ){
+
+        applyFinancialAutoRules(
+
+            data
+
+        );
+
+    }
+
+
+    /* =============================================
+       PAYROLL MONTHLY AUTO RULE
+    ============================================= */
+
+    if(
+
+        currentWorkspace ===
+
+        "payroll-monthly"
+
+    ){
+
+        applyMonthlyAutoRules(
+
+            data
+
+        );
+
+    }
+
+
+    /* =============================================
+       DEBUG RESULT
+    ============================================= */
+
+    console.log(
+
+        "SETTING CONFIRM",
+
+        {
+
+            workspace :
+
+                currentWorkspace,
+
+            data :
+
+                data
+
+        }
 
     );
 
-}
-       
-/* =============================================
-   PAYROLL MONTHLY AUTO RULE
-============================================= */
 
-if(
+    /* =============================================
+       SEND TO APPS SCRIPT
+    ============================================= */
 
-    currentWorkspace ===
+    try{
 
-    "payroll-monthly"
+        const result =
 
-){
+            await API.saveSetting(
 
-    applyMonthlyAutoRules(
+                currentWorkspace,
 
-        data
+                data
 
-    );
+            );
 
-}
 
         console.log(
 
-            "SETTING CONFIRM",
+            "SETTING SAVE RESULT",
 
-            {
-
-                workspace :
-
-                    currentWorkspace,
-
-                data :
-
-                    data
-
-            }
+            result
 
         );
 
 
-        /*
-         * Apps Script belum dipanggil.
-         *
-         * Untuk sekarang data hanya dikumpulkan
-         * dan ditampilkan di console.
-         *
-         * Tahap berikutnya:
-         *
-         * API / Apps Script
-         *        ↓
-         * Sheet setting
-         */
+        /* =========================================
+           SUCCESS
+        ========================================= */
+
+        if(
+
+            result?.success === true
+
+        ){
+
+            alert(
+
+                "Pengaturan berhasil disimpan."
+
+            );
+
+
+            Setting.close();
+
+
+            return result;
+
+        }
+
+
+        /* =========================================
+           BACKEND ERROR
+        ========================================= */
+
+        throw new Error(
+
+            result?.error
+
+            ||
+
+            result?.message
+
+            ||
+
+            "Gagal menyimpan pengaturan."
+
+        );
 
     }
 
-};
+    catch(error){
 
+        console.error(
+
+            "SETTING SAVE ERROR:",
+
+            error
+
+        );
+
+
+        alert(
+
+            "Gagal menyimpan pengaturan:\n" +
+
+            error.message
+
+        );
+
+
+        return {
+
+            success :
+
+                false,
+
+            error :
+
+                error.message
+
+        };
+
+    }
+
+}
+
+        
 
 /* =====================================================
    LOAD HTML
