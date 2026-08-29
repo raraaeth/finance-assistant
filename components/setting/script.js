@@ -583,13 +583,13 @@ async confirm(){
 
         const result =
 
-            await API.saveSetting(
+    await saveSetting(
 
-                currentWorkspace,
+        currentWorkspace,
 
-                data
+        data
 
-            );
+    );
 
 
         console.log(
