@@ -986,6 +986,274 @@ export function clear(){
 
 }
 
+/* =====================================================
+   SAVE SETTING
+===================================================== */
+
+/*
+   Mengirim hasil Setting Component
+   ke Google Apps Script.
+
+   Flow :
+
+   Setting Component
+          ↓
+   API.saveSetting()
+          ↓
+   JSONP
+          ↓
+   main.gs
+          ↓
+   action = setting
+          ↓
+   setting.gs
+*/
+
+API.saveSetting = async function(
+
+    workspace,
+
+    data
+
+){
+
+    /* =============================================
+       SESSION
+    ============================================= */
+
+    const session =
+
+        getSession();
+
+
+    const spreadsheetId =
+
+        getSpreadsheetId();
+
+
+    const accessToken =
+
+        getAccessToken();
+
+
+    /* =============================================
+       VALIDATION
+    ============================================= */
+
+    if(
+
+        !spreadsheetId
+
+    ){
+
+        throw new Error(
+
+            "Finance Core Spreadsheet ID tidak ditemukan."
+
+        );
+
+    }
+
+
+    if(
+
+        !accessToken
+
+    ){
+
+        throw new Error(
+
+            "Access Token tidak ditemukan."
+
+        );
+
+    }
+
+
+    if(
+
+        !workspace
+
+    ){
+
+        throw new Error(
+
+            "Workspace tidak ditemukan."
+
+        );
+
+    }
+
+
+    if(
+
+        !Array.isArray(
+
+            data
+
+        )
+
+    ){
+
+        throw new Error(
+
+            "Setting data harus berupa array."
+
+        );
+
+    }
+
+
+    /* =============================================
+       ENDPOINT
+       
+       Semua module menggunakan Apps Script
+       gateway yang sama.
+    ============================================= */
+
+    const endpoint =
+
+        session
+        ?.workspace
+        ?.endpoint
+
+        ||
+
+        "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
+
+
+    /* =============================================
+       PAYLOAD
+    ============================================= */
+
+    const params = new URLSearchParams();
+
+
+    params.set(
+
+        "action",
+
+        "setting"
+
+    );
+
+
+    params.set(
+
+        "workspace",
+
+        workspace
+
+    );
+
+
+    params.set(
+
+        "spreadsheetId",
+
+        spreadsheetId
+
+    );
+
+
+    params.set(
+
+        "accessToken",
+
+        accessToken
+
+    );
+
+
+    params.set(
+
+        "data",
+
+        JSON.stringify(
+
+            data
+
+        )
+
+    );
+
+
+    /* =============================================
+       URL
+    ============================================= */
+
+    const url =
+
+        endpoint
+
+        +
+
+        "?"
+
+        +
+
+        params.toString();
+
+
+    /* =============================================
+       DEBUG
+    ============================================= */
+
+    console.log(
+
+        "===== API SAVE SETTING ====="
+
+    );
+
+
+    console.log(
+
+        "Workspace:",
+
+        workspace
+
+    );
+
+
+    console.log(
+
+        "Spreadsheet:",
+
+        spreadsheetId
+
+    );
+
+
+    console.log(
+
+        "Data:",
+
+        data
+
+    );
+
+
+    /* =============================================
+       JSONP
+    ============================================= */
+
+    const result =
+
+        await jsonpRequest(
+
+            url
+
+        );
+
+
+    /* =============================================
+       RESULT
+    ============================================= */
+
+    return result;
+
+};
+
 
 /* =====================================================
    DEFAULT EXPORT
