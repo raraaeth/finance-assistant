@@ -103,6 +103,59 @@ const Auth = {
 
 };
 
+/* ==========================================
+   DASHBOARD REDIRECT
+========================================== */
+
+function redirectToDashboard(){
+
+    const dashboardPath =
+
+        "/finance-assistant/pages/dashboard/";
+
+
+    /*
+       Jangan redirect jika user
+       sudah berada di Dashboard.
+    */
+
+    if(
+
+        window.location.pathname.startsWith(
+
+            dashboardPath
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    console.log(
+
+        "AUTH: User sudah login dan onboarding selesai."
+
+    );
+
+
+    console.log(
+
+        "AUTH: Redirect ke Dashboard..."
+
+    );
+
+
+    window.location.replace(
+
+        dashboardPath
+
+    );
+
+}
+
 
 /* ==========================================
    GOOGLE TOKEN STORAGE
