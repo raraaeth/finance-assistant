@@ -331,19 +331,23 @@ export const Input = {
         );
 
 
+        /* =============================================
+           VALIDATE WORKSPACE
+        ============================================= */
+
         if(
 
             !result
 
             ||
 
-            !result.config
+            !result.workspace
 
         ){
 
             console.warn(
 
-                "Input configuration tidak ditemukan:",
+                "Workspace Input tidak ditemukan:",
 
                 result?.workspace
 
@@ -352,15 +356,17 @@ export const Input = {
             return;
 
         }
-/* =============================================
-   LOAD INPUT DATA
-============================================= */
 
-await loadInputData(
 
-    result.workspace
+        /* =============================================
+           LOAD INPUT DATA
+        ============================================= */
 
-);
+        await loadInputData(
+
+            result.workspace
+
+        );
 
 
         /* =============================================
@@ -377,7 +383,11 @@ await loadInputData(
 
         State.config =
 
-            result.config;
+            result.config
+
+            ||
+
+            {};
 
 
         /* =============================================
