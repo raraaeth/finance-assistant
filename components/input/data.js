@@ -2,38 +2,76 @@
    Finance Assistant
    Component    : Global Input
    File         : data.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
-   Global Input Dynamic Data
+   Global Input Dynamic Data Engine
 
-   Development source :
-   OpenSheet / Google Spreadsheet
+   Architecture :
+
+   workspace.js
+        ↓
+   Workspace Configuration
+        ↓
+   module.js
+        ↓
+   Finance Core ID
+        ↓
+   auth.js
+        ↓
+   Google Provider Token
+        ↓
+   sheets.js
+        ↓
+   Google Sheets API
+        ↓
+   data.js
+        ↓
+   Input Components
+
+   Principle :
+
+   - Tidak ada OpenSheet
+   - Tidak ada Spreadsheet ID hardcode
+   - Tidak ada URL hardcode
+   - Tidak ada daftar sheet hardcode
+   - Workspace menentukan sheet yang dibutuhkan
+   - data.js bersifat generic
 ===================================================== */
 
 
 /* =====================================================
-   SOURCE
+   IMPORT
 ===================================================== */
 
-const DATA_SOURCE = {
+import {
 
-    kasMembers :
-        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/kas_member",
+    getWorkspaceConfig,
 
-    financialActivity :
-        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/financial_activity",
+    getActiveWorkspace
 
-    savingBanks :
-        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/saving_bank",
+} from "../../js/workspace.js";
 
-   payrollDailyRules :
-       "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_daily_rules",
 
-    payrollMonthlyRules :
-        "https://opensheet.elk.sh/1eVZV1BYpJlPGLiYWhd6C_kAoHZdbD-H7ykwAc1ddFiM/payroll_monthly_rules"
-   
-};
+import {
+
+    loadModuleInfo
+
+} from "../../js/module.js";
+
+
+import {
+
+    getGoogleProviderToken
+
+} from "../../js/auth.js";
+
+
+import {
+
+    readSheets
+
+} from "../../js/sheets.js";
 
 
 /* =====================================================
@@ -42,17 +80,206 @@ const DATA_SOURCE = {
 
 const Data = {
 
-    kasMembers : [],
+    workspace :
 
-    financialActivity : [],
+        null,
 
-    savingBanks : [],
 
-    payrollDailyRules : [],
+    sheets :
 
-    payrollMonthlyRules : []
+        {},
+
+
+    loaded :
+
+        false
 
 };
+
+
+/* =====================================================
+   NORMALIZE WORKSPACE
+===================================================== */
+
+function resolveWorkspace(
+
+    workspace
+
+){
+
+    /* =============================================
+       WORKSPACE DARI PARAMETER
+    ============================================= */
+
+    if(
+
+        workspace
+
+    ){
+
+        return workspace;
+
+    }
+
+
+    /* =============================================
+       WORKSPACE DARI GLOBAL STATE
+    ============================================= */
+
+    return getActiveWorkspace();
+
+}
+
+
+/* =====================================================
+   GET WORKSPACE CONFIG
+===================================================== */
+
+function resolveWorkspaceConfig(
+
+    workspace
+
+){
+
+    const configs =
+
+        getWorkspaceConfig();
+
+
+    if(
+
+        !configs
+
+        ||
+
+        typeof configs !==
+
+            "object"
+
+    ){
+
+        throw new Error(
+
+            "Workspace configuration tidak ditemukan."
+
+        );
+
+    }
+
+
+    const config =
+
+        configs[
+
+            workspace
+
+        ];
+
+
+    if(
+
+        !config
+
+    ){
+
+        throw new Error(
+
+            `Workspace "${workspace}" tidak ditemukan.`
+
+        );
+
+    }
+
+
+    return config;
+
+}
+
+
+/* =====================================================
+   GET FINANCE CORE
+===================================================== */
+
+function resolveFinanceCore(){
+
+    const moduleInfo =
+
+        loadModuleInfo();
+
+
+    if(
+
+        !moduleInfo
+
+    ){
+
+        throw new Error(
+
+            "Finance Module Info tidak ditemukan."
+
+        );
+
+    }
+
+
+    const financeCore =
+
+        moduleInfo.financeCore;
+
+
+    if(
+
+        !financeCore
+
+        ||
+
+        !financeCore.id
+
+    ){
+
+        throw new Error(
+
+            "Finance Core Spreadsheet ID tidak ditemukan."
+
+        );
+
+    }
+
+
+    return financeCore;
+
+}
+
+
+/* =====================================================
+   GET GOOGLE TOKEN
+===================================================== */
+
+async function resolveAccessToken(){
+
+    const token =
+
+        await getGoogleProviderToken();
+
+
+    if(
+
+        !token
+
+    ){
+
+        throw new Error(
+
+            "Google Provider Token tidak ditemukan."
+
+        );
+
+    }
+
+
+    return token;
+
+}
 
 
 /* =====================================================
@@ -61,81 +288,294 @@ const Data = {
 
 export async function loadInputData(
 
-    workspace
+    workspace = null
 
 ){
 
-    /* =============================================
-       LOAD KAS DATA
-    ============================================= */
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== GLOBAL INPUT DATA LOAD ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    /* =================================================
+       RESOLVE WORKSPACE
+    ================================================= */
+
+    const activeWorkspace =
+
+        resolveWorkspace(
+
+            workspace
+
+        );
+
 
     if(
 
-        workspace === "kas"
+        !activeWorkspace
 
     ){
 
-        await loadKasMembers();
+        throw new Error(
+
+            "Workspace aktif tidak ditemukan."
+
+        );
 
     }
 
 
-    /* =============================================
-       LOAD FINANCIAL DATA
-    ============================================= */
+    console.log(
+
+        "Input Workspace:",
+
+        activeWorkspace
+
+    );
+
+
+    /* =================================================
+       GET WORKSPACE CONFIG
+    ================================================= */
+
+    const workspaceConfig =
+
+        resolveWorkspaceConfig(
+
+            activeWorkspace
+
+        );
+
+
+    console.log(
+
+        "Workspace Config:",
+
+        workspaceConfig
+
+    );
+
+
+    /* =================================================
+       GET SHEETS
+    ================================================= */
+
+    const sheets =
+
+        Array.isArray(
+
+            workspaceConfig.sheets
+
+        )
+
+        ?
+
+        workspaceConfig.sheets.filter(
+
+            sheet =>
+
+                typeof sheet ===
+
+                    "string"
+
+                &&
+
+                sheet.trim() !== ""
+
+        )
+
+        :
+
+        [];
+
 
     if(
 
-        workspace === "financial"
+        !sheets.length
 
     ){
 
-        await loadFinancialActivity();
+        throw new Error(
+
+            `Workspace "${activeWorkspace}" tidak memiliki konfigurasi sheet.`
+
+        );
 
     }
-   
-/* =============================================
-       LOAD SAVING DATA
-============================================= */
-   
-   if(
 
-    workspace === "saving"
 
-){
+    console.log(
 
-    await loadSavingBanks();
+        "Input Sheets:",
 
-   }
+        sheets
 
-/* =============================================
-       LOAD DAILY DATA
-============================================= */
-        
-   if(
+    );
 
-    workspace === "payroll-daily"
 
-){
+    /* =================================================
+       FINANCE CORE
+    ================================================= */
 
-    await loadPayrollDailyRules();
+    const financeCore =
 
-   }
+        resolveFinanceCore();
 
-/* =============================================
-       LOAD MONTHLY DATA
-============================================= */
-     
-   if(
 
-    workspace === "payroll-monthly"
+    console.log(
 
-){
+        "Finance Core:",
 
-    await loadPayrollMonthlyRules();
+        financeCore
 
-   }
+    );
 
+
+    /* =================================================
+       GOOGLE TOKEN
+    ================================================= */
+
+    const accessToken =
+
+        await resolveAccessToken();
+
+
+    console.log(
+
+        "Google Provider Token: AVAILABLE"
+
+    );
+
+
+    /* =================================================
+       READ SHEETS
+    ================================================= */
+
+    const result =
+
+        await readSheets({
+
+            accessToken :
+
+                accessToken,
+
+            spreadsheetId :
+
+                financeCore.id,
+
+            sheets :
+
+                sheets
+
+        });
+
+
+    /* =================================================
+       SAVE DATA
+    ================================================= */
+
+    Data.workspace =
+
+        activeWorkspace;
+
+
+    Data.sheets =
+
+        result &&
+
+        typeof result ===
+
+            "object"
+
+        ?
+
+        result
+
+        :
+
+        {};
+
+
+    Data.loaded =
+
+        true;
+
+
+    /* =================================================
+       DEBUG
+    ================================================= */
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== GLOBAL INPUT DATA READY ====="
+
+    );
+
+
+    console.log(
+
+        "Workspace:",
+
+        Data.workspace
+
+    );
+
+
+    console.log(
+
+        "Sheets:",
+
+        Object.keys(
+
+            Data.sheets
+
+        )
+
+    );
+
+
+    console.log(
+
+        "Data:",
+
+        Data.sheets
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    /* =================================================
+       RETURN
+    ================================================= */
 
     return Data;
 
@@ -143,536 +583,309 @@ export async function loadInputData(
 
 
 /* =====================================================
-   LOAD KAS MEMBERS
+   GET CURRENT WORKSPACE
 ===================================================== */
 
-async function loadKasMembers(){
+export function getWorkspace(){
 
-    try{
-
-        const response =
-
-            await fetch(
-
-                DATA_SOURCE.kasMembers
-
-            );
-
-
-        if(
-
-            !response.ok
-
-        ){
-
-            throw new Error(
-
-                `HTTP ${response.status}`
-
-            );
-
-        }
-
-
-        const raw =
-
-            await response.json();
-
-
-        Data.kasMembers =
-
-            Array.isArray(raw)
-
-                ?
-
-            raw
-
-                .filter(
-
-                    item =>
-
-                        item &&
-
-                        typeof item.nama ===
-
-                            "string" &&
-
-                        item.nama.trim() !== ""
-
-                )
-
-                .map(
-
-                    item => ({
-
-                        value :
-
-                            item.nama.trim(),
-
-                        label :
-
-                            item.nama.trim()
-
-                    })
-
-                )
-
-                :
-
-            [];
-
-
-        console.log(
-
-            "GLOBAL INPUT DATA - KAS MEMBERS:",
-
-            Data.kasMembers
-
-        );
-
-    }
-
-    catch(error){
-
-        Data.kasMembers = [];
-
-
-        console.error(
-
-            "GLOBAL INPUT DATA ERROR - KAS MEMBERS:",
-
-            error
-
-        );
-
-    }
+    return Data.workspace;
 
 }
 
 
 /* =====================================================
-   LOAD FINANCIAL ACTIVITY
+   GET ALL SHEETS
 ===================================================== */
 
-async function loadFinancialActivity(){
+export function getSheets(){
 
-    try{
+    return {
 
-        const response =
+        ...Data.sheets
 
-            await fetch(
-
-                DATA_SOURCE.financialActivity
-
-            );
-
-
-        if(
-
-            !response.ok
-
-        ){
-
-            throw new Error(
-
-                `HTTP ${response.status}`
-
-            );
-
-        }
-
-
-        const raw =
-
-            await response.json();
-
-
-        Data.financialActivity =
-
-            Array.isArray(raw)
-
-                ?
-
-            raw
-
-                .filter(
-
-                    item =>
-
-                        item &&
-
-                        typeof item.rules ===
-
-                            "string"
-
-                )
-
-                :
-
-            [];
-
-
-        console.log(
-
-            "GLOBAL INPUT DATA - FINANCIAL ACTIVITY:",
-
-            Data.financialActivity
-
-        );
-
-    }
-
-    catch(error){
-
-        Data.financialActivity = [];
-
-
-        console.error(
-
-            "GLOBAL INPUT DATA ERROR - FINANCIAL ACTIVITY:",
-
-            error
-
-        );
-
-    }
-
-}
-
-/* =====================================================
-   LOAD SAVING MEMBERS
-===================================================== */
-
-async function loadSavingBanks(){
-
-    try{
-
-        const response =
-
-            await fetch(
-
-                DATA_SOURCE.savingBanks
-
-            );
-
-
-        if(
-
-            !response.ok
-
-        ){
-
-            throw new Error(
-
-                `HTTP ${response.status}`
-
-            );
-
-        }
-
-
-        const raw =
-
-            await response.json();
-
-
-        Data.savingBanks =
-
-            Array.isArray(raw)
-
-                ?
-
-            raw
-
-                .filter(
-
-                    item =>
-
-                        item &&
-
-                        typeof item.nama === "string" &&
-
-                        item.nama.trim() !== ""
-
-                )
-
-                .map(
-
-                    item => ({
-
-                        value :
-
-                            item.nama.trim(),
-
-                        label :
-
-                            item.nama.trim()
-
-                    })
-
-                )
-
-                :
-
-            [];
-
-
-        console.log(
-
-            "GLOBAL INPUT DATA - SAVING BANKS:",
-
-            Data.savingBanks
-
-        );
-
-    }
-
-    catch(error){
-
-        Data.savingBanks = [];
-
-        console.error(
-
-            "GLOBAL INPUT DATA ERROR - SAVING BANKS:",
-
-            error
-
-        );
-
-    }
-
-}
-
-/* =====================================================
-   LOAD PAYROLL DAILY RULES
-===================================================== */
-
-async function loadPayrollDailyRules(){
-
-    try{
-
-        const response =
-
-            await fetch(
-
-                DATA_SOURCE.payrollDailyRules
-
-            );
-
-
-        if(
-
-            !response.ok
-
-        ){
-
-            throw new Error(
-
-                `HTTP ${response.status}`
-
-            );
-
-        }
-
-
-        const raw =
-
-            await response.json();
-
-
-        Data.payrollDailyRules =
-
-            Array.isArray(raw)
-
-                ?
-
-            raw
-
-                .filter(
-
-                    item =>
-
-                        item &&
-
-                        typeof item.type_rule ===
-
-                            "string"
-
-                )
-
-                :
-
-            [];
-
-
-        console.log(
-
-            "GLOBAL INPUT DATA - PAYROLL DAILY RULES:",
-
-            Data.payrollDailyRules
-
-        );
-
-    }
-
-    catch(error){
-
-        Data.payrollDailyRules = [];
-
-
-        console.error(
-
-            "GLOBAL INPUT DATA ERROR - PAYROLL DAILY RULES:",
-
-            error
-
-        );
-
-    }
-
-}
-
-/* =====================================================
-   LOAD PAYROLL MONTHLY RULES
-===================================================== */
-
-async function loadPayrollMonthlyRules(){
-
-    try{
-
-        const response =
-
-            await fetch(
-
-                DATA_SOURCE.payrollMonthlyRules
-
-            );
-
-
-        if(
-
-            !response.ok
-
-        ){
-
-            throw new Error(
-
-                `HTTP ${response.status}`
-
-            );
-
-        }
-
-
-        const raw =
-
-            await response.json();
-
-
-        Data.payrollMonthlyRules =
-
-            Array.isArray(raw)
-
-                ?
-
-            raw
-
-                .filter(
-
-                    item =>
-
-                        item &&
-
-                        typeof item.type_rule ===
-
-                            "string"
-
-                )
-
-                :
-
-            [];
-
-
-        console.log(
-
-            "GLOBAL INPUT DATA - PAYROLL MONTHLY RULES:",
-
-            Data.payrollMonthlyRules
-
-        );
-
-    }
-
-    catch(error){
-
-        Data.payrollMonthlyRules = [];
-
-
-        console.error(
-
-            "GLOBAL INPUT DATA ERROR - PAYROLL MONTHLY RULES:",
-
-            error
-
-        );
-
-    }
+    };
 
 }
 
 
 /* =====================================================
-   GET DATA
+   GET ONE SHEET
 ===================================================== */
+
+export function getSheet(
+
+    sheetName
+
+){
+
+    if(
+
+        !sheetName
+
+    ){
+
+        return {
+
+            headers :
+
+                [],
+
+            data :
+
+                []
+
+        };
+
+    }
+
+
+    return (
+
+        Data.sheets[
+
+            sheetName
+
+        ]
+
+        ||
+
+        {
+
+            headers :
+
+                [],
+
+            data :
+
+                []
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   GET SHEET DATA
+===================================================== */
+
+export function getSheetData(
+
+    sheetName
+
+){
+
+    const sheet =
+
+        getSheet(
+
+            sheetName
+
+        );
+
+
+    if(
+
+        Array.isArray(
+
+            sheet
+
+        )
+
+    ){
+
+        return [
+
+            ...sheet
+
+        ];
+
+    }
+
+
+    if(
+
+        Array.isArray(
+
+            sheet.data
+
+        )
+
+    ){
+
+        return [
+
+            ...sheet.data
+
+        ];
+
+    }
+
+
+    return [];
+
+}
+
+
+/* =====================================================
+   GET SHEET HEADERS
+===================================================== */
+
+export function getSheetHeaders(
+
+    sheetName
+
+){
+
+    const sheet =
+
+        getSheet(
+
+            sheetName
+
+        );
+
+
+    if(
+
+        Array.isArray(
+
+            sheet.headers
+
+        )
+
+    ){
+
+        return [
+
+            ...sheet.headers
+
+        ];
+
+    }
+
+
+    return [];
+
+}
+
+
+/* =====================================================
+   GET RAW INPUT DATA
+===================================================== */
+
+export function getData(){
+
+    return {
+
+        ...Data.sheets
+
+    };
+
+}
+
+
+/* =====================================================
+   LEGACY / COMPATIBILITY GETTERS
+===================================================== */
+
+/*
+   Getter di bawah tetap dipertahankan
+   supaya input module lama tidak langsung
+   rusak saat migrasi.
+
+   Sumber datanya TETAP generic.
+
+   Nama sheet tidak lagi menentukan URL
+   atau Spreadsheet ID.
+
+   Workspace.js tetap menjadi sumber
+   konfigurasi sheet.
+*/
+
 
 export function getKasMembers(){
 
-    return [
+    return getSheetData(
 
-        ...Data.kasMembers
+        "kas_member"
 
-    ];
+    );
 
 }
 
 
 export function getFinancialActivity(){
 
-    return [
+    return getSheetData(
 
-        ...Data.financialActivity
+        "financial_activity"
 
-    ];
+    );
 
 }
+
 
 export function getSavingBanks(){
 
-    return [
+    return getSheetData(
 
-        ...Data.savingBanks
+        "saving_bank"
 
-    ];
+    );
 
 }
+
 
 export function getPayrollDailyRules(){
 
-    return [
+    return getSheetData(
 
-        ...Data.payrollDailyRules
+        "payroll_daily_rules"
 
-    ];
+    );
 
 }
+
 
 export function getPayrollMonthlyRules(){
 
-    return [
+    return getSheetData(
 
-        ...Data.payrollMonthlyRules
+        "payroll_monthly_rules"
 
-    ];
+    );
 
 }
+
+
+/* =====================================================
+   CLEAR
+===================================================== */
+
+export function clearInputData(){
+
+    Data.workspace =
+
+        null;
+
+
+    Data.sheets =
+
+        {};
+
+
+    Data.loaded =
+
+        false;
+
+
+}
+
+
+/* =====================================================
+   DEFAULT EXPORT
+===================================================== */
+
+export default Data;
