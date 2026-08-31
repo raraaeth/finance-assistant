@@ -14,8 +14,10 @@
    - Date Lock
 
    Principle :
-   Workspace information is taken from
-   Global workspace.js.
+   - Workspace berasal dari Global Workspace Resolver.
+   - Prefix berasal dari konfigurasi Input workspace.
+   - Session tidak mengetahui daftar prefix workspace.
+   - Session tidak melakukan hardcode workspace.
 ===================================================== */
 
 
@@ -32,7 +34,7 @@ import {
 
 import {
 
-    getWorkspaceConfig
+    resolveWorkspace
 
 } from "./workspace.js";
 
@@ -47,10 +49,18 @@ export function initSession(
 
 ){
 
+    /* =============================================
+       WORKSPACE
+    ============================================= */
+
     State.workspace =
 
         workspace;
 
+
+    /* =============================================
+       DATE
+    ============================================= */
 
     State.date =
 
@@ -62,10 +72,18 @@ export function initSession(
         false;
 
 
+    /* =============================================
+       EDITING
+    ============================================= */
+
     State.editingIndex =
 
         null;
 
+
+    /* =============================================
+       RENDER
+    ============================================= */
 
     renderWorkspace();
 
@@ -102,6 +120,10 @@ export function resetSession(){
         null;
 
 
+    /* =============================================
+       RESET DATE INPUT
+    ============================================= */
+
     const dateInput =
 
         document.getElementById(
@@ -124,6 +146,10 @@ export function resetSession(){
     }
 
 
+    /* =============================================
+       RESET LOCKED DATE
+    ============================================= */
+
     const lockedDate =
 
         document.getElementById(
@@ -144,6 +170,32 @@ export function resetSession(){
             "hidden"
 
         );
+
+    }
+
+
+    /* =============================================
+       RESET LOCKED DATE VALUE
+    ============================================= */
+
+    const lockedValue =
+
+        document.getElementById(
+
+            "global-input-locked-date"
+
+        );
+
+
+    if(
+
+        lockedValue
+
+    ){
+
+        lockedValue.textContent =
+
+            "";
 
     }
 
@@ -304,6 +356,10 @@ export function lockDate(){
         );
 
 
+    /* =============================================
+       DISABLE INPUT
+    ============================================= */
+
     if(
 
         input
@@ -316,6 +372,10 @@ export function lockDate(){
 
     }
 
+
+    /* =============================================
+       LOCKED VALUE
+    ============================================= */
 
     if(
 
@@ -333,6 +393,10 @@ export function lockDate(){
 
     }
 
+
+    /* =============================================
+       SHOW LOCKED DATE
+    ============================================= */
 
     if(
 
@@ -530,8 +594,29 @@ function generateId(
 
 
 /* =====================================================
-   PREFIX
+   GET PREFIX
 ===================================================== */
+
+/*
+   Prefix TIDAK lagi hardcode di session.js.
+
+   Sumber :
+
+       Input workspace.js
+              ↓
+       INPUT_CONFIG
+              ↓
+       prefix
+
+   Contoh konfigurasi :
+
+       airdrop : {
+
+           prefix : "AIR"
+
+       }
+
+*/
 
 function getPrefix(
 
@@ -539,110 +624,65 @@ function getPrefix(
 
 ){
 
+    if(
+
+        !workspace
+
+    ){
+
+        return "FA";
+
+    }
+
+
+    const result =
+
+        resolveWorkspace(
+
+            workspace
+
+        );
+
+
     const config =
 
-        getWorkspaceConfig(
-
-            workspace
-
-        );
+        result?.config;
 
 
     /* =============================================
-       PRIORITY 1
-       Prefix dari global workspace config
+       PREFIX
     ============================================= */
+
+    const prefix =
+
+        config?.prefix;
+
 
     if(
 
-        config?.prefix
+        prefix
 
     ){
 
         return String(
 
-            config.prefix
+            prefix
 
-        ).toUpperCase();
+        )
+
+        .trim()
+
+        .toUpperCase();
 
     }
 
 
     /* =============================================
-       PRIORITY 2
-       Module key dari global workspace config
+       FALLBACK
+       
+       Hanya digunakan apabila workspace
+       belum mempunyai prefix.
     ============================================= */
-
-    if(
-
-        config?.module?.key
-
-    ){
-
-        return String(
-
-            config.module.key
-
-        )
-
-        .toUpperCase()
-
-        .replace(
-
-            /[^A-Z0-9]/g,
-
-            ""
-
-        )
-
-        .substring(
-
-            0,
-
-            3
-
-        );
-
-    }
-
-
-    /* =============================================
-       PRIORITY 3
-       Workspace ID
-    ============================================= */
-
-    if(
-
-        workspace
-
-    ){
-
-        return String(
-
-            workspace
-
-        )
-
-        .toUpperCase()
-
-        .replace(
-
-            /[^A-Z0-9]/g,
-
-            ""
-
-        )
-
-        .substring(
-
-            0,
-
-            3
-
-        );
-
-    }
-
 
     return "FA";
 
@@ -691,6 +731,20 @@ function renderDate(){
    FORMAT WORKSPACE
 ===================================================== */
 
+/*
+   Nama workspace tidak lagi dibuat
+   menggunakan switch hardcode.
+
+   Resolver global menjadi sumber
+   konfigurasi workspace.
+
+   Prioritas :
+
+       workspaceConfig.name
+       workspaceConfig.label
+       workspace
+*/
+
 function formatWorkspace(
 
     workspace
@@ -708,48 +762,41 @@ function formatWorkspace(
     }
 
 
-    const config =
+    const result =
 
-        getWorkspaceConfig(
+        resolveWorkspace(
 
             workspace
 
         );
 
 
-    /* =============================================
-       GLOBAL WORKSPACE TITLE
-    ============================================= */
+    const workspaceConfig =
+
+        result?.workspaceConfig;
+
 
     if(
 
-        config?.title
+        workspaceConfig?.name
 
     ){
 
-        return config.title;
+        return workspaceConfig.name;
 
     }
 
 
-    /* =============================================
-       GLOBAL WORKSPACE NAME
-    ============================================= */
-
     if(
 
-        config?.name
+        workspaceConfig?.label
 
     ){
 
-        return config.name;
+        return workspaceConfig.label;
 
     }
 
-
-    /* =============================================
-       FALLBACK
-    ============================================= */
 
     return workspace;
 
