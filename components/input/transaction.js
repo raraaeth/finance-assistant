@@ -2,19 +2,35 @@
    Finance Assistant
    Component    : Global Input
    File         : transaction.js
-   Version      : 2.0.0
+   Version      : 3.0.0
 
    Description :
    Transaction Controller
 
    Handles :
-   - Complete transaction
-   - Add transaction
-   - Delete transaction
+   - Complete input
+   - Add input
+   - Update input
+   - Delete input
    - Transaction list
    - Summary
    - Date lock
    - Confirm
+
+   PRINCIPLE :
+
+   Input baru :
+       editingId = null
+       ↓
+       create record baru
+
+   Input edit :
+       editingId tersedia
+       ↓
+       update record berdasarkan ID
+
+   Transaction controller tetap generic.
+   Tidak mengetahui workspace tertentu.
 ===================================================== */
 
 
@@ -65,17 +81,25 @@ export function initTransaction(){
 
         "global-input-flow-complete",
 
-        () => {
+        event => {
 
             /*
                Semua field sudah selesai.
 
-               BELUM memasukkan transaksi
-               ke dalam list.
+               Belum menambahkan / meng-update
+               transaksi.
 
-               Sekarang hanya tampilkan
-               tombol + Tambah.
+               Hanya tampilkan tombol action.
             */
+
+            console.log(
+
+                "TRANSACTION FLOW COMPLETE:",
+
+                event.detail
+
+            );
+
 
             showAddButton();
 
@@ -85,7 +109,7 @@ export function initTransaction(){
 
 
     /* =============================================
-       ADD
+       ADD / UPDATE
     ============================================= */
 
     bindAddButton();
@@ -120,7 +144,9 @@ function completeTransaction(
 
         ||
 
-        typeof values !== "object"
+        typeof values !==
+
+            "object"
 
     ){
 
@@ -130,7 +156,58 @@ function completeTransaction(
 
 
     /* =============================================
+       EDIT / UPDATE
+       
+       Jika editingId tersedia,
+       berarti record lama sedang
+       diubah.
+    ============================================= */
+
+    if(
+
+        State.editingId
+
+    ){
+
+        updateTransaction(
+
+            values
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CREATE NEW
+    ============================================= */
+
+    addTransaction(
+
+        values
+
+    );
+
+}
+
+
+/* =====================================================
+   ADD TRANSACTION
+===================================================== */
+
+function addTransaction(
+
+    values
+
+){
+
+    /* =============================================
        LOCK DATE
+       
+       Hanya transaction pertama
+       yang mengunci tanggal.
     ============================================= */
 
     if(
@@ -174,8 +251,205 @@ function completeTransaction(
     );
 
 
+    console.log(
+
+        "Transaction ditambahkan:",
+
+        transaction
+
+    );
+
+
+    finishCurrentInput();
+
+}
+
+
+/* =====================================================
+   UPDATE TRANSACTION
+===================================================== */
+
+function updateTransaction(
+
+    values
+
+){
+
+    const editingId =
+
+        State.editingId;
+
+
+    if(
+
+        !editingId
+
+    ){
+
+        console.warn(
+
+            "Update transaction gagal: editingId kosong."
+
+        );
+
+        return;
+
+    }
+
+
     /* =============================================
-       RESET CURRENT TRANSACTION
+       CARI RECORD BERDASARKAN ID
+    ============================================= */
+
+    const index =
+
+        State.transactions.findIndex(
+
+            transaction =>
+
+                String(
+
+                    transaction?.id
+
+                ) ===
+
+                String(
+
+                    editingId
+
+                )
+
+        );
+
+
+    /* =============================================
+       RECORD TIDAK DITEMUKAN
+    ============================================= */
+
+    if(
+
+        index === -1
+
+    ){
+
+        /*
+           Jika record belum berada di
+           State.transactions, gunakan
+           selectedRecord sebagai sumber
+           record lama.
+        */
+
+        const baseRecord =
+
+            State.selectedRecord;
+
+
+        if(
+
+            !baseRecord
+
+        ){
+
+            console.warn(
+
+                "Update transaction gagal: record tidak ditemukan:",
+
+                editingId
+
+            );
+
+            return;
+
+        }
+
+
+        const updatedTransaction = {
+
+            ...baseRecord,
+
+            ...values,
+
+            id :
+
+                baseRecord.id
+
+        };
+
+
+        State.transactions.push(
+
+            updatedTransaction
+
+        );
+
+
+        console.log(
+
+            "Transaction update disiapkan:",
+
+            updatedTransaction
+
+        );
+
+    }
+
+    else{
+
+        /* =========================================
+           MERGE RECORD LAMA + NILAI BARU
+        ========================================= */
+
+        const oldTransaction =
+
+            State.transactions[index];
+
+
+        const updatedTransaction = {
+
+            ...oldTransaction,
+
+            ...values,
+
+            id :
+
+                oldTransaction.id
+
+        };
+
+
+        State.transactions[
+
+            index
+
+        ] =
+
+            updatedTransaction;
+
+
+        console.log(
+
+            "Transaction diubah:",
+
+            updatedTransaction
+
+        );
+
+    }
+
+
+    finishCurrentInput();
+
+}
+
+
+/* =====================================================
+   FINISH CURRENT INPUT
+===================================================== */
+
+function finishCurrentInput(){
+
+    /* =============================================
+       RESET CURRENT STATE
     ============================================= */
 
     State.resetCurrent();
@@ -189,17 +463,11 @@ function completeTransaction(
 
 
     /* =============================================
-       HIDE ADD BUTTON
+       HIDE ACTION BUTTON
     ============================================= */
 
     hideAddButton();
 
-   /* =============================================
-       START NEW TRANSACTION
-    ============================================= */
-
-    startFlow();
-   
 
     /* =============================================
        RENDER LIST
@@ -211,13 +479,13 @@ function completeTransaction(
     updateSummary();
 
 
-    console.log(
+    /* =============================================
+       START NEW FLOW
+       
+       Untuk mode input berikutnya.
+    ============================================= */
 
-        "Transaction ditambahkan:",
-
-        transaction
-
-    );
+    startFlow();
 
 }
 
@@ -254,7 +522,7 @@ function resetTransactionForm(){
 
 
 /* =====================================================
-   ADD BUTTON
+   ADD / UPDATE BUTTON
 ===================================================== */
 
 function bindAddButton(){
@@ -303,7 +571,7 @@ function bindAddButton(){
 
 
             /* =====================================
-               SELESAIKAN TRANSAKSI
+               COMPLETE
             ===================================== */
 
             completeTransaction(
@@ -545,6 +813,9 @@ export function renderTransactionList(){
 
     );
 
+
+    bindListActions();
+
 }
 
 
@@ -575,7 +846,7 @@ function bindListActions(){
 
 
     /* =============================================
-       DELETE ONLY
+       DELETE
     ============================================= */
 
     list.querySelectorAll(
@@ -698,13 +969,21 @@ function updateSummary(){
         );
 
 
-    let totalIncome = 0;
+    let totalIncome =
 
-    let totalExpense = 0;
+        0;
+
+
+    let totalExpense =
+
+        0;
 
 
     /* =============================================
        CALCULATE
+       
+       Tetap kompatibel dengan
+       Kas / Financial.
     ============================================= */
 
     State.transactions.forEach(
@@ -942,6 +1221,10 @@ function confirmTransactions(){
 
             State.date,
 
+        mode :
+
+            State.mode,
+
         transactions :
 
             [
@@ -963,10 +1246,14 @@ function confirmTransactions(){
 
 
     /*
-       Apps Script belum disambungkan.
+       WRITE ENGINE / API akan menangani
+       pengiriman data.
 
-       Nanti payload ini yang dikirim
-       ke API / Apps Script.
+       transaction.js hanya menyiapkan
+       payload.
+
+       Tidak ada Apps Script langsung
+       di sini.
     */
 
 }
@@ -1029,7 +1316,9 @@ function getTypeLabel(
 
     if(
 
-        type === "masuk"
+        type ===
+
+            "masuk"
 
     ){
 
@@ -1040,7 +1329,9 @@ function getTypeLabel(
 
     if(
 
-        type === "keluar"
+        type ===
+
+            "keluar"
 
     ){
 
@@ -1068,7 +1359,7 @@ function getCategoryLabel(
 
         transaction.category ===
 
-        "custom"
+            "custom"
 
     ){
 
@@ -1102,7 +1393,7 @@ function getCategoryLabel(
 
                 field.id ===
 
-                "category"
+                    "category"
 
         );
 
@@ -1130,7 +1421,7 @@ function getCategoryLabel(
 
         typeof categoryField.options ===
 
-        "function"
+            "function"
 
             ?
 
@@ -1161,7 +1452,7 @@ function getCategoryLabel(
 
                 item.value ===
 
-                transaction.category
+                    transaction.category
 
         );
 
@@ -1204,7 +1495,6 @@ function getTransactionType(
 
     /* =============================================
        AMBIL SELECT PERTAMA
-       → JENIS UTAMA TRANSAKSI
     ============================================= */
 
     const typeField =
@@ -1215,22 +1505,32 @@ function getTransactionType(
 
                 field.type ===
 
-                "select"
+                    "select"
 
         );
 
 
     if(
 
-        typeField &&
+        typeField
 
-        transaction[typeField.id] !==
+        &&
 
-        undefined
+        transaction[
+
+            typeField.id
+
+        ] !==
+
+            undefined
 
     ){
 
-        return transaction[typeField.id];
+        return transaction[
+
+            typeField.id
+
+        ];
 
     }
 
@@ -1277,7 +1577,6 @@ function getTransactionAmount(
 
     /* =============================================
        AMBIL NUMBER FIELD PERTAMA
-       → NOMINAL UTAMA TRANSAKSI
     ============================================= */
 
     const amountField =
@@ -1288,24 +1587,34 @@ function getTransactionAmount(
 
                 field.type ===
 
-                "number"
+                    "number"
 
         );
 
 
     if(
 
-        amountField &&
+        amountField
 
-        transaction[amountField.id] !==
+        &&
 
-        undefined
+        transaction[
+
+            amountField.id
+
+        ] !==
+
+            undefined
 
     ){
 
         return Number(
 
-            transaction[amountField.id]
+            transaction[
+
+                amountField.id
+
+            ]
 
         ) || 0;
 
