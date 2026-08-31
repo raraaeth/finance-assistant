@@ -2,69 +2,40 @@
    Finance Assistant
    Component    : Global Input
    File         : workspace.js
-   Version      : 1.1.0
+   Version      : 2.0.0
 
    Description :
-   Menentukan workspace aktif dan konfigurasi Input
+   Global Input Workspace Resolver
+
+   PRINCIPLE :
+
+   Global js/workspace.js
+        ↓
+   sumber workspace utama
+        ↓
+   Global Input
+        ↓
+   resolve workspace
+        ↓
+   config Input module
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT CONFIG
+   IMPORT GLOBAL WORKSPACE
 ===================================================== */
 
 import {
-
-    Kas
-
-} from "./kas.js";
-
-
-import {
-
-    Saving
-
-} from "./saving.js";
-
-
-import {
-
-    Daily
-
-} from "./daily.js";
-
-
-import {
-
-    Monthly
-
-} from "./monthly.js";
-
-
-import {
-
-    Financial
-
-} from "./financial.js";
+    getActiveWorkspace as getGlobalActiveWorkspace,
+    getWorkspaceConfig as getGlobalWorkspaceConfig
+} from "../js/workspace.js";
 
 
 /* =====================================================
-   WORKSPACE CONFIG
+   INPUT CONFIG
 ===================================================== */
 
-const WORKSPACES = {
-
-    kas : Kas,
-
-    saving : Saving,
-
-    "payroll-daily" : Daily,
-
-    "financial": Financial,
-
-    "payroll-monthly" : Monthly
-
-};
+const INPUT_CONFIG = {};
 
 
 /* =====================================================
@@ -73,55 +44,49 @@ const WORKSPACES = {
 
 export function getActiveWorkspace(){
 
-    const workspace =
-
-        window.activeWorkspace
-
-        ||
-
-        window.currentWorkspace
-
-        ||
-
-        "kas";
-
-
-    return workspace;
-
-}
-
-
-/* =====================================================
-   GET CONFIG
-===================================================== */
-
-export function getWorkspaceConfig(
-
-    workspace
-
-){
-
     return (
-
-        WORKSPACES[workspace]
-
+        getGlobalActiveWorkspace()
         ||
-
+        window.activeWorkspace
+        ||
+        window.currentWorkspace
+        ||
         null
-
     );
 
 }
 
 
 /* =====================================================
-   RESOLVE WORKSPACE
+   GET INPUT CONFIG
+===================================================== */
+
+export function getWorkspaceConfig(
+    workspace
+){
+
+    if(
+        !workspace
+    ){
+        return null;
+    }
+
+
+    return (
+        INPUT_CONFIG[workspace]
+        ||
+        null
+    );
+
+}
+
+
+/* =====================================================
+   RESOLVE GLOBAL WORKSPACE
 ===================================================== */
 
 export function resolveWorkspace(
-
     workspace = null
-
 ){
 
     /* =============================================
@@ -132,60 +97,108 @@ export function resolveWorkspace(
     ============================================= */
 
     const activeWorkspace =
-
         workspace
-
         ||
-
         getActiveWorkspace();
 
 
-    const config =
-
-        getWorkspaceConfig(
-
-            activeWorkspace
-
-        );
-
+    /* =============================================
+       VALIDATE WORKSPACE
+    ============================================= */
 
     if(
-
-        !config
-
+        !activeWorkspace
     ){
 
         console.warn(
-
-            "Input configuration tidak ditemukan:",
-
-            activeWorkspace
-
+            "Global Input: workspace tidak ditemukan."
         );
 
-
         return {
-
             workspace :
-
-                activeWorkspace,
+                null,
 
             config :
-
                 null
-
         };
 
     }
 
 
+    /* =============================================
+       GET GLOBAL WORKSPACE
+       
+       Global workspace adalah
+       sumber kebenaran workspace.
+    ============================================= */
+
+    const globalConfig =
+        getGlobalWorkspaceConfig();
+
+
+    const workspaceConfig =
+        globalConfig?.[
+            activeWorkspace
+        ];
+
+
+    /* =============================================
+       WORKSPACE TIDAK TERDAFTAR
+    ============================================= */
+
+    if(
+        !workspaceConfig
+    ){
+
+        console.warn(
+            "Global Input: workspace tidak terdaftar:",
+            activeWorkspace
+        );
+
+        return {
+            workspace :
+                activeWorkspace,
+
+            config :
+                null
+        };
+
+    }
+
+
+    /* =============================================
+       INPUT CONFIG
+       
+       Untuk sementara Input config
+       masih kosong.
+
+       Config field akan kita bereskan
+       pada tahap berikutnya.
+    ============================================= */
+
+    const inputConfig =
+        getWorkspaceConfig(
+            activeWorkspace
+        );
+
+
+    /* =============================================
+       RETURN
+       
+       Workspace sudah valid walaupun
+       Input config belum tersedia.
+    ============================================= */
+
     return {
 
         workspace :
-
             activeWorkspace,
 
-        config
+        workspaceConfig :
+            workspaceConfig,
+
+        config :
+            inputConfig
 
     };
 
