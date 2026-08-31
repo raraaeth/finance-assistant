@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : session.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Global Input Session Controller
@@ -12,6 +12,10 @@
    - Input ID
    - Date
    - Date Lock
+
+   Principle :
+   Workspace information is taken from
+   Global workspace.js.
 ===================================================== */
 
 
@@ -24,6 +28,13 @@ import {
     State
 
 } from "./state.js";
+
+
+import {
+
+    getWorkspaceConfig
+
+} from "./workspace.js";
 
 
 /* =====================================================
@@ -71,13 +82,24 @@ export function initSession(
 
 export function resetSession(){
 
-    State.workspace = null;
+    State.workspace =
 
-    State.date = null;
+        null;
 
-    State.dateLocked = false;
 
-    State.editingIndex = null;
+    State.date =
+
+        null;
+
+
+    State.dateLocked =
+
+        false;
+
+
+    State.editingIndex =
+
+        null;
 
 
     const dateInput =
@@ -517,42 +539,112 @@ function getPrefix(
 
 ){
 
-    switch(
+    const config =
+
+        getWorkspaceConfig(
+
+            workspace
+
+        );
+
+
+    /* =============================================
+       PRIORITY 1
+       Prefix dari global workspace config
+    ============================================= */
+
+    if(
+
+        config?.prefix
+
+    ){
+
+        return String(
+
+            config.prefix
+
+        ).toUpperCase();
+
+    }
+
+
+    /* =============================================
+       PRIORITY 2
+       Module key dari global workspace config
+    ============================================= */
+
+    if(
+
+        config?.module?.key
+
+    ){
+
+        return String(
+
+            config.module.key
+
+        )
+
+        .toUpperCase()
+
+        .replace(
+
+            /[^A-Z0-9]/g,
+
+            ""
+
+        )
+
+        .substring(
+
+            0,
+
+            3
+
+        );
+
+    }
+
+
+    /* =============================================
+       PRIORITY 3
+       Workspace ID
+    ============================================= */
+
+    if(
 
         workspace
 
     ){
 
-        case "saving":
+        return String(
 
-            return "SAV";
+            workspace
 
+        )
 
-        case "kas":
+        .toUpperCase()
 
-            return "KAS";
+        .replace(
 
+            /[^A-Z0-9]/g,
 
-        case "payroll-daily":
+            ""
 
-            return "PD";
+        )
 
+        .substring(
 
-        case "payroll-monthly":
+            0,
 
-            return "PM";
+            3
 
-
-        case "financial":
-
-            return "FIN";
-
-
-        default:
-
-            return "FA";
+        );
 
     }
+
+
+    return "FA";
 
 }
 
@@ -605,44 +697,61 @@ function formatWorkspace(
 
 ){
 
-    switch(
+    if(
 
-        workspace
+        !workspace
 
     ){
 
-        case "saving":
-
-            return "Saving";
-
-
-        case "kas":
-
-            return "Kas";
-
-
-        case "payroll-daily":
-
-            return "Payroll Daily";
-
-
-        case "payroll-monthly":
-
-            return "Payroll Monthly";
-
-
-        case "financial":
-
-            return "Financial";
-
-
-        default:
-
-            return workspace ??
-
-                "-";
+        return "-";
 
     }
+
+
+    const config =
+
+        getWorkspaceConfig(
+
+            workspace
+
+        );
+
+
+    /* =============================================
+       GLOBAL WORKSPACE TITLE
+    ============================================= */
+
+    if(
+
+        config?.title
+
+    ){
+
+        return config.title;
+
+    }
+
+
+    /* =============================================
+       GLOBAL WORKSPACE NAME
+    ============================================= */
+
+    if(
+
+        config?.name
+
+    ){
+
+        return config.name;
+
+    }
+
+
+    /* =============================================
+       FALLBACK
+    ============================================= */
+
+    return workspace;
 
 }
 
