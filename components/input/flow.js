@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : flow.js
-   Version      : 2.0.0
+   Version      : 3.0.0
 
    Description :
    Global Input Flow Controller
@@ -28,14 +28,12 @@
    Klik "Konfirmasi"
        ↓
    ditangani transaction.js
-   ↓
-   Apps Script
 
    IMPORTANT :
 
    Enter TIDAK:
    - menambahkan transaction
-   - mengirim Apps Script
+   - mengirim data
    - menjalankan confirm
    - menjalankan completeTransaction()
 
@@ -43,7 +41,17 @@
    memasukkan data ke State.transactions.
 
    Hanya tombol Konfirmasi yang boleh
-   mengirim data ke Apps Script.
+   mengirim data.
+
+   MODE :
+
+   Flow tetap generic.
+
+   Workspace yang mempunyai beberapa mode
+   seperti Airdrop dapat menentukan mode
+   melalui State.mode.
+
+   Flow tidak mengetahui detail mode.
 ===================================================== */
 
 
@@ -82,9 +90,24 @@ import {
 
 export function startFlow(){
 
+    /* =============================================
+       RESET CURRENT INPUT
+    ============================================= */
+
     State.values = {};
 
     State.step = 0;
+
+    State.editingIndex = null;
+
+    State.editingId = null;
+
+    State.selectedRecord = null;
+
+
+    /* =============================================
+       RENDER
+    ============================================= */
 
     renderFlow();
 
@@ -186,16 +209,14 @@ export function renderFlow(){
 
     /* =================================================
        SEMUA FIELD SUDAH SELESAI
-       
-       STOP DI SINI.
 
-       Jangan memasukkan transaksi.
-       Jangan konfirmasi.
-       Jangan kirim Apps Script.
+       Stop di sini.
 
-       Hanya dispatch event agar
-       transaction.js menampilkan
-       tombol Tambahkan.
+       Tidak memasukkan transaksi.
+       Tidak melakukan write.
+       Tidak melakukan confirm.
+
+       Hanya dispatch event.
     ================================================= */
 
     if(
@@ -303,7 +324,11 @@ function handleFieldComplete(
 
         field.id,
 
-        value
+        value,
+
+        "MODE:",
+
+        State.mode
 
     );
 
@@ -397,17 +422,6 @@ function handleFieldComplete(
 
     /* =================================================
        NORMAL FIELD
-       
-       Field condition input juga diperlakukan
-       sebagai field biasa setelah nilainya
-       berhasil disimpan.
-
-       TAPI :
-
-       Jangan pernah flowComplete()
-       hanya karena field condition selesai.
-
-       Flow harus bergerak ke field berikutnya.
     ================================================= */
 
     State.step =
@@ -593,16 +607,13 @@ function handleStatusChange(
     /* =================================================
        TERMINAL STATUS
        
+       Attendance lama :
        Cuti
        Sakit
        Absen
 
        Status terminal tidak memiliki
        field tambahan.
-
-       Flow selesai → tombol Tambahkan.
-
-       Tetap TIDAK menambahkan transaksi.
     ================================================= */
 
     if(
@@ -685,7 +696,7 @@ function handleConditionChange(
 
     /* =================================================
        CONDITION KOSONG
-       
+
        Jangan flowComplete.
 
        Tetap berada di condition.
@@ -715,17 +726,7 @@ function handleConditionChange(
 
 
     /* =================================================
-       SIMPAN CONDITION
-       
-       Biasanya renderField sudah menyimpan
-       State.values.
-
-       Tidak perlu menulis ulang di sini.
-    ================================================= */
-
-
-    /* =================================================
-       RENDER SEMUA CONDITION INPUT
+       RENDER CONDITION FIELDS
     ================================================= */
 
     renderConditionFields(
@@ -774,16 +775,6 @@ function renderConditionFields(
     /* =================================================
        CARI FIELD SETELAH CONDITION
        YANG VISIBLE
-
-       IMPORTANT :
-
-       "keterangan" dan field normal setelah
-       condition juga bisa berada di sini.
-
-       Karena itu kita hanya menentukan
-       field condition berdasarkan struktur
-       config, bukan menganggap seluruh field
-       setelah condition sebagai condition input.
     ================================================= */
 
     for(
@@ -834,11 +825,8 @@ function renderConditionFields(
         /* =================================================
            STOP PENCARIAN CONDITION INPUT
            
-           Field dengan ID keterangan dianggap
-           sebagai field normal terakhir.
-
-           Jangan masukkan ke kelompok
-           condition input.
+           Field final seperti keterangan
+           dianggap field normal.
         ================================================= */
 
         if(
@@ -869,8 +857,6 @@ function renderConditionFields(
 
     /* =================================================
        TIDAK ADA CONDITION INPUT
-       
-       Tetap lanjutkan flow secara normal.
     ================================================= */
 
     if(
@@ -935,10 +921,6 @@ function renderConditionFields(
        CURSOR
 
        Cursor berada di condition input terakhir.
-
-       Setelah field terakhir condition selesai,
-       renderFlow() akan mencari field berikutnya,
-       misalnya "keterangan".
     ================================================= */
 
     State.step =
@@ -973,15 +955,6 @@ function isFinalInputField(
     }
 
 
-    /* =================================================
-       KETERANGAN ADALAH FIELD TERAKHIR.
-
-       Enter pada field ini hanya menyebabkan
-       flowComplete() melalui renderFlow().
-
-       TIDAK MENAMBAHKAN TRANSAKSI.
-    ================================================= */
-
     return (
 
         field.id ===
@@ -995,11 +968,6 @@ function isFinalInputField(
 
 /* =====================================================
    FIELD CONDITION INPUT
-       
-   Digunakan hanya untuk kebutuhan
-   pengecekan internal.
-
-   Tidak pernah melakukan complete transaction.
 ===================================================== */
 
 function isConditionInput(
@@ -1064,12 +1032,6 @@ function isConditionInput(
     }
 
 
-    /* =================================================
-       Field setelah condition dianggap condition
-       input hanya jika field tersebut BUKAN field
-       final seperti keterangan.
-    ================================================= */
-
     return !
 
         isFinalInputField(
@@ -1128,9 +1090,6 @@ function findConditionIndexBefore(
 
         /* =================================================
            Jangan mencari melewati field normal.
-
-           Ini mencegah field seperti keterangan
-           dianggap sebagai condition input.
         ================================================= */
 
         if(
@@ -1483,18 +1442,18 @@ function isVisible(
 
 /* =====================================================
    FLOW COMPLETE
-       
+===================================================== */
+
+/*
    INI ADALAH BATAS FLOW.
 
-   Tidak ada transaksi yang dibuat di sini.
-
-   Tidak ada Apps Script.
-
+   Tidak ada transaksi dibuat di sini.
+   Tidak ada write.
    Tidak ada confirm.
 
    Hanya memberi tahu transaction.js
    bahwa semua input sudah selesai.
-===================================================== */
+*/
 
 function flowComplete(){
 
@@ -1502,7 +1461,25 @@ function flowComplete(){
 
         "INPUT FLOW COMPLETE:",
 
-        State.values
+        {
+
+            workspace :
+
+                State.workspace,
+
+            mode :
+
+                State.mode,
+
+            values :
+
+                State.values,
+
+            editingId :
+
+                State.editingId
+
+        }
 
     );
 
@@ -1517,13 +1494,25 @@ function flowComplete(){
 
                 detail : {
 
+                    workspace :
+
+                        State.workspace,
+
+                    mode :
+
+                        State.mode,
+
                     values :
 
                         {
 
                             ...State.values
 
-                        }
+                        },
+
+                    editingId :
+
+                        State.editingId
 
                 }
 
