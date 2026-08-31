@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 3.0.0
+   Version      : 4.0.0
 
    Description :
    Airdrop Input Configuration
@@ -29,16 +29,22 @@
    - Status
    - Reward jika Win
 
-   Source :
-   - API.data
-   - API.raw / airdrop_rules
+   DATA SOURCE :
+
+   API.raw
+       ↓
+   sheet "airdrop"
+       ↓
+   data aktivitas / project
+
+   API.data
+       ↓
+   sheet "airdrop_rules"
+       ↓
+   konfigurasi wallet / type
 
    Principle :
-   Tidak ada daftar wallet / type yang
-   di-hardcode.
-
-   Semua option berasal dari
-   airdrop_rules.
+   Tidak ada daftar wallet / type hardcode.
 ===================================================== */
 
 
@@ -125,6 +131,16 @@ export const Airdrop = {
         "Airdrop",
 
 
+    /* =================================================
+       PREFIX
+       
+       Prefix khusus Input Airdrop.
+
+       Tidak berasal dari global workspace.js.
+       Prefix digunakan hanya untuk membuat
+       ID transaksi Airdrop.
+    ================================================= */
+
     prefix :
 
         "AIR",
@@ -142,9 +158,11 @@ export const Airdrop = {
 
                 "activity",
 
+
             label :
 
                 "Input Activity",
+
 
             description :
 
@@ -159,9 +177,11 @@ export const Airdrop = {
 
                 "reward",
 
+
             label :
 
                 "Input Reward",
+
 
             description :
 
@@ -182,12 +202,13 @@ export const Airdrop = {
 
 
     /* =================================================
-       STEPS
+       ACTIVITY STEPS
        
-       Default Activity flow.
+       Status TIDAK menjadi input.
 
-       Reward mempunyai UI khusus dan
-       tidak menggunakan steps ini.
+       Status otomatis :
+
+           ongoing
     ================================================= */
 
     steps : [
@@ -202,13 +223,16 @@ export const Airdrop = {
 
                 "tanggal",
 
+
             label :
 
                 "Tanggal",
 
+
             type :
 
                 "date",
+
 
             required :
 
@@ -227,21 +251,26 @@ export const Airdrop = {
 
                 "type",
 
+
             label :
 
                 "Type",
+
 
             type :
 
                 "select",
 
+
             placeholder :
 
                 "Pilih type",
 
+
             required :
 
                 true,
+
 
             options :
 
@@ -262,21 +291,26 @@ export const Airdrop = {
 
                 "nama",
 
+
             label :
 
                 "Nama / Wallet",
+
 
             type :
 
                 "select",
 
+
             placeholder :
 
                 "Pilih wallet",
 
+
             required :
 
                 true,
+
 
             options :
 
@@ -297,17 +331,21 @@ export const Airdrop = {
 
                 "project",
 
+
             label :
 
                 "Project",
+
 
             type :
 
                 "text",
 
+
             placeholder :
 
                 "Masukkan nama project",
+
 
             required :
 
@@ -318,6 +356,8 @@ export const Airdrop = {
 
         /* =============================================
            START
+           
+           Hanya campaign.
         ============================================= */
 
         {
@@ -326,31 +366,31 @@ export const Airdrop = {
 
                 "start",
 
+
             label :
 
                 "Start",
+
 
             type :
 
                 "date",
 
+
             required :
 
                 false,
+
 
             showWhen :
 
                 values =>
 
-                    String(
+                    normalizeValue(
 
-                        values?.type ??
-
-                        ""
+                        values?.type
 
                     )
-
-                    .toLowerCase()
 
                     ===
 
@@ -361,6 +401,8 @@ export const Airdrop = {
 
         /* =============================================
            END
+           
+           Hanya campaign.
         ============================================= */
 
         {
@@ -369,31 +411,31 @@ export const Airdrop = {
 
                 "end",
 
+
             label :
 
                 "End",
+
 
             type :
 
                 "date",
 
+
             required :
 
                 false,
+
 
             showWhen :
 
                 values =>
 
-                    String(
+                    normalizeValue(
 
-                        values?.type ??
-
-                        ""
+                        values?.type
 
                     )
-
-                    .toLowerCase()
 
                     ===
 
@@ -421,7 +463,7 @@ export function initAirdrop(){
 
     console.log(
 
-        "Airdrop rules:",
+        "Airdrop Rules:",
 
         getRules()
 
@@ -430,9 +472,27 @@ export function initAirdrop(){
 
     console.log(
 
-        "Airdrop data:",
+        "Airdrop Activity Data:",
 
-        API.data
+        getAirdropData()
+
+    );
+
+
+    console.log(
+
+        "Airdrop Type Options:",
+
+        getTypeOptions()
+
+    );
+
+
+    console.log(
+
+        "Airdrop Wallet Options:",
+
+        getWalletOptions()
 
     );
 
@@ -468,16 +528,43 @@ export function setAirdropMode(
 
     ){
 
+        console.warn(
+
+            "Airdrop mode tidak valid:",
+
+            mode
+
+        );
+
+
         return false;
 
     }
 
 
-    State.setMode(
+    if(
 
-        mode
+        typeof State.setMode ===
 
-    );
+        "function"
+
+    ){
+
+        State.setMode(
+
+            mode
+
+        );
+
+    }
+
+    else{
+
+        State.mode =
+
+            mode;
+
+    }
 
 
     return true;
@@ -490,47 +577,47 @@ export function setAirdropMode(
 ===================================================== */
 
 /*
-   API.raw adalah hasil pembacaan
-   sheet pertama.
+   PENTING :
 
-   API.data adalah hasil pembacaan
-   sheet kedua.
+   API.raw
+       = sheet "airdrop"
 
-   Untuk rules Airdrop, kita cari
-   object yang mempunyai:
+   API.data
+       = sheet "airdrop_rules"
 
-       rules
-       target
-       type
+   Jadi rules HARUS membaca API.data.
 
-   sehingga tidak bergantung pada
-   urutan kolom.
+   Sebelumnya fungsi ini membaca API.raw,
+   sehingga ketika sheet airdrop masih kosong,
+   rules ikut terbaca sebagai Array(0).
 */
 
-function getRules(){
+export function getRules(){
 
-    const raw =
+    const data =
 
         Array.isArray(
 
-            API.raw
+            API.data
 
         )
 
         ?
 
-        API.raw
+        API.data
 
         :
 
         [];
 
 
-    return raw.filter(
+    return data.filter(
 
         item =>
 
-            item &&
+            item
+
+            &&
 
             typeof item ===
 
@@ -557,43 +644,56 @@ function getOptionRules(
 
 ){
 
+    const normalizedTarget =
+
+        normalizeValue(
+
+            target
+
+        );
+
+
     return getRules().filter(
 
-        rule =>
+        rule => {
 
-            String(
+            const rules =
 
-                rule.rules ??
+                normalizeValue(
 
-                ""
+                    rule.rules
+
+                );
+
+
+            const ruleTarget =
+
+                normalizeValue(
+
+                    rule.target
+
+                );
+
+
+            return (
+
+                rules ===
+
+                    RULE_OPTION
 
             )
-
-            .trim()
-
-            .toLowerCase()
-
-            ===
-
-            RULE_OPTION
 
             &&
 
-            String(
+            (
 
-                rule.target ??
+                ruleTarget ===
 
-                ""
+                    normalizedTarget
 
-            )
+            );
 
-            .trim()
-
-            .toLowerCase()
-
-            ===
-
-            target
+        }
 
     );
 
@@ -626,7 +726,7 @@ export function getTypeOptions(){
 
                 String(
 
-                    rule.type ??
+                    rule?.type ??
 
                     ""
 
@@ -692,6 +792,7 @@ export function getTypeOptions(){
 
                     value,
 
+
                 label :
 
                     formatOptionLabel(
@@ -699,6 +800,7 @@ export function getTypeOptions(){
                         value
 
                     ),
+
 
                 note :
 
@@ -746,7 +848,7 @@ export function getWalletOptions(){
 
                 String(
 
-                    rule.type ??
+                    rule?.type ??
 
                     ""
 
@@ -812,6 +914,7 @@ export function getWalletOptions(){
 
                     value,
 
+
                 label :
 
                     formatOptionLabel(
@@ -819,6 +922,7 @@ export function getWalletOptions(){
                         value
 
                     ),
+
 
                 note :
 
@@ -866,10 +970,10 @@ function isRuleActive(
 
 
     /* =============================================
-       Active kosong
-
-       Untuk option lama yang tidak mempunyai
-       kolom active, anggap aktif.
+       ACTIVE KOSONG
+       
+       Untuk compatibility dengan
+       rule lama.
     ============================================= */
 
     if(
@@ -889,25 +993,25 @@ function isRuleActive(
 
         active ===
 
-        "TRUE"
+            "TRUE"
 
         ||
 
         active ===
 
-        "1"
+            "1"
 
         ||
 
         active ===
 
-        "YES"
+            "YES"
 
         ||
 
         active ===
 
-        "ACTIVE"
+            "ACTIVE"
 
     );
 
@@ -982,23 +1086,48 @@ function formatOptionLabel(
 
     )
 
-    .replace(
+        .replace(
 
-        /_/g,
+            /_/g,
 
-        " "
+            " "
+
+        )
+
+        .replace(
+
+            /\b\w/g,
+
+            letter =>
+
+                letter.toUpperCase()
+
+        );
+
+}
+
+
+/* =====================================================
+   NORMALIZE VALUE
+===================================================== */
+
+function normalizeValue(
+
+    value
+
+){
+
+    return String(
+
+        value ??
+
+        ""
 
     )
 
-    .replace(
+        .trim()
 
-        /\b\w/g,
-
-        letter =>
-
-            letter.toUpperCase()
-
-    );
+        .toLowerCase();
 
 }
 
@@ -1026,21 +1155,21 @@ export function getAirdropData(){
 
     return Array.isArray(
 
-        API.data
+        API.raw
 
     )
 
     ?
 
-        [
+    [
 
-            ...API.data
+        ...API.raw
 
-        ]
+    ]
 
     :
 
-        [];
+    [];
 
 }
 
@@ -1050,14 +1179,18 @@ export function getAirdropData(){
 ===================================================== */
 
 /*
-   Reward hanya menampilkan project
-   dengan status:
+   Reward hanya boleh memilih record
+   yang statusnya:
 
        ongoing
        ended
 
-   Record win / not_win tidak ditampilkan
-   karena sudah selesai diproses.
+   Record:
+
+       win
+       not_win
+
+   tidak ditampilkan lagi.
 */
 
 export function getRewardRecords(){
@@ -1116,9 +1249,9 @@ function normalizeStatus(
 
     )
 
-    .trim()
+        .trim()
 
-    .toLowerCase();
+        .toLowerCase();
 
 }
 
@@ -1144,6 +1277,15 @@ export function findRewardRecord(
     }
 
 
+    const normalizedId =
+
+        String(
+
+            id
+
+        ).trim();
+
+
     const records =
 
         getRewardRecords();
@@ -1157,17 +1299,15 @@ export function findRewardRecord(
 
                 String(
 
-                    record?.id
+                    record?.id ??
 
-                )
+                    ""
+
+                ).trim()
 
                 ===
 
-                String(
-
-                    id
-
-                )
+                normalizedId
 
         )
 
@@ -1196,23 +1336,60 @@ export function selectRewardRecord(
 
     ){
 
-        State.clearSelectedRecord();
+        if(
+
+            typeof State.clearSelectedRecord ===
+
+            "function"
+
+        ){
+
+            State.clearSelectedRecord();
+
+        }
+
+        else{
+
+            State.selectedRecord =
+
+                null;
+
+        }
+
 
         return;
 
     }
 
 
-    State.setSelectedRecord(
+    if(
 
-        record
+        typeof State.setSelectedRecord ===
 
-    );
+        "function"
+
+    ){
+
+        State.setSelectedRecord(
+
+            record
+
+        );
+
+    }
+
+    else{
+
+        State.selectedRecord =
+
+            record;
+
+    }
 
 
     console.log(
 
-        "AIRdrop reward record selected:",
+        "AIRDROP REWARD RECORD SELECTED:",
 
         {
 
@@ -1300,7 +1477,14 @@ export function buildRewardValues(
 
         id :
 
-            record.id,
+            String(
+
+                record.id ??
+
+                ""
+
+            ).trim(),
+
 
         status :
 
@@ -1371,14 +1555,12 @@ export function buildRewardValues(
     else{
 
         /*
-           Tidak memberikan reward.
+           Not Win tidak mempunyai nominal.
 
-           Jika write layer melakukan merge,
-           reward lama sebaiknya dihapus.
-
-           Penanda khusus:
-
-               clearReward = true
+           clearReward digunakan oleh
+           transaction/write layer sebagai
+           instruksi bahwa reward lama,
+           jika ada, harus dikosongkan.
         */
 
         values.clearReward =
@@ -1394,15 +1576,23 @@ export function buildRewardValues(
 
 
 /* =====================================================
-   APPLY REWARD TO STATE
+   APPLY REWARD
 ===================================================== */
 
 /*
-   Menyiapkan State untuk transaction
-   controller.
+   PENTING :
 
-   editingId HARUS menggunakan ID
-   record lama.
+   Reward bukan membuat ID baru.
+
+   ID record lama dipertahankan:
+
+       State.editingId
+           ↓
+       record.id
+
+   Dengan demikian write layer nantinya
+   dapat mencari baris berdasarkan ID
+   dan melakukan rewrite pada baris yang sama.
 */
 
 export function applyReward(
@@ -1439,20 +1629,40 @@ export function applyReward(
     }
 
 
-    State.setSelectedRecord(
+    if(
 
-        record
+        typeof State.setSelectedRecord ===
 
-    );
+        "function"
+
+    ){
+
+        State.setSelectedRecord(
+
+            record
+
+        );
+
+    }
+
+    else{
+
+        State.selectedRecord =
+
+            record;
+
+    }
 
 
     State.editingId =
 
         String(
 
-            record.id
+            record.id ??
 
-        );
+            ""
+
+        ).trim();
 
 
     State.values = {
@@ -1462,9 +1672,14 @@ export function applyReward(
     };
 
 
+    State.mode =
+
+        "reward";
+
+
     console.log(
 
-        "AIRdrop reward prepared:",
+        "AIRDROP REWARD PREPARED:",
 
         {
 
@@ -1527,6 +1742,7 @@ export function buildActivityValues(
 
             ).trim(),
 
+
         type :
 
             String(
@@ -1536,6 +1752,7 @@ export function buildActivityValues(
                 ""
 
             ).trim(),
+
 
         nama :
 
@@ -1547,6 +1764,7 @@ export function buildActivityValues(
 
             ).trim(),
 
+
         project :
 
             String(
@@ -1556,6 +1774,7 @@ export function buildActivityValues(
                 ""
 
             ).trim(),
+
 
         start :
 
@@ -1567,6 +1786,7 @@ export function buildActivityValues(
 
             ).trim(),
 
+
         end :
 
             String(
@@ -1576,6 +1796,7 @@ export function buildActivityValues(
                 ""
 
             ).trim(),
+
 
         status :
 
@@ -1613,15 +1834,22 @@ export function buildActivityValues(
 
     /* =============================================
        NON CAMPAIGN
-
-       Start / End dikosongkan.
+       
+       Start / End tidak digunakan
+       untuk type selain campaign.
     ============================================= */
 
     if(
 
-        result.type.toLowerCase() !==
+        normalizeValue(
 
-            "campaign"
+            result.type
+
+        )
+
+        !==
+
+        "campaign"
 
     ){
 
@@ -1667,12 +1895,42 @@ export function applyActivity(
     }
 
 
-    State.resetCurrent();
+    if(
+
+        typeof State.resetCurrent ===
+
+        "function"
+
+    ){
+
+        State.resetCurrent();
+
+    }
 
 
-    State.mode =
+    if(
 
-        "activity";
+        typeof State.setMode ===
+
+        "function"
+
+    ){
+
+        State.setMode(
+
+            "activity"
+
+        );
+
+    }
+
+    else{
+
+        State.mode =
+
+            "activity";
+
+    }
 
 
     State.values =
@@ -1706,6 +1964,10 @@ export function validateReward(
         );
 
 
+    /* =============================================
+       STATUS
+    ============================================= */
+
     if(
 
         normalizedStatus !==
@@ -1725,6 +1987,7 @@ export function validateReward(
             valid :
 
                 false,
+
 
             message :
 
@@ -1773,6 +2036,7 @@ export function validateReward(
 
                     false,
 
+
                 message :
 
                     "Nominal reward wajib diisi jika status Win."
@@ -1811,6 +2075,7 @@ export function validateReward(
 
                     false,
 
+
                 message :
 
                     "Nominal reward harus berupa angka."
@@ -1831,6 +2096,7 @@ export function validateReward(
         valid :
 
             true,
+
 
         message :
 
@@ -1855,17 +2121,20 @@ export function getRewardStatusOptions(){
 
                 STATUS_WIN,
 
+
             label :
 
                 "Win"
 
         },
 
+
         {
 
             value :
 
                 STATUS_NOT_WIN,
+
 
             label :
 
@@ -1952,45 +2221,45 @@ function escapeHTML(
 
     )
 
-    .replace(
+        .replace(
 
-        /&/g,
+            /&/g,
 
-        "&amp;"
+            "&amp;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        /</g,
+            /</g,
 
-        "&lt;"
+            "&lt;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        />/g,
+            />/g,
 
-        "&gt;"
+            "&gt;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        /"/g,
+            /"/g,
 
-        "&quot;"
+            "&quot;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        /'/g,
+            /'/g,
 
-        "&#039;"
+            "&#039;"
 
-    );
+        );
 
 }
 
@@ -2149,7 +2418,7 @@ export function renderModeSelector(
 
                         typeof onChange ===
 
-                            "function"
+                        "function"
 
                     ){
 
@@ -2194,8 +2463,17 @@ export function renderModeSelector(
    UI khusus Reward.
 
    Tidak menggunakan field.js
-   karena kebutuhan Reward bukan
-   field biasa.
+   karena Reward membutuhkan:
+
+       list project
+           ↓
+       pilih record
+           ↓
+       detail record
+           ↓
+       status
+           ↓
+       nominal jika Win
 */
 
 export function renderRewardPicker(
@@ -2279,7 +2557,9 @@ export function renderRewardPicker(
 
     if(
 
-        records.length === 0
+        records.length ===
+
+            0
 
     ){
 
@@ -2300,6 +2580,7 @@ export function renderRewardPicker(
         empty.textContent =
 
             "Tidak ada project dengan status Ongoing atau Ended.";
+
 
         list.appendChild(
 
@@ -2339,7 +2620,13 @@ export function renderRewardPicker(
 
             item.dataset.id =
 
-                record.id;
+                String(
+
+                    record.id ??
+
+                    ""
+
+                );
 
 
             const project =
@@ -2376,9 +2663,11 @@ export function renderRewardPicker(
 
                 `${
 
-                    record.type ??
+                    formatOptionLabel(
 
-                    "-"
+                        record.type
+
+                    )
 
                 } · ${
 
@@ -2452,7 +2741,7 @@ export function renderRewardPicker(
 
                         typeof onSelect ===
 
-                            "function"
+                        "function"
 
                     ){
 
@@ -2579,7 +2868,7 @@ export function renderSelectedReward(
     /* =============================================
        TYPE
        
-       Locked.
+       LOCKED
     ============================================= */
 
     appendInfo(
@@ -2915,6 +3204,7 @@ export function renderSelectedReward(
 
                 );
 
+
                 rewardInput.value = "";
 
             }
@@ -2997,6 +3287,13 @@ export function renderSelectedReward(
 
             ){
 
+                console.warn(
+
+                    validation.message
+
+                );
+
+
                 return;
 
             }
@@ -3030,7 +3327,7 @@ export function renderSelectedReward(
 
                 typeof onSubmit ===
 
-                    "function"
+                "function"
 
             ){
 
@@ -3044,7 +3341,11 @@ export function renderSelectedReward(
 
                     values :
 
-                        State.values,
+                        {
+
+                            ...State.values
+
+                        },
 
                     editingId :
 
@@ -3200,14 +3501,42 @@ function appendInfo(
 
 export function prepareActivity(){
 
-    State.setMode(
+    if(
 
-        "activity"
+        typeof State.setMode ===
 
-    );
+        "function"
+
+    ){
+
+        State.setMode(
+
+            "activity"
+
+        );
+
+    }
+
+    else{
+
+        State.mode =
+
+            "activity";
+
+    }
 
 
-    State.resetCurrent();
+    if(
+
+        typeof State.resetCurrent ===
+
+        "function"
+
+    ){
+
+        State.resetCurrent();
+
+    }
 
 
     State.mode =
@@ -3223,14 +3552,42 @@ export function prepareActivity(){
 
 export function prepareReward(){
 
-    State.setMode(
+    if(
 
-        "reward"
+        typeof State.setMode ===
 
-    );
+        "function"
+
+    ){
+
+        State.setMode(
+
+            "reward"
+
+        );
+
+    }
+
+    else{
+
+        State.mode =
+
+            "reward";
+
+    }
 
 
-    State.resetCurrent();
+    if(
+
+        typeof State.resetCurrent ===
+
+        "function"
+
+    ){
+
+        State.resetCurrent();
+
+    }
 
 
     State.mode =
