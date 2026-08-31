@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Airdrop Setting Definition
@@ -15,196 +15,9 @@
    - Option Type
 
    Principle :
-   User only fills fields that are necessary.
-   Internal engine values are generated automatically.
+   User hanya memilih konfigurasi yang tersedia.
+   Internal rule value ditentukan oleh module.
 ===================================================== */
-
-
-/* =====================================================
-   DEFAULT OPTIONS
-===================================================== */
-
-const DEFAULT_WALLETS = [
-
-    {
-        value : "main_wallet",
-        label : "Main Wallet"
-    },
-
-    {
-        value : "second_wallet",
-        label : "Second Wallet"
-    },
-
-    {
-        value : "gate_wallet",
-        label : "Gate Wallet"
-    },
-
-    {
-        value : "binance_wallet",
-        label : "Binance Wallet"
-    },
-
-    {
-        value : "okx_wallet",
-        label : "OKX Wallet"
-    },
-
-    {
-        value : "phantom_wallet",
-        label : "Phantom Wallet"
-    },
-
-    {
-        value : "kucoin_wallet",
-        label : "KuCoin Wallet"
-    }
-
-];
-
-
-const DEFAULT_TYPES = [
-
-    {
-        value : "testnet",
-        label : "Testnet"
-    },
-
-    {
-        value : "retro",
-        label : "Retro"
-    },
-
-    {
-        value : "daily",
-        label : "Daily"
-    },
-
-    {
-        value : "bansos",
-        label : "Bansos"
-    }
-
-];
-
-
-/* =====================================================
-   HELPER
-===================================================== */
-
-
-/* -----------------------------------------------------
-   NORMALIZE CUSTOM OPTION
------------------------------------------------------ */
-
-function normalizeCustomOptions(
-    value
-){
-
-    if(
-        value === null ||
-        value === undefined
-    ){
-
-        return [];
-
-    }
-
-
-    return String(
-        value
-    )
-    .split(
-        /[\n,]+/
-    )
-    .map(
-        item =>
-            item
-                .trim()
-    )
-    .filter(
-        Boolean
-    );
-
-}
-
-
-/* -----------------------------------------------------
-   NORMALIZE OPTION VALUE
------------------------------------------------------ */
-
-function normalizeOptionValue(
-    value
-){
-
-    return String(
-        value
-    )
-    .trim()
-    .toLowerCase()
-    .replace(
-        /\s+/g,
-        "_"
-    )
-    .replace(
-        /[^a-z0-9_]/g,
-        ""
-    );
-
-}
-
-
-/* -----------------------------------------------------
-   NORMALIZE OPTION LABEL
------------------------------------------------------ */
-
-function normalizeOptionLabel(
-    value
-){
-
-    return String(
-        value
-    )
-    .trim();
-
-}
-
-
-/* -----------------------------------------------------
-   CREATE OPTION ROW
------------------------------------------------------ */
-
-function createOptionRow(
-    target,
-    value
-){
-
-    return {
-
-        rules :
-            "option",
-
-        target :
-            target,
-
-        type :
-            normalizeOptionValue(
-                value
-            ),
-
-        value :
-            "",
-
-        unit :
-            "",
-
-        active :
-            "TRUE"
-
-    };
-
-}
 
 
 /* =====================================================
@@ -253,7 +66,7 @@ export const AirdropSetting = {
 
             description :
 
-                "Tentukan berapa hari sebelum campaign berakhir agar ditampilkan pada Reminder.",
+                "Atur berapa hari sebelum campaign berakhir agar campaign ditampilkan pada Reminder.",
 
 
             addLabel :
@@ -329,7 +142,7 @@ export const AirdropSetting = {
 
                     note :
 
-                        "Campaign akan ditampilkan pada Reminder jika tanggal berakhirnya berada dalam jumlah hari yang kamu tentukan."
+                        "Nilai ini menentukan berapa hari sebelum campaign berakhir campaign tersebut akan ditampilkan pada Reminder."
 
                 }
 
@@ -339,7 +152,9 @@ export const AirdropSetting = {
             normalize :
 
                 function(
+
                     data
+
                 ){
 
                     return {
@@ -359,7 +174,11 @@ export const AirdropSetting = {
                         value :
 
                             String(
-                                data.value ?? ""
+
+                                data.value ??
+
+                                ""
+
                             ),
 
                         unit :
@@ -395,7 +214,7 @@ export const AirdropSetting = {
 
             description :
 
-                "Atur apakah status campaign yang sudah berakhir akan diubah menjadi Ended secara otomatis.",
+                "Atur otomatisasi perubahan status campaign yang sudah melewati tanggal berakhir.",
 
 
             addLabel :
@@ -456,7 +275,7 @@ export const AirdropSetting = {
 
                     note :
 
-                        "Jika dicentang, campaign yang sudah melewati tanggal berakhir akan diubah statusnya menjadi Ended secara otomatis."
+                        "Jika dicentang, status campaign yang sudah melewati tanggal berakhir akan diubah menjadi Ended secara otomatis."
 
                 }
 
@@ -466,7 +285,9 @@ export const AirdropSetting = {
             normalize :
 
                 function(
+
                     data
+
                 ){
 
                     return {
@@ -494,10 +315,18 @@ export const AirdropSetting = {
                         active :
 
                             Boolean(
+
                                 data.active
+
                             )
-                            ? "TRUE"
-                            : "FALSE"
+
+                            ?
+
+                            "TRUE"
+
+                            :
+
+                            "FALSE"
 
                     };
 
@@ -524,7 +353,7 @@ export const AirdropSetting = {
 
             description :
 
-                "Pilih wallet yang tersedia untuk digunakan pada input Airdrop. Kamu juga dapat menambahkan wallet sendiri.",
+                "Pilih wallet yang tersedia untuk digunakan pada input Airdrop.",
 
 
             addLabel :
@@ -544,7 +373,45 @@ export const AirdropSetting = {
 
             uniqueFields : [
 
-                "walletOptions"
+                "main_wallet",
+
+                "second_wallet",
+
+                "testnet_wallet",
+
+                "backup_wallet",
+
+                "bybit_wallet",
+
+                "gate_wallet",
+
+                "binance_wallet",
+
+                "okx_wallet",
+
+                "phantom_wallet",
+
+                "solflare_wallet",
+
+                "kucoin_wallet",
+
+                "metamask_wallet",
+
+                "xrp_wallet",
+
+                "cosmos_wallet",
+
+                "canton_wallet",
+
+                "binance_exchange",
+
+                "okx_exchange",
+
+                "kucoin_exchange",
+
+                "bybit_exchange",
+
+                "gate_exchange"
 
             ],
 
@@ -556,79 +423,502 @@ export const AirdropSetting = {
 
             fields : [
 
+                /* =========================================
+                   MAIN WALLET
+                ========================================= */
+
                 {
 
                     name :
 
-                        "walletOptions",
-
+                        "main_wallet",
 
                     label :
 
-                        "Wallet yang tersedia",
-
+                        "Main Wallet",
 
                     type :
 
-                        "checkboxGroup",
-
-
-                    options :
-
-                        DEFAULT_WALLETS,
-
+                        "checkbox",
 
                     value :
 
-                        DEFAULT_WALLETS
-                            .map(
-                                item =>
-                                    item.value
-                            ),
-
-
-                    required :
-
-                        false,
-
-
-                    note :
-
-                        "Checklist wallet yang ingin tersedia pada input Airdrop."
+                        false
 
                 },
 
 
+                /* =========================================
+                   SECOND WALLET
+                ========================================= */
+
                 {
 
                     name :
 
-                        "customWallet",
-
+                        "second_wallet",
 
                     label :
 
-                        "Tambahkan wallet lain",
-
+                        "Second Wallet",
 
                     type :
 
-                        "text",
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
 
 
-                    placeholder :
+                /* =========================================
+                   TESTNET WALLET
+                ========================================= */
 
-                        "Contoh: metamask_wallet",
+                {
+
+                    name :
+
+                        "testnet_wallet",
+
+                    label :
+
+                        "Testnet Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
 
 
-                    required :
+                /* =========================================
+                   BACKUP WALLET
+                ========================================= */
 
-                        false,
+                {
+
+                    name :
+
+                        "backup_wallet",
+
+                    label :
+
+                        "Backup Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
 
 
-                    note :
+                /* =========================================
+                   BYBIT WALLET
+                ========================================= */
 
-                        "Jika ingin menambahkan lebih dari satu wallet, pisahkan dengan koma atau baris baru."
+                {
+
+                    name :
+
+                        "bybit_wallet",
+
+                    label :
+
+                        "Bybit Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   GATE WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "gate_wallet",
+
+                    label :
+
+                        "Gate Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   BINANCE WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "binance_wallet",
+
+                    label :
+
+                        "Binance Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   OKX WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "okx_wallet",
+
+                    label :
+
+                        "OKX Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   PHANTOM WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "phantom_wallet",
+
+                    label :
+
+                        "Phantom Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   SOLFLARE WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "solflare_wallet",
+
+                    label :
+
+                        "Solflare Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   KUCOIN WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "kucoin_wallet",
+
+                    label :
+
+                        "KuCoin Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   METAMASK WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "metamask_wallet",
+
+                    label :
+
+                        "Metamask Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   XRP WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "xrp_wallet",
+
+                    label :
+
+                        "XRP Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   COSMOS WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "cosmos_wallet",
+
+                    label :
+
+                        "Cosmos Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   CANTON WALLET
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "canton_wallet",
+
+                    label :
+
+                        "Canton Wallet",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   BINANCE EXCHANGE
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "binance_exchange",
+
+                    label :
+
+                        "Binance Exchange",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   OKX EXCHANGE
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "okx_exchange",
+
+                    label :
+
+                        "OKX Exchange",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   KUCOIN EXCHANGE
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "kucoin_exchange",
+
+                    label :
+
+                        "KuCoin Exchange",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   BYBIT EXCHANGE
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "bybit_exchange",
+
+                    label :
+
+                        "Bybit Exchange",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   GATE EXCHANGE
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "gate_exchange",
+
+                    label :
+
+                        "Gate Exchange",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
 
                 }
 
@@ -638,125 +928,104 @@ export const AirdropSetting = {
             normalize :
 
                 function(
+
                     data
+
                 ){
 
                     const result = [];
 
 
-                    /* =====================================
-                       DEFAULT WALLET
-                    ===================================== */
+                    const wallets = [
 
-                    const selectedWallets =
+                        "main_wallet",
 
-                        Array.isArray(
-                            data.walletOptions
-                        )
+                        "second_wallet",
 
-                        ?
+                        "testnet_wallet",
 
-                        data.walletOptions
+                        "backup_wallet",
 
-                        :
+                        "bybit_wallet",
 
-                        [];
+                        "gate_wallet",
+
+                        "binance_wallet",
+
+                        "okx_wallet",
+
+                        "phantom_wallet",
+
+                        "solflare_wallet",
+
+                        "kucoin_wallet",
+
+                        "metamask_wallet",
+
+                        "xrp_wallet",
+
+                        "cosmos_wallet",
+
+                        "canton_wallet",
+
+                        "binance_exchange",
+
+                        "okx_exchange",
+
+                        "kucoin_exchange",
+
+                        "bybit_exchange",
+
+                        "gate_exchange"
+
+                    ];
 
 
-                    selectedWallets.forEach(
+                    wallets.forEach(
 
                         wallet => {
 
-                            const value =
-
-                                normalizeOptionValue(
-                                    wallet
-                                );
-
-
                             if(
-                                !value
-                            ){
 
-                                return;
+                                Boolean(
 
-                            }
+                                    data[
 
+                                        wallet
 
-                            result.push(
+                                    ]
 
-                                createOptionRow(
-                                    "wallet",
-                                    value
                                 )
 
-                            );
-
-                        }
-
-                    );
-
-
-                    /* =====================================
-                       CUSTOM WALLET
-                    ===================================== */
-
-                    const customWallets =
-
-                        normalizeCustomOptions(
-                            data.customWallet
-                        );
-
-
-                    customWallets.forEach(
-
-                        wallet => {
-
-                            const value =
-
-                                normalizeOptionValue(
-                                    wallet
-                                );
-
-
-                            if(
-                                !value
                             ){
 
-                                return;
+                                result.push({
 
-                            }
+                                    rules :
 
+                                        "option",
 
-                            const exists =
+                                    target :
 
-                                result.some(
-
-                                    row =>
-
-                                        row.target ===
-                                            "wallet"
-
-                                        &&
-
-                                        row.type ===
-                                            value
-
-                                );
-
-
-                            if(
-                                !exists
-                            ){
-
-                                result.push(
-
-                                    createOptionRow(
                                         "wallet",
-                                        value
-                                    )
 
-                                );
+                                    type :
+
+                                        wallet,
+
+                                    value :
+
+                                        "",
+
+                                    unit :
+
+                                        "",
+
+                                    active :
+
+                                        "TRUE"
+
+                                });
 
                             }
 
@@ -810,7 +1079,29 @@ export const AirdropSetting = {
 
             uniqueFields : [
 
-                "typeOptions"
+                "campaign",
+
+                "testnet",
+
+                "retro",
+
+                "daily",
+
+                "bansos",
+
+                "zealy",
+
+                "galxe",
+
+                "taskon",
+
+                "layer3",
+
+                "gleam",
+
+                "giveaway",
+
+                "nft"
 
             ],
 
@@ -822,96 +1113,306 @@ export const AirdropSetting = {
 
             fields : [
 
+                /* =========================================
+                   CAMPAIGN
+                ========================================= */
+
                 {
 
                     name :
 
-                        "typeOptions",
-
+                        "campaign",
 
                     label :
 
-                        "Type yang tersedia",
-
+                        "Campaign",
 
                     type :
 
-                        "checkboxGroup",
-
-
-                    options :
-
-                        [
-
-                            {
-
-                                value :
-                                    "campaign",
-
-                                label :
-                                    "Campaign",
-
-                                disabled :
-                                    true
-
-                            },
-
-                            ...DEFAULT_TYPES
-
-                        ],
-
+                        "checkbox",
 
                     value :
 
-                        [
-
-                            "campaign"
-
-                        ],
-
+                        true,
 
                     required :
 
-                        false,
-
-
-                    note :
-
-                        "Campaign selalu aktif karena merupakan type wajib. Type lainnya dapat kamu pilih sesuai kebutuhan."
+                        false
 
                 },
 
 
+                /* =========================================
+                   TESTNET
+                ========================================= */
+
                 {
 
                     name :
 
-                        "customType",
-
+                        "testnet",
 
                     label :
 
-                        "Tambahkan type lain",
-
+                        "Testnet",
 
                     type :
 
-                        "text",
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
 
 
-                    placeholder :
+                /* =========================================
+                   RETRO
+                ========================================= */
 
-                        "Contoh: quest",
+                {
+
+                    name :
+
+                        "retro",
+
+                    label :
+
+                        "Retro",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
 
 
-                    required :
+                /* =========================================
+                   DAILY
+                ========================================= */
 
-                        false,
+                {
+
+                    name :
+
+                        "daily",
+
+                    label :
+
+                        "Daily",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
 
 
-                    note :
+                /* =========================================
+                   BANSOS
+                ========================================= */
 
-                        "Jika ingin menambahkan lebih dari satu type, pisahkan dengan koma atau baris baru."
+                {
+
+                    name :
+
+                        "bansos",
+
+                    label :
+
+                        "Bansos",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   ZEALY
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "zealy",
+
+                    label :
+
+                        "Zealy",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   GALXE
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "galxe",
+
+                    label :
+
+                        "Galxe",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   TASKON
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "taskon",
+
+                    label :
+
+                        "Taskon",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   LAYER3
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "layer3",
+
+                    label :
+
+                        "Layer3",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   GLEAM
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "gleam",
+
+                    label :
+
+                        "Gleam",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   GIVEAWAY
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "giveaway",
+
+                    label :
+
+                        "Giveaway",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
+
+                },
+
+
+                /* =========================================
+                   NFT
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "nft",
+
+                    label :
+
+                        "NFT",
+
+                    type :
+
+                        "checkbox",
+
+                    value :
+
+                        false
 
                 }
 
@@ -921,166 +1422,123 @@ export const AirdropSetting = {
             normalize :
 
                 function(
+
                     data
+
                 ){
 
                     const result = [];
 
 
                     /* =====================================
-                       CAMPAIGN — ALWAYS REQUIRED
+                       CAMPAIGN ALWAYS ACTIVE
                     ===================================== */
 
-                    result.push(
+                    result.push({
 
-                        createOptionRow(
+                        rules :
+
+                            "option",
+
+                        target :
+
                             "type",
-                            "campaign"
-                        )
 
-                    );
+                        type :
 
+                            "campaign",
 
-                    /* =====================================
-                       SELECTED DEFAULT TYPE
-                    ===================================== */
+                        value :
 
-                    const selectedTypes =
+                            "",
 
-                        Array.isArray(
-                            data.typeOptions
-                        )
+                        unit :
 
-                        ?
+                            "",
 
-                        data.typeOptions
+                        active :
 
-                        :
+                            "TRUE"
 
-                        [];
-
-
-                    selectedTypes.forEach(
-
-                        type => {
-
-                            const value =
-
-                                normalizeOptionValue(
-                                    type
-                                );
-
-
-                            if(
-                                !value ||
-                                value ===
-                                    "campaign"
-                            ){
-
-                                return;
-
-                            }
-
-
-                            const exists =
-
-                                result.some(
-
-                                    row =>
-
-                                        row.target ===
-                                            "type"
-
-                                        &&
-
-                                        row.type ===
-                                            value
-
-                                );
-
-
-                            if(
-                                !exists
-                            ){
-
-                                result.push(
-
-                                    createOptionRow(
-                                        "type",
-                                        value
-                                    )
-
-                                );
-
-                            }
-
-                        }
-
-                    );
+                    });
 
 
                     /* =====================================
-                       CUSTOM TYPE
+                       OPTIONAL TYPES
                     ===================================== */
 
-                    const customTypes =
+                    const types = [
 
-                        normalizeCustomOptions(
-                            data.customType
-                        );
+                        "testnet",
+
+                        "retro",
+
+                        "daily",
+
+                        "bansos",
+
+                        "zealy",
+
+                        "galxe",
+
+                        "taskon",
+
+                        "layer3",
+
+                        "gleam",
+
+                        "giveaway",
+
+                        "nft"
+
+                    ];
 
 
-                    customTypes.forEach(
+                    types.forEach(
 
                         type => {
 
-                            const value =
-
-                                normalizeOptionValue(
-                                    type
-                                );
-
-
                             if(
-                                !value ||
-                                value ===
-                                    "campaign"
+
+                                Boolean(
+
+                                    data[
+
+                                        type
+
+                                    ]
+
+                                )
+
                             ){
 
-                                return;
+                                result.push({
 
-                            }
+                                    rules :
 
+                                        "option",
 
-                            const exists =
+                                    target :
 
-                                result.some(
-
-                                    row =>
-
-                                        row.target ===
-                                            "type"
-
-                                        &&
-
-                                        row.type ===
-                                            value
-
-                                );
-
-
-                            if(
-                                !exists
-                            ){
-
-                                result.push(
-
-                                    createOptionRow(
                                         "type",
-                                        value
-                                    )
 
-                                );
+                                    type :
+
+                                        type,
+
+                                    value :
+
+                                        "",
+
+                                    unit :
+
+                                        "",
+
+                                    active :
+
+                                        "TRUE"
+
+                                });
 
                             }
 
