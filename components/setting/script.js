@@ -57,6 +57,12 @@ import {
 
 import {
 
+    AirdropSetting
+
+} from "./airdrop.js";
+
+import {
+
     DailySetting
 
 } from "./daily.js";
@@ -99,6 +105,10 @@ const SETTINGS = {
    "financial":
 
         FinancialSetting,
+
+   "airdrop":
+
+        AirdropSetting,
 
 
     "kas":
