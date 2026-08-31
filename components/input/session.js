@@ -7,17 +7,23 @@
    Description :
    Global Input Session Controller
 
-   Handles :
-   - Workspace
-   - Input ID
-   - Date
-   - Date Lock
+   PRINCIPLE :
 
-   Principle :
-   - Workspace berasal dari Global Workspace Resolver.
-   - Prefix berasal dari konfigurasi Input workspace.
-   - Session tidak mengetahui daftar prefix workspace.
-   - Session tidak melakukan hardcode workspace.
+   Global Workspace
+        ↓
+   Global Input Controller
+        ↓
+   State.workspace
+   State.config
+        ↓
+   Session
+
+   IMPORTANT :
+
+   - Tidak ada daftar workspace hardcode
+   - Tidak ada prefix workspace hardcode
+   - Tidak ada label workspace hardcode
+   - Konfigurasi workspace berasal dari State.config
 ===================================================== */
 
 
@@ -30,13 +36,6 @@ import {
     State
 
 } from "./state.js";
-
-
-import {
-
-    resolveWorkspace
-
-} from "./workspace.js";
 
 
 /* =====================================================
@@ -67,13 +66,17 @@ export function initSession(
         getToday();
 
 
+    /* =============================================
+       DATE LOCK
+    ============================================= */
+
     State.dateLocked =
 
         false;
 
 
     /* =============================================
-       EDITING
+       EDIT
     ============================================= */
 
     State.editingIndex =
@@ -101,6 +104,11 @@ export function initSession(
 export function resetSession(){
 
     State.workspace =
+
+        null;
+
+
+    State.config =
 
         null;
 
@@ -173,32 +181,6 @@ export function resetSession(){
 
     }
 
-
-    /* =============================================
-       RESET LOCKED DATE VALUE
-    ============================================= */
-
-    const lockedValue =
-
-        document.getElementById(
-
-            "global-input-locked-date"
-
-        );
-
-
-    if(
-
-        lockedValue
-
-    ){
-
-        lockedValue.textContent =
-
-            "";
-
-    }
-
 }
 
 
@@ -267,6 +249,10 @@ export function setDate(
 
 ){
 
+    /* =============================================
+       DATE LOCK
+    ============================================= */
+
     if(
 
         State.dateLocked
@@ -278,6 +264,10 @@ export function setDate(
     }
 
 
+    /* =============================================
+       VALIDATE
+    ============================================= */
+
     if(
 
         !value
@@ -288,6 +278,10 @@ export function setDate(
 
     }
 
+
+    /* =============================================
+       SET
+    ============================================= */
 
     State.date =
 
@@ -313,6 +307,10 @@ export function getDate(){
 
 export function lockDate(){
 
+    /* =============================================
+       VALIDATE DATE
+    ============================================= */
+
     if(
 
         !State.date
@@ -324,10 +322,18 @@ export function lockDate(){
     }
 
 
+    /* =============================================
+       LOCK
+    ============================================= */
+
     State.dateLocked =
 
         true;
 
+
+    /* =============================================
+       INPUT
+    ============================================= */
 
     const input =
 
@@ -338,6 +344,10 @@ export function lockDate(){
         );
 
 
+    /* =============================================
+       LOCKED CONTAINER
+    ============================================= */
+
     const locked =
 
         document.getElementById(
@@ -346,6 +356,10 @@ export function lockDate(){
 
         );
 
+
+    /* =============================================
+       LOCKED VALUE
+    ============================================= */
 
     const lockedValue =
 
@@ -374,7 +388,7 @@ export function lockDate(){
 
 
     /* =============================================
-       LOCKED VALUE
+       SHOW LOCKED VALUE
     ============================================= */
 
     if(
@@ -395,7 +409,7 @@ export function lockDate(){
 
 
     /* =============================================
-       SHOW LOCKED DATE
+       SHOW LOCKED ELEMENT
     ============================================= */
 
     if(
@@ -421,10 +435,18 @@ export function lockDate(){
 
 export function unlockDate(){
 
+    /* =============================================
+       UNLOCK
+    ============================================= */
+
     State.dateLocked =
 
         false;
 
+
+    /* =============================================
+       INPUT
+    ============================================= */
 
     const input =
 
@@ -435,6 +457,10 @@ export function unlockDate(){
         );
 
 
+    /* =============================================
+       LOCKED CONTAINER
+    ============================================= */
+
     const locked =
 
         document.getElementById(
@@ -443,6 +469,10 @@ export function unlockDate(){
 
         );
 
+
+    /* =============================================
+       ENABLE INPUT
+    ============================================= */
 
     if(
 
@@ -456,6 +486,10 @@ export function unlockDate(){
 
     }
 
+
+    /* =============================================
+       HIDE LOCKED ELEMENT
+    ============================================= */
 
     if(
 
@@ -502,11 +536,7 @@ function renderWorkspace(){
 
     element.textContent =
 
-        formatWorkspace(
-
-            State.workspace
-
-        );
+        formatWorkspace();
 
 }
 
@@ -539,11 +569,7 @@ function renderId(){
 
     element.textContent =
 
-        generateId(
-
-            State.workspace
-
-        );
+        generateId();
 
 }
 
@@ -552,20 +578,20 @@ function renderId(){
    GENERATE ID
 ===================================================== */
 
-function generateId(
+function generateId(){
 
-    workspace
-
-){
+    /* =============================================
+       GET PREFIX FROM CONFIG
+    ============================================= */
 
     const prefix =
 
-        getPrefix(
+        getPrefix();
 
-            workspace
 
-        );
-
+    /* =============================================
+       RANDOM
+    ============================================= */
 
     const random =
 
@@ -588,6 +614,10 @@ function generateId(
         .toUpperCase();
 
 
+    /* =============================================
+       RESULT
+    ============================================= */
+
     return `${prefix}-${random}`;
 
 }
@@ -597,92 +627,48 @@ function generateId(
    GET PREFIX
 ===================================================== */
 
-/*
-   Prefix TIDAK lagi hardcode di session.js.
-
-   Sumber :
-
-       Input workspace.js
-              ↓
-       INPUT_CONFIG
-              ↓
-       prefix
-
-   Contoh konfigurasi :
-
-       airdrop : {
-
-           prefix : "AIR"
-
-       }
-
-*/
-
-function getPrefix(
-
-    workspace
-
-){
-
-    if(
-
-        !workspace
-
-    ){
-
-        return "FA";
-
-    }
-
-
-    const result =
-
-        resolveWorkspace(
-
-            workspace
-
-        );
-
-
-    const config =
-
-        result?.config;
-
-
-    /* =============================================
-       PREFIX
-    ============================================= */
+function getPrefix(){
 
     const prefix =
 
-        config?.prefix;
+        State.config?.prefix;
 
+
+    /* =============================================
+       VALIDATE PREFIX
+    ============================================= */
 
     if(
 
-        prefix
+        typeof prefix ===
+
+            "string"
+
+        &&
+
+        prefix.trim()
 
     ){
 
-        return String(
+        return prefix
 
-            prefix
+            .trim()
 
-        )
-
-        .trim()
-
-        .toUpperCase();
+            .toUpperCase();
 
     }
 
 
     /* =============================================
-       FALLBACK
-       
-       Hanya digunakan apabila workspace
-       belum mempunyai prefix.
+       CONFIG PREFIX TIDAK DITEMUKAN
     ============================================= */
+
+    console.warn(
+
+        "Global Input: prefix tidak ditemukan pada konfigurasi workspace."
+
+    );
+
 
     return "FA";
 
@@ -731,74 +717,48 @@ function renderDate(){
    FORMAT WORKSPACE
 ===================================================== */
 
-/*
-   Nama workspace tidak lagi dibuat
-   menggunakan switch hardcode.
+function formatWorkspace(){
 
-   Resolver global menjadi sumber
-   konfigurasi workspace.
+    /* =============================================
+       GET LABEL FROM CONFIG
+    ============================================= */
 
-   Prioritas :
+    const label =
 
-       workspaceConfig.name
-       workspaceConfig.label
-       workspace
-*/
+        State.config?.workspaceLabel;
 
-function formatWorkspace(
 
-    workspace
-
-){
+    /* =============================================
+       VALIDATE
+    ============================================= */
 
     if(
 
-        !workspace
+        typeof label ===
+
+            "string"
+
+        &&
+
+        label.trim()
 
     ){
 
-        return "-";
+        return label.trim();
 
     }
 
 
-    const result =
+    /* =============================================
+       FALLBACK
+       
+       Workspace tetap berasal dari State.
+       Tidak ada daftar workspace hardcode.
+    ============================================= */
 
-        resolveWorkspace(
+    return State.workspace ??
 
-            workspace
-
-        );
-
-
-    const workspaceConfig =
-
-        result?.workspaceConfig;
-
-
-    if(
-
-        workspaceConfig?.name
-
-    ){
-
-        return workspaceConfig.name;
-
-    }
-
-
-    if(
-
-        workspaceConfig?.label
-
-    ){
-
-        return workspaceConfig.label;
-
-    }
-
-
-    return workspace;
+        "-";
 
 }
 
@@ -813,6 +773,10 @@ function formatDate(
 
 ){
 
+    /* =============================================
+       EMPTY
+    ============================================= */
+
     if(
 
         !value
@@ -824,6 +788,10 @@ function formatDate(
     }
 
 
+    /* =============================================
+       PARSE
+    ============================================= */
+
     const date =
 
         new Date(
@@ -832,6 +800,10 @@ function formatDate(
 
         );
 
+
+    /* =============================================
+       INVALID
+    ============================================= */
 
     if(
 
@@ -847,6 +819,10 @@ function formatDate(
 
     }
 
+
+    /* =============================================
+       FORMAT
+    ============================================= */
 
     return new Intl.DateTimeFormat(
 
