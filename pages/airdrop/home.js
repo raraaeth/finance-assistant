@@ -90,6 +90,19 @@ import {
 
 } from "../../js/utils.js";
 
+import {
+
+    Input
+
+} from "../../components/input/script.js";
+
+
+import {
+
+    Setting
+
+} from "../../components/setting/script.js";
+
 /* =====================================================
    STATE
 ===================================================== */
@@ -262,6 +275,19 @@ await API.load(
         ============================================= */
 
         renderReminder();
+
+       /* =============================================
+           INPUT
+        ============================================= */
+
+        renderInput();
+
+
+        /* =============================================
+           SETTING
+        ============================================= */
+
+        renderSetting();
 
 
         /* =============================================
@@ -1299,5 +1325,254 @@ function escapeHTML(
             "&#039;"
 
         );
+
+}
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+function renderInput(){
+
+    const card =
+
+        document.getElementById(
+
+            "input-card"
+
+        );
+
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
+
+    `
+
+        <div
+            id="airdrop-input-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    ➕
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Input
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Tambahkan data Airdrop
+
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /* =============================================
+       OPEN GLOBAL INPUT
+    ============================================= */
+
+    const menu =
+
+        document.getElementById(
+
+            "airdrop-input-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Input.open(
+
+                    "airdrop"
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SETTING
+===================================================== */
+
+function renderSetting(){
+
+    const card =
+
+        document.getElementById(
+
+            "setting-card"
+
+        );
+
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
+
+    `
+
+        <div
+            id="airdrop-setting-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    ⚙️
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Pengaturan
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Atur konfigurasi Airdrop
+
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /* =============================================
+       OPEN GLOBAL SETTING
+    ============================================= */
+
+    const menu =
+
+        document.getElementById(
+
+            "airdrop-setting-menu"
+
+        );
+
+
+    if(
+
+        menu
+
+    ){
+
+        menu.addEventListener(
+
+            "click",
+
+            () => {
+
+                Setting.open(
+
+                    "airdrop"
+
+                );
+
+            }
+
+        );
+
+    }
 
 }
