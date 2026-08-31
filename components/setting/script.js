@@ -4862,35 +4862,54 @@ function formatResultValue(
        }
     ============================================= */
 
-    if(
+ if(
+    field.type ===
+    "checkbox" &&
+    data?.__display &&
+    Object.prototype.hasOwnProperty.call(
+        data.__display,
+        field.name
+    )
+){
+    return data.__display[field.name]
+        ?
+        "Ya"
+        :
+        "Tidak";
+}
 
-        field.type ===
 
-        "checkbox" &&
+/* =============================================
+   CHECKBOX RESULT DARI ARRAY OPTION
+   Dipakai Airdrop Wallet / Type
+============================================= */
 
-        data?.__display &&
+if(
+    field.type ===
+    "checkbox" &&
+    Array.isArray(
+        data
+    ) &&
+    field.resultValue &&
+    field.resultTarget
+){
 
-        Object.prototype.hasOwnProperty.call(
+    const active =
+        data.some(
+            item =>
+                item &&
+                item.target ===
+                    field.resultTarget &&
+                item.type ===
+                    field.resultValue
+        );
 
-            data.__display,
-
-            field.name
-
-        )
-
-    ){
-
-        return data.__display[field.name]
-
-            ?
-
-            "Ya"
-
-            :
-
-            "Tidak";
-
-    }
+    return active
+        ?
+        "Ya"
+        :
+        "Tidak";
+}
 
     /* =============================================
        CHECKBOX RESULT DARI NORMALIZED VALUE
