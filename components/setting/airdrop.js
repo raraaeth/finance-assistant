@@ -443,7 +443,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "main_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -468,7 +476,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "second_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -493,7 +509,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "testnet_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -518,7 +542,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "backup_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -543,7 +575,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "bybit_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -568,7 +608,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "gate_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -593,7 +641,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "binance_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -618,7 +674,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "okx_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -643,7 +707,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "phantom_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -668,7 +740,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "solflare_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -693,7 +773,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "kucoin_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -718,7 +806,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "metamask_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -743,7 +839,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "xrp_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -768,7 +872,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "cosmos_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -793,7 +905,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "canton_wallet",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -818,7 +938,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "binance_exchange",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -843,7 +971,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "okx_exchange",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -868,7 +1004,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "kucoin_exchange",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -893,7 +1037,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "bybit_exchange",
+
+                    resultTarget :
+
+                        "wallet"
 
                 },
 
@@ -918,7 +1070,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "gate_exchange",
+
+                    resultTarget :
+
+                        "wallet"
 
                 }
 
@@ -1135,9 +1295,13 @@ export const AirdropSetting = {
 
                         true,
 
-                    required :
+                    resultValue :
 
-                        false
+                        "campaign",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1162,7 +1326,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "testnet",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1187,7 +1359,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "retro",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1212,7 +1392,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "daily",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1237,7 +1425,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "bansos",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1262,7 +1458,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "zealy",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1287,7 +1491,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "galxe",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1312,7 +1524,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "taskon",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1337,7 +1557,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "layer3",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1362,7 +1590,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "gleam",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1387,7 +1623,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "giveaway",
+
+                    resultTarget :
+
+                        "type"
 
                 },
 
@@ -1412,7 +1656,15 @@ export const AirdropSetting = {
 
                     value :
 
-                        false
+                        false,
+
+                    resultValue :
+
+                        "nft",
+
+                    resultTarget :
+
+                        "type"
 
                 }
 
