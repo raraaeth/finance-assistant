@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 5.2.0
+   Version      : 6.0.0
 
    Description :
    Global Input Controller
@@ -12,7 +12,20 @@
    - Init
    - Open
    - Close
-   - Module connection
+   - Global Workspace connection
+   - Input Data connection
+
+   PRINCIPLE :
+
+   Global js/workspace.js
+        ↓
+   active workspace
+        ↓
+   Global Input
+        ↓
+   data.js
+        ↓
+   Input Flow
 ===================================================== */
 
 
@@ -29,9 +42,11 @@ import {
 
 import {
 
-    resolveWorkspace
+    getActiveWorkspace,
 
-} from "./workspace.js";
+    getWorkspaceConfig
+
+} from "../../js/workspace.js";
 
 
 import {
@@ -54,13 +69,12 @@ import {
 
 } from "./transaction.js";
 
+
 import {
 
     loadInputData
 
 } from "./data.js";
-
-
 
 
 /* =====================================================
@@ -311,22 +325,28 @@ export const Input = {
 
         /* =============================================
            RESOLVE WORKSPACE
+           
+           Tidak lagi menggunakan
+           components/input/workspace.js.
+
+           Workspace langsung berasal dari
+           global js/workspace.js.
         ============================================= */
 
-        const result =
+        const activeWorkspace =
 
-            resolveWorkspace(
+            workspace
 
-                workspace
+            ||
 
-            );
+            getActiveWorkspace();
 
 
         console.log(
 
-            "INPUT WORKSPACE RESULT",
+            "INPUT ACTIVE WORKSPACE:",
 
-            result
+            activeWorkspace
 
         );
 
@@ -337,19 +357,13 @@ export const Input = {
 
         if(
 
-            !result
-
-            ||
-
-            !result.workspace
+            !activeWorkspace
 
         ){
 
             console.warn(
 
-                "Workspace Input tidak ditemukan:",
-
-                result?.workspace
+                "Global Input: workspace tidak ditemukan."
 
             );
 
@@ -359,12 +373,84 @@ export const Input = {
 
 
         /* =============================================
-           LOAD INPUT DATA
+           GLOBAL WORKSPACE CONFIG
+           
+           Config ini berasal langsung dari
+           js/workspace.js.
+
+           Contoh :
+
+           {
+               id,
+               title,
+               icon,
+               sheets,
+               module
+           }
         ============================================= */
 
-        await loadInputData(
+        const workspaceConfig =
 
-            result.workspace
+            getWorkspaceConfig()
+
+            ?.[
+
+                activeWorkspace
+
+            ];
+
+
+        if(
+
+            !workspaceConfig
+
+        ){
+
+            console.warn(
+
+                "Global Input: konfigurasi workspace tidak ditemukan:",
+
+                activeWorkspace
+
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+
+            "INPUT WORKSPACE CONFIG:",
+
+            workspaceConfig
+
+        );
+
+
+        /* =============================================
+           LOAD INPUT DATA
+           
+           data.js bertugas membaca sheet yang
+           ditentukan oleh workspace global.
+
+           Tidak ada URL OpenSheet di sini.
+        ============================================= */
+
+        const inputData =
+
+            await loadInputData(
+
+                activeWorkspace
+
+            );
+
+
+        console.log(
+
+            "INPUT DATA:",
+
+            inputData
 
         );
 
@@ -376,14 +462,28 @@ export const Input = {
         State.reset();
 
 
+        /* =============================================
+           SET WORKSPACE
+        ============================================= */
+
         State.workspace =
 
-            result.workspace;
+            activeWorkspace;
 
+
+        /* =============================================
+           SET CONFIG
+           
+           Untuk sementara config State berasal
+           dari konfigurasi workspace global.
+
+           Konfigurasi khusus field/input akan
+           ditangani oleh module input masing-masing.
+        ============================================= */
 
         State.config =
 
-            result.config
+            workspaceConfig
 
             ||
 
@@ -396,7 +496,7 @@ export const Input = {
 
         initSession(
 
-            result.workspace
+            activeWorkspace
 
         );
 
@@ -680,6 +780,12 @@ function renderHeader(){
         );
 
 
+    /* =============================================
+       TITLE
+       
+       Menggunakan title dari global workspace.
+    ============================================= */
+
     if(
 
         title
@@ -688,12 +794,24 @@ function renderHeader(){
 
         title.textContent =
 
-            State.config?.title ??
+            State.config?.title
+
+            ??
 
             "Input";
 
     }
 
+
+    /* =============================================
+       SUBTITLE
+       
+       Global workspace.js tidak mempunyai
+       subtitle input.
+
+       Jadi jangan menganggap field tersebut
+       ada di global config.
+    ============================================= */
 
     if(
 
@@ -702,8 +820,6 @@ function renderHeader(){
     ){
 
         subtitle.textContent =
-
-            State.config?.subtitle ??
 
             "Tambahkan data";
 
@@ -738,9 +854,16 @@ function renderWorkspace(){
     }
 
 
+    /* =============================================
+       WORKSPACE LABEL
+       
+       Global workspace menggunakan "title",
+       bukan workspaceLabel.
+    ============================================= */
+
     workspaceElement.textContent =
 
-        State.config?.workspaceLabel
+        State.config?.title
 
         ??
 
