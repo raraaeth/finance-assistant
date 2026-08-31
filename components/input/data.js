@@ -7,71 +7,59 @@
    Description :
    Global Input Dynamic Data Engine
 
-   Architecture :
+   PRINCIPLE :
 
-   workspace.js
+   Global Workspace
         ↓
-   Workspace Configuration
+   workspace.sheets
         ↓
-   module.js
-        ↓
-   Finance Core ID
-        ↓
-   auth.js
-        ↓
-   Google Provider Token
-        ↓
-   sheets.js
+   API.load()
         ↓
    Google Sheets API
         ↓
-   data.js
-        ↓
-   Input Components
+   Input Data
 
-   Principle :
+   TIDAK ADA :
 
-   - Tidak ada OpenSheet
-   - Tidak ada Spreadsheet ID hardcode
-   - Tidak ada URL hardcode
-   - Tidak ada daftar sheet hardcode
-   - Workspace menentukan sheet yang dibutuhkan
-   - data.js bersifat generic
+   - OpenSheet URL
+   - Spreadsheet ID hardcode
+   - Sheet name hardcode
+   - Workspace list hardcode
+   - Data source hardcode
+
+   Sumber kebenaran :
+
+   ../../js/workspace.js
+   ../../js/api.js
+
+   Compatibility :
+
+   Getter lama tetap disediakan agar
+   module workspace yang sekarang
+   tidak langsung rusak.
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT
+   IMPORT GLOBAL WORKSPACE
 ===================================================== */
 
 import {
 
-    getWorkspaceConfig,
-
-    getActiveWorkspace
+    getWorkspaceConfig
 
 } from "../../js/workspace.js";
 
 
-import {
-
-    loadModuleInfo
-
-} from "../../js/module.js";
-
+/* =====================================================
+   IMPORT GLOBAL API
+===================================================== */
 
 import {
 
-    getGoogleProviderToken
+    API
 
-} from "../../js/auth.js";
-
-
-import {
-
-    readSheets
-
-} from "../../js/sheets.js";
+} from "../../js/api.js";
 
 
 /* =====================================================
@@ -84,11 +72,17 @@ const Data = {
 
         null,
 
-
     sheets :
 
-        {},
+        [],
 
+    raw :
+
+        [],
+
+    data :
+
+        [],
 
     loaded :
 
@@ -98,61 +92,155 @@ const Data = {
 
 
 /* =====================================================
-   NORMALIZE WORKSPACE
+   NORMALIZE SHEETS
 ===================================================== */
 
-function resolveWorkspace(
+function normalizeSheets(
 
-    workspace
+    workspaceConfig
 
 ){
 
-    /* =============================================
-       WORKSPACE DARI PARAMETER
-    ============================================= */
-
     if(
 
-        workspace
+        !workspaceConfig
+
+        ||
+
+        !Array.isArray(
+
+            workspaceConfig.sheets
+
+        )
 
     ){
 
-        return workspace;
+        return [];
 
     }
 
 
-    /* =============================================
-       WORKSPACE DARI GLOBAL STATE
-    ============================================= */
+    return workspaceConfig.sheets
 
-    return getActiveWorkspace();
+        .filter(
+
+            sheet =>
+
+                typeof sheet ===
+
+                    "string"
+
+                &&
+
+                sheet.trim() !== ""
+
+        )
+
+        .map(
+
+            sheet =>
+
+                sheet.trim()
+
+        );
 
 }
 
 
 /* =====================================================
-   GET WORKSPACE CONFIG
+   LOAD INPUT DATA
 ===================================================== */
 
-function resolveWorkspaceConfig(
+/*
+   Workspace tidak menentukan
+   source secara manual.
+
+   Contoh :
+
+   workspace = "airdrop"
+
+        ↓
+
+   global workspace.js
+
+        ↓
+
+   sheets :
+
+       [
+           "airdrop",
+           "airdrop_rules"
+       ]
+
+        ↓
+
+   API.load()
+
+        ↓
+
+   Google Sheets API
+*/
+
+export async function loadInputData(
 
     workspace
 
 ){
 
-    const configs =
+    console.log(
+
+        "=========================================="
+
+    );
+
+    console.log(
+
+        "===== GLOBAL INPUT DATA LOAD ====="
+
+    );
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    /* =================================================
+       VALIDATE WORKSPACE
+    ================================================= */
+
+    if(
+
+        !workspace
+
+    ){
+
+        throw new Error(
+
+            "Global Input Data: workspace tidak ditemukan."
+
+        );
+
+    }
+
+
+    /* =================================================
+       GET GLOBAL WORKSPACE CONFIG
+    ================================================= */
+
+    const workspaceConfigs =
 
         getWorkspaceConfig();
 
 
     if(
 
-        !configs
+        !workspaceConfigs
 
         ||
 
-        typeof configs !==
+        typeof workspaceConfigs !==
 
             "object"
 
@@ -160,16 +248,20 @@ function resolveWorkspaceConfig(
 
         throw new Error(
 
-            "Workspace configuration tidak ditemukan."
+            "Global Input Data: konfigurasi workspace global tidak ditemukan."
 
         );
 
     }
 
 
+    /* =================================================
+       GET CURRENT WORKSPACE
+    ================================================= */
+
     const config =
 
-        configs[
+        workspaceConfigs[
 
             workspace
 
@@ -184,192 +276,11 @@ function resolveWorkspaceConfig(
 
         throw new Error(
 
-            `Workspace "${workspace}" tidak ditemukan.`
+            `Global Input Data: workspace "${workspace}" tidak terdaftar.`
 
         );
 
     }
-
-
-    return config;
-
-}
-
-
-/* =====================================================
-   GET FINANCE CORE
-===================================================== */
-
-function resolveFinanceCore(){
-
-    const moduleInfo =
-
-        loadModuleInfo();
-
-
-    if(
-
-        !moduleInfo
-
-    ){
-
-        throw new Error(
-
-            "Finance Module Info tidak ditemukan."
-
-        );
-
-    }
-
-
-    const financeCore =
-
-        moduleInfo.financeCore;
-
-
-    if(
-
-        !financeCore
-
-        ||
-
-        !financeCore.id
-
-    ){
-
-        throw new Error(
-
-            "Finance Core Spreadsheet ID tidak ditemukan."
-
-        );
-
-    }
-
-
-    return financeCore;
-
-}
-
-
-/* =====================================================
-   GET GOOGLE TOKEN
-===================================================== */
-
-async function resolveAccessToken(){
-
-    const token =
-
-        await getGoogleProviderToken();
-
-
-    if(
-
-        !token
-
-    ){
-
-        throw new Error(
-
-            "Google Provider Token tidak ditemukan."
-
-        );
-
-    }
-
-
-    return token;
-
-}
-
-
-/* =====================================================
-   LOAD INPUT DATA
-===================================================== */
-
-export async function loadInputData(
-
-    workspace = null
-
-){
-
-    console.log(
-
-        "=========================================="
-
-    );
-
-
-    console.log(
-
-        "===== GLOBAL INPUT DATA LOAD ====="
-
-    );
-
-
-    console.log(
-
-        "=========================================="
-
-    );
-
-
-    /* =================================================
-       RESOLVE WORKSPACE
-    ================================================= */
-
-    const activeWorkspace =
-
-        resolveWorkspace(
-
-            workspace
-
-        );
-
-
-    if(
-
-        !activeWorkspace
-
-    ){
-
-        throw new Error(
-
-            "Workspace aktif tidak ditemukan."
-
-        );
-
-    }
-
-
-    console.log(
-
-        "Input Workspace:",
-
-        activeWorkspace
-
-    );
-
-
-    /* =================================================
-       GET WORKSPACE CONFIG
-    ================================================= */
-
-    const workspaceConfig =
-
-        resolveWorkspaceConfig(
-
-            activeWorkspace
-
-        );
-
-
-    console.log(
-
-        "Workspace Config:",
-
-        workspaceConfig
-
-    );
 
 
     /* =================================================
@@ -378,46 +289,58 @@ export async function loadInputData(
 
     const sheets =
 
-        Array.isArray(
+        normalizeSheets(
 
-            workspaceConfig.sheets
+            config
 
-        )
-
-        ?
-
-        workspaceConfig.sheets.filter(
-
-            sheet =>
-
-                typeof sheet ===
-
-                    "string"
-
-                &&
-
-                sheet.trim() !== ""
-
-        )
-
-        :
-
-        [];
+        );
 
 
     if(
 
-        !sheets.length
+        sheets.length < 2
 
     ){
 
         throw new Error(
 
-            `Workspace "${activeWorkspace}" tidak memiliki konfigurasi sheet.`
+            `Global Input Data: workspace "${workspace}" tidak memiliki dua sheet inti.`
 
         );
 
     }
+
+
+    const rawSheet =
+
+        sheets[0];
+
+
+    const dataSheet =
+
+        sheets[1];
+
+
+    /* =================================================
+       DEBUG CONFIG
+    ================================================= */
+
+    console.log(
+
+        "Input Workspace:",
+
+        workspace
+
+    );
+
+
+    console.log(
+
+        "Workspace Config:",
+
+        config
+
+    );
 
 
     console.log(
@@ -429,87 +352,116 @@ export async function loadInputData(
     );
 
 
-    /* =================================================
-       FINANCE CORE
-    ================================================= */
+    console.log(
 
-    const financeCore =
+        "Raw Sheet:",
 
-        resolveFinanceCore();
+        rawSheet
+
+    );
 
 
     console.log(
 
-        "Finance Core:",
+        "Data Sheet:",
 
-        financeCore
+        dataSheet
 
     );
 
 
     /* =================================================
-       GOOGLE TOKEN
-    ================================================= */
-
-    const accessToken =
-
-        await resolveAccessToken();
-
-
-    console.log(
-
-        "Google Provider Token: AVAILABLE"
-
-    );
-
-
-    /* =================================================
-       READ SHEETS
+       LOAD GOOGLE SHEETS
     ================================================= */
 
     const result =
 
-        await readSheets({
+        await API.load(
 
-            accessToken :
+            rawSheet,
 
-                accessToken,
+            dataSheet
 
-            spreadsheetId :
-
-                financeCore.id,
-
-            sheets :
-
-                sheets
-
-        });
+        );
 
 
     /* =================================================
-       SAVE DATA
+       VALIDATE RESULT
+    ================================================= */
+
+    if(
+
+        !result
+
+        ||
+
+        result.success !== true
+
+    ){
+
+        throw new Error(
+
+            `Global Input Data: gagal membaca data workspace "${workspace}".`
+
+        );
+
+    }
+
+
+    /* =================================================
+       SAVE STATE
     ================================================= */
 
     Data.workspace =
 
-        activeWorkspace;
+        workspace;
 
 
     Data.sheets =
 
-        result &&
+        sheets;
 
-        typeof result ===
 
-            "object"
+    Data.raw =
+
+        Array.isArray(
+
+            API.raw
+
+        )
 
         ?
 
-        result
+        [
+
+            ...API.raw
+
+        ]
 
         :
 
-        {};
+        [];
+
+
+    Data.data =
+
+        Array.isArray(
+
+            API.data
+
+        )
+
+        ?
+
+        [
+
+            ...API.data
+
+        ]
+
+        :
+
+        [];
 
 
     Data.loaded =
@@ -518,7 +470,7 @@ export async function loadInputData(
 
 
     /* =================================================
-       DEBUG
+       DEBUG RESPONSE
     ================================================= */
 
     console.log(
@@ -527,10 +479,15 @@ export async function loadInputData(
 
     );
 
-
     console.log(
 
         "===== GLOBAL INPUT DATA READY ====="
+
+    );
+
+    console.log(
+
+        "=========================================="
 
     );
 
@@ -548,20 +505,43 @@ export async function loadInputData(
 
         "Sheets:",
 
-        Object.keys(
-
-            Data.sheets
-
-        )
+        Data.sheets
 
     );
 
 
     console.log(
 
-        "Data:",
+        "RAW Count:",
 
-        Data.sheets
+        Data.raw.length
+
+    );
+
+
+    console.log(
+
+        "DATA Count:",
+
+        Data.data.length
+
+    );
+
+
+    console.log(
+
+        "RAW:",
+
+        Data.raw
+
+    );
+
+
+    console.log(
+
+        "DATA:",
+
+        Data.data
 
     );
 
@@ -573,11 +553,41 @@ export async function loadInputData(
     );
 
 
-    /* =================================================
-       RETURN
-    ================================================= */
+    return {
 
-    return Data;
+        success :
+
+            true,
+
+        workspace :
+
+            Data.workspace,
+
+        sheets :
+
+            [
+
+                ...Data.sheets
+
+            ],
+
+        raw :
+
+            [
+
+                ...Data.raw
+
+            ],
+
+        data :
+
+            [
+
+                ...Data.data
+
+            ]
+
+    };
 
 }
 
@@ -586,7 +596,7 @@ export async function loadInputData(
    GET CURRENT WORKSPACE
 ===================================================== */
 
-export function getWorkspace(){
+export function getInputWorkspace(){
 
     return Data.workspace;
 
@@ -594,268 +604,119 @@ export function getWorkspace(){
 
 
 /* =====================================================
-   GET ALL SHEETS
+   GET SHEETS
 ===================================================== */
 
-export function getSheets(){
+export function getInputSheets(){
 
-    return {
+    return [
 
         ...Data.sheets
 
-    };
+    ];
 
 }
 
 
 /* =====================================================
-   GET ONE SHEET
-===================================================== */
-
-export function getSheet(
-
-    sheetName
-
-){
-
-    if(
-
-        !sheetName
-
-    ){
-
-        return {
-
-            headers :
-
-                [],
-
-            data :
-
-                []
-
-        };
-
-    }
-
-
-    return (
-
-        Data.sheets[
-
-            sheetName
-
-        ]
-
-        ||
-
-        {
-
-            headers :
-
-                [],
-
-            data :
-
-                []
-
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   GET SHEET DATA
-===================================================== */
-
-export function getSheetData(
-
-    sheetName
-
-){
-
-    const sheet =
-
-        getSheet(
-
-            sheetName
-
-        );
-
-
-    if(
-
-        Array.isArray(
-
-            sheet
-
-        )
-
-    ){
-
-        return [
-
-            ...sheet
-
-        ];
-
-    }
-
-
-    if(
-
-        Array.isArray(
-
-            sheet.data
-
-        )
-
-    ){
-
-        return [
-
-            ...sheet.data
-
-        ];
-
-    }
-
-
-    return [];
-
-}
-
-
-/* =====================================================
-   GET SHEET HEADERS
-===================================================== */
-
-export function getSheetHeaders(
-
-    sheetName
-
-){
-
-    const sheet =
-
-        getSheet(
-
-            sheetName
-
-        );
-
-
-    if(
-
-        Array.isArray(
-
-            sheet.headers
-
-        )
-
-    ){
-
-        return [
-
-            ...sheet.headers
-
-        ];
-
-    }
-
-
-    return [];
-
-}
-
-
-/* =====================================================
-   GET RAW INPUT DATA
-===================================================== */
-
-export function getData(){
-
-    return {
-
-        ...Data.sheets
-
-    };
-
-}
-
-
-/* =====================================================
-   LEGACY / COMPATIBILITY GETTERS
+   GET RAW DATA
 ===================================================== */
 
 /*
-   Getter di bawah tetap dipertahankan
-   supaya input module lama tidak langsung
-   rusak saat migrasi.
+   RAW :
 
-   Sumber datanya TETAP generic.
+   sheet pertama workspace.
 
-   Nama sheet tidak lagi menentukan URL
-   atau Spreadsheet ID.
+   Contoh Airdrop :
 
-   Workspace.js tetap menjadi sumber
-   konfigurasi sheet.
+       airdrop
 */
 
+export function getInputRaw(){
 
-export function getKasMembers(){
+    return [
 
-    return getSheetData(
+        ...Data.raw
 
-        "kas_member"
-
-    );
-
-}
-
-
-export function getFinancialActivity(){
-
-    return getSheetData(
-
-        "financial_activity"
-
-    );
+    ];
 
 }
 
 
-export function getSavingBanks(){
+/* =====================================================
+   GET DATA
+===================================================== */
 
-    return getSheetData(
+/*
+   DATA :
 
-        "saving_bank"
+   sheet kedua workspace.
 
-    );
+   Contoh Airdrop :
+
+       airdrop_rules
+
+   Financial :
+
+       financial_activity
+
+   Saving :
+
+       saving_bank
+
+   Kas :
+
+       kas_member
+
+   Payroll Daily :
+
+       payroll_daily_rules
+
+   Payroll Monthly :
+
+       payroll_monthly_rules
+*/
+
+export function getInputData(){
+
+    return [
+
+        ...Data.data
+
+    ];
 
 }
 
 
-export function getPayrollDailyRules(){
+/* =====================================================
+   GET RULE DATA
+===================================================== */
 
-    return getSheetData(
+/*
+   Alias generic.
 
-        "payroll_daily_rules"
+   Untuk workspace yang sheet keduanya
+   merupakan rules / master data.
+*/
 
-    );
+export function getInputRules(){
+
+    return [
+
+        ...Data.data
+
+    ];
 
 }
 
 
-export function getPayrollMonthlyRules(){
+/* =====================================================
+   IS LOADED
+===================================================== */
 
-    return getSheetData(
+export function isInputDataLoaded(){
 
-        "payroll_monthly_rules"
-
-    );
+    return Data.loaded === true;
 
 }
 
@@ -873,19 +734,376 @@ export function clearInputData(){
 
     Data.sheets =
 
-        {};
+        [];
+
+
+    Data.raw =
+
+        [];
+
+
+    Data.data =
+
+        [];
 
 
     Data.loaded =
 
         false;
 
+}
+
+
+/* =====================================================
+   COMPATIBILITY :
+   KAS
+===================================================== */
+
+/*
+   Sementara dipertahankan agar
+   kas.js lama tidak rusak.
+
+   Tidak ada lagi source hardcode.
+
+   Data berasal dari sheet kedua
+   workspace aktif.
+*/
+
+export function getKasMembers(){
+
+    if(
+
+        Data.workspace !==
+
+            "kas"
+
+    ){
+
+        return [];
+
+    }
+
+
+    return [
+
+        ...Data.data
+
+    ]
+
+    .filter(
+
+        item =>
+
+            item &&
+
+            typeof item ===
+
+                "object"
+
+    )
+
+    .filter(
+
+        item =>
+
+            typeof item.nama ===
+
+                "string"
+
+            &&
+
+            item.nama.trim() !== ""
+
+    )
+
+    .map(
+
+        item => ({
+
+            value :
+
+                item.nama.trim(),
+
+            label :
+
+                item.nama.trim()
+
+        })
+
+    );
 
 }
 
 
 /* =====================================================
-   DEFAULT EXPORT
+   COMPATIBILITY :
+   FINANCIAL
 ===================================================== */
 
-export default Data;
+export function getFinancialActivity(){
+
+    if(
+
+        Data.workspace !==
+
+            "financial"
+
+    ){
+
+        return [];
+
+    }
+
+
+    return [
+
+        ...Data.data
+
+    ];
+
+}
+
+
+/* =====================================================
+   COMPATIBILITY :
+   SAVING
+===================================================== */
+
+export function getSavingBanks(){
+
+    if(
+
+        Data.workspace !==
+
+            "saving"
+
+    ){
+
+        return [];
+
+    }
+
+
+    return [
+
+        ...Data.data
+
+    ]
+
+    .filter(
+
+        item =>
+
+            item &&
+
+            typeof item ===
+
+                "object"
+
+    )
+
+    .filter(
+
+        item =>
+
+            typeof item.nama ===
+
+                "string"
+
+            &&
+
+            item.nama.trim() !== ""
+
+    )
+
+    .map(
+
+        item => ({
+
+            value :
+
+                item.nama.trim(),
+
+            label :
+
+                item.nama.trim()
+
+        })
+
+    );
+
+}
+
+
+/* =====================================================
+   COMPATIBILITY :
+   PAYROLL DAILY
+===================================================== */
+
+export function getPayrollDailyRules(){
+
+    if(
+
+        Data.workspace !==
+
+            "payroll-daily"
+
+    ){
+
+        return [];
+
+    }
+
+
+    return [
+
+        ...Data.data
+
+    ];
+
+}
+
+
+/* =====================================================
+   COMPATIBILITY :
+   PAYROLL MONTHLY
+===================================================== */
+
+export function getPayrollMonthlyRules(){
+
+    if(
+
+        Data.workspace !==
+
+            "payroll-monthly"
+
+    ){
+
+        return [];
+
+    }
+
+
+    return [
+
+        ...Data.data
+
+    ];
+
+}
+
+
+/* =====================================================
+   DEBUG
+===================================================== */
+
+export function debugInputData(){
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+    console.log(
+
+        "===== GLOBAL INPUT DATA DEBUG ====="
+
+    );
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "Workspace:",
+
+        Data.workspace
+
+    );
+
+
+    console.log(
+
+        "Sheets:",
+
+        Data.sheets
+
+    );
+
+
+    console.log(
+
+        "Loaded:",
+
+        Data.loaded
+
+    );
+
+
+    console.log(
+
+        "RAW:",
+
+        Data.raw
+
+    );
+
+
+    console.log(
+
+        "DATA:",
+
+        Data.data
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    return {
+
+        workspace :
+
+            Data.workspace,
+
+        sheets :
+
+            [
+
+                ...Data.sheets
+
+            ],
+
+        loaded :
+
+            Data.loaded,
+
+        raw :
+
+            [
+
+                ...Data.raw
+
+            ],
+
+        data :
+
+            [
+
+                ...Data.data
+
+            ]
+
+    };
+
+}
