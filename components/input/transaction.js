@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : transaction.js
-   Version      : 3.0.0
+   Version      : 4.0.0
 
    Description :
    Transaction Controller
@@ -21,16 +21,41 @@
 
    Input baru :
        editingId = null
-       ↓
+           ↓
        create record baru
+           ↓
+       ID menggunakan prefix module
 
    Input edit :
        editingId tersedia
-       ↓
+           ↓
        update record berdasarkan ID
 
    Transaction controller tetap generic.
    Tidak mengetahui workspace tertentu.
+
+   Prefix ID berasal dari :
+       State.config.prefix
+
+   Contoh :
+
+       Airdrop
+           → AIR-xxxx
+
+       Saving
+           → SAV-xxxx
+
+       Kas
+           → KAS-xxxx
+
+       Payroll Daily
+           → PD-xxxx
+
+       Payroll Monthly
+           → PM-xxxx
+
+       Financial
+           → FIN-xxxx
 ===================================================== */
 
 
@@ -150,6 +175,13 @@ function completeTransaction(
 
     ){
 
+        console.warn(
+
+            "Complete transaction gagal: values tidak valid."
+
+        );
+
+
         return;
 
     }
@@ -157,7 +189,7 @@ function completeTransaction(
 
     /* =============================================
        EDIT / UPDATE
-       
+
        Jika editingId tersedia,
        berarti record lama sedang
        diubah.
@@ -174,6 +206,7 @@ function completeTransaction(
             values
 
         );
+
 
         return;
 
@@ -205,14 +238,16 @@ function addTransaction(
 
     /* =============================================
        LOCK DATE
-       
+
        Hanya transaction pertama
        yang mengunci tanggal.
     ============================================= */
 
     if(
 
-        State.transactions.length === 0
+        State.transactions.length ===
+
+            0
 
     ){
 
@@ -223,6 +258,10 @@ function addTransaction(
 
     /* =============================================
        CREATE TRANSACTION
+
+       ID dibuat oleh transaction controller,
+       tetapi prefix berasal dari konfigurasi
+       module Input.
     ============================================= */
 
     const transaction = {
@@ -260,6 +299,10 @@ function addTransaction(
     );
 
 
+    /* =============================================
+       FINISH
+    ============================================= */
+
     finishCurrentInput();
 
 }
@@ -292,6 +335,7 @@ function updateTransaction(
 
         );
 
+
         return;
 
     }
@@ -311,7 +355,9 @@ function updateTransaction(
 
                     transaction?.id
 
-                ) ===
+                )
+
+                ===
 
                 String(
 
@@ -328,7 +374,9 @@ function updateTransaction(
 
     if(
 
-        index === -1
+        index ===
+
+            -1
 
     ){
 
@@ -357,6 +405,7 @@ function updateTransaction(
                 editingId
 
             );
+
 
             return;
 
@@ -401,7 +450,11 @@ function updateTransaction(
 
         const oldTransaction =
 
-            State.transactions[index];
+            State.transactions[
+
+                index
+
+            ];
 
 
         const updatedTransaction = {
@@ -436,6 +489,10 @@ function updateTransaction(
 
     }
 
+
+    /* =============================================
+       FINISH
+    ============================================= */
 
     finishCurrentInput();
 
@@ -481,7 +538,7 @@ function finishCurrentInput(){
 
     /* =============================================
        START NEW FLOW
-       
+
        Untuk mode input berikutnya.
     ============================================= */
 
@@ -547,6 +604,7 @@ function bindAddButton(){
             "Tombol #global-input-add belum ditemukan."
 
         );
+
 
         return;
 
@@ -705,7 +763,9 @@ export function renderTransactionList(){
 
     if(
 
-        State.transactions.length === 0
+        State.transactions.length ===
+
+            0
 
     ){
 
@@ -920,7 +980,9 @@ function deleteTransaction(
 
     if(
 
-        State.transactions.length === 0
+        State.transactions.length ===
+
+            0
 
     ){
 
@@ -930,6 +992,7 @@ function deleteTransaction(
 
 
     renderTransactionList();
+
 
     updateSummary();
 
@@ -981,7 +1044,7 @@ function updateSummary(){
 
     /* =============================================
        CALCULATE
-       
+
        Tetap kompatibel dengan
        Kas / Financial.
     ============================================= */
@@ -1012,7 +1075,7 @@ function updateSummary(){
 
                 type ===
 
-                "masuk"
+                    "masuk"
 
             ){
 
@@ -1027,7 +1090,7 @@ function updateSummary(){
 
                 type ===
 
-                "keluar"
+                    "keluar"
 
             ){
 
@@ -1126,7 +1189,9 @@ function updateSummary(){
 
         if(
 
-            State.transactions.length > 0
+            State.transactions.length >
+
+                0
 
         ){
 
@@ -1202,9 +1267,18 @@ function confirmTransactions(){
 
     if(
 
-        State.transactions.length === 0
+        State.transactions.length ===
+
+            0
 
     ){
+
+        console.warn(
+
+            "Tidak ada transaction untuk dikonfirmasi."
+
+        );
+
 
         return;
 
@@ -1263,11 +1337,40 @@ function confirmTransactions(){
    GENERATE TRANSACTION ID
 ===================================================== */
 
+/*
+   ID transaction bersifat module-specific.
+
+   Transaction controller TIDAK mempunyai
+   daftar prefix workspace.
+
+   Prefix diambil dari :
+
+       State.config.prefix
+
+   Contoh :
+
+       State.config.prefix = "AIR"
+           ↓
+       AIR-xxxxxxxx
+
+       State.config.prefix = "SAV"
+           ↓
+       SAV-xxxxxxxx
+
+   Jika prefix tidak tersedia,
+   gunakan "TX" sebagai fallback
+   sementara agar transaction tetap
+   dapat dibuat.
+*/
+
 function generateTransactionId(){
 
-    return (
+    const prefix =
 
-        "TX-" +
+        getTransactionPrefix();
+
+
+    const timestamp =
 
         Date.now()
 
@@ -1277,9 +1380,10 @@ function generateTransactionId(){
 
         )
 
-        .toUpperCase() +
+        .toUpperCase();
 
-        "-" +
+
+    const random =
 
         Math.random()
 
@@ -1293,13 +1397,81 @@ function generateTransactionId(){
 
             2,
 
-            6
+            7
 
         )
 
-        .toUpperCase()
+        .toUpperCase();
+
+
+    return (
+
+        prefix +
+
+        "-" +
+
+        timestamp +
+
+        "-" +
+
+        random
 
     );
+
+}
+
+
+/* =====================================================
+   GET TRANSACTION PREFIX
+===================================================== */
+
+function getTransactionPrefix(){
+
+    const prefix =
+
+        State.config?.prefix;
+
+
+    if(
+
+        prefix
+
+    ){
+
+        const normalized =
+
+            String(
+
+                prefix
+
+            )
+
+            .trim()
+
+            .toUpperCase();
+
+
+        if(
+
+            normalized
+
+        ){
+
+            return normalized;
+
+        }
+
+    }
+
+
+    console.warn(
+
+        "Transaction prefix tidak ditemukan. Menggunakan fallback TX."
+
+    );
+
+
+    return "TX";
 
 }
 
@@ -1340,7 +1512,9 @@ function getTypeLabel(
     }
 
 
-    return type ?? "-";
+    return type ??
+
+        "-";
 
 }
 
@@ -1423,25 +1597,25 @@ function getCategoryLabel(
 
             "function"
 
-            ?
+        ?
 
-            categoryField.options(
+        categoryField.options(
 
-                transaction
+            transaction
 
-            )
+        )
 
-            :
+        :
 
-            (
+        (
 
-                categoryField.options
+            categoryField.options
 
-                ||
+            ||
 
-                []
+            []
 
-            );
+        );
 
 
     const option =
@@ -1703,44 +1877,44 @@ function escapeHTML(
 
     )
 
-    .replace(
+        .replace(
 
-        /&/g,
+            /&/g,
 
-        "&amp;"
+            "&amp;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        /</g,
+            /</g,
 
-        "&lt;"
+            "&lt;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        />/g,
+            />/g,
 
-        "&gt;"
+            "&gt;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        /"/g,
+            /"/g,
 
-        "&quot;"
+            "&quot;"
 
-    )
+        )
 
-    .replace(
+        .replace(
 
-        /'/g,
+            /'/g,
 
-        "&#039;"
+            "&#039;"
 
-    );
+        );
 
 }
