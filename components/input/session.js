@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : session.js
-   Version      : 3.0.0
+   Version      : 3.1.0
 
    Description :
    Global Input Session Controller
@@ -31,6 +31,8 @@
    - Prefix berasal dari konfigurasi input
      masing-masing workspace.
    - Workspace ID berasal dari State.workspace.
+   - config.js menjadi penghubung ke konfigurasi
+     workspace masing-masing.
 ===================================================== */
 
 
@@ -583,9 +585,30 @@ function renderId(){
     }
 
 
-    element.textContent =
+    const id =
 
         generateId();
+
+
+    if(
+
+        id
+
+    ){
+
+        element.textContent =
+
+            id;
+
+    }
+
+    else{
+
+        element.textContent =
+
+            "-";
+
+    }
 
 }
 
@@ -603,6 +626,30 @@ function generateId(){
     const prefix =
 
         getPrefix();
+
+
+    /* =============================================
+       PREFIX WAJIB
+    ============================================= */
+
+    if(
+
+        !prefix
+
+    ){
+
+        console.error(
+
+            "Global Input: tidak dapat membuat ID karena prefix workspace tidak tersedia.",
+
+            State.workspace
+
+        );
+
+
+        return null;
+
+    }
 
 
     /* =============================================
@@ -660,11 +707,21 @@ function getPrefix(){
 
     if(
 
-        prefix
+        typeof prefix ===
+
+            "string"
+
+        &&
+
+        prefix.trim()
 
     ){
 
-        return prefix;
+        return prefix
+
+            .trim()
+
+            .toUpperCase();
 
     }
 
@@ -682,7 +739,7 @@ function getPrefix(){
     );
 
 
-    return "FA";
+    return null;
 
 }
 
@@ -776,7 +833,8 @@ function formatWorkspace(){
 
     /* =============================================
        FALLBACK
-       
+
+       Workspace tetap berasal dari State.
        Tidak ada daftar workspace hardcode.
     ============================================= */
 
