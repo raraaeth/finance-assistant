@@ -2,17 +2,19 @@
    Finance Assistant
    Component    : Global Loading
    File         : script.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Global Full Screen Loading Controller
 
    Responsibility :
-   - Load HTML loading
+   - Create loading HTML
+   - Create loading CSS
    - Show loading
    - Hide loading
    - Prevent duplicate loading element
    - Set Hero Dashboard image
+   - Hero floating animation
    - Generic untuk seluruh aplikasi
 
    Usage :
@@ -61,7 +63,7 @@ export const Loading = {
 
 
         /* =============================================
-           EXISTING DOM
+           CHECK EXISTING DOM
         ============================================= */
 
         loadingElement =
@@ -97,139 +99,66 @@ export const Loading = {
 
 
         /* =============================================
-           LOAD HTML
+           CREATE CSS
         ============================================= */
 
-        try{
-
-            const response =
-
-                await fetch(
-
-                    new URL(
-
-                        "./index.html",
-
-                        import.meta.url
-
-                    )
-
-                );
+        createLoadingStyle();
 
 
-            if(
+        /* =============================================
+           CREATE HTML
+        ============================================= */
 
-                !response.ok
+        loadingElement =
 
-            ){
-
-                throw new Error(
-
-                    `HTTP ${response.status}`
-
-                );
-
-            }
+            createLoadingElement();
 
 
-            const html =
+        if(
 
-                await response.text();
+            !loadingElement
 
-
-            /* =========================================
-               CREATE DOM
-            ========================================= */
-
-            const wrapper =
-
-                document.createElement(
-
-                    "div"
-
-                );
-
-
-            wrapper.innerHTML =
-
-                html.trim();
-
-
-            loadingElement =
-
-                wrapper.firstElementChild;
-
-
-            if(
-
-                !loadingElement
-
-            ){
-
-                throw new Error(
-
-                    "Global Loading root tidak ditemukan."
-
-                );
-
-            }
-
-
-            /* =========================================
-               SET HERO IMAGE
-            ========================================= */
-
-            setHeroImage(
-
-                loadingElement
-
-            );
-
-
-            /* =========================================
-               APPEND
-            ========================================= */
-
-            document.body.appendChild(
-
-                loadingElement
-
-            );
-
-
-            initialized =
-
-                true;
-
-
-            return loadingElement;
-
-        }
-
-        catch(error){
+        ){
 
             console.error(
 
-                "Global Loading HTML Error:",
-
-                error
+                "Global Loading element gagal dibuat."
 
             );
-
-
-            loadingElement =
-
-                null;
-
-
-            initialized =
-
-                false;
-
 
             return null;
 
         }
+
+
+        /* =============================================
+           SET HERO IMAGE
+        ============================================= */
+
+        setHeroImage(
+
+            loadingElement
+
+        );
+
+
+        /* =============================================
+           APPEND
+        ============================================= */
+
+        document.body.appendChild(
+
+            loadingElement
+
+        );
+
+
+        initialized =
+
+            true;
+
+
+        return loadingElement;
 
     },
 
@@ -260,16 +189,16 @@ export const Loading = {
            SHOW
         ============================================= */
 
-        element.classList.add(
+        element.classList.remove(
 
-            "is-visible"
+            "is-hidden"
 
         );
 
 
-        element.classList.remove(
+        element.classList.add(
 
-            "is-hidden"
+            "is-visible"
 
         );
 
@@ -369,6 +298,388 @@ export const Loading = {
     }
 
 };
+
+
+
+/* =====================================================
+   CREATE LOADING HTML
+===================================================== */
+
+function createLoadingElement(){
+
+    const loading =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    loading.id =
+
+        "global-loading";
+
+
+    loading.className =
+
+        "global-loading is-hidden";
+
+
+    loading.setAttribute(
+
+        "aria-hidden",
+
+        "true"
+
+    );
+
+
+    loading.innerHTML =
+
+    `
+
+        <div class="global-loading-content">
+
+            <img
+                class="global-loading-logo"
+                src=""
+                alt="Finance Assistant">
+
+        </div>
+
+    `;
+
+
+    return loading;
+
+}
+
+
+
+/* =====================================================
+   CREATE LOADING CSS
+===================================================== */
+
+function createLoadingStyle(){
+
+    /* =============================================
+       PREVENT DUPLICATE STYLE
+    ============================================= */
+
+    if(
+
+        document.getElementById(
+
+            "global-loading-style"
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       STYLE ELEMENT
+    ============================================= */
+
+    const style =
+
+        document.createElement(
+
+            "style"
+
+        );
+
+
+    style.id =
+
+        "global-loading-style";
+
+
+    style.textContent =
+
+    `
+
+        /* ==========================================
+           GLOBAL LOADING
+        ========================================== */
+
+        #global-loading.global-loading{
+
+            position: fixed;
+
+            inset: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            background: #ffffff;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            z-index: 999999;
+
+            opacity: 1;
+
+            visibility: visible;
+
+            pointer-events: auto;
+
+            transition:
+
+                opacity
+
+                180ms
+
+                ease,
+
+                visibility
+
+                180ms
+
+                ease;
+
+        }
+
+
+        /* ==========================================
+           CONTENT
+        ========================================== */
+
+        #global-loading
+
+        .global-loading-content{
+
+            width: 100%;
+
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            box-sizing: border-box;
+
+        }
+
+
+        /* ==========================================
+           HERO DASHBOARD
+        ========================================== */
+
+        #global-loading
+
+        .global-loading-logo{
+
+            display: block;
+
+            width: min(
+
+                78vw,
+
+                360px
+
+            );
+
+            max-width: 360px;
+
+            height: auto;
+
+            object-fit: contain;
+
+            animation:
+
+                global-loading-float
+
+                2.4s
+
+                ease-in-out
+
+                infinite;
+
+            will-change: transform;
+
+        }
+
+
+        /* ==========================================
+           FLOAT ANIMATION
+        ========================================== */
+
+        @keyframes global-loading-float{
+
+            0%{
+
+                transform:
+
+                    translateY(0);
+
+            }
+
+
+            50%{
+
+                transform:
+
+                    translateY(-12px);
+
+            }
+
+
+            100%{
+
+                transform:
+
+                    translateY(0);
+
+            }
+
+        }
+
+
+        /* ==========================================
+           HIDDEN
+        ========================================== */
+
+        #global-loading
+
+        &.is-hidden{
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            pointer-events: none;
+
+        }
+
+
+        /* ==========================================
+           VISIBLE
+        ========================================== */
+
+        #global-loading
+
+        &.is-visible{
+
+            opacity: 1;
+
+            visibility: visible;
+
+            pointer-events: auto;
+
+        }
+
+
+        /* ==========================================
+           BODY LOCK
+        ========================================== */
+
+        body.global-loading-active{
+
+            overflow: hidden;
+
+        }
+
+
+        /* ==========================================
+           MOBILE
+        ========================================== */
+
+        @media(
+
+            max-width: 600px
+
+        ){
+
+            #global-loading
+
+            .global-loading-content{
+
+                padding: 16px;
+
+            }
+
+
+            #global-loading
+
+            .global-loading-logo{
+
+                width: 78vw;
+
+                max-width: 300px;
+
+            }
+
+        }
+
+
+        /* ==========================================
+           SMALL MOBILE
+        ========================================== */
+
+        @media(
+
+            max-width: 380px
+
+        ){
+
+            #global-loading
+
+            .global-loading-logo{
+
+                width: 74vw;
+
+                max-width: 270px;
+
+            }
+
+        }
+
+
+        /* ==========================================
+           REDUCED MOTION
+        ========================================== */
+
+        @media(
+
+            prefers-reduced-motion: reduce
+
+        ){
+
+            #global-loading
+
+            .global-loading-logo{
+
+                animation: none;
+
+            }
+
+        }
+
+    `;
+
+
+    document.head.appendChild(
+
+        style
+
+    );
+
+}
 
 
 
