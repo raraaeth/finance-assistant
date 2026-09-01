@@ -101,6 +101,12 @@ import {
 
 } from "../../js/write.js";
 
+import {
+
+    Loading
+
+} from "../loading/script.js";
+
 
 
 /* =====================================================
@@ -615,6 +621,12 @@ async confirm(){
 
     }
 
+/* =============================================
+   SHOW GLOBAL LOADING
+============================================= */
+
+await Loading.show();
+
 
     try{
 
@@ -738,6 +750,8 @@ async confirm(){
 
             Setting.close();
 
+            Loading.hide();
+
 
             return result;
 
@@ -773,6 +787,8 @@ async confirm(){
             error
 
         );
+
+       Loading.hide();
 
 
         alert(
