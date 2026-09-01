@@ -80,9 +80,23 @@ import {
 
 
 /* =====================================================
-   HELPERS
+   PREFIX
+=====================================================
+
+   Prefix adalah identitas ID untuk workspace
+   Payroll Daily.
+
+   Prefix didefinisikan di workspace ini,
+   bukan di Global Input dan bukan di session.js.
+
+   config.js hanya bertugas menghubungkan
+   workspace dengan Global Input.
+
 ===================================================== */
 
+export const PREFIX =
+
+    "PDR";
 
 /* =====================================================
    GET RULES
@@ -684,6 +698,23 @@ export const Daily = {
 
         "payroll-daily",
 
+   /* =================================================
+       PREFIX
+    =================================================
+
+       Digunakan oleh Global Input Controller
+       untuk membuat ID transaksi.
+
+       Contoh :
+
+           PDR-XXXXXXXX
+
+    ================================================= */
+
+    prefix :
+
+        PREFIX,
+   
 
     /* =================================================
        TITLE
