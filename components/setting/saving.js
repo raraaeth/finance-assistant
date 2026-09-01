@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Saving
    File         : saving.js
-   Version      : 1.2.0
+   Version      : 1.3.0
 
    Description :
    Saving Setting Definition
@@ -11,23 +11,22 @@
    Sheet :
    saving_bank
 
-   Fields :
-   - nama_bank
-   - nama_bank_custom
+   Sheet Header :
+   - nama
 
-   Sheet Mapping :
-   UI
-       ↓
-   normalize()
-       ↓
-   nama
-       ↓
-   saving_bank
+   UI :
+   - Pilihan Bank / Wallet menggunakan checkbox
+   - Nama manual menggunakan input text
+   - Checkbox result dan manual result terpisah
+   - Saat Confirm seluruh result dinormalisasi
+     menjadi field "nama"
 
    Principle :
-   - Field UI tetap menggunakan nama_bank
-   - Lain-lain menggunakan nama_bank_custom
-   - Data akhir disesuaikan dengan header Sheet
+   - Bank / wallet bawaan mempunyai logo
+   - User dapat memilih beberapa pilihan sekaligus
+   - User dapat menambahkan nama sendiri
+   - Nama yang tersimpan di Sheet adalah nama sebenarnya
+   - Tidak ada lagi value "lain_lain"
 ===================================================== */
 
 
@@ -49,7 +48,7 @@ export const SavingSetting = {
 
     subtitle :
 
-        "Atur konfigurasi Saving",
+        "Atur rekening atau tempat penyimpanan dana",
 
 
     /* =================================================
@@ -58,44 +57,59 @@ export const SavingSetting = {
 
     sections : [
 
+
         /* =============================================
-           BANK
+           BANK / WALLET BAWAAN
         ============================================= */
 
         {
 
             id :
 
-                "bank",
+                "bank_options",
 
 
             title :
 
-                "🏦 Nama Bank",
+                "🏦 Bank / Wallet",
 
 
             description :
 
-                "Daftar rekening atau tempat penyimpanan dana Saving.",
+                "Pilih bank, e-wallet, atau tempat penyimpanan dana yang kamu gunakan.",
 
 
             /* =========================================
-               BUTTON
+               RESULT
             ========================================= */
+
+            resultTitle :
+
+                "Bank / Wallet Terpilih",
+
 
             addLabel :
 
-                "＋ Tambah",
+                "＋ Tambah Pilihan",
 
 
             formAddLabel :
 
-                "＋ Tambahkan",
+                "＋ Tambahkan Pilihan",
 
 
             deleteLabel :
 
                 "Hapus",
+
+
+            /* =========================================
+               FORM TYPE
+            ========================================= */
+
+            inputMode :
+
+                "checkbox-group",
 
 
             /* =========================================
@@ -105,213 +119,675 @@ export const SavingSetting = {
             fields : [
 
                 /* -------------------------------------
-                   NAMA BANK
+                   MANDIRI
                 ------------------------------------- */
 
                 {
 
                     name :
 
-                        "nama_bank",
-
+                        "mandiri",
 
                     label :
 
-                        "Nama Bank",
-
+                        "Mandiri",
 
                     type :
 
-                        "select",
+                        "checkbox",
 
+                    resultName :
 
-                    required :
+                        "Mandiri",
 
-                        true,
+                    logo :
 
-
-                    options : [
-
-                        {
-
-                            value :
-
-                                "mandiri",
-
-                            label :
-
-                                "Mandiri"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "bri",
-
-                            label :
-
-                                "BRI"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "dana",
-
-                            label :
-
-                                "DANA"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "seabank",
-
-                            label :
-
-                                "SeaBank"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "ovo",
-
-                            label :
-
-                                "OVO"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "gopay",
-
-                            label :
-
-                                "GoPay"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "bni",
-
-                            label :
-
-                                "BNI"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "bca",
-
-                            label :
-
-                                "BCA"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "shopeepay",
-
-                            label :
-
-                                "ShopeePay"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "wallet_crypto",
-
-                            label :
-
-                                "Wallet Crypto"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "celengan",
-
-                            label :
-
-                                "Celengan"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "koperasi",
-
-                            label :
-
-                                "Koperasi"
-
-                        },
-
-                        {
-
-                            value :
-
-                                "dana_darurat",
-
-                            label :
-
-                                "Dana Darurat"
-
-                        },
-
-                        /* ---------------------------------
-                           LAIN-LAIN
-                        --------------------------------- */
-
-                        {
-
-                            value :
-
-                                "lain_lain",
-
-                            label :
-
-                                "Lain-lain"
-
-                        }
-
-                    ]
+                        "./assets/images/bank/mandiri.png"
 
                 },
 
 
                 /* -------------------------------------
-                   NAMA BANK CUSTOM
+                   BRI
                 ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "bri",
+
+                    label :
+
+                        "BRI",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "BRI",
+
+                    logo :
+
+                        "./assets/images/bank/bri.png"
+
+                },
+
+
+                /* -------------------------------------
+                   BNI
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "bni",
+
+                    label :
+
+                        "BNI",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "BNI",
+
+                    logo :
+
+                        "./assets/images/bank/bni.png"
+
+                },
+
+
+                /* -------------------------------------
+                   BCA
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "bca",
+
+                    label :
+
+                        "BCA",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "BCA",
+
+                    logo :
+
+                        "./assets/images/bank/bca.png"
+
+                },
+
+
+                /* -------------------------------------
+                   SEABANK
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "seabank",
+
+                    label :
+
+                        "SeaBank",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "SeaBank",
+
+                    logo :
+
+                        "./assets/images/bank/seabank.png"
+
+                },
+
+
+                /* -------------------------------------
+                   DANA
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "dana",
+
+                    label :
+
+                        "DANA",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "DANA",
+
+                    logo :
+
+                        "./assets/images/bank/dana.png"
+
+                },
+
+
+                /* -------------------------------------
+                   OVO
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "ovo",
+
+                    label :
+
+                        "OVO",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "OVO",
+
+                    logo :
+
+                        "./assets/images/bank/ovo.png"
+
+                },
+
+
+                /* -------------------------------------
+                   GOPAY
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "gopay",
+
+                    label :
+
+                        "GoPay",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "GoPay",
+
+                    logo :
+
+                        "./assets/images/bank/gopay.png"
+
+                },
+
+
+                /* -------------------------------------
+                   SHOPEEPAY
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "shopeepay",
+
+                    label :
+
+                        "ShopeePay",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "ShopeePay",
+
+                    logo :
+
+                        "./assets/images/bank/shopeepay.png"
+
+                },
+
+
+                /* -------------------------------------
+                   WALLET CRYPTO
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "wallet_crypto",
+
+                    label :
+
+                        "Wallet Crypto",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "Wallet Crypto",
+
+                    logo :
+
+                        "./assets/images/bank/wallet-crypto.png"
+
+                },
+
+
+                /* -------------------------------------
+                   CELENGAN
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "celengan",
+
+                    label :
+
+                        "Celengan",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "Celengan",
+
+                    logo :
+
+                        "./assets/images/bank/celengan.png"
+
+                },
+
+
+                /* -------------------------------------
+                   KOPERASI
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "koperasi",
+
+                    label :
+
+                        "Koperasi",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "Koperasi",
+
+                    logo :
+
+                        "./assets/images/bank/koperasi.png"
+
+                },
+
+
+                /* -------------------------------------
+                   DANA DARURAT
+                ------------------------------------- */
+
+                {
+
+                    name :
+
+                        "dana_darurat",
+
+                    label :
+
+                        "Dana Darurat",
+
+                    type :
+
+                        "checkbox",
+
+                    resultName :
+
+                        "Dana Darurat",
+
+                    logo :
+
+                        "./assets/images/bank/dana-darurat.png"
+
+                }
+
+            ],
+
+
+            /* =========================================
+               NORMALIZE
+               
+               Checkbox :
+               
+               mandiri : true
+               bri     : false
+               
+               ↓
+               
+               nama :
+                   "Mandiri"
+            ========================================= */
+
+            normalize :
+
+                data => {
+
+                    const result = [];
+
+
+                    if(
+
+                        data.mandiri === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "Mandiri"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.bri === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "BRI"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.bni === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "BNI"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.bca === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "BCA"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.seabank === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "SeaBank"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.dana === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "DANA"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.ovo === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "OVO"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.gopay === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "GoPay"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.shopeepay === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "ShopeePay"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.wallet_crypto === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "Wallet Crypto"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.celengan === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "Celengan"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.koperasi === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "Koperasi"
+
+                        });
+
+                    }
+
+
+                    if(
+
+                        data.dana_darurat === true
+
+                    ){
+
+                        result.push({
+
+                            nama :
+
+                                "Dana Darurat"
+
+                        });
+
+                    }
+
+
+                    return result;
+
+                }
+
+        },
+
+
+        /* =============================================
+           NAMA MANUAL
+        ============================================= */
+
+        {
+
+            id :
+
+                "bank_custom",
+
+
+            title :
+
+                "✏️ Nama Sendiri",
+
+
+            description :
+
+                "Tambahkan nama bank, wallet, atau tempat penyimpanan dana yang belum tersedia di daftar.",
+
+
+            resultTitle :
+
+                "Nama Sendiri",
+
+
+            addLabel :
+
+                "＋ Tambah Nama",
+
+
+            formAddLabel :
+
+                "＋ Tambahkan Nama",
+
+
+            deleteLabel :
+
+                "Hapus",
+
+
+            fields : [
 
                 {
 
@@ -322,7 +798,7 @@ export const SavingSetting = {
 
                     label :
 
-                        "Nama Bank Lainnya",
+                        "Nama Bank / Wallet",
 
 
                     type :
@@ -332,25 +808,12 @@ export const SavingSetting = {
 
                     placeholder :
 
-                        "Masukkan nama bank",
+                        "Contoh: Jago, SeaBank Bisnis, dll.",
 
 
                     required :
 
-                        true,
-
-
-                    dependsOn : {
-
-                        field :
-
-                            "nama_bank",
-
-                        value :
-
-                            "lain_lain"
-
-                    }
+                        true
 
                 }
 
@@ -360,50 +823,20 @@ export const SavingSetting = {
             /* =========================================
                NORMALIZE
                
-               Mapping :
+               Input :
+                   nama_bank_custom
                
-               Field UI
-                   ↓
-               Sheet
-
-               Sheet header :
-
+               ↓
+               
+               Sheet :
                    nama
-
-               Jika pilihan normal :
-
-                   nama_bank = bri
-                       ↓
-                   nama = bri
-
-               Jika Lain-lain :
-
-                   nama_bank = lain_lain
-                   nama_bank_custom = Jago
-                       ↓
-                   nama = Jago
-
-               Field UI tidak dikirim
-               ke backend dalam bentuk
-               nama_bank / nama_bank_custom.
             ========================================= */
 
             normalize :
 
                 data => {
 
-                    const selectedBank =
-
-                        String(
-
-                            data.nama_bank ??
-
-                            ""
-
-                        ).trim();
-
-
-                    const customBank =
+                    const nama =
 
                         String(
 
@@ -414,38 +847,11 @@ export const SavingSetting = {
                         ).trim();
 
 
-                    /* =================================
-                       LAIN-LAIN
-                    ================================= */
-
-                    if(
-
-                        selectedBank ===
-
-                            "lain_lain"
-
-                    ){
-
-                        return {
-
-                            nama :
-
-                                customBank
-
-                        };
-
-                    }
-
-
-                    /* =================================
-                       BANK NORMAL
-                    ================================= */
-
                     return {
 
                         nama :
 
-                            selectedBank
+                            nama
 
                     };
 
