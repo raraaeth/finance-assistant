@@ -3,10 +3,21 @@
    Component    : Global Input
    Module       : Kas
    File         : kas.js
-   Version      : 2.0.0
+   Version      : 2.1.0
 
    Description :
    Input Flow Configuration for Kas
+
+   Data Source :
+   Global Input Data Engine
+        ↓
+   Global Workspace
+        ↓
+   kas.sheets
+        ↓
+   kas_member
+        ↓
+   getInputData()
 
    Flow :
    Jenis
@@ -15,17 +26,144 @@
    → Kategori
    → Custom Category
    → Keterangan
+
+   Principle :
+   - Tidak menggunakan getter Kas khusus.
+   - Member berasal dari getInputData().
+   - Workspace dan sheet ditentukan oleh
+     Global Workspace.
 ===================================================== */
 
+
 /* =====================================================
-   IMPORT
+   IMPORT DATA
 ===================================================== */
 
 import {
 
-    getKasMembers
+    getInputData
 
 } from "./data.js";
+
+
+/* =====================================================
+   GET MEMBER OPTIONS
+=====================================================
+
+   Data berasal dari sheet kedua
+   workspace Kas.
+
+   Contoh :
+
+       kas
+         ↓
+       kas_member
+         ↓
+       getInputData()
+
+   Struktur member yang diharapkan :
+
+       {
+           nama : "Nama Member"
+       }
+
+===================================================== */
+
+function getMemberOptions(){
+
+    const data =
+
+        getInputData();
+
+
+    if(
+
+        !Array.isArray(
+
+            data
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return data
+
+        .filter(
+
+            item =>
+
+                item &&
+
+                typeof item ===
+
+                    "object"
+
+        )
+
+        .map(
+
+            item =>
+
+                String(
+
+                    item.nama ??
+
+                    ""
+
+                )
+
+                    .trim()
+
+        )
+
+        .filter(
+
+            Boolean
+
+        )
+
+        .filter(
+
+            (
+
+                value,
+
+                index,
+
+                array
+
+            ) =>
+
+                array.indexOf(
+
+                    value
+
+                ) === index
+
+        )
+
+        .map(
+
+            value => ({
+
+                value :
+
+                    value,
+
+                label :
+
+                    value
+
+            })
+
+        );
+
+}
 
 
 /* =====================================================
@@ -38,53 +176,85 @@ const CATEGORY = {
 
         {
 
-            value : "nabung",
+            value :
 
-            label : "Nabung",
+                "nabung",
 
-            system : true
+            label :
 
-        },
+                "Nabung",
 
-        {
+            system :
 
-            value : "iuran",
-
-            label : "Iuran",
-
-            system : true
+                true
 
         },
 
         {
 
-            value : "bayar",
+            value :
 
-            label : "Bayar",
+                "iuran",
 
-            system : true
+            label :
 
-        },
+                "Iuran",
 
-        {
+            system :
 
-            value : "bunga",
-
-            label : "Bunga",
-
-            system : true
+                true
 
         },
 
         {
 
-            value : "custom",
+            value :
 
-            label : "Lain-lain",
+                "bayar",
 
-            system : false,
+            label :
 
-            custom : true
+                "Bayar",
+
+            system :
+
+                true
+
+        },
+
+        {
+
+            value :
+
+                "bunga",
+
+            label :
+
+                "Bunga",
+
+            system :
+
+                true
+
+        },
+
+        {
+
+            value :
+
+                "custom",
+
+            label :
+
+                "Lain-lain",
+
+            system :
+
+                false,
+
+            custom :
+
+                true
 
         }
 
@@ -95,23 +265,37 @@ const CATEGORY = {
 
         {
 
-            value : "hutang",
+            value :
 
-            label : "Hutang",
+                "hutang",
 
-            system : true
+            label :
+
+                "Hutang",
+
+            system :
+
+                true
 
         },
 
         {
 
-            value : "custom",
+            value :
 
-            label : "Lain-lain",
+                "custom",
 
-            system : false,
+            label :
 
-            custom : true
+                "Lain-lain",
+
+            system :
+
+                false,
+
+            custom :
+
+                true
 
         }
 
@@ -126,37 +310,42 @@ const CATEGORY = {
 
 export const Kas = {
 
+    /* =================================================
+       WORKSPACE
+    ================================================= */
+
     workspace :
 
         "kas",
 
+
+    /* =================================================
+       TITLE
+    ================================================= */
+
     title :
 
         "Input Kas",
+
+
+    /* =================================================
+       SUBTITLE
+    ================================================= */
 
     subtitle :
 
         "Tambahkan transaksi Kas",
 
 
-    /* =============================================
-       MEMBERS
-    ============================================= */
-
-    members :
-
-    getKasMembers(),
-
-
-    /* =============================================
+    /* =================================================
        FLOW
-    ============================================= */
+    ================================================= */
 
     steps : [
 
-        /* =========================================
+        /* =============================================
            1. JENIS
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -203,9 +392,9 @@ export const Kas = {
         },
 
 
-        /* =========================================
+        /* =============================================
            2. MEMBER
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -223,16 +412,16 @@ export const Kas = {
 
             options :
 
-    () =>
+                () =>
 
-        getKasMembers()
+                    getMemberOptions()
 
         },
 
 
-        /* =========================================
+        /* =============================================
            3. NOMINAL
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -255,9 +444,9 @@ export const Kas = {
         },
 
 
-        /* =========================================
+        /* =============================================
            4. KATEGORI
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -273,20 +462,26 @@ export const Kas = {
 
                 "select",
 
-            options : values =>
+            options :
 
-                CATEGORY[
+                values =>
 
-                    values.type
+                    CATEGORY[
 
-                ] ?? []
+                        values.type
+
+                    ]
+
+                    ??
+
+                    []
 
         },
 
 
-        /* =========================================
+        /* =============================================
            5. CUSTOM CATEGORY
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -317,9 +512,9 @@ export const Kas = {
         },
 
 
-        /* =========================================
+        /* =============================================
            6. KETERANGAN
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -344,3 +539,160 @@ export const Kas = {
     ]
 
 };
+
+
+/* =====================================================
+   GET CONFIG
+===================================================== */
+
+export function getKasInputConfig(){
+
+    return Kas;
+
+}
+
+
+/* =====================================================
+   GET MEMBERS
+===================================================== */
+
+export function getKasMembers(){
+
+    return getMemberOptions();
+
+}
+
+
+/* =====================================================
+   GET CATEGORIES
+===================================================== */
+
+export function getKasCategories(
+
+    type
+
+){
+
+    return CATEGORY[
+
+        type
+
+    ]
+
+    ??
+
+    [];
+
+}
+
+
+/* =====================================================
+   DEBUG
+===================================================== */
+
+export function debugKasInput(){
+
+    const data =
+
+        getInputData();
+
+
+    const members =
+
+        getMemberOptions();
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== KAS INPUT DEBUG ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "Raw Input Data:",
+
+        data
+
+    );
+
+
+    console.log(
+
+        "Member Options:",
+
+        members
+
+    );
+
+
+    console.log(
+
+        "Kas Config:",
+
+        Kas
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    return {
+
+        data :
+
+            Array.isArray(
+
+                data
+
+            )
+
+            ?
+
+            [
+
+                ...data
+
+            ]
+
+            :
+
+            [],
+
+
+        members :
+
+            [
+
+                ...members
+
+            ],
+
+
+        config :
+
+            Kas
+
+    };
+
+}
