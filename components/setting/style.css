@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : style.css
-   Version      : 1.0.0
+   Version      : 1.1.0
 ===================================================== */
 
 
@@ -354,6 +354,48 @@
 
 
 /* =====================================================
+   TEXTAREA
+===================================================== */
+
+.global-setting-field textarea{
+
+    width:100%;
+
+    min-height:100px;
+
+    padding:10px 12px;
+
+    box-sizing:border-box;
+
+    border:
+        1px solid
+        #d7dfdd;
+
+    border-radius:12px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    font-size:15px;
+
+    font-family:inherit;
+
+    outline:none;
+
+    resize:vertical;
+
+}
+
+
+.global-setting-field textarea:focus{
+
+    border-color:#6f9994;
+
+}
+
+
+/* =====================================================
    FORM
 ===================================================== */
 
@@ -420,7 +462,7 @@
 
     flex-direction:column;
 
-    gap:10px;
+    gap:12px;
 
     margin-top:14px;
 
@@ -433,21 +475,95 @@
 
 .global-setting-result-item{
 
-    position:relative;
-
     width:100%;
-
-    padding:14px;
 
     box-sizing:border-box;
 
+    padding:15px;
+
     border:
         1px solid
-        #dfe6e4;
+        #e0e6e4;
 
-    border-radius:12px;
+    border-radius:14px;
 
-    background:#f5f7f7;
+    background:#f7f9f8;
+
+}
+
+
+/* =====================================================
+   RESULT CONTENT
+===================================================== */
+
+.global-setting-result-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:0;
+
+}
+
+
+/* =====================================================
+   RESULT ROW
+===================================================== */
+
+.global-setting-result-row{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    min-height:34px;
+
+}
+
+
+/* =====================================================
+   RESULT LABEL
+===================================================== */
+
+.global-setting-result-label{
+
+    flex:1;
+
+    min-width:0;
+
+    font-size:13px;
+
+    line-height:1.4;
+
+    color:#7a8785;
+
+}
+
+
+/* =====================================================
+   RESULT VALUE
+===================================================== */
+
+.global-setting-result-value{
+
+    max-width:60%;
+
+    font-size:15px;
+
+    line-height:1.4;
+
+    font-weight:700;
+
+    color:#294845;
+
+    text-align:right;
+
+    overflow-wrap:anywhere;
 
 }
 
@@ -469,6 +585,10 @@
 }
 
 
+/* =====================================================
+   RESULT DETAIL
+===================================================== */
+
 .global-setting-result-detail{
 
     font-size:13px;
@@ -486,25 +606,44 @@
 
 .global-setting-result-delete{
 
-    margin-top:10px;
+    width:100%;
 
-    padding:7px 12px;
+    min-height:38px;
+
+    margin-top:12px;
+
+    padding:9px 12px;
 
     border:
         1px solid
-        #d5dddd;
+        #d8dfdd;
 
-    border-radius:8px;
+    border-radius:9px;
 
     background:#ffffff;
 
-    color:#7b4b4b;
+    color:#805555;
 
-    font-size:12px;
+    font-size:13px;
 
     font-weight:600;
 
+    font-family:inherit;
+
     cursor:pointer;
+
+    transition:
+        background .15s ease,
+        border-color .15s ease;
+
+}
+
+
+.global-setting-result-delete:active{
+
+    transform:scale(.98);
+
+    background:#f3f5f4;
 
 }
 
@@ -591,11 +730,13 @@ body.setting-open{
 
     }
 
+
     .global-setting-content{
 
         padding:18px;
 
     }
+
 
     .global-setting-footer{
 
@@ -607,6 +748,7 @@ body.setting-open{
     }
 
 }
+
 
 /* =====================================================
    CUSTOM SELECT BUTTON
@@ -782,6 +924,8 @@ body.setting-open{
 
     width:100%;
 
+    max-height:60vh;
+
     overflow-y:auto;
 
     overflow-x:hidden;
@@ -882,14 +1026,10 @@ body.setting-open{
 
 
 /* =====================================================
-   MOBILE
+   PICKER MOBILE
 ===================================================== */
 
-@media(
-
-    max-width:600px
-
-){
+@media(max-width:600px){
 
     .global-setting-picker-header{
 
@@ -911,6 +1051,7 @@ body.setting-open{
     }
 
 }
+
 
 /* =====================================================
    GLOBAL SETTING FIELD NOTE
@@ -945,10 +1086,10 @@ body.setting-open{
 
 
 /* =====================================================
-   MOBILE
+   FIELD NOTE MOBILE
 ===================================================== */
 
-@media (max-width:600px){
+@media(max-width:600px){
 
     .global-setting-field-note{
 
@@ -961,24 +1102,11 @@ body.setting-open{
     }
 
 }
+
+
 /* =====================================================
-   CUSTOM PICKER LIST
+   PICKER SCROLLBAR
 ===================================================== */
-
-.global-setting-picker-list{
-
-    max-height:60vh;
-
-    overflow-y:auto;
-
-    overflow-x:hidden;
-
-    -webkit-overflow-scrolling:touch;
-
-}
-
-
-/* Scrollbar */
 
 .global-setting-picker-list::-webkit-scrollbar{
 
@@ -1002,16 +1130,20 @@ body.setting-open{
 
 }
 
+
 /* =====================================================
    LABEL PRE-LINE
 ===================================================== */
 
-.global-setting-field > label {
-    white-space: pre-line;
+.global-setting-field > label{
+
+    white-space:pre-line;
+
 }
 
+
 /* =====================================================
-   CHECK BOX
+   CHECKBOX
 ===================================================== */
 
 .global-setting-field input[type="checkbox"]{
@@ -1027,6 +1159,7 @@ body.setting-open{
     flex:none;
 
 }
+
 
 /* =====================================================
    CHECKBOX FIELD
@@ -1047,7 +1180,9 @@ body.setting-open{
 }
 
 
-/* LABEL */
+/* =====================================================
+   CHECKBOX LABEL
+===================================================== */
 
 .global-setting-checkbox-field label{
 
@@ -1058,7 +1193,9 @@ body.setting-open{
 }
 
 
-/* CHECKBOX */
+/* =====================================================
+   CHECKBOX
+===================================================== */
 
 .global-setting-checkbox-field input[type="checkbox"]{
 
@@ -1071,8 +1208,10 @@ body.setting-open{
     flex:none;
 
 }
+
+
 /* =====================================================
-   CHECKBOX FIELD
+   CHECKBOX FIELD FORCE
 ===================================================== */
 
 .global-setting-field.global-setting-checkbox-field{
@@ -1173,5 +1312,54 @@ input[type="checkbox"]{
     flex:0 0 20px !important;
 
     appearance:auto;
+
+}
+
+
+/* =====================================================
+   RESULT MOBILE
+===================================================== */
+
+@media(max-width:480px){
+
+    .global-setting-result-item{
+
+        padding:14px;
+
+        border-radius:13px;
+
+    }
+
+
+    .global-setting-result-row{
+
+        gap:12px;
+
+    }
+
+
+    .global-setting-result-label{
+
+        font-size:13px;
+
+    }
+
+
+    .global-setting-result-value{
+
+        max-width:58%;
+
+        font-size:15px;
+
+    }
+
+
+    .global-setting-result-delete{
+
+        margin-top:11px;
+
+        min-height:38px;
+
+    }
 
 }
