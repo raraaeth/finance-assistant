@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : flow.js
-   Version      : 3.0.0
+   Version      : 4.0.0
 
    Description :
    Global Input Flow Controller
@@ -10,6 +10,20 @@
    PRINCIPLE :
 
    Flow hanya bertugas mengumpulkan input.
+
+   Workspace
+       ↓
+   config.js
+       ↓
+   State.config
+       ↓
+   State.config.module
+       ↓
+   steps
+       ↓
+   field.js
+       ↓
+   input
 
    Enter / Change
        ↓
@@ -31,11 +45,11 @@
 
    IMPORTANT :
 
-   Enter TIDAK:
-   - menambahkan transaction
-   - mengirim data
-   - menjalankan confirm
-   - menjalankan completeTransaction()
+   - Enter TIDAK menambahkan transaction
+   - Enter TIDAK mengirim data
+   - Enter TIDAK menjalankan confirm
+   - Enter TIDAK menjalankan completeTransaction()
+   - Flow TIDAK melakukan write
 
    Hanya tombol Tambahkan yang boleh
    memasukkan data ke State.transactions.
@@ -56,7 +70,7 @@
 
 
 /* =====================================================
-   IMPORT
+   IMPORT STATE
 ===================================================== */
 
 import {
@@ -65,6 +79,10 @@ import {
 
 } from "./state.js";
 
+
+/* =====================================================
+   IMPORT FIELD RENDERER
+===================================================== */
 
 import {
 
@@ -75,6 +93,21 @@ import {
 
 /* =====================================================
    PAYROLL DAILY HIERARCHY
+=====================================================
+
+   Payroll Daily mempunyai hierarchy khusus :
+
+       Nama
+          ↓
+       Grade 1
+          ↓
+       Grade 2
+
+   Flow hanya meneruskan perubahan Nama
+   kepada hierarchy engine.
+
+   Logic hierarchy tetap berada di daily.js.
+
 ===================================================== */
 
 import {
@@ -130,12 +163,198 @@ function getContainer(){
 
 
 /* =====================================================
+   GET MODULE CONFIG
+=====================================================
+
+   Struktur baru :
+
+       State.config
+           ↓
+       module
+           ↓
+       workspace config
+
+   Contoh :
+
+       State.config = {
+
+           id       : "payroll-daily",
+           title    : "Payroll Daily",
+           icon     : "...",
+           sheets   : [...],
+           module   : {
+
+               workspace : "payroll-daily",
+               prefix    : "PDR",
+               title     : "Payroll Daily",
+               steps     : [...]
+           }
+
+       }
+
+   Compatibility :
+
+   Jika module belum tersedia,
+   State.config sendiri tetap dapat digunakan
+   sebagai fallback.
+
+===================================================== */
+
+function getModuleConfig(){
+
+    const config =
+
+        State.config;
+
+
+    if(
+
+        !config
+
+        ||
+
+        typeof config !==
+
+            "object"
+
+    ){
+
+        return {};
+
+    }
+
+
+    const module =
+
+        config.module;
+
+
+    if(
+
+        module
+
+        &&
+
+        typeof module ===
+
+            "object"
+
+    ){
+
+        return module;
+
+    }
+
+
+    return config;
+
+}
+
+
+/* =====================================================
    GET STEPS
 ===================================================== */
 
 function getSteps(){
 
-    return State.config?.steps ?? [];
+    const config =
+
+        getModuleConfig();
+
+
+    if(
+
+        !Array.isArray(
+
+            config.steps
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return config.steps;
+
+}
+
+
+/* =====================================================
+   GET WORKSPACE
+===================================================== */
+
+function getWorkspace(){
+
+    const module =
+
+        getModuleConfig();
+
+
+    return (
+
+        module.workspace
+
+        ??
+
+        State.workspace
+
+        ??
+
+        ""
+
+    );
+
+}
+
+
+/* =====================================================
+   GET PREFIX
+=====================================================
+
+   Prefix tidak dibuat di Flow.
+
+   Prefix berasal dari konfigurasi workspace
+   melalui config.js.
+
+===================================================== */
+
+export function getFlowPrefix(){
+
+    const module =
+
+        getModuleConfig();
+
+
+    const prefix =
+
+        module.prefix;
+
+
+    if(
+
+        typeof prefix !==
+
+            "string"
+
+        ||
+
+        !prefix.trim()
+
+    ){
+
+        return "";
+
+    }
+
+
+    return prefix
+
+        .trim()
+
+        .toUpperCase();
 
 }
 
@@ -166,6 +385,48 @@ export function renderFlow(){
 
         getSteps();
 
+
+    /* =============================================
+       TIDAK ADA CONFIG
+    ============================================= */
+
+    if(
+
+        steps.length ===
+
+            0
+
+    ){
+
+        console.warn(
+
+            "Global Input: steps tidak ditemukan pada konfigurasi workspace.",
+
+            {
+
+                workspace :
+
+                    getWorkspace(),
+
+                config :
+
+                    State.config
+
+            }
+
+        );
+
+
+        flowComplete();
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CURRENT FIELD
+    ============================================= */
 
     let field =
 
@@ -209,7 +470,7 @@ export function renderFlow(){
 
     /* =================================================
        SEMUA FIELD SUDAH SELESAI
-
+       
        Stop di sini.
 
        Tidak memasukkan transaksi.
@@ -309,7 +570,9 @@ function handleFieldComplete(
 
     if(
 
-        fieldIndex === -1
+        fieldIndex ===
+
+            -1
 
     ){
 
@@ -335,7 +598,7 @@ function handleFieldComplete(
 
     /* =================================================
        CONDITION FIELD
-       
+
        Checkbox condition bukan field biasa.
 
        Setelah condition dipilih,
@@ -376,7 +639,7 @@ function handleFieldComplete(
 
         &&
 
-        State.workspace ===
+        getWorkspace() ===
 
             "payroll-daily"
 
@@ -423,6 +686,15 @@ function handleFieldComplete(
     /* =================================================
        NORMAL FIELD
     ================================================= */
+
+    State.values[
+
+        field.id
+
+    ] =
+
+        value;
+
 
     State.step =
 
@@ -491,6 +763,10 @@ function handleDailyHierarchyChange(
 
     if(
 
+        resolved
+
+        &&
+
         resolved.grade_1
 
     ){
@@ -513,6 +789,10 @@ function handleDailyHierarchyChange(
     ================================================= */
 
     if(
+
+        resolved
+
+        &&
 
         resolved.grade_2
 
@@ -607,7 +887,8 @@ function handleStatusChange(
     /* =================================================
        TERMINAL STATUS
        
-       Attendance lama :
+       Attendance :
+
        Cuti
        Sakit
        Absen
@@ -684,6 +965,31 @@ function handleConditionChange(
 
 
     /* =================================================
+       SIMPAN CONDITION
+    ================================================= */
+
+    State.values.conditions =
+
+        Array.isArray(
+
+            value
+
+        )
+
+            ?
+
+        [
+
+            ...value
+
+        ]
+
+            :
+
+        [];
+
+
+    /* =================================================
        BERSIHKAN FIELD CONDITION SEBELUMNYA
     ================================================= */
 
@@ -712,7 +1018,9 @@ function handleConditionChange(
 
         ||
 
-        value.length === 0
+        value.length ===
+
+            0
 
     ){
 
@@ -824,7 +1132,7 @@ function renderConditionFields(
 
         /* =================================================
            STOP PENCARIAN CONDITION INPUT
-           
+
            Field final seperti keterangan
            dianggap field normal.
         ================================================= */
@@ -861,7 +1169,9 @@ function renderConditionFields(
 
     if(
 
-        activeFields.length === 0
+        activeFields.length ===
+
+            0
 
     ){
 
@@ -1003,7 +1313,9 @@ function isConditionInput(
 
     if(
 
-        fieldIndex === -1
+        fieldIndex ===
+
+            -1
 
     ){
 
@@ -1023,7 +1335,9 @@ function isConditionInput(
 
     if(
 
-        conditionIndex === -1
+        conditionIndex ===
+
+            -1
 
     ){
 
@@ -1442,9 +1756,8 @@ function isVisible(
 
 /* =====================================================
    FLOW COMPLETE
-===================================================== */
+=====================================================
 
-/*
    INI ADALAH BATAS FLOW.
 
    Tidak ada transaksi dibuat di sini.
@@ -1453,7 +1766,8 @@ function isVisible(
 
    Hanya memberi tahu transaction.js
    bahwa semua input sudah selesai.
-*/
+
+===================================================== */
 
 function flowComplete(){
 
@@ -1465,7 +1779,7 @@ function flowComplete(){
 
             workspace :
 
-                State.workspace,
+                getWorkspace(),
 
             mode :
 
@@ -1496,7 +1810,7 @@ function flowComplete(){
 
                     workspace :
 
-                        State.workspace,
+                        getWorkspace(),
 
                     mode :
 
