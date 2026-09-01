@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Saving
    File         : saving.js
-   Version      : 1.1.0
+   Version      : 1.2.0
 
    Description :
    Saving Setting Definition
@@ -13,6 +13,21 @@
 
    Fields :
    - nama_bank
+   - nama_bank_custom
+
+   Sheet Mapping :
+   UI
+       ↓
+   normalize()
+       ↓
+   nama
+       ↓
+   saving_bank
+
+   Principle :
+   - Field UI tetap menggunakan nama_bank
+   - Lain-lain menggunakan nama_bank_custom
+   - Data akhir disesuaikan dengan header Sheet
 ===================================================== */
 
 
@@ -225,7 +240,7 @@ export const SavingSetting = {
 
                         },
 
-                       {
+                        {
 
                             value :
 
@@ -249,7 +264,7 @@ export const SavingSetting = {
 
                         },
 
-                       {
+                        {
 
                             value :
 
@@ -271,7 +286,7 @@ export const SavingSetting = {
 
                                 "Dana Darurat"
 
-                        },               
+                        },
 
                         /* ---------------------------------
                            LAIN-LAIN
@@ -339,7 +354,102 @@ export const SavingSetting = {
 
                 }
 
-            ]
+            ],
+
+
+            /* =========================================
+               NORMALIZE
+               
+               Mapping :
+               
+               Field UI
+                   ↓
+               Sheet
+
+               Sheet header :
+
+                   nama
+
+               Jika pilihan normal :
+
+                   nama_bank = bri
+                       ↓
+                   nama = bri
+
+               Jika Lain-lain :
+
+                   nama_bank = lain_lain
+                   nama_bank_custom = Jago
+                       ↓
+                   nama = Jago
+
+               Field UI tidak dikirim
+               ke backend dalam bentuk
+               nama_bank / nama_bank_custom.
+            ========================================= */
+
+            normalize :
+
+                data => {
+
+                    const selectedBank =
+
+                        String(
+
+                            data.nama_bank ??
+
+                            ""
+
+                        ).trim();
+
+
+                    const customBank =
+
+                        String(
+
+                            data.nama_bank_custom ??
+
+                            ""
+
+                        ).trim();
+
+
+                    /* =================================
+                       LAIN-LAIN
+                    ================================= */
+
+                    if(
+
+                        selectedBank ===
+
+                            "lain_lain"
+
+                    ){
+
+                        return {
+
+                            nama :
+
+                                customBank
+
+                        };
+
+                    }
+
+
+                    /* =================================
+                       BANK NORMAL
+                    ================================= */
+
+                    return {
+
+                        nama :
+
+                            selectedBank
+
+                    };
+
+                }
 
         }
 
