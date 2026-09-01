@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.1.0
+   Version      : 4.2.0
 
    Description :
    Airdrop Input Configuration
@@ -13,7 +13,7 @@
    - Reward
 
    Activity :
-   - Tanggal
+   - Tanggal otomatis dari Global Input
    - Type
    - Nama / Wallet
    - Project
@@ -51,6 +51,8 @@
    - Tidak ada daftar wallet / type hardcode.
    - Tidak membaca API secara langsung.
    - Data source ditentukan oleh Global Workspace.
+   - Tanggal activity tidak dibuat sebagai field.
+   - Tanggal activity otomatis menggunakan State.date.
 ===================================================== */
 
 
@@ -141,7 +143,7 @@ export const Airdrop = {
 
     /* =================================================
        PREFIX
-       
+
        Prefix khusus Input Airdrop.
 
        Prefix digunakan hanya untuk membuat
@@ -212,43 +214,17 @@ export const Airdrop = {
 
     /* =================================================
        ACTIVITY STEPS
-       
-       Status TIDAK menjadi input.
 
-       Status otomatis :
+       TANGGAL TIDAK ADA DI SINI.
 
-           ongoing
+       Global Input sudah menyediakan tanggal
+       melalui State.date.
+
+       Tanggal tetap disimpan otomatis oleh
+       buildActivityValues().
     ================================================= */
 
     steps : [
-
-        /* =============================================
-           TANGGAL
-        ============================================= */
-
-        {
-
-            id :
-
-                "tanggal",
-
-
-            label :
-
-                "Tanggal",
-
-
-            type :
-
-                "date",
-
-
-            required :
-
-                true
-
-        },
-
 
         /* =============================================
            TYPE
@@ -365,7 +341,7 @@ export const Airdrop = {
 
         /* =============================================
            START
-           
+
            Hanya campaign.
         ============================================= */
 
@@ -410,7 +386,7 @@ export const Airdrop = {
 
         /* =============================================
            END
-           
+
            Hanya campaign.
         ============================================= */
 
@@ -1710,6 +1686,25 @@ export function applyReward(
    BUILD ACTIVITY VALUES
 ===================================================== */
 
+/*
+   Tanggal TIDAK berasal dari field Airdrop.
+
+   Sumber tanggal :
+
+       Global Input
+           ↓
+       State.date
+           ↓
+       values.tanggal
+
+   Dengan demikian user tidak perlu
+   memilih tanggal dua kali.
+
+   Field "tanggal" tetap disimpan di values
+   untuk menjaga kompatibilitas dengan
+   struktur data Airdrop lama.
+*/
+
 export function buildActivityValues(
 
     values
@@ -1738,8 +1733,6 @@ export function buildActivityValues(
         tanggal :
 
             String(
-
-                values.tanggal ??
 
                 State.date ??
 
@@ -1839,7 +1832,7 @@ export function buildActivityValues(
 
     /* =============================================
        NON CAMPAIGN
-       
+
        Start / End tidak digunakan
        untuk type selain campaign.
     ============================================= */
