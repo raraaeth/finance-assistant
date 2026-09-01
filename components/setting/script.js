@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 4.2.1
+   Version      : 4.3.0
 
    Description :
    Global Setting Controller
@@ -506,9 +506,9 @@ export const Setting = {
     },
 
 
-    /* =====================================================
+    /* =================================================
        CONFIRM
-    ===================================================== */
+    ================================================= */
 
     async confirm(){
 
@@ -567,7 +567,7 @@ export const Setting = {
 
 
         /* =============================================
-           DEBUG RESULT
+           DEBUG
         ============================================= */
 
         console.log(
@@ -941,10 +941,6 @@ function renderContent(
     content.innerHTML = "";
 
 
-    /* =============================================
-       CLOSE OLD PICKER
-    ============================================= */
-
     closeCustomPicker();
 
 
@@ -1034,12 +1030,7 @@ function renderSection(
 
     `
 
-        <!-- ======================================
-             SECTION HEADER
-        ====================================== -->
-
-        <div
-            class="global-setting-section-header">
+        <div class="global-setting-section-header">
 
             <div>
 
@@ -1071,19 +1062,10 @@ function renderSection(
         </div>
 
 
-        <!-- ======================================
-             FORM
-        ====================================== -->
-
-        <div
-            class="global-setting-form hidden">
+        <div class="global-setting-form hidden">
 
         </div>
 
-
-        <!-- ======================================
-             ADD BUTTON
-        ====================================== -->
 
         <button
             type="button"
@@ -1100,12 +1082,7 @@ function renderSection(
         </button>
 
 
-        <!-- ======================================
-             RESULT
-        ====================================== -->
-
-        <div
-            class="global-setting-result">
+        <div class="global-setting-result">
 
         </div>
 
@@ -1195,7 +1172,7 @@ function toggleForm(
 
 
     /* =============================================
-       IF FORM ALREADY OPEN
+       CLOSE
     ============================================= */
 
     if(
@@ -1227,7 +1204,7 @@ function toggleForm(
 
 
     /* =============================================
-       RENDER FORM
+       OPEN
     ============================================= */
 
     renderForm(
@@ -1288,7 +1265,7 @@ function renderForm(
 
 
     /* =============================================
-       VALIDATE FIELDS
+       VALIDATE
     ============================================= */
 
     if(
@@ -1332,7 +1309,7 @@ function renderForm(
 
 
     /* =============================================
-       CONDITIONAL FIELD LISTENER
+       CONDITIONAL
     ============================================= */
 
     bindConditionalFields(
@@ -1345,7 +1322,7 @@ function renderForm(
 
 
     /* =============================================
-       DYNAMIC SELECT LISTENER
+       DYNAMIC SELECT
     ============================================= */
 
     bindDynamicSelects(
@@ -1427,7 +1404,7 @@ function renderForm(
 
 
     /* =============================================
-       MODULE RENDER HOOK
+       MODULE HOOK
     ============================================= */
 
     if(
@@ -1578,10 +1555,6 @@ function bindDynamicSelects(
 
                 () => {
 
-                    /* =========================
-                       RESET VALUE
-                    ========================= */
-
                     hidden.value = "";
 
 
@@ -1615,10 +1588,6 @@ function bindDynamicSelects(
 
                     }
 
-
-                    /* =========================
-                       RESET NOTE
-                    ========================= */
 
                     const wrapper =
 
@@ -1713,10 +1682,7 @@ function renderField(
 
 
     /* =============================================
-       MODULE ACTIVITY RULE
-       
-       Dipakai module yang membutuhkan
-       kontrol checkbox berdasarkan rule.
+       ACTIVITY RULE
     ============================================= */
 
     if(
@@ -1733,7 +1699,7 @@ function renderField(
 
 
     /* =============================================
-       CONDITIONAL METADATA
+       CONDITIONAL
     ============================================= */
 
     if(
@@ -1747,9 +1713,17 @@ function renderField(
             field.dependsOn.field;
 
 
-        wrapper.dataset.dependsOnValue =
+        if(
 
-            field.dependsOn.value;
+            field.dependsOn.value !== undefined
+
+        ){
+
+            wrapper.dataset.dependsOnValue =
+
+                field.dependsOn.value;
+
+        }
 
     }
 
@@ -1783,9 +1757,6 @@ function renderField(
 
     /* =============================================
        CUSTOM SELECT
-       
-       Semua type "select" otomatis
-       menggunakan picker custom.
     ============================================= */
 
     if(
@@ -1805,10 +1776,6 @@ function renderField(
         );
 
 
-        /* =============================================
-           FIELD NOTE
-        ============================================= */
-
         const note =
 
             document.createElement(
@@ -1825,9 +1792,13 @@ function renderField(
 
         note.textContent =
 
-            field.note ??
+            getOptionNote(
 
-            "";
+                field,
+
+                field.value
+
+            );
 
 
         wrapper.appendChild(
@@ -1850,15 +1821,11 @@ function renderField(
 
 
     /* =============================================
-       FIELD
+       INPUT
     ============================================= */
 
     let input;
 
-
-    /* =============================================
-       TEXTAREA
-    ============================================= */
 
     if(
 
@@ -1877,11 +1844,6 @@ function renderField(
             );
 
     }
-
-
-    /* =============================================
-       CHECKBOX
-    ============================================= */
 
     else if(
 
@@ -1906,11 +1868,6 @@ function renderField(
 
     }
 
-
-    /* =============================================
-       DEFAULT INPUT
-    ============================================= */
-
     else{
 
         input =
@@ -1932,7 +1889,7 @@ function renderField(
 
 
     /* =============================================
-       COMMON ATTRIBUTES
+       ATTRIBUTES
     ============================================= */
 
     applyFieldAttributes(
@@ -1944,10 +1901,6 @@ function renderField(
     );
 
 
-    /* =============================================
-       APPEND INPUT
-    ============================================= */
-
     wrapper.appendChild(
 
         input
@@ -1956,7 +1909,7 @@ function renderField(
 
 
     /* =============================================
-       FIELD NOTE
+       NOTE
     ============================================= */
 
     if(
@@ -1992,10 +1945,6 @@ function renderField(
 
     }
 
-
-    /* =============================================
-       APPEND WRAPPER
-    ============================================= */
 
     container.appendChild(
 
@@ -2152,10 +2101,6 @@ function renderCustomSelect(
 
 ){
 
-    /* =============================================
-       SELECT BUTTON
-    ============================================= */
-
     const button =
 
         document.createElement(
@@ -2206,9 +2151,13 @@ function renderCustomSelect(
 
             field.value
 
-        ) ??
+        )
 
-        field.placeholder ??
+        ||
+
+        field.placeholder
+
+        ||
 
         "Pilih...";
 
@@ -2306,10 +2255,6 @@ function renderCustomSelect(
     }
 
 
-    /* =============================================
-       APPEND
-    ============================================= */
-
     wrapper.appendChild(
 
         button
@@ -2344,7 +2289,7 @@ function renderCustomSelect(
 
 
     /* =============================================
-       OPEN PICKER
+       OPEN
     ============================================= */
 
     button.addEventListener(
@@ -2391,10 +2336,6 @@ function openCustomPicker(
     closeCustomPicker();
 
 
-    /* =============================================
-       PICKER
-    ============================================= */
-
     const picker =
 
         document.createElement(
@@ -2413,19 +2354,14 @@ function openCustomPicker(
 
     `
 
-        <div
-            class="global-setting-picker-backdrop">
+        <div class="global-setting-picker-backdrop">
 
         </div>
 
 
-        <div
-            class="global-setting-picker-panel">
+        <div class="global-setting-picker-panel">
 
-
-            <div
-                class="global-setting-picker-header">
-
+            <div class="global-setting-picker-header">
 
                 <strong>
 
@@ -2448,15 +2384,12 @@ function openCustomPicker(
 
                 </button>
 
-
             </div>
 
 
-            <div
-                class="global-setting-picker-list">
+            <div class="global-setting-picker-list">
 
             </div>
-
 
         </div>
 
@@ -2478,10 +2411,6 @@ function openCustomPicker(
 
         );
 
-
-    /* =============================================
-       OPTIONS
-    ============================================= */
 
     const options =
 
@@ -2593,7 +2522,7 @@ function openCustomPicker(
 
                 `
 
-                    <span>
+                    <span class="global-setting-picker-option-label">
 
                         ${escapeHTML(
 
@@ -2624,10 +2553,6 @@ function openCustomPicker(
 
                 `;
 
-
-                /* =================================
-                   SELECT OPTION
-                ================================= */
 
                 item.addEventListener(
 
@@ -2672,7 +2597,7 @@ function openCustomPicker(
 
 
     /* =============================================
-       CLOSE EVENTS
+       CLOSE
     ============================================= */
 
     const closeButton =
@@ -2784,17 +2709,13 @@ function selectCustomOption(
 
 ){
 
-    /* =============================================
-       SAVE VALUE
-    ============================================= */
-
     hidden.value =
 
         value;
 
 
     /* =============================================
-       UPDATE LABEL
+       LABEL
     ============================================= */
 
     const valueElement =
@@ -2820,14 +2741,7 @@ function selectCustomOption(
 
 
     /* =============================================
-       UPDATE NOTE
-       
-       PRIORITY :
-       option.note
-       ↓
-       field.note
-       ↓
-       empty
+       NOTE
     ============================================= */
 
     const wrapper =
@@ -2901,9 +2815,7 @@ function selectCustomOption(
 
 
     /* =============================================
-       CHANGE EVENT
-       
-       Penting untuk conditional fields.
+       CHANGE
     ============================================= */
 
     hidden.dispatchEvent(
@@ -3251,7 +3163,7 @@ function getFieldOptions(
 ){
 
     /* =============================================
-       STATIC OPTIONS
+       STATIC
     ============================================= */
 
     if(
@@ -3270,7 +3182,7 @@ function getFieldOptions(
 
 
     /* =============================================
-       DYNAMIC OPTIONS
+       DYNAMIC
     ============================================= */
 
     if(
@@ -3519,18 +3431,14 @@ function updateConditionalFields(
             }
 
 
-            /* =============================================
-               SHOULD SHOW
-            ============================================= */
-
             let shouldShow =
 
                 false;
 
 
-            /* =============================================
-               MULTIPLE VALUES
-            ============================================= */
+            /* =====================================
+               MULTIPLE
+            ===================================== */
 
             if(
 
@@ -3567,9 +3475,9 @@ function updateConditionalFields(
             }
 
 
-            /* =============================================
-               SINGLE VALUE
-            ============================================= */
+            /* =====================================
+               SINGLE
+            ===================================== */
 
             else if(
 
@@ -3596,9 +3504,9 @@ function updateConditionalFields(
             }
 
 
-            /* =============================================
-               APPLY STATE
-            ============================================= */
+            /* =====================================
+               SHOW
+            ===================================== */
 
             if(
 
@@ -3614,6 +3522,11 @@ function updateConditionalFields(
 
             }
 
+
+            /* =====================================
+               HIDE
+            ===================================== */
+
             else{
 
                 wrapper.classList.add(
@@ -3627,7 +3540,7 @@ function updateConditionalFields(
 
                     wrapper.querySelector(
 
-                        "input, select, textarea"
+                        "input:not([type='hidden']), select, textarea"
 
                     );
 
@@ -3662,6 +3575,78 @@ function updateConditionalFields(
 
                 }
 
+
+                /* =================================
+                   RESET CUSTOM SELECT
+                ================================= */
+
+                const hidden =
+
+                    wrapper.querySelector(
+
+                        "input[type='hidden']"
+
+                    );
+
+
+                const button =
+
+                    wrapper.querySelector(
+
+                        ".global-setting-custom-select"
+
+                    );
+
+
+                if(
+
+                    hidden
+
+                ){
+
+                    hidden.value =
+
+                        "";
+
+                }
+
+
+                if(
+
+                    button
+
+                ){
+
+                    button.classList.remove(
+
+                        "has-value"
+
+                    );
+
+
+                    const valueElement =
+
+                        button.querySelector(
+
+                            ".global-setting-custom-value"
+
+                        );
+
+
+                    if(
+
+                        valueElement
+
+                    ){
+
+                        valueElement.textContent =
+
+                            "Pilih...";
+
+                    }
+
+                }
+
             }
 
         }
@@ -3686,7 +3671,7 @@ function getFirstVisibleInput(
 
         form.querySelectorAll(
 
-            "input, select, textarea"
+            "input, select, textarea, button.global-setting-custom-select"
 
         );
 
@@ -3703,7 +3688,7 @@ function getFirstVisibleInput(
 
                 ".global-setting-field"
 
-        );
+            );
 
 
         if(
@@ -3726,6 +3711,19 @@ function getFirstVisibleInput(
             )
 
         ){
+
+            if(
+
+                input.type ===
+
+                "hidden"
+
+            ){
+
+                continue;
+
+            }
+
 
             return input;
 
@@ -3810,6 +3808,29 @@ function addResult(
 
 
     /* =============================================
+       DEBUG
+    ============================================= */
+
+    console.log(
+
+        "SETTING ADD RESULT",
+
+        {
+
+            section :
+
+                section.id,
+
+            data :
+
+                data
+
+        }
+
+    );
+
+
+    /* =============================================
        DUPLICATE
     ============================================= */
 
@@ -3839,7 +3860,7 @@ function addResult(
 
 
     /* =============================================
-       CREATE RESULT
+       CREATE ITEM
     ============================================= */
 
     const item =
@@ -3866,7 +3887,7 @@ function addResult(
 
 
     /* =============================================
-       RESULT BODY
+       RESULT CONTENT
     ============================================= */
 
     const body =
@@ -3884,18 +3905,7 @@ function addResult(
 
 
     /* =============================================
-       RESULT FIELDS
-       
-       resultField memungkinkan field form
-       berbeda dengan field hasil normalize.
-
-       Contoh Saving:
-
-       nama_bank
-           ↓
-       normalize()
-           ↓
-       nama
+       RENDER FIELDS
     ============================================= */
 
     if(
@@ -3912,51 +3922,9 @@ function addResult(
 
             field => {
 
-                /* =====================================
-                   FIELD RESULT
-
-                   Jika resultField ada, gunakan itu.
-                   Jika tidak, gunakan field.name.
-                ===================================== */
-
-                const resultField =
-
-                    field.resultField ??
-
-                    field.name;
-
-
-                /* =====================================
-                   FIELD TIDAK ADA DI DATA RESULT
-
-                   Jangan tampilkan field yang memang
-                   tidak menjadi bagian dari hasil
-                   normalize().
-                ===================================== */
-
-                if(
-
-                    !Object.prototype.hasOwnProperty.call(
-
-                        data,
-
-                        resultField
-
-                    )
-
-                ){
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   CONDITIONAL FIELD
-
-                   Conditional field yang tidak aktif
-                   tidak perlu ditampilkan.
-                ===================================== */
+                /* =================================
+                   CONDITIONAL HIDDEN
+                ================================= */
 
                 if(
 
@@ -3966,7 +3934,7 @@ function addResult(
 
                         data,
 
-                        resultField
+                        field.name
 
                     )
 
@@ -3976,10 +3944,6 @@ function addResult(
 
                 }
 
-
-                /* =====================================
-                   RESULT ROW
-                ===================================== */
 
                 const row =
 
@@ -3994,10 +3958,6 @@ function addResult(
 
                     "global-setting-result-row";
 
-
-                /* =====================================
-                   RESULT LABEL
-                ===================================== */
 
                 const label =
 
@@ -4022,10 +3982,6 @@ function addResult(
                     field.name;
 
 
-                /* =====================================
-                   RESULT VALUE
-                ===================================== */
-
                 const value =
 
                     document.createElement(
@@ -4046,16 +4002,12 @@ function addResult(
 
                         field,
 
-                        data[resultField],
+                        data[field.name],
 
                         data
 
                     );
 
-
-                /* =====================================
-                   APPEND
-                ===================================== */
 
                 row.appendChild(
 
@@ -4078,6 +4030,46 @@ function addResult(
                 );
 
             }
+
+        );
+
+    }
+
+
+    /* =============================================
+       FALLBACK
+       
+       Agar result tidak pernah benar-benar kosong.
+    ============================================= */
+
+    if(
+
+        body.children.length === 0
+
+    ){
+
+        const emptyRow =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+        emptyRow.className =
+
+            "global-setting-result-row";
+
+
+        emptyRow.textContent =
+
+            "Data pengaturan";
+
+
+        body.appendChild(
+
+            emptyRow
 
         );
 
@@ -4162,7 +4154,7 @@ function addResult(
 
 
     /* =============================================
-       AUTO CLOSE FORM
+       AUTO CLOSE
     ============================================= */
 
     if(
@@ -4252,7 +4244,7 @@ function collectFormData(
 
 
         /* =========================================
-           CONDITIONAL FIELD
+           CONDITIONAL
         ========================================= */
 
         if(
@@ -4284,10 +4276,6 @@ function collectFormData(
 
                     false;
 
-
-                /* =====================================
-                   MULTIPLE VALUES
-                ===================================== */
 
                 if(
 
@@ -4323,11 +4311,6 @@ function collectFormData(
 
                 }
 
-
-                /* =====================================
-                   SINGLE VALUE
-                ===================================== */
-
                 else if(
 
                     field.dependsOn.value !== undefined
@@ -4352,10 +4335,6 @@ function collectFormData(
 
                 }
 
-
-                /* =====================================
-                   FIELD TIDAK AKTIF
-                ===================================== */
 
                 if(
 
@@ -4402,7 +4381,11 @@ function collectFormData(
 
             value =
 
-                input.value.trim();
+                String(
+
+                    input.value ?? ""
+
+                ).trim();
 
         }
 
@@ -4439,10 +4422,6 @@ function collectFormData(
 
             );
 
-
-            /* =====================================
-               HIDDEN INPUT
-            ===================================== */
 
             if(
 
@@ -4572,10 +4551,6 @@ function isDuplicate(
                     );
 
 
-                /* =========================================
-                   CUSTOM UNIQUE FIELDS
-                ========================================= */
-
                 if(
 
                     Array.isArray(
@@ -4616,10 +4591,6 @@ function isDuplicate(
 
                 }
 
-
-                /* =========================================
-                   DEFAULT
-                ========================================= */
 
                 return (
 
@@ -4749,7 +4720,7 @@ function resetForm(
 
 
             /* =========================================
-               CUSTOM SELECT DISPLAY
+               SELECT
             ========================================= */
 
             if(
@@ -4782,10 +4753,6 @@ function resetForm(
                     );
 
 
-                /* =====================================
-                   RESET LABEL
-                ===================================== */
-
                 if(
 
                     valueElement
@@ -4813,10 +4780,6 @@ function resetForm(
                 }
 
 
-                /* =====================================
-                   RESET BUTTON STATE
-                ===================================== */
-
                 if(
 
                     button
@@ -4833,10 +4796,6 @@ function resetForm(
 
                 }
 
-
-                /* =====================================
-                   RESET NOTE
-                ===================================== */
 
                 const noteElement =
 
@@ -4877,7 +4836,7 @@ function resetForm(
 
 
     /* =============================================
-       RESET CONDITIONAL STATE
+       CONDITIONAL
     ============================================= */
 
     updateConditionalFields(
@@ -4904,25 +4863,15 @@ function resetForm(
 
     if(
 
-        firstVisibleInput
+        firstVisibleInput &&
 
-    ){
-
-        /* =========================================
-           Jangan focus hidden input custom select.
-        ========================================= */
-
-        if(
-
-            firstVisibleInput.type !==
+        firstVisibleInput.type !==
 
             "hidden"
 
-        ){
+    ){
 
-            firstVisibleInput.focus();
-
-        }
+        firstVisibleInput.focus();
 
     }
 
@@ -4945,10 +4894,7 @@ function formatResultValue(
 ){
 
     /* =============================================
-       CHECKBOX RESULT DARI FINANCIAL DISPLAY
-       
-       Financial menyimpan nilai checkbox
-       sementara di data.__display.
+       FINANCIAL DISPLAY
     ============================================= */
 
     if(
@@ -4983,9 +4929,7 @@ function formatResultValue(
 
 
     /* =============================================
-       CHECKBOX RESULT DARI ARRAY OPTION
-       
-       Dipakai Airdrop Wallet / Type.
+       CHECKBOX ARRAY
     ============================================= */
 
     if(
@@ -5039,18 +4983,7 @@ function formatResultValue(
 
 
     /* =============================================
-       CHECKBOX RESULT DARI NORMALIZED VALUE
-
-       Contoh:
-
-       field.resultValue :
-           "sabtu"
-
-       data.waktu :
-           "sabtu,minggu"
-
-       Hasil :
-           Ya
+       RESULT VALUE
     ============================================= */
 
     if(
@@ -5123,7 +5056,7 @@ function formatResultValue(
 
 
     /* =============================================
-       EMPTY VALUE
+       EMPTY
     ============================================= */
 
     if(
@@ -5143,9 +5076,6 @@ function formatResultValue(
 
     /* =============================================
        SELECT
-       
-       Value normalized tetap menggunakan
-       options dari field UI.
     ============================================= */
 
     if(
@@ -5168,7 +5098,7 @@ function formatResultValue(
 
 
     /* =============================================
-       NORMAL CHECKBOX
+       CHECKBOX
     ============================================= */
 
     if(
@@ -5191,10 +5121,6 @@ function formatResultValue(
 
     }
 
-
-    /* =============================================
-       DEFAULT
-    ============================================= */
 
     return value;
 
@@ -5365,10 +5291,6 @@ function applyFinancialAutoRules(
     }
 
 
-    /* =============================================
-       CARI PENENTUAN RULE
-    ============================================= */
-
     const ruleItem =
 
         data.find(
@@ -5401,7 +5323,7 @@ function applyFinancialAutoRules(
 
 
     /* =============================================
-       ACTIVITY PEMASUKAN
+       PEMASUKAN
     ============================================= */
 
     const pemasukanItem =
@@ -5425,7 +5347,7 @@ function applyFinancialAutoRules(
 
 
     /* =============================================
-       ACTIVITY PENGELUARAN
+       PENGELUARAN
     ============================================= */
 
     const pengeluaranItem =
@@ -5489,9 +5411,6 @@ function applyFinancialAutoRules(
 
     /* =============================================
        RULE TABUNGAN
-       
-       Mengikuti activity tabungan yang
-       benar-benar dipilih user.
     ============================================= */
 
     if(
@@ -5510,9 +5429,13 @@ function applyFinancialAutoRules(
 
                     pemasukanActivity
 
-                    + ","
+                    +
 
-                    + pengeluaranActivity
+                    ","
+
+                    +
+
+                    pengeluaranActivity
 
                 )
 
@@ -5530,9 +5453,15 @@ function applyFinancialAutoRules(
 
                     item =>
 
-                        item === "dana_darurat" ||
+                        item ===
 
-                        item === "tabungan_kaleng"
+                            "dana_darurat"
+
+                        ||
+
+                        item ===
+
+                            "tabungan_kaleng"
 
                 )
 
@@ -5576,10 +5505,6 @@ function applyFinancialAutoRules(
     }
 
 
-    /* =============================================
-       DEBUG
-    ============================================= */
-
     console.log(
 
         "FINANCIAL AUTO RULE",
@@ -5607,7 +5532,7 @@ function applyFinancialAutoRules(
 
 
 /* =====================================================
-   FINANCIAL AUTO RULE ACTIVITY
+   FINANCIAL SELECTED ACTIVITIES
 ===================================================== */
 
 function getFinancialSelectedActivities(
@@ -5616,12 +5541,10 @@ function getFinancialSelectedActivities(
 
 ){
 
-    const activities = new Set();
+    const activities =
 
+        new Set();
 
-    /* =============================================
-       ACTIVITY PEMASUKAN
-    ============================================= */
 
     const pemasukan =
 
@@ -5652,7 +5575,9 @@ function getFinancialSelectedActivities(
 
         .map(
 
-            item => item.trim()
+            item =>
+
+                item.trim()
 
         )
 
@@ -5674,10 +5599,6 @@ function getFinancialSelectedActivities(
 
     }
 
-
-    /* =============================================
-       ACTIVITY PENGELUARAN
-    ============================================= */
 
     const pengeluaran =
 
@@ -5708,7 +5629,9 @@ function getFinancialSelectedActivities(
 
         .map(
 
-            item => item.trim()
+            item =>
+
+                item.trim()
 
         )
 
@@ -5858,10 +5781,6 @@ function applyMonthlyAutoRules(
 
 ){
 
-    /* =============================================
-       CARI SETTING MONTHLY
-    ============================================= */
-
     const setting =
 
         data.find(
@@ -5879,9 +5798,7 @@ function applyMonthlyAutoRules(
 
     if(
 
-        !setting
-
-        ||
+        !setting ||
 
         !setting.data
 
@@ -5891,10 +5808,6 @@ function applyMonthlyAutoRules(
 
     }
 
-
-    /* =============================================
-       CEK RULE SHIFT
-    ============================================= */
 
     const gunakanRuleShift =
 
@@ -5915,13 +5828,6 @@ function applyMonthlyAutoRules(
 
     }
 
-
-    /* =============================================
-       BUAT RULE SHIFT
-       
-       Rule ini hanya untuk konfigurasi
-       input Attendance.
-    ============================================= */
 
     const ruleShift = {
 
@@ -5964,12 +5870,6 @@ function applyMonthlyAutoRules(
     };
 
 
-    /* =============================================
-       CEK DUPLICATE
-       
-       Jangan membuat rule_shift kedua.
-    ============================================= */
-
     const alreadyExists =
 
         data.some(
@@ -5997,10 +5897,6 @@ function applyMonthlyAutoRules(
 
     }
 
-
-    /* =============================================
-       TAMBAHKAN RULE SHIFT
-    ============================================= */
 
     data.push({
 
