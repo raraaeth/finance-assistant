@@ -3,10 +3,21 @@
    Component    : Global Input
    Module       : Saving
    File         : saving.js
-   Version      : 2.0.0
+   Version      : 2.1.0
 
    Description :
    Input Flow Configuration for Saving
+
+   Data Source :
+   Global Input Data Engine
+        ↓
+   Workspace Global
+        ↓
+   saving.sheets
+        ↓
+   saving_bank
+        ↓
+   getInputData()
 
    Flow :
 
@@ -35,6 +46,13 @@
    Note :
    Transfer hanya untuk perpindahan dana
    antar bank / wallet milik sendiri.
+
+   Principle :
+   - Tidak ada source data bank hardcode.
+   - Tidak ada getter Saving khusus.
+   - Bank berasal dari getInputData().
+   - Workspace dan sheet ditentukan oleh
+     Global Workspace + Global Input Data Engine.
 ===================================================== */
 
 
@@ -44,7 +62,7 @@
 
 import {
 
-    getSavingBanks
+    getInputData
 
 } from "./data.js";
 
@@ -53,11 +71,36 @@ import {
    BANK OPTIONS
 ===================================================== */
 
+/*
+   Data bank berasal dari :
+
+       saving_bank
+            ↓
+       getInputData()
+
+   Format utama yang didukung :
+
+       {
+           nama : "BCA"
+       }
+
+   Juga tetap mendukung :
+
+       {
+           value : "BCA",
+           label : "BCA"
+       }
+
+   atau data string :
+
+       "BCA"
+*/
+
 function getBankOptions(){
 
     const banks =
 
-        getSavingBanks();
+        getInputData();
 
 
     if(
@@ -75,80 +118,131 @@ function getBankOptions(){
     }
 
 
-    return banks.map(
+    return banks
 
-        bank => {
+        .map(
 
-            if(
+            bank => {
 
-                typeof bank ===
+                /* =====================================
+                   OBJECT
+                ===================================== */
 
-                    "object"
+                if(
 
-                &&
+                    bank &&
 
-                bank !== null
+                    typeof bank ===
 
-            ){
+                        "object"
+
+                ){
+
+                    const value =
+
+                        String(
+
+                            bank.value
+
+                            ??
+
+                            bank.nama
+
+                            ??
+
+                            ""
+
+                        )
+
+                        .trim();
+
+
+                    const label =
+
+                        String(
+
+                            bank.label
+
+                            ??
+
+                            bank.nama
+
+                            ??
+
+                            bank.value
+
+                            ??
+
+                            ""
+
+                        )
+
+                        .trim();
+
+
+                    return {
+
+                        value :
+
+                            value,
+
+                        label :
+
+                            label
+
+                    };
+
+                }
+
+
+                /* =====================================
+                   STRING
+                ===================================== */
+
+                const value =
+
+                    String(
+
+                        bank ??
+
+                        ""
+
+                    )
+
+                    .trim();
+
 
                 return {
 
                     value :
 
-                        bank.value
-
-                        ??
-
-                        bank.nama
-
-                        ??
-
-                        "",
+                        value,
 
                     label :
 
-                        bank.label
-
-                        ??
-
-                        bank.nama
-
-                        ??
-
-                        bank.value
-
-                        ??
-
-                        ""
+                        value
 
                 };
 
             }
 
+        )
 
-            return {
+        .filter(
 
-                value :
+            option =>
 
-                    bank,
+                option.value !== ""
 
-                label :
+        )
 
-                    bank
+        .filter(
 
-            };
+            option =>
 
-        }
+                option.label !== ""
 
-    )
-
-    .filter(
-
-        option =>
-
-            option.value !== ""
-
-    );
+        );
 
 }
 
@@ -327,15 +421,27 @@ const CATEGORY = {
 
 export const Saving = {
 
+    /* =================================================
+       WORKSPACE
+    ================================================= */
+
     workspace :
 
         "saving",
 
 
+    /* =================================================
+       TITLE
+    ================================================= */
+
     title :
 
         "Input Saving",
 
+
+    /* =================================================
+       SUBTITLE
+    ================================================= */
 
     subtitle :
 
@@ -412,12 +518,14 @@ export const Saving = {
            3. BANK
            
            Untuk :
-           - masuk
-           - keluar
-           - transfer
-           
+
+           masuk
+           keluar
+           transfer
+
            Pada transfer :
-           bank = sumber
+
+               bank = sumber
         ============================================= */
 
         {
@@ -456,12 +564,17 @@ export const Saving = {
 
 
         /* =============================================
-           4. NAMA / BANK TUJUAN
+           4. BANK TUJUAN
            
            Hanya muncul untuk transfer.
-           
-           bank  = sumber
-           nama  = tujuan
+
+           bank
+               =
+           bank asal
+
+           nama
+               =
+           bank tujuan
         ============================================= */
 
         {
@@ -522,9 +635,10 @@ export const Saving = {
 
         /* =============================================
            6. KETERANGAN
-           
-           SELALU ADA
-           OPTIONAL
+
+           Selalu tersedia.
+
+           Optional.
         ============================================= */
 
         {
@@ -554,3 +668,110 @@ export const Saving = {
     ]
 
 };
+
+
+/* =====================================================
+   GET CONFIG
+===================================================== */
+
+export function getSavingInputConfig(){
+
+    return Saving;
+
+}
+
+
+/* =====================================================
+   GET BANK OPTIONS
+===================================================== */
+
+export function getSavingBankOptions(){
+
+    return getBankOptions();
+
+}
+
+
+/* =====================================================
+   DEBUG
+===================================================== */
+
+export function debugSavingInput(){
+
+    const data =
+
+        getInputData();
+
+
+    const banks =
+
+        getBankOptions();
+
+
+    console.log(
+
+        "===== SAVING INPUT DEBUG ====="
+
+    );
+
+
+    console.log(
+
+        "Raw Saving Data:",
+
+        data
+
+    );
+
+
+    console.log(
+
+        "Bank Options:",
+
+        banks
+
+    );
+
+
+    console.log(
+
+        "Saving Config:",
+
+        Saving
+
+    );
+
+
+    return {
+
+        data :
+
+            Array.isArray(data)
+
+                ?
+
+            [
+
+                ...data
+
+            ]
+
+                :
+
+            [],
+
+        banks :
+
+            [
+
+                ...banks
+
+            ],
+
+        config :
+
+            Saving
+
+    };
+
+}
