@@ -523,11 +523,100 @@ export const Setting = {
     },
 
 
-    /* =================================================
-       CONFIRM
-    ================================================= */
+/* =================================================
+   CONFIRM
+================================================= */
 
-    async confirm(){
+async confirm(){
+
+    /* =============================================
+       FRONTEND CONFIRM LOCK
+       
+       Mencegah satu proses confirm dijalankan
+       lebih dari satu kali secara bersamaan.
+    ============================================= */
+
+    if(
+
+        isConfirming
+
+    ){
+
+        console.warn(
+
+            "SETTING CONFIRM BLOCKED: proses masih berjalan."
+
+        );
+
+        return {
+
+            success :
+
+                false,
+
+            error :
+
+                "Proses penyimpanan masih berjalan."
+
+        };
+
+    }
+
+
+    /* =============================================
+       LOCK
+    ============================================= */
+
+    isConfirming =
+
+        true;
+
+
+    /* =============================================
+       LOCK BUTTON
+    ============================================= */
+
+    const confirmButton =
+
+        document.getElementById(
+
+            "global-setting-confirm"
+
+        );
+
+
+    if(
+
+        confirmButton
+
+    ){
+
+        confirmButton.disabled =
+
+            true;
+
+
+        confirmButton.setAttribute(
+
+            "aria-disabled",
+
+            "true"
+
+        );
+
+
+        confirmButton.setAttribute(
+
+            "aria-busy",
+
+            "true"
+
+        );
+
+    }
+
+
+    try{
 
         closeCustomPicker();
 
@@ -610,111 +699,154 @@ export const Setting = {
            SEND TO APPS SCRIPT
         ============================================= */
 
-        try{
+        const result =
 
-            const result =
+            await saveSetting(
 
-                await saveSetting(
+                currentWorkspace,
 
-                    currentWorkspace,
-
-                    data
-
-                );
-
-
-            console.log(
-
-                "SETTING SAVE RESULT",
-
-                result
+                data
 
             );
 
 
-            /* =========================================
-               SUCCESS
-            ========================================= */
+        console.log(
 
-            if(
+            "SETTING SAVE RESULT",
 
-                result?.success === true
+            result
 
-            ){
-
-                alert(
-
-                    "Pengaturan berhasil disimpan."
-
-                );
+        );
 
 
-                Setting.close();
+        /* =========================================
+           SUCCESS
+        ========================================= */
 
+        if(
 
-                return result;
+            result?.success === true
 
-            }
-
-
-            /* =========================================
-               BACKEND ERROR
-            ========================================= */
-
-            throw new Error(
-
-                result?.error
-
-                ||
-
-                result?.message
-
-                ||
-
-                "Gagal menyimpan pengaturan."
-
-            );
-
-        }
-
-        catch(error){
-
-            console.error(
-
-                "SETTING SAVE ERROR:",
-
-                error
-
-            );
-
+        ){
 
             alert(
 
-                "Gagal menyimpan pengaturan:\n" +
-
-                error.message
+                "Pengaturan berhasil disimpan."
 
             );
 
 
-            return {
+            Setting.close();
 
-                success :
 
-                    false,
+            return result;
 
-                error :
+        }
 
-                    error.message
 
-            };
+        /* =========================================
+           BACKEND ERROR
+        ========================================= */
+
+        throw new Error(
+
+            result?.error
+
+            ||
+
+            result?.message
+
+            ||
+
+            "Gagal menyimpan pengaturan."
+
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "SETTING SAVE ERROR:",
+
+            error
+
+        );
+
+
+        alert(
+
+            "Gagal menyimpan pengaturan:\n" +
+
+            error.message
+
+        );
+
+
+        return {
+
+            success :
+
+                false,
+
+            error :
+
+                error.message
+
+        };
+
+    }
+
+    finally{
+
+        /* =============================================
+           UNLOCK
+           
+           Selalu dijalankan:
+           - berhasil
+           - backend error
+           - exception
+        ============================================= */
+
+        isConfirming =
+
+            false;
+
+
+        /* =============================================
+           ENABLE BUTTON
+        ============================================= */
+
+        if(
+
+            confirmButton
+
+        ){
+
+            confirmButton.disabled =
+
+                false;
+
+
+            confirmButton.removeAttribute(
+
+                "aria-disabled"
+
+            );
+
+
+            confirmButton.removeAttribute(
+
+                "aria-busy"
+
+            );
 
         }
 
     }
 
-};
-
+}
 
 
 /* =====================================================
