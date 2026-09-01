@@ -3,10 +3,21 @@
    Component    : Global Input
    Module       : Financial
    File         : financial.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Input Flow Configuration for Financial
+
+   Data Source :
+   Global Input Data Engine
+        ↓
+   Global Workspace
+        ↓
+   financial.sheets
+        ↓
+   financial_activity
+        ↓
+   getInputData()
 
    Flow :
    Jenis
@@ -14,19 +25,23 @@
    → Nominal
    → Keterangan
 
-   Source :
-   data.js
-   → financial_activity
+   Principle :
+   - Tidak ada getter Financial khusus.
+   - Data activity berasal dari getInputData().
+   - Workspace dan sheet ditentukan oleh
+     Global Workspace.
+   - TYPE_RULE tetap menjadi konfigurasi
+     bisnis milik Financial.
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT
+   IMPORT DATA
 ===================================================== */
 
 import {
 
-    getFinancialActivity
+    getInputData
 
 } from "./data.js";
 
@@ -86,97 +101,139 @@ const TYPE_LABEL = {
 
 
 /* =====================================================
-   NORMALIZE RULE DATA
+   GET INPUT RULE DATA
 ===================================================== */
+
+/*
+   Data berasal dari sheet kedua
+   workspace Financial.
+
+   Contoh :
+
+       financial
+           ↓
+       financial_activity
+           ↓
+       getInputData()
+*/
 
 function getRules(){
 
     const data =
 
-        getFinancialActivity();
+        getInputData();
 
 
-    return data.map(
+    if(
 
-        item => ({
+        !Array.isArray(
 
-            rules :
+            data
 
-                String(
+        )
 
-                    item?.rules ??
+    ){
 
-                        ""
+        return [];
 
-                )
+    }
 
-                    .trim()
 
-                    .toLowerCase(),
+    return data
 
-            type :
+        .filter(
 
-                String(
+            item =>
 
-                    item?.type ??
+                item &&
 
-                        ""
+                typeof item ===
 
-                )
+                    "object"
 
-                    .split(",")
+        )
 
-                    .map(
+        .map(
 
-                        value =>
+            item => ({
 
-                            value
+                rules :
 
-                                .trim()
+                    String(
 
-                                .toLowerCase()
-
-                    )
-
-                    .filter(
-
-                        Boolean
-
-                    ),
-
-            activity :
-
-                String(
-
-                    item?.activity ??
+                        item?.rules ??
 
                         ""
 
-                )
+                    )
 
-                    .split(",")
+                        .trim()
 
-                    .map(
+                        .toLowerCase(),
 
-                        value =>
+                type :
 
-                            value
+                    String(
 
-                                .trim()
+                        item?.type ??
 
-                                .toLowerCase()
+                        ""
 
                     )
 
-                    .filter(
+                        .split(",")
 
-                        Boolean
+                        .map(
+
+                            value =>
+
+                                value
+
+                                    .trim()
+
+                                    .toLowerCase()
+
+                        )
+
+                        .filter(
+
+                            Boolean
+
+                        ),
+
+                activity :
+
+                    String(
+
+                        item?.activity ??
+
+                        ""
 
                     )
 
-        })
+                        .split(",")
 
-    );
+                        .map(
+
+                            value =>
+
+                                value
+
+                                    .trim()
+
+                                    .toLowerCase()
+
+                        )
+
+                        .filter(
+
+                            Boolean
+
+                        )
+
+            })
+
+        );
 
 }
 
@@ -212,6 +269,11 @@ function getAvailableTypes(){
 
     const available = [];
 
+
+    /*
+       Urutan type tetap menjadi
+       urutan tampilan Financial.
+    */
 
     const types = [
 
@@ -258,6 +320,11 @@ function getAvailableTypes(){
 
             }
 
+
+            /*
+               Rule harus benar-benar
+               mengizinkan type tersebut.
+            */
 
             if(
 
@@ -306,9 +373,31 @@ function getActivityByType(
 
 ){
 
+    if(
+
+        !type
+
+    ){
+
+        return [];
+
+    }
+
+
     const ruleName =
 
         TYPE_RULE[type];
+
+
+    if(
+
+        !ruleName
+
+    ){
+
+        return [];
+
+    }
 
 
     const rule =
@@ -366,7 +455,9 @@ function formatActivity(
 
     return String(
 
-        value
+        value ??
+
+        ""
 
     )
 
@@ -397,30 +488,42 @@ function formatActivity(
 
 export const Financial = {
 
+    /* =================================================
+       WORKSPACE
+    ================================================= */
+
     workspace :
 
         "financial",
 
+
+    /* =================================================
+       TITLE
+    ================================================= */
 
     title :
 
         "Input Financial",
 
 
+    /* =================================================
+       SUBTITLE
+    ================================================= */
+
     subtitle :
 
         "Tambahkan transaksi Financial",
 
 
-    /* =============================================
+    /* =================================================
        FLOW
-    ============================================= */
+    ================================================= */
 
     steps : [
 
-        /* =========================================
+        /* =============================================
            1. JENIS TRANSAKSI
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -445,9 +548,9 @@ export const Financial = {
         },
 
 
-        /* =========================================
+        /* =============================================
            2. ACTIVITY
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -476,9 +579,9 @@ export const Financial = {
         },
 
 
-        /* =========================================
+        /* =============================================
            3. NOMINAL
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -501,9 +604,9 @@ export const Financial = {
         },
 
 
-        /* =========================================
+        /* =============================================
            4. KETERANGAN
-        ========================================= */
+        ============================================= */
 
         {
 
@@ -528,3 +631,179 @@ export const Financial = {
     ]
 
 };
+
+
+/* =====================================================
+   GET CONFIG
+===================================================== */
+
+export function getFinancialInputConfig(){
+
+    return Financial;
+
+}
+
+
+/* =====================================================
+   GET AVAILABLE TYPES
+===================================================== */
+
+export function getFinancialTypes(){
+
+    return getAvailableTypes();
+
+}
+
+
+/* =====================================================
+   GET ACTIVITIES
+===================================================== */
+
+export function getFinancialActivities(
+
+    type
+
+){
+
+    return getActivityByType(
+
+        type
+
+    );
+
+}
+
+
+/* =====================================================
+   DEBUG
+===================================================== */
+
+export function debugFinancialInput(){
+
+    const data =
+
+        getInputData();
+
+
+    const rules =
+
+        getRules();
+
+
+    const types =
+
+        getAvailableTypes();
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== FINANCIAL INPUT DEBUG ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "Raw Input Data:",
+
+        data
+
+    );
+
+
+    console.log(
+
+        "Normalized Rules:",
+
+        rules
+
+    );
+
+
+    console.log(
+
+        "Available Types:",
+
+        types
+
+    );
+
+
+    console.log(
+
+        "Financial Config:",
+
+        Financial
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    return {
+
+        data :
+
+            Array.isArray(
+
+                data
+
+            )
+
+            ?
+
+            [
+
+                ...data
+
+            ]
+
+            :
+
+            [],
+
+
+        rules :
+
+            [
+
+                ...rules
+
+            ],
+
+
+        types :
+
+            [
+
+                ...types
+
+            ],
+
+
+        config :
+
+            Financial
+
+    };
+
+}
