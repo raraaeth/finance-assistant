@@ -3,13 +3,19 @@
    Component    : Global Input
    Workspace    : Payroll Monthly
    File         : monthly.js
-   Version      : 1.1.1
+   Version      : 2.0.0
 
    Description :
    Global Input Configuration
    Payroll Monthly Attendance
 
    Source :
+   Global Input Data Engine
+       ↓
+   workspace.sheets
+       ↓
+   Data.data
+       ↓
    payroll_monthly_rules
 
    Output :
@@ -48,16 +54,18 @@
    - Izin Pulang menggunakan jam
    - Lembur menggunakan jam
    - Status lembur = lembur harian
+   - Data rule berasal dari Data Engine generic
+   - Tidak ada getter Payroll Monthly khusus
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT
+   IMPORT DATA
 ===================================================== */
 
 import {
 
-    getPayrollMonthlyRules
+    getInputData
 
 } from "./data.js";
 
@@ -66,11 +74,30 @@ import {
    GET RULES
 ===================================================== */
 
+/*
+   Data Engine generic sudah menentukan
+   workspace aktif dan sheet sumber.
+
+   Untuk Payroll Monthly :
+
+       workspace
+           ↓
+       payroll_monthly
+       payroll_monthly_rules
+           ↓
+       Data.data
+           ↓
+       getInputData()
+
+   monthly.js tidak perlu mengetahui
+   sumber sheet secara langsung.
+*/
+
 function getRules(){
 
     const rules =
 
-        getPayrollMonthlyRules();
+        getInputData();
 
 
     return Array.isArray(
@@ -878,15 +905,27 @@ const CONDITION_CONFIG = {
 
 export const Monthly = {
 
+    /* =================================================
+       WORKSPACE
+    ================================================= */
+
     workspace :
 
         "payroll-monthly",
 
 
+    /* =================================================
+       TITLE
+    ================================================= */
+
     title :
 
         "Payroll Monthly",
 
+
+    /* =================================================
+       INPUT STEPS
+    ================================================= */
 
     steps : [
 
@@ -1105,15 +1144,6 @@ export const Monthly = {
 
                 "number",
 
-            /* =============================================
-               DISPLAY
-
-               Jangan dianggap sebagai nominal rupiah.
-
-               Renderer akan menggunakan field.display
-               sebelum format number/currency.
-            ============================================= */
-
             display :
 
                 value =>
@@ -1187,12 +1217,6 @@ export const Monthly = {
 
                 "number",
 
-            /* =============================================
-               DISPLAY
-
-               Nilai adalah jam, bukan nominal rupiah.
-            ============================================= */
-
             display :
 
                 value =>
@@ -1261,12 +1285,6 @@ export const Monthly = {
             type :
 
                 "number",
-
-            /* =============================================
-               DISPLAY
-
-               Nilai adalah jam, bukan nominal rupiah.
-            ============================================= */
 
             display :
 
@@ -1337,12 +1355,6 @@ export const Monthly = {
 
                 "number",
 
-            /* =============================================
-               DISPLAY
-
-               Nilai adalah jam, bukan nominal rupiah.
-            ============================================= */
-
             display :
 
                 value =>
@@ -1393,10 +1405,7 @@ export const Monthly = {
 
 
     /* =================================================
-       CONDITION CONFIG
-
-       Metadata global untuk renderer/controller
-       jika diperlukan.
+       CONDITION OPTIONS
     ================================================= */
 
     conditionOptions :
@@ -1405,6 +1414,10 @@ export const Monthly = {
 
             getConditionOptions(),
 
+
+    /* =================================================
+       CONDITION FIELDS
+    ================================================= */
 
     conditionFields :
 
