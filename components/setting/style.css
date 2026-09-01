@@ -279,6 +279,28 @@
 
 
 /* =====================================================
+   FORM
+===================================================== */
+
+.global-setting-form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+.global-setting-form.hidden{
+
+    display:none !important;
+
+}
+
+
+/* =====================================================
    FIELDS
 ===================================================== */
 
@@ -295,28 +317,50 @@
 
 .global-setting-field{
 
+    position:relative;
+
     display:flex;
 
     flex-direction:column;
 
     gap:7px;
 
+    width:100%;
+
+}
+
+
+.global-setting-field.hidden{
+
+    display:none !important;
+
 }
 
 
 .global-setting-field label{
 
+    display:block;
+
+    width:100%;
+
+    margin:0;
+
     font-size:13px;
+
+    line-height:1.4;
 
     font-weight:600;
 
     color:#667574;
 
+    white-space:pre-line;
+
 }
 
 
 .global-setting-field input,
-.global-setting-field select{
+.global-setting-field select,
+.global-setting-field textarea{
 
     width:100%;
 
@@ -345,73 +389,51 @@
 }
 
 
-.global-setting-field input:focus,
-.global-setting-field select:focus{
-
-    border-color:#6f9994;
-
-}
-
-
-/* =====================================================
-   TEXTAREA
-===================================================== */
-
 .global-setting-field textarea{
 
-    width:100%;
-
     min-height:100px;
-
-    padding:10px 12px;
-
-    box-sizing:border-box;
-
-    border:
-        1px solid
-        #d7dfdd;
-
-    border-radius:12px;
-
-    background:#ffffff;
-
-    color:#253f3d;
-
-    font-size:15px;
-
-    font-family:inherit;
-
-    outline:none;
 
     resize:vertical;
 
 }
 
 
+.global-setting-field input:focus,
+.global-setting-field select:focus,
 .global-setting-field textarea:focus{
 
     border-color:#6f9994;
 
+    box-shadow:
+        0 0 0 3px
+        rgba(111,153,148,.10);
+
 }
 
 
 /* =====================================================
-   FORM
+   FIELD NOTE
 ===================================================== */
 
-.global-setting-form{
+.global-setting-field-note{
 
-    display:flex;
+    display:block;
 
-    flex-direction:column;
+    margin-top:1px;
 
-    gap:12px;
+    padding:0 4px;
+
+    font-size:13px;
+
+    line-height:1.5;
+
+    color:#7a8583;
 
 }
 
 
 /* =====================================================
-   ADD
+   ADD BUTTON
 ===================================================== */
 
 .global-setting-add{
@@ -453,6 +475,46 @@
 
 
 /* =====================================================
+   FORM ADD BUTTON
+===================================================== */
+
+.global-setting-form-add{
+
+    width:100%;
+
+    min-height:46px;
+
+    margin-top:4px;
+
+    padding:10px 16px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#253f3d;
+
+    color:#ffffff;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+}
+
+
+.global-setting-form-add:active{
+
+    transform:scale(.98);
+
+}
+
+
+/* =====================================================
    RESULT
 ===================================================== */
 
@@ -462,7 +524,9 @@
 
     flex-direction:column;
 
-    gap:12px;
+    gap:10px;
+
+    width:100%;
 
     margin-top:14px;
 
@@ -475,34 +539,48 @@
 
 .global-setting-result-item{
 
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
     width:100%;
+
+    padding:14px;
 
     box-sizing:border-box;
 
-    padding:15px;
-
     border:
         1px solid
-        #e0e6e4;
+        #dfe6e4;
 
-    border-radius:14px;
+    border-radius:12px;
 
-    background:#f7f9f8;
+    background:#f5f7f7;
 
 }
 
 
 /* =====================================================
    RESULT CONTENT
+
+   Penting:
+   Jangan biarkan style global lain
+   membuat content result kosong.
 ===================================================== */
 
 .global-setting-result-content{
 
-    display:flex;
+    display:flex !important;
 
-    flex-direction:column;
+    flex-direction:column !important;
 
-    gap:0;
+    width:100%;
+
+    gap:9px;
+
+    min-width:0;
 
 }
 
@@ -513,15 +591,23 @@
 
 .global-setting-result-row{
 
-    display:flex;
+    display:flex !important;
 
-    align-items:center;
+    align-items:flex-start;
 
     justify-content:space-between;
 
     gap:16px;
 
-    min-height:34px;
+    width:100%;
+
+    min-width:0;
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
 
 }
 
@@ -532,15 +618,19 @@
 
 .global-setting-result-label{
 
-    flex:1;
+    flex:1 1 auto;
 
     min-width:0;
 
+    margin:0;
+
     font-size:13px;
 
-    line-height:1.4;
+    line-height:1.45;
 
-    color:#7a8785;
+    color:#687876;
+
+    word-break:break-word;
 
 }
 
@@ -551,11 +641,15 @@
 
 .global-setting-result-value{
 
-    max-width:60%;
+    flex:0 0 auto;
 
-    font-size:15px;
+    max-width:65%;
 
-    line-height:1.4;
+    margin:0;
+
+    font-size:14px;
+
+    line-height:1.45;
 
     font-weight:700;
 
@@ -563,66 +657,34 @@
 
     text-align:right;
 
-    overflow-wrap:anywhere;
+    word-break:break-word;
 
 }
 
 
 /* =====================================================
-   RESULT TITLE
-===================================================== */
-
-.global-setting-result-title{
-
-    margin:0 0 5px;
-
-    font-size:15px;
-
-    font-weight:700;
-
-    color:#294845;
-
-}
-
-
-/* =====================================================
-   RESULT DETAIL
-===================================================== */
-
-.global-setting-result-detail{
-
-    font-size:13px;
-
-    line-height:1.5;
-
-    color:#687876;
-
-}
-
-
-/* =====================================================
-   DELETE
+   RESULT DELETE
 ===================================================== */
 
 .global-setting-result-delete{
 
     width:100%;
 
-    min-height:38px;
+    min-height:40px;
 
     margin-top:12px;
 
-    padding:9px 12px;
+    padding:8px 12px;
 
     border:
         1px solid
-        #d8dfdd;
+        #d5dddd;
 
-    border-radius:9px;
+    border-radius:10px;
 
     background:#ffffff;
 
-    color:#805555;
+    color:#7b4b4b;
 
     font-size:13px;
 
@@ -632,10 +694,6 @@
 
     cursor:pointer;
 
-    transition:
-        background .15s ease,
-        border-color .15s ease;
-
 }
 
 
@@ -643,7 +701,477 @@
 
     transform:scale(.98);
 
-    background:#f3f5f4;
+}
+
+
+/* =====================================================
+   CUSTOM SELECT
+===================================================== */
+
+.global-setting-custom-select{
+
+    width:100%;
+
+    min-height:58px;
+
+    padding:0 18px;
+
+    border:
+        1px solid
+        #d7dfdd;
+
+    border-radius:18px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    text-align:left;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+    user-select:none;
+
+}
+
+
+.global-setting-custom-select:focus{
+
+    outline:none;
+
+    border-color:#6f9994;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(111,153,148,.10);
+
+}
+
+
+.global-setting-custom-select.has-value{
+
+    border-color:#6f9994;
+
+}
+
+
+.global-setting-custom-value{
+
+    flex:1;
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+.global-setting-custom-arrow{
+
+    flex:0 0 auto;
+
+    margin-left:12px;
+
+    font-size:18px;
+
+    color:#7d8988;
+
+}
+
+
+/* =====================================================
+   CUSTOM PICKER
+===================================================== */
+
+.global-setting-picker{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:99999;
+
+    width:100vw;
+
+    height:100vh;
+
+    background:#ffffff;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+/* =====================================================
+   PICKER BACKDROP
+===================================================== */
+
+.global-setting-picker-backdrop{
+
+    position:absolute;
+
+    inset:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:#ffffff;
+
+}
+
+
+/* =====================================================
+   PICKER PANEL
+===================================================== */
+
+.global-setting-picker-panel{
+
+    position:relative;
+
+    z-index:1;
+
+    width:100%;
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:#ffffff;
+
+}
+
+
+/* =====================================================
+   PICKER HEADER
+===================================================== */
+
+.global-setting-picker-header{
+
+    width:100%;
+
+    min-height:68px;
+
+    padding:0 20px;
+
+    box-sizing:border-box;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    border-bottom:
+        1px solid
+        #e5e9e8;
+
+    flex-shrink:0;
+
+}
+
+
+.global-setting-picker-header strong{
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+
+.global-setting-picker-close{
+
+    width:42px;
+
+    height:42px;
+
+    flex:0 0 42px;
+
+    border:0;
+
+    border-radius:50%;
+
+    background:#f3f4f6;
+
+    color:#253f3d;
+
+    font-size:25px;
+
+    line-height:1;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+}
+
+
+/* =====================================================
+   PICKER LIST
+===================================================== */
+
+.global-setting-picker-list{
+
+    flex:1;
+
+    width:100%;
+
+    max-height:none;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+    background:#ffffff;
+
+    -webkit-overflow-scrolling:touch;
+
+}
+
+
+/* =====================================================
+   PICKER OPTION
+===================================================== */
+
+.global-setting-picker-option{
+
+    width:100%;
+
+    min-height:60px;
+
+    padding:0 22px;
+
+    box-sizing:border-box;
+
+    border:0;
+
+    border-bottom:
+        1px solid
+        #eeeeee;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    text-align:left;
+
+    font-size:16px;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+    transition:
+        background .15s ease;
+
+}
+
+
+.global-setting-picker-option:active{
+
+    background:#f3f4f6;
+
+}
+
+
+.global-setting-picker-option.selected{
+
+    background:#f7f9ff;
+
+    color:#526f6c;
+
+    font-weight:600;
+
+}
+
+
+.global-setting-picker-option-label{
+
+    flex:1;
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   RADIO
+===================================================== */
+
+.picker-radio{
+
+    width:22px;
+
+    height:22px;
+
+    flex:0 0 22px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:#777;
+
+    font-size:20px;
+
+}
+
+
+.global-setting-picker-option.selected
+.picker-radio{
+
+    color:#6f9994;
+
+}
+
+
+/* =====================================================
+   CHECKBOX FIELD
+===================================================== */
+
+.global-setting-field.global-setting-checkbox-field{
+
+    display:flex !important;
+
+    flex-direction:row !important;
+
+    align-items:center !important;
+
+    justify-content:space-between !important;
+
+    width:100%;
+
+    gap:16px;
+
+}
+
+
+.global-setting-field.global-setting-checkbox-field label{
+
+    display:block;
+
+    flex:1;
+
+    width:auto;
+
+    margin:0;
+
+}
+
+
+.global-setting-field input[type="checkbox"]{
+
+    width:18px;
+
+    height:18px;
+
+    min-width:18px;
+
+    min-height:18px;
+
+    max-width:18px;
+
+    max-height:18px;
+
+    margin:0;
+
+    padding:0;
+
+    flex:none;
+
+}
+
+
+.global-setting-field.global-setting-checkbox-field
+input[type="checkbox"]{
+
+    width:20px !important;
+
+    min-width:20px !important;
+
+    max-width:20px !important;
+
+    height:20px !important;
+
+    min-height:20px !important;
+
+    max-height:20px !important;
+
+    margin:0 !important;
+
+    padding:0 !important;
+
+    flex:0 0 20px !important;
+
+    appearance:auto;
+
+}
+
+
+/* =====================================================
+   LABEL PRE-LINE
+===================================================== */
+
+.global-setting-field > label{
+
+    white-space:pre-line;
 
 }
 
@@ -668,10 +1196,6 @@
 
 }
 
-
-/* =====================================================
-   CONFIRM
-===================================================== */
 
 .global-setting-confirm{
 
@@ -719,10 +1243,40 @@ body.setting-open{
 
 
 /* =====================================================
+   SCROLLBAR
+===================================================== */
+
+.global-setting-content::-webkit-scrollbar,
+.global-setting-picker-list::-webkit-scrollbar{
+
+    width:6px;
+
+}
+
+
+.global-setting-content::-webkit-scrollbar-thumb,
+.global-setting-picker-list::-webkit-scrollbar-thumb{
+
+    background:rgba(0,0,0,.25);
+
+    border-radius:10px;
+
+}
+
+
+.global-setting-content::-webkit-scrollbar-track,
+.global-setting-picker-list::-webkit-scrollbar-track{
+
+    background:transparent;
+
+}
+
+
+/* =====================================================
    MOBILE
 ===================================================== */
 
-@media(max-width:480px){
+@media(max-width:600px){
 
     .global-setting-header{
 
@@ -747,289 +1301,47 @@ body.setting-open{
 
     }
 
-}
 
+    .global-setting-field-note{
 
-/* =====================================================
-   CUSTOM SELECT BUTTON
-===================================================== */
+        font-size:12px;
 
-.global-setting-custom-select{
+        margin-top:1px;
 
-    width:100%;
+        line-height:1.45;
 
-    min-height:58px;
+    }
 
-    padding:0 18px;
 
-    border:1px solid var(--border-color);
+    .global-setting-result-item{
 
-    border-radius:18px;
+        padding:14px;
 
-    background:#ffffff;
+    }
 
-    color:var(--text-color);
 
-    display:flex;
+    .global-setting-result-row{
 
-    align-items:center;
+        gap:12px;
 
-    justify-content:space-between;
+    }
 
-    font-size:16px;
 
-    cursor:pointer;
+    .global-setting-result-label{
 
-    text-align:left;
+        font-size:12px;
 
-    transition:
-        border-color .2s ease,
-        box-shadow .2s ease;
+    }
 
-    user-select:none;
 
-}
+    .global-setting-result-value{
 
+        max-width:60%;
 
-.global-setting-custom-select.has-value{
+        font-size:13px;
 
-    border-color:var(--accent-color);
+    }
 
-}
-
-
-.global-setting-custom-value{
-
-    flex:1;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-
-}
-
-
-.global-setting-custom-arrow{
-
-    margin-left:12px;
-
-    font-size:18px;
-
-    color:var(--text-secondary);
-
-}
-
-
-/* =====================================================
-   CUSTOM PICKER
-===================================================== */
-
-.global-setting-picker{
-
-    position:fixed;
-
-    inset:0;
-
-    z-index:99999;
-
-    width:100vw;
-
-    height:100vh;
-
-    background:#ffffff;
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
-
-/* =====================================================
-   PICKER HEADER
-===================================================== */
-
-.global-setting-picker-header{
-
-    width:100%;
-
-    min-height:68px;
-
-    padding:0 20px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    background:#ffffff;
-
-    color:var(--text-color);
-
-    border-bottom:1px solid var(--border-color);
-
-    flex-shrink:0;
-
-}
-
-
-.global-setting-picker-header strong{
-
-    font-size:18px;
-
-    font-weight:600;
-
-}
-
-
-.global-setting-picker-close{
-
-    width:42px;
-
-    height:42px;
-
-    border:0;
-
-    border-radius:50%;
-
-    background:#f3f4f6;
-
-    color:var(--text-color);
-
-    font-size:25px;
-
-    line-height:1;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    cursor:pointer;
-
-}
-
-
-/* =====================================================
-   PICKER LIST
-===================================================== */
-
-.global-setting-picker-list{
-
-    flex:1;
-
-    width:100%;
-
-    max-height:60vh;
-
-    overflow-y:auto;
-
-    overflow-x:hidden;
-
-    background:#ffffff;
-
-    -webkit-overflow-scrolling:touch;
-
-}
-
-
-/* =====================================================
-   PICKER OPTION
-===================================================== */
-
-.global-setting-picker-option{
-
-    width:100%;
-
-    min-height:60px;
-
-    padding:0 22px;
-
-    border:0;
-
-    border-bottom:1px solid #eeeeee;
-
-    background:#ffffff;
-
-    color:var(--text-color);
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    text-align:left;
-
-    font-size:16px;
-
-    cursor:pointer;
-
-    transition:
-
-        background .15s ease;
-
-}
-
-
-.global-setting-picker-option:active{
-
-    background:#f3f4f6;
-
-}
-
-
-.global-setting-picker-option.selected{
-
-    background:#f7f9ff;
-
-    color:var(--accent-color);
-
-    font-weight:600;
-
-}
-
-
-/* =====================================================
-   RADIO
-===================================================== */
-
-.picker-radio{
-
-    width:22px;
-
-    height:22px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    color:#777;
-
-    font-size:20px;
-
-}
-
-
-.global-setting-picker-option.selected
-.picker-radio{
-
-    color:var(--accent-color);
-
-}
-
-
-/* =====================================================
-   PICKER MOBILE
-===================================================== */
-
-@media(max-width:600px){
 
     .global-setting-picker-header{
 
@@ -1054,311 +1366,27 @@ body.setting-open{
 
 
 /* =====================================================
-   GLOBAL SETTING FIELD NOTE
+   SMALL MOBILE
 ===================================================== */
 
-.global-setting-field-note{
-
-    display:block;
-
-    margin-top:8px;
-
-    padding:0 4px;
-
-    font-size:13px;
-
-    line-height:1.5;
-
-    color:#7a8583;
-
-}
-
-
-/* =====================================================
-   DATE FIELD NOTE
-===================================================== */
-
-.global-setting-field{
-
-    position:relative;
-
-}
-
-
-/* =====================================================
-   FIELD NOTE MOBILE
-===================================================== */
-
-@media(max-width:600px){
-
-    .global-setting-field-note{
-
-        font-size:12px;
-
-        margin-top:7px;
-
-        line-height:1.45;
-
-    }
-
-}
-
-
-/* =====================================================
-   PICKER SCROLLBAR
-===================================================== */
-
-.global-setting-picker-list::-webkit-scrollbar{
-
-    width:6px;
-
-}
-
-
-.global-setting-picker-list::-webkit-scrollbar-thumb{
-
-    background:rgba(0,0,0,.25);
-
-    border-radius:10px;
-
-}
-
-
-.global-setting-picker-list::-webkit-scrollbar-track{
-
-    background:transparent;
-
-}
-
-
-/* =====================================================
-   LABEL PRE-LINE
-===================================================== */
-
-.global-setting-field > label{
-
-    white-space:pre-line;
-
-}
-
-
-/* =====================================================
-   CHECKBOX
-===================================================== */
-
-.global-setting-field input[type="checkbox"]{
-
-    width:18px;
-
-    height:18px;
-
-    margin:0;
-
-    padding:0;
-
-    flex:none;
-
-}
-
-
-/* =====================================================
-   CHECKBOX FIELD
-===================================================== */
-
-.global-setting-checkbox-field{
-
-    display:flex;
-
-    flex-direction:row;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:12px;
-
-}
-
-
-/* =====================================================
-   CHECKBOX LABEL
-===================================================== */
-
-.global-setting-checkbox-field label{
-
-    margin:0;
-
-    flex:1;
-
-}
-
-
-/* =====================================================
-   CHECKBOX
-===================================================== */
-
-.global-setting-checkbox-field input[type="checkbox"]{
-
-    width:20px;
-
-    height:20px;
-
-    margin:0;
-
-    flex:none;
-
-}
-
-
-/* =====================================================
-   CHECKBOX FIELD FORCE
-===================================================== */
-
-.global-setting-field.global-setting-checkbox-field{
-
-    display:flex !important;
-
-    flex-direction:row !important;
-
-    align-items:center !important;
-
-    justify-content:space-between !important;
-
-    width:100%;
-
-    gap:16px;
-
-}
-
-
-/* =====================================================
-   CHECKBOX LABEL
-===================================================== */
-
-.global-setting-field.global-setting-checkbox-field label{
-
-    display:block;
-
-    flex:1;
-
-    width:auto;
-
-    margin:0;
-
-}
-
-
-/* =====================================================
-   PAYROLL DAILY CHECKBOX
-===================================================== */
-
-.global-setting-field.global-setting-checkbox-field{
-
-    display:flex !important;
-
-    flex-direction:row !important;
-
-    align-items:center !important;
-
-    justify-content:space-between !important;
-
-    width:100%;
-
-    gap:16px;
-
-}
-
-
-/* =====================================================
-   CHECKBOX LABEL
-===================================================== */
-
-.global-setting-field.global-setting-checkbox-field label{
-
-    display:block;
-
-    flex:1;
-
-    width:auto;
-
-    margin:0;
-
-}
-
-
-/* =====================================================
-   CHECKBOX INPUT
-===================================================== */
-
-.global-setting-field.global-setting-checkbox-field
-input[type="checkbox"]{
-
-    width:20px !important;
-
-    min-width:20px !important;
-
-    max-width:20px !important;
-
-    height:20px !important;
-
-    min-height:20px !important;
-
-    max-height:20px !important;
-
-    margin:0 !important;
-
-    padding:0 !important;
-
-    flex:0 0 20px !important;
-
-    appearance:auto;
-
-}
-
-
-/* =====================================================
-   RESULT MOBILE
-===================================================== */
-
-@media(max-width:480px){
-
-    .global-setting-result-item{
-
-        padding:14px;
-
-        border-radius:13px;
-
-    }
-
+@media(max-width:380px){
 
     .global-setting-result-row{
 
-        gap:12px;
+        flex-direction:column;
 
-    }
+        align-items:flex-start;
 
-
-    .global-setting-result-label{
-
-        font-size:13px;
+        gap:2px;
 
     }
 
 
     .global-setting-result-value{
 
-        max-width:58%;
+        max-width:100%;
 
-        font-size:15px;
-
-    }
-
-
-    .global-setting-result-delete{
-
-        margin-top:11px;
-
-        min-height:38px;
+        text-align:left;
 
     }
 
