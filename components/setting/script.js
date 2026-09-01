@@ -768,20 +768,9 @@ if(
     Setting.close();
 
 
-    /* =====================================
-       HIDE LOADING
-       
-       Save sudah benar-benar berhasil.
-       Setelah ini user kembali melihat Home.
-    ===================================== */
-
-    Loading.hide();
-
-
     return result;
 
 }
-
 
         /* =========================================
            BACKEND ERROR
@@ -811,9 +800,7 @@ if(
 
             error
 
-        );
-
-       Loading.hide();
+        );      
 
 
         alert(
@@ -841,15 +828,29 @@ if(
 
     finally{
 
-        /* =============================================
-           UNLOCK
-           
-           Selalu dijalankan:
-           - berhasil
-           - backend error
-           - exception
-        ============================================= */
+    /* =============================================
+       HIDE GLOBAL LOADING
+       
+       Confirm selesai:
+       - berhasil
+       - backend error
+       - exception
+       
+       Loading selalu ditutup di sini.
+    ============================================= */
 
+    Loading.hide();
+
+
+    /* =============================================
+       UNLOCK
+       
+       Selalu dijalankan:
+       - berhasil
+       - backend error
+       - exception
+    ============================================= */
+       
         isConfirming =
 
             false;
