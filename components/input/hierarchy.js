@@ -2,14 +2,14 @@
    Finance Assistant
    Component    : Payroll Daily
    File         : hierarchy.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Payroll Daily Hierarchy Engine
 
    Purpose :
    Membentuk struktur input bertingkat berdasarkan
-   payroll_daily_rules.
+   data rule dari workspace aktif.
 
    Hierarchy :
 
@@ -25,17 +25,36 @@
    - Level yang tidak tersedia tidak ditampilkan.
    - Level dengan satu pilihan dapat diisi otomatis.
    - Level dengan banyak pilihan ditampilkan sebagai select.
-   - Struktur mengikuti payroll_daily_rules.
+   - Struktur mengikuti data rule workspace.
+
+   DATA SOURCE :
+
+   Global Workspace
+        ↓
+   Global Input data.js
+        ↓
+   getInputRules()
+        ↓
+   hierarchy
+
+   TIDAK mengetahui :
+   - Spreadsheet ID
+   - Sheet name
+   - OpenSheet URL
+   - Workspace registry
 ===================================================== */
+
+
 /* =====================================================
    IMPORT
 ===================================================== */
 
 import {
 
-    getPayrollDailyRules
+    getInputRules
 
 } from "./data.js";
+
 
 /* =====================================================
    NORMALIZE VALUE
@@ -78,13 +97,13 @@ export function getWorkRules(
 
         )
 
-            ?
+        ?
 
         rules
 
-            :
+        :
 
-        getPayrollDailyRules();
+        getInputRules();
 
 
     return source.filter(
@@ -108,7 +127,7 @@ export function getWorkRules(
 
    Input :
 
-       payroll_daily_rules
+       payroll rules
 
    Output :
 
@@ -683,24 +702,6 @@ export function hasGrade2(
 
 /* =====================================================
    GET LEVEL INFO
-=====================================================
-
-   Menentukan kondisi suatu Nama.
-
-   Contoh :
-
-   headrest
-       → tidak punya grade
-
-   baju
-       → punya grade 1
-
-   baju + kebaya
-       → tidak punya grade 2
-
-   baju + gamis
-       → punya grade 2
-
 ===================================================== */
 
 export function getLevelInfo(
@@ -765,17 +766,6 @@ export function getLevelInfo(
 
 /* =====================================================
    RESOLVE AUTOMATIC VALUE
-=====================================================
-
-   Jika hanya ada satu pilihan,
-   engine dapat menentukan nilai otomatis.
-
-   Jika lebih dari satu :
-       null
-
-   Jika tidak ada :
-       null
-
 ===================================================== */
 
 export function resolveSingleOption(
@@ -885,19 +875,6 @@ export function resolveGrade2(
 
 /* =====================================================
    RESOLVE HIERARCHY
-=====================================================
-
-   Fungsi ini menentukan nilai otomatis
-   sebanyak mungkin berdasarkan rule.
-
-   Contoh :
-
-   sepatu
-       ↓
-   sneaker
-       ↓
-   trendy
-
 ===================================================== */
 
 export function resolveHierarchy(
@@ -1035,11 +1012,6 @@ export function resolveHierarchy(
 
 /* =====================================================
    IS COMPLETE
-=====================================================
-
-   Menentukan apakah kombinasi yang dipilih
-   sudah merupakan kombinasi rule yang valid.
-
 ===================================================== */
 
 export function isComplete(
