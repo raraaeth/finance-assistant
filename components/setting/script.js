@@ -6179,31 +6179,70 @@ function collectAllResults(){
 
     sections.forEach(
 
-        sectionElement => {
+    sectionElement => {
 
-            const sectionId =
+        const sectionId =
 
-                sectionElement.dataset.section;
-
-
-            const result =
-
-                sectionElement.querySelector(
-
-                    ".global-setting-result"
-
-                );
+            sectionElement.dataset.section;
 
 
-            if(
+        /* =============================================
+           PERSIST RULE
+           
+           Section tertentu dapat digunakan hanya
+           sebagai configuration frontend.
 
-                !result
+           Contoh:
+           financial_rules
 
-            ){
+           persist:false
+           → jangan dikirim ke backend.
+        ============================================= */
 
-                return;
+        const sectionConfig =
 
-            }
+            currentConfig?.sections?.find(
+
+                section =>
+
+                    section.id === sectionId
+
+            );
+
+
+        if(
+
+            sectionConfig &&
+
+            sectionConfig.persist === false
+
+        ){
+
+            return;
+
+        }
+
+
+        const result =
+
+            sectionElement.querySelector(
+
+                ".global-setting-result"
+
+            );
+
+
+        if(
+
+            !result
+
+        ){
+
+            return;
+
+        }
+
+        
 
 
             [
