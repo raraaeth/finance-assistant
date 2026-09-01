@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : renderer.js
-   Version      : 2.1.0
+   Version      : 3.0.0
 
    Description :
    Global Input Transaction Renderer
@@ -14,18 +14,15 @@
 
    Struktur Config :
 
-       State.config
+       State.workspace
             ↓
-       State.config.module
+       getInputConfig(workspace)
             ↓
-       module.steps
+       input config
+            ↓
+       config.steps
             ↓
        Renderer
-
-   Compatibility :
-
-       Jika module belum tersedia,
-       State.config digunakan sebagai fallback.
 
    Controller :
        transaction.js
@@ -33,8 +30,16 @@
    Data :
        State.transactions
 
-   Config :
-       State.config.module.steps
+   IMPORTANT :
+
+   Renderer TIDAK membaca :
+
+       State.config
+       State.config.module
+
+   Workspace selalu berasal dari :
+
+       State.workspace
 ===================================================== */
 
 
@@ -49,31 +54,52 @@ import {
 } from "./state.js";
 
 
+import {
+
+    getInputConfig
+
+} from "./config.js";
+
+
 /* =====================================================
-   GET MODULE CONFIG
+   GET INPUT CONFIG
 =====================================================
 
-   Struktur utama :
+   Sumber konfigurasi renderer :
 
-       State.config
-           ↓
-       module
-           ↓
-       workspace config
-
-   Fallback :
-
-       State.config
-
-   digunakan jika module belum tersedia.
+       State.workspace
+            ↓
+       getInputConfig()
+            ↓
+       input config
 
 ===================================================== */
 
-function getModuleConfig(){
+function getInputConfigForRenderer(){
+
+    const workspace =
+
+        State.workspace;
+
+
+    if(
+
+        !workspace
+
+    ){
+
+        return null;
+
+    }
+
 
     const config =
 
-        State.config;
+        getInputConfig(
+
+            workspace
+
+        );
 
 
     if(
@@ -88,29 +114,7 @@ function getModuleConfig(){
 
     ){
 
-        return {};
-
-    }
-
-
-    const module =
-
-        config.module;
-
-
-    if(
-
-        module
-
-        &&
-
-        typeof module ===
-
-            "object"
-
-    ){
-
-        return module;
+        return null;
 
     }
 
@@ -128,10 +132,14 @@ function getSteps(){
 
     const config =
 
-        getModuleConfig();
+        getInputConfigForRenderer();
 
 
     if(
+
+        !config
+
+        ||
 
         !Array.isArray(
 
@@ -314,9 +322,11 @@ export function renderTransactionItem(
 
    Semua field berasal dari :
 
-       State.config.module.steps
+       getInputConfig(
+           State.workspace
+       ).steps
 
-   Renderer tidak mengetahui workspace.
+   Renderer tidak mengetahui workspace tertentu.
 
 ===================================================== */
 
@@ -354,11 +364,7 @@ function getDisplayFields(
 
                 config :
 
-                    State.config,
-
-                module :
-
-                    State.config?.module
+                    getInputConfigForRenderer()
 
             }
 
@@ -372,7 +378,7 @@ function getDisplayFields(
 
     /* =================================================
        DIRECTION FIELD
-       
+
        Contoh :
 
        Kas :
@@ -408,7 +414,7 @@ function getDisplayFields(
 
     /* =================================================
        ACTIVITY FIELD
-       
+
        Contoh Financial :
 
            jenis = masuk / keluar
@@ -531,7 +537,7 @@ function getDisplayFields(
 
             /* =========================================
                HIDE DIRECTION
-               
+
                Jika workspace memiliki
                activity field, direction
                tidak perlu ditampilkan
@@ -541,7 +547,6 @@ function getDisplayFields(
 
                Financial
 
-                   Masuk
                    Gaji
                    Rp100.000
 
@@ -807,7 +812,7 @@ function isPrimaryField(
 
     /* =================================================
        DIRECTION PRIORITY
-       
+
        Jika tidak ada activity,
        direction menjadi primary.
 
@@ -1266,7 +1271,7 @@ function getDisplayValue(
 
     /* =================================================
        CUSTOM DISPLAY
-       
+
        display() memiliki prioritas
        paling tinggi setelah direction.
     ================================================= */
@@ -1916,7 +1921,7 @@ export function getRendererConfig(){
 
     const config =
 
-        getModuleConfig();
+        getInputConfigForRenderer();
 
 
     return {
@@ -1927,16 +1932,33 @@ export function getRendererConfig(){
 
             ||
 
-            config.workspace
-
-            ||
-
             "",
 
 
         steps :
 
-            getSteps()
+            config
+
+            &&
+
+            Array.isArray(
+
+                config.steps
+
+            )
+
+                ?
+
+            config.steps
+
+                :
+
+            [],
+
+
+        config :
+
+            config
 
     };
 
@@ -2453,7 +2475,7 @@ export function getTransactionNote(
 
     /* =================================================
        CONFIG FIELD
-       
+
        Cari field text / textarea
        yang bukan direction / activity.
     ================================================= */
@@ -2656,7 +2678,7 @@ export function debugRenderer(
 
     const config =
 
-        getModuleConfig();
+        getInputConfigForRenderer();
 
 
     const fields =
@@ -2701,15 +2723,6 @@ export function debugRenderer(
     console.log(
 
         "Config:",
-
-        State.config
-
-    );
-
-
-    console.log(
-
-        "Module:",
 
         config
 
@@ -2809,10 +2822,6 @@ export function debugRenderer(
             State.workspace,
 
         config :
-
-            State.config,
-
-        module :
 
             config,
 
