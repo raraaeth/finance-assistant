@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.0.0
+   Version      : 4.1.0
 
    Description :
    Airdrop Input Configuration
@@ -31,20 +31,26 @@
 
    DATA SOURCE :
 
-   API.raw
-       ↓
-   sheet "airdrop"
-       ↓
+   Global Input data.js
+        ↓
+   getInputRaw()
+        ↓
+   sheet pertama workspace
+        ↓
    data aktivitas / project
 
-   API.data
-       ↓
-   sheet "airdrop_rules"
-       ↓
+   Global Input data.js
+        ↓
+   getInputData()
+        ↓
+   sheet kedua workspace
+        ↓
    konfigurasi wallet / type
 
    Principle :
-   Tidak ada daftar wallet / type hardcode.
+   - Tidak ada daftar wallet / type hardcode.
+   - Tidak membaca API secara langsung.
+   - Data source ditentukan oleh Global Workspace.
 ===================================================== */
 
 
@@ -61,9 +67,11 @@ import {
 
 import {
 
-    API
+    getInputRaw,
 
-} from "../../js/api.js";
+    getInputData
+
+} from "./data.js";
 
 
 /* =====================================================
@@ -136,9 +144,10 @@ export const Airdrop = {
        
        Prefix khusus Input Airdrop.
 
-       Tidak berasal dari global workspace.js.
        Prefix digunakan hanya untuk membuat
        ID transaksi Airdrop.
+
+       Tidak berasal dari global workspace.js.
     ================================================= */
 
     prefix :
@@ -577,38 +586,39 @@ export function setAirdropMode(
 ===================================================== */
 
 /*
-   PENTING :
+   Sumber :
 
-   API.raw
-       = sheet "airdrop"
+       getInputData()
+           ↓
+       sheet kedua workspace
 
-   API.data
-       = sheet "airdrop_rules"
+   Untuk Airdrop :
 
-   Jadi rules HARUS membaca API.data.
+       airdrop_rules
 
-   Sebelumnya fungsi ini membaca API.raw,
-   sehingga ketika sheet airdrop masih kosong,
-   rules ikut terbaca sebagai Array(0).
+   Tidak membaca API.data secara langsung.
 */
 
 export function getRules(){
 
     const data =
 
-        Array.isArray(
+        getInputData();
 
-            API.data
+
+    if(
+
+        !Array.isArray(
+
+            data
 
         )
 
-        ?
+    ){
 
-        API.data
+        return [];
 
-        :
-
-        [];
+    }
 
 
     return data.filter(
@@ -971,9 +981,8 @@ function isRuleActive(
 
     /* =============================================
        ACTIVE KOSONG
-       
-       Untuk compatibility dengan
-       rule lama.
+
+       Compatibility dengan rule lama.
     ============================================= */
 
     if(
@@ -1151,25 +1160,23 @@ export function getActivitySteps(){
    GET CURRENT DATA
 ===================================================== */
 
+/*
+   Sumber :
+
+       getInputRaw()
+           ↓
+       sheet pertama workspace
+
+   Untuk Airdrop :
+
+       airdrop
+
+   Tidak membaca API.raw secara langsung.
+*/
+
 export function getAirdropData(){
 
-    return Array.isArray(
-
-        API.raw
-
-    )
-
-    ?
-
-    [
-
-        ...API.raw
-
-    ]
-
-    :
-
-    [];
+    return getInputRaw();
 
 }
 
@@ -1580,8 +1587,6 @@ export function buildRewardValues(
 ===================================================== */
 
 /*
-   PENTING :
-
    Reward bukan membuat ID baru.
 
    ID record lama dipertahankan:
@@ -2192,7 +2197,7 @@ export function getStatusLabel(
             return "Not Win";
 
 
-        default:
+        default :
 
             return status ??
 
@@ -2867,7 +2872,7 @@ export function renderSelectedReward(
 
     /* =============================================
        TYPE
-       
+
        LOCKED
     ============================================= */
 
@@ -3038,7 +3043,7 @@ export function renderSelectedReward(
 
     /* =============================================
        REWARD
-       
+
        Hanya muncul jika Win.
     ============================================= */
 
