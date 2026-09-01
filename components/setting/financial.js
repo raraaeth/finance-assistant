@@ -1059,6 +1059,10 @@ export const FinancialSetting = {
 
                 "Tentukan rule Financial yang akan digunakan.",
 
+           persist :
+
+                 false,
+
 
             addLabel :
 
