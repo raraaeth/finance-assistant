@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : transaction.js
-   Version      : 4.1.0
+   Version      : 5.0.0
 
    Description :
    Transaction Controller
@@ -24,7 +24,7 @@
            ↓
        create record baru
            ↓
-       ID menggunakan prefix module
+       ID menggunakan prefix input workspace
 
    Input edit :
        editingId tersedia
@@ -35,17 +35,24 @@
 
    CONFIG :
 
-       State.config
+       State.workspace
             ↓
-       State.config.module
+       getInputConfig(workspace)
             ↓
-       module.steps
-       module.prefix
-       module.workspace
+       workspace input config
+            ↓
+       steps
+
+       State.workspace
+            ↓
+       getInputPrefix(workspace)
+            ↓
+       prefix
 
    Prefix TIDAK disimpan di transaction.js.
 
-   Prefix berasal dari module config.
+   Prefix berasal dari konfigurasi
+   masing-masing input workspace.
 
    Contoh :
 
@@ -59,7 +66,7 @@
            → KAS-xxxx
 
        Payroll Daily
-           → PDR-xxxx
+           → PD-xxxx
 
        Payroll Monthly
            → PM-xxxx
@@ -102,29 +109,58 @@ import {
 } from "./renderer.js";
 
 
+import {
+
+    getInputConfig,
+    getInputPrefix
+
+} from "./config.js";
+
+
 /* =====================================================
-   GET MODULE CONFIG
+   GET INPUT CONFIG
 =====================================================
 
-   Struktur utama :
+   Sumber konfigurasi transaction adalah
+   workspace aktif.
 
-       State.config
-           ↓
-       module
+       State.workspace
+            ↓
+       getInputConfig()
+            ↓
+       input config
 
-   Fallback :
+   Tidak lagi membaca :
 
-       State.config
-
-   Fallback dipertahankan untuk compatibility.
+       State.config.module
 
 ===================================================== */
 
-function getModuleConfig(){
+function getTransactionInputConfig(){
+
+    const workspace =
+
+        State.workspace;
+
+
+    if(
+
+        !workspace
+
+    ){
+
+        return null;
+
+    }
+
 
     const config =
 
-        State.config;
+        getInputConfig(
+
+            workspace
+
+        );
 
 
     if(
@@ -139,29 +175,7 @@ function getModuleConfig(){
 
     ){
 
-        return {};
-
-    }
-
-
-    const module =
-
-        config.module;
-
-
-    if(
-
-        module
-
-        &&
-
-        typeof module ===
-
-            "object"
-
-    ){
-
-        return module;
+        return null;
 
     }
 
@@ -179,10 +193,14 @@ function getSteps(){
 
     const config =
 
-        getModuleConfig();
+        getTransactionInputConfig();
 
 
     if(
+
+        !config
+
+        ||
 
         !Array.isArray(
 
@@ -204,20 +222,16 @@ function getSteps(){
 
 /* =====================================================
    GET WORKSPACE
+=====================================================
+
+   Workspace transaction selalu mengikuti
+   workspace aktif pada State.
+
 ===================================================== */
 
 function getTransactionWorkspace(){
 
-    const config =
-
-        getModuleConfig();
-
-
     return (
-
-        config.workspace
-
-        ??
 
         State.workspace
 
@@ -232,18 +246,51 @@ function getTransactionWorkspace(){
 
 /* =====================================================
    GET PREFIX
+=====================================================
+
+   Prefix berasal dari :
+
+       getInputPrefix(
+           State.workspace
+       )
+
+   Tidak ada prefix workspace yang
+   di-hardcode di transaction.js.
+
 ===================================================== */
 
 function getTransactionPrefix(){
 
-    const config =
+    const workspace =
 
-        getModuleConfig();
+        State.workspace;
+
+
+    if(
+
+        !workspace
+
+    ){
+
+        console.warn(
+
+            "Transaction prefix gagal: State.workspace kosong."
+
+        );
+
+
+        return "TX";
+
+    }
 
 
     const prefix =
 
-        config.prefix;
+        getInputPrefix(
+
+            workspace
+
+        );
 
 
     if(
@@ -269,7 +316,11 @@ function getTransactionPrefix(){
 
     console.warn(
 
-        "Transaction prefix tidak ditemukan pada module config. Menggunakan fallback TX."
+        "Transaction prefix tidak ditemukan untuk workspace:",
+
+        workspace,
+
+        "Menggunakan fallback TX."
 
     );
 
@@ -1505,13 +1556,15 @@ function confirmTransactions(){
 
    ID menggunakan prefix dari :
 
-       State.config.module.prefix
+       getInputPrefix(
+           State.workspace
+       )
 
    Contoh :
 
-       PDR
+       PD
          ↓
-       PDR-xxxxxxxx-xxxxx
+       PD-xxxxxxxx-xxxxx
 
        AIR
          ↓
@@ -1946,13 +1999,19 @@ function escapeHTML(
 
    Helper untuk debugging / inspection.
 
+   Sumber config :
+
+       State.workspace
+           ↓
+       getInputConfig()
+
 ===================================================== */
 
 export function getTransactionConfig(){
 
     const config =
 
-        getModuleConfig();
+        getTransactionInputConfig();
 
 
     return {
@@ -1971,7 +2030,7 @@ export function getTransactionConfig(){
 
         config :
 
-            State.config,
+            config,
 
         module :
 
@@ -1994,7 +2053,7 @@ export function debugTransaction(
 
     const config =
 
-        getModuleConfig();
+        getTransactionInputConfig();
 
 
     const data = {
@@ -2013,7 +2072,7 @@ export function debugTransaction(
 
         config :
 
-            State.config,
+            config,
 
         module :
 
