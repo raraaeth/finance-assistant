@@ -2,68 +2,72 @@
    Finance Assistant
    Component    : Global Input
    File         : flow.js
-   Version      : 4.0.0
+   Version      : 5.0.0
 
    Description :
    Global Input Flow Controller
 
    PRINCIPLE :
 
-   Flow hanya bertugas mengumpulkan input.
-
-   Workspace
-       ↓
-   config.js
-       ↓
-   State.config
-       ↓
-   State.config.module
-       ↓
+   Global Workspace
+        ↓
+   State.workspace
+        ↓
+   input/config.js
+        ↓
+   getInputConfig(workspace)
+        ↓
+   Workspace Input Config
+        ↓
    steps
-       ↓
+        ↓
    field.js
-       ↓
+        ↓
    input
 
+   Flow hanya bertugas mengumpulkan input.
+
    Enter / Change
-       ↓
+        ↓
    lanjut ke field berikutnya
 
    Field terakhir selesai
-       ↓
+        ↓
    FLOW COMPLETE
-       ↓
-   Tombol "Tambahkan" muncul
+        ↓
+   Tombol "Tambahkan" ditangani
+   oleh transaction.js
 
    Klik "Tambahkan"
-       ↓
-   ditangani transaction.js
+        ↓
+   transaction.js
 
    Klik "Konfirmasi"
-       ↓
-   ditangani transaction.js
+        ↓
+   transaction.js
+
 
    IMPORTANT :
 
-   - Enter TIDAK menambahkan transaction
-   - Enter TIDAK mengirim data
-   - Enter TIDAK menjalankan confirm
-   - Enter TIDAK menjalankan completeTransaction()
-   - Flow TIDAK melakukan write
+   - Flow TIDAK melakukan write.
+   - Flow TIDAK membuat transaction.
+   - Flow TIDAK melakukan confirm.
+   - Flow TIDAK mengetahui daftar workspace.
+   - Flow TIDAK menyimpan prefix.
+   - Flow TIDAK menyimpan steps workspace.
+   - Flow TIDAK mempunyai logic khusus workspace.
 
-   Hanya tombol Tambahkan yang boleh
-   memasukkan data ke State.transactions.
+   Semua konfigurasi input berasal dari :
 
-   Hanya tombol Konfirmasi yang boleh
-   mengirim data.
+       input/config.js
+
 
    MODE :
 
-   Flow tetap generic.
+   Workspace seperti Airdrop dapat mempunyai
+   beberapa mode.
 
-   Workspace yang mempunyai beberapa mode
-   seperti Airdrop dapat menentukan mode
-   melalui State.mode.
+   Flow hanya meneruskan State.mode.
 
    Flow tidak mengetahui detail mode.
 ===================================================== */
@@ -81,6 +85,17 @@ import {
 
 
 /* =====================================================
+   IMPORT INPUT CONFIG REGISTRY
+===================================================== */
+
+import {
+
+    getInputConfig
+
+} from "./config.js";
+
+
+/* =====================================================
    IMPORT FIELD RENDERER
 ===================================================== */
 
@@ -89,32 +104,6 @@ import {
     renderField
 
 } from "./field.js";
-
-
-/* =====================================================
-   PAYROLL DAILY HIERARCHY
-=====================================================
-
-   Payroll Daily mempunyai hierarchy khusus :
-
-       Nama
-          ↓
-       Grade 1
-          ↓
-       Grade 2
-
-   Flow hanya meneruskan perubahan Nama
-   kepada hierarchy engine.
-
-   Logic hierarchy tetap berada di daily.js.
-
-===================================================== */
-
-import {
-
-    resolveDailyHierarchy
-
-} from "./daily.js";
 
 
 /* =====================================================
@@ -136,6 +125,48 @@ export function startFlow(){
     State.editingId = null;
 
     State.selectedRecord = null;
+
+
+    /* =============================================
+       GET INPUT CONFIG
+    ============================================= */
+
+    const config =
+
+        getInputConfig(
+
+            getWorkspace()
+
+        );
+
+
+    /* =============================================
+       APPLY DEFAULT VALUES
+    ============================================= */
+
+    if(
+
+        config
+
+        &&
+
+        config.defaults
+
+        &&
+
+        typeof config.defaults ===
+
+            "object"
+
+    ){
+
+        State.values = {
+
+            ...config.defaults
+
+        };
+
+    }
 
 
     /* =============================================
@@ -163,90 +194,88 @@ function getContainer(){
 
 
 /* =====================================================
-   GET MODULE CONFIG
+   GET WORKSPACE
 =====================================================
 
-   Struktur baru :
+   Workspace aktif berasal dari State.workspace.
 
-       State.config
-           ↓
-       module
-           ↓
-       workspace config
+   Flow tidak mempunyai daftar workspace.
+===================================================== */
+
+function getWorkspace(){
+
+    return (
+
+        State.workspace
+
+        ??
+
+        ""
+
+    );
+
+}
+
+
+/* =====================================================
+   GET INPUT CONFIG
+=====================================================
+
+   Sumber konfigurasi form :
+
+       input/config.js
 
    Contoh :
 
-       State.config = {
+       payroll-daily
+           ↓
+       Daily
 
-           id       : "payroll-daily",
-           title    : "Payroll Daily",
-           icon     : "...",
-           sheets   : [...],
-           module   : {
+       payroll-monthly
+           ↓
+       Monthly
 
-               workspace : "payroll-daily",
-               prefix    : "PDR",
-               title     : "Payroll Daily",
-               steps     : [...]
-           }
+       financial
+           ↓
+       Financial
 
-       }
+       saving
+           ↓
+       Saving
 
-   Compatibility :
+       kas
+           ↓
+       Kas
 
-   Jika module belum tersedia,
-   State.config sendiri tetap dapat digunakan
-   sebagai fallback.
+       airdrop
+           ↓
+       Airdrop
 
 ===================================================== */
 
-function getModuleConfig(){
+function getFlowConfig(){
 
-    const config =
+    const workspace =
 
-        State.config;
-
-
-    if(
-
-        !config
-
-        ||
-
-        typeof config !==
-
-            "object"
-
-    ){
-
-        return {};
-
-    }
-
-
-    const module =
-
-        config.module;
+        getWorkspace();
 
 
     if(
 
-        module
-
-        &&
-
-        typeof module ===
-
-            "object"
+        !workspace
 
     ){
 
-        return module;
+        return null;
 
     }
 
 
-    return config;
+    return getInputConfig(
+
+        workspace
+
+    );
 
 }
 
@@ -259,10 +288,14 @@ function getSteps(){
 
     const config =
 
-        getModuleConfig();
+        getFlowConfig();
 
 
     if(
+
+        !config
+
+        ||
 
         !Array.isArray(
 
@@ -283,54 +316,47 @@ function getSteps(){
 
 
 /* =====================================================
-   GET WORKSPACE
-===================================================== */
-
-function getWorkspace(){
-
-    const module =
-
-        getModuleConfig();
-
-
-    return (
-
-        module.workspace
-
-        ??
-
-        State.workspace
-
-        ??
-
-        ""
-
-    );
-
-}
-
-
-/* =====================================================
    GET PREFIX
 =====================================================
 
-   Prefix tidak dibuat di Flow.
+   Prefix bukan milik Flow.
 
-   Prefix berasal dari konfigurasi workspace
-   melalui config.js.
+   Prefix diambil dari input config workspace.
 
+       config.js
+           ↓
+       Daily.prefix
+           ↓
+       PDR
+
+   atau :
+
+       Airdrop.prefix
+           ↓
+       AIR
 ===================================================== */
 
 export function getFlowPrefix(){
 
-    const module =
+    const config =
 
-        getModuleConfig();
+        getFlowConfig();
+
+
+    if(
+
+        !config
+
+    ){
+
+        return "";
+
+    }
 
 
     const prefix =
 
-        module.prefix;
+        config.prefix;
 
 
     if(
@@ -355,6 +381,72 @@ export function getFlowPrefix(){
         .trim()
 
         .toUpperCase();
+
+}
+
+
+/* =====================================================
+   GET WORKSPACE LABEL
+===================================================== */
+
+export function getFlowWorkspaceLabel(){
+
+    const config =
+
+        getFlowConfig();
+
+
+    if(
+
+        !config
+
+    ){
+
+        return getWorkspace();
+
+    }
+
+
+    const label =
+
+        config.workspaceLabel;
+
+
+    if(
+
+        typeof label ===
+
+            "string"
+
+        &&
+
+        label.trim()
+
+    ){
+
+        return label.trim();
+
+    }
+
+
+    if(
+
+        typeof config.title ===
+
+            "string"
+
+        &&
+
+        config.title.trim()
+
+    ){
+
+        return config.title.trim();
+
+    }
+
+
+    return getWorkspace();
 
 }
 
@@ -387,7 +479,37 @@ export function renderFlow(){
 
 
     /* =============================================
-       TIDAK ADA CONFIG
+       CONFIG TIDAK DITEMUKAN
+    ============================================= */
+
+    if(
+
+        !getFlowConfig()
+
+    ){
+
+        console.warn(
+
+            "Global Input: konfigurasi input tidak ditemukan.",
+
+            {
+
+                workspace :
+
+                    getWorkspace()
+
+            }
+
+        );
+
+
+        return;
+
+    }
+
+
+    /* =============================================
+       STEPS TIDAK DITEMUKAN
     ============================================= */
 
     if(
@@ -400,7 +522,7 @@ export function renderFlow(){
 
         console.warn(
 
-            "Global Input: steps tidak ditemukan pada konfigurasi workspace.",
+            "Global Input: steps tidak ditemukan pada konfigurasi input.",
 
             {
 
@@ -410,7 +532,7 @@ export function renderFlow(){
 
                 config :
 
-                    State.config
+                    getFlowConfig()
 
             }
 
@@ -437,9 +559,9 @@ export function renderFlow(){
         ];
 
 
-    /* =================================================
+    /* =============================================
        CARI FIELD VISIBLE BERIKUTNYA
-    ================================================= */
+    ============================================= */
 
     while(
 
@@ -468,17 +590,9 @@ export function renderFlow(){
     }
 
 
-    /* =================================================
-       SEMUA FIELD SUDAH SELESAI
-       
-       Stop di sini.
-
-       Tidak memasukkan transaksi.
-       Tidak melakukan write.
-       Tidak melakukan confirm.
-
-       Hanya dispatch event.
-    ================================================= */
+    /* =============================================
+       SEMUA FIELD SELESAI
+    ============================================= */
 
     if(
 
@@ -493,9 +607,9 @@ export function renderFlow(){
     }
 
 
-    /* =================================================
+    /* =============================================
        PREVENT DUPLICATE FIELD
-    ================================================= */
+    ============================================= */
 
     if(
 
@@ -514,9 +628,9 @@ export function renderFlow(){
     }
 
 
-    /* =================================================
+    /* =============================================
        RENDER FIELD
-    ================================================= */
+    ============================================= */
 
     renderField(
 
@@ -585,13 +699,25 @@ function handleFieldComplete(
 
         "FIELD COMPLETE:",
 
-        field.id,
+        {
 
-        value,
+            field :
 
-        "MODE:",
+                field.id,
 
-        State.mode
+            value :
+
+                value,
+
+            workspace :
+
+                getWorkspace(),
+
+            mode :
+
+                State.mode
+
+        }
 
     );
 
@@ -599,11 +725,18 @@ function handleFieldComplete(
     /* =================================================
        CONDITION FIELD
 
-       Checkbox condition bukan field biasa.
+       Condition mempunyai beberapa child field.
 
-       Setelah condition dipilih,
-       semua field condition aktif
-       ditampilkan bersamaan.
+       Contoh :
+
+           conditions
+               ↓
+           telat
+           izin_telat
+           izin_pulang
+           lembur_jam
+
+       Semua ditentukan oleh konfigurasi workspace.
     ================================================= */
 
     if(
@@ -628,38 +761,16 @@ function handleFieldComplete(
 
 
     /* =================================================
-       PAYROLL DAILY HIERARCHY
-    ================================================= */
-
-    if(
-
-        field.id ===
-
-            "nama"
-
-        &&
-
-        getWorkspace() ===
-
-            "payroll-daily"
-
-    ){
-
-        handleDailyHierarchyChange(
-
-            fieldIndex,
-
-            value
-
-        );
-
-        return;
-
-    }
-
-
-    /* =================================================
        STATUS
+
+       Status dapat mengubah field berikutnya
+       melalui showWhen.
+
+       Flow tidak mengetahui jenis status
+       workspace tertentu.
+
+       Semua keputusan visibility berasal
+       dari field.showWhen.
     ================================================= */
 
     if(
@@ -696,155 +807,13 @@ function handleFieldComplete(
         value;
 
 
+    /* =================================================
+       LANJUT FIELD
+    ================================================= */
+
     State.step =
 
         fieldIndex + 1;
-
-
-    renderFlow();
-
-}
-
-
-/* =====================================================
-   PAYROLL DAILY HIERARCHY CHANGE
-===================================================== */
-
-function handleDailyHierarchyChange(
-
-    namaIndex,
-
-    value
-
-){
-
-    /* =================================================
-       SIMPAN NAMA
-    ================================================= */
-
-    State.values.nama =
-
-        String(
-
-            value ??
-
-            ""
-
-        ).trim();
-
-
-    /* =================================================
-       BERSIHKAN FIELD SETELAH NAMA
-    ================================================= */
-
-    clearFieldsAfter(
-
-        namaIndex
-
-    );
-
-
-    /* =================================================
-       RESOLVE HIERARCHY
-    ================================================= */
-
-    const resolved =
-
-        resolveDailyHierarchy(
-
-            State.values
-
-        );
-
-
-    /* =================================================
-       GRADE 1
-    ================================================= */
-
-    if(
-
-        resolved
-
-        &&
-
-        resolved.grade_1
-
-    ){
-
-        State.values.grade_1 =
-
-            resolved.grade_1;
-
-    }
-
-    else{
-
-        delete State.values.grade_1;
-
-    }
-
-
-    /* =================================================
-       GRADE 2
-    ================================================= */
-
-    if(
-
-        resolved
-
-        &&
-
-        resolved.grade_2
-
-    ){
-
-        State.values.grade_2 =
-
-            resolved.grade_2;
-
-    }
-
-    else{
-
-        delete State.values.grade_2;
-
-    }
-
-
-    console.log(
-
-        "PAYROLL DAILY HIERARCHY RESOLVED:",
-
-        {
-
-            nama :
-
-                State.values.nama,
-
-            grade_1 :
-
-                State.values.grade_1 ??
-
-                "",
-
-            grade_2 :
-
-                State.values.grade_2 ??
-
-                ""
-
-        }
-
-    );
-
-
-    /* =================================================
-       LANJUT FLOW
-    ================================================= */
-
-    State.step =
-
-        namaIndex + 1;
 
 
     renderFlow();
@@ -864,18 +833,18 @@ function handleStatusChange(
 
 ){
 
-    /* =================================================
+    /* =============================================
        SIMPAN STATUS
-    ================================================= */
+    ============================================= */
 
     State.values.status =
 
         value;
 
 
-    /* =================================================
+    /* =============================================
        CLEAR FIELD SETELAH STATUS
-    ================================================= */
+    ============================================= */
 
     clearFieldsAfter(
 
@@ -884,54 +853,12 @@ function handleStatusChange(
     );
 
 
-    /* =================================================
-       TERMINAL STATUS
+    /* =============================================
+       LANJUT
        
-       Attendance :
-
-       Cuti
-       Sakit
-       Absen
-
-       Status terminal tidak memiliki
-       field tambahan.
-    ================================================= */
-
-    if(
-
-        isTerminalStatus(
-
-            getSteps()[
-
-                statusIndex
-
-            ],
-
-            value
-
-        )
-
-    ){
-
-        console.log(
-
-            "Terminal attendance status:",
-
-            value
-
-        );
-
-
-        flowComplete();
-
-        return;
-
-    }
-
-
-    /* =================================================
-       STATUS NORMAL
-    ================================================= */
+       Visibility field berikutnya sepenuhnya
+       ditentukan oleh showWhen.
+    ============================================= */
 
     State.step =
 
@@ -964,9 +891,9 @@ function handleConditionChange(
     );
 
 
-    /* =================================================
-       SIMPAN CONDITION
-    ================================================= */
+    /* =============================================
+       NORMALIZE VALUE
+    ============================================= */
 
     State.values.conditions =
 
@@ -989,9 +916,9 @@ function handleConditionChange(
         [];
 
 
-    /* =================================================
-       BERSIHKAN FIELD CONDITION SEBELUMNYA
-    ================================================= */
+    /* =============================================
+       CLEAR FIELD SETELAH CONDITION
+    ============================================= */
 
     clearFieldsAfter(
 
@@ -1000,13 +927,13 @@ function handleConditionChange(
     );
 
 
-    /* =================================================
+    /* =============================================
        CONDITION KOSONG
-
-       Jangan flowComplete.
-
-       Tetap berada di condition.
-    ================================================= */
+       
+       Tidak complete.
+       
+       User masih berada pada condition.
+    ============================================= */
 
     if(
 
@@ -1028,14 +955,15 @@ function handleConditionChange(
 
             conditionIndex;
 
+
         return;
 
     }
 
 
-    /* =================================================
+    /* =============================================
        RENDER CONDITION FIELDS
-    ================================================= */
+    ============================================= */
 
     renderConditionFields(
 
@@ -1082,7 +1010,9 @@ function renderConditionFields(
 
     /* =================================================
        CARI FIELD SETELAH CONDITION
-       YANG VISIBLE
+       
+       Field yang memenuhi showWhen
+       dianggap aktif.
     ================================================= */
 
     for(
@@ -1131,10 +1061,12 @@ function renderConditionFields(
 
 
         /* =================================================
-           STOP PENCARIAN CONDITION INPUT
+           FINAL FIELD
 
-           Field final seperti keterangan
-           dianggap field normal.
+           Condition fields harus dirender dahulu.
+
+           Setelah menemukan field normal terakhir
+           seperti keterangan, pencarian berhenti.
         ================================================= */
 
         if(
@@ -1154,9 +1086,13 @@ function renderConditionFields(
 
         activeFields.push({
 
-            field,
+            field :
 
-            index
+                field,
+
+            index :
+
+                index
 
         });
 
@@ -1229,8 +1165,9 @@ function renderConditionFields(
 
     /* =================================================
        CURSOR
-
-       Cursor berada di condition input terakhir.
+       
+       Setelah semua condition field dirender,
+       cursor ditempatkan pada field terakhir.
     ================================================= */
 
     State.step =
@@ -1246,6 +1183,16 @@ function renderConditionFields(
 
 /* =====================================================
    FINAL INPUT FIELD
+=====================================================
+
+   Field setelah condition yang dianggap
+   sebagai input normal.
+
+   Saat ini keterangan menjadi field final.
+
+   Ini hanya digunakan untuk menentukan batas
+   rendering condition.
+
 ===================================================== */
 
 function isFinalInputField(
@@ -1271,13 +1218,19 @@ function isFinalInputField(
 
             "keterangan"
 
+        ||
+
+        field.id ===
+
+            "note"
+
     );
 
 }
 
 
 /* =====================================================
-   FIELD CONDITION INPUT
+   IS CONDITION INPUT
 ===================================================== */
 
 function isConditionInput(
@@ -1403,16 +1356,16 @@ function findConditionIndexBefore(
 
 
         /* =================================================
-           Jangan mencari melewati field normal.
+           Jangan mencari melewati final field.
         ================================================= */
 
         if(
 
-            field?.id ===
+            isFinalInputField(
 
-                "keterangan"
+                field
 
-        ){
+            ) ){
 
             break;
 
@@ -1446,19 +1399,8 @@ function clearFieldsAfter(
         getSteps();
 
 
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
     /* =================================================
-       HAPUS STATE
+       CLEAR STATE
     ================================================= */
 
     for(
@@ -1501,8 +1443,22 @@ function clearFieldsAfter(
 
 
     /* =================================================
-       HAPUS DOM
+       CLEAR DOM
+       
+       Container boleh tidak tersedia.
+       State tetap harus dibersihkan.
     ================================================= */
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
 
     for(
 
@@ -1622,74 +1578,14 @@ function isFieldRendered(
 
 
 /* =====================================================
-   TERMINAL STATUS
-===================================================== */
-
-function isTerminalStatus(
-
-    field,
-
-    value
-
-){
-
-    if(
-
-        !field
-
-        ||
-
-        field.id !==
-
-            "status"
-
-    ){
-
-        return false;
-
-    }
-
-
-    const status =
-
-        String(
-
-            value ??
-
-            ""
-
-        )
-
-        .trim()
-
-        .toLowerCase();
-
-
-    return (
-
-        status ===
-
-            "cuti"
-
-        ||
-
-        status ===
-
-            "sakit"
-
-        ||
-
-        status ===
-
-            "absen"
-
-    );
-
-}
-
-
-/* =====================================================
    VISIBILITY
+=====================================================
+
+   Semua workspace-specific visibility
+   berasal dari field.showWhen.
+
+   Flow tidak mempunyai daftar status,
+   daftar category, daftar jenis, dll.
 ===================================================== */
 
 function isVisible(
@@ -1740,9 +1636,23 @@ function isVisible(
 
         console.warn(
 
-            "Global Input flow showWhen error:",
+            "Global Input: showWhen error.",
 
-            error
+            {
+
+                workspace :
+
+                    getWorkspace(),
+
+                field :
+
+                    field.id,
+
+                error :
+
+                    error
+
+            }
 
         );
 
@@ -1755,18 +1665,117 @@ function isVisible(
 
 
 /* =====================================================
+   GET CURRENT FIELD
+===================================================== */
+
+export function getCurrentField(){
+
+    const steps =
+
+        getSteps();
+
+
+    if(
+
+        !Array.isArray(
+
+            steps
+
+        )
+
+    ){
+
+        return null;
+
+    }
+
+
+    return (
+
+        steps[
+
+            State.step
+
+        ]
+
+        ??
+
+        null
+
+    );
+
+}
+
+
+/* =====================================================
+   GET CURRENT CONFIG
+===================================================== */
+
+export function getCurrentInputConfig(){
+
+    return getFlowConfig();
+
+}
+
+
+/* =====================================================
+   GET CURRENT STEPS
+===================================================== */
+
+export function getCurrentInputSteps(){
+
+    return [
+
+        ...getSteps()
+
+    ];
+
+}
+
+
+/* =====================================================
+   GET CURRENT VALUES
+===================================================== */
+
+export function getCurrentInputValues(){
+
+    return {
+
+        ...(
+
+            State.values
+
+            ??
+
+            {}
+
+        )
+
+    };
+
+}
+
+
+/* =====================================================
    FLOW COMPLETE
 =====================================================
 
    INI ADALAH BATAS FLOW.
 
-   Tidak ada transaksi dibuat di sini.
-   Tidak ada write.
-   Tidak ada confirm.
+   Tidak ada :
 
-   Hanya memberi tahu transaction.js
-   bahwa semua input sudah selesai.
+       transaction
 
+       write
+
+       confirm
+
+       API call
+
+   Flow hanya mengirim event.
+
+   transaction.js yang menentukan apa
+   yang dilakukan setelah flow selesai.
 ===================================================== */
 
 function flowComplete(){
@@ -1820,7 +1829,15 @@ function flowComplete(){
 
                         {
 
-                            ...State.values
+                            ...(
+
+                                State.values
+
+                                ??
+
+                                {}
+
+                            )
 
                         },
 
