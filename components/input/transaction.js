@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : transaction.js
-   Version      : 4.0.0
+   Version      : 4.1.0
 
    Description :
    Transaction Controller
@@ -32,10 +32,20 @@
        update record berdasarkan ID
 
    Transaction controller tetap generic.
-   Tidak mengetahui workspace tertentu.
 
-   Prefix ID berasal dari :
-       State.config.prefix
+   CONFIG :
+
+       State.config
+            ↓
+       State.config.module
+            ↓
+       module.steps
+       module.prefix
+       module.workspace
+
+   Prefix TIDAK disimpan di transaction.js.
+
+   Prefix berasal dari module config.
 
    Contoh :
 
@@ -49,7 +59,7 @@
            → KAS-xxxx
 
        Payroll Daily
-           → PD-xxxx
+           → PDR-xxxx
 
        Payroll Monthly
            → PM-xxxx
@@ -93,6 +103,183 @@ import {
 
 
 /* =====================================================
+   GET MODULE CONFIG
+=====================================================
+
+   Struktur utama :
+
+       State.config
+           ↓
+       module
+
+   Fallback :
+
+       State.config
+
+   Fallback dipertahankan untuk compatibility.
+
+===================================================== */
+
+function getModuleConfig(){
+
+    const config =
+
+        State.config;
+
+
+    if(
+
+        !config
+
+        ||
+
+        typeof config !==
+
+            "object"
+
+    ){
+
+        return {};
+
+    }
+
+
+    const module =
+
+        config.module;
+
+
+    if(
+
+        module
+
+        &&
+
+        typeof module ===
+
+            "object"
+
+    ){
+
+        return module;
+
+    }
+
+
+    return config;
+
+}
+
+
+/* =====================================================
+   GET STEPS
+===================================================== */
+
+function getSteps(){
+
+    const config =
+
+        getModuleConfig();
+
+
+    if(
+
+        !Array.isArray(
+
+            config.steps
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return config.steps;
+
+}
+
+
+/* =====================================================
+   GET WORKSPACE
+===================================================== */
+
+function getTransactionWorkspace(){
+
+    const config =
+
+        getModuleConfig();
+
+
+    return (
+
+        config.workspace
+
+        ??
+
+        State.workspace
+
+        ??
+
+        ""
+
+    );
+
+}
+
+
+/* =====================================================
+   GET PREFIX
+===================================================== */
+
+function getTransactionPrefix(){
+
+    const config =
+
+        getModuleConfig();
+
+
+    const prefix =
+
+        config.prefix;
+
+
+    if(
+
+        typeof prefix ===
+
+            "string"
+
+        &&
+
+        prefix.trim()
+
+    ){
+
+        return prefix
+
+            .trim()
+
+            .toUpperCase();
+
+    }
+
+
+    console.warn(
+
+        "Transaction prefix tidak ditemukan pada module config. Menggunakan fallback TX."
+
+    );
+
+
+    return "TX";
+
+}
+
+
+/* =====================================================
    INIT
 ===================================================== */
 
@@ -111,10 +298,9 @@ export function initTransaction(){
             /*
                Semua field sudah selesai.
 
-               Belum menambahkan / meng-update
-               transaksi.
+               Belum menambahkan transaction.
 
-               Hanya tampilkan tombol action.
+               Hanya tampilkan tombol Tambahkan.
             */
 
             console.log(
@@ -189,10 +375,6 @@ function completeTransaction(
 
     /* =============================================
        EDIT / UPDATE
-
-       Jika editingId tersedia,
-       berarti record lama sedang
-       diubah.
     ============================================= */
 
     if(
@@ -258,10 +440,6 @@ function addTransaction(
 
     /* =============================================
        CREATE TRANSACTION
-
-       ID dibuat oleh transaction controller,
-       tetapi prefix berasal dari konfigurasi
-       module Input.
     ============================================= */
 
     const transaction = {
@@ -342,7 +520,7 @@ function updateTransaction(
 
 
     /* =============================================
-       CARI RECORD BERDASARKAN ID
+       CARI RECORD
     ============================================= */
 
     const index =
@@ -379,13 +557,6 @@ function updateTransaction(
             -1
 
     ){
-
-        /*
-           Jika record belum berada di
-           State.transactions, gunakan
-           selectedRecord sebagai sumber
-           record lama.
-        */
 
         const baseRecord =
 
@@ -445,7 +616,7 @@ function updateTransaction(
     else{
 
         /* =========================================
-           MERGE RECORD LAMA + NILAI BARU
+           MERGE RECORD
         ========================================= */
 
         const oldTransaction =
@@ -520,7 +691,7 @@ function finishCurrentInput(){
 
 
     /* =============================================
-       HIDE ACTION BUTTON
+       HIDE ADD BUTTON
     ============================================= */
 
     hideAddButton();
@@ -538,8 +709,6 @@ function finishCurrentInput(){
 
     /* =============================================
        START NEW FLOW
-
-       Untuk mode input berikutnya.
     ============================================= */
 
     startFlow();
@@ -710,7 +879,7 @@ export function hideAddButton(){
 
 
 /* =====================================================
-   RENDER LIST
+   RENDER TRANSACTION LIST
 ===================================================== */
 
 export function renderTransactionList(){
@@ -1044,9 +1213,6 @@ function updateSummary(){
 
     /* =============================================
        CALCULATE
-
-       Tetap kompatibel dengan
-       Kas / Financial.
     ============================================= */
 
     State.transactions.forEach(
@@ -1289,7 +1455,7 @@ function confirmTransactions(){
 
         workspace :
 
-            State.workspace,
+            getTransactionWorkspace(),
 
         date :
 
@@ -1335,33 +1501,23 @@ function confirmTransactions(){
 
 /* =====================================================
    GENERATE TRANSACTION ID
-===================================================== */
+=====================================================
 
-/*
-   ID transaction bersifat module-specific.
+   ID menggunakan prefix dari :
 
-   Transaction controller TIDAK mempunyai
-   daftar prefix workspace.
-
-   Prefix diambil dari :
-
-       State.config.prefix
+       State.config.module.prefix
 
    Contoh :
 
-       State.config.prefix = "AIR"
-           ↓
-       AIR-xxxxxxxx
+       PDR
+         ↓
+       PDR-xxxxxxxx-xxxxx
 
-       State.config.prefix = "SAV"
-           ↓
-       SAV-xxxxxxxx
+       AIR
+         ↓
+       AIR-xxxxxxxx-xxxxx
 
-   Jika prefix tidak tersedia,
-   gunakan "TX" sebagai fallback
-   sementara agar transaction tetap
-   dapat dibuat.
-*/
+===================================================== */
 
 function generateTransactionId(){
 
@@ -1422,234 +1578,17 @@ function generateTransactionId(){
 
 
 /* =====================================================
-   GET TRANSACTION PREFIX
-===================================================== */
-
-function getTransactionPrefix(){
-
-    const prefix =
-
-        State.config?.prefix;
-
-
-    if(
-
-        prefix
-
-    ){
-
-        const normalized =
-
-            String(
-
-                prefix
-
-            )
-
-            .trim()
-
-            .toUpperCase();
-
-
-        if(
-
-            normalized
-
-        ){
-
-            return normalized;
-
-        }
-
-    }
-
-
-    console.warn(
-
-        "Transaction prefix tidak ditemukan. Menggunakan fallback TX."
-
-    );
-
-
-    return "TX";
-
-}
-
-
-/* =====================================================
-   TYPE LABEL
-===================================================== */
-
-function getTypeLabel(
-
-    type
-
-){
-
-    if(
-
-        type ===
-
-            "masuk"
-
-    ){
-
-        return "💰 Masuk";
-
-    }
-
-
-    if(
-
-        type ===
-
-            "keluar"
-
-    ){
-
-        return "💸 Keluar";
-
-    }
-
-
-    return type ??
-
-        "-";
-
-}
-
-
-/* =====================================================
-   CATEGORY LABEL
-===================================================== */
-
-function getCategoryLabel(
-
-    transaction
-
-){
-
-    if(
-
-        transaction.category ===
-
-            "custom"
-
-    ){
-
-        return (
-
-            transaction.customCategory
-
-            ||
-
-            "Lain-lain"
-
-        );
-
-    }
-
-
-    const steps =
-
-        State.config?.steps
-
-        ??
-
-        [];
-
-
-    const categoryField =
-
-        steps.find(
-
-            field =>
-
-                field.id ===
-
-                    "category"
-
-        );
-
-
-    if(
-
-        !categoryField
-
-    ){
-
-        return (
-
-            transaction.category
-
-            ||
-
-            "-"
-
-        );
-
-    }
-
-
-    const options =
-
-        typeof categoryField.options ===
-
-            "function"
-
-        ?
-
-        categoryField.options(
-
-            transaction
-
-        )
-
-        :
-
-        (
-
-            categoryField.options
-
-            ||
-
-            []
-
-        );
-
-
-    const option =
-
-        options.find(
-
-            item =>
-
-                item.value ===
-
-                    transaction.category
-
-        );
-
-
-    return (
-
-        option?.label
-
-        ||
-
-        transaction.category
-
-        ||
-
-        "-"
-
-    );
-
-}
-
-
-/* =====================================================
    GET TRANSACTION TYPE
+=====================================================
+
+   Mengambil field pertama yang berisi
+   direction :
+
+       masuk
+       keluar
+
+   Tidak mengunci nama field.
+
 ===================================================== */
 
 function getTransactionType(
@@ -1660,26 +1599,73 @@ function getTransactionType(
 
     const steps =
 
-        State.config?.steps
-
-        ??
-
-        [];
+        getSteps();
 
 
     /* =============================================
-       AMBIL SELECT PERTAMA
+       CARI DIRECTION FIELD
     ============================================= */
 
     const typeField =
 
         steps.find(
 
-            field =>
+            field => {
 
-                field.type ===
+                if(
 
-                    "select"
+                    !field
+
+                    ||
+
+                    !field.id
+
+                ){
+
+                    return false;
+
+                }
+
+
+                const value =
+
+                    transaction[
+
+                        field.id
+
+                    ];
+
+
+                const normalized =
+
+                    String(
+
+                        value ??
+
+                        ""
+
+                    )
+
+                    .trim()
+
+                    .toLowerCase();
+
+
+                return (
+
+                    normalized ===
+
+                        "masuk"
+
+                    ||
+
+                    normalized ===
+
+                        "keluar"
+
+                );
+
+            }
 
         );
 
@@ -1688,23 +1674,21 @@ function getTransactionType(
 
         typeField
 
-        &&
-
-        transaction[
-
-            typeField.id
-
-        ] !==
-
-            undefined
-
     ){
 
-        return transaction[
+        return String(
 
-            typeField.id
+            transaction[
 
-        ];
+                typeField.id
+
+            ]
+
+        )
+
+        .trim()
+
+        .toLowerCase();
 
     }
 
@@ -1713,7 +1697,7 @@ function getTransactionType(
        FALLBACK
     ============================================= */
 
-    return (
+    return String(
 
         transaction.jenis
 
@@ -1725,7 +1709,11 @@ function getTransactionType(
 
         ""
 
-    );
+    )
+
+    .trim()
+
+    .toLowerCase();
 
 }
 
@@ -1742,15 +1730,11 @@ function getTransactionAmount(
 
     const steps =
 
-        State.config?.steps
-
-        ??
-
-        [];
+        getSteps();
 
 
     /* =============================================
-       AMBIL NUMBER FIELD PERTAMA
+       NUMBER FIELD
     ============================================= */
 
     const amountField =
@@ -1759,9 +1743,23 @@ function getTransactionAmount(
 
             field =>
 
+                field
+
+                &&
+
                 field.type ===
 
                     "number"
+
+                &&
+
+                transaction[
+
+                    field.id
+
+                ] !==
+
+                    undefined
 
         );
 
@@ -1770,27 +1768,31 @@ function getTransactionAmount(
 
         amountField
 
-        &&
-
-        transaction[
-
-            amountField.id
-
-        ] !==
-
-            undefined
-
     ){
 
         return Number(
 
-            transaction[
+            String(
 
-                amountField.id
+                transaction[
 
-            ]
+                    amountField.id
 
-        ) || 0;
+                ]
+
+            )
+
+            .replace(
+
+                /[^0-9.-]/g,
+
+                ""
+
+            )
+
+        )
+
+        || 0;
 
     }
 
@@ -1801,13 +1803,31 @@ function getTransactionAmount(
 
     return Number(
 
-        transaction.nominal
+        String(
 
-        ??
+            transaction.nominal
 
-        transaction.amount
+            ??
 
-    ) || 0;
+            transaction.amount
+
+            ??
+
+            0
+
+        )
+
+        .replace(
+
+            /[^0-9.-]/g,
+
+            ""
+
+        )
+
+    )
+
+    || 0;
 
 }
 
@@ -1916,5 +1936,234 @@ function escapeHTML(
             "&#039;"
 
         );
+
+}
+
+
+/* =====================================================
+   GET TRANSACTION CONFIG
+=====================================================
+
+   Helper untuk debugging / inspection.
+
+===================================================== */
+
+export function getTransactionConfig(){
+
+    const config =
+
+        getModuleConfig();
+
+
+    return {
+
+        workspace :
+
+            getTransactionWorkspace(),
+
+        prefix :
+
+            getTransactionPrefix(),
+
+        steps :
+
+            getSteps(),
+
+        config :
+
+            State.config,
+
+        module :
+
+            config
+
+    };
+
+}
+
+
+/* =====================================================
+   DEBUG
+===================================================== */
+
+export function debugTransaction(
+
+    transaction = null
+
+){
+
+    const config =
+
+        getModuleConfig();
+
+
+    const data = {
+
+        workspace :
+
+            getTransactionWorkspace(),
+
+        prefix :
+
+            getTransactionPrefix(),
+
+        steps :
+
+            getSteps(),
+
+        config :
+
+            State.config,
+
+        module :
+
+            config,
+
+        stateWorkspace :
+
+            State.workspace,
+
+        stateDate :
+
+            State.date,
+
+        stateMode :
+
+            State.mode,
+
+        editingId :
+
+            State.editingId,
+
+        values :
+
+            State.values,
+
+        transactions :
+
+            State.transactions,
+
+        transaction :
+
+            transaction,
+
+        transactionType :
+
+            transaction
+
+                ?
+
+            getTransactionType(
+
+                transaction
+
+            )
+
+                :
+
+            "",
+
+        transactionAmount :
+
+            transaction
+
+                ?
+
+            getTransactionAmount(
+
+                transaction
+
+            )
+
+                :
+
+            0
+
+    };
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== GLOBAL INPUT TRANSACTION ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "Workspace:",
+
+        data.workspace
+
+    );
+
+
+    console.log(
+
+        "Prefix:",
+
+        data.prefix
+
+    );
+
+
+    console.log(
+
+        "Steps:",
+
+        data.steps
+
+    );
+
+
+    console.log(
+
+        "Config:",
+
+        data.config
+
+    );
+
+
+    console.log(
+
+        "Module:",
+
+        data.module
+
+    );
+
+
+    console.log(
+
+        "State:",
+
+        data
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    return data;
 
 }
