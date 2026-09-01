@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 4.4.0
+   Version      : 4.4.1
 
    Description :
    Global Setting Controller
@@ -46,6 +46,15 @@
    - Result normalized dapat dirender
    - Checkbox yang sudah menjadi result
      tidak dapat dipilih ulang
+
+   Fix :
+   - Section persist:false tetap dikumpulkan
+     untuk kebutuhan proses internal
+   - Section persist:false baru dibuang
+     setelah seluruh auto rule selesai
+   - financial_rules digunakan oleh
+     applyFinancialAutoRules()
+     tetapi tidak dikirim ke backend
 ===================================================== */
 
 
@@ -101,6 +110,7 @@ import {
 
 } from "../../js/write.js";
 
+
 import {
 
     Loading
@@ -152,6 +162,7 @@ let initialized = false;
 let currentWorkspace = null;
 
 let currentConfig = null;
+
 
 /* =====================================================
    CONFIRM LOCK
@@ -529,336 +540,67 @@ export const Setting = {
     },
 
 
-/* =================================================
-   CONFIRM
-================================================= */
+    /* =================================================
+       CONFIRM
+    ================================================= */
 
-async confirm(){
+    async confirm(){
 
-    /* =============================================
-       FRONTEND CONFIRM LOCK
-       
-       Mencegah satu proses confirm dijalankan
-       lebih dari satu kali secara bersamaan.
-    ============================================= */
+        /* =============================================
+           FRONTEND CONFIRM LOCK
 
-    if(
+           Mencegah satu proses confirm dijalankan
+           lebih dari satu kali secara bersamaan.
+        ============================================= */
 
-        isConfirming
+        if(
 
-    ){
+            isConfirming
 
-        console.warn(
+        ){
 
-            "SETTING CONFIRM BLOCKED: proses masih berjalan."
+            console.warn(
 
-        );
+                "SETTING CONFIRM BLOCKED: proses masih berjalan."
 
-        return {
+            );
 
-            success :
+            return {
 
-                false,
+                success :
 
-            error :
+                    false,
 
-                "Proses penyimpanan masih berjalan."
+                error :
 
-        };
+                    "Proses penyimpanan masih berjalan."
 
-    }
+            };
 
-
-    /* =============================================
-       LOCK
-    ============================================= */
-
-    isConfirming =
-
-        true;
+        }
 
 
-    /* =============================================
-       LOCK BUTTON
-    ============================================= */
+        /* =============================================
+           LOCK
+        ============================================= */
 
-    const confirmButton =
-
-        document.getElementById(
-
-            "global-setting-confirm"
-
-        );
-
-
-    if(
-
-        confirmButton
-
-    ){
-
-        confirmButton.disabled =
+        isConfirming =
 
             true;
 
 
-        confirmButton.setAttribute(
-
-            "aria-disabled",
-
-            "true"
-
-        );
-
-
-        confirmButton.setAttribute(
-
-            "aria-busy",
-
-            "true"
-
-        );
-
-    }
-
-/* =============================================
-   SHOW GLOBAL LOADING
-============================================= */
-
-await Loading.show();
-
-/*
- * Beri browser kesempatan untuk
- * merender fullscreen loading terlebih dahulu.
- */
-await new Promise(
-
-    resolve =>
-
-        requestAnimationFrame(
-
-            resolve
-
-        )
-
-);
-
-
-/* =============================================
-   PROCESS
-============================================= */
-
-try{
-
-        closeCustomPicker();
-
-
         /* =============================================
-           COLLECT RESULT
+           LOCK BUTTON
         ============================================= */
 
-        const data =
+        const confirmButton =
 
-            collectAllResults();
+            document.getElementById(
 
-
-        /* =============================================
-           FINANCIAL AUTO RULE
-        ============================================= */
-
-        if(
-
-            currentWorkspace ===
-
-            "financial"
-
-        ){
-
-            applyFinancialAutoRules(
-
-                data
+                "global-setting-confirm"
 
             );
 
-        }
-
-
-        /* =============================================
-           PAYROLL MONTHLY AUTO RULE
-        ============================================= */
-
-        if(
-
-            currentWorkspace ===
-
-            "payroll-monthly"
-
-        ){
-
-            applyMonthlyAutoRules(
-
-                data
-
-            );
-
-        }
-
-
-        /* =============================================
-           DEBUG
-        ============================================= */
-
-        console.log(
-
-            "SETTING CONFIRM",
-
-            {
-
-                workspace :
-
-                    currentWorkspace,
-
-                data :
-
-                    data
-
-            }
-
-        );
-
-
-        /* =============================================
-           SEND TO APPS SCRIPT
-        ============================================= */
-
-        const result =
-
-            await saveSetting(
-
-                currentWorkspace,
-
-                data
-
-            );
-
-
-        console.log(
-
-            "SETTING SAVE RESULT",
-
-            result
-
-        );
-
-
-/* =========================================
-   SUCCESS
-========================================= */
-
-if(
-
-    result?.success === true
-
-){
-
-    /* =====================================
-       CLOSE SETTING
-    ===================================== */
-
-    Setting.close();
-
-
-    return result;
-
-}
-
-        /* =========================================
-           BACKEND ERROR
-        ========================================= */
-
-        throw new Error(
-
-            result?.error
-
-            ||
-
-            result?.message
-
-            ||
-
-            "Gagal menyimpan pengaturan."
-
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "SETTING SAVE ERROR:",
-
-            error
-
-        );      
-
-
-        alert(
-
-            "Gagal menyimpan pengaturan:\n" +
-
-            error.message
-
-        );
-
-
-        return {
-
-            success :
-
-                false,
-
-            error :
-
-                error.message
-
-        };
-
-    }
-
-    finally{
-
-    /* =============================================
-       HIDE GLOBAL LOADING
-       
-       Confirm selesai:
-       - berhasil
-       - backend error
-       - exception
-       
-       Loading selalu ditutup di sini.
-    ============================================= */
-
-    Loading.hide();
-
-
-    /* =============================================
-       UNLOCK
-       
-       Selalu dijalankan:
-       - berhasil
-       - backend error
-       - exception
-    ============================================= */
-       
-        isConfirming =
-
-            false;
-
-
-        /* =============================================
-           ENABLE BUTTON
-        ============================================= */
 
         if(
 
@@ -868,28 +610,347 @@ if(
 
             confirmButton.disabled =
 
-                false;
+                true;
 
 
-            confirmButton.removeAttribute(
+            confirmButton.setAttribute(
 
-                "aria-disabled"
+                "aria-disabled",
+
+                "true"
 
             );
 
 
-            confirmButton.removeAttribute(
+            confirmButton.setAttribute(
 
-                "aria-busy"
+                "aria-busy",
+
+                "true"
 
             );
 
         }
 
+
+        /* =============================================
+           SHOW GLOBAL LOADING
+        ============================================= */
+
+        await Loading.show();
+
+
+        /*
+         * Beri browser kesempatan untuk
+         * merender fullscreen loading terlebih dahulu.
+         */
+
+        await new Promise(
+
+            resolve =>
+
+                requestAnimationFrame(
+
+                    resolve
+
+                )
+
+        );
+
+
+        /* =============================================
+           PROCESS
+        ============================================= */
+
+        try{
+
+            closeCustomPicker();
+
+
+            /* =============================================
+               COLLECT RESULT
+
+               PENTING:
+               Semua result dikumpulkan terlebih dahulu.
+
+               Termasuk:
+               financial_rules
+
+               karena data ini masih dibutuhkan
+               oleh applyFinancialAutoRules().
+            ============================================= */
+
+            const data =
+
+                collectAllResults();
+
+
+            /* =============================================
+               FINANCIAL AUTO RULE
+            ============================================= */
+
+            if(
+
+                currentWorkspace ===
+
+                "financial"
+
+            ){
+
+                applyFinancialAutoRules(
+
+                    data
+
+                );
+
+            }
+
+
+            /* =============================================
+               PAYROLL MONTHLY AUTO RULE
+            ============================================= */
+
+            if(
+
+                currentWorkspace ===
+
+                "payroll-monthly"
+
+            ){
+
+                applyMonthlyAutoRules(
+
+                    data
+
+                );
+
+            }
+
+
+            /* =============================================
+               BUILD FINAL PAYLOAD
+
+               SEMUA proses internal sudah selesai.
+
+               Baru sekarang section dengan:
+               
+                   persist:false
+
+               dibuang dari payload.
+
+               Contoh:
+               
+                   financial_rules
+               
+               tetap tersedia saat auto-rule,
+               tetapi tidak dikirim ke backend.
+            ============================================= */
+
+            const payload =
+
+                filterPersistentResults(
+
+                    data
+
+                );
+
+
+            /* =============================================
+               DEBUG
+            ============================================= */
+
+            console.log(
+
+                "SETTING CONFIRM",
+
+                {
+
+                    workspace :
+
+                        currentWorkspace,
+
+                    data :
+
+                        data,
+
+                    payload :
+
+                        payload
+
+                }
+
+            );
+
+
+            /* =============================================
+               SEND TO APPS SCRIPT
+
+               Yang dikirim adalah payload,
+               BUKAN data internal.
+            ============================================= */
+
+            const result =
+
+                await saveSetting(
+
+                    currentWorkspace,
+
+                    payload
+
+                );
+
+
+            console.log(
+
+                "SETTING SAVE RESULT",
+
+                result
+
+            );
+
+
+            /* =========================================
+               SUCCESS
+            ========================================= */
+
+            if(
+
+                result?.success === true
+
+            ){
+
+                /* =====================================
+                   CLOSE SETTING
+                ===================================== */
+
+                Setting.close();
+
+
+                return result;
+
+            }
+
+
+            /* =========================================
+               BACKEND ERROR
+            ========================================= */
+
+            throw new Error(
+
+                result?.error
+
+                ||
+
+                result?.message
+
+                ||
+
+                "Gagal menyimpan pengaturan."
+
+            );
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                "SETTING SAVE ERROR:",
+
+                error
+
+            );
+
+
+            alert(
+
+                "Gagal menyimpan pengaturan:\n" +
+
+                error.message
+
+            );
+
+
+            return {
+
+                success :
+
+                    false,
+
+                error :
+
+                    error.message
+
+            };
+
+        }
+
+        finally{
+
+            /* =============================================
+               HIDE GLOBAL LOADING
+
+               Confirm selesai:
+               - berhasil
+               - backend error
+               - exception
+
+               Loading selalu ditutup di sini.
+            ============================================= */
+
+            Loading.hide();
+
+
+            /* =============================================
+               UNLOCK
+
+               Selalu dijalankan:
+               - berhasil
+               - backend error
+               - exception
+            ============================================= */
+
+            isConfirming =
+
+                false;
+
+
+            /* =============================================
+               ENABLE BUTTON
+            ============================================= */
+
+            if(
+
+                confirmButton
+
+            ){
+
+                confirmButton.disabled =
+
+                    false;
+
+
+                confirmButton.removeAttribute(
+
+                    "aria-disabled"
+
+                );
+
+
+                confirmButton.removeAttribute(
+
+                    "aria-busy"
+
+                );
+
+            }
+
+        }
+
     }
 
-}
-   };
+};
+
 
 
 /* =====================================================
@@ -2372,7 +2433,7 @@ function renderField(
 
     /* =============================================
        CHECKBOX
-       
+
        Untuk checkbox ber-logo, input tetap
        berada di dalam wrapper agar CSS dapat
        mengatur layout.
@@ -4297,7 +4358,7 @@ function addResult(
 
     /* =============================================
        NORMALIZE RESULT
-       
+
        Bisa:
        
        object
@@ -4391,9 +4452,9 @@ function addResult(
 
     /* =============================================
        CHECK DUPLICATE
-       
+
        Cek SEMUA result sebelum menambahkan.
-       
+
        Jika salah satu duplicate,
        seluruh proses dibatalkan.
     ============================================= */
@@ -4659,9 +4720,9 @@ function renderResultBody(
 
     /* =============================================
        NORMAL FIELD MAPPING
-       
+
        Digunakan module lama.
-       
+
        Contoh:
        
        data = {
@@ -4821,15 +4882,15 @@ function renderResultBody(
 
     /* =============================================
        NORMALIZED OBJECT FALLBACK
-       
+
        Penting untuk Saving:
-       
+
        normalize()
        ↓
        {
            nama : "Mandiri"
        }
-       
+
        Karena "nama" bukan field checkbox,
        controller tetap harus bisa merendernya.
     ============================================= */
@@ -6179,70 +6240,42 @@ function collectAllResults(){
 
     sections.forEach(
 
-    sectionElement => {
+        sectionElement => {
 
-        const sectionId =
+            const sectionId =
 
-            sectionElement.dataset.section;
-
-
-        /* =============================================
-           PERSIST RULE
-           
-           Section tertentu dapat digunakan hanya
-           sebagai configuration frontend.
-
-           Contoh:
-           financial_rules
-
-           persist:false
-           → jangan dikirim ke backend.
-        ============================================= */
-
-        const sectionConfig =
-
-            currentConfig?.sections?.find(
-
-                section =>
-
-                    section.id === sectionId
-
-            );
+                sectionElement.dataset.section;
 
 
-        if(
-
-            sectionConfig &&
-
-            sectionConfig.persist === false
-
-        ){
-
-            return;
-
-        }
+            /*
+             * PENTING:
+             *
+             * Jangan filter persist:false di sini.
+             *
+             * Section seperti financial_rules
+             * masih diperlukan oleh proses internal
+             * untuk menentukan auto rule.
+             */
 
 
-        const result =
+            const result =
 
-            sectionElement.querySelector(
+                sectionElement.querySelector(
 
-                ".global-setting-result"
+                    ".global-setting-result"
 
-            );
+                );
 
 
-        if(
+            if(
 
-            !result
+                !result
 
-        ){
+            ){
 
-            return;
+                return;
 
-        }
-
-        
+            }
 
 
             [
@@ -6311,6 +6344,107 @@ function collectAllResults(){
 
 
     return output;
+
+}
+
+
+
+/* =====================================================
+   FILTER PERSISTENT RESULTS
+===================================================== */
+
+function filterPersistentResults(
+
+    data
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            data
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return data.filter(
+
+        item => {
+
+            if(
+
+                !item
+
+            ){
+
+                return false;
+
+            }
+
+
+            const section =
+
+                currentConfig?.sections?.find(
+
+                    config =>
+
+                        config.id ===
+
+                        item.section
+
+                );
+
+
+            /* =========================================
+               SECTION TIDAK DITEMUKAN
+               
+               Default:
+               tetap dikirim.
+            ========================================= */
+
+            if(
+
+                !section
+
+            ){
+
+                return true;
+
+            }
+
+
+            /* =========================================
+               PERSIST FALSE
+               
+               Section hanya digunakan untuk
+               konfigurasi/proses internal.
+               
+               Tidak dikirim ke backend.
+            ========================================= */
+
+            if(
+
+                section.persist === false
+
+            ){
+
+                return false;
+
+            }
+
+
+            return true;
+
+        }
+
+    );
 
 }
 
