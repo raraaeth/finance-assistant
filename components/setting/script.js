@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 4.2.0
+   Version      : 4.2.1
 
    Description :
    Global Setting Controller
@@ -55,11 +55,13 @@ import {
 
 } from "./monthly.js";
 
+
 import {
 
     AirdropSetting
 
 } from "./airdrop.js";
+
 
 import {
 
@@ -74,11 +76,13 @@ import {
 
 } from "./saving.js";
 
+
 import {
 
     FinancialSetting
 
 } from "./financial.js";
+
 
 import {
 
@@ -97,30 +101,29 @@ const SETTINGS = {
     "payroll-monthly":
 
         MonthlySetting,
-   
-   "payroll-daily":
+
+    "payroll-daily":
 
         DailySetting,
 
-   "financial":
+    "financial":
 
         FinancialSetting,
 
-   "airdrop":
+    "airdrop":
 
         AirdropSetting,
-
 
     "kas":
 
         KasSetting,
-
 
     "saving":
 
         SavingSetting
 
 };
+
 
 
 /* =====================================================
@@ -132,6 +135,7 @@ let initialized = false;
 let currentWorkspace = null;
 
 let currentConfig = null;
+
 
 
 /* =====================================================
@@ -502,197 +506,199 @@ export const Setting = {
     },
 
 
-/* =====================================================
-   CONFIRM
-===================================================== */
+    /* =====================================================
+       CONFIRM
+    ===================================================== */
 
-async confirm(){
+    async confirm(){
 
-    closeCustomPicker();
-
-
-    /* =============================================
-       COLLECT RESULT
-    ============================================= */
-
-    const data =
-
-        collectAllResults();
+        closeCustomPicker();
 
 
-    /* =============================================
-       FINANCIAL AUTO RULE
-    ============================================= */
+        /* =============================================
+           COLLECT RESULT
+        ============================================= */
 
-    if(
+        const data =
 
-        currentWorkspace ===
-
-        "financial"
-
-    ){
-
-        applyFinancialAutoRules(
-
-            data
-
-        );
-
-    }
+            collectAllResults();
 
 
-    /* =============================================
-       PAYROLL MONTHLY AUTO RULE
-    ============================================= */
-
-    if(
-
-        currentWorkspace ===
-
-        "payroll-monthly"
-
-    ){
-
-        applyMonthlyAutoRules(
-
-            data
-
-        );
-
-    }
-
-
-    /* =============================================
-       DEBUG RESULT
-    ============================================= */
-
-    console.log(
-
-        "SETTING CONFIRM",
-
-        {
-
-            workspace :
-
-                currentWorkspace,
-
-            data :
-
-                data
-
-        }
-
-    );
-
-
-    /* =============================================
-       SEND TO APPS SCRIPT
-    ============================================= */
-
-    try{
-
-        const result =
-
-    await saveSetting(
-
-        currentWorkspace,
-
-        data
-
-    );
-
-
-        console.log(
-
-            "SETTING SAVE RESULT",
-
-            result
-
-        );
-
-
-        /* =========================================
-           SUCCESS
-        ========================================= */
+        /* =============================================
+           FINANCIAL AUTO RULE
+        ============================================= */
 
         if(
 
-            result?.success === true
+            currentWorkspace ===
+
+            "financial"
 
         ){
 
-            alert(
+            applyFinancialAutoRules(
 
-                "Pengaturan berhasil disimpan."
+                data
+
+            );
+
+        }
+
+
+        /* =============================================
+           PAYROLL MONTHLY AUTO RULE
+        ============================================= */
+
+        if(
+
+            currentWorkspace ===
+
+            "payroll-monthly"
+
+        ){
+
+            applyMonthlyAutoRules(
+
+                data
+
+            );
+
+        }
+
+
+        /* =============================================
+           DEBUG RESULT
+        ============================================= */
+
+        console.log(
+
+            "SETTING CONFIRM",
+
+            {
+
+                workspace :
+
+                    currentWorkspace,
+
+                data :
+
+                    data
+
+            }
+
+        );
+
+
+        /* =============================================
+           SEND TO APPS SCRIPT
+        ============================================= */
+
+        try{
+
+            const result =
+
+                await saveSetting(
+
+                    currentWorkspace,
+
+                    data
+
+                );
+
+
+            console.log(
+
+                "SETTING SAVE RESULT",
+
+                result
 
             );
 
 
-            Setting.close();
+            /* =========================================
+               SUCCESS
+            ========================================= */
+
+            if(
+
+                result?.success === true
+
+            ){
+
+                alert(
+
+                    "Pengaturan berhasil disimpan."
+
+                );
 
 
-            return result;
+                Setting.close();
+
+
+                return result;
+
+            }
+
+
+            /* =========================================
+               BACKEND ERROR
+            ========================================= */
+
+            throw new Error(
+
+                result?.error
+
+                ||
+
+                result?.message
+
+                ||
+
+                "Gagal menyimpan pengaturan."
+
+            );
 
         }
 
+        catch(error){
 
-        /* =========================================
-           BACKEND ERROR
-        ========================================= */
+            console.error(
 
-        throw new Error(
+                "SETTING SAVE ERROR:",
 
-            result?.error
+                error
 
-            ||
-
-            result?.message
-
-            ||
-
-            "Gagal menyimpan pengaturan."
-
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "SETTING SAVE ERROR:",
-
-            error
-
-        );
+            );
 
 
-        alert(
+            alert(
 
-            "Gagal menyimpan pengaturan:\n" +
-
-            error.message
-
-        );
-
-
-        return {
-
-            success :
-
-                false,
-
-            error :
+                "Gagal menyimpan pengaturan:\n" +
 
                 error.message
 
-        };
+            );
+
+
+            return {
+
+                success :
+
+                    false,
+
+                error :
+
+                    error.message
+
+            };
+
+        }
 
     }
 
-}
+};
 
-};        
+
 
 /* =====================================================
    LOAD HTML
@@ -836,6 +842,7 @@ async function loadHTML(){
 }
 
 
+
 /* =====================================================
    RENDER HEADER
 ===================================================== */
@@ -894,6 +901,7 @@ function renderHeader(
     }
 
 }
+
 
 
 /* =====================================================
@@ -988,6 +996,7 @@ function renderContent(
     );
 
 }
+
 
 
 /* =====================================================
@@ -1152,6 +1161,7 @@ function renderSection(
 }
 
 
+
 /* =====================================================
    TOGGLE FORM
 ===================================================== */
@@ -1229,6 +1239,7 @@ function toggleForm(
     );
 
 }
+
 
 
 /* =====================================================
@@ -1414,27 +1425,29 @@ function renderForm(
 
     );
 
-   /* =============================================
-   MODULE RENDER HOOK
-============================================= */
 
-if(
+    /* =============================================
+       MODULE RENDER HOOK
+    ============================================= */
 
-    typeof section.onRender ===
+    if(
 
-    "function"
+        typeof section.onRender ===
 
-){
+        "function"
 
-    section.onRender(
+    ){
 
-        form,
+        section.onRender(
 
-        sectionElement
+            form,
 
-    );
+            sectionElement
 
-}
+        );
+
+    }
+
 
     /* =============================================
        FOCUS
@@ -1460,6 +1473,7 @@ if(
     }
 
 }
+
 
 
 /* =====================================================
@@ -1649,6 +1663,7 @@ function bindDynamicSelects(
 }
 
 
+
 /* =====================================================
    RENDER FIELD
 ===================================================== */
@@ -1672,47 +1687,49 @@ function renderField(
 
     wrapper.className =
 
-    "global-setting-field";
+        "global-setting-field";
 
 
-if(
+    if(
 
-    field.type ===
+        field.type ===
 
-    "checkbox"
+        "checkbox"
 
-){
+    ){
 
-    wrapper.classList.add(
+        wrapper.classList.add(
 
-        "global-setting-checkbox-field"
+            "global-setting-checkbox-field"
 
-    );
+        );
 
-}
+    }
 
 
     wrapper.dataset.field =
 
         field.name;
 
-   /* =============================================
-   MODULE ACTIVITY RULE
-   Dipakai module yang membutuhkan
-   kontrol checkbox berdasarkan rule.
-============================================= */
 
-if(
+    /* =============================================
+       MODULE ACTIVITY RULE
+       
+       Dipakai module yang membutuhkan
+       kontrol checkbox berdasarkan rule.
+    ============================================= */
 
-    field.activityRule
+    if(
 
-){
+        field.activityRule
 
-    wrapper.dataset.activityRule =
+    ){
 
-        field.activityRule;
+        wrapper.dataset.activityRule =
 
-}
+            field.activityRule;
+
+    }
 
 
     /* =============================================
@@ -1766,6 +1783,7 @@ if(
 
     /* =============================================
        CUSTOM SELECT
+       
        Semua type "select" otomatis
        menggunakan picker custom.
     ============================================= */
@@ -1789,11 +1807,6 @@ if(
 
         /* =============================================
            FIELD NOTE
-           
-           Note selalu dibuat untuk select.
-           Jika field.note kosong tetapi option
-           mempunyai note, note tetap tersedia
-           dan akan diisi saat option dipilih.
         ============================================= */
 
         const note =
@@ -1815,6 +1828,7 @@ if(
             field.note ??
 
             "";
+
 
         wrapper.appendChild(
 
@@ -1992,6 +2006,7 @@ if(
 }
 
 
+
 /* =====================================================
    APPLY FIELD ATTRIBUTES
 ===================================================== */
@@ -2122,6 +2137,7 @@ function applyFieldAttributes(
     }
 
 }
+
 
 
 /* =====================================================
@@ -2355,6 +2371,8 @@ function renderCustomSelect(
     );
 
 }
+
+
 
 /* =====================================================
    OPEN CUSTOM PICKER
@@ -2743,6 +2761,7 @@ function openCustomPicker(
 }
 
 
+
 /* =====================================================
    SELECT CUSTOM OPTION
 ===================================================== */
@@ -2911,6 +2930,7 @@ function selectCustomOption(
 }
 
 
+
 /* =====================================================
    CLOSE CUSTOM PICKER
 ===================================================== */
@@ -2957,6 +2977,7 @@ function closeCustomPicker(){
     picker.remove();
 
 }
+
 
 
 /* =====================================================
@@ -3080,6 +3101,7 @@ function getOptionLabel(
         option;
 
 }
+
 
 
 /* =====================================================
@@ -3217,6 +3239,7 @@ function getOptionNote(
 }
 
 
+
 /* =====================================================
    GET FIELD OPTIONS
 ===================================================== */
@@ -3322,6 +3345,7 @@ function getFieldOptions(
 }
 
 
+
 /* =====================================================
    CONDITIONAL FIELD LISTENER
 ===================================================== */
@@ -3411,6 +3435,7 @@ function bindConditionalFields(
     );
 
 }
+
 
 
 /* =====================================================
@@ -3646,6 +3671,7 @@ function updateConditionalFields(
 }
 
 
+
 /* =====================================================
    FIRST VISIBLE INPUT
 ===================================================== */
@@ -3711,6 +3737,7 @@ function getFirstVisibleInput(
     return null;
 
 }
+
 
 
 /* =====================================================
@@ -3858,6 +3885,17 @@ function addResult(
 
     /* =============================================
        RESULT FIELDS
+       
+       resultField memungkinkan field form
+       berbeda dengan field hasil normalize.
+
+       Contoh Saving:
+
+       nama_bank
+           ↓
+       normalize()
+           ↓
+       nama
     ============================================= */
 
     if(
@@ -3874,20 +3912,35 @@ function addResult(
 
             field => {
 
-                /*
-                 * Field conditional yang sedang
-                 * tidak aktif tidak perlu ditampilkan.
-                 */
+                /* =====================================
+                   FIELD RESULT
+
+                   Jika resultField ada, gunakan itu.
+                   Jika tidak, gunakan field.name.
+                ===================================== */
+
+                const resultField =
+
+                    field.resultField ??
+
+                    field.name;
+
+
+                /* =====================================
+                   FIELD TIDAK ADA DI DATA RESULT
+
+                   Jangan tampilkan field yang memang
+                   tidak menjadi bagian dari hasil
+                   normalize().
+                ===================================== */
 
                 if(
-
-                    field.dependsOn &&
 
                     !Object.prototype.hasOwnProperty.call(
 
                         data,
 
-                        field.name
+                        resultField
 
                     )
 
@@ -3897,6 +3950,36 @@ function addResult(
 
                 }
 
+
+                /* =====================================
+                   CONDITIONAL FIELD
+
+                   Conditional field yang tidak aktif
+                   tidak perlu ditampilkan.
+                ===================================== */
+
+                if(
+
+                    field.dependsOn &&
+
+                    !Object.prototype.hasOwnProperty.call(
+
+                        data,
+
+                        resultField
+
+                    )
+
+                ){
+
+                    return;
+
+                }
+
+
+                /* =====================================
+                   RESULT ROW
+                ===================================== */
 
                 const row =
 
@@ -3912,6 +3995,10 @@ function addResult(
                     "global-setting-result-row";
 
 
+                /* =====================================
+                   RESULT LABEL
+                ===================================== */
+
                 const label =
 
                     document.createElement(
@@ -3921,12 +4008,23 @@ function addResult(
                     );
 
 
+                label.className =
+
+                    "global-setting-result-label";
+
+
                 label.textContent =
+
+                    field.resultLabel ??
 
                     field.label ??
 
                     field.name;
 
+
+                /* =====================================
+                   RESULT VALUE
+                ===================================== */
 
                 const value =
 
@@ -3937,18 +4035,27 @@ function addResult(
                     );
 
 
+                value.className =
+
+                    "global-setting-result-value";
+
+
                 value.textContent =
 
                     formatResultValue(
 
                         field,
 
-                        data[field.name],
+                        data[resultField],
 
                         data
 
                     );
 
+
+                /* =====================================
+                   APPEND
+                ===================================== */
 
                 row.appendChild(
 
@@ -4079,6 +4186,8 @@ function addResult(
     }
 
 }
+
+
 
 /* =====================================================
    COLLECT FORM DATA
@@ -4418,6 +4527,7 @@ function collectFormData(
 }
 
 
+
 /* =====================================================
    DUPLICATE CHECK
 ===================================================== */
@@ -4464,9 +4574,6 @@ function isDuplicate(
 
                 /* =========================================
                    CUSTOM UNIQUE FIELDS
-
-                   Jika module menentukan uniqueFields,
-                   hanya field tersebut yang dibandingkan.
                 ========================================= */
 
                 if(
@@ -4512,10 +4619,6 @@ function isDuplicate(
 
                 /* =========================================
                    DEFAULT
-
-                   Jika module tidak menentukan
-                   uniqueFields, gunakan perbandingan
-                   seluruh data seperti sebelumnya.
                 ========================================= */
 
                 return (
@@ -4549,6 +4652,7 @@ function isDuplicate(
     );
 
 }
+
 
 
 /* =====================================================
@@ -4732,13 +4836,6 @@ function resetForm(
 
                 /* =====================================
                    RESET NOTE
-                   
-                   PRIORITY :
-                   option.note
-                   ↓
-                   field.note
-                   ↓
-                   empty
                 ===================================== */
 
                 const noteElement =
@@ -4832,6 +4929,7 @@ function resetForm(
 }
 
 
+
 /* =====================================================
    FORMAT RESULT VALUE
 ===================================================== */
@@ -4845,71 +4943,100 @@ function formatResultValue(
     data
 
 ){
-       /* =============================================
+
+    /* =============================================
        CHECKBOX RESULT DARI FINANCIAL DISPLAY
        
        Financial menyimpan nilai checkbox
        sementara di data.__display.
-       
-       Contoh:
-       
-       data.__display = {
-           gaji : true,
-           penghasilan_lain : true,
-           hutang_piutang : false,
-           dana_darurat : false,
-           tabungan_kaleng : false
-       }
     ============================================= */
 
- if(
-    field.type ===
-    "checkbox" &&
-    data?.__display &&
-    Object.prototype.hasOwnProperty.call(
-        data.__display,
-        field.name
-    )
-){
-    return data.__display[field.name]
-        ?
-        "Ya"
-        :
-        "Tidak";
-}
+    if(
+
+        field.type ===
+
+        "checkbox" &&
+
+        data?.__display &&
+
+        Object.prototype.hasOwnProperty.call(
+
+            data.__display,
+
+            field.name
+
+        )
+
+    ){
+
+        return data.__display[field.name]
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
+
+    }
 
 
-/* =============================================
-   CHECKBOX RESULT DARI ARRAY OPTION
-   Dipakai Airdrop Wallet / Type
-============================================= */
+    /* =============================================
+       CHECKBOX RESULT DARI ARRAY OPTION
+       
+       Dipakai Airdrop Wallet / Type.
+    ============================================= */
 
-if(
-    field.type ===
-    "checkbox" &&
-    Array.isArray(
-        data
-    ) &&
-    field.resultValue &&
-    field.resultTarget
-){
+    if(
 
-    const active =
-        data.some(
-            item =>
-                item &&
-                item.target ===
-                    field.resultTarget &&
-                item.type ===
-                    field.resultValue
-        );
+        field.type ===
 
-    return active
-        ?
-        "Ya"
-        :
-        "Tidak";
-}
+        "checkbox" &&
+
+        Array.isArray(
+
+            data
+
+        ) &&
+
+        field.resultValue &&
+
+        field.resultTarget
+
+    ){
+
+        const active =
+
+            data.some(
+
+                item =>
+
+                    item &&
+
+                    item.target ===
+
+                        field.resultTarget &&
+
+                    item.type ===
+
+                        field.resultValue
+
+            );
+
+
+        return active
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
+
+    }
+
 
     /* =============================================
        CHECKBOX RESULT DARI NORMALIZED VALUE
@@ -4934,63 +5061,63 @@ if(
 
         const resultSource =
 
-    field.resultField
-
-        ?
-
-        data?.[
-
             field.resultField
 
-        ]
+                ?
 
-        :
+            data?.[
 
-        data?.waktu;
+                field.resultField
 
+            ]
 
-const values =
+                :
 
-    String(
-
-        resultSource ?? ""
-
-    )
-
-    .split(",")
-
-    .map(
-
-        item =>
-
-            item.trim()
-
-    )
-
-    .filter(
-
-        Boolean
-
-    ); 
+            data?.waktu;
 
 
-return values.includes(
+        const values =
 
-    String(
+            String(
 
-        field.resultValue
+                resultSource ?? ""
 
-    )
+            )
 
-)
+            .split(",")
 
-    ?
+            .map(
 
-    "Ya"
+                item =>
 
-    :
+                    item.trim()
 
-    "Tidak";
+            )
+
+            .filter(
+
+                Boolean
+
+            );
+
+
+        return values.includes(
+
+            String(
+
+                field.resultValue
+
+            )
+
+        )
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
 
     }
 
@@ -5016,6 +5143,9 @@ return values.includes(
 
     /* =============================================
        SELECT
+       
+       Value normalized tetap menggunakan
+       options dari field UI.
     ============================================= */
 
     if(
@@ -5062,9 +5192,15 @@ return values.includes(
     }
 
 
+    /* =============================================
+       DEFAULT
+    ============================================= */
+
     return value;
 
 }
+
+
 
 /* =====================================================
    COLLECT ALL RESULTS
@@ -5202,6 +5338,8 @@ function collectAllResults(){
 
 }
 
+
+
 /* =====================================================
    FINANCIAL AUTO RULE
 ===================================================== */
@@ -5312,10 +5450,6 @@ function applyFinancialAutoRules(
 
     /* =============================================
        RULE HUTANG
-       
-       Dibuat otomatis jika:
-       
-       gunakanRuleHutang = true
     ============================================= */
 
     if(
@@ -5353,87 +5487,94 @@ function applyFinancialAutoRules(
     }
 
 
-/* =============================================
-   RULE TABUNGAN
-
-   Mengikuti activity tabungan yang
-   benar-benar dipilih user.
-============================================= */
-
-if(
-
-    rules.gunakanRuleTabungan ===
-    true
-
-){
-
-    const tabunganActivity = [
-
-        ...new Set(
-
-            (
-
-                pemasukanActivity
-                + ","
-                + pengeluaranActivity
-
-            )
-
-            .split(",")
-
-            .map(
-
-                item =>
-                    item.trim()
-
-            )
-
-            .filter(
-
-                item =>
-                    item === "dana_darurat" ||
-                    item === "tabungan_kaleng"
-
-            )
-
-        )
-
-    ];
-
+    /* =============================================
+       RULE TABUNGAN
+       
+       Mengikuti activity tabungan yang
+       benar-benar dipilih user.
+    ============================================= */
 
     if(
 
-        tabunganActivity.length > 0
+        rules.gunakanRuleTabungan ===
+
+        true
 
     ){
 
-        data.push({
+        const tabunganActivity = [
 
-            section :
+            ...new Set(
 
-                "financial_auto_rule_tabungan",
+                (
 
-            data : {
+                    pemasukanActivity
 
-                rules :
+                    + ","
 
-                    "rule_tabungan",
+                    + pengeluaranActivity
 
-                type :
+                )
 
-                    "nabung,tarik",
+                .split(",")
 
-                activity :
+                .map(
 
-                    tabunganActivity.join(",")
+                    item =>
 
-            }
+                        item.trim()
 
-        });
+                )
+
+                .filter(
+
+                    item =>
+
+                        item === "dana_darurat" ||
+
+                        item === "tabungan_kaleng"
+
+                )
+
+            )
+
+        ];
+
+
+        if(
+
+            tabunganActivity.length > 0
+
+        ){
+
+            data.push({
+
+                section :
+
+                    "financial_auto_rule_tabungan",
+
+                data : {
+
+                    rules :
+
+                        "rule_tabungan",
+
+                    type :
+
+                        "nabung,tarik",
+
+                    activity :
+
+                        tabunganActivity.join(",")
+
+                }
+
+            });
+
+        }
 
     }
 
-}
 
     /* =============================================
        DEBUG
@@ -5462,6 +5603,8 @@ if(
     );
 
 }
+
+
 
 /* =====================================================
    FINANCIAL AUTO RULE ACTIVITY
@@ -5597,6 +5740,7 @@ function getFinancialSelectedActivities(
 }
 
 
+
 /* =====================================================
    ESCAPE SELECTOR
 ===================================================== */
@@ -5641,6 +5785,7 @@ function escapeSelector(
         );
 
 }
+
 
 
 /* =====================================================
@@ -5700,6 +5845,8 @@ function escapeHTML(
         );
 
 }
+
+
 
 /* =====================================================
    APPLY MONTHLY AUTO RULES
