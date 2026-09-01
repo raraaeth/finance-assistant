@@ -627,8 +627,28 @@ async confirm(){
 
 await Loading.show();
 
+/*
+ * Beri browser kesempatan untuk
+ * merender fullscreen loading terlebih dahulu.
+ */
+await new Promise(
 
-    try{
+    resolve =>
+
+        requestAnimationFrame(
+
+            resolve
+
+        )
+
+);
+
+
+/* =============================================
+   PROCESS
+============================================= */
+
+try{
 
         closeCustomPicker();
 
@@ -731,31 +751,36 @@ await Loading.show();
         );
 
 
-        /* =========================================
-           SUCCESS
-        ========================================= */
+/* =========================================
+   SUCCESS
+========================================= */
 
-        if(
+if(
 
-            result?.success === true
+    result?.success === true
 
-        ){
+){
 
-            alert(
+    /* =====================================
+       CLOSE SETTING
+    ===================================== */
 
-                "Pengaturan berhasil disimpan."
-
-            );
-
-
-            Setting.close();
-
-            Loading.hide();
+    Setting.close();
 
 
-            return result;
+    /* =====================================
+       HIDE LOADING
+       
+       Save sudah benar-benar berhasil.
+       Setelah ini user kembali melihat Home.
+    ===================================== */
 
-        }
+    Loading.hide();
+
+
+    return result;
+
+}
 
 
         /* =========================================
