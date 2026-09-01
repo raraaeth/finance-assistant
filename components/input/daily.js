@@ -3,7 +3,7 @@
    Component    : Global Input
    Workspace    : Payroll Daily
    File         : daily.js
-   Version      : 1.1.0
+   Version      : 2.0.0
 
    Description :
    Global Input Configuration
@@ -25,7 +25,7 @@
    - Status selalu "masuk".
    - Status ditampilkan sebagai input pertama.
    - Tanggal disediakan oleh Controller.
-   - User memilih Nama dari payroll_daily_rules.
+   - User memilih Nama dari rule Payroll Daily.
    - Grade 1 hanya digunakan jika tersedia.
    - Grade 2 hanya digunakan jika tersedia.
    - Level dengan satu pilihan dapat di-resolve
@@ -33,6 +33,17 @@
    - User tidak mengetik Nama / Grade.
    - Qty wajib diisi.
    - Payroll Daily menggunakan nominal × qty.
+
+   DATA SOURCE :
+
+   Global Workspace
+        ↓
+   data.js
+        ↓
+   getInputRules()
+
+   Tidak ada lagi getter khusus
+   getPayrollDailyRules().
 ===================================================== */
 
 
@@ -42,7 +53,7 @@
 
 import {
 
-    getPayrollDailyRules
+    getInputRules
 
 } from "./data.js";
 
@@ -81,7 +92,7 @@ function getRules(){
 
     const rules =
 
-        getPayrollDailyRules();
+        getInputRules();
 
 
     return Array.isArray(
@@ -1052,6 +1063,7 @@ export const Daily = {
             "masuk"
 
     }
+
 
 };
 
