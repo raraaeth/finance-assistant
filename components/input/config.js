@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : config.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Global Input Configuration Registry
@@ -17,32 +17,40 @@
         ↓
    config.js
         ↓
-   Konfigurasi input workspace
+   Import konfigurasi workspace
         ↓
    Flow / Session / Transaction
 
+
    IMPORTANT :
 
-   - Tidak mengatur authentication.
-   - Tidak mengatur Finance Core.
-   - Tidak mengatur Google Sheets.
-   - Tidak menentukan sheet.
-   - Tidak memiliki logic workspace global.
-   - Tidak memiliki prefix hardcode berdasarkan
-     nama workspace.
+   config.js HANYA menjadi penghubung.
 
-   Prefix berasal dari masing-masing
-   konfigurasi input workspace.
+   Tidak menyimpan :
+
+   - Prefix workspace
+   - Sheet
+   - Spreadsheet ID
+   - Token
+   - Authentication
+   - Finance Core
+   - Workspace global logic
+
+   Prefix tetap berada pada masing-masing
+   konfigurasi workspace.
 
    Contoh :
 
        daily.js
            ↓
-       prefix : "PD"
+       Daily.prefix
 
        airdrop.js
            ↓
-       prefix : "AIR"
+       Airdrop.prefix
+
+   config.js hanya menghubungkan object tersebut
+   dengan workspace ID.
 ===================================================== */
 
 
@@ -94,21 +102,21 @@ import {
 
 /* =====================================================
    INPUT CONFIG REGISTRY
+=====================================================
+
+   Registry ini adalah penghubung antara :
+
+       Global Workspace
+              ↓
+       workspace ID
+              ↓
+       Input Configuration
+
+   Tidak membuat konfigurasi baru.
+
+   Object asli dari masing-masing workspace
+   langsung digunakan.
 ===================================================== */
-
-/*
-   Registry ini hanya menghubungkan
-   workspace ID dengan konfigurasi input.
-
-   Tidak menyimpan:
-
-   - sheet
-   - spreadsheet ID
-   - token
-   - authentication
-   - workspace status
-*/
-
 
 const INPUT_CONFIG = {
 
@@ -146,9 +154,8 @@ const INPUT_CONFIG = {
 
 /* =====================================================
    GET INPUT CONFIG
-===================================================== */
+=====================================================
 
-/*
    Mengambil konfigurasi input berdasarkan
    workspace ID.
 
@@ -156,12 +163,13 @@ const INPUT_CONFIG = {
 
        getInputConfig(
            "payroll-daily"
-       );
+       )
 
    menghasilkan :
 
        Daily
-*/
+
+===================================================== */
 
 export function getInputConfig(
 
@@ -199,22 +207,29 @@ export function getInputConfig(
 
 /* =====================================================
    GET INPUT PREFIX
-===================================================== */
+=====================================================
 
-/*
-   Prefix berasal dari konfigurasi
-   masing-masing workspace input.
+   Prefix TIDAK disimpan di config.js.
 
-   Tidak ada prefix hardcode di sini.
+   Prefix diambil langsung dari konfigurasi
+   workspace yang sudah di-import.
 
    Contoh :
 
-       Payroll Daily
+       payroll-daily
+           ↓
+       Daily
            ↓
        Daily.prefix
+
+   atau :
+
+       airdrop
            ↓
-       "PD"
-*/
+       Airdrop
+           ↓
+       Airdrop.prefix
+===================================================== */
 
 export function getInputPrefix(
 
@@ -231,10 +246,34 @@ export function getInputPrefix(
         );
 
 
+    if(
+
+        !config
+
+    ){
+
+        console.warn(
+
+            "Global Input: konfigurasi input tidak ditemukan:",
+
+            workspace
+
+        );
+
+
+        return null;
+
+    }
+
+
     const prefix =
 
-        config?.prefix;
+        config.prefix;
 
+
+    /* =============================================
+       VALIDATE PREFIX
+    ============================================= */
 
     if(
 
@@ -242,36 +281,112 @@ export function getInputPrefix(
 
             "string"
 
+        ||
+
+        !prefix.trim()
+
     ){
+
+        console.warn(
+
+            "Global Input: prefix tidak ditemukan pada konfigurasi input:",
+
+            workspace
+
+        );
+
 
         return null;
 
     }
 
 
-    const value =
+    return prefix
 
-        prefix.trim();
+        .trim()
 
-
-    if(
-
-        !value
-
-    ){
-
-        return null;
-
-    }
-
-
-    return value.toUpperCase();
+        .toUpperCase();
 
 }
 
 
 /* =====================================================
-   CHECK INPUT CONFIG
+   GET INPUT WORKSPACE LABEL
+=====================================================
+
+   Label juga tetap berasal dari konfigurasi
+   workspace masing-masing.
+
+   Tidak ada label hardcode di sini.
+===================================================== */
+
+export function getInputWorkspaceLabel(
+
+    workspace
+
+){
+
+    const config =
+
+        getInputConfig(
+
+            workspace
+
+        );
+
+
+    if(
+
+        !config
+
+    ){
+
+        return null;
+
+    }
+
+
+    const label =
+
+        config.workspaceLabel;
+
+
+    if(
+
+        typeof label ===
+
+            "string"
+
+        &&
+
+        label.trim()
+
+    ){
+
+        return label.trim();
+
+    }
+
+
+    return (
+
+        config.title
+
+        ??
+
+        workspace
+
+        ??
+
+        null
+
+    );
+
+}
+
+
+/* =====================================================
+   HAS INPUT CONFIG
 ===================================================== */
 
 export function hasInputConfig(
@@ -295,15 +410,14 @@ export function hasInputConfig(
 
 /* =====================================================
    GET ALL INPUT CONFIG
-===================================================== */
+=====================================================
 
-/*
-   Digunakan hanya jika suatu saat
-   diperlukan untuk debugging / inspection.
+   Digunakan hanya untuk debugging /
+   inspection.
 
    Tidak digunakan sebagai sumber
    workspace global.
-*/
+===================================================== */
 
 export function getAllInputConfigs(){
 
@@ -317,7 +431,7 @@ export function getAllInputConfigs(){
 
 
 /* =====================================================
-   DEBUG
+   DEBUG INPUT CONFIG
 ===================================================== */
 
 export function debugInputConfig(
@@ -344,9 +458,32 @@ export function debugInputConfig(
         );
 
 
+    const workspaceLabel =
+
+        getInputWorkspaceLabel(
+
+            workspace
+
+        );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
     console.log(
 
         "===== GLOBAL INPUT CONFIG ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
 
     );
 
@@ -380,7 +517,16 @@ export function debugInputConfig(
 
     console.log(
 
-        "==============================="
+        "Workspace Label:",
+
+        workspaceLabel
+
+    );
+
+
+    console.log(
+
+        "=========================================="
 
     );
 
@@ -391,13 +537,20 @@ export function debugInputConfig(
 
             workspace,
 
+
         config :
 
             config,
 
+
         prefix :
 
-            prefix
+            prefix,
+
+
+        workspaceLabel :
+
+            workspaceLabel
 
     };
 
