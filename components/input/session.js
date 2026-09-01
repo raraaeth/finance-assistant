@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : session.js
-   Version      : 2.0.0
+   Version      : 3.0.0
 
    Description :
    Global Input Session Controller
@@ -14,16 +14,23 @@
    Global Input Controller
         ↓
    State.workspace
-   State.config
+        ↓
+   Input Config
         ↓
    Session
+        ↓
+   Prefix
+        ↓
+   Input ID
 
    IMPORTANT :
 
-   - Tidak ada daftar workspace hardcode
-   - Tidak ada prefix workspace hardcode
-   - Tidak ada label workspace hardcode
-   - Konfigurasi workspace berasal dari State.config
+   - Tidak ada daftar workspace hardcode.
+   - Tidak ada prefix workspace hardcode.
+   - Tidak ada label workspace hardcode.
+   - Prefix berasal dari konfigurasi input
+     masing-masing workspace.
+   - Workspace ID berasal dari State.workspace.
 ===================================================== */
 
 
@@ -36,6 +43,15 @@ import {
     State
 
 } from "./state.js";
+
+
+import {
+
+    getInputConfig,
+
+    getInputPrefix
+
+} from "./config.js";
 
 
 /* =====================================================
@@ -581,7 +597,7 @@ function renderId(){
 function generateId(){
 
     /* =============================================
-       GET PREFIX FROM CONFIG
+       GET PREFIX
     ============================================= */
 
     const prefix =
@@ -631,7 +647,11 @@ function getPrefix(){
 
     const prefix =
 
-        State.config?.prefix;
+        getInputPrefix(
+
+            State.workspace
+
+        );
 
 
     /* =============================================
@@ -640,32 +660,24 @@ function getPrefix(){
 
     if(
 
-        typeof prefix ===
-
-            "string"
-
-        &&
-
-        prefix.trim()
+        prefix
 
     ){
 
-        return prefix
-
-            .trim()
-
-            .toUpperCase();
+        return prefix;
 
     }
 
 
     /* =============================================
-       CONFIG PREFIX TIDAK DITEMUKAN
+       PREFIX TIDAK DITEMUKAN
     ============================================= */
 
     console.warn(
 
-        "Global Input: prefix tidak ditemukan pada konfigurasi workspace."
+        "Global Input: prefix tidak ditemukan pada konfigurasi input:",
+
+        State.workspace
 
     );
 
@@ -720,16 +732,29 @@ function renderDate(){
 function formatWorkspace(){
 
     /* =============================================
-       GET LABEL FROM CONFIG
+       GET INPUT CONFIG
+    ============================================= */
+
+    const config =
+
+        getInputConfig(
+
+            State.workspace
+
+        );
+
+
+    /* =============================================
+       GET LABEL
     ============================================= */
 
     const label =
 
-        State.config?.workspaceLabel;
+        config?.workspaceLabel;
 
 
     /* =============================================
-       VALIDATE
+       VALIDATE LABEL
     ============================================= */
 
     if(
@@ -752,7 +777,6 @@ function formatWorkspace(){
     /* =============================================
        FALLBACK
        
-       Workspace tetap berasal dari State.
        Tidak ada daftar workspace hardcode.
     ============================================= */
 
