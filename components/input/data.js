@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : data.js
-   Version      : 2.0.0
+   Version      : 3.0.0
 
    Description :
    Global Input Dynamic Data Engine
@@ -13,11 +13,20 @@
         ↓
    workspace.sheets
         ↓
-   API.load()
+   Global API
         ↓
    Google Sheets API
         ↓
    Input Data
+
+   RESPONSIBILITY :
+
+   - Membaca active workspace
+   - Membaca konfigurasi workspace global
+   - Membaca daftar sheet dari workspace.sheets
+   - Mengirim sheet ke API.load()
+   - Menyimpan RAW
+   - Menyimpan DATA
 
    TIDAK ADA :
 
@@ -25,18 +34,13 @@
    - Spreadsheet ID hardcode
    - Sheet name hardcode
    - Workspace list hardcode
-   - Data source hardcode
+   - Workspace-specific getter
+   - Workspace-specific processing
 
    Sumber kebenaran :
 
    ../../js/workspace.js
    ../../js/api.js
-
-   Compatibility :
-
-   Getter lama tetap disediakan agar
-   module workspace yang sekarang
-   tidak langsung rusak.
 ===================================================== */
 
 
@@ -72,6 +76,10 @@ const Data = {
 
         null,
 
+    config :
+
+        null,
+
     sheets :
 
         [],
@@ -97,19 +105,19 @@ const Data = {
 
 function normalizeSheets(
 
-    workspaceConfig
+    config
 
 ){
 
     if(
 
-        !workspaceConfig
+        !config
 
         ||
 
         !Array.isArray(
 
-            workspaceConfig.sheets
+            config.sheets
 
         )
 
@@ -120,7 +128,7 @@ function normalizeSheets(
     }
 
 
-    return workspaceConfig.sheets
+    return config.sheets
 
         .filter(
 
@@ -151,36 +159,6 @@ function normalizeSheets(
    LOAD INPUT DATA
 ===================================================== */
 
-/*
-   Workspace tidak menentukan
-   source secara manual.
-
-   Contoh :
-
-   workspace = "airdrop"
-
-        ↓
-
-   global workspace.js
-
-        ↓
-
-   sheets :
-
-       [
-           "airdrop",
-           "airdrop_rules"
-       ]
-
-        ↓
-
-   API.load()
-
-        ↓
-
-   Google Sheets API
-*/
-
 export async function loadInputData(
 
     workspace
@@ -193,17 +171,26 @@ export async function loadInputData(
 
     );
 
+
     console.log(
 
         "===== GLOBAL INPUT DATA LOAD ====="
 
     );
 
+
     console.log(
 
         "=========================================="
 
     );
+
+
+    /* =================================================
+       RESET PREVIOUS DATA
+    ================================================= */
+
+    clearInputData();
 
 
     /* =================================================
@@ -229,18 +216,18 @@ export async function loadInputData(
        GET GLOBAL WORKSPACE CONFIG
     ================================================= */
 
-    const workspaceConfigs =
+    const workspaces =
 
         getWorkspaceConfig();
 
 
     if(
 
-        !workspaceConfigs
+        !workspaces
 
         ||
 
-        typeof workspaceConfigs !==
+        typeof workspaces !==
 
             "object"
 
@@ -256,12 +243,12 @@ export async function loadInputData(
 
 
     /* =================================================
-       GET CURRENT WORKSPACE
+       GET CURRENT WORKSPACE CONFIG
     ================================================= */
 
     const config =
 
-        workspaceConfigs[
+        workspaces[
 
             workspace
 
@@ -298,17 +285,39 @@ export async function loadInputData(
 
     if(
 
-        sheets.length < 2
+        sheets.length === 0
 
     ){
 
         throw new Error(
 
-            `Global Input Data: workspace "${workspace}" tidak memiliki dua sheet inti.`
+            `Global Input Data: workspace "${workspace}" tidak memiliki konfigurasi sheet.`
 
         );
 
     }
+
+
+    /* =================================================
+       SHEET MAPPING
+    ================================================= */
+
+    /*
+       Global workspace.js menentukan
+       urutan sheet.
+
+       Sheet pertama :
+
+           RAW
+
+       Sheet kedua :
+
+           DATA
+
+       Jika suatu saat jumlah sheet
+       bertambah, data.js tidak perlu
+       mengetahui nama sheet-nya.
+    */
 
 
     const rawSheet =
@@ -322,7 +331,7 @@ export async function loadInputData(
 
 
     /* =================================================
-       DEBUG CONFIG
+       DEBUG WORKSPACE
     ================================================= */
 
     console.log(
@@ -345,7 +354,7 @@ export async function loadInputData(
 
     console.log(
 
-        "Input Sheets:",
+        "Workspace Sheets:",
 
         sheets
 
@@ -354,7 +363,7 @@ export async function loadInputData(
 
     console.log(
 
-        "Raw Sheet:",
+        "RAW Sheet:",
 
         rawSheet
 
@@ -363,7 +372,7 @@ export async function loadInputData(
 
     console.log(
 
-        "Data Sheet:",
+        "DATA Sheet:",
 
         dataSheet
 
@@ -371,8 +380,19 @@ export async function loadInputData(
 
 
     /* =================================================
-       LOAD GOOGLE SHEETS
+       LOAD API
     ================================================= */
+
+    /*
+       API global bertanggung jawab terhadap :
+
+       - Session
+       - Finance Core
+       - Google Provider Token
+       - Google Sheets API
+       - RAW
+       - DATA
+    */
 
     const result =
 
@@ -386,7 +406,7 @@ export async function loadInputData(
 
 
     /* =================================================
-       VALIDATE RESULT
+       VALIDATE API RESULT
     ================================================= */
 
     if(
@@ -401,7 +421,7 @@ export async function loadInputData(
 
         throw new Error(
 
-            `Global Input Data: gagal membaca data workspace "${workspace}".`
+            `Global Input Data: gagal membaca workspace "${workspace}".`
 
         );
 
@@ -417,16 +437,25 @@ export async function loadInputData(
         workspace;
 
 
+    Data.config =
+
+        config;
+
+
     Data.sheets =
 
-        sheets;
+        [
+
+            ...sheets
+
+        ];
 
 
     Data.raw =
 
         Array.isArray(
 
-            API.raw
+            result.raw
 
         )
 
@@ -434,7 +463,7 @@ export async function loadInputData(
 
         [
 
-            ...API.raw
+            ...result.raw
 
         ]
 
@@ -447,7 +476,7 @@ export async function loadInputData(
 
         Array.isArray(
 
-            API.data
+            result.data
 
         )
 
@@ -455,7 +484,7 @@ export async function loadInputData(
 
         [
 
-            ...API.data
+            ...result.data
 
         ]
 
@@ -470,7 +499,7 @@ export async function loadInputData(
 
 
     /* =================================================
-       DEBUG RESPONSE
+       DEBUG RESULT
     ================================================= */
 
     console.log(
@@ -479,11 +508,13 @@ export async function loadInputData(
 
     );
 
+
     console.log(
 
         "===== GLOBAL INPUT DATA READY ====="
 
     );
+
 
     console.log(
 
@@ -553,15 +584,26 @@ export async function loadInputData(
     );
 
 
+    /* =================================================
+       RETURN
+    ================================================= */
+
     return {
 
         success :
 
             true,
 
+
         workspace :
 
             Data.workspace,
+
+
+        config :
+
+            Data.config,
+
 
         sheets :
 
@@ -571,6 +613,7 @@ export async function loadInputData(
 
             ],
 
+
         raw :
 
             [
@@ -578,6 +621,7 @@ export async function loadInputData(
                 ...Data.raw
 
             ],
+
 
         data :
 
@@ -604,6 +648,17 @@ export function getInputWorkspace(){
 
 
 /* =====================================================
+   GET WORKSPACE CONFIG
+===================================================== */
+
+export function getInputWorkspaceConfig(){
+
+    return Data.config;
+
+}
+
+
+/* =====================================================
    GET SHEETS
 ===================================================== */
 
@@ -619,18 +674,8 @@ export function getInputSheets(){
 
 
 /* =====================================================
-   GET RAW DATA
+   GET RAW
 ===================================================== */
-
-/*
-   RAW :
-
-   sheet pertama workspace.
-
-   Contoh Airdrop :
-
-       airdrop
-*/
 
 export function getInputRaw(){
 
@@ -647,36 +692,6 @@ export function getInputRaw(){
    GET DATA
 ===================================================== */
 
-/*
-   DATA :
-
-   sheet kedua workspace.
-
-   Contoh Airdrop :
-
-       airdrop_rules
-
-   Financial :
-
-       financial_activity
-
-   Saving :
-
-       saving_bank
-
-   Kas :
-
-       kas_member
-
-   Payroll Daily :
-
-       payroll_daily_rules
-
-   Payroll Monthly :
-
-       payroll_monthly_rules
-*/
-
 export function getInputData(){
 
     return [
@@ -689,15 +704,8 @@ export function getInputData(){
 
 
 /* =====================================================
-   GET RULE DATA
+   GET RULES
 ===================================================== */
-
-/*
-   Alias generic.
-
-   Untuk workspace yang sheet keduanya
-   merupakan rules / master data.
-*/
 
 export function getInputRules(){
 
@@ -732,6 +740,11 @@ export function clearInputData(){
         null;
 
 
+    Data.config =
+
+        null;
+
+
     Data.sheets =
 
         [];
@@ -755,245 +768,6 @@ export function clearInputData(){
 
 
 /* =====================================================
-   COMPATIBILITY :
-   KAS
-===================================================== */
-
-/*
-   Sementara dipertahankan agar
-   kas.js lama tidak rusak.
-
-   Tidak ada lagi source hardcode.
-
-   Data berasal dari sheet kedua
-   workspace aktif.
-*/
-
-export function getKasMembers(){
-
-    if(
-
-        Data.workspace !==
-
-            "kas"
-
-    ){
-
-        return [];
-
-    }
-
-
-    return [
-
-        ...Data.data
-
-    ]
-
-    .filter(
-
-        item =>
-
-            item &&
-
-            typeof item ===
-
-                "object"
-
-    )
-
-    .filter(
-
-        item =>
-
-            typeof item.nama ===
-
-                "string"
-
-            &&
-
-            item.nama.trim() !== ""
-
-    )
-
-    .map(
-
-        item => ({
-
-            value :
-
-                item.nama.trim(),
-
-            label :
-
-                item.nama.trim()
-
-        })
-
-    );
-
-}
-
-
-/* =====================================================
-   COMPATIBILITY :
-   FINANCIAL
-===================================================== */
-
-export function getFinancialActivity(){
-
-    if(
-
-        Data.workspace !==
-
-            "financial"
-
-    ){
-
-        return [];
-
-    }
-
-
-    return [
-
-        ...Data.data
-
-    ];
-
-}
-
-
-/* =====================================================
-   COMPATIBILITY :
-   SAVING
-===================================================== */
-
-export function getSavingBanks(){
-
-    if(
-
-        Data.workspace !==
-
-            "saving"
-
-    ){
-
-        return [];
-
-    }
-
-
-    return [
-
-        ...Data.data
-
-    ]
-
-    .filter(
-
-        item =>
-
-            item &&
-
-            typeof item ===
-
-                "object"
-
-    )
-
-    .filter(
-
-        item =>
-
-            typeof item.nama ===
-
-                "string"
-
-            &&
-
-            item.nama.trim() !== ""
-
-    )
-
-    .map(
-
-        item => ({
-
-            value :
-
-                item.nama.trim(),
-
-            label :
-
-                item.nama.trim()
-
-        })
-
-    );
-
-}
-
-
-/* =====================================================
-   COMPATIBILITY :
-   PAYROLL DAILY
-===================================================== */
-
-export function getPayrollDailyRules(){
-
-    if(
-
-        Data.workspace !==
-
-            "payroll-daily"
-
-    ){
-
-        return [];
-
-    }
-
-
-    return [
-
-        ...Data.data
-
-    ];
-
-}
-
-
-/* =====================================================
-   COMPATIBILITY :
-   PAYROLL MONTHLY
-===================================================== */
-
-export function getPayrollMonthlyRules(){
-
-    if(
-
-        Data.workspace !==
-
-            "payroll-monthly"
-
-    ){
-
-        return [];
-
-    }
-
-
-    return [
-
-        ...Data.data
-
-    ];
-
-}
-
-
-/* =====================================================
    DEBUG
 ===================================================== */
 
@@ -1005,11 +779,13 @@ export function debugInputData(){
 
     );
 
+
     console.log(
 
         "===== GLOBAL INPUT DATA DEBUG ====="
 
     );
+
 
     console.log(
 
@@ -1023,6 +799,15 @@ export function debugInputData(){
         "Workspace:",
 
         Data.workspace
+
+    );
+
+
+    console.log(
+
+        "Config:",
+
+        Data.config
 
     );
 
@@ -1076,6 +861,12 @@ export function debugInputData(){
 
             Data.workspace,
 
+
+        config :
+
+            Data.config,
+
+
         sheets :
 
             [
@@ -1084,9 +875,11 @@ export function debugInputData(){
 
             ],
 
+
         loaded :
 
             Data.loaded,
+
 
         raw :
 
@@ -1095,6 +888,7 @@ export function debugInputData(){
                 ...Data.raw
 
             ],
+
 
         data :
 
