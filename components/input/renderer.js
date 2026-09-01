@@ -2,23 +2,39 @@
    Finance Assistant
    Component    : Global Input
    File         : renderer.js
-   Version      : 2.0.0
+   Version      : 2.1.0
 
    Description :
    Global Input Transaction Renderer
 
    Principle :
    Renderer bersifat GLOBAL.
-   Tidak mengunci field untuk Kas, Financial, Payroll, dll.
+
+   Renderer tidak mengetahui workspace tertentu.
+
+   Struktur Config :
+
+       State.config
+            ↓
+       State.config.module
+            ↓
+       module.steps
+            ↓
+       Renderer
+
+   Compatibility :
+
+       Jika module belum tersedia,
+       State.config digunakan sebagai fallback.
 
    Controller :
-   transaction.js
+       transaction.js
 
    Data :
-   State.transactions
+       State.transactions
 
    Config :
-   State.config.steps
+       State.config.module.steps
 ===================================================== */
 
 
@@ -31,6 +47,108 @@ import {
     State
 
 } from "./state.js";
+
+
+/* =====================================================
+   GET MODULE CONFIG
+=====================================================
+
+   Struktur utama :
+
+       State.config
+           ↓
+       module
+           ↓
+       workspace config
+
+   Fallback :
+
+       State.config
+
+   digunakan jika module belum tersedia.
+
+===================================================== */
+
+function getModuleConfig(){
+
+    const config =
+
+        State.config;
+
+
+    if(
+
+        !config
+
+        ||
+
+        typeof config !==
+
+            "object"
+
+    ){
+
+        return {};
+
+    }
+
+
+    const module =
+
+        config.module;
+
+
+    if(
+
+        module
+
+        &&
+
+        typeof module ===
+
+            "object"
+
+    ){
+
+        return module;
+
+    }
+
+
+    return config;
+
+}
+
+
+/* =====================================================
+   GET STEPS
+===================================================== */
+
+function getSteps(){
+
+    const config =
+
+        getModuleConfig();
+
+
+    if(
+
+        !Array.isArray(
+
+            config.steps
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return config.steps;
+
+}
 
 
 /* =====================================================
@@ -156,7 +274,9 @@ export function renderTransactionItem(
 
     if(
 
-        deleteButton &&
+        deleteButton
+
+        &&
 
         typeof onDelete ===
 
@@ -190,9 +310,14 @@ export function renderTransactionItem(
 
 /* =====================================================
    GET DISPLAY FIELDS
+=====================================================
 
-   Semua data diambil dari State.config.steps.
-   Renderer tidak mengetahui workspace tertentu.
+   Semua field berasal dari :
+
+       State.config.module.steps
+
+   Renderer tidak mengetahui workspace.
+
 ===================================================== */
 
 function getDisplayFields(
@@ -203,19 +328,7 @@ function getDisplayFields(
 
     const steps =
 
-        Array.isArray(
-
-            State.config?.steps
-
-        )
-
-            ?
-
-        State.config.steps
-
-            :
-
-        [];
+        getSteps();
 
 
     const result = [];
@@ -223,9 +336,34 @@ function getDisplayFields(
 
     if(
 
-        steps.length === 0
+        steps.length ===
+
+            0
 
     ){
+
+        console.warn(
+
+            "Renderer: steps tidak ditemukan.",
+
+            {
+
+                workspace :
+
+                    State.workspace,
+
+                config :
+
+                    State.config,
+
+                module :
+
+                    State.config?.module
+
+            }
+
+        );
+
 
         return result;
 
@@ -233,16 +371,22 @@ function getDisplayFields(
 
 
     /* =================================================
-       DETEKSI FIELD TRANSACTION DIRECTION
+       DIRECTION FIELD
        
+       Contoh :
+
        Kas :
            type = masuk / keluar
 
        Financial :
            jenis = masuk / keluar
-           type  = gaji / belanja_online / ...
 
-       Field direction hanya dipakai sebagai penanda.
+       Payroll Daily :
+           status = masuk
+
+       Field ini hanya menjadi
+       penanda direction.
+
     ================================================= */
 
     const directionField =
@@ -262,20 +406,46 @@ function getDisplayFields(
         );
 
 
+    /* =================================================
+       ACTIVITY FIELD
+       
+       Contoh Financial :
+
+           jenis = masuk / keluar
+           type  = gaji / belanja / ...
+
+       Jika ada activity field,
+       direction tidak ditampilkan sebagai
+       field normal.
+
+    ================================================= */
+
     const activityField =
 
         steps.find(
 
             field =>
 
-                field &&
+                field
 
-                field.id === "type" &&
+                &&
 
-                field !== directionField
+                field.id ===
+
+                    "type"
+
+                &&
+
+                field !==
+
+                    directionField
 
         );
 
+
+    /* =================================================
+       PROCESS STEPS
+    ================================================= */
 
     steps.forEach(
 
@@ -283,7 +453,9 @@ function getDisplayFields(
 
             if(
 
-                !field ||
+                !field
+
+                ||
 
                 !field.id
 
@@ -304,18 +476,22 @@ function getDisplayFields(
 
 
             /* =========================================
-               FIELD TIDAK ADA NILAI
+               FIELD TANPA NILAI
             ========================================= */
 
             if(
 
                 value ===
 
-                    undefined ||
+                    undefined
+
+                ||
 
                 value ===
 
-                    null ||
+                    null
+
+                ||
 
                 String(
 
@@ -333,7 +509,7 @@ function getDisplayFields(
 
 
             /* =========================================
-               HIDDEN FIELD
+               VISIBILITY
             ========================================= */
 
             if(
@@ -354,12 +530,35 @@ function getDisplayFields(
 
 
             /* =========================================
-               FINANCIAL / WORKSPACE LAIN
+               HIDE DIRECTION
+               
+               Jika workspace memiliki
+               activity field, direction
+               tidak perlu ditampilkan
+               sebagai field tambahan.
+
+               Contoh :
+
+               Financial
+
+                   Masuk
+                   Gaji
+                   Rp100.000
+
+               bukan :
+
+                   Jenis : Masuk
+                   Type  : Gaji
+
             ========================================= */
 
             if(
 
-                field === directionField &&
+                field ===
+
+                    directionField
+
+                &&
 
                 activityField
 
@@ -369,6 +568,10 @@ function getDisplayFields(
 
             }
 
+
+            /* =========================================
+               LABEL
+            ========================================= */
 
             const label =
 
@@ -382,6 +585,10 @@ function getDisplayFields(
 
                 );
 
+
+            /* =========================================
+               VALUE
+            ========================================= */
 
             const displayValue =
 
@@ -408,6 +615,10 @@ function getDisplayFields(
 
             }
 
+
+            /* =========================================
+               PUSH
+            ========================================= */
 
             result.push({
 
@@ -462,7 +673,9 @@ function getDisplayFields(
 
             if(
 
-                a.isPrimary &&
+                a.isPrimary
+
+                &&
 
                 !b.isPrimary
 
@@ -475,7 +688,9 @@ function getDisplayFields(
 
             if(
 
-                !a.isPrimary &&
+                !a.isPrimary
+
+                &&
 
                 b.isPrimary
 
@@ -547,6 +762,7 @@ function isFieldVisible(
 
         );
 
+
         return true;
 
     }
@@ -568,13 +784,19 @@ function isPrimaryField(
 
 ){
 
+    /* =================================================
+       ACTIVITY PRIORITY
+    ================================================= */
+
     if(
 
         activityField
 
         &&
 
-        field === activityField
+        field ===
+
+            activityField
 
     ){
 
@@ -583,13 +805,31 @@ function isPrimaryField(
     }
 
 
+    /* =================================================
+       DIRECTION PRIORITY
+       
+       Jika tidak ada activity,
+       direction menjadi primary.
+
+       Contoh :
+
+       Kas :
+           type = Masuk
+
+       Payroll Daily :
+           status = Masuk
+
+    ================================================= */
+
     if(
 
         !activityField
 
         &&
 
-        field === directionField
+        field ===
+
+            directionField
 
     ){
 
@@ -617,7 +857,9 @@ function isDirectionField(
 
     if(
 
-        !field ||
+        !field
+
+        ||
 
         !field.id
 
@@ -637,11 +879,32 @@ function isDirectionField(
         ];
 
 
+    const normalizedValue =
+
+        String(
+
+            value ??
+
+            ""
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+
     if(
 
-        value !== "masuk" &&
+        normalizedValue !==
 
-        value !== "keluar"
+            "masuk"
+
+        &&
+
+        normalizedValue !==
+
+            "keluar"
 
     ){
 
@@ -656,11 +919,27 @@ function isDirectionField(
 
     if(
 
-        field.id === "type" ||
+        field.id ===
 
-        field.id === "jenis" ||
+            "type"
 
-        field.id === "transactionType"
+        ||
+
+        field.id ===
+
+            "jenis"
+
+        ||
+
+        field.id ===
+
+            "transactionType"
+
+        ||
+
+        field.id ===
+
+            "status"
 
     ){
 
@@ -670,7 +949,7 @@ function isDirectionField(
 
 
     /* =============================================
-       FALLBACK BERDASARKAN OPTIONS
+       FALLBACK OPTIONS
     ============================================= */
 
     const options =
@@ -690,7 +969,9 @@ function isDirectionField(
 
             const optionValue =
 
-                typeof option === "object"
+                typeof option ===
+
+                    "object"
 
                     ?
 
@@ -701,11 +982,32 @@ function isDirectionField(
                 option;
 
 
+            const normalizedOption =
+
+                String(
+
+                    optionValue ??
+
+                    ""
+
+                )
+
+                .trim()
+
+                .toLowerCase();
+
+
             return (
 
-                optionValue === "masuk" ||
+                normalizedOption ===
 
-                optionValue === "keluar"
+                    "masuk"
+
+                ||
+
+                normalizedOption ===
+
+                    "keluar"
 
             );
 
@@ -714,6 +1016,7 @@ function isDirectionField(
     );
 
 }
+
 
 /* =====================================================
    DISPLAY LABEL
@@ -729,13 +1032,15 @@ function getDisplayLabel(
 
 ){
 
-    /* =============================================
-       PRIMARY ACTIVITY
-    ============================================= */
+    /* =================================================
+       ACTIVITY
+    ================================================= */
 
     if(
 
-        field.id === "type"
+        field.id ===
+
+            "type"
 
     ){
 
@@ -752,13 +1057,30 @@ function getDisplayLabel(
     }
 
 
-    /* =============================================
+    /* =================================================
        DIRECTION
-    ============================================= */
+    ================================================= */
+
+    const normalizedValue =
+
+        String(
+
+            value ??
+
+            ""
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
 
     if(
 
-        value === "masuk"
+        normalizedValue ===
+
+            "masuk"
 
     ){
 
@@ -769,7 +1091,9 @@ function getDisplayLabel(
 
     if(
 
-        value === "keluar"
+        normalizedValue ===
+
+            "keluar"
 
     ){
 
@@ -778,9 +1102,9 @@ function getDisplayLabel(
     }
 
 
-    /* =============================================
-       DEFAULT LABEL
-    ============================================= */
+    /* =================================================
+       DEFAULT
+    ================================================= */
 
     return resolveFieldLabel(
 
@@ -791,6 +1115,7 @@ function getDisplayLabel(
     );
 
 }
+
 
 /* =====================================================
    RESOLVE FIELD LABEL
@@ -815,16 +1140,9 @@ function resolveFieldLabel(
     }
 
 
-    /* =============================================
+    /* =================================================
        DYNAMIC LABEL
-       
-       label dapat berupa function:
-
-       values =>
-           values.jenis === "transfer"
-               ? "Bank Asal"
-               : "Bank"
-    ============================================= */
+    ================================================= */
 
     if(
 
@@ -858,6 +1176,7 @@ function resolveFieldLabel(
 
             );
 
+
             return escapeHTML(
 
                 field.id
@@ -869,19 +1188,22 @@ function resolveFieldLabel(
     }
 
 
-    /* =============================================
+    /* =================================================
        STATIC LABEL
-    ============================================= */
+    ================================================= */
 
     return escapeHTML(
 
-        field.label ??
+        field.label
+
+        ??
 
         field.id
 
     );
 
 }
+
 
 /* =====================================================
    DISPLAY VALUE
@@ -897,13 +1219,30 @@ function getDisplayValue(
 
 ){
 
-    /* =============================================
-       DIRECTION FIELD
-    ============================================= */
+    const normalizedValue =
+
+        String(
+
+            value ??
+
+            ""
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+
+    /* =================================================
+       DIRECTION
+    ================================================= */
 
     if(
 
-        value === "masuk"
+        normalizedValue ===
+
+            "masuk"
 
     ){
 
@@ -914,7 +1253,9 @@ function getDisplayValue(
 
     if(
 
-        value === "keluar"
+        normalizedValue ===
+
+            "keluar"
 
     ){
 
@@ -922,9 +1263,13 @@ function getDisplayValue(
 
     }
 
-       /* =============================================
+
+    /* =================================================
        CUSTOM DISPLAY
-    ============================================= */
+       
+       display() memiliki prioritas
+       paling tinggi setelah direction.
+    ================================================= */
 
     if(
 
@@ -965,9 +1310,9 @@ function getDisplayValue(
     }
 
 
-    /* =============================================
+    /* =================================================
        CUSTOM FORMAT
-    ============================================= */
+    ================================================= */
 
     if(
 
@@ -1007,48 +1352,57 @@ function getDisplayValue(
 
     }
 
-   
-/* =============================================
-   QUANTITY
-============================================= */
 
-if(
-
-    field.id === "qty"
-
-){
-
-    return (
-
-        escapeHTML(
-
-            value
-
-        )
-
-        +
-
-        " pcs"
-
-    );
-
-}
-
-    /* =============================================
-       NUMBER
-    ============================================= */
+    /* =================================================
+       QUANTITY
+    ================================================= */
 
     if(
 
-        field.type === "number"
+        field.id ===
+
+            "qty"
+
+    ){
+
+        return (
+
+            escapeHTML(
+
+                value
+
+            )
+
+            +
+
+            " pcs"
+
+        );
+
+    }
+
+
+    /* =================================================
+       NUMBER
+    ================================================= */
+
+    if(
+
+        field.type ===
+
+            "number"
 
         ||
 
-        field.id === "amount"
+        field.id ===
+
+            "amount"
 
         ||
 
-        field.id === "nominal"
+        field.id ===
+
+            "nominal"
 
     ){
 
@@ -1061,13 +1415,15 @@ if(
     }
 
 
-    /* =============================================
+    /* =================================================
        SELECT
-    ============================================= */
+    ================================================= */
 
     if(
 
-        field.type === "select"
+        field.type ===
+
+            "select"
 
     ){
 
@@ -1084,95 +1440,9 @@ if(
     }
 
 
-    /* =============================================
-       CUSTOM DISPLAY
-    ============================================= */
-
-    if(
-
-        typeof field.display ===
-
-            "function"
-
-    ){
-
-        try{
-
-            return escapeHTML(
-
-                field.display(
-
-                    value,
-
-                    transaction
-
-                )
-
-            );
-
-        }
-
-        catch(error){
-
-            console.warn(
-
-                "Renderer display error:",
-
-                error
-
-            );
-
-        }
-
-    }
-
-
-    /* =============================================
-       CUSTOM FORMAT
-    ============================================= */
-
-    if(
-
-        typeof field.format ===
-
-            "function"
-
-    ){
-
-        try{
-
-            return escapeHTML(
-
-                field.format(
-
-                    value,
-
-                    transaction
-
-                )
-
-            );
-
-        }
-
-        catch(error){
-
-            console.warn(
-
-                "Renderer format error:",
-
-                error
-
-            );
-
-        }
-
-    }
-
-
-    /* =============================================
+    /* =================================================
        DEFAULT
-    ============================================= */
+    ================================================= */
 
     return escapeHTML(
 
@@ -1197,20 +1467,15 @@ function getActivityLabel(
 
 ){
 
-    const label =
+    return getOptionLabel(
 
-        getOptionLabel(
+        field,
 
-            field,
+        value,
 
-            value,
+        transaction
 
-            transaction
-
-        );
-
-
-    return label;
+    );
 
 }
 
@@ -1248,7 +1513,9 @@ function getOptionLabel(
 
                 const optionValue =
 
-                    typeof item === "object"
+                    typeof item ===
+
+                        "object"
 
                         ?
 
@@ -1263,13 +1530,19 @@ function getOptionLabel(
 
                     String(
 
-                        optionValue
+                        optionValue ??
 
-                    ) ===
+                        ""
+
+                    )
+
+                    ===
 
                     String(
 
-                        value
+                        value ??
+
+                        ""
 
                     )
 
@@ -1282,17 +1555,25 @@ function getOptionLabel(
 
     if(
 
-        option &&
+        option
 
-        typeof option === "object"
+        &&
+
+        typeof option ===
+
+            "object"
 
     ){
 
         return escapeHTML(
 
-            option.label ??
+            option.label
 
-            option.value ??
+            ??
+
+            option.value
+
+            ??
 
             value
 
@@ -1322,12 +1603,20 @@ function getFieldOptions(
 
 ){
 
-    let options = [];
+    if(
+
+        !field
+
+    ){
+
+        return [];
+
+    }
 
 
-    /* =============================================
+    /* =================================================
        FUNCTION OPTIONS
-    ============================================= */
+    ================================================= */
 
     if(
 
@@ -1339,15 +1628,28 @@ function getFieldOptions(
 
         try{
 
-            options =
+            const options =
 
                 field.options(
 
                     transaction
 
-                ) ??
+                );
 
-                [];
+
+            return Array.isArray(
+
+                options
+
+            )
+
+                ?
+
+            options
+
+                :
+
+            [];
 
         }
 
@@ -1361,39 +1663,31 @@ function getFieldOptions(
 
             );
 
-            options = [];
+
+            return [];
 
         }
 
     }
 
 
-    /* =============================================
+    /* =================================================
        STATIC OPTIONS
-    ============================================= */
+    ================================================= */
 
-    else{
+    return Array.isArray(
 
-        options =
+        field.options
 
-            Array.isArray(
+    )
 
-                field.options
+        ?
 
-            )
+    field.options
 
-                ?
+        :
 
-            field.options
-
-                :
-
-            [];
-
-    }
-
-
-    return options;
+    [];
 
 }
 
@@ -1414,7 +1708,9 @@ function formatCurrency(
 
             String(
 
-                value
+                value ??
+
+                ""
 
             )
 
@@ -1481,9 +1777,9 @@ function renderFieldValue(
     }
 
 
-    /* =============================================
+    /* =================================================
        PRIMARY
-    ============================================= */
+    ================================================= */
 
     if(
 
@@ -1504,9 +1800,9 @@ function renderFieldValue(
     }
 
 
-    /* =============================================
+    /* =================================================
        NORMAL FIELD
-    ============================================= */
+    ================================================= */
 
     return `
 
@@ -1592,6 +1888,7 @@ function escapeHTML(
 
 }
 
+
 /* =====================================================
    GET WORKSPACE
 ===================================================== */
@@ -1617,6 +1914,11 @@ export function getRendererWorkspace(){
 
 export function getRendererConfig(){
 
+    const config =
+
+        getModuleConfig();
+
+
     return {
 
         workspace :
@@ -1625,27 +1927,16 @@ export function getRendererConfig(){
 
             ||
 
+            config.workspace
+
+            ||
+
             "",
+
 
         steps :
 
-            Array.isArray(
-
-                State.config?.steps
-
-            )
-
-                ?
-
-            [
-
-                ...State.config.steps
-
-            ]
-
-                :
-
-            []
+            getSteps()
 
     };
 
@@ -1696,7 +1987,9 @@ export function hasTransactionValue(
 
     if(
 
-        !transaction ||
+        !transaction
+
+        ||
 
         !fieldId
 
@@ -1718,15 +2011,25 @@ export function hasTransactionValue(
 
     return (
 
-        value !== undefined &&
+        value !==
 
-        value !== null &&
+            undefined
+
+        &&
+
+        value !==
+
+            null
+
+        &&
 
         String(
 
             value
 
-        ).trim() !== ""
+        ).trim() !==
+
+            ""
 
     );
 
@@ -1747,7 +2050,9 @@ export function getTransactionField(
 
     if(
 
-        !transaction ||
+        !transaction
+
+        ||
 
         !fieldId
 
@@ -1790,24 +2095,12 @@ export function getTransactionAmount(
 
     const steps =
 
-        Array.isArray(
-
-            State.config?.steps
-
-        )
-
-            ?
-
-        State.config.steps
-
-            :
-
-        [];
+        getSteps();
 
 
-    /* =============================================
+    /* =================================================
        NUMBER FIELD DARI CONFIG
-    ============================================= */
+    ================================================= */
 
     const numberField =
 
@@ -1815,9 +2108,15 @@ export function getTransactionAmount(
 
             field =>
 
-                field &&
+                field
 
-                field.type === "number" &&
+                &&
+
+                field.type ===
+
+                    "number"
+
+                &&
 
                 hasTransactionValue(
 
@@ -1863,9 +2162,9 @@ export function getTransactionAmount(
     }
 
 
-    /* =============================================
+    /* =================================================
        FALLBACK
-    ============================================= */
+    ================================================= */
 
     return Number(
 
@@ -1921,19 +2220,7 @@ export function getTransactionDirection(
 
     const steps =
 
-        Array.isArray(
-
-            State.config?.steps
-
-        )
-
-            ?
-
-        State.config.steps
-
-            :
-
-        [];
+        getSteps();
 
 
     const field =
@@ -1967,18 +2254,22 @@ export function getTransactionDirection(
 
             ]
 
-            ||
+            ??
 
             ""
 
-        ).toLowerCase();
+        )
+
+        .trim()
+
+        .toLowerCase();
 
     }
 
 
-    /* =============================================
+    /* =================================================
        FALLBACK
-    ============================================= */
+    ================================================= */
 
     return String(
 
@@ -1993,6 +2284,8 @@ export function getTransactionDirection(
         ""
 
     )
+
+    .trim()
 
     .toLowerCase();
 
@@ -2022,19 +2315,7 @@ export function getTransactionActivity(
 
     const steps =
 
-        Array.isArray(
-
-            State.config?.steps
-
-        )
-
-            ?
-
-        State.config.steps
-
-            :
-
-        [];
+        getSteps();
 
 
     const directionField =
@@ -2054,17 +2335,9 @@ export function getTransactionActivity(
         );
 
 
-    /* =============================================
-       TYPE FIELD
-       
-       Financial :
-       jenis = direction
-       type  = activity
-
-       Kas :
-       type = direction
-       category = activity
-    ============================================= */
+    /* =================================================
+       ACTIVITY FIELD
+    ================================================= */
 
     const activityField =
 
@@ -2072,18 +2345,28 @@ export function getTransactionActivity(
 
             field =>
 
-                field &&
+                field
 
-                field.id === "type" &&
+                &&
 
-                field !== directionField
+                field.id ===
+
+                    "type"
+
+                &&
+
+                field !==
+
+                    directionField
 
         );
 
 
     if(
 
-        activityField &&
+        activityField
+
+        &&
 
         hasTransactionValue(
 
@@ -2108,9 +2391,9 @@ export function getTransactionActivity(
     }
 
 
-    /* =============================================
+    /* =================================================
        CATEGORY
-    ============================================= */
+    ================================================= */
 
     if(
 
@@ -2133,9 +2416,9 @@ export function getTransactionActivity(
     }
 
 
-    /* =============================================
+    /* =================================================
        FALLBACK
-    ============================================= */
+    ================================================= */
 
     return "";
 
@@ -2165,27 +2448,15 @@ export function getTransactionNote(
 
     const steps =
 
-        Array.isArray(
-
-            State.config?.steps
-
-        )
-
-            ?
-
-        State.config.steps
-
-            :
-
-        [];
+        getSteps();
 
 
-    /* =============================================
+    /* =================================================
        CONFIG FIELD
-
+       
        Cari field text / textarea
        yang bukan direction / activity.
-    ============================================= */
+    ================================================= */
 
     const noteField =
 
@@ -2195,7 +2466,9 @@ export function getTransactionNote(
 
                 if(
 
-                    !field ||
+                    !field
+
+                    ||
 
                     !field.id
 
@@ -2208,11 +2481,21 @@ export function getTransactionNote(
 
                 if(
 
-                    field.id === "type" ||
+                    field.id ===
 
-                    field.id === "jenis" ||
+                        "type"
 
-                    field.id === "category"
+                    ||
+
+                    field.id ===
+
+                        "jenis"
+
+                    ||
+
+                    field.id ===
+
+                        "category"
 
                 ){
 
@@ -2223,9 +2506,15 @@ export function getTransactionNote(
 
                 if(
 
-                    field.type !== "text" &&
+                    field.type !==
 
-                    field.type !== "textarea"
+                        "text"
+
+                    &&
+
+                    field.type !==
+
+                        "textarea"
 
                 ){
 
@@ -2266,9 +2555,9 @@ export function getTransactionNote(
     }
 
 
-    /* =============================================
+    /* =================================================
        FALLBACK
-    ============================================= */
+    ================================================= */
 
     return String(
 
@@ -2365,62 +2654,212 @@ export function debugRenderer(
 
 ){
 
+    const config =
+
+        getModuleConfig();
+
+
+    const fields =
+
+        getTransactionDisplayData(
+
+            transaction
+
+        );
+
+
     console.log(
 
-        "GLOBAL INPUT RENDERER:",
-
-        {
-
-            workspace :
-
-                State.workspace,
-
-            transaction :
-
-                transaction,
-
-            fields :
-
-                getTransactionDisplayData(
-
-                    transaction
-
-                ),
-
-            direction :
-
-                getTransactionDirection(
-
-                    transaction
-
-                ),
-
-            activity :
-
-                getTransactionActivity(
-
-                    transaction
-
-                ),
-
-            amount :
-
-                getTransactionAmount(
-
-                    transaction
-
-                ),
-
-            note :
-
-                getTransactionNote(
-
-                    transaction
-
-                )
-
-        }
+        "=========================================="
 
     );
+
+
+    console.log(
+
+        "===== GLOBAL INPUT RENDERER ====="
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "Workspace:",
+
+        State.workspace
+
+    );
+
+
+    console.log(
+
+        "Config:",
+
+        State.config
+
+    );
+
+
+    console.log(
+
+        "Module:",
+
+        config
+
+    );
+
+
+    console.log(
+
+        "Steps:",
+
+        getSteps()
+
+    );
+
+
+    console.log(
+
+        "Transaction:",
+
+        transaction
+
+    );
+
+
+    console.log(
+
+        "Fields:",
+
+        fields
+
+    );
+
+
+    console.log(
+
+        "Direction:",
+
+        getTransactionDirection(
+
+            transaction
+
+        )
+
+    );
+
+
+    console.log(
+
+        "Activity:",
+
+        getTransactionActivity(
+
+            transaction
+
+        )
+
+    );
+
+
+    console.log(
+
+        "Amount:",
+
+        getTransactionAmount(
+
+            transaction
+
+        )
+
+    );
+
+
+    console.log(
+
+        "Note:",
+
+        getTransactionNote(
+
+            transaction
+
+        )
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    return {
+
+        workspace :
+
+            State.workspace,
+
+        config :
+
+            State.config,
+
+        module :
+
+            config,
+
+        steps :
+
+            getSteps(),
+
+        transaction :
+
+            transaction,
+
+        fields :
+
+            fields,
+
+        direction :
+
+            getTransactionDirection(
+
+                transaction
+
+            ),
+
+        activity :
+
+            getTransactionActivity(
+
+                transaction
+
+            ),
+
+        amount :
+
+            getTransactionAmount(
+
+                transaction
+
+            ),
+
+        note :
+
+            getTransactionNote(
+
+                transaction
+
+            )
+
+    };
 
 }
