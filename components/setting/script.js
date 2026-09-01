@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Setting
    File         : script.js
-   Version      : 4.3.0
+   Version      : 4.4.0
 
    Description :
    Global Setting Controller
@@ -20,8 +20,10 @@
    - Dynamic Select
    - Field Note
    - Option Note Override
+   - Checkbox Group
    - Collect Input
    - Normalize Input
+   - Multiple Result
    - Render Result
    - Delete Result
    - Confirm
@@ -35,6 +37,15 @@
    - saving.js
    - payroll-daily.js
    - financial.js
+
+   New :
+   - normalize() boleh menghasilkan object
+   - normalize() boleh menghasilkan array object
+   - Satu form checkbox dapat menghasilkan
+     beberapa result terpisah
+   - Result normalized dapat dirender
+   - Checkbox yang sudah menjadi result
+     tidak dapat dipilih ulang
 ===================================================== */
 
 
@@ -1335,6 +1346,31 @@ function renderForm(
 
 
     /* =============================================
+       PREVENT DUPLICATE CHECKBOX
+    ============================================= */
+
+    if(
+
+        section.inputMode ===
+
+        "checkbox-group"
+
+    ){
+
+        applyUsedCheckboxState(
+
+            section,
+
+            sectionElement,
+
+            form
+
+        );
+
+    }
+
+
+    /* =============================================
        FORM ACTION
     ============================================= */
 
@@ -1448,6 +1484,258 @@ function renderForm(
         firstVisibleInput.focus();
 
     }
+
+}
+
+
+
+/* =====================================================
+   APPLY USED CHECKBOX STATE
+===================================================== */
+
+function applyUsedCheckboxState(
+
+    section,
+
+    sectionElement,
+
+    form
+
+){
+
+    const result =
+
+        sectionElement.querySelector(
+
+            ".global-setting-result"
+
+        );
+
+
+    if(
+
+        !result
+
+    ){
+
+        return;
+
+    }
+
+
+    const usedNames =
+
+        new Set();
+
+
+    /* =============================================
+       READ EXISTING RESULTS
+    ============================================= */
+
+    [
+
+        ...result.children
+
+    ].forEach(
+
+        item => {
+
+            if(
+
+                !item.dataset.value
+
+            ){
+
+                return;
+
+            }
+
+
+            try{
+
+                const data =
+
+                    JSON.parse(
+
+                        item.dataset.value
+
+                    );
+
+
+                /* =================================
+                   nama
+                ================================= */
+
+                if(
+
+                    data &&
+
+                    data.nama !== undefined
+
+                ){
+
+                    usedNames.add(
+
+                        normalizeCompareValue(
+
+                            data.nama
+
+                        )
+
+                    );
+
+                }
+
+
+                /* =================================
+                   resultName
+                ================================= */
+
+                if(
+
+                    data &&
+
+                    data.resultName !== undefined
+
+                ){
+
+                    usedNames.add(
+
+                        normalizeCompareValue(
+
+                            data.resultName
+
+                        )
+
+                    );
+
+                }
+
+            }
+
+            catch(error){
+
+                console.warn(
+
+                    "Checkbox result parse error:",
+
+                    error
+
+                );
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       DISABLE USED CHECKBOX
+    ============================================= */
+
+    section.fields.forEach(
+
+        field => {
+
+            if(
+
+                field.type !==
+
+                "checkbox"
+
+            ){
+
+                return;
+
+            }
+
+
+            const input =
+
+                form.querySelector(
+
+                    `[name="${escapeSelector(
+
+                        field.name
+
+                    )}"]`
+
+                );
+
+
+            if(
+
+                !input
+
+            ){
+
+                return;
+
+            }
+
+
+            const resultName =
+
+                field.resultName ??
+
+                field.label ??
+
+                field.name;
+
+
+            const used =
+
+                usedNames.has(
+
+                    normalizeCompareValue(
+
+                        resultName
+
+                    )
+
+                );
+
+
+            if(
+
+                used
+
+            ){
+
+                input.disabled =
+
+                    true;
+
+
+                const wrapper =
+
+                    input.closest(
+
+                        ".global-setting-field"
+
+                    );
+
+
+                if(
+
+                    wrapper
+
+                ){
+
+                    wrapper.classList.add(
+
+                        "is-used"
+
+                    );
+
+                }
+
+            }
+
+        }
+
+    );
 
 }
 
@@ -1756,6 +2044,73 @@ function renderField(
 
 
     /* =============================================
+       CHECKBOX LOGO
+    ============================================= */
+
+    if(
+
+        field.type ===
+
+            "checkbox" &&
+
+        field.logo
+
+    ){
+
+        wrapper.classList.add(
+
+            "has-logo"
+
+        );
+
+
+        const logo =
+
+            document.createElement(
+
+                "img"
+
+            );
+
+
+        logo.className =
+
+            "global-setting-checkbox-logo";
+
+
+        logo.src =
+
+            field.logo;
+
+
+        logo.alt =
+
+            field.label ??
+
+            field.name;
+
+
+        logo.loading =
+
+            "lazy";
+
+
+        /* =========================================
+           INSERT LOGO BEFORE LABEL
+        ========================================= */
+
+        wrapper.insertBefore(
+
+            logo,
+
+            label
+
+        );
+
+    }
+
+
+    /* =============================================
        CUSTOM SELECT
     ============================================= */
 
@@ -1900,6 +2255,14 @@ function renderField(
 
     );
 
+
+    /* =============================================
+       CHECKBOX
+       
+       Untuk checkbox ber-logo, input tetap
+       berada di dalam wrapper agar CSS dapat
+       mengatur layout.
+    ============================================= */
 
     wrapper.appendChild(
 
@@ -3725,6 +4088,17 @@ function getFirstVisibleInput(
             }
 
 
+            if(
+
+                input.disabled
+
+            ){
+
+                continue;
+
+            }
+
+
             return input;
 
         }
@@ -3808,6 +4182,73 @@ function addResult(
 
 
     /* =============================================
+       NORMALIZE RESULT
+       
+       Bisa:
+       
+       object
+       atau
+       array object
+    ============================================= */
+
+    const normalizedResults =
+
+        Array.isArray(
+
+            data
+
+        )
+
+            ?
+
+        data
+
+            :
+
+        [
+
+            data
+
+        ];
+
+
+    /* =============================================
+       VALIDATE NORMALIZED RESULT
+    ============================================= */
+
+    const validResults =
+
+        normalizedResults.filter(
+
+            item =>
+
+                item &&
+
+                typeof item ===
+
+                "object"
+
+        );
+
+
+    if(
+
+        validResults.length === 0
+
+    ){
+
+        alert(
+
+            "Tidak ada data yang dapat ditambahkan."
+
+        );
+
+        return;
+
+    }
+
+
+    /* =============================================
        DEBUG
     ============================================= */
 
@@ -3823,7 +4264,11 @@ function addResult(
 
             data :
 
-                data
+                data,
+
+            normalized :
+
+                validResults
 
         }
 
@@ -3831,36 +4276,133 @@ function addResult(
 
 
     /* =============================================
-       DUPLICATE
+       CHECK DUPLICATE
+       
+       Cek SEMUA result sebelum menambahkan.
+       
+       Jika salah satu duplicate,
+       seluruh proses dibatalkan.
     ============================================= */
 
-    if(
+    for(
 
-        isDuplicate(
+        const normalizedData of
 
-            result,
-
-            data,
-
-            section.uniqueFields
-
-        )
+            validResults
 
     ){
 
-        alert(
+        if(
 
-            "Rule dengan pilihan yang sama sudah ada."
+            isDuplicate(
 
-        );
+                result,
 
-        return;
+                normalizedData,
+
+                section.uniqueFields
+
+            )
+
+        ){
+
+            alert(
+
+                "Rule dengan pilihan yang sama sudah ada."
+
+            );
+
+            return;
+
+        }
 
     }
 
 
     /* =============================================
-       CREATE ITEM
+       CREATE ALL RESULTS
+    ============================================= */
+
+    validResults.forEach(
+
+        normalizedData => {
+
+            createResultItem(
+
+                section,
+
+                sectionElement,
+
+                result,
+
+                normalizedData
+
+            );
+
+        }
+
+    );
+
+
+    /* =============================================
+       RESET FORM
+    ============================================= */
+
+    resetForm(
+
+        section,
+
+        form
+
+    );
+
+
+    /* =============================================
+       AUTO CLOSE
+    ============================================= */
+
+    if(
+
+        section.autoCloseForm !== false
+
+    ){
+
+        closeCustomPicker();
+
+
+        form.classList.add(
+
+            "hidden"
+
+        );
+
+
+        form.innerHTML = "";
+
+    }
+
+}
+
+
+
+/* =====================================================
+   CREATE RESULT ITEM
+===================================================== */
+
+function createResultItem(
+
+    section,
+
+    sectionElement,
+
+    result,
+
+    data
+
+){
+
+    /* =============================================
+       ITEM
     ============================================= */
 
     const item =
@@ -3904,8 +4446,113 @@ function addResult(
         "global-setting-result-content";
 
 
+    renderResultBody(
+
+        section,
+
+        data,
+
+        body
+
+    );
+
+
     /* =============================================
-       RENDER FIELDS
+       DELETE
+    ============================================= */
+
+    const deleteButton =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    deleteButton.type =
+
+        "button";
+
+
+    deleteButton.className =
+
+        "global-setting-result-delete";
+
+
+    deleteButton.textContent =
+
+        section.deleteLabel ??
+
+        "Hapus";
+
+
+    deleteButton.addEventListener(
+
+        "click",
+
+        () => {
+
+            item.remove();
+
+        }
+
+    );
+
+
+    item.appendChild(
+
+        body
+
+    );
+
+
+    item.appendChild(
+
+        deleteButton
+
+    );
+
+
+    result.appendChild(
+
+        item
+
+    );
+
+}
+
+
+
+/* =====================================================
+   RENDER RESULT BODY
+===================================================== */
+
+function renderResultBody(
+
+    section,
+
+    data,
+
+    body
+
+){
+
+    let rendered =
+
+        false;
+
+
+    /* =============================================
+       NORMAL FIELD MAPPING
+       
+       Digunakan module lama.
+       
+       Contoh:
+       
+       data = {
+           activity : "gaji"
+       }
     ============================================= */
 
     if(
@@ -3921,6 +4568,23 @@ function addResult(
         section.fields.forEach(
 
             field => {
+
+                if(
+
+                    !Object.prototype.hasOwnProperty.call(
+
+                        data,
+
+                        field.name
+
+                    )
+
+                ){
+
+                    return;
+
+                }
+
 
                 /* =================================
                    CONDITIONAL HIDDEN
@@ -4029,6 +4693,157 @@ function addResult(
 
                 );
 
+
+                rendered =
+
+                    true;
+
+            }
+
+        );
+
+    }
+
+
+    /* =============================================
+       NORMALIZED OBJECT FALLBACK
+       
+       Penting untuk Saving:
+       
+       normalize()
+       ↓
+       {
+           nama : "Mandiri"
+       }
+       
+       Karena "nama" bukan field checkbox,
+       controller tetap harus bisa merendernya.
+    ============================================= */
+
+    if(
+
+        !rendered &&
+
+        data &&
+
+        typeof data ===
+
+            "object"
+
+    ){
+
+        Object.entries(
+
+            data
+
+        ).forEach(
+
+            ([key, value]) => {
+
+                /* =================================
+                   INTERNAL DATA
+                ================================= */
+
+                if(
+
+                    key.startsWith(
+
+                        "__"
+
+                    )
+
+                ){
+
+                    return;
+
+                }
+
+
+                const row =
+
+                    document.createElement(
+
+                        "div"
+
+                    );
+
+
+                row.className =
+
+                    "global-setting-result-row";
+
+
+                const label =
+
+                    document.createElement(
+
+                        "span"
+
+                    );
+
+
+                label.className =
+
+                    "global-setting-result-label";
+
+
+                label.textContent =
+
+                    formatResultKey(
+
+                        key
+
+                    );
+
+
+                const resultValue =
+
+                    document.createElement(
+
+                        "strong"
+
+                    );
+
+
+                resultValue.className =
+
+                    "global-setting-result-value";
+
+
+                resultValue.textContent =
+
+                    formatGenericResultValue(
+
+                        value
+
+                    );
+
+
+                row.appendChild(
+
+                    label
+
+                );
+
+
+                row.appendChild(
+
+                    resultValue
+
+                );
+
+
+                body.appendChild(
+
+                    row
+
+                );
+
+
+                rendered =
+
+                    true;
+
             }
 
         );
@@ -4038,13 +4853,11 @@ function addResult(
 
     /* =============================================
        FALLBACK
-       
-       Agar result tidak pernah benar-benar kosong.
     ============================================= */
 
     if(
 
-        body.children.length === 0
+        !rendered
 
     ){
 
@@ -4072,108 +4885,6 @@ function addResult(
             emptyRow
 
         );
-
-    }
-
-
-    item.appendChild(
-
-        body
-
-    );
-
-
-    /* =============================================
-       DELETE
-    ============================================= */
-
-    const deleteButton =
-
-        document.createElement(
-
-            "button"
-
-        );
-
-
-    deleteButton.type =
-
-        "button";
-
-
-    deleteButton.className =
-
-        "global-setting-result-delete";
-
-
-    deleteButton.textContent =
-
-        section.deleteLabel ??
-
-        "Hapus";
-
-
-    deleteButton.addEventListener(
-
-        "click",
-
-        () => {
-
-            item.remove();
-
-        }
-
-    );
-
-
-    item.appendChild(
-
-        deleteButton
-
-    );
-
-
-    result.appendChild(
-
-        item
-
-    );
-
-
-    /* =============================================
-       RESET FORM
-    ============================================= */
-
-    resetForm(
-
-        section,
-
-        form
-
-    );
-
-
-    /* =============================================
-       AUTO CLOSE
-    ============================================= */
-
-    if(
-
-        section.autoCloseForm !== false
-
-    ){
-
-        closeCustomPicker();
-
-
-        form.classList.add(
-
-            "hidden"
-
-        );
-
-
-        form.innerHTML = "";
 
     }
 
@@ -4551,6 +5262,10 @@ function isDuplicate(
                     );
 
 
+                /* =========================================
+                   CUSTOM UNIQUE FIELDS
+                ========================================= */
+
                 if(
 
                     Array.isArray(
@@ -4591,6 +5306,10 @@ function isDuplicate(
 
                 }
 
+
+                /* =========================================
+                   DEFAULT
+                ========================================= */
 
                 return (
 
@@ -5129,6 +5848,184 @@ function formatResultValue(
 
 
 /* =====================================================
+   FORMAT GENERIC RESULT VALUE
+===================================================== */
+
+function formatGenericResultValue(
+
+    value
+
+){
+
+    if(
+
+        value === undefined ||
+
+        value === null ||
+
+        value === ""
+
+    ){
+
+        return "-";
+
+    }
+
+
+    if(
+
+        typeof value ===
+
+        "boolean"
+
+    ){
+
+        return value
+
+            ?
+
+            "Ya"
+
+            :
+
+            "Tidak";
+
+    }
+
+
+    if(
+
+        Array.isArray(
+
+            value
+
+        )
+
+    ){
+
+        return value.join(
+
+            ", "
+
+        );
+
+    }
+
+
+    if(
+
+        typeof value ===
+
+        "object"
+
+    ){
+
+        return JSON.stringify(
+
+            value
+
+        );
+
+    }
+
+
+    return String(
+
+        value
+
+    );
+
+}
+
+
+
+/* =====================================================
+   FORMAT RESULT KEY
+===================================================== */
+
+function formatResultKey(
+
+    key
+
+){
+
+    const labels = {
+
+        nama :
+
+            "Nama",
+
+        activity :
+
+            "Aktivitas",
+
+        type :
+
+            "Tipe",
+
+        rules :
+
+            "Rule",
+
+        waktu :
+
+            "Waktu",
+
+        kondisi :
+
+            "Kondisi",
+
+        nominal :
+
+            "Nominal",
+
+        nama_bank :
+
+            "Nama Bank"
+
+    };
+
+
+    if(
+
+        labels[key]
+
+    ){
+
+        return labels[key];
+
+    }
+
+
+    return String(
+
+        key
+
+    )
+
+        .replace(
+
+            /_/g,
+
+            " "
+
+        )
+
+        .replace(
+
+            /\b\w/g,
+
+            char =>
+
+                char.toUpperCase()
+
+        );
+
+}
+
+
+
+/* =====================================================
    COLLECT ALL RESULTS
 ===================================================== */
 
@@ -5261,6 +6158,30 @@ function collectAllResults(){
 
 
     return output;
+
+}
+
+
+
+/* =====================================================
+   NORMALIZE COMPARE VALUE
+===================================================== */
+
+function normalizeCompareValue(
+
+    value
+
+){
+
+    return String(
+
+        value ?? ""
+
+    )
+
+        .trim()
+
+        .toLowerCase();
 
 }
 
