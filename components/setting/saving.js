@@ -138,12 +138,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "Mandiri",
+                        "Mandiri"
 
-                    logo :
-
-                        "./assets/images/bank/mandiri.png"
-
+                    
                 },
 
 
@@ -167,12 +164,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "BRI",
+                        "BRI"
 
-                    logo :
-
-                        "./assets/images/bank/bri.png"
-
+                    
                 },
 
 
@@ -196,12 +190,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "BNI",
+                        "BNI"
 
-                    logo :
-
-                        "./assets/images/bank/bni.png"
-
+                    
                 },
 
 
@@ -225,12 +216,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "BCA",
+                        "BCA"
 
-                    logo :
-
-                        "./assets/images/bank/bca.png"
-
+                    
                 },
 
 
@@ -254,12 +242,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "SeaBank",
+                        "SeaBank"
 
-                    logo :
-
-                        "./assets/images/bank/seabank.png"
-
+                    
                 },
 
 
@@ -283,12 +268,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "DANA",
+                        "DANA"
 
-                    logo :
-
-                        "./assets/images/bank/dana.png"
-
+                    
                 },
 
 
@@ -312,12 +294,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "OVO",
+                        "OVO"
 
-                    logo :
-
-                        "./assets/images/bank/ovo.png"
-
+                    
                 },
 
 
@@ -341,12 +320,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "GoPay",
+                        "GoPay"
 
-                    logo :
-
-                        "./assets/images/bank/gopay.png"
-
+                    
                 },
 
 
@@ -370,12 +346,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "ShopeePay",
+                        "ShopeePay"
 
-                    logo :
-
-                        "./assets/images/bank/shopeepay.png"
-
+                    
                 },
 
 
@@ -399,12 +372,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "Wallet Crypto",
+                        "Wallet Crypto"
 
-                    logo :
-
-                        "./assets/images/bank/wallet-crypto.png"
-
+                    
                 },
 
 
@@ -428,12 +398,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "Celengan",
+                        "Celengan"
 
-                    logo :
-
-                        "./assets/images/bank/celengan.png"
-
+                    
                 },
 
 
@@ -457,12 +424,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "Koperasi",
+                        "Koperasi"
 
-                    logo :
-
-                        "./assets/images/bank/koperasi.png"
-
+                    
                 },
 
 
@@ -486,12 +450,9 @@ export const SavingSetting = {
 
                     resultName :
 
-                        "Dana Darurat",
+                        "Dana Darurat"
 
-                    logo :
-
-                        "./assets/images/bank/dana-darurat.png"
-
+                    
                 }
 
             ],
