@@ -2,31 +2,26 @@
      Finance Assistant
      Component    : Global Loading
      File         : index.html
-     Version      : 1.0.0
+     Version      : 2.0.0
 
      Description :
-     Full Screen Loading Component
-
-     Responsibility :
-     - Menutupi seluruh layar
-     - Menampilkan Hero Dashboard
-     - Digunakan selama proses berjalan
+     Simple Full Screen Loading
 ===================================================== -->
-
 
 <div
     id="global-loading"
-    class="global-loading"
-    aria-hidden="true"
->
+    class="global-loading is-hidden"
+    aria-hidden="true">
 
     <div class="global-loading-content">
 
-        <img
-            class="global-loading-logo"
-            src="../../assets/images/hero/hero-dashboard.png"
-            alt="Finance Assistant"
-        >
+        <div class="global-loading-icon">
+            ✅
+        </div>
+
+        <div class="global-loading-text">
+            Tunggu sebentar
+        </div>
 
     </div>
 
