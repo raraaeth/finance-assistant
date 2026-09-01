@@ -2,18 +2,18 @@
    Finance Assistant
    Component    : Global Loading
    File         : script.js
-   Version      : 2.0.0
+   Version      : 2.1.0
 
    Description :
    Global Full Screen Loading Controller
 
    Responsibility :
+   - Load CSS loading
    - Load HTML loading
    - Show loading
    - Hide loading
    - Prevent duplicate loading element
    - Lock body scroll
-   - Generic untuk seluruh aplikasi
 
    UI :
    - Icon ✅
@@ -32,6 +32,8 @@
 let initialized = false;
 
 let loadingElement = null;
+
+let styleLoaded = false;
 
 
 /* =====================================================
@@ -62,6 +64,15 @@ export const Loading = {
             return loadingElement;
 
         }
+
+
+        /* =============================================
+           LOAD CSS
+           
+           CSS harus dipastikan masuk terlebih dahulu.
+        ============================================= */
+
+        await loadCSS();
 
 
         /* =============================================
@@ -369,3 +380,143 @@ export const Loading = {
     }
 
 };
+
+
+
+/* =====================================================
+   LOAD CSS
+===================================================== */
+
+async function loadCSS(){
+
+    /* =============================================
+       SUDAH DIMUAT
+    ============================================= */
+
+    if(
+
+        styleLoaded
+
+    ){
+
+        return true;
+
+    }
+
+
+    /* =============================================
+       CEK LINK EXISTING
+    ============================================= */
+
+    const existing =
+
+        document.querySelector(
+
+            'link[data-global-loading-style="true"]'
+
+        );
+
+
+    if(
+
+        existing
+
+    ){
+
+        styleLoaded =
+
+            true;
+
+
+        return true;
+
+    }
+
+
+    /* =============================================
+       CREATE STYLESHEET
+    ============================================= */
+
+    return new Promise(
+
+        resolve => {
+
+            const link =
+
+                document.createElement(
+
+                    "link"
+
+                );
+
+
+            link.rel =
+
+                "stylesheet";
+
+
+            link.href =
+
+                new URL(
+
+                    "./style.css",
+
+                    import.meta.url
+
+                ).href;
+
+
+            link.dataset.globalLoadingStyle =
+
+                "true";
+
+
+            link.onload =
+
+                () => {
+
+                    styleLoaded =
+
+                        true;
+
+                    resolve(
+
+                        true
+
+                    );
+
+                };
+
+
+            link.onerror =
+
+                error => {
+
+                    console.error(
+
+                        "Global Loading CSS Error:",
+
+                        error
+
+                    );
+
+                    resolve(
+
+                        false
+
+                    );
+
+                };
+
+
+            document.head.appendChild(
+
+                link
+
+            );
+
+        }
+
+    );
+
+}
