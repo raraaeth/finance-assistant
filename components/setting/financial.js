@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Financial
    File         : financial.js
-   Version      : 4.0.0
+   Version      : 4.1.0
 
    Description :
    Financial Setting
@@ -35,12 +35,14 @@
        activity : "..."
    }
 
-   Catatan :
-   - Activity menggunakan checkbox
-   - Checkbox yang disabled tidak dapat dipilih
-   - Result checkbox ditampilkan Ya / Tidak
-   - Field checkbox UI tidak ikut masuk sebagai
-     field mentah ke payload normalize
+   IMPORTANT :
+   - financial_rules hanya digunakan sebagai
+     configuration/state frontend.
+   - financial_rules TIDAK menjadi payload
+     result ke backend.
+   - Activity tetap divalidasi ulang saat
+     normalize agar disabled frontend
+     bukan satu-satunya pengaman.
 ===================================================== */
 
 
@@ -344,34 +346,106 @@ function normalizeActivity(
 
     rules,
 
-    type
+    direction
 
 ){
+
+    /* =============================================
+       BACA RULE TERKINI
+    ============================================= */
+
+    const ruleState =
+
+        getFinancialRuleState();
+
 
     const activity = [];
 
 
     /* =============================================
-       AMBIL CHECKBOX AKTIF
+       FILTER ACTIVITY
+       
+       Jangan hanya mengandalkan disabled
+       pada frontend.
+
+       normalize() tetap melakukan validasi.
     ============================================= */
 
     fields.forEach(
 
         field => {
 
+            /* =====================================
+               CHECKBOX TIDAK AKTIF
+            ===================================== */
+
             if(
 
-                data[field.name] === true
+                data[field.name] !== true
 
             ){
 
-                activity.push(
-
-                    field.name
-
-                );
+                return;
 
             }
+
+
+            const activityRule =
+
+                field.activityRule ?? "";
+
+
+            /* =====================================
+               HUTANG
+            ===================================== */
+
+            if(
+
+                activityRule ===
+
+                "hutang"
+
+                &&
+
+                ruleState.gunakanRuleHutang !== true
+
+            ){
+
+                return;
+
+            }
+
+
+            /* =====================================
+               TABUNGAN
+            ===================================== */
+
+            if(
+
+                activityRule ===
+
+                "tabungan"
+
+                &&
+
+                ruleState.gunakanRuleTabungan !== true
+
+            ){
+
+                return;
+
+            }
+
+
+            /* =====================================
+               ACTIVITY VALID
+            ===================================== */
+
+            activity.push(
+
+                field.name
+
+            );
 
         }
 
@@ -379,10 +453,116 @@ function normalizeActivity(
 
 
     /* =============================================
-       HASIL FINAL
-       
-       Hanya tiga field ini menjadi payload
-       activity sebenarnya.
+       TYPE
+    ============================================= */
+
+    const types = [];
+
+
+    /* =============================================
+       PEMASUKAN
+    ============================================= */
+
+    if(
+
+        direction ===
+
+        "pemasukan"
+
+    ){
+
+        types.push(
+
+            "masuk"
+
+        );
+
+
+        if(
+
+            ruleState.gunakanRuleHutang === true
+
+        ){
+
+            types.push(
+
+                "hutang"
+
+            );
+
+        }
+
+
+        if(
+
+            ruleState.gunakanRuleTabungan === true
+
+        ){
+
+            types.push(
+
+                "tarik"
+
+            );
+
+        }
+
+    }
+
+
+    /* =============================================
+       PENGELUARAN
+    ============================================= */
+
+    if(
+
+        direction ===
+
+        "pengeluaran"
+
+    ){
+
+        types.push(
+
+            "keluar"
+
+        );
+
+
+        if(
+
+            ruleState.gunakanRuleHutang === true
+
+        ){
+
+            types.push(
+
+                "bayar"
+
+            );
+
+        }
+
+
+        if(
+
+            ruleState.gunakanRuleTabungan === true
+
+        ){
+
+            types.push(
+
+                "nabung"
+
+            );
+
+        }
+
+    }
+
+
+    /* =============================================
+       RESULT
     ============================================= */
 
     const result = {
@@ -393,7 +573,7 @@ function normalizeActivity(
 
         type :
 
-            type,
+            types.join(","),
 
         activity :
 
@@ -403,10 +583,10 @@ function normalizeActivity(
 
 
     /* =============================================
-       DATA DISPLAY
+       DISPLAY STATE
        
-       Dipakai Controller untuk menampilkan
-       hasil checkbox sebagai Ya / Tidak.
+       Hanya untuk tampilan result UI.
+       Tidak digunakan sebagai payload backend.
     ============================================= */
 
     result.__display = {};
@@ -418,9 +598,9 @@ function normalizeActivity(
 
             result.__display[field.name] =
 
-                Boolean(
+                activity.includes(
 
-                    data[field.name]
+                    field.name
 
                 );
 
@@ -438,6 +618,26 @@ function normalizeActivity(
    NORMALIZE RULE
 ===================================================== */
 
+/*
+ * IMPORTANT
+ *
+ * Jangan lagi menghasilkan:
+ *
+ * {
+ *     type: "financial"
+ * }
+ *
+ * Configuration ini hanya digunakan oleh
+ * frontend untuk menentukan activity.
+ *
+ * Result financial_rules tetap boleh muncul
+ * di UI Setting agar state dapat dibaca oleh
+ * getFinancialRuleState().
+ *
+ * Tetapi nanti akan ditandai persist:false
+ * sehingga tidak dikirim ke backend.
+ */
+
 function normalizeRule(
 
     data
@@ -445,10 +645,6 @@ function normalizeRule(
 ){
 
     return {
-
-        type :
-
-            "financial",
 
         gunakanRulePemasukan :
 
@@ -560,7 +756,7 @@ function getFinancialRuleState(){
 
                     data.gunakanRulePemasukan
 
-                ),
+            ),
 
             gunakanRulePengeluaran :
 
@@ -675,10 +871,6 @@ function applyActivityRuleControl(
 
     /* =============================================
        HUTANG
-       
-       Berlaku untuk:
-       - Pemasukan
-       - Pengeluaran
     ============================================= */
 
     const hutangFields =
@@ -747,10 +939,6 @@ function applyActivityRuleControl(
 
     /* =============================================
        TABUNGAN
-       
-       Berlaku untuk:
-       - Pemasukan
-       - Pengeluaran
     ============================================= */
 
     const tabunganFields =
@@ -842,8 +1030,6 @@ export const FinancialSetting = {
 
     /* =================================================
        SECTIONS
-       
-       HANYA 3 SECTION
     ================================================= */
 
     sections : [
@@ -851,6 +1037,10 @@ export const FinancialSetting = {
 
         /* =============================================
            1. PENENTUAN RULE
+           
+           Configuration frontend.
+           
+           TIDAK disimpan ke Financial sheet.
         ============================================= */
 
         {
@@ -888,6 +1078,19 @@ export const FinancialSetting = {
             autoCloseForm :
 
                 true,
+
+
+            /* =========================================
+               IMPORTANT
+               
+               Controller akan menggunakan property
+               persist:false untuk tidak memasukkan
+               section ini ke payload backend.
+            ========================================= */
+
+            persist :
+
+                false,
 
 
             uniqueFields : [
@@ -1088,7 +1291,7 @@ export const FinancialSetting = {
 
                         "rule_pemasukan",
 
-                        "masuk,hutang,tarik"
+                        "pemasukan"
 
                     );
 
@@ -1189,7 +1392,7 @@ export const FinancialSetting = {
 
                         "rule_pengeluaran",
 
-                        "keluar,bayar,nabung"
+                        "pengeluaran"
 
                     );
 
