@@ -6978,7 +6978,6 @@ function escapeHTML(
 }
 
 
-
 /* =====================================================
    APPLY MONTHLY AUTO RULES
 ===================================================== */
@@ -6988,6 +6987,25 @@ function applyMonthlyAutoRules(
     data
 
 ){
+
+    if(
+
+        !Array.isArray(
+
+            data
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       GET RULE ATTENDANCE SETTING
+    ============================================= */
 
     const setting =
 
@@ -7017,70 +7035,27 @@ function applyMonthlyAutoRules(
     }
 
 
-    const gunakanRuleShift =
+    const rules =
 
-        Boolean(
-
-            setting.data.gunakanRuleShift
-
-        );
+        setting.data;
 
 
-    if(
+    /* =============================================
+       HELPER
+       
+       Mengecek apakah rule dengan kombinasi
+       type_rule + nama sudah dibuat.
+    ============================================= */
 
-        !gunakanRuleShift
+    const hasRule = (
 
-    ){
+        typeRule,
 
-        return;
+        nama
 
-    }
+    ) => {
 
-
-    const ruleShift = {
-
-        type_rule :
-
-            "rule_shift",
-
-        nama :
-
-            "shift",
-
-        kondisi :
-
-            "masuk",
-
-        waktu :
-
-            "pagi,siang,malam",
-
-        nominal :
-
-            "",
-
-        nilai_start :
-
-            "",
-
-        nilai_end :
-
-            "",
-
-        berlaku_start :
-
-            "",
-
-        berlaku_end :
-
-            ""
-
-    };
-
-
-    const alreadyExists =
-
-        data.some(
+        return data.some(
 
             item =>
 
@@ -7090,32 +7065,335 @@ function applyMonthlyAutoRules(
 
                 item.data.type_rule ===
 
-                    "rule_shift"
+                    typeRule &&
+
+                item.data.nama ===
+
+                    nama
 
         );
 
+    };
+
+
+    /* =============================================
+       CREATE RULE
+       
+       Nominal, nilai_start, nilai_end,
+       berlaku_start, berlaku_end
+       sengaja kosong.
+
+       Nilai tersebut bukan bagian dari
+       pengaturan Rule Attendance.
+    ============================================= */
+
+    const createRule = (
+
+        typeRule,
+
+        nama,
+
+        kondisi,
+
+        waktu
+
+    ) => {
+
+        if(
+
+            hasRule(
+
+                typeRule,
+
+                nama
+
+            )
+
+        ){
+
+            return;
+
+        }
+
+
+        data.push({
+
+            section :
+
+                typeRule,
+
+
+            data : {
+
+                type_rule :
+
+                    typeRule,
+
+
+                nama :
+
+                    nama,
+
+
+                kondisi :
+
+                    kondisi,
+
+
+                waktu :
+
+                    waktu,
+
+
+                nominal :
+
+                    "",
+
+
+                nilai_start :
+
+                    "",
+
+
+                nilai_end :
+
+                    "",
+
+
+                berlaku_start :
+
+                    "",
+
+
+                berlaku_end :
+
+                    ""
+
+            }
+
+        });
+
+    };
+
+
+    /* =============================================
+       RULE LEMBUR
+       
+       Checkbox:
+       aktifkanRuleLembur
+
+       Result:
+       rule_lembur
+       lembur_jam
+       masuk
+       jam
+    ============================================= */
 
     if(
 
-        alreadyExists
+        rules.aktifkanRuleLembur ===
+
+        true
 
     ){
 
-        return;
+        createRule(
+
+            "rule_lembur",
+
+            "lembur_jam",
+
+            "masuk",
+
+            "jam"
+
+        );
 
     }
 
 
-    data.push({
+    /* =============================================
+       RULE IZIN
+       
+       Checkbox:
+       aktifkanRuleIzin
 
-        section :
+       Result:
+       rule_izin
+       izin_pulang
+       masuk
+       jam
+    ============================================= */
+
+    if(
+
+        rules.aktifkanRuleIzin ===
+
+        true
+
+    ){
+
+        createRule(
+
+            "rule_izin",
+
+            "izin_pulang",
+
+            "masuk",
+
+            "jam"
+
+        );
+
+    }
+
+
+    /* =============================================
+       RULE TELAT
+       
+       Checkbox:
+       gunakanRuleTelat
+
+       Result menghasilkan 2 rule:
+
+       1. rule_telat
+          telat
+          masuk
+          menit
+
+       2. rule_telat
+          izin_telat
+          masuk
+          jam
+    ============================================= */
+
+    if(
+
+        rules.gunakanRuleTelat ===
+
+        true
+
+    ){
+
+        createRule(
+
+            "rule_telat",
+
+            "telat",
+
+            "masuk",
+
+            "menit"
+
+        );
+
+
+        createRule(
+
+            "rule_telat",
+
+            "izin_telat",
+
+            "masuk",
+
+            "jam"
+
+        );
+
+    }
+
+
+    /* =============================================
+       RULE SHIFT
+       
+       Checkbox:
+       gunakanRuleShift
+
+       Result:
+       rule_shift
+       shift
+       masuk
+       pagi,siang,malam
+    ============================================= */
+
+    if(
+
+        rules.gunakanRuleShift ===
+
+        true
+
+    ){
+
+        createRule(
 
             "rule_shift",
 
-        data :
+            "shift",
 
-            ruleShift
+            "masuk",
 
-    });
+            "pagi,siang,malam"
+
+        );
+
+    }
+
+
+    /* =============================================
+       DEBUG
+    ============================================= */
+
+    console.log(
+
+        "PAYROLL MONTHLY AUTO RULE",
+
+        {
+
+            setting :
+
+                rules,
+
+            generated :
+
+                data.filter(
+
+                    item =>
+
+                        item &&
+
+                        item.data &&
+
+                        (
+
+                            item.data.type_rule ===
+
+                                "rule_lembur"
+
+                            ||
+
+                            item.data.type_rule ===
+
+                                "rule_izin"
+
+                            ||
+
+                            item.data.type_rule ===
+
+                                "rule_telat"
+
+                            ||
+
+                            item.data.type_rule ===
+
+                                "rule_shift"
+
+                        )
+
+                )
+
+        }
+
+    );
 
 }
+
