@@ -946,15 +946,15 @@ export const Monthly = {
    Month dan Year otomatis diambil dari
    tanggal transaksi.
 
-   Contoh:
+   Contoh :
 
-       date = 2026-02-02
+       date = 2026-06-05
 
-       month = 2
+       month = June
        year  = 2026
 
-   Tidak menjadi field input.
-   User tidak perlu mengisi manual.
+   Month menggunakan nama bulan English,
+   sesuai struktur Payroll Monthly.
 ================================================= */
 
 prepareTransaction :
@@ -1018,7 +1018,7 @@ prepareTransaction :
             );
 
 
-        const month =
+        const monthNumber =
 
             Number(
 
@@ -1031,7 +1031,11 @@ prepareTransaction :
 
             !year ||
 
-            !month
+            !monthNumber ||
+
+            monthNumber < 1 ||
+
+            monthNumber > 12
 
         ){
 
@@ -1040,13 +1044,44 @@ prepareTransaction :
         }
 
 
+        const monthNames = [
+
+            "January",
+
+            "February",
+
+            "March",
+
+            "April",
+
+            "May",
+
+            "June",
+
+            "July",
+
+            "August",
+
+            "September",
+
+            "October",
+
+            "November",
+
+            "December"
+
+        ];
+
+
         return {
 
             ...values,
 
             month :
 
-                month,
+                monthNames[
+                    monthNumber - 1
+                ],
 
             year :
 
@@ -1055,6 +1090,7 @@ prepareTransaction :
         };
 
     },
+            
 
     /* =================================================
        TITLE
