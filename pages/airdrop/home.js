@@ -1370,7 +1370,7 @@ function renderInput(){
                 <div
                     class="profile-menu-icon">
 
-                    ➕
+                    ✍️
 
                 </div>
 
