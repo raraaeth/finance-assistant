@@ -1075,19 +1075,17 @@ prepareTransaction :
 
         return {
 
-            ...values,
+    ...values,
 
-            month :
+    Month :
+        monthNames[
+            monthNumber - 1
+        ],
 
-                monthNames[
-                    monthNumber - 1
-                ],
+    Year :
+        year
 
-            year :
-
-                year
-
-        };
+};
 
     },
             
