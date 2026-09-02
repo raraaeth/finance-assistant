@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.2.0
+   Version      : 4.3.0
 
    Description :
    Airdrop Input Configuration
@@ -13,6 +13,8 @@
    - Reward
 
    Activity :
+
+   Normal Campaign :
    - Tanggal otomatis dari Global Input
    - Type
    - Nama / Wallet
@@ -20,6 +22,16 @@
    - Start
    - End
    - Status otomatis ongoing
+
+   Bansos :
+   - Tanggal otomatis dari Global Input
+   - Type = bansos
+   - Nama / Wallet
+   - Project
+   - $ Reward
+   - Start tidak digunakan
+   - End tidak digunakan
+   - Status otomatis win
 
    Reward :
    - Project ongoing / ended
@@ -53,6 +65,9 @@
    - Data source ditentukan oleh Global Workspace.
    - Tanggal activity tidak dibuat sebagai field.
    - Tanggal activity otomatis menggunakan State.date.
+   - Bansos tidak mempunyai Start / End.
+   - Bansos otomatis berstatus win.
+   - Reward bansos disimpan pada $reward.
 ===================================================== */
 
 
@@ -113,6 +128,16 @@ const STATUS_WIN =
 const STATUS_NOT_WIN =
 
     "not_win";
+
+
+const TYPE_BANSOS =
+
+    "bansos";
+
+
+const TYPE_CAMPAIGN =
+
+    "campaign";
 
 
 /* =====================================================
@@ -222,6 +247,33 @@ export const Airdrop = {
 
        Tanggal tetap disimpan otomatis oleh
        buildActivityValues().
+
+       FLOW :
+
+       Campaign :
+           Type
+             ↓
+           Nama / Wallet
+             ↓
+           Project
+             ↓
+           Start
+             ↓
+           End
+
+       Bansos :
+           Type
+             ↓
+           Nama / Wallet
+             ↓
+           Project
+             ↓
+           $ Reward
+
+       Bansos :
+           - tidak membutuhkan Start
+           - tidak membutuhkan End
+           - status otomatis win
     ================================================= */
 
     steps : [
@@ -340,9 +392,93 @@ export const Airdrop = {
 
 
         /* =============================================
+           $ REWARD
+
+           KHUSUS BANSOS.
+
+           Field baru muncul setelah :
+
+               type = bansos
+
+           DAN :
+
+               project sudah terisi.
+
+           Bansos dianggap langsung menang
+           karena reward nyata sudah diterima
+           pada tanggal input.
+
+           Tidak membutuhkan Start / End.
+        ============================================= */
+
+        {
+
+            id :
+
+                "$reward",
+
+
+            label :
+
+                "$ Reward",
+
+
+            type :
+
+                "number",
+
+
+            placeholder :
+
+                "Masukkan nominal USD",
+
+
+            required :
+
+                true,
+
+
+            min :
+
+                0,
+
+
+            step :
+
+                "any",
+
+
+            showWhen :
+
+                values =>
+
+                    isBansos(
+
+                        values?.type
+
+                    )
+
+                    &&
+
+                    String(
+
+                        values?.project ??
+
+                        ""
+
+                    ).trim() !== ""
+
+        },
+
+
+        /* =============================================
            START
 
            Hanya campaign.
+
+           Bansos tidak mempunyai waktu
+           pengerjaan sehingga field ini
+           tidak ditampilkan.
         ============================================= */
 
         {
@@ -379,7 +515,7 @@ export const Airdrop = {
 
                     ===
 
-                    "campaign"
+                    TYPE_CAMPAIGN
 
         },
 
@@ -388,6 +524,10 @@ export const Airdrop = {
            END
 
            Hanya campaign.
+
+           Bansos tidak mempunyai waktu
+           pengerjaan sehingga field ini
+           tidak ditampilkan.
         ============================================= */
 
         {
@@ -424,7 +564,7 @@ export const Airdrop = {
 
                     ===
 
-                    "campaign"
+                    TYPE_CAMPAIGN
 
         }
 
@@ -1118,6 +1258,45 @@ function normalizeValue(
 
 
 /* =====================================================
+   IS BANSOS
+===================================================== */
+
+/*
+   Bansos adalah tipe khusus yang :
+
+       - tidak memiliki Start
+       - tidak memiliki End
+       - langsung Win
+       - membutuhkan $ Reward
+
+   Semua perbandingan type tetap
+   menggunakan normalized value.
+*/
+
+function isBansos(
+
+    value
+
+){
+
+    return (
+
+        normalizeValue(
+
+            value
+
+        )
+
+        ===
+
+        TYPE_BANSOS
+
+    );
+
+}
+
+
+/* =====================================================
    GET ACTIVITY STEPS
 ===================================================== */
 
@@ -1174,6 +1353,10 @@ export function getAirdropData(){
        not_win
 
    tidak ditampilkan lagi.
+
+   Bansos yang sudah otomatis Win
+   juga tidak akan muncul pada
+   Reward Picker.
 */
 
 export function getRewardRecords(){
@@ -1700,9 +1883,27 @@ export function applyReward(
    Dengan demikian user tidak perlu
    memilih tanggal dua kali.
 
-   Field "tanggal" tetap disimpan di values
-   untuk menjaga kompatibilitas dengan
-   struktur data Airdrop lama.
+
+   NORMAL CAMPAIGN :
+
+       type      = campaign
+       start     = input user
+       end       = input user
+       status    = ongoing
+
+
+   BANSOS :
+
+       type      = bansos
+       start     = ""
+       end       = ""
+       status    = win
+       $reward   = nominal USD
+
+
+   Bansos dianggap langsung Win karena
+   reward nyata sudah diterima pada hari
+   transaksi dibuat.
 */
 
 export function buildActivityValues(
@@ -1728,6 +1929,52 @@ export function buildActivityValues(
     }
 
 
+    const type =
+
+        String(
+
+            values.type ??
+
+            ""
+
+        ).trim();
+
+
+    const nama =
+
+        String(
+
+            values.nama ??
+
+            ""
+
+        ).trim();
+
+
+    const project =
+
+        String(
+
+            values.project ??
+
+            ""
+
+        ).trim();
+
+
+    const isBansosType =
+
+        isBansos(
+
+            type
+
+        );
+
+
+    /* =============================================
+       BASE RESULT
+    ============================================= */
+
     const result = {
 
         tanggal :
@@ -1743,35 +1990,20 @@ export function buildActivityValues(
 
         type :
 
-            String(
 
-                values.type ??
-
-                ""
-
-            ).trim(),
+            type,
 
 
         nama :
 
-            String(
 
-                values.nama ??
-
-                ""
-
-            ).trim(),
+            nama,
 
 
         project :
 
-            String(
 
-                values.project ??
-
-                ""
-
-            ).trim(),
+            project,
 
 
         start :
@@ -1804,7 +2036,7 @@ export function buildActivityValues(
 
 
     /* =============================================
-       VALIDATION
+       VALIDATION DASAR
     ============================================= */
 
     if(
@@ -1831,8 +2063,130 @@ export function buildActivityValues(
 
 
     /* =============================================
-       NON CAMPAIGN
+       BANSOS
+    ============================================= */
 
+    if(
+
+        isBansosType
+
+    ){
+
+        /*
+           Bansos tidak memiliki periode
+           pengerjaan.
+
+           Start dan End selalu kosong.
+        */
+
+        result.start = "";
+
+        result.end = "";
+
+
+        /*
+           Bansos langsung Win.
+
+           User tidak perlu memilih status.
+        */
+
+        result.status =
+
+            STATUS_WIN;
+
+
+        /*
+           Reward wajib ada.
+        */
+
+        const rawReward =
+
+            values[
+
+                "$reward"
+
+            ];
+
+
+        if(
+
+            rawReward ===
+
+                ""
+
+            ||
+
+            rawReward ===
+
+                null
+
+            ||
+
+            rawReward ===
+
+                undefined
+
+        ){
+
+            return null;
+
+        }
+
+
+        const numericReward =
+
+            Number(
+
+                rawReward
+
+            );
+
+
+        /*
+           Reward harus angka
+           dan tidak boleh negatif.
+        */
+
+        if(
+
+            !Number.isFinite(
+
+                numericReward
+
+            )
+
+            ||
+
+            numericReward < 0
+
+        ){
+
+            return null;
+
+        }
+
+
+        result[
+
+            "$reward"
+
+        ] =
+
+            String(
+
+                numericReward
+
+            );
+
+
+        return result;
+
+    }
+
+
+    /* =============================================
+       NON CAMPAIGN
+       
        Start / End tidak digunakan
        untuk type selain campaign.
     ============================================= */
@@ -1847,7 +2201,7 @@ export function buildActivityValues(
 
         !==
 
-        "campaign"
+        TYPE_CAMPAIGN
 
     ){
 
@@ -2088,6 +2442,220 @@ export function validateReward(
     /* =============================================
        NOT WIN
     ============================================= */
+
+    return {
+
+        valid :
+
+            true,
+
+
+        message :
+
+            ""
+
+    };
+
+}
+
+
+/* =====================================================
+   VALIDATE BANSOS
+===================================================== */
+
+/*
+   Validation khusus Activity Bansos.
+
+   Bansos harus memiliki :
+
+       type
+       nama
+       project
+       $reward
+
+   Dan otomatis :
+
+       status = win
+       start  = ""
+       end    = ""
+*/
+
+export function validateBansos(
+
+    values
+
+){
+
+    if(
+
+        !values
+
+        ||
+
+        typeof values !==
+
+            "object"
+
+    ){
+
+        return {
+
+            valid :
+
+                false,
+
+
+            message :
+
+                "Data bansos tidak valid."
+
+        };
+
+    }
+
+
+    if(
+
+        !isBansos(
+
+            values.type
+
+        )
+
+    ){
+
+        return {
+
+            valid :
+
+                false,
+
+
+            message :
+
+                "Type bukan bansos."
+
+        };
+
+    }
+
+
+    const project =
+
+        String(
+
+            values.project ??
+
+            ""
+
+        ).trim();
+
+
+    if(
+
+        !project
+
+    ){
+
+        return {
+
+            valid :
+
+                false,
+
+
+            message :
+
+                "Nama project wajib diisi."
+
+        };
+
+    }
+
+
+    const reward =
+
+        values[
+
+            "$reward"
+
+        ];
+
+
+    if(
+
+        reward ===
+
+            ""
+
+        ||
+
+        reward ===
+
+            null
+
+        ||
+
+        reward ===
+
+            undefined
+
+    ){
+
+        return {
+
+            valid :
+
+                false,
+
+
+            message :
+
+                "Nominal $ Reward wajib diisi."
+
+        };
+
+    }
+
+
+    const numericReward =
+
+        Number(
+
+            reward
+
+        );
+
+
+    if(
+
+        !Number.isFinite(
+
+            numericReward
+
+        )
+
+        ||
+
+        numericReward < 0
+
+    ){
+
+        return {
+
+            valid :
+
+                false,
+
+
+            message :
+
+                "$ Reward harus berupa angka USD."
+
+        };
+
+    }
+
 
     return {
 
