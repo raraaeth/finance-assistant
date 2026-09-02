@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Financial
    File         : financial.js
-   Version      : 4.1.0
+   Version      : 4.2.0
 
    Description :
    Financial Setting
@@ -78,6 +78,28 @@ const ACTIVITY = {
             label :
 
                 "Penghasilan Lain"
+        },
+
+
+        {
+            name :
+
+                "ceperan",
+
+            label :
+
+                "Ceperan"
+        },
+
+
+        {
+            name :
+
+                "pemberian",
+
+            label :
+
+                "Pemberian"
         },
 
 
@@ -247,6 +269,72 @@ const ACTIVITY = {
         {
             name :
 
+                "beli_rokok",
+
+            label :
+
+                "Beli Rokok"
+        },
+
+
+        {
+            name :
+
+                "beli_bensin",
+
+            label :
+
+                "Beli Bensin"
+        },
+
+
+        {
+            name :
+
+                "beli_kopi",
+
+            label :
+
+                "Beli Kopi"
+        },
+
+
+        {
+            name :
+
+                "iuran",
+
+            label :
+
+                "Iuran"
+        },
+
+
+        {
+            name :
+
+                "cicilan",
+
+            label :
+
+                "Cicilan"
+        },
+
+
+        {
+            name :
+
+                "sedekah",
+
+            label :
+
+                "Sedekah"
+        },
+
+
+        {
+            name :
+
                 "hutang_piutang",
 
             label :
@@ -364,7 +452,7 @@ function normalizeActivity(
 
     /* =============================================
        FILTER ACTIVITY
-       
+
        Jangan hanya mengandalkan disabled
        pada frontend.
 
@@ -584,7 +672,7 @@ function normalizeActivity(
 
     /* =============================================
        DISPLAY STATE
-       
+
        Hanya untuk tampilan result UI.
        Tidak digunakan sebagai payload backend.
     ============================================= */
@@ -1037,9 +1125,9 @@ export const FinancialSetting = {
 
         /* =============================================
            1. PENENTUAN RULE
-           
+
            Configuration frontend.
-           
+
            TIDAK disimpan ke Financial sheet.
         ============================================= */
 
@@ -1059,9 +1147,9 @@ export const FinancialSetting = {
 
                 "Tentukan rule Financial yang akan digunakan.",
 
-           persist :
+            persist :
 
-                 false,
+                false,
 
 
             addLabel :
@@ -1086,7 +1174,7 @@ export const FinancialSetting = {
 
             /* =========================================
                IMPORTANT
-               
+
                Controller akan menggunakan property
                persist:false untuk tidak memasukkan
                section ini ke payload backend.
