@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Daily
    File         : daily.js
-   Version      : 2.0.0
+   Version      : 2.0.1
 
    Description :
    Payroll Daily Setting Definition
@@ -156,7 +156,7 @@ function createYearOptions(){
 
     const startYear =
 
-        currentYear - 10;
+        currentYear - 2;
 
 
     const endYear =
@@ -175,7 +175,7 @@ function createYearOptions(){
 
         year <=
 
-            endYear;
+        endYear;
 
         year++
 
@@ -184,10 +184,20 @@ function createYearOptions(){
         options.push({
 
             value :
-                String(year),
+
+                String(
+
+                    year
+
+                ),
 
             label :
-                String(year)
+
+                String(
+
+                    year
+
+                )
 
         });
 
@@ -225,11 +235,27 @@ function createMonthYearOptions(){
 
                         value :
 
-                            `${year.value}-${month.value}`,
+                            `${
+
+                                year.value
+
+                            }-${
+
+                                month.value
+
+                            }`,
 
                         label :
 
-                            `${month.label} ${year.label}`
+                            `${
+
+                                month.label
+
+                            } ${
+
+                                year.label
+
+                            }`
 
                     });
 
@@ -268,30 +294,54 @@ function createISODate(
 
     const yearNumber =
 
-        Number(year);
+        Number(
+
+            year
+
+        );
 
 
     const monthNumber =
 
-        Number(month);
+        Number(
+
+            month
+
+        );
 
 
     const dayNumber =
 
-        Number(day);
+        Number(
+
+            day
+
+        );
 
 
     if(
 
-        !Number.isInteger(yearNumber)
+        !Number.isInteger(
+
+            yearNumber
+
+        )
 
         ||
 
-        !Number.isInteger(monthNumber)
+        !Number.isInteger(
+
+            monthNumber
+
+        )
 
         ||
 
-        !Number.isInteger(dayNumber)
+        !Number.isInteger(
+
+            dayNumber
+
+        )
 
     ){
 
@@ -362,11 +412,59 @@ function createISODate(
 
     return (
 
-        `${String(yearNumber).padStart(4, "0")}-` +
+        `${
 
-        `${String(monthNumber).padStart(2, "0")}-` +
+            String(
 
-        `${String(dayNumber).padStart(2, "0")}`
+                yearNumber
+
+            )
+
+            .padStart(
+
+                4,
+
+                "0"
+
+            )
+
+        }-` +
+
+        `${
+
+            String(
+
+                monthNumber
+
+            )
+
+            .padStart(
+
+                2,
+
+                "0"
+
+            )
+
+        }-` +
+
+        `${
+
+            String(
+
+                dayNumber
+
+            )
+
+            .padStart(
+
+                2,
+
+                "0"
+
+            )
+
+        }`
 
     );
 
@@ -478,12 +576,20 @@ function getNextMonth(
 
     let nextYear =
 
-        Number(year);
+        Number(
+
+            year
+
+        );
 
 
     let nextMonth =
 
-        Number(month) + 1;
+        Number(
+
+            month
+
+        ) + 1;
 
 
     if(
@@ -545,12 +651,20 @@ function getDayNumber(
 
     const number =
 
-        Number(value);
+        Number(
+
+            value
+
+        );
 
 
     if(
 
-        !Number.isInteger(number)
+        !Number.isInteger(
+
+            number
+
+        )
 
     ){
 
@@ -596,14 +710,22 @@ function getDayNumber(
    User cukup menentukan masa aktif satu kali
    pada Rule Gaji.
 
+   Daily menggunakan field :
+
+       periode_start
+       periode_end
+
    Contoh :
 
        Rule Gaji
-       berlaku_start = 2026-01-28
-       berlaku_end   = 2027-02-27
+
+       periode_start = 2026-01-28
+       periode_end   = 2027-02-27
 
    Maka seluruh rule berikutnya otomatis
    menggunakan periode tersebut.
+
+   Rule lama tetap menjadi history.
 */
 
 let DAILY_PERIOD_CONTEXT = null;
@@ -612,6 +734,22 @@ let DAILY_PERIOD_CONTEXT = null;
 /* =====================================================
    SET ACTIVE PERIOD CONTEXT
 ===================================================== */
+
+/*
+   Menyimpan periode dari Rule Gaji terakhir.
+
+   PENTING :
+
+   Daily menggunakan :
+
+       periode_start
+       periode_end
+
+   Bukan :
+
+       berlaku_start
+       berlaku_end
+*/
 
 function setDailyPeriodContext(
 
@@ -645,11 +783,11 @@ function setDailyPeriodContext(
 
     if(
 
-        !rule.berlaku_start
+        !rule.periode_start
 
         ||
 
-        !rule.berlaku_end
+        !rule.periode_end
 
     ){
 
@@ -660,14 +798,14 @@ function setDailyPeriodContext(
 
     DAILY_PERIOD_CONTEXT = {
 
-        berlaku_start :
+        periode_start :
 
-            rule.berlaku_start,
+            rule.periode_start,
 
 
-        berlaku_end :
+        periode_end :
 
-            rule.berlaku_end
+            rule.periode_end
 
     };
 
@@ -686,6 +824,10 @@ function setDailyPeriodContext(
 
    Rule baru akan menggunakan Rule Gaji
    terakhir sebagai active period context.
+
+   Cari dari bawah karena Rule Gaji
+   paling bawah dianggap sebagai periode
+   terbaru.
 */
 
 function getLatestDailyPeriodContext(){
@@ -727,12 +869,9 @@ function getLatestDailyPeriodContext(){
             ];
 
 
-            /*
-               Cari dari bawah.
-
-               Rule Gaji paling bawah dianggap
-               sebagai periode terbaru.
-            */
+            /* =========================================
+               SEARCH LATEST RULE GAJI
+            ========================================= */
 
             for(
 
@@ -773,6 +912,10 @@ function getLatestDailyPeriodContext(){
                         );
 
 
+                    /* =================================
+                       VALID RULE GAJI
+                    ================================= */
+
                     if(
 
                         data
@@ -785,24 +928,24 @@ function getLatestDailyPeriodContext(){
 
                         &&
 
-                        data.berlaku_start
+                        data.periode_start
 
                         &&
 
-                        data.berlaku_end
+                        data.periode_end
 
                     ){
 
                         return {
 
-                            berlaku_start :
+                            periode_start :
 
-                                data.berlaku_start,
+                                data.periode_start,
 
 
-                            berlaku_end :
+                            periode_end :
 
-                                data.berlaku_end
+                                data.periode_end
 
                         };
 
@@ -829,9 +972,12 @@ function getLatestDailyPeriodContext(){
     }
 
 
-    /*
-       Fallback jika result belum masuk DOM.
-    */
+    /* =============================================
+       FALLBACK
+
+       Jika result belum masuk DOM,
+       gunakan context terakhir.
+    ============================================= */
 
     return DAILY_PERIOD_CONTEXT;
 
@@ -853,6 +999,13 @@ function getDailyActivePeriodContext(){
    REQUIRE ACTIVE PERIOD
 ===================================================== */
 
+/*
+   Semua rule selain Rule Gaji wajib memiliki
+   active period.
+
+   Rule Gaji menjadi sumber periode.
+*/
+
 function requireDailyActivePeriod(
 
     ruleName
@@ -870,17 +1023,21 @@ function requireDailyActivePeriod(
 
         ||
 
-        !periodContext.berlaku_start
+        !periodContext.periode_start
 
         ||
 
-        !periodContext.berlaku_end
+        !periodContext.periode_end
 
     ){
 
         alert(
 
-            `Tambahkan Periode Gaji terlebih dahulu sebelum menambahkan ${ruleName}.`
+            `Tambahkan Periode Gaji terlebih dahulu sebelum menambahkan ${
+
+                ruleName
+
+            }.`
 
         );
 
@@ -941,7 +1098,7 @@ export const DailySetting = {
 
             description :
 
-                "Tentukan periode perhitungan dan masa aktif payroll daily.",
+                "Tentukan periode perhitungan gaji dan masa aktif payroll daily.",
 
 
             /* =============================================
@@ -1360,11 +1517,9 @@ export const DailySetting = {
                     /* =====================================
                        PERIOD END
 
-                       Sama seperti Payroll Monthly.
-
                        Bulan akhir periode perhitungan
-                       otomatis satu bulan setelah bulan
-                       mulai.
+                       otomatis satu bulan setelah
+                       bulan mulai.
 
                        Contoh :
 
@@ -1419,7 +1574,7 @@ export const DailySetting = {
                        ACTIVE PERIOD START
                     ===================================== */
 
-                    const berlakuStart =
+                    const periodeStart =
 
                         createISODate(
 
@@ -1434,7 +1589,7 @@ export const DailySetting = {
 
                     if(
 
-                        !berlakuStart
+                        !periodeStart
 
                     ){
 
@@ -1454,7 +1609,7 @@ export const DailySetting = {
                        ACTIVE PERIOD END
                     ===================================== */
 
-                    const berlakuEnd =
+                    const periodeEnd =
 
                         createISODate(
 
@@ -1469,7 +1624,7 @@ export const DailySetting = {
 
                     if(
 
-                        !berlakuEnd
+                        !periodeEnd
 
                     ){
 
@@ -1493,7 +1648,7 @@ export const DailySetting = {
 
                         new Date(
 
-                            berlakuStart
+                            periodeStart
 
                         )
 
@@ -1501,7 +1656,7 @@ export const DailySetting = {
 
                         new Date(
 
-                            berlakuEnd
+                            periodeEnd
 
                         )
 
@@ -1570,14 +1725,19 @@ export const DailySetting = {
                             nilaiEnd,
 
 
-                        berlaku_start :
+                        periode_start :
 
-                            berlakuStart,
+                            periodeStart,
 
 
-                        berlaku_end :
+                        periode_end :
 
-                            berlakuEnd
+                            periodeEnd,
+
+
+                        years :
+
+                            ""
 
                     };
 
@@ -1917,14 +2077,19 @@ export const DailySetting = {
                             "",
 
 
-                        berlaku_start :
+                        periode_start :
 
-                            periodContext.berlaku_start,
+                            periodContext.periode_start,
 
 
-                        berlaku_end :
+                        periode_end :
 
-                            periodContext.berlaku_end
+                            periodContext.periode_end,
+
+
+                        years :
+
+                            ""
 
                     };
 
@@ -2584,14 +2749,19 @@ export const DailySetting = {
                             "",
 
 
-                        berlaku_start :
+                        periode_start :
 
-                            periodContext.berlaku_start,
+                            periodContext.periode_start,
 
 
-                        berlaku_end :
+                        periode_end :
 
-                            periodContext.berlaku_end
+                            periodContext.periode_end,
+
+
+                        years :
+
+                            ""
 
                     };
 
@@ -2929,14 +3099,19 @@ export const DailySetting = {
                             "",
 
 
-                        berlaku_start :
+                        periode_start :
 
-                            periodContext.berlaku_start,
+                            periodContext.periode_start,
 
 
-                        berlaku_end :
+                        periode_end :
 
-                            periodContext.berlaku_end
+                            periodContext.periode_end,
+
+
+                        years :
+
+                            ""
 
                     };
 
