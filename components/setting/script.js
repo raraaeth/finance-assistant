@@ -7041,6 +7041,67 @@ function applyMonthlyAutoRules(
 
 
     /* =============================================
+       GET ACTIVE PERIOD
+       
+       Semua Rule Attendance wajib mengikuti
+       masa berlaku dari rule_periode.
+    ============================================= */
+
+    const periodeItem =
+
+        data.find(
+
+            item =>
+
+                item &&
+
+                item.data &&
+
+                item.data.type_rule ===
+
+                    "rule_periode" &&
+
+                item.data.nama ===
+
+                    "periode_gaji"
+
+        );
+
+
+    const berlakuStart =
+
+        periodeItem?.data?.berlaku_start ??
+
+        "";
+
+
+    const berlakuEnd =
+
+        periodeItem?.data?.berlaku_end ??
+
+        "";
+
+
+    console.log(
+
+        "PAYROLL MONTHLY AUTO RULE: PERIODE AKTIF",
+
+        {
+
+            berlaku_start :
+
+                berlakuStart,
+
+            berlaku_end :
+
+                berlakuEnd
+
+        }
+
+    );
+
+
+    /* =============================================
        HELPER
        
        Mengecek apakah rule dengan kombinasi
@@ -7079,12 +7140,11 @@ function applyMonthlyAutoRules(
     /* =============================================
        CREATE RULE
        
-       Nominal, nilai_start, nilai_end,
-       berlaku_start, berlaku_end
-       sengaja kosong.
-
-       Nilai tersebut bukan bagian dari
-       pengaturan Rule Attendance.
+       Semua Rule Attendance otomatis mewarisi
+       masa berlaku dari rule_periode.
+       
+       Nominal dan nilai range tetap kosong karena
+       bukan bagian dari Setting Rule Attendance.
     ============================================= */
 
     const createRule = (
@@ -7162,12 +7222,12 @@ function applyMonthlyAutoRules(
 
                 berlaku_start :
 
-                    "",
+                    berlakuStart,
 
 
                 berlaku_end :
 
-                    ""
+                    berlakuEnd
 
             }
 
@@ -7353,6 +7413,20 @@ function applyMonthlyAutoRules(
 
                 rules,
 
+            periode :
+
+                {
+
+                    berlaku_start :
+
+                        berlakuStart,
+
+                    berlaku_end :
+
+                        berlakuEnd
+
+                },
+
             generated :
 
                 data.filter(
@@ -7396,4 +7470,3 @@ function applyMonthlyAutoRules(
     );
 
 }
-
