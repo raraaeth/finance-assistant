@@ -236,46 +236,135 @@ export const Airdrop = {
 
         "activity",
 
+/* =================================================
+   TRANSACTION PREPARATION
+=================================================
 
-    /* =================================================
+   Hook untuk Global Transaction Controller.
+
+   Transaction.js tidak mengetahui aturan
+   khusus Airdrop.
+
+   Flow :
+
+       transaction.js
+            ↓
+       Airdrop.prepareTransaction()
+            ↓
+       mode
+            ↓
+       activity
+            ↓
+       buildActivityValues()
+
+   Activity :
+
+       campaign
+           ↓
+       status = ongoing
+
+       bansos
+           ↓
+       status = win
+       $reward wajib
+       start = ""
+       end = ""
+
+   Reward :
+
+       Tidak menggunakan Activity normalizer.
+
+       Reward mempunyai flow khususnya sendiri.
+
+================================================= */
+
+prepareTransaction :
+
+    function(
+
+        values,
+
+        context = {}
+
+    ){
+
+        /* =========================================
+           REWARD
+
+           Reward bukan Activity.
+
+           Jangan jalankan buildActivityValues()
+           pada mode Reward.
+        ========================================= */
+
+        if(
+
+            context.mode ===
+
+                "reward"
+
+        ){
+
+            return {
+
+                ...values
+
+            };
+
+        }
+
+
+        /* =========================================
+           ACTIVITY
+
+           Gunakan normalizer Activity milik
+           module Airdrop.
+        ========================================= */
+
+        if(
+
+            context.mode ===
+
+                "activity"
+
+            ||
+
+            !context.mode
+
+        ){
+
+            return buildActivityValues(
+
+                values
+
+            );
+
+        }
+
+
+        /* =========================================
+           FALLBACK
+
+           Mode tidak dikenal tidak boleh
+           diproses dengan aturan Activity
+           secara diam-diam.
+
+           Kembalikan values apa adanya agar
+           controller tetap generic.
+        ========================================= */
+
+        return {
+
+            ...values
+
+        };
+
+    },
+
+   /* =================================================
        ACTIVITY STEPS
-
-       TANGGAL TIDAK ADA DI SINI.
-
-       Global Input sudah menyediakan tanggal
-       melalui State.date.
-
-       Tanggal tetap disimpan otomatis oleh
-       buildActivityValues().
-
-       FLOW :
-
-       Campaign :
-           Type
-             ↓
-           Nama / Wallet
-             ↓
-           Project
-             ↓
-           Start
-             ↓
-           End
-
-       Bansos :
-           Type
-             ↓
-           Nama / Wallet
-             ↓
-           Project
-             ↓
-           $ Reward
-
-       Bansos :
-           - tidak membutuhkan Start
-           - tidak membutuhkan End
-           - status otomatis win
     ================================================= */
-
+    
     steps : [
 
         /* =============================================
