@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Daily
    File         : daily.js
-   Version      : 2.0.1
+   Version      : 2.0.2
 
    Description :
    Payroll Daily Setting Definition
@@ -29,6 +29,7 @@
    - Masa aktif cukup bulan + tahun
    - Normalize menghasilkan tanggal lengkap
    - Masa aktif Rule Gaji diwariskan ke seluruh rule
+   - Years dibuat otomatis dari tahun periode aktif
    - Rule lama tetap menjadi history
 ===================================================== */
 
@@ -184,20 +185,10 @@ function createYearOptions(){
         options.push({
 
             value :
-
-                String(
-
-                    year
-
-                ),
+                String(year),
 
             label :
-
-                String(
-
-                    year
-
-                )
+                String(year)
 
         });
 
@@ -235,27 +226,11 @@ function createMonthYearOptions(){
 
                         value :
 
-                            `${
-
-                                year.value
-
-                            }-${
-
-                                month.value
-
-                            }`,
+                            `${year.value}-${month.value}`,
 
                         label :
 
-                            `${
-
-                                month.label
-
-                            } ${
-
-                                year.label
-
-                            }`
+                            `${month.label} ${year.label}`
 
                     });
 
@@ -294,54 +269,30 @@ function createISODate(
 
     const yearNumber =
 
-        Number(
-
-            year
-
-        );
+        Number(year);
 
 
     const monthNumber =
 
-        Number(
-
-            month
-
-        );
+        Number(month);
 
 
     const dayNumber =
 
-        Number(
-
-            day
-
-        );
+        Number(day);
 
 
     if(
 
-        !Number.isInteger(
-
-            yearNumber
-
-        )
+        !Number.isInteger(yearNumber)
 
         ||
 
-        !Number.isInteger(
-
-            monthNumber
-
-        )
+        !Number.isInteger(monthNumber)
 
         ||
 
-        !Number.isInteger(
-
-            dayNumber
-
-        )
+        !Number.isInteger(dayNumber)
 
     ){
 
@@ -563,6 +514,64 @@ function parseMonthYear(
 
 
 /* =====================================================
+   CREATE YEARS
+===================================================== */
+
+/*
+   Years dibuat otomatis dari tahun awal
+   masa aktif periode payroll.
+
+   Contoh :
+
+       periode_start = 2026-01-28
+       periode_end   = 2027-02-27
+
+   Maka :
+
+       years = "2026"
+
+   User tidak perlu mengisi years secara manual.
+*/
+
+function createYears(
+
+    startPeriod
+
+){
+
+    if(
+
+        !startPeriod
+
+        ||
+
+        !Number.isInteger(
+
+            Number(
+
+                startPeriod.year
+
+            )
+
+        )
+
+    ){
+
+        return "";
+
+    }
+
+
+    return String(
+
+        startPeriod.year
+
+    );
+
+}
+
+
+/* =====================================================
    GET NEXT MONTH
 ===================================================== */
 
@@ -714,6 +723,7 @@ function getDayNumber(
 
        periode_start
        periode_end
+       years
 
    Contoh :
 
@@ -721,9 +731,10 @@ function getDayNumber(
 
        periode_start = 2026-01-28
        periode_end   = 2027-02-27
+       years         = 2026
 
    Maka seluruh rule berikutnya otomatis
-   menggunakan periode tersebut.
+   menggunakan periode dan years tersebut.
 
    Rule lama tetap menjadi history.
 */
@@ -744,6 +755,7 @@ let DAILY_PERIOD_CONTEXT = null;
 
        periode_start
        periode_end
+       years
 
    Bukan :
 
@@ -805,7 +817,12 @@ function setDailyPeriodContext(
 
         periode_end :
 
-            rule.periode_end
+            rule.periode_end,
+
+
+        years :
+
+            rule.years ?? ""
 
     };
 
@@ -945,7 +962,12 @@ function getLatestDailyPeriodContext(){
 
                             periode_end :
 
-                                data.periode_end
+                                data.periode_end,
+
+
+                            years :
+
+                                data.years ?? ""
 
                         };
 
@@ -1003,7 +1025,11 @@ function getDailyActivePeriodContext(){
    Semua rule selain Rule Gaji wajib memiliki
    active period.
 
-   Rule Gaji menjadi sumber periode.
+   Rule Gaji menjadi sumber :
+
+       periode_start
+       periode_end
+       years
 */
 
 function requireDailyActivePeriod(
@@ -1098,7 +1124,7 @@ export const DailySetting = {
 
             description :
 
-                "Tentukan periode perhitungan gaji dan masa aktif payroll daily.",
+                "Tentukan periode perhitungan dan masa aktif payroll daily.",
 
 
             /* =============================================
@@ -1675,6 +1701,22 @@ export const DailySetting = {
 
 
                     /* =====================================
+                       CREATE YEARS
+
+                       Years otomatis mengikuti
+                       tahun awal masa aktif.
+                    ===================================== */
+
+                    const years =
+
+                        createYears(
+
+                            startPeriod
+
+                        );
+
+
+                    /* =====================================
                        NORMALIZED RULE
                     ===================================== */
 
@@ -1737,7 +1779,7 @@ export const DailySetting = {
 
                         years :
 
-                            ""
+                            years
 
                     };
 
@@ -1746,7 +1788,11 @@ export const DailySetting = {
                        SET ACTIVE PERIOD CONTEXT
 
                        Rule berikutnya otomatis
-                       menggunakan periode ini.
+                       menggunakan :
+
+                       periode_start
+                       periode_end
+                       years
                     ===================================== */
 
                     setDailyPeriodContext(
@@ -2089,7 +2135,7 @@ export const DailySetting = {
 
                         years :
 
-                            ""
+                            periodContext.years ?? ""
 
                     };
 
@@ -2761,7 +2807,7 @@ export const DailySetting = {
 
                         years :
 
-                            ""
+                            periodContext.years ?? ""
 
                     };
 
@@ -3111,7 +3157,7 @@ export const DailySetting = {
 
                         years :
 
-                            ""
+                            periodContext.years ?? ""
 
                     };
 
