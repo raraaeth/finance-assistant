@@ -3998,7 +3998,50 @@ export const MonthlySetting = {
 
 
         /* =================================================
-           PENGATURAN RULE SHIFT
+           RULE ATTENDANCE
+           
+           Mengatur fitur Attendance yang digunakan
+           oleh Payroll Monthly.
+
+           Rule yang dihasilkan:
+
+           Aktifkan Rule Lembur
+               ↓
+           rule_lembur
+           lembur_jam
+           masuk
+           jam
+
+           Aktifkan Rule Izin
+               ↓
+           rule_izin
+           izin_pulang
+           masuk
+           jam
+
+           Gunakan Rule Telat
+               ↓
+           rule_telat
+           telat
+           masuk
+           menit
+
+           rule_telat
+           izin_telat
+           masuk
+           jam
+
+           Gunakan Rule Shift
+               ↓
+           rule_shift
+           shift
+           masuk
+           pagi,siang,malam
+
+           Nominal TIDAK diatur di sini.
+
+           Nominal akan digunakan pada Rule Tambah /
+           Rule Potong sesuai kebutuhan Payroll.
         ================================================= */
 
         {
@@ -4010,12 +4053,12 @@ export const MonthlySetting = {
 
             title :
 
-                "⚙️ Rule Shift Kerja",
+                "⚙️ Rule Attendance",
 
 
             description :
 
-                "Tentukan rule shift kerja di Payroll Monthly",
+                "Atur fitur attendance yang digunakan dalam Payroll Monthly.",
 
 
             addLabel :
@@ -4035,6 +4078,12 @@ export const MonthlySetting = {
 
             uniqueFields : [
 
+                "aktifkanRuleLembur",
+
+                "aktifkanRuleIzin",
+
+                "gunakanRuleTelat",
+
                 "gunakanRuleShift"
 
             ],
@@ -4046,6 +4095,124 @@ export const MonthlySetting = {
 
 
             fields : [
+
+                /* =========================================
+                   RULE LEMBUR
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "aktifkanRuleLembur",
+
+
+                    label :
+
+                        "Aktifkan Rule Lembur",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    value :
+
+                        false,
+
+
+                    required :
+
+                        false,
+
+
+                    note :
+
+                        "Aktifkan jika Attendance membutuhkan input lembur jam."
+
+                },
+
+
+                /* =========================================
+                   RULE IZIN
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "aktifkanRuleIzin",
+
+
+                    label :
+
+                        "Aktifkan Rule Izin",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    value :
+
+                        false,
+
+
+                    required :
+
+                        false,
+
+
+                    note :
+
+                        "Aktifkan jika Attendance membutuhkan kondisi izin telat dan izin pulang."
+
+                },
+
+
+                /* =========================================
+                   RULE TELAT
+                ========================================= */
+
+                {
+
+                    name :
+
+                        "gunakanRuleTelat",
+
+
+                    label :
+
+                        "Gunakan Rule Telat",
+
+
+                    type :
+
+                        "checkbox",
+
+
+                    value :
+
+                        false,
+
+
+                    required :
+
+                        false,
+
+
+                    note :
+
+                        "Aktifkan jika keterlambatan pada Attendance digunakan dalam perhitungan payroll."
+
+                },
+
+
+                /* =========================================
+                   RULE SHIFT
+                ========================================= */
 
                 {
 
@@ -4076,7 +4243,7 @@ export const MonthlySetting = {
 
                     note :
 
-                        "Opsional. Aktifkan jika Payroll Monthly menggunakan shift kerja. Dengan mengaktifkan fitur ini, akan menambah input keterangan soal shift pada pencatatan attendance."
+                        "Aktifkan jika Payroll Monthly menggunakan shift kerja pada Attendance."
 
                 }
 
@@ -4096,6 +4263,33 @@ export const MonthlySetting = {
                         type :
 
                             "payroll_monthly",
+
+
+                        aktifkanRuleLembur :
+
+                            Boolean(
+
+                                data.aktifkanRuleLembur
+
+                            ),
+
+
+                        aktifkanRuleIzin :
+
+                            Boolean(
+
+                                data.aktifkanRuleIzin
+
+                            ),
+
+
+                        gunakanRuleTelat :
+
+                            Boolean(
+
+                                data.gunakanRuleTelat
+
+                            ),
 
 
                         gunakanRuleShift :
