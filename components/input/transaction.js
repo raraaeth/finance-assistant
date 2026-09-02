@@ -2,13 +2,14 @@
    Finance Assistant
    Component    : Global Input
    File         : transaction.js
-   Version      : 6.0.0
+   Version      : 7.0.0
 
    Description :
    Transaction Controller
 
    Handles :
    - Complete input
+   - Module transaction preparation
    - Add input
    - Update input
    - Delete input
@@ -25,6 +26,8 @@
    Input baru :
        editingId = null
            ↓
+       prepareTransaction()
+           ↓
        create record baru
            ↓
        ID menggunakan prefix input workspace
@@ -32,9 +35,37 @@
    Input edit :
        editingId tersedia
            ↓
+       prepareTransaction()
+           ↓
        update record berdasarkan ID
 
    Transaction controller tetap generic.
+
+   MODULE PREPARATION :
+
+       State.workspace
+            ↓
+       getInputConfig(workspace)
+            ↓
+       prepareTransaction()
+            ↓
+       normalized values
+
+   Module bertanggung jawab terhadap
+   aturan khusus transaction.
+
+   Contoh :
+
+       Airdrop
+           → bansos
+           → status otomatis win
+
+       Airdrop
+           → campaign
+           → status otomatis ongoing
+
+   Transaction.js tidak mengetahui
+   aturan tersebut.
 
    CONFIG :
 
@@ -57,29 +88,13 @@
    Prefix berasal dari konfigurasi
    masing-masing input workspace.
 
-   Contoh :
-
-       Airdrop
-           → AIR-xxxx
-
-       Saving
-           → SAV-xxxx
-
-       Kas
-           → KAS-xxxx
-
-       Payroll Daily
-           → PD-xxxx
-
-       Payroll Monthly
-           → PM-xxxx
-
-       Financial
-           → FIN-xxxx
-
    CONFIRM :
 
        State.transactions
+            ↓
+       {
+           transactions: [...]
+       }
             ↓
        saveInput()
             ↓
@@ -88,6 +103,9 @@
        AppScript input.gs
             ↓
        Google Sheet
+
+   Semua transaction dikirim
+   dalam SATU request.
 
    Loading aktif selama seluruh proses
    penyimpanan berlangsung.
@@ -215,7 +233,7 @@ let isConfirmingTransactions = false;
             ↓
        input config
 
-   Tidak lagi membaca :
+   Tidak membaca :
 
        State.config.module
 
@@ -306,12 +324,235 @@ function getSteps(){
 
 
 /* =====================================================
-   GET WORKSPACE
+   PREPARE TRANSACTION VALUES
 =====================================================
 
-   Workspace transaction selalu mengikuti
-   workspace aktif pada State.
+   Transaction Controller tetap generic.
 
+   Jika module memiliki :
+
+       prepareTransaction()
+
+   maka function tersebut dipanggil.
+
+   Contoh :
+
+       Airdrop
+           ↓
+       prepareTransaction()
+           ↓
+       bansos → status win
+       campaign → status ongoing
+
+   Transaction.js tidak mengetahui
+   aturan module tersebut.
+
+   Context yang diberikan :
+
+       workspace
+       date
+       mode
+       editingId
+
+   Return harus berupa object values.
+
+===================================================== */
+
+function prepareTransactionValues(
+
+    values
+
+){
+
+    if(
+
+        !values
+
+        ||
+
+        typeof values !==
+
+            "object"
+
+    ){
+
+        throw new Error(
+
+            "Transaction values tidak valid."
+
+        );
+
+    }
+
+
+    const config =
+
+        getTransactionInputConfig();
+
+
+    if(
+
+        !config
+
+        ||
+
+        typeof config !==
+
+            "object"
+
+    ){
+
+        return {
+
+            ...values
+
+        };
+
+    }
+
+
+    const prepareTransaction =
+
+        config.prepareTransaction;
+
+
+    /* =============================================
+       NO MODULE HOOK
+    ============================================= */
+
+    if(
+
+        typeof prepareTransaction !==
+
+            "function"
+
+    ){
+
+        return {
+
+            ...values
+
+        };
+
+    }
+
+
+    /* =============================================
+       CONTEXT
+    ============================================= */
+
+    const context = {
+
+        workspace :
+
+            State.workspace,
+
+        date :
+
+            State.date,
+
+        mode :
+
+            State.mode,
+
+        editingId :
+
+            State.editingId
+
+    };
+
+
+    console.log(
+
+        "TRANSACTION PREPARE:",
+
+        {
+
+            workspace :
+
+                context.workspace,
+
+            mode :
+
+                context.mode,
+
+            editingId :
+
+                context.editingId,
+
+            values :
+
+                values
+
+        }
+
+    );
+
+
+    /* =============================================
+       MODULE PREPARATION
+    ============================================= */
+
+    const prepared =
+
+        prepareTransaction(
+
+            {
+
+                ...values
+
+            },
+
+            context
+
+        );
+
+
+    if(
+
+        !prepared
+
+        ||
+
+        typeof prepared !==
+
+            "object"
+
+        ||
+
+        Array.isArray(
+
+            prepared
+
+        )
+
+    ){
+
+        throw new Error(
+
+            "prepareTransaction() harus mengembalikan object."
+
+        );
+
+    }
+
+
+    console.log(
+
+        "TRANSACTION PREPARED:",
+
+        prepared
+
+    );
+
+
+    return prepared;
+
+}
+
+
+/* =====================================================
+   GET WORKSPACE
 ===================================================== */
 
 function getTransactionWorkspace(){
@@ -542,6 +783,73 @@ function completeTransaction(
 
 
     /* =============================================
+       MODULE PREPARATION
+    =============================================
+
+       Semua aturan khusus module
+       diproses sebelum transaction
+       dibuat / di-update.
+
+    ============================================= */
+
+    let preparedValues;
+
+
+    try{
+
+        preparedValues =
+
+            prepareTransactionValues(
+
+                values
+
+            );
+
+    }
+
+    catch(
+
+        error
+
+    ){
+
+        console.error(
+
+            "TRANSACTION PREPARE ERROR:",
+
+            error
+
+        );
+
+
+        const message =
+
+            error?.message
+
+            ??
+
+            String(
+
+                error
+
+            );
+
+
+        alert(
+
+            "Input tidak dapat diproses:\n" +
+
+            message
+
+        );
+
+
+        return;
+
+    }
+
+
+    /* =============================================
        EDIT / UPDATE
     ============================================= */
 
@@ -553,7 +861,7 @@ function completeTransaction(
 
         updateTransaction(
 
-            values
+            preparedValues
 
         );
 
@@ -569,7 +877,7 @@ function completeTransaction(
 
     addTransaction(
 
-        values
+        preparedValues
 
     );
 
@@ -1805,7 +2113,7 @@ function bindConfirmButton(){
           ↓
        snapshot transactions
           ↓
-       saveInput()
+       SATU saveInput()
           ↓
        Write Engine
           ↓
@@ -1819,9 +2127,17 @@ function bindConfirmButton(){
           ↓
        close overlay
 
-   Setiap transaction dikirim sebagai
-   object individual karena input.gs
-   menerima satu transaction object.
+   PAYLOAD :
+
+       {
+           transactions: [
+               transaction1,
+               transaction2,
+               transaction3
+           ]
+       }
+
+   Satu batch = satu request.
 
 ===================================================== */
 
@@ -1956,9 +2272,6 @@ async function confirmTransactions(){
         /*
            Beri browser kesempatan untuk
            menggambar Loading terlebih dahulu.
-
-           Ini penting supaya Loading tidak
-           tertahan oleh proses async berikutnya.
         */
 
         await new Promise(
@@ -2041,22 +2354,15 @@ async function confirmTransactions(){
 
 
         /* =========================================
-           PAYLOAD LOG
+           BATCH PAYLOAD
+        =========================================
+
+           Seluruh transaction dikirim dalam
+           satu payload.
+
         ========================================= */
 
         const payload = {
-
-            workspace :
-
-                workspace,
-
-            date :
-
-                State.date,
-
-            mode :
-
-                State.mode,
 
             transactions :
 
@@ -2069,7 +2375,29 @@ async function confirmTransactions(){
 
             "DATA SIAP DIKIRIM:",
 
-            payload
+            {
+
+                workspace :
+
+                    workspace,
+
+                date :
+
+                    State.date,
+
+                mode :
+
+                    State.mode,
+
+                count :
+
+                    transactions.length,
+
+                payload :
+
+                    payload
+
+            }
 
         );
 
@@ -2086,7 +2414,11 @@ async function confirmTransactions(){
 
                 count :
 
-                    transactions.length
+                    transactions.length,
+
+                request :
+
+                    "SINGLE BATCH REQUEST"
 
             }
 
@@ -2094,160 +2426,105 @@ async function confirmTransactions(){
 
 
         /* =========================================
-           SAVE EACH TRANSACTION
+           SAVE BATCH
         =========================================
 
-           input.gs saat ini menerima:
+           SATU kali saveInput().
+
+           Bukan :
+
+               for transaction
+                   ↓
+               saveInput()
+
+           Melainkan :
 
                saveInput(
-                   accessToken,
-                   spreadsheetId,
                    workspace,
-                   data
+                   {
+                       transactions: [...]
+                   }
                )
-
-           Karena itu setiap transaction
-           dikirim satu per satu.
 
         ========================================= */
 
-        const results = [];
+        const result =
+
+            await saveInput(
+
+                workspace,
+
+                payload
+
+            );
 
 
-        for(
+        console.log(
 
-            let index = 0;
+            "INPUT BATCH SAVE RESULT:",
 
-            index < transactions.length;
+            result
 
-            index++
+        );
+
+
+        /* =========================================
+           VALIDATE RESULT
+        ========================================= */
+
+        if(
+
+            !result
+
+            ||
+
+            result.success !==
+
+                true
 
         ){
 
-            const transaction =
+            let message =
 
-                transactions[index];
+                "AppScript gagal menyimpan transaction.";
 
-
-            console.log(
-
-                "INPUT SAVE:",
-
-                {
-
-                    index :
-
-                        index + 1,
-
-                    total :
-
-                        transactions.length,
-
-                    transaction :
-
-                        transaction
-
-                }
-
-            );
-
-
-            const result =
-
-                await saveInput(
-
-                    workspace,
-
-                    transaction
-
-                );
-
-
-            console.log(
-
-                "INPUT SAVE RESULT:",
-
-                {
-
-                    index :
-
-                        index + 1,
-
-                    result :
-
-                        result
-
-                }
-
-            );
-
-
-            /* =====================================
-               VALIDATE RESULT
-            ===================================== */
 
             if(
 
-                !result
+                result
 
-                ||
+                &&
 
-                result.success !==
-
-                    true
+                result.message
 
             ){
 
-                let message =
+                message =
 
-                    "AppScript gagal menyimpan transaction.";
+                    result.message;
 
+            }
 
-                if(
+            else if(
 
-                    result
+                result
 
-                    &&
+                &&
 
-                    result.message
+                result.error
 
-                ){
+            ){
 
-                    message =
+                message =
 
-                        result.message;
-
-                }
-
-                else if(
-
-                    result
-
-                    &&
-
-                    result.error
-
-                ){
-
-                    message =
-
-                        result.error;
-
-                }
-
-
-                throw new Error(
-
-                    message
-
-                );
+                    result.error;
 
             }
 
 
-            results.push(
+            throw new Error(
 
-                result
+                message
 
             );
 
@@ -2267,7 +2544,7 @@ async function confirmTransactions(){
 
         console.log(
 
-            "INPUT SAVE SUCCESS"
+            "INPUT BATCH SAVE SUCCESS"
 
         );
 
@@ -2292,9 +2569,9 @@ async function confirmTransactions(){
 
         console.log(
 
-            "Results:",
+            "Result:",
 
-            results
+            result
 
         );
 
@@ -2334,9 +2611,9 @@ async function confirmTransactions(){
 
                 transactions.length,
 
-            results :
+            result :
 
-                results
+                result
 
         };
 
@@ -2974,6 +3251,10 @@ function escapeHTML(
            ↓
        getInputConfig()
 
+   prepareTransaction juga ditampilkan
+   agar mudah memastikan module hook
+   sudah terdaftar.
+
 ===================================================== */
 
 export function getTransactionConfig(){
@@ -2996,6 +3277,12 @@ export function getTransactionConfig(){
         steps :
 
             getSteps(),
+
+        prepareTransaction :
+
+            typeof config?.prepareTransaction ===
+
+                "function",
 
         config :
 
@@ -3038,6 +3325,12 @@ export function debugTransaction(
         steps :
 
             getSteps(),
+
+        prepareTransaction :
+
+            typeof config?.prepareTransaction ===
+
+                "function",
 
         config :
 
@@ -3154,6 +3447,15 @@ export function debugTransaction(
         "Steps:",
 
         data.steps
+
+    );
+
+
+    console.log(
+
+        "Prepare Transaction:",
+
+        data.prepareTransaction
 
     );
 
