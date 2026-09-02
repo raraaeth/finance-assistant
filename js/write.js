@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : WRITE
    File        : write.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Global Google Apps Script WRITE Engine
@@ -44,7 +44,7 @@
    - Mengirim WRITE request
    - saveInput()
    - saveSetting()
-
+   - Expand automatic payroll rules
 
    TIDAK MENANGANI :
 
@@ -822,6 +822,309 @@ function buildWriteURL(
 
 
 /* =====================================================
+   EXPAND AUTOMATIC SETTING RULES
+===================================================== */
+
+/*
+   Automatic rule dibuat oleh module setting.
+
+   Contoh dari monthly.js:
+
+       {
+           section : "rule_periode",
+
+           data : {
+               type_rule : "rule_periode",
+               nama : "periode_gaji",
+               ...
+               auto_rules : [
+                   {...},
+                   {...},
+                   {...},
+                   {...},
+                   {...}
+               ]
+           }
+       }
+
+
+   write.js tidak mengubah struktur rule utama.
+
+   Yang dilakukan hanya:
+
+       1. Simpan rule utama.
+       2. Ambil data.auto_rules.
+       3. Hapus auto_rules dari row utama.
+       4. Tambahkan setiap automatic rule
+          sebagai setting entry baru.
+
+
+   Dengan demikian Apps Script menerima:
+
+       rule_periode
+       rule_masuk
+       rule_masuk
+       rule_masuk
+       rule_masuk
+       rule_masuk
+
+
+   tanpa perlu membuat HTML tambahan.
+*/
+
+function expandAutomaticSettingRules(
+
+    data
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            data
+
+        )
+
+    ){
+
+        return data;
+
+    }
+
+
+    const expanded = [];
+
+
+    data.forEach(
+
+        item => {
+
+            /*
+               Pastikan item merupakan object.
+            */
+
+            if(
+
+                !item
+
+                ||
+
+                typeof item !==
+
+                    "object"
+
+            ){
+
+                expanded.push(
+
+                    item
+
+                );
+
+                return;
+
+            }
+
+
+            /*
+               Ambil data utama.
+
+               Struktur normal:
+
+                   item.data
+
+               Tetapi fallback juga diberikan
+               apabila suatu saat struktur berubah
+               menjadi item langsung.
+            */
+
+            const itemData =
+
+                item.data &&
+
+                typeof item.data ===
+
+                    "object"
+
+                    ?
+
+                item.data
+
+                    :
+
+                null;
+
+
+            /*
+               Tidak memiliki data object.
+               Biarkan seperti semula.
+            */
+
+            if(
+
+                !itemData
+
+            ){
+
+                expanded.push(
+
+                    item
+
+                );
+
+                return;
+
+            }
+
+
+            /*
+               Ambil automatic rules.
+            */
+
+            const autoRules =
+
+                Array.isArray(
+
+                    itemData.auto_rules
+
+                )
+
+                    ?
+
+                itemData.auto_rules
+
+                    :
+
+                [];
+
+
+            /*
+               Buat salinan data utama.
+
+               auto_rules tidak ikut dikirim
+               sebagai property row utama.
+
+               Ini penting agar row periode tetap
+               mempunyai struktur kolom yang sama.
+            */
+
+            const mainData = {
+
+                ...itemData
+
+            };
+
+
+            delete mainData.auto_rules;
+
+
+            /*
+               Masukkan rule utama.
+            */
+
+            expanded.push({
+
+                ...item,
+
+                data :
+
+                    mainData
+
+            });
+
+
+            /*
+               Tidak ada automatic rule.
+            */
+
+            if(
+
+                autoRules.length === 0
+
+            ){
+
+                return;
+
+            }
+
+
+            /*
+               Masukkan setiap automatic rule
+               sebagai entry setting tersendiri.
+            */
+
+            autoRules.forEach(
+
+                autoRule => {
+
+                    if(
+
+                        !autoRule
+
+                        ||
+
+                        typeof autoRule !==
+
+                            "object"
+
+                    ){
+
+                        return;
+
+                    }
+
+
+                    /*
+                       Automatic rule mempunyai
+                       struktur data rule langsung.
+
+                       Section diprioritaskan dari
+                       type_rule agar tetap kompatibel
+                       dengan Apps Script yang sekarang.
+                    */
+
+                    const ruleSection =
+
+                        autoRule.type_rule
+
+                            ||
+
+                        "rule_masuk";
+
+
+                    expanded.push({
+
+                        section :
+
+                            ruleSection,
+
+
+                        data :
+
+                            {
+
+                                ...autoRule
+
+                            }
+
+                    });
+
+                }
+
+            );
+
+        }
+
+    );
+
+
+    return expanded;
+
+}
+
+
+/* =====================================================
    WRITE
 ===================================================== */
 
@@ -1112,7 +1415,7 @@ export async function saveInput(
 
         typeof data !==
 
-        "object"
+            "object"
 
     ){
 
@@ -1170,6 +1473,8 @@ export async function saveInput(
               ↓
        saveSetting()
               ↓
+       expandAutomaticSettingRules()
+              ↓
        write()
               ↓
        action=setting
@@ -1177,6 +1482,23 @@ export async function saveInput(
        main.gs
               ↓
        setting.gs
+              ↓
+       Google Sheets
+
+
+   Automatic rule payroll:
+
+       rule_periode
+           ↓
+       auto_rules
+           ↓
+       rule_masuk
+           ↓
+       Google Sheets
+
+
+   User tidak perlu mengetahui
+   keberadaan rule_masuk.
 */
 
 export async function saveSetting(
@@ -1221,6 +1543,56 @@ export async function saveSetting(
     }
 
 
+    /* =============================================
+       EXPAND AUTOMATIC RULES
+    ============================================= */
+
+    const expandedData =
+
+        expandAutomaticSettingRules(
+
+            data
+
+        );
+
+
+    /* =============================================
+       DEBUG AUTOMATIC RULES
+    ============================================= */
+
+    console.log(
+
+        "WRITE: SETTING DATA ORIGINAL",
+
+        data
+
+    );
+
+
+    console.log(
+
+        "WRITE: SETTING DATA EXPANDED",
+
+        expandedData
+
+    );
+
+
+    console.log(
+
+        "WRITE: AUTO RULE COUNT",
+
+        expandedData.length -
+
+        data.length
+
+    );
+
+
+    /* =============================================
+       SAVE SETTING
+    ============================================= */
+
     console.log(
 
         "WRITE: SAVE SETTING",
@@ -1233,7 +1605,7 @@ export async function saveSetting(
 
             data :
 
-                data
+                expandedData
 
         }
 
@@ -1246,7 +1618,7 @@ export async function saveSetting(
 
         workspace,
 
-        data
+        expandedData
 
     );
 
