@@ -902,7 +902,247 @@ function getDayNumber(
 
 }
 
+/* =====================================================
+   MONTHLY ACTIVE PERIOD CONTEXT
+===================================================== */
 
+/*
+   Menyimpan periode aktif terakhir yang berhasil
+   dibuat pada Payroll Monthly.
+
+   Context ini digunakan oleh Rule Gaji,
+   Rule Potong, dan Rule Tambah.
+
+   History rule lama tidak diubah.
+*/
+
+let MONTHLY_PERIOD_CONTEXT = null;
+
+
+
+/* =====================================================
+   SET ACTIVE PERIOD CONTEXT
+===================================================== */
+
+function setMonthlyPeriodContext(
+
+    rule
+
+){
+
+    if(
+
+        !rule
+
+        ||
+
+        rule.type_rule !==
+
+            "rule_periode"
+
+    ){
+
+        return;
+
+    }
+
+
+    if(
+
+        !rule.berlaku_start
+
+        ||
+
+        !rule.berlaku_end
+
+    ){
+
+        return;
+
+    }
+
+
+    MONTHLY_PERIOD_CONTEXT = {
+
+        berlaku_start :
+
+            rule.berlaku_start,
+
+
+        berlaku_end :
+
+            rule.berlaku_end
+
+    };
+
+}
+
+
+
+/* =====================================================
+   GET LATEST PERIOD FROM UI RESULT
+===================================================== */
+
+function getLatestMonthlyPeriodContext(){
+
+    const sectionElement =
+
+        document.querySelector(
+
+            '.global-setting-section[data-section="rule_periode"]'
+
+        );
+
+
+    if(
+
+        sectionElement
+
+    ){
+
+        const result =
+
+            sectionElement.querySelector(
+
+                ".global-setting-result"
+
+            );
+
+
+        if(
+
+            result
+
+        ){
+
+            const items = [
+
+                ...result.children
+
+            ];
+
+
+            /*
+               Cari dari bawah karena periode terakhir
+               adalah periode yang sedang digunakan
+               untuk input rule berikutnya.
+            */
+
+            for(
+
+                let index =
+
+                    items.length - 1;
+
+                index >= 0;
+
+                index--
+
+            ){
+
+                const item =
+
+                    items[index];
+
+
+                if(
+
+                    !item.dataset.value
+
+                ){
+
+                    continue;
+
+                }
+
+
+                try{
+
+                    const data =
+
+                        JSON.parse(
+
+                            item.dataset.value
+
+                        );
+
+
+                    if(
+
+                        data
+
+                        &&
+
+                        data.type_rule ===
+
+                            "rule_periode"
+
+                        &&
+
+                        data.berlaku_start
+
+                        &&
+
+                        data.berlaku_end
+
+                    ){
+
+                        return {
+
+                            berlaku_start :
+
+                                data.berlaku_start,
+
+
+                            berlaku_end :
+
+                                data.berlaku_end
+
+                        };
+
+                    }
+
+                }
+
+                catch(error){
+
+                    console.warn(
+
+                        "MONTHLY PERIOD CONTEXT PARSE ERROR:",
+
+                        error
+
+                    );
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    /*
+       Fallback apabila result belum masuk ke DOM,
+       misalnya normalize baru saja selesai.
+    */
+
+    return MONTHLY_PERIOD_CONTEXT;
+
+}
+
+
+
+/* =====================================================
+   GET ACTIVE PERIOD CONTEXT
+===================================================== */
+
+function getMonthlyActivePeriodContext(){
+
+    return getLatestMonthlyPeriodContext();
+
+}
 
 /* =====================================================
    MONTHLY SETTING
