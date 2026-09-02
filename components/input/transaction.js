@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : transaction.js
-   Version      : 5.0.0
+   Version      : 6.0.0
 
    Description :
    Transaction Controller
@@ -16,6 +16,9 @@
    - Summary
    - Date lock
    - Confirm
+   - AppScript / Write Engine
+   - Loading
+   - Double-submit protection
 
    PRINCIPLE :
 
@@ -73,6 +76,38 @@
 
        Financial
            → FIN-xxxx
+
+   CONFIRM :
+
+       State.transactions
+            ↓
+       saveInput()
+            ↓
+       Write Engine
+            ↓
+       AppScript input.gs
+            ↓
+       Google Sheet
+
+   Loading aktif selama seluruh proses
+   penyimpanan berlangsung.
+
+   Double protection :
+
+       Layer 1
+       initTransaction()
+            ↓
+       cegah listener ganda
+
+       Layer 2
+       confirmTransactions()
+            ↓
+       cegah request ganda
+
+       Layer tambahan
+       Add button
+            ↓
+       cegah add/update ganda
 ===================================================== */
 
 
@@ -115,6 +150,56 @@ import {
     getInputPrefix
 
 } from "./config.js";
+
+
+/* =====================================================
+   WRITE ENGINE
+===================================================== */
+
+import {
+
+    saveInput
+
+} from "../../js/write.js";
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+import {
+
+    Loading
+
+} from "../loading/script.js";
+
+
+/* =====================================================
+   CONTROLLER STATE
+===================================================== */
+
+/*
+   Mencegah initTransaction()
+   memasang event listener lebih dari sekali.
+*/
+
+let transactionInitialized = false;
+
+
+/*
+   Mencegah Add / Update diproses
+   dua kali karena double click.
+*/
+
+let isAddingTransaction = false;
+
+
+/*
+   Mencegah Confirm diproses
+   dua kali secara bersamaan.
+*/
+
+let isConfirmingTransactions = false;
 
 
 /* =====================================================
@@ -337,6 +422,38 @@ function getTransactionPrefix(){
 export function initTransaction(){
 
     /* =============================================
+       DOUBLE INIT PROTECTION
+    ============================================= */
+
+    if(
+
+        transactionInitialized
+
+    ){
+
+        console.warn(
+
+            "TRANSACTION INIT: sudah pernah diinisialisasi. Dilewati."
+
+        );
+
+
+        return;
+
+    }
+
+
+    transactionInitialized = true;
+
+
+    console.log(
+
+        "TRANSACTION INIT"
+
+    );
+
+
+    /* =============================================
        FLOW COMPLETE
     ============================================= */
 
@@ -470,69 +587,149 @@ function addTransaction(
 ){
 
     /* =============================================
-       LOCK DATE
-
-       Hanya transaction pertama
-       yang mengunci tanggal.
+       DOUBLE ADD PROTECTION
     ============================================= */
 
     if(
 
-        State.transactions.length ===
-
-            0
+        isAddingTransaction
 
     ){
 
-        lockDate();
+        console.warn(
+
+            "TRANSACTION ADD: request ganda dicegah."
+
+        );
+
+
+        return;
 
     }
 
 
-    /* =============================================
-       CREATE TRANSACTION
-    ============================================= */
-
-    const transaction = {
-
-        id :
-
-            generateTransactionId(),
-
-        date :
-
-            State.date,
-
-        ...values
-
-    };
+    isAddingTransaction = true;
 
 
-    /* =============================================
-       ADD TO LIST
-    ============================================= */
+    const button =
 
-    State.transactions.push(
+        document.getElementById(
 
-        transaction
+            "global-input-add"
 
-    );
+        );
 
 
-    console.log(
+    if(
 
-        "Transaction ditambahkan:",
+        button
 
-        transaction
+    ){
 
-    );
+        button.disabled = true;
+
+        button.setAttribute(
+
+            "aria-disabled",
+
+            "true"
+
+        );
+
+    }
 
 
-    /* =============================================
-       FINISH
-    ============================================= */
+    try{
 
-    finishCurrentInput();
+        /* =========================================
+           LOCK DATE
+
+           Hanya transaction pertama
+           yang mengunci tanggal.
+        ========================================= */
+
+        if(
+
+            State.transactions.length ===
+
+                0
+
+        ){
+
+            lockDate();
+
+        }
+
+
+        /* =========================================
+           CREATE TRANSACTION
+        ========================================= */
+
+        const transaction = {
+
+            id :
+
+                generateTransactionId(),
+
+            date :
+
+                State.date,
+
+            ...values
+
+        };
+
+
+        /* =========================================
+           ADD TO LIST
+        ========================================= */
+
+        State.transactions.push(
+
+            transaction
+
+        );
+
+
+        console.log(
+
+            "Transaction ditambahkan:",
+
+            transaction
+
+        );
+
+
+        /* =========================================
+           FINISH
+        ========================================= */
+
+        finishCurrentInput();
+
+    }
+
+    finally{
+
+        isAddingTransaction = false;
+
+
+        if(
+
+            button
+
+        ){
+
+            button.disabled = false;
+
+            button.removeAttribute(
+
+                "aria-disabled"
+
+            );
+
+        }
+
+    }
 
 }
 
@@ -547,20 +744,19 @@ function updateTransaction(
 
 ){
 
-    const editingId =
-
-        State.editingId;
-
+    /* =============================================
+       DOUBLE UPDATE PROTECTION
+    ============================================= */
 
     if(
 
-        !editingId
+        isAddingTransaction
 
     ){
 
         console.warn(
 
-            "Update transaction gagal: editingId kosong."
+            "TRANSACTION UPDATE: request ganda dicegah."
 
         );
 
@@ -570,61 +766,53 @@ function updateTransaction(
     }
 
 
-    /* =============================================
-       CARI RECORD
-    ============================================= */
+    isAddingTransaction = true;
 
-    const index =
 
-        State.transactions.findIndex(
+    const button =
 
-            transaction =>
+        document.getElementById(
 
-                String(
-
-                    transaction?.id
-
-                )
-
-                ===
-
-                String(
-
-                    editingId
-
-                )
+            "global-input-add"
 
         );
 
 
-    /* =============================================
-       RECORD TIDAK DITEMUKAN
-    ============================================= */
-
     if(
 
-        index ===
-
-            -1
+        button
 
     ){
 
-        const baseRecord =
+        button.disabled = true;
 
-            State.selectedRecord;
+        button.setAttribute(
+
+            "aria-disabled",
+
+            "true"
+
+        );
+
+    }
+
+
+    try{
+
+        const editingId =
+
+            State.editingId;
 
 
         if(
 
-            !baseRecord
+            !editingId
 
         ){
 
             console.warn(
 
-                "Update transaction gagal: record tidak ditemukan:",
-
-                editingId
+                "Update transaction gagal: editingId kosong."
 
             );
 
@@ -634,89 +822,178 @@ function updateTransaction(
         }
 
 
-        const updatedTransaction = {
+        /* =============================================
+           CARI RECORD
+        ============================================= */
 
-            ...baseRecord,
+        const index =
 
-            ...values,
+            State.transactions.findIndex(
 
-            id :
+                transaction =>
 
-                baseRecord.id
+                    String(
 
-        };
+                        transaction?.id
+
+                    )
+
+                    ===
+
+                    String(
+
+                        editingId
+
+                    )
+
+            );
 
 
-        State.transactions.push(
+        /* =============================================
+           RECORD TIDAK DITEMUKAN
+        ============================================= */
 
-            updatedTransaction
+        if(
 
-        );
+            index ===
+
+                -1
+
+        ){
+
+            const baseRecord =
+
+                State.selectedRecord;
 
 
-        console.log(
+            if(
 
-            "Transaction update disiapkan:",
+                !baseRecord
 
-            updatedTransaction
+            ){
 
-        );
+                console.warn(
 
-    }
+                    "Update transaction gagal: record tidak ditemukan:",
 
-    else{
+                    editingId
 
-        /* =========================================
-           MERGE RECORD
-        ========================================= */
+                );
 
-        const oldTransaction =
+
+                return;
+
+            }
+
+
+            const updatedTransaction = {
+
+                ...baseRecord,
+
+                ...values,
+
+                id :
+
+                    baseRecord.id
+
+            };
+
+
+            State.transactions.push(
+
+                updatedTransaction
+
+            );
+
+
+            console.log(
+
+                "Transaction update disiapkan:",
+
+                updatedTransaction
+
+            );
+
+        }
+
+        else{
+
+            /* =========================================
+               MERGE RECORD
+            ========================================= */
+
+            const oldTransaction =
+
+                State.transactions[
+
+                    index
+
+                ];
+
+
+            const updatedTransaction = {
+
+                ...oldTransaction,
+
+                ...values,
+
+                id :
+
+                    oldTransaction.id
+
+            };
+
 
             State.transactions[
 
                 index
 
-            ];
+            ] =
+
+                updatedTransaction;
 
 
-        const updatedTransaction = {
+            console.log(
 
-            ...oldTransaction,
+                "Transaction diubah:",
 
-            ...values,
+                updatedTransaction
 
-            id :
+            );
 
-                oldTransaction.id
-
-        };
+        }
 
 
-        State.transactions[
+        /* =============================================
+           FINISH
+        ============================================= */
 
-            index
-
-        ] =
-
-            updatedTransaction;
-
-
-        console.log(
-
-            "Transaction diubah:",
-
-            updatedTransaction
-
-        );
+        finishCurrentInput();
 
     }
 
+    finally{
 
-    /* =============================================
-       FINISH
-    ============================================= */
+        isAddingTransaction = false;
 
-    finishCurrentInput();
+
+        if(
+
+            button
+
+        ){
+
+            button.disabled = false;
+
+            button.removeAttribute(
+
+                "aria-disabled"
+
+            );
+
+        }
+
+    }
 
 }
 
@@ -836,6 +1113,28 @@ function bindAddButton(){
         "click",
 
         () => {
+
+            /* =====================================
+               DOUBLE CLICK PROTECTION
+            ===================================== */
+
+            if(
+
+                isAddingTransaction
+
+            ){
+
+                console.warn(
+
+                    "TRANSACTION ADD/UPDATE: klik ganda dicegah."
+
+                );
+
+
+                return;
+
+            }
+
 
             /* =====================================
                AMBIL CURRENT VALUES
@@ -1456,6 +1755,13 @@ function bindConfirmButton(){
 
     ){
 
+        console.warn(
+
+            "Tombol #global-input-confirm belum ditemukan."
+
+        );
+
+
         return;
 
     }
@@ -1466,6 +1772,15 @@ function bindConfirmButton(){
         "click",
 
         () => {
+
+            /*
+               confirmTransactions()
+               sudah memiliki protection internal.
+
+               Jadi walaupun click event terpanggil
+               dua kali, hanya request pertama
+               yang boleh berjalan.
+            */
 
             confirmTransactions();
 
@@ -1478,11 +1793,85 @@ function bindConfirmButton(){
 
 /* =====================================================
    CONFIRM TRANSACTIONS
+=====================================================
+
+   FLOW :
+
+       Confirm
+          ↓
+       lock
+          ↓
+       Loading.show()
+          ↓
+       snapshot transactions
+          ↓
+       saveInput()
+          ↓
+       Write Engine
+          ↓
+       AppScript input.gs
+          ↓
+       Google Sheet
+          ↓
+       semua sukses
+          ↓
+       State.reset()
+          ↓
+       close overlay
+
+   Setiap transaction dikirim sebagai
+   object individual karena input.gs
+   menerima satu transaction object.
+
 ===================================================== */
 
-function confirmTransactions(){
+async function confirmTransactions(){
+
+    /* =============================================
+       DOUBLE CONFIRM PROTECTION
+    ============================================= */
 
     if(
+
+        isConfirmingTransactions
+
+    ){
+
+        console.warn(
+
+            "TRANSACTION CONFIRM: request ganda dicegah."
+
+        );
+
+
+        return {
+
+            success :
+
+                false,
+
+            duplicate :
+
+                true
+
+        };
+
+    }
+
+
+    /* =============================================
+       VALIDATION
+    ============================================= */
+
+    if(
+
+        !Array.isArray(
+
+            State.transactions
+
+        )
+
+        ||
 
         State.transactions.length ===
 
@@ -1497,55 +1886,635 @@ function confirmTransactions(){
         );
 
 
-        return;
+        return {
+
+            success :
+
+                false,
+
+            empty :
+
+                true
+
+        };
 
     }
 
 
-    const payload = {
+    /* =============================================
+       LOCK CONFIRM
+    ============================================= */
 
-        workspace :
-
-            getTransactionWorkspace(),
-
-        date :
-
-            State.date,
-
-        mode :
-
-            State.mode,
-
-        transactions :
-
-            [
-
-                ...State.transactions
-
-            ]
-
-    };
+    isConfirmingTransactions = true;
 
 
-    console.log(
+    const button =
 
-        "DATA SIAP DIKIRIM:",
+        document.getElementById(
 
-        payload
+            "global-input-confirm"
+
+        );
+
+
+    if(
+
+        button
+
+    ){
+
+        button.disabled = true;
+
+        button.setAttribute(
+
+            "aria-disabled",
+
+            "true"
+
+        );
+
+        button.setAttribute(
+
+            "aria-busy",
+
+            "true"
+
+        );
+
+    }
+
+
+    try{
+
+        /* =========================================
+           LOADING
+        ========================================= */
+
+        await Loading.show();
+
+
+        /*
+           Beri browser kesempatan untuk
+           menggambar Loading terlebih dahulu.
+
+           Ini penting supaya Loading tidak
+           tertahan oleh proses async berikutnya.
+        */
+
+        await new Promise(
+
+            resolve => {
+
+                if(
+
+                    typeof requestAnimationFrame ===
+
+                        "function"
+
+                ){
+
+                    requestAnimationFrame(
+
+                        () => resolve()
+
+                    );
+
+                }
+
+                else{
+
+                    setTimeout(
+
+                        resolve,
+
+                        0
+
+                    );
+
+                }
+
+            }
+
+        );
+
+
+        /* =========================================
+           SNAPSHOT TRANSACTIONS
+        =========================================
+
+           Gunakan copy agar data yang sedang
+           dikirim tidak berubah akibat perubahan
+           State selama proses async.
+        ========================================= */
+
+        const transactions =
+
+            State.transactions.map(
+
+                transaction => ({
+
+                    ...transaction
+
+                })
+
+            );
+
+
+        const workspace =
+
+            getTransactionWorkspace();
+
+
+        if(
+
+            !workspace
+
+        ){
+
+            throw new Error(
+
+                "Workspace input tidak ditemukan."
+
+            );
+
+        }
+
+
+        /* =========================================
+           PAYLOAD LOG
+        ========================================= */
+
+        const payload = {
+
+            workspace :
+
+                workspace,
+
+            date :
+
+                State.date,
+
+            mode :
+
+                State.mode,
+
+            transactions :
+
+                transactions
+
+        };
+
+
+        console.log(
+
+            "DATA SIAP DIKIRIM:",
+
+            payload
+
+        );
+
+
+        console.log(
+
+            "INPUT CONFIRM:",
+
+            {
+
+                workspace :
+
+                    workspace,
+
+                count :
+
+                    transactions.length
+
+            }
+
+        );
+
+
+        /* =========================================
+           SAVE EACH TRANSACTION
+        =========================================
+
+           input.gs saat ini menerima:
+
+               saveInput(
+                   accessToken,
+                   spreadsheetId,
+                   workspace,
+                   data
+               )
+
+           Karena itu setiap transaction
+           dikirim satu per satu.
+
+        ========================================= */
+
+        const results = [];
+
+
+        for(
+
+            let index = 0;
+
+            index < transactions.length;
+
+            index++
+
+        ){
+
+            const transaction =
+
+                transactions[index];
+
+
+            console.log(
+
+                "INPUT SAVE:",
+
+                {
+
+                    index :
+
+                        index + 1,
+
+                    total :
+
+                        transactions.length,
+
+                    transaction :
+
+                        transaction
+
+                }
+
+            );
+
+
+            const result =
+
+                await saveInput(
+
+                    workspace,
+
+                    transaction
+
+                );
+
+
+            console.log(
+
+                "INPUT SAVE RESULT:",
+
+                {
+
+                    index :
+
+                        index + 1,
+
+                    result :
+
+                        result
+
+                }
+
+            );
+
+
+            /* =====================================
+               VALIDATE RESULT
+            ===================================== */
+
+            if(
+
+                !result
+
+                ||
+
+                result.success !==
+
+                    true
+
+            ){
+
+                let message =
+
+                    "AppScript gagal menyimpan transaction.";
+
+
+                if(
+
+                    result
+
+                    &&
+
+                    result.message
+
+                ){
+
+                    message =
+
+                        result.message;
+
+                }
+
+                else if(
+
+                    result
+
+                    &&
+
+                    result.error
+
+                ){
+
+                    message =
+
+                        result.error;
+
+                }
+
+
+                throw new Error(
+
+                    message
+
+                );
+
+            }
+
+
+            results.push(
+
+                result
+
+            );
+
+        }
+
+
+        /* =========================================
+           ALL SUCCESS
+        ========================================= */
+
+        console.log(
+
+            "=========================================="
+
+        );
+
+
+        console.log(
+
+            "INPUT SAVE SUCCESS"
+
+        );
+
+
+        console.log(
+
+            "Workspace:",
+
+            workspace
+
+        );
+
+
+        console.log(
+
+            "Total transaction:",
+
+            transactions.length
+
+        );
+
+
+        console.log(
+
+            "Results:",
+
+            results
+
+        );
+
+
+        console.log(
+
+            "=========================================="
+
+        );
+
+
+        /* =========================================
+           RESET STATE
+        ========================================= */
+
+        State.reset();
+
+
+        /* =========================================
+           CLOSE INPUT OVERLAY
+        ========================================= */
+
+        closeInputOverlay();
+
+
+        return {
+
+            success :
+
+                true,
+
+            workspace :
+
+                workspace,
+
+            count :
+
+                transactions.length,
+
+            results :
+
+                results
+
+        };
+
+    }
+
+    catch(
+
+        error
+
+    ){
+
+        console.error(
+
+            "INPUT SAVE ERROR:",
+
+            error
+
+        );
+
+
+        const message =
+
+            error?.message
+
+            ??
+
+            String(
+
+                error
+
+            );
+
+
+        /*
+           Jangan reset State ketika gagal.
+
+           User masih dapat melihat transaction
+           yang belum berhasil disimpan dan
+           melakukan retry.
+        */
+
+        alert(
+
+            "Gagal menyimpan input:\n" +
+
+            message
+
+        );
+
+
+        return {
+
+            success :
+
+                false,
+
+            error :
+
+                message
+
+        };
+
+    }
+
+    finally{
+
+        /* =========================================
+           HIDE LOADING
+        ========================================= */
+
+        try{
+
+            await Loading.hide();
+
+        }
+
+        catch(
+
+            loadingError
+
+        ){
+
+            console.warn(
+
+                "Loading hide gagal:",
+
+                loadingError
+
+            );
+
+        }
+
+
+        /* =========================================
+           UNLOCK CONFIRM
+        ========================================= */
+
+        isConfirmingTransactions = false;
+
+
+        if(
+
+            button
+
+        ){
+
+            button.disabled = false;
+
+            button.removeAttribute(
+
+                "aria-disabled"
+
+            );
+
+            button.removeAttribute(
+
+                "aria-busy"
+
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   CLOSE INPUT OVERLAY
+=====================================================
+
+   Tidak import script.js agar tidak terjadi
+   circular dependency.
+
+   transaction.js cukup menutup overlay
+   secara langsung setelah seluruh input
+   berhasil disimpan.
+
+===================================================== */
+
+function closeInputOverlay(){
+
+    const overlay =
+
+        document.getElementById(
+
+            "global-input-overlay"
+
+        );
+
+
+    if(
+
+        overlay
+
+    ){
+
+        overlay.classList.remove(
+
+            "is-open"
+
+        );
+
+    }
+
+
+    document.body.classList.remove(
+
+        "input-open"
 
     );
 
 
-    /*
-       WRITE ENGINE / API akan menangani
-       pengiriman data.
+    console.log(
 
-       transaction.js hanya menyiapkan
-       payload.
+        "INPUT OVERLAY CLOSED"
 
-       Tidak ada Apps Script langsung
-       di sini.
-    */
+    );
 
 }
 
