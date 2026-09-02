@@ -936,8 +936,125 @@ export const Monthly = {
 
     prefix :
 
-        PREFIX,
+    PREFIX,
 
+
+/* =================================================
+   PREPARE TRANSACTION
+=================================================
+
+   Month dan Year otomatis diambil dari
+   tanggal transaksi.
+
+   Contoh:
+
+       date = 2026-02-02
+
+       month = 2
+       year  = 2026
+
+   Tidak menjadi field input.
+   User tidak perlu mengisi manual.
+================================================= */
+
+prepareTransaction :
+
+    function(
+
+        values,
+
+        context
+
+    ){
+
+        const date =
+
+            context?.date ??
+
+            "";
+
+
+        if(
+
+            !date
+
+        ){
+
+            return values;
+
+        }
+
+
+        const parts =
+
+            String(
+
+                date
+
+            )
+
+            .split("-");
+
+
+        if(
+
+            parts.length !==
+
+            3
+
+        ){
+
+            return values;
+
+        }
+
+
+        const year =
+
+            Number(
+
+                parts[0]
+
+            );
+
+
+        const month =
+
+            Number(
+
+                parts[1]
+
+            );
+
+
+        if(
+
+            !year ||
+
+            !month
+
+        ){
+
+            return values;
+
+        }
+
+
+        return {
+
+            ...values,
+
+            month :
+
+                month,
+
+            year :
+
+                year
+
+        };
+
+    },
 
     /* =================================================
        TITLE
