@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 4.2.0
+   Version      : 4.3.0
 
    Description :
    Payroll Monthly Setting Definition
@@ -24,12 +24,16 @@
    - Masa aktif cukup bulan + tahun
    - Normalize menghasilkan tanggal lengkap
    - Rule yang sudah dipilih tidak tersedia lagi
+   - Masa aktif Rule Periode diwariskan ke rule
+     Gaji, Potong, dan Tambah
+   - Rule lama tetap menjadi history
 ===================================================== */
 
 
 /* =====================================================
    MONTHLY HELPERS
 ===================================================== */
+
 
 /* =====================================================
    GET USED RULE NAMES
@@ -902,18 +906,29 @@ function getDayNumber(
 
 }
 
+
+
 /* =====================================================
    MONTHLY ACTIVE PERIOD CONTEXT
 ===================================================== */
 
 /*
-   Menyimpan periode aktif terakhir yang berhasil
-   dibuat pada Payroll Monthly.
+   Menyimpan periode aktif terakhir.
 
-   Context ini digunakan oleh Rule Gaji,
-   Rule Potong, dan Rule Tambah.
+   Periode ini menjadi context untuk seluruh
+   Rule Gaji, Rule Potong, dan Rule Tambah
+   yang dibuat setelah Rule Periode tersebut.
 
-   History rule lama tidak diubah.
+   Contoh:
+
+   Rule Periode
+   berlaku_start = 2026-01-21
+   berlaku_end   = 2027-02-20
+
+   Maka rule setelahnya otomatis menggunakan:
+
+   berlaku_start = 2026-01-21
+   berlaku_end   = 2027-02-20
 */
 
 let MONTHLY_PERIOD_CONTEXT = null;
@@ -983,6 +998,16 @@ function setMonthlyPeriodContext(
    GET LATEST PERIOD FROM UI RESULT
 ===================================================== */
 
+/*
+   Membaca Rule Periode terakhir yang ada di UI.
+
+   Ini penting supaya ketika data history sudah
+   dimuat kembali ke halaman, rule baru tetap
+   menggunakan periode terakhir.
+
+   Rule lama tidak diubah.
+*/
+
 function getLatestMonthlyPeriodContext(){
 
     const sectionElement =
@@ -1023,9 +1048,8 @@ function getLatestMonthlyPeriodContext(){
 
 
             /*
-               Cari dari bawah karena periode terakhir
-               adalah periode yang sedang digunakan
-               untuk input rule berikutnya.
+               Cari dari bawah karena Rule Periode
+               paling bawah adalah periode terbaru.
             */
 
             for(
@@ -1123,11 +1147,6 @@ function getLatestMonthlyPeriodContext(){
     }
 
 
-    /*
-       Fallback apabila result belum masuk ke DOM,
-       misalnya normalize baru saja selesai.
-    */
-
     return MONTHLY_PERIOD_CONTEXT;
 
 }
@@ -1143,6 +1162,8 @@ function getMonthlyActivePeriodContext(){
     return getLatestMonthlyPeriodContext();
 
 }
+
+
 
 /* =====================================================
    MONTHLY SETTING
@@ -1553,12 +1574,6 @@ export const MonthlySetting = {
 
                     /* =================================
                        PERIOD CALCULATION START
-                       
-                       Contoh:
-                       21
-                       Januari 2026
-
-                       → 2026-01-21
                     ================================= */
 
                     const nilaiStart =
@@ -1594,15 +1609,9 @@ export const MonthlySetting = {
 
                     /* =================================
                        PERIOD CALCULATION END
-                       
+
                        Tanggal akhir mengambil
-                       SATU BULAN SETELAH BULAN START.
-
-                       Contoh:
-                       20
-                       Januari 2026
-
-                       → 2026-02-20
+                       SATU BULAN setelah bulan start.
                     ================================= */
 
                     const nextPeriod =
@@ -1649,9 +1658,6 @@ export const MonthlySetting = {
 
                     /* =================================
                        ACTIVE PERIOD START
-                       
-                       Menggunakan bulan/tahun
-                       yang dipilih user + start day.
                     ================================= */
 
                     const berlakuStart =
@@ -1687,9 +1693,6 @@ export const MonthlySetting = {
 
                     /* =================================
                        ACTIVE PERIOD END
-                       
-                       Menggunakan bulan/tahun akhir
-                       yang dipilih user + end day.
                     ================================= */
 
                     const berlakuEnd =
@@ -1758,13 +1761,10 @@ export const MonthlySetting = {
 
 
                     /* =================================
-                       RETURN
-                       
-                       STRUKTUR RESULT TETAP SAMA
-                       SEPERTI VERSI SEBELUMNYA.
+                       NORMALIZED PERIOD RULE
                     ================================= */
 
-                    return {
+                    const normalizedRule = {
 
                         type_rule :
 
@@ -1811,6 +1811,25 @@ export const MonthlySetting = {
                             berlakuEnd
 
                     };
+
+
+                    /* =================================
+                       SET ACTIVE PERIOD CONTEXT
+
+                       Periode yang baru dibuat menjadi
+                       periode aktif untuk rule berikutnya.
+
+                       Rule periode lama tetap tersimpan.
+                    ================================= */
+
+                    setMonthlyPeriodContext(
+
+                        normalizedRule
+
+                    );
+
+
+                    return normalizedRule;
 
                 }
 
@@ -1992,6 +2011,41 @@ export const MonthlySetting = {
 
                 ){
 
+                    const periodContext =
+
+                        getMonthlyActivePeriodContext();
+
+
+                    /* =================================
+                       REQUIRE PERIOD
+                    ================================= */
+
+                    if(
+
+                        !periodContext
+
+                        ||
+
+                        !periodContext.berlaku_start
+
+                        ||
+
+                        !periodContext.berlaku_end
+
+                    ){
+
+                        alert(
+
+                            "Tambahkan Periode Gaji terlebih dahulu sebelum menambahkan Rule Gaji."
+
+                        );
+
+
+                        return null;
+
+                    }
+
+
                     return {
 
                         type_rule :
@@ -2031,12 +2085,12 @@ export const MonthlySetting = {
 
                         berlaku_start :
 
-                            "",
+                            periodContext.berlaku_start,
 
 
                         berlaku_end :
 
-                            ""
+                            periodContext.berlaku_end
 
                     };
 
@@ -2388,8 +2442,7 @@ export const MonthlySetting = {
 
                 /* =========================================
                    NILAI START
-                   
-                   Khusus Telat 1–4.
+                   KHUSUS TELAT
                 ========================================= */
 
                 {
@@ -2460,8 +2513,7 @@ export const MonthlySetting = {
 
                 /* =========================================
                    NILAI END
-                   
-                   Khusus Telat 1–4.
+                   KHUSUS TELAT
                 ========================================= */
 
                 {
@@ -2717,6 +2769,45 @@ export const MonthlySetting = {
                     }
 
 
+                    /* =====================================
+                       GET ACTIVE PERIOD
+                    ===================================== */
+
+                    const periodContext =
+
+                        getMonthlyActivePeriodContext();
+
+
+                    if(
+
+                        !periodContext
+
+                        ||
+
+                        !periodContext.berlaku_start
+
+                        ||
+
+                        !periodContext.berlaku_end
+
+                    ){
+
+                        alert(
+
+                            "Tambahkan Periode Gaji terlebih dahulu sebelum menambahkan Rule Potong."
+
+                        );
+
+
+                        return null;
+
+                    }
+
+
+                    /* =====================================
+                       RETURN
+                    ===================================== */
+
                     return {
 
                         type_rule :
@@ -2756,12 +2847,12 @@ export const MonthlySetting = {
 
                         berlaku_start :
 
-                            "",
+                            periodContext.berlaku_start,
 
 
                         berlaku_end :
 
-                            ""
+                            periodContext.berlaku_end
 
                     };
 
@@ -3196,8 +3287,7 @@ export const MonthlySetting = {
 
                 /* =========================================
                    NILAI START
-                   
-                   Hanya untuk Lembur Jam 1–8.
+                   LEMBUR JAM
                 ========================================= */
 
                 {
@@ -3276,8 +3366,7 @@ export const MonthlySetting = {
 
                 /* =========================================
                    NILAI END
-                   
-                   Hanya untuk Lembur Jam 1–8.
+                   LEMBUR JAM
                 ========================================= */
 
                 {
@@ -3635,6 +3724,41 @@ export const MonthlySetting = {
 
 
                     /* =====================================
+                       GET ACTIVE PERIOD
+                    ===================================== */
+
+                    const periodContext =
+
+                        getMonthlyActivePeriodContext();
+
+
+                    if(
+
+                        !periodContext
+
+                        ||
+
+                        !periodContext.berlaku_start
+
+                        ||
+
+                        !periodContext.berlaku_end
+
+                    ){
+
+                        alert(
+
+                            "Tambahkan Periode Gaji terlebih dahulu sebelum menambahkan Rule Tambah."
+
+                        );
+
+
+                        return null;
+
+                    }
+
+
+                    /* =====================================
                        RETURN
                     ===================================== */
 
@@ -3677,12 +3801,12 @@ export const MonthlySetting = {
 
                         berlaku_start :
 
-                            "",
+                            periodContext.berlaku_start,
 
 
                         berlaku_end :
 
-                            ""
+                            periodContext.berlaku_end
 
                     };
 
