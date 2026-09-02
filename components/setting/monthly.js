@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 4.3.0
+   Version      : 4.4.0
 
    Description :
    Payroll Monthly Setting Definition
@@ -27,6 +27,8 @@
    - Masa aktif Rule Periode diwariskan ke rule
      Gaji, Potong, dan Tambah
    - Rule lama tetap menjadi history
+   - Rule Masuk dibuat otomatis oleh sistem
+   - User tidak perlu mengatur Rule Masuk
 ===================================================== */
 
 
@@ -903,6 +905,194 @@ function getDayNumber(
 
 
     return number;
+
+}
+
+
+
+/* =====================================================
+   AUTOMATIC RULE MASUK
+===================================================== */
+
+/*
+   Rule ini TIDAK memiliki section/form sendiri.
+
+   Sistem membuatnya otomatis ketika user membuat
+   Rule Periode.
+
+   Status attendance yang wajib:
+
+   - masuk
+   - cuti
+   - sakit
+   - libur
+   - absen
+
+   Semua status menggunakan masa aktif yang sama
+   dengan Rule Periode.
+
+   User tidak perlu mengetahui struktur internal ini.
+*/
+
+function createAutomaticRuleMasuk(
+
+    berlakuStart,
+
+    berlakuEnd
+
+){
+
+    if(
+
+        !berlakuStart
+
+        ||
+
+        !berlakuEnd
+
+    ){
+
+        return [];
+
+    }
+
+
+    const statusList = [
+
+        {
+
+            nama :
+
+                "masuk",
+
+            kondisi :
+
+                "masuk",
+
+            waktu :
+
+                "senin,selasa,rabu,kamis,jumat"
+
+        },
+
+        {
+
+            nama :
+
+                "cuti",
+
+            kondisi :
+
+                "cuti",
+
+            waktu :
+
+                "senin,selasa,rabu,kamis,jumat"
+
+        },
+
+        {
+
+            nama :
+
+                "sakit",
+
+            kondisi :
+
+                "sakit",
+
+            waktu :
+
+                "senin,selasa,rabu,kamis,jumat"
+
+        },
+
+        {
+
+            nama :
+
+                "libur",
+
+            kondisi :
+
+                "libur",
+
+            waktu :
+
+                "senin,selasa,rabu,kamis,jumat"
+
+        },
+
+        {
+
+            nama :
+
+                "absen",
+
+            kondisi :
+
+                "absen",
+
+            waktu :
+
+                "senin,selasa,rabu,kamis,jumat"
+
+        }
+
+    ];
+
+
+    return statusList.map(
+
+        status => ({
+
+            type_rule :
+
+                "rule_masuk",
+
+
+            nama :
+
+                status.nama,
+
+
+            kondisi :
+
+                status.kondisi,
+
+
+            waktu :
+
+                status.waktu,
+
+
+            nominal :
+
+                "",
+
+
+            nilai_start :
+
+                "",
+
+
+            nilai_end :
+
+                "",
+
+
+            berlaku_start :
+
+                berlakuStart,
+
+
+            berlaku_end :
+
+                berlakuEnd
+
+        })
+
+    );
 
 }
 
@@ -1808,7 +1998,27 @@ export const MonthlySetting = {
 
                         berlaku_end :
 
-                            berlakuEnd
+                            berlakuEnd,
+
+
+                        /* =================================
+                           AUTOMATIC RULE MASUK
+
+                           Internal only.
+
+                           Tidak membutuhkan section,
+                           form, atau input user.
+                        ================================= */
+
+                        auto_rules :
+
+                            createAutomaticRuleMasuk(
+
+                                berlakuStart,
+
+                                berlakuEnd
+
+                            )
 
                     };
 
@@ -2189,10 +2399,6 @@ export const MonthlySetting = {
 
                             [
 
-                                /* =========================
-                                   POTONGAN PERIODE
-                                ========================= */
-
                                 {
 
                                     value :
@@ -2263,10 +2469,6 @@ export const MonthlySetting = {
                                 },
 
 
-                                /* =========================
-                                   POTONGAN TELAT
-                                ========================= */
-
                                 {
 
                                     value :
@@ -2322,10 +2524,6 @@ export const MonthlySetting = {
 
                                 },
 
-
-                                /* =========================
-                                   POTONGAN ATTENDANCE
-                                ========================= */
 
                                 {
 
@@ -2956,10 +3154,6 @@ export const MonthlySetting = {
 
                             [
 
-                                /* =========================
-                                   TAMBAHAN PERIODE
-                                ========================= */
-
                                 {
 
                                     value :
@@ -2988,10 +3182,6 @@ export const MonthlySetting = {
                                 },
 
 
-                                /* =========================
-                                   UANG MAKAN
-                                ========================= */
-
                                 {
 
                                     value :
@@ -3005,10 +3195,6 @@ export const MonthlySetting = {
 
                                 },
 
-
-                                /* =========================
-                                   LEMBUR HARIAN
-                                ========================= */
 
                                 {
 
@@ -3028,10 +3214,6 @@ export const MonthlySetting = {
 
                                 },
 
-
-                                /* =========================
-                                   LEMBUR PER JAM
-                                ========================= */
 
                                 {
 
