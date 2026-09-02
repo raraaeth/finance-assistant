@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 2.0.0
+   Version      : 2.0.1
 
    Description :
    Airdrop Setting Definition
@@ -1219,7 +1219,18 @@ export const AirdropSetting = {
 
             description :
 
-                "Pilih type Airdrop yang tersedia untuk digunakan pada input. Campaign selalu tersedia dan tidak dapat dinonaktifkan.",
+                "Pilih type Airdrop yang tersedia untuk digunakan pada input.",
+
+
+            /*
+             * Campaign tidak lagi menjadi checkbox.
+             * Campaign selalu aktif dan akan ditambahkan
+             * otomatis oleh normalize().
+             */
+
+            note :
+
+                "Type Campaign selalu ada dan akan ditambahkan secara otomatis.",
 
 
             addLabel :
@@ -1238,8 +1249,6 @@ export const AirdropSetting = {
 
 
             uniqueFields : [
-
-                "campaign",
 
                 "testnet",
 
@@ -1272,39 +1281,6 @@ export const AirdropSetting = {
 
 
             fields : [
-
-                /* =========================================
-                   CAMPAIGN
-                ========================================= */
-
-                {
-
-                    name :
-
-                        "campaign",
-
-                    label :
-
-                        "Campaign",
-
-                    type :
-
-                        "checkbox",
-
-                    value :
-
-                        true,
-
-                    resultValue :
-
-                        "campaign",
-
-                    resultTarget :
-
-                        "type"
-
-                },
-
 
                 /* =========================================
                    TESTNET
