@@ -715,7 +715,15 @@ function handleFieldComplete(
 
             mode :
 
-                State.mode
+                State.mode,
+
+            currentStep :
+
+                State.step,
+
+            fieldIndex :
+
+                fieldIndex
 
         }
 
@@ -724,19 +732,6 @@ function handleFieldComplete(
 
     /* =================================================
        CONDITION FIELD
-
-       Condition mempunyai beberapa child field.
-
-       Contoh :
-
-           conditions
-               ↓
-           telat
-           izin_telat
-           izin_pulang
-           lembur_jam
-
-       Semua ditentukan oleh konfigurasi workspace.
     ================================================= */
 
     if(
@@ -762,15 +757,6 @@ function handleFieldComplete(
 
     /* =================================================
        STATUS
-
-       Status dapat mengubah field berikutnya
-       melalui showWhen.
-
-       Flow tidak mengetahui jenis status
-       workspace tertentu.
-
-       Semua keputusan visibility berasal
-       dari field.showWhen.
     ================================================= */
 
     if(
@@ -795,7 +781,37 @@ function handleFieldComplete(
 
 
     /* =================================================
-       NORMAL FIELD
+       DETEKSI BACKTRACKING
+    =================================================
+
+       Contoh :
+
+           State.step = 3
+
+       User kembali mengubah :
+
+           fieldIndex = 0
+
+       Berarti :
+
+           0 < 3
+
+       Artinya user mengubah field sebelumnya.
+
+       Semua field setelah field tersebut
+       harus dianggap invalid.
+
+    ================================================= */
+
+    const isBacktracking =
+
+        fieldIndex <
+
+        State.step;
+
+
+    /* =================================================
+       SIMPAN VALUE FIELD
     ================================================= */
 
     State.values[
@@ -808,7 +824,58 @@ function handleFieldComplete(
 
 
     /* =================================================
-       LANJUT FIELD
+       RESET FIELD SETELAHNYA
+       
+       Hanya dilakukan jika user kembali
+       mengubah field sebelumnya.
+
+    ================================================= */
+
+    if(
+
+        isBacktracking
+
+    ){
+
+        console.log(
+
+            "FLOW BACKTRACK:",
+
+            {
+
+                changedField :
+
+                    field.id,
+
+                changedIndex :
+
+                    fieldIndex,
+
+                previousStep :
+
+                    State.step
+
+            }
+
+        );
+
+
+        clearFieldsAfter(
+
+            fieldIndex
+
+        );
+
+    }
+
+
+    /* =================================================
+       LANJUT KE FIELD BERIKUTNYA
+       
+       Bukan berdasarkan posisi lama,
+       tetapi berdasarkan field yang baru saja
+       diubah.
+
     ================================================= */
 
     State.step =
@@ -816,10 +883,13 @@ function handleFieldComplete(
         fieldIndex + 1;
 
 
+    /* =================================================
+       RENDER
+    ================================================= */
+
     renderFlow();
 
 }
-
 
 /* =====================================================
    STATUS CHANGE
