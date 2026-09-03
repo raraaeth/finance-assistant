@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Kas
    File         : kas.js
-   Version      : 3.1.0
+   Version      : 3.1.1
 
    Description :
    Input Flow Configuration for Kas
@@ -61,6 +61,9 @@
      dan keterangan pada Input.
    - Mapping ke struktur Sheet dilakukan
      oleh prepareTransaction().
+   - Field frontend tetap dipertahankan
+     agar Result UI dapat menampilkan
+     transaksi dengan benar.
 ===================================================== */
 
 
@@ -768,9 +771,21 @@ export function getKasRules(){
        nominal
        keterangan
 
-   Karena itu Kas melakukan mapping di sini.
+   PENTING :
 
-   transaction.js tetap GENERIC.
+   Field frontend tetap dipertahankan karena
+   Result UI membaca field tersebut.
+
+   Kemudian field Sheet ditambahkan sebagai
+   mapping untuk proses penyimpanan.
+
+   Mapping :
+
+       type      → jenis
+       category  → kategori
+       member    → nama
+       amount    → nominal
+       note      → keterangan
 
 ===================================================== */
 
@@ -782,11 +797,30 @@ export function prepareTransaction(
 
 ){
 
-    const result = {};
+    /*
+     * PENTING :
+     *
+     * Jangan membuat object kosong.
+     *
+     * Field asli harus dipertahankan agar
+     * Result UI tetap dapat membaca :
+     *
+     * type
+     * category
+     * member
+     * amount
+     * note
+     */
+
+    const result = {
+
+        ...values
+
+    };
 
 
     /* =================================================
-       JENIS
+       JENIS → JENIS
     ================================================= */
 
     result.jenis =
@@ -797,7 +831,7 @@ export function prepareTransaction(
 
 
     /* =================================================
-       KATEGORI
+       KATEGORI → KATEGORI
     ================================================= */
 
     result.kategori =
@@ -808,38 +842,11 @@ export function prepareTransaction(
 
 
     /* =================================================
-       NOMINAL
-    ================================================= */
-
-    result.nominal =
-
-        values.amount ??
-
-        "";
-
-
-    /* =================================================
-       KETERANGAN
-    ================================================= */
-
-    result.keterangan =
-
-        values.note ??
-
-        "";
-
-
-    /* =================================================
-       MEMBER
+       MEMBER → NAMA
     =================================================
 
-       Semua transaksi normal menggunakan member.
-
-       Kecuali :
-
-           Keluar → Lain-lain
-
-       Lain-lain tidak memiliki member.
+       Keluar → Lain-lain tidak mempunyai
+       member.
 
     ================================================= */
 
@@ -857,13 +864,7 @@ export function prepareTransaction(
 
     ){
 
-        /*
-         * Jangan membuat kolom nama
-         * untuk transaksi Lain-lain.
-         *
-         * Backend akan mengisi cell
-         * tersebut sebagai kosong.
-         */
+        result.nama = "";
 
     }
 
@@ -876,6 +877,80 @@ export function prepareTransaction(
             "";
 
     }
+
+
+    /* =================================================
+       NOMINAL → NOMINAL
+    ================================================= */
+
+    result.nominal =
+
+        values.amount ??
+
+        "";
+
+
+    /* =================================================
+       KETERANGAN → KETERANGAN
+    ================================================= */
+
+    result.keterangan =
+
+        values.note ??
+
+        "";
+
+
+    /* =================================================
+       DEBUG
+    ================================================= */
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== KAS PREPARE TRANSACTION ====="
+
+    );
+
+
+    console.log(
+
+        "Input Values:",
+
+        values
+
+    );
+
+
+    console.log(
+
+        "Prepared Values:",
+
+        result
+
+    );
+
+
+    console.log(
+
+        "Context:",
+
+        context
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
 
 
     return result;
