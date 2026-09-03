@@ -63,7 +63,7 @@ import {
 
     loadInputData
 
-} from "../../js/data.js";
+} from "../input/data.js";
 
 
 
