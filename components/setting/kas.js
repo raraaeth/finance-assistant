@@ -3,49 +3,27 @@
    Component    : Global Setting
    Module       : Kas
    File         : kas.js
-   Version      : 3.0.0
+   Version      : 3.1.0
 
    Description :
    Kas Setting
 
    Flow :
-   1. Baca kas_member
-   2. Cek rule yang sudah tersedia
-   3. Tampilkan rule yang belum tersedia
-   4. User centang rule yang ingin dibuat
-   5. Rule dibuat terlebih dahulu
-   6. User dapat menambahkan member
-   7. Jika rule sudah lengkap, checkbox tidak tersedia lagi
-
-   Sheet :
-   kas_member
-
-   Header :
-   nama
-   tabungan
-   kas
-   hutang
-
-   Fixed Rules :
-
-   Tabungan :
-   - nabung
-   - tarik
-   - lain_lain
-
-   Kas :
-   - iuran
-   - tarik
-   - lain_lain
-
-   Hutang :
-   - hutang
-   - bayar
+   1. Baca data workspace melalui Global API
+   2. Baca sheet DATA workspace Kas
+   3. Cek rule yang sudah tersedia
+   4. Tampilkan rule yang belum tersedia
+   5. User centang rule yang ingin dibuat
+   6. Rule dibuat terlebih dahulu
+   7. User dapat menambahkan member
+   8. Jika rule sudah lengkap, checkbox tidak tersedia lagi
 
    Principle :
    - Tidak ada URL Spreadsheet hardcode.
-   - Tidak ada workspace hardcode untuk membaca data.
-   - Data dibaca melalui Global Input Data Engine.
+   - Tidak ada Spreadsheet ID hardcode.
+   - Tidak menggunakan components/input/data.js.
+   - Pembacaan langsung melalui Global API.
+   - Nama sheet diambil dari Global Workspace Registry.
    - Checkbox bukan data member.
    - Checkbox hanya digunakan untuk membuat rule.
    - Rule hanya dibuat sekali.
@@ -54,16 +32,25 @@
 
 
 /* =====================================================
-   IMPORT DATA ENGINE
+   IMPORT GLOBAL API
 ===================================================== */
 
 import {
 
-    getInputData,
+    API
 
-    loadInputData
+} from "../../js/api.js";
 
-} from "../input/data.js";
+
+/* =====================================================
+   IMPORT GLOBAL WORKSPACE
+===================================================== */
+
+import {
+
+    getWorkspaceConfig
+
+} from "../../js/workspace.js";
 
 
 
@@ -142,8 +129,9 @@ const KAS_RULE_LABEL = {
  *
  *     Google Sheets
  *
- * State diperbarui setiap kali
- * Setting Kas dibuka / form rule dirender.
+ * Data selalu di-refresh melalui
+ * Global API ketika Setting Kas
+ * dirender.
  */
 
 let existingRules = {
@@ -155,6 +143,20 @@ let existingRules = {
     hutang : false
 
 };
+
+
+
+/* =====================================================
+   KAS DATA CACHE
+===================================================== */
+
+/*
+ * Menyimpan hasil pembacaan sheet
+ * kas_member untuk kebutuhan debug
+ * dan pemrosesan module.
+ */
+
+let kasMemberData = [];
 
 
 
@@ -183,6 +185,300 @@ function normalizeValue(
 
 
 /* =====================================================
+   GET KAS WORKSPACE CONFIG
+===================================================== */
+
+/*
+ * Workspace registry adalah sumber
+ * konfigurasi nama sheet.
+ *
+ * Tidak ada nama sheet yang
+ * di-hardcode di fungsi pembacaan.
+ */
+
+function getKasWorkspace(){
+
+    const workspaces =
+
+        getWorkspaceConfig();
+
+
+    if(
+
+        !workspaces ||
+
+        typeof workspaces !== "object"
+
+    ){
+
+        throw new Error(
+
+            "Workspace configuration tidak ditemukan."
+
+        );
+
+    }
+
+
+    const workspace =
+
+        workspaces.kas;
+
+
+    if(
+
+        !workspace
+
+    ){
+
+        throw new Error(
+
+            'Workspace "kas" tidak ditemukan.'
+
+        );
+
+    }
+
+
+    if(
+
+        !Array.isArray(
+
+            workspace.sheets
+
+        )
+
+    ){
+
+        throw new Error(
+
+            'Konfigurasi sheet workspace "kas" tidak valid.'
+
+        );
+
+    }
+
+
+    if(
+
+        workspace.sheets.length < 2
+
+    ){
+
+        throw new Error(
+
+            'Workspace "kas" tidak memiliki DATA sheet.'
+
+        );
+
+    }
+
+
+    return workspace;
+
+}
+
+
+
+/* =====================================================
+   GET KAS SHEETS
+===================================================== */
+
+/*
+ * Struktur Global Workspace:
+ *
+ * sheets[0] = RAW
+ * sheets[1] = DATA
+ *
+ * Untuk Kas:
+ *
+ * sheets[0] = kas
+ * sheets[1] = kas_member
+ */
+
+function getKasSheets(){
+
+    const workspace =
+
+        getKasWorkspace();
+
+
+    return {
+
+        rawSheet :
+
+            workspace.sheets[0],
+
+
+        dataSheet :
+
+            workspace.sheets[1]
+
+    };
+
+}
+
+
+
+/* =====================================================
+   READ KAS MEMBER DATA
+===================================================== */
+
+/*
+ * Membaca RAW + DATA melalui:
+ *
+ *     Global API
+ *          ↓
+ *     Google Sheets API
+ *
+ * API.load() akan mengisi:
+ *
+ *     API.raw
+ *     API.data
+ *
+ * Kita menggunakan DATA karena
+ * kas_member adalah sheet kedua
+ * workspace Kas.
+ */
+
+async function readKasMemberData(){
+
+    const sheets =
+
+        getKasSheets();
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "KAS SETTING: READ DATA"
+
+    );
+
+
+    console.log(
+
+        "RAW Sheet:",
+
+        sheets.rawSheet
+
+    );
+
+
+    console.log(
+
+        "DATA Sheet:",
+
+        sheets.dataSheet
+
+    );
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    const result =
+
+        await API.load(
+
+            sheets.rawSheet,
+
+            sheets.dataSheet
+
+        );
+
+
+    if(
+
+        !result ||
+
+        result.success !== true
+
+    ){
+
+        throw new Error(
+
+            "Gagal membaca data workspace Kas."
+
+        );
+
+    }
+
+
+    /*
+     * API.load() sudah menyimpan hasil
+     * ke API.data.
+     */
+
+    const data =
+
+        Array.isArray(
+
+            result.data
+
+        )
+
+            ?
+
+        result.data
+
+            :
+
+        Array.isArray(
+
+            API.data
+
+        )
+
+            ?
+
+        API.data
+
+            :
+
+        [];
+
+
+    kasMemberData =
+
+        data;
+
+
+    console.log(
+
+        "KAS SETTING: DATA",
+
+        kasMemberData
+
+    );
+
+
+    console.log(
+
+        "KAS SETTING: DATA COUNT",
+
+        kasMemberData.length
+
+    );
+
+
+    return kasMemberData;
+
+}
+
+
+
+/* =====================================================
    GET COLUMN VALUE
 ===================================================== */
 
@@ -195,8 +491,8 @@ function normalizeValue(
  *     Nama
  *     TABUNGAN
  *
- * selama nama key sebenarnya sama
- * jika dinormalisasi.
+ * selama nama key setelah
+ * normalisasi sama.
  */
 
 function getColumnValue(
@@ -274,28 +570,31 @@ function getColumnValue(
 ===================================================== */
 
 /*
- * Membaca sheet kas_member melalui
- * Global Input Data Engine.
+ * Mengecek rule berdasarkan DATA
+ * kas_member yang baru dibaca.
  *
- * Tidak menggunakan URL Spreadsheet.
- *
- * Tidak menggunakan getter Kas khusus.
+ * Rule dianggap tersedia apabila
+ * seluruh fixed rule ditemukan
+ * di kolom masing-masing.
  */
 
-function readExistingRules(){
+function readExistingRules(
+
+    rows = kasMemberData
+
+){
 
     const data =
 
-        getInputData();
+        Array.isArray(
 
+            rows
 
-    const rows =
-
-        Array.isArray(data)
+        )
 
             ?
 
-        data
+        rows
 
             :
 
@@ -321,7 +620,7 @@ function readExistingRules(){
 
         new Set(
 
-            rows
+            data
 
                 .map(
 
@@ -369,7 +668,7 @@ function readExistingRules(){
 
         new Set(
 
-            rows
+            data
 
                 .map(
 
@@ -417,7 +716,7 @@ function readExistingRules(){
 
         new Set(
 
-            rows
+            data
 
                 .map(
 
@@ -467,57 +766,98 @@ function readExistingRules(){
    REFRESH EXISTING RULES
 ===================================================== */
 
-async function refreshExistingRules(){
+/*
+ * Selalu baca ulang Google Sheets
+ * ketika form Setting Kas dirender.
+ *
+ * Jadi status checkbox tidak
+ * bergantung pada cache lama.
+ */
 
-    /*
-     * Refresh data dari Google Sheets.
-     *
-     * Ini penting supaya ketika user:
-     *
-     * - selesai membuat rule
-     * - membuka Setting lagi
-     *
-     * status rule membaca kondisi terbaru.
-     */
+async function refreshExistingRules(){
 
     try{
 
-        await loadInputData(
+        const data =
 
-            "kas"
+            await readKasMemberData();
+
+
+        existingRules =
+
+            readExistingRules(
+
+                data
+
+            );
+
+
+        console.log(
+
+            "=========================================="
 
         );
+
+
+        console.log(
+
+            "KAS SETTING - EXISTING RULES:",
+
+            existingRules
+
+        );
+
+
+        console.log(
+
+            "KAS SETTING - MEMBER DATA:",
+
+            kasMemberData
+
+        );
+
+
+        console.log(
+
+            "=========================================="
+
+        );
+
+
+        return existingRules;
 
     }
 
     catch(error){
 
-        console.warn(
+        console.error(
 
-            "KAS SETTING: gagal refresh data.",
+            "KAS SETTING: gagal membaca data.",
 
             error
 
         );
 
+
+        /*
+         * Jangan menganggap rule sudah ada
+         * apabila pembacaan gagal.
+         */
+
+        existingRules = {
+
+            tabungan : false,
+
+            kas : false,
+
+            hutang : false
+
+        };
+
+
+        throw error;
+
     }
-
-
-    existingRules =
-
-        readExistingRules();
-
-
-    console.log(
-
-        "KAS SETTING - EXISTING RULES:",
-
-        existingRules
-
-    );
-
-
-    return existingRules;
 
 }
 
@@ -538,7 +878,8 @@ async function refreshExistingRules(){
  *
  *     [ ] Tabungan
  *
- *     dan checkbox tetap bisa dipilih.
+ * Checkbox yang sudah dibuat
+ * tidak lagi tersedia.
  */
 
 function applyRuleUIState(
@@ -633,6 +974,7 @@ function applyRuleUIState(
 
                 );
 
+
                 return;
 
             }
@@ -688,12 +1030,9 @@ function applyRuleUIState(
         );
 
 
-    /*
-     * Semua rule sudah dibuat.
-     *
-     * Tidak perlu lagi tombol
-     * "Atur Rule".
-     */
+    /* =============================================
+       ALL CREATED
+    ============================================= */
 
     if(
 
@@ -728,14 +1067,15 @@ function applyRuleUIState(
 
         }
 
+
         return;
 
     }
 
 
-    /*
-     * Masih ada rule yang belum dibuat.
-     */
+    /* =============================================
+       STILL HAS MISSING RULE
+    ============================================= */
 
     if(
 
@@ -761,21 +1101,21 @@ function applyRuleUIState(
  * Menghasilkan row berdasarkan
  * checkbox yang dipilih.
  *
- * Contoh:
- *
- * Tabungan + Kas
- *
- * menjadi:
+ * Contoh Tabungan + Kas:
  *
  * [
- *   { tabungan: "nabung" },
- *   { tabungan: "tarik" },
- *   { tabungan: "lain_lain" },
  *
- *   { kas: "iuran" },
- *   { kas: "tarik" },
- *   { kas: "lain_lain" }
+ *     { tabungan: "nabung" },
+ *     { tabungan: "tarik" },
+ *     { tabungan: "lain_lain" },
+ *
+ *     { kas: "iuran" },
+ *     { kas: "tarik" },
+ *     { kas: "lain_lain" }
+ *
  * ]
+ *
+ * Setiap object menjadi satu row.
  */
 
 function buildRuleResults(
@@ -817,9 +1157,8 @@ function buildRuleResults(
 
 
         /*
-         * Update state sementara supaya
-         * tidak dibuat ulang dalam sesi
-         * yang sama.
+         * Cegah rule dibuat ulang
+         * dalam sesi yang sama.
          */
 
         existingRules.tabungan = true;
@@ -1080,7 +1419,8 @@ export const KasSetting = {
             ){
 
                 /*
-                 * Ambil ulang data Spreadsheet.
+                 * Baca ulang Google Sheets
+                 * melalui Global API.
                  */
 
                 const state =
@@ -1089,7 +1429,7 @@ export const KasSetting = {
 
 
                 /*
-                 * Terapkan status rule.
+                 * Terapkan status rule ke UI.
                  */
 
                 applyRuleUIState(
