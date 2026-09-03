@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Kas
    File         : kas.js
-   Version      : 3.0.0
+   Version      : 3.1.0
 
    Description :
    Input Flow Configuration for Kas
@@ -42,6 +42,13 @@
    → Nominal
    → Keterangan
 
+   Sheet Mapping :
+   type      → jenis
+   category  → kategori
+   member    → nama
+   amount    → nominal
+   note      → keterangan
+
    Principle :
    - Rule dari Setting Kas menjadi sumber
      ketersediaan kategori.
@@ -50,7 +57,10 @@
    - Workspace dan sheet ditentukan oleh
      Global Workspace.
    - Lain-lain tidak mempunyai Member.
-   - Lain-lain hanya mempengaruhi saldo Kas.
+   - Lain-lain hanya memerlukan nominal
+     dan keterangan pada Input.
+   - Mapping ke struktur Sheet dilakukan
+     oleh prepareTransaction().
 ===================================================== */
 
 
@@ -72,23 +82,6 @@ import {
 export const PREFIX =
 
     "KAS";
-
-
-/* =====================================================
-   RULE SOURCE
-=====================================================
-
-   Struktur kas_member :
-
-       nama        tabungan      kas       hutang
-                   nabung        iuran     hutang
-                   tarik         tarik     bayar
-                   lain_lain     lain_lain
-
-   Kolom rule dibaca sebagai daftar kode yang
-   tersedia.
-
-===================================================== */
 
 
 /* =====================================================
@@ -163,14 +156,12 @@ function getKasData(){
 
    Membaca seluruh isi kolom rule.
 
-   Contoh :
+   Struktur :
 
-       tabungan :
-       [
-           "nabung",
-           "tarik",
-           "lain_lain"
-       ]
+       nama        tabungan      kas       hutang
+                   nabung        iuran     hutang
+                   tarik         tarik     bayar
+                   lain_lain     lain_lain
 
 ===================================================== */
 
@@ -211,17 +202,6 @@ function getRuleValues(
 
             }
 
-
-            /*
-             * Satu cell dapat berisi lebih dari
-             * satu nilai, misalnya :
-             *
-             * pagi,siang,malam
-             *
-             * Walaupun Rule Kas saat ini normalnya
-             * satu nilai per row, kita tetap
-             * normalisasi jika terdapat pemisah.
-             */
 
             value
 
@@ -289,16 +269,11 @@ function hasRule(
 
 ){
 
-    const rules =
+    return getRuleValues(
 
-        getRuleValues(
+        column
 
-            column
-
-        );
-
-
-    return rules.includes(
+    ).includes(
 
         rule
 
@@ -311,7 +286,7 @@ function hasRule(
    CATEGORY AVAILABILITY
 =====================================================
 
-   Mapping final :
+   Mapping :
 
    MASUK
    - nabung  ← tabungan
@@ -346,9 +321,9 @@ function getCategoryDefinitions(
 
     ){
 
-        /*
-         * Tabungan
-         */
+        /* ---------------------------------------------
+           NABUNG
+        --------------------------------------------- */
 
         if(
 
@@ -385,9 +360,9 @@ function getCategoryDefinitions(
         }
 
 
-        /*
-         * Kas
-         */
+        /* ---------------------------------------------
+           IURAN
+        --------------------------------------------- */
 
         if(
 
@@ -424,9 +399,9 @@ function getCategoryDefinitions(
         }
 
 
-        /*
-         * Hutang
-         */
+        /* ---------------------------------------------
+           BAYAR
+        --------------------------------------------- */
 
         if(
 
@@ -477,12 +452,9 @@ function getCategoryDefinitions(
 
     ){
 
-        /*
-         * Tabungan / Kas
-         *
-         * Tarik cukup tersedia jika ada pada
-         * salah satu rule source.
-         */
+        /* ---------------------------------------------
+           TARIK
+        --------------------------------------------- */
 
         if(
 
@@ -529,13 +501,9 @@ function getCategoryDefinitions(
         }
 
 
-        /*
-         * Lain-lain
-         *
-         * Sama seperti tarik, rule dianggap
-         * tersedia jika terdapat pada Tabungan
-         * atau Kas.
-         */
+        /* ---------------------------------------------
+           LAIN-LAIN
+        --------------------------------------------- */
 
         if(
 
@@ -586,9 +554,9 @@ function getCategoryDefinitions(
         }
 
 
-        /*
-         * Hutang
-         */
+        /* ---------------------------------------------
+           HUTANG
+        --------------------------------------------- */
 
         if(
 
@@ -640,8 +608,8 @@ function getCategoryDefinitions(
 
        kas_member.nama
 
-   Baris rule tidak memiliki nama sehingga
-   otomatis diabaikan.
+   Baris rule tidak memiliki nama,
+   sehingga otomatis diabaikan.
 
 ===================================================== */
 
@@ -784,17 +752,25 @@ export function getKasRules(){
    PREPARE TRANSACTION
 =====================================================
 
-   Hook ini dipanggil oleh Global Transaction
-   sebelum transaksi dikirim.
+   GLOBAL INPUT menggunakan nama field frontend :
 
-   Tujuan :
+       type
+       category
+       member
+       amount
+       note
 
-   - memastikan Lain-lain tidak mempunyai
-     Member.
-   - menjaga data tetap konsisten.
+   Sheet Kas menggunakan header :
 
-   Business processing tetap dilakukan
-   oleh process.js.
+       jenis
+       kategori
+       nama
+       nominal
+       keterangan
+
+   Karena itu Kas melakukan mapping di sini.
+
+   transaction.js tetap GENERIC.
 
 ===================================================== */
 
@@ -806,34 +782,98 @@ export function prepareTransaction(
 
 ){
 
-    const result = {
-
-        ...values
-
-    };
+    const result = {};
 
 
-    /*
-     * Lain-lain adalah pengeluaran level Kas.
-     *
-     * Tidak mempunyai Member.
-     */
+    /* =================================================
+       JENIS
+    ================================================= */
+
+    result.jenis =
+
+        values.type ??
+
+        "";
+
+
+    /* =================================================
+       KATEGORI
+    ================================================= */
+
+    result.kategori =
+
+        values.category ??
+
+        "";
+
+
+    /* =================================================
+       NOMINAL
+    ================================================= */
+
+    result.nominal =
+
+        values.amount ??
+
+        "";
+
+
+    /* =================================================
+       KETERANGAN
+    ================================================= */
+
+    result.keterangan =
+
+        values.note ??
+
+        "";
+
+
+    /* =================================================
+       MEMBER
+    =================================================
+
+       Semua transaksi normal menggunakan member.
+
+       Kecuali :
+
+           Keluar → Lain-lain
+
+       Lain-lain tidak memiliki member.
+
+    ================================================= */
 
     if(
 
-        result.type ===
+        values.type ===
 
             "keluar"
 
         &&
 
-        result.category ===
+        values.category ===
 
             "lain_lain"
 
     ){
 
-        delete result.member;
+        /*
+         * Jangan membuat kolom nama
+         * untuk transaksi Lain-lain.
+         *
+         * Backend akan mengisi cell
+         * tersebut sebagai kosong.
+         */
+
+    }
+
+    else{
+
+        result.nama =
+
+            values.member ??
+
+            "";
 
     }
 
