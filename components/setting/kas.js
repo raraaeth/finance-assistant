@@ -1,49 +1,82 @@
 /* =====================================================
    Finance Assistant
-   Component    : Global Setting
-   Module       : Kas
-   File         : kas.js
-   Version      : 2.3.0
+   Module        : Kas
+   File          : kas.js
+   Version       : 2.0.0
 
    Description :
-   Kas Setting Definition
+   Kas Setting Configuration
 
-   Sheet :
+   Responsibility :
+   - Member
+   - Category Rule
+   - Tabungan Rule
+   - Kas Rule
+   - Hutang Rule
+
+   Struktur Sheet:
    kas_member
 
-   Structure :
-   - nama
-   - tabungan
-   - kas
-   - hutang
+   nama
+   tabungan
+   kas
+   hutang
 
-   Category :
-
-   Tabungan :
-   - nabung
-   - tarik
-   - lain_lain
-
-   Kas :
-   - iuran
-   - tarik
-   - lain_lain
-
-   Hutang :
-   - hutang
-   - bayar
+   Principle :
+   - Controller tetap generic
+   - Logic Kas berada di module ini
+   - Checkbox bukan data member
+   - Checkbox hanya menentukan rule kategori
+   - Member dapat ditambahkan tanpa checkbox
 ===================================================== */
 
 
 /* =====================================================
-   KAS SETTING
+   CONSTANT
+===================================================== */
+
+const KAS_CATEGORY_RULES = {
+
+    tabungan : [
+
+        "nabung",
+
+        "tarik",
+
+        "lain_lain"
+
+    ],
+
+    kas : [
+
+        "iuran",
+
+        "tarik",
+
+        "lain_lain"
+
+    ],
+
+    hutang : [
+
+        "hutang",
+
+        "bayar"
+
+    ]
+
+};
+
+
+
+/* =====================================================
+   SETTING
 ===================================================== */
 
 export const KasSetting = {
 
-
     /* =================================================
-       HEADER
+       TITLE
     ================================================= */
 
     title :
@@ -53,7 +86,8 @@ export const KasSetting = {
 
     subtitle :
 
-        "Atur konfigurasi Kas",
+        "Atur member dan kategori Kas",
+
 
 
     /* =================================================
@@ -62,9 +96,7 @@ export const KasSetting = {
 
     sections : [
 
-
         /* =============================================
-           SECTION 1
            MEMBER
         ============================================= */
 
@@ -72,49 +104,28 @@ export const KasSetting = {
 
             id :
 
-                "member",
+                "kas_member",
 
 
             title :
 
-                "👥 Member",
+                "Member",
 
 
             description :
 
-                "Tambahkan nama member yang digunakan dalam Kas.",
+                "Tambahkan nama member yang dapat digunakan di Kas.",
 
-
-            /* =========================================
-               ADD BUTTON
-            ========================================= */
 
             addLabel :
 
-                "＋ Tambah",
+                "＋ Tambah Member",
 
-
-            /* =========================================
-               FORM BUTTON
-            ========================================= */
 
             formAddLabel :
 
                 "＋ Tambahkan",
 
-
-            /* =========================================
-               DELETE BUTTON
-            ========================================= */
-
-            deleteLabel :
-
-                "Hapus",
-
-
-            /* =========================================
-               UNIQUE
-            ========================================= */
 
             uniqueFields : [
 
@@ -122,10 +133,6 @@ export const KasSetting = {
 
             ],
 
-
-            /* =========================================
-               FIELDS
-            ========================================= */
 
             fields : [
 
@@ -135,21 +142,17 @@ export const KasSetting = {
 
                         "nama",
 
-
                     label :
 
-                        "Nama Member",
-
+                        "Nama",
 
                     type :
 
                         "text",
 
-
                     placeholder :
 
                         "Masukkan nama member",
-
 
                     required :
 
@@ -157,99 +160,55 @@ export const KasSetting = {
 
                 }
 
-            ],
-
-
-            /* =========================================
-               NORMALIZE
-            ========================================= */
-
-            normalize(data){
-
-                return {
-
-                    nama :
-
-                        data.nama || ""
-
-                };
-
-            }
+            ]
 
         },
 
 
         /* =============================================
-           SECTION 2
-           KATEGORI KAS
-        ============================================= */
+           CATEGORY RULE
+           ============================================= */
 
         {
 
             id :
 
-                "kas_category",
+                "kas_category_rules",
 
 
             title :
 
-                "⚙️ Kategori Kas",
+                "Kategori Kas",
 
 
             description :
 
-                "Pilih kategori yang ingin digunakan dalam Kas.",
+                "Pilih kategori yang ingin digunakan pada workspace Kas.",
 
-
-            /* =========================================
-               ADD BUTTON
-            ========================================= */
 
             addLabel :
 
-                "＋ Tambah",
+                "＋ Atur Kategori",
 
-
-            /* =========================================
-               FORM BUTTON
-            ========================================= */
 
             formAddLabel :
 
-                "＋ Tambahkan",
+                "＋ Terapkan",
 
 
-            /* =========================================
-               DELETE BUTTON
-            ========================================= */
+            inputMode :
 
-            deleteLabel :
-
-                "Hapus",
+                "checkbox-group",
 
 
-            /* =========================================
-               PERSIST
-               
-               Checkbox hanya menjadi konfigurasi.
-               Tidak disimpan sebagai row tersendiri.
-            ========================================= */
-
-            persist :
-
-                false,
-
-
-            /* =========================================
-               FIELDS
-            ========================================= */
+            /*
+             * Section ini hanya menjadi UI/controller.
+             *
+             * Rule yang dihasilkan oleh normalize()
+             * akan diproses sebagai data kategori.
+             */
 
             fields : [
-
-
-                /* -------------------------------------
-                   TABUNGAN
-                ------------------------------------- */
 
                 {
 
@@ -257,27 +216,20 @@ export const KasSetting = {
 
                         "tabungan",
 
-
                     label :
 
                         "Tabungan",
-
 
                     type :
 
                         "checkbox",
 
+                    value :
 
-                    note :
-
-                        "Centang jika kategori Tabungan ingin digunakan. Jika tidak dicentang, kategori Tabungan tidak ditambahkan."
+                        false
 
                 },
 
-
-                /* -------------------------------------
-                   KAS
-                ------------------------------------- */
 
                 {
 
@@ -285,27 +237,20 @@ export const KasSetting = {
 
                         "kas",
 
-
                     label :
 
                         "Kas",
-
 
                     type :
 
                         "checkbox",
 
+                    value :
 
-                    note :
-
-                        "Centang jika kategori Kas ingin digunakan. Jika tidak dicentang, kategori Kas tidak ditambahkan."
+                        false
 
                 },
 
-
-                /* -------------------------------------
-                   HUTANG
-                ------------------------------------- */
 
                 {
 
@@ -313,20 +258,17 @@ export const KasSetting = {
 
                         "hutang",
 
-
                     label :
 
                         "Hutang",
-
 
                     type :
 
                         "checkbox",
 
+                    value :
 
-                    note :
-
-                        "Centang jika kategori Hutang ingin digunakan. Jika tidak dicentang, kategori Hutang tidak ditambahkan."
+                        false
 
                 }
 
@@ -335,373 +277,132 @@ export const KasSetting = {
 
             /* =========================================
                NORMALIZE
+               
+               Checkbox tidak dikirim sebagai:
+               
+                   tabungan: true
+               
+               tetapi langsung diubah menjadi
+               rule kategori.
             ========================================= */
 
             normalize(data){
 
-                return {
-
-                    tabungan :
-
-                        data.tabungan === true,
+                const results = [];
 
 
-                    kas :
+                /* =====================================
+                   TABUNGAN
+                ===================================== */
 
-                        data.kas === true,
+                if(
+
+                    data.tabungan === true
+
+                ){
+
+                    KAS_CATEGORY_RULES.tabungan.forEach(
+
+                        category => {
+
+                            results.push({
+
+                                tabungan :
+
+                                    category
+
+                            });
+
+                        }
+
+                    );
+
+                }
 
 
-                    hutang :
+                /* =====================================
+                   KAS
+                ===================================== */
 
-                        data.hutang === true
+                if(
 
-                };
+                    data.kas === true
+
+                ){
+
+                    KAS_CATEGORY_RULES.kas.forEach(
+
+                        category => {
+
+                            results.push({
+
+                                kas :
+
+                                    category
+
+                            });
+
+                        }
+
+                    );
+
+                }
+
+
+                /* =====================================
+                   HUTANG
+                ===================================== */
+
+                if(
+
+                    data.hutang === true
+
+                ){
+
+                    KAS_CATEGORY_RULES.hutang.forEach(
+
+                        category => {
+
+                            results.push({
+
+                                hutang :
+
+                                    category
+
+                            });
+
+                        }
+
+                    );
+
+                }
+
+
+                /* =====================================
+                   EMPTY
+                   
+                   Tidak ada checkbox dipilih.
+                   
+                   Jangan membuat data boolean.
+                ===================================== */
+
+                if(
+
+                    results.length === 0
+
+                ){
+
+                    return [];
+
+                }
+
+
+                return results;
 
             }
 
         }
 
-    ],
-
-
-    /* =================================================
-       PREPARE SAVE
-
-       Mengubah hasil Setting menjadi struktur
-       kas_member.
-
-       Contoh:
-
-       nama       tabungan    kas       hutang
-       Naila      nabung      iuran     hutang
-       Samudi     tarik       tarik     bayar
-       Nisa       lain_lain   lain_lain
-       Irawan
-       Dewi
-    ================================================= */
-
-    prepareSave(payload, context){
-
-
-        /* =============================================
-           VALIDASI
-        ============================================= */
-
-        if(!Array.isArray(payload)){
-
-            return payload;
-
-        }
-
-
-        /* =============================================
-           AMBIL DATA MEMBER
-        ============================================= */
-
-        const memberRows =
-
-            payload.filter(
-
-                item =>
-
-                    item.section === "kas_member"
-
-            );
-
-
-        /* =============================================
-           AMBIL SEMUA HASIL FORM
-
-           context.data berisi seluruh hasil dari
-           Setting sebelum persist:false difilter.
-        ============================================= */
-
-        const allData =
-
-            Array.isArray(context?.data)
-
-                ? context.data
-
-                : [];
-
-
-        /* =============================================
-           AMBIL HASIL KATEGORI
-        ============================================= */
-
-        const categoryResults =
-
-            allData.filter(
-
-                item =>
-
-                    item.section === "kas_category"
-
-            );
-
-
-        /* =============================================
-           DEFAULT KATEGORI
-        ============================================= */
-
-        let categoryData = {};
-
-
-        /* =============================================
-           GUNAKAN KONFIGURASI KATEGORI TERAKHIR
-        ============================================= */
-
-        if(categoryResults.length){
-
-            const lastCategory =
-
-                categoryResults[
-                    categoryResults.length - 1
-                ];
-
-
-            categoryData =
-
-                lastCategory.data || {};
-
-        }
-
-
-        /* =============================================
-           DAFTAR KATEGORI TABUNGAN
-        ============================================= */
-
-        const tabunganCategories = [
-
-            "nabung",
-
-            "tarik",
-
-            "lain_lain"
-
-        ];
-
-
-        /* =============================================
-           DAFTAR KATEGORI KAS
-        ============================================= */
-
-        const kasCategories = [
-
-            "iuran",
-
-            "tarik",
-
-            "lain_lain"
-
-        ];
-
-
-        /* =============================================
-           DAFTAR KATEGORI HUTANG
-        ============================================= */
-
-        const hutangCategories = [
-
-            "hutang",
-
-            "bayar"
-
-        ];
-
-
-        /* =============================================
-           INDEX KATEGORI
-        ============================================= */
-
-        let tabunganIndex = 0;
-
-        let kasIndex = 0;
-
-        let hutangIndex = 0;
-
-
-        /* =============================================
-           BENTUK DATA MEMBER FINAL
-        ============================================= */
-
-        const finalMemberRows =
-
-            memberRows.map(
-
-                item => {
-
-
-                    /* ---------------------------------
-                       DATA ASLI
-                    --------------------------------- */
-
-                    const source =
-
-                        item.data || {};
-
-
-                    /* ---------------------------------
-                       ROW DASAR
-
-                       Member selalu hanya membutuhkan
-                       nama.
-                    --------------------------------- */
-
-                    const row = {
-
-                        nama :
-
-                            source.nama || ""
-
-                    };
-
-
-                    /* ---------------------------------
-                       TABUNGAN
-                    --------------------------------- */
-
-                    if(
-
-                        categoryData.tabungan === true
-
-                    ){
-
-                        if(
-
-                            tabunganIndex <
-
-                            tabunganCategories.length
-
-                        ){
-
-                            row.tabungan =
-
-                                tabunganCategories[
-                                    tabunganIndex
-                                ];
-
-                        }
-
-
-                        tabunganIndex++;
-
-                    }
-
-
-                    /* ---------------------------------
-                       KAS
-                    --------------------------------- */
-
-                    if(
-
-                        categoryData.kas === true
-
-                    ){
-
-                        if(
-
-                            kasIndex <
-
-                            kasCategories.length
-
-                        ){
-
-                            row.kas =
-
-                                kasCategories[
-                                    kasIndex
-                                ];
-
-                        }
-
-
-                        kasIndex++;
-
-                    }
-
-
-                    /* ---------------------------------
-                       HUTANG
-                    --------------------------------- */
-
-                    if(
-
-                        categoryData.hutang === true
-
-                    ){
-
-                        if(
-
-                            hutangIndex <
-
-                            hutangCategories.length
-
-                        ){
-
-                            row.hutang =
-
-                                hutangCategories[
-                                    hutangIndex
-                                ];
-
-                        }
-
-
-                        hutangIndex++;
-
-                    }
-
-
-                    /* ---------------------------------
-                       RETURN
-                    --------------------------------- */
-
-                    return {
-
-                        section :
-
-                            "kas_member",
-
-
-                        data :
-
-                            row
-
-                    };
-
-                }
-
-            );
-
-
-        /* =============================================
-           AMBIL SECTION LAIN
-        ============================================= */
-
-        const otherRows =
-
-            payload.filter(
-
-                item =>
-
-                    item.section !== "kas_member"
-
-            );
-
-
-        /* =============================================
-           HASIL AKHIR
-        ============================================= */
-
-        return [
-
-            ...otherRows,
-
-            ...finalMemberRows
-
-        ];
-
-    }
+    ]
 
 };
