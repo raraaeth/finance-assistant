@@ -55,6 +55,11 @@
    - financial_rules digunakan oleh
      applyFinancialAutoRules()
      tetapi tidak dikirim ke backend
+
+   New Hook :
+   - prepareSave(payload, context) dapat digunakan
+     oleh module untuk menyiapkan payload akhir
+     sebelum dikirim ke backend
 ===================================================== */
 
 
@@ -744,11 +749,15 @@ export const Setting = {
                
                tetap tersedia saat auto-rule,
                tetapi tidak dikirim ke backend.
+
+               Setelah filter persistent selesai,
+               module dapat melakukan transformasi
+               terakhir melalui prepareSave().
             ============================================= */
 
             const payload =
 
-                filterPersistentResults(
+                await prepareSettingPayload(
 
                     data
 
@@ -2379,7 +2388,7 @@ function renderField(
 
         field.type ===
 
-        "checkbox"
+            "checkbox"
 
     ){
 
@@ -6445,6 +6454,119 @@ function filterPersistentResults(
         }
 
     );
+
+}
+
+
+
+/* =====================================================
+   PREPARE SETTING PAYLOAD
+===================================================== */
+
+/*
+ * Hook global untuk transformasi payload terakhir
+ * sebelum dikirim ke backend.
+ *
+ * Urutan:
+ *
+ * collectAllResults()
+ *        ↓
+ * auto rules
+ *        ↓
+ * filterPersistentResults()
+ *        ↓
+ * module.prepareSave()
+ *        ↓
+ * saveSetting()
+ *
+ * Controller tetap generic.
+ *
+ * Module-specific logic seperti Kas dapat
+ * menggunakan:
+ *
+ * prepareSave(payload, context)
+ *
+ * di file module masing-masing.
+ */
+
+async function prepareSettingPayload(
+
+    data
+
+){
+
+    let payload =
+
+        filterPersistentResults(
+
+            data
+
+        );
+
+
+    /* =============================================
+       MODULE PREPARE SAVE
+    ============================================= */
+
+    if(
+
+        typeof currentConfig?.prepareSave ===
+
+        "function"
+
+    ){
+
+        payload =
+
+            await currentConfig.prepareSave(
+
+                payload,
+
+                {
+
+                    workspace :
+
+                        currentWorkspace,
+
+                    data :
+
+                        data,
+
+                    persistentData :
+
+                        payload
+
+                }
+
+            );
+
+    }
+
+
+    /* =============================================
+       VALIDATE RESULT
+    ============================================= */
+
+    if(
+
+        !Array.isArray(
+
+            payload
+
+        )
+
+    ){
+
+        throw new Error(
+
+            "prepareSave() harus menghasilkan array payload."
+
+        );
+
+    }
+
+
+    return payload;
 
 }
 
