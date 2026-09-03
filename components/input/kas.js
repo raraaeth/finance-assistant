@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Kas
    File         : kas.js
-   Version      : 2.1.0
+   Version      : 3.0.0
 
    Description :
    Input Flow Configuration for Kas
@@ -19,19 +19,38 @@
         ↓
    getInputData()
 
+   Rule Source :
+   kas_member
+
+   Rule Columns :
+   - tabungan
+   - kas
+   - hutang
+
+   Member Column :
+   - nama
+
    Flow :
    Jenis
+   → Kategori
    → Member
    → Nominal
-   → Kategori
-   → Custom Category
+   → Keterangan
+
+   Special Flow :
+   Keluar → Lain-lain
+   → Nominal
    → Keterangan
 
    Principle :
+   - Rule dari Setting Kas menjadi sumber
+     ketersediaan kategori.
    - Tidak menggunakan getter Kas khusus.
    - Member berasal dari getInputData().
    - Workspace dan sheet ditentukan oleh
      Global Workspace.
+   - Lain-lain tidak mempunyai Member.
+   - Lain-lain hanya mempengaruhi saldo Kas.
 ===================================================== */
 
 
@@ -45,39 +64,63 @@ import {
 
 } from "./data.js";
 
+
 /* =====================================================
    PREFIX
 ===================================================== */
 
 export const PREFIX =
 
-    "SAV";
+    "KAS";
 
 
 /* =====================================================
-   GET MEMBER OPTIONS
+   RULE SOURCE
 =====================================================
 
-   Data berasal dari sheet kedua
-   workspace Kas.
+   Struktur kas_member :
 
-   Contoh :
+       nama        tabungan      kas       hutang
+                   nabung        iuran     hutang
+                   tarik         tarik     bayar
+                   lain_lain     lain_lain
 
-       kas
-         ↓
-       kas_member
-         ↓
-       getInputData()
-
-   Struktur member yang diharapkan :
-
-       {
-           nama : "Nama Member"
-       }
+   Kolom rule dibaca sebagai daftar kode yang
+   tersedia.
 
 ===================================================== */
 
-function getMemberOptions(){
+
+/* =====================================================
+   NORMALIZE VALUE
+===================================================== */
+
+function normalizeValue(
+
+    value
+
+){
+
+    return String(
+
+        value ??
+
+        ""
+
+    )
+
+        .trim()
+
+        .toLowerCase();
+
+}
+
+
+/* =====================================================
+   GET INPUT DATA
+===================================================== */
+
+function getKasData(){
 
     const data =
 
@@ -99,19 +142,517 @@ function getMemberOptions(){
     }
 
 
+    return data.filter(
+
+        item =>
+
+            item &&
+
+            typeof item ===
+
+                "object"
+
+    );
+
+}
+
+
+/* =====================================================
+   GET RULE VALUES
+=====================================================
+
+   Membaca seluruh isi kolom rule.
+
+   Contoh :
+
+       tabungan :
+       [
+           "nabung",
+           "tarik",
+           "lain_lain"
+       ]
+
+===================================================== */
+
+function getRuleValues(
+
+    column
+
+){
+
+    const data =
+
+        getKasData();
+
+
+    const result = [];
+
+
+    data.forEach(
+
+        item => {
+
+            const value =
+
+                normalizeValue(
+
+                    item[column]
+
+                );
+
+
+            if(
+
+                !value
+
+            ){
+
+                return;
+
+            }
+
+
+            /*
+             * Satu cell dapat berisi lebih dari
+             * satu nilai, misalnya :
+             *
+             * pagi,siang,malam
+             *
+             * Walaupun Rule Kas saat ini normalnya
+             * satu nilai per row, kita tetap
+             * normalisasi jika terdapat pemisah.
+             */
+
+            value
+
+                .split(",")
+
+                .map(
+
+                    item =>
+
+                        item.trim()
+
+                )
+
+                .filter(
+
+                    Boolean
+
+                )
+
+                .forEach(
+
+                    rule => {
+
+                        if(
+
+                            !result.includes(
+
+                                rule
+
+                            )
+
+                        ){
+
+                            result.push(
+
+                                rule
+
+                            );
+
+                        }
+
+                    }
+
+                );
+
+        }
+
+    );
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   CHECK RULE
+===================================================== */
+
+function hasRule(
+
+    column,
+
+    rule
+
+){
+
+    const rules =
+
+        getRuleValues(
+
+            column
+
+        );
+
+
+    return rules.includes(
+
+        rule
+
+    );
+
+}
+
+
+/* =====================================================
+   CATEGORY AVAILABILITY
+=====================================================
+
+   Mapping final :
+
+   MASUK
+   - nabung  ← tabungan
+   - iuran   ← kas
+   - bayar   ← hutang
+
+   KELUAR
+   - tarik      ← tabungan / kas
+   - lain_lain  ← tabungan / kas
+   - hutang     ← hutang
+
+===================================================== */
+
+function getCategoryDefinitions(
+
+    type
+
+){
+
+    const categories = [];
+
+
+    /* =================================================
+       MASUK
+    ================================================= */
+
+    if(
+
+        type ===
+
+        "masuk"
+
+    ){
+
+        /*
+         * Tabungan
+         */
+
+        if(
+
+            hasRule(
+
+                "tabungan",
+
+                "nabung"
+
+            )
+
+        ){
+
+            categories.push({
+
+                value :
+
+                    "nabung",
+
+                label :
+
+                    "Nabung",
+
+                source :
+
+                    "tabungan",
+
+                system :
+
+                    true
+
+            });
+
+        }
+
+
+        /*
+         * Kas
+         */
+
+        if(
+
+            hasRule(
+
+                "kas",
+
+                "iuran"
+
+            )
+
+        ){
+
+            categories.push({
+
+                value :
+
+                    "iuran",
+
+                label :
+
+                    "Iuran",
+
+                source :
+
+                    "kas",
+
+                system :
+
+                    true
+
+            });
+
+        }
+
+
+        /*
+         * Hutang
+         */
+
+        if(
+
+            hasRule(
+
+                "hutang",
+
+                "bayar"
+
+            )
+
+        ){
+
+            categories.push({
+
+                value :
+
+                    "bayar",
+
+                label :
+
+                    "Bayar",
+
+                source :
+
+                    "hutang",
+
+                system :
+
+                    true
+
+            });
+
+        }
+
+    }
+
+
+    /* =================================================
+       KELUAR
+    ================================================= */
+
+    if(
+
+        type ===
+
+        "keluar"
+
+    ){
+
+        /*
+         * Tabungan / Kas
+         *
+         * Tarik cukup tersedia jika ada pada
+         * salah satu rule source.
+         */
+
+        if(
+
+            hasRule(
+
+                "tabungan",
+
+                "tarik"
+
+            )
+
+            ||
+
+            hasRule(
+
+                "kas",
+
+                "tarik"
+
+            )
+
+        ){
+
+            categories.push({
+
+                value :
+
+                    "tarik",
+
+                label :
+
+                    "Tarik",
+
+                source :
+
+                    "tabungan/kas",
+
+                system :
+
+                    true
+
+            });
+
+        }
+
+
+        /*
+         * Lain-lain
+         *
+         * Sama seperti tarik, rule dianggap
+         * tersedia jika terdapat pada Tabungan
+         * atau Kas.
+         */
+
+        if(
+
+            hasRule(
+
+                "tabungan",
+
+                "lain_lain"
+
+            )
+
+            ||
+
+            hasRule(
+
+                "kas",
+
+                "lain_lain"
+
+            )
+
+        ){
+
+            categories.push({
+
+                value :
+
+                    "lain_lain",
+
+                label :
+
+                    "Lain-lain",
+
+                source :
+
+                    "tabungan/kas",
+
+                system :
+
+                    true,
+
+                noMember :
+
+                    true
+
+            });
+
+        }
+
+
+        /*
+         * Hutang
+         */
+
+        if(
+
+            hasRule(
+
+                "hutang",
+
+                "hutang"
+
+            )
+
+        ){
+
+            categories.push({
+
+                value :
+
+                    "hutang",
+
+                label :
+
+                    "Hutang",
+
+                source :
+
+                    "hutang",
+
+                system :
+
+                    true
+
+            });
+
+        }
+
+    }
+
+
+    return categories;
+
+}
+
+
+/* =====================================================
+   GET MEMBER OPTIONS
+=====================================================
+
+   Member berasal dari :
+
+       kas_member.nama
+
+   Baris rule tidak memiliki nama sehingga
+   otomatis diabaikan.
+
+===================================================== */
+
+function getMemberOptions(){
+
+    const data =
+
+        getKasData();
+
+
     return data
-
-        .filter(
-
-            item =>
-
-                item &&
-
-                typeof item ===
-
-                    "object"
-
-        )
 
         .map(
 
@@ -123,9 +664,7 @@ function getMemberOptions(){
 
                     ""
 
-                )
-
-                    .trim()
+                ).trim()
 
         )
 
@@ -175,145 +714,137 @@ function getMemberOptions(){
 
 
 /* =====================================================
-   CATEGORY
+   CATEGORY GETTER
 ===================================================== */
 
-const CATEGORY = {
+export function getKasCategories(
 
-    masuk : [
+    type
 
-        {
+){
 
-            value :
+    return getCategoryDefinitions(
 
-                "nabung",
+        type
 
-            label :
+    );
 
-                "Nabung",
-
-            system :
-
-                true
-
-        },
-
-        {
-
-            value :
-
-                "iuran",
-
-            label :
-
-                "Iuran",
-
-            system :
-
-                true
-
-        },
-
-        {
-
-            value :
-
-                "bayar",
-
-            label :
-
-                "Bayar",
-
-            system :
-
-                true
-
-        },
-
-        {
-
-            value :
-
-                "bunga",
-
-            label :
-
-                "Bunga",
-
-            system :
-
-                true
-
-        },
-
-        {
-
-            value :
-
-                "custom",
-
-            label :
-
-                "Lain-lain",
-
-            system :
-
-                false,
-
-            custom :
-
-                true
-
-        }
-
-    ],
-
-
-    keluar : [
-
-        {
-
-            value :
-
-                "hutang",
-
-            label :
-
-                "Hutang",
-
-            system :
-
-                true
-
-        },
-
-        {
-
-            value :
-
-                "custom",
-
-            label :
-
-                "Lain-lain",
-
-            system :
-
-                false,
-
-            custom :
-
-                true
-
-        }
-
-    ]
-
-};
+}
 
 
 /* =====================================================
-   KAS
+   MEMBER GETTER
+===================================================== */
+
+export function getKasMembers(){
+
+    return getMemberOptions();
+
+}
+
+
+/* =====================================================
+   RULE GETTER
+===================================================== */
+
+export function getKasRules(){
+
+    return {
+
+        tabungan :
+
+            getRuleValues(
+
+                "tabungan"
+
+            ),
+
+        kas :
+
+            getRuleValues(
+
+                "kas"
+
+            ),
+
+        hutang :
+
+            getRuleValues(
+
+                "hutang"
+
+            )
+
+    };
+
+}
+
+
+/* =====================================================
+   PREPARE TRANSACTION
+=====================================================
+
+   Hook ini dipanggil oleh Global Transaction
+   sebelum transaksi dikirim.
+
+   Tujuan :
+
+   - memastikan Lain-lain tidak mempunyai
+     Member.
+   - menjaga data tetap konsisten.
+
+   Business processing tetap dilakukan
+   oleh process.js.
+
+===================================================== */
+
+export function prepareTransaction(
+
+    values,
+
+    context
+
+){
+
+    const result = {
+
+        ...values
+
+    };
+
+
+    /*
+     * Lain-lain adalah pengeluaran level Kas.
+     *
+     * Tidak mempunyai Member.
+     */
+
+    if(
+
+        result.type ===
+
+            "keluar"
+
+        &&
+
+        result.category ===
+
+            "lain_lain"
+
+    ){
+
+        delete result.member;
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   KAS CONFIG
 ===================================================== */
 
 export const Kas = {
@@ -326,23 +857,14 @@ export const Kas = {
 
         "kas",
 
-   /* =================================================
+
+    /* =================================================
        PREFIX
-    =================================================
-
-       Digunakan oleh Global Input Controller
-       untuk membuat ID transaksi.
-
-       Contoh :
-
-           PDR-XXXXXXXX
-
     ================================================= */
 
     prefix :
 
         PREFIX,
-   
 
 
     /* =================================================
@@ -419,7 +941,38 @@ export const Kas = {
 
 
         /* =============================================
-           2. MEMBER
+           2. KATEGORI
+        ============================================= */
+
+        {
+
+            id :
+
+                "category",
+
+            label :
+
+                "Kategori",
+
+            type :
+
+                "select",
+
+            options :
+
+                values =>
+
+                    getCategoryDefinitions(
+
+                        values.type
+
+                    )
+
+        },
+
+
+        /* =============================================
+           3. MEMBER
         ============================================= */
 
         {
@@ -440,13 +993,31 @@ export const Kas = {
 
                 () =>
 
-                    getMemberOptions()
+                    getMemberOptions(),
+
+            showWhen :
+
+                values =>
+
+                    !(
+
+                        values.type ===
+
+                            "keluar"
+
+                        &&
+
+                        values.category ===
+
+                            "lain_lain"
+
+                    )
 
         },
 
 
         /* =============================================
-           3. NOMINAL
+           4. NOMINAL
         ============================================= */
 
         {
@@ -471,75 +1042,7 @@ export const Kas = {
 
 
         /* =============================================
-           4. KATEGORI
-        ============================================= */
-
-        {
-
-            id :
-
-                "category",
-
-            label :
-
-                "Kategori",
-
-            type :
-
-                "select",
-
-            options :
-
-                values =>
-
-                    CATEGORY[
-
-                        values.type
-
-                    ]
-
-                    ??
-
-                    []
-
-        },
-
-
-        /* =============================================
-           5. CUSTOM CATEGORY
-        ============================================= */
-
-        {
-
-            id :
-
-                "customCategory",
-
-            label :
-
-                "Kategori Lainnya",
-
-            type :
-
-                "text",
-
-            placeholder :
-
-                "Contoh: Project, Donasi, Sumbangan",
-
-            showWhen :
-
-                values =>
-
-                    values.category ===
-
-                    "custom"
-
-        },
-
-
-        /* =============================================
-           6. KETERANGAN
+           5. KETERANGAN
         ============================================= */
 
         {
@@ -562,7 +1065,14 @@ export const Kas = {
 
         }
 
-    ]
+    ],
+
+
+    /* =================================================
+       TRANSACTION HOOK
+    ================================================= */
+
+    prepareTransaction
 
 };
 
@@ -579,35 +1089,24 @@ export function getKasInputConfig(){
 
 
 /* =====================================================
-   GET MEMBERS
+   CHECK CATEGORY
 ===================================================== */
 
-export function getKasMembers(){
+export function hasKasRule(
 
-    return getMemberOptions();
+    column,
 
-}
-
-
-/* =====================================================
-   GET CATEGORIES
-===================================================== */
-
-export function getKasCategories(
-
-    type
+    rule
 
 ){
 
-    return CATEGORY[
+    return hasRule(
 
-        type
+        column,
 
-    ]
+        rule
 
-    ??
-
-    [];
+    );
 
 }
 
@@ -620,12 +1119,35 @@ export function debugKasInput(){
 
     const data =
 
-        getInputData();
+        getKasData();
+
+
+    const rules =
+
+        getKasRules();
 
 
     const members =
 
         getMemberOptions();
+
+
+    const masuk =
+
+        getCategoryDefinitions(
+
+            "masuk"
+
+        );
+
+
+    const keluar =
+
+        getCategoryDefinitions(
+
+            "keluar"
+
+        );
 
 
     console.log(
@@ -660,9 +1182,36 @@ export function debugKasInput(){
 
     console.log(
 
+        "Rules:",
+
+        rules
+
+    );
+
+
+    console.log(
+
         "Member Options:",
 
         members
+
+    );
+
+
+    console.log(
+
+        "Masuk Categories:",
+
+        masuk
+
+    );
+
+
+    console.log(
+
+        "Keluar Categories:",
+
+        keluar
 
     );
 
@@ -687,23 +1236,40 @@ export function debugKasInput(){
 
         data :
 
-            Array.isArray(
-
-                data
-
-            )
-
-            ?
-
             [
 
                 ...data
 
-            ]
+            ],
 
-            :
 
-            [],
+        rules : {
+
+            tabungan :
+
+                [
+
+                    ...rules.tabungan
+
+                ],
+
+            kas :
+
+                [
+
+                    ...rules.kas
+
+                ],
+
+            hutang :
+
+                [
+
+                    ...rules.hutang
+
+                ]
+
+        },
 
 
         members :
@@ -711,6 +1277,24 @@ export function debugKasInput(){
             [
 
                 ...members
+
+            ],
+
+
+        masuk :
+
+            [
+
+                ...masuk
+
+            ],
+
+
+        keluar :
+
+            [
+
+                ...keluar
 
             ],
 
