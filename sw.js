@@ -124,9 +124,11 @@ const STATIC_ASSETS = [
 
     BASE_PATH + "/js/utils.js",
 
-   BASE_PATH + "/js/write.js",
+    BASE_PATH + "/js/write.js",
 
-   BASE_PATH + "/js/sheet.js",
+    BASE_PATH + "/js/sheets.js",
+
+    BASE_PATH + "/js/supabase.js",
 
     BASE_PATH + "/js/workspace.js",
 
