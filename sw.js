@@ -48,7 +48,7 @@
 
 const CACHE_NAME =
 
-    "finance-assistant-v8";
+    "finance-assistant-v9";
 
 
 const BASE_PATH =
@@ -123,6 +123,10 @@ const STATIC_ASSETS = [
     BASE_PATH + "/js/storage.js",
 
     BASE_PATH + "/js/utils.js",
+
+   BASE_PATH + "/js/write.js",
+
+   BASE_PATH + "/js/sheet.js",
 
     BASE_PATH + "/js/workspace.js",
 
