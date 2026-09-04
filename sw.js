@@ -48,7 +48,7 @@
 
 const CACHE_NAME =
 
-    "finance-assistant-v9";
+    "finance-assistant-v10";
 
 
 const BASE_PATH =
