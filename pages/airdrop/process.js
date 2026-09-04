@@ -31,6 +31,12 @@ import {
 
 } from "./config.js";
 
+import {
+   
+    Update
+   
+} from "../../js/update.js";
+
 
 /* =====================================================
    PROCESS
@@ -174,6 +180,8 @@ Process.init = function(
 
 
     processOptions();
+
+   processEndedCampaigns();
 
 
     return Process;
@@ -751,6 +759,320 @@ function processCampaigns(){
             })
 
         );
+
+}
+
+/* =====================================================
+   AUTO UPDATE ENDED CAMPAIGN
+===================================================== */
+
+/*
+ * Mencari campaign yang sudah memenuhi
+ * kondisi shouldEnd.
+ *
+ * Process tetap bertanggung jawab terhadap
+ * business logic.
+ *
+ * Update hanya bertanggung jawab mengirim
+ * perubahan ke Apps Script.
+ *
+ * Target :
+ *
+ *     ID + Project
+ *
+ * Update :
+ *
+ *     status → ended
+ */
+
+function processEndedCampaigns(){
+
+    const endedCampaigns =
+        Process.campaigns.filter(
+            item =>
+                item.shouldEnd === true
+                &&
+                item.status === "ongoing"
+                &&
+                item.id
+                &&
+                item.project
+        );
+
+
+    /* =============================================
+       TIDAK ADA YANG PERLU DI-UPDATE
+    ============================================= */
+
+    if(
+        endedCampaigns.length === 0
+    ){
+
+        return;
+
+    }
+
+
+    console.log(
+        "===== AIRDROP AUTO END ====="
+    );
+
+
+    console.log(
+        "Campaign yang memenuhi shouldEnd:",
+        endedCampaigns.map(
+            item => ({
+
+                id :
+                    item.id,
+
+                project :
+                    item.project,
+
+                end :
+                    item.end,
+
+                status :
+                    item.status,
+
+                shouldEnd :
+                    item.shouldEnd
+
+            })
+        )
+    );
+
+
+    /* =============================================
+       UPDATE SATU PER SATU
+    ============================================= */
+
+    endedCampaigns.forEach(
+        item => {
+
+            Update.updateField(
+
+                "airdrop",
+
+                {
+                    id :
+                        item.id,
+
+                    project :
+                        item.project
+                },
+
+                {
+                    status :
+                        "ended"
+                }
+
+            )
+            .then(
+                result => {
+
+                    console.log(
+                        "===== AIRDROP AUTO END RESULT ====="
+                    );
+
+
+                    console.log(
+                        {
+                            id :
+                                item.id,
+
+                            project :
+                                item.project,
+
+                            result :
+                                result
+                        }
+                    );
+
+
+                    /* =================================
+                       SUCCESS
+                    ================================= */
+
+                    if(
+                        result &&
+                        result.success === true
+                    ){
+
+                        updateLocalEndedState(
+                            item.id,
+                            item.project
+                        );
+
+                    }
+
+                }
+            )
+            .catch(
+                error => {
+
+                    console.error(
+                        "===== AIRDROP AUTO END ERROR ====="
+                    );
+
+
+                    console.error(
+                        {
+                            id :
+                                item.id,
+
+                            project :
+                                item.project,
+
+                            error :
+                                error
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   UPDATE LOCAL ENDED STATE
+===================================================== */
+
+/*
+ * Dipanggil hanya setelah UPDATE Apps Script
+ * berhasil.
+ *
+ * Tujuan :
+ * menyamakan state frontend dengan
+ * state yang sudah berhasil ditulis ke Sheet.
+ */
+
+function updateLocalEndedState(
+    id,
+    project
+){
+
+    const normalizedId =
+        String(
+            id ?? ""
+        ).trim();
+
+
+    const normalizedProject =
+        String(
+            project ?? ""
+        ).trim();
+
+
+    if(
+        !normalizedId ||
+        !normalizedProject
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       UPDATE NORMALIZED DATA
+    ============================================= */
+
+    Process.data =
+        Process.data.map(
+            item => {
+
+                if(
+                    String(
+                        item.id ?? ""
+                    ).trim()
+                    ===
+                    normalizedId
+                    &&
+                    String(
+                        item.project ?? ""
+                    ).trim()
+                    ===
+                    normalizedProject
+                ){
+
+                    return {
+
+                        ...item,
+
+                        status :
+                            "ended"
+
+                    };
+
+                }
+
+
+                return item;
+
+            }
+        );
+
+
+    /* =============================================
+       RESET GROUP
+    ============================================= */
+
+    Process.win = [];
+
+    Process.notWin = [];
+
+    Process.ongoing = [];
+
+    Process.ended = [];
+
+
+    Process.summary = {
+
+        totalReward : 0,
+
+        totalWin : 0,
+
+        totalNotWin : 0,
+
+        totalOngoing : 0,
+
+        totalEnded : 0
+
+    };
+
+
+    /* =============================================
+       REBUILD SUMMARY
+    ============================================= */
+
+    calculateSummary();
+
+
+    /* =============================================
+       REBUILD CAMPAIGN
+    ============================================= */
+
+    processCampaigns();
+
+
+    console.log(
+        "AIRDROP LOCAL STATE UPDATED:",
+        {
+            id :
+                normalizedId,
+
+            project :
+                normalizedProject,
+
+            status :
+                "ended"
+        }
+    );
 
 }
 
