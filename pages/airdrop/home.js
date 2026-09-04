@@ -282,6 +282,12 @@ await API.load(
 
         renderInput();
 
+       /* =============================================
+          EDIT INPUT
+        ============================================= */
+
+         renderEditInput();
+
 
         /* =============================================
            SETTING
@@ -1441,6 +1447,235 @@ function renderInput(){
                 Input.open(
 
                     "airdrop"
+
+                );
+
+            }
+
+        );
+
+    }
+
+}
+
+/* =====================================================
+   EDIT INPUT
+===================================================== */
+
+function renderEditInput(){
+
+    const card =
+
+        document.getElementById(
+
+            "edit-input-card"
+
+        );
+
+
+    if(
+
+        !card
+
+    ){
+
+        return;
+
+    }
+
+
+    card.innerHTML =
+
+    `
+
+        <!-- ==========================================
+             EDIT INPUT REWARD
+        =========================================== -->
+
+        <div
+            id="airdrop-edit-reward-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    🎁
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Edit Input Reward
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Ubah reward dari data Airdrop
+
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ==========================================
+             EDIT INPUT ROW
+        =========================================== -->
+
+        <div
+            id="airdrop-edit-row-menu"
+            class="profile-menu-item">
+
+
+            <div
+                class="profile-menu-left">
+
+
+                <div
+                    class="profile-menu-icon">
+
+                    ✏️
+
+                </div>
+
+
+                <div
+                    class="profile-menu-content">
+
+
+                    <span
+                        class="profile-menu-title">
+
+                        Edit Input Row
+
+                    </span>
+
+
+                    <span
+                        class="profile-menu-description">
+
+                        Edit data Airdrop yang sudah tersimpan
+
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="profile-menu-arrow">
+
+                ›
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    /* =============================================
+       MENU
+    ============================================= */
+
+    const rewardMenu =
+
+        document.getElementById(
+
+            "airdrop-edit-reward-menu"
+
+        );
+
+
+    const rowMenu =
+
+        document.getElementById(
+
+            "airdrop-edit-row-menu"
+
+        );
+
+
+    /* =============================================
+       REWARD
+       Logic akan ditambahkan nanti
+    ============================================= */
+
+    if(
+
+        rewardMenu
+
+    ){
+
+        rewardMenu.addEventListener(
+
+            "click",
+
+            () => {
+
+                console.log(
+
+                    "Airdrop Edit Input Reward"
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    /* =============================================
+       ROW
+       Logic akan ditambahkan nanti
+    ============================================= */
+
+    if(
+
+        rowMenu
+
+    ){
+
+        rowMenu.addEventListener(
+
+            "click",
+
+            () => {
+
+                console.log(
+
+                    "Airdrop Edit Input Row"
 
                 );
 
