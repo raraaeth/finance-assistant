@@ -1724,3 +1724,242 @@ body.input-open{
 
 }
 
+/* =====================================================
+   EDIT INPUT MENU
+===================================================== */
+
+.global-edit-input-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   EDIT INPUT ITEM
+===================================================== */
+
+.global-edit-input-item{
+
+    width:100%;
+
+    min-height:92px;
+
+    padding:16px;
+
+    box-sizing:border-box;
+
+    border:0;
+
+    border-radius:18px;
+
+    background:#ffffff;
+
+    color:#253f3d;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:14px;
+
+    font-family:inherit;
+
+    text-align:left;
+
+    cursor:pointer;
+
+    transition:
+
+        background-color .2s ease,
+
+        transform .1s ease;
+
+}
+
+
+/* =====================================================
+   LEFT
+===================================================== */
+
+.global-edit-input-item-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   ICON
+===================================================== */
+
+.global-edit-input-item-icon{
+
+    width:48px;
+
+    height:48px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:14px;
+
+    background:#eef3ff;
+
+    font-size:24px;
+
+    line-height:1;
+
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.global-edit-input-item-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.global-edit-input-item-title{
+
+    color:#253f3d;
+
+    font-size:15px;
+
+    line-height:1.35;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
+
+.global-edit-input-item-description{
+
+    color:#7d8988;
+
+    font-size:13px;
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   ARROW
+===================================================== */
+
+.global-edit-input-item-arrow{
+
+    flex-shrink:0;
+
+    color:#9aa3a2;
+
+    font-size:24px;
+
+    line-height:1;
+
+}
+
+
+/* =====================================================
+   ACTIVE
+===================================================== */
+
+.global-edit-input-item:active{
+
+    background:#f4f7f6;
+
+    transform:scale(.985);
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:480px){
+
+    .global-edit-input-item{
+
+        min-height:88px;
+
+        padding:15px;
+
+        border-radius:17px;
+
+    }
+
+
+    .global-edit-input-item-icon{
+
+        width:44px;
+
+        height:44px;
+
+        border-radius:13px;
+
+        font-size:22px;
+
+    }
+
+
+    .global-edit-input-item-title{
+
+        font-size:14px;
+
+    }
+
+
+    .global-edit-input-item-description{
+
+        font-size:12px;
+
+    }
+
+
+    .global-edit-input-item-arrow{
+
+        font-size:22px;
+
+    }
+
+}
+
