@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.3.0
+   Version      : 4.4.0
 
    Description :
    Airdrop Input Configuration
@@ -68,6 +68,22 @@
    - Bansos tidak mempunyai Start / End.
    - Bansos otomatis berstatus win.
    - Reward bansos disimpan pada $reward.
+
+   EDIT INPUT :
+
+   Global Input script.js
+        ↓
+   Airdrop.openEdit()
+        ↓
+   Edit Input Reward
+        ↓
+   renderRewardPicker()
+        ↓
+   renderSelectedReward()
+        ↓
+   Reward.save()
+        ↓
+   Update.updateField()
 ===================================================== */
 
 
@@ -89,6 +105,29 @@ import {
     getInputData
 
 } from "./data.js";
+
+
+/*
+   Reward adalah brain untuk Edit Input Reward.
+
+   airdrop.js :
+   - menyediakan konfigurasi
+   - membuat UI
+   - mengatur flow workspace
+
+   reward.js :
+   - filtering
+   - selection
+   - validation
+   - build changes
+   - update
+*/
+
+import {
+
+    Reward
+
+} from "./reward.js";
 
 
 /* =====================================================
@@ -236,74 +275,215 @@ export const Airdrop = {
 
         "activity",
 
-/* =================================================
-   TRANSACTION PREPARATION
-=================================================
 
-   Hook untuk Global Transaction Controller.
+    /* =================================================
+       EDIT INPUT
+       
+       Controller dari Global Input script.js.
 
-   Transaction.js tidak mengetahui aturan
-   khusus Airdrop.
+       Mode :
 
-   Flow :
-
-       transaction.js
-            ↓
-       Airdrop.prepareTransaction()
-            ↓
-       mode
-            ↓
-       activity
-            ↓
-       buildActivityValues()
-
-   Activity :
-
-       campaign
+       reward
            ↓
-       status = ongoing
+       Edit Input Reward
 
-       bansos
+       row
            ↓
-       status = win
-       $reward wajib
-       start = ""
-       end = ""
+       Edit Input Row
+       
+       Edit Input Row belum diaktifkan.
+    ================================================= */
 
-   Reward :
+    async openEdit({
 
-       Tidak menggunakan Activity normalizer.
+        mode = null
 
-       Reward mempunyai flow khususnya sendiri.
+    } = {}){
 
-================================================= */
+        const normalizedMode =
 
-prepareTransaction :
+            String(
 
-    function(
+                mode ??
 
-        values,
+                ""
 
-        context = {}
+            )
 
-    ){
+            .trim()
 
-        /* =========================================
-           REWARD
+            .toLowerCase();
 
-           Reward bukan Activity.
 
-           Jangan jalankan buildActivityValues()
-           pada mode Reward.
-        ========================================= */
+        /* =============================================
+           EDIT REWARD
+        ============================================= */
 
         if(
 
-            context.mode ===
+            normalizedMode ===
 
-                "reward"
+            "reward"
 
         ){
+
+            return openEditReward();
+
+        }
+
+
+        /* =============================================
+           EDIT ROW
+           
+           Belum dikerjakan.
+        ============================================= */
+
+        if(
+
+            normalizedMode ===
+
+            "row"
+
+        ){
+
+            console.warn(
+
+                "Airdrop Edit Input Row belum tersedia."
+
+            );
+
+            return null;
+
+        }
+
+
+        console.warn(
+
+            "Airdrop Edit Input: mode tidak dikenal.",
+
+            normalizedMode
+
+        );
+
+
+        return null;
+
+    },
+
+
+    /* =================================================
+       TRANSACTION PREPARATION
+    =================================================
+
+       Hook untuk Global Transaction Controller.
+
+       Transaction.js tidak mengetahui aturan
+       khusus Airdrop.
+
+       Flow :
+
+           transaction.js
+                ↓
+           Airdrop.prepareTransaction()
+                ↓
+           mode
+                ↓
+           activity
+                ↓
+           buildActivityValues()
+
+       Activity :
+
+           campaign
+               ↓
+           status = ongoing
+
+           bansos
+               ↓
+           status = win
+           $reward wajib
+           start = ""
+           end = ""
+
+       Reward :
+
+           Tidak menggunakan Activity normalizer.
+
+           Reward mempunyai flow khususnya sendiri.
+
+    ================================================= */
+
+    prepareTransaction :
+
+        function(
+
+            values,
+
+            context = {}
+
+        ){
+
+            /* =========================================
+               REWARD
+
+               Reward bukan Activity.
+
+               Jangan jalankan buildActivityValues()
+               pada mode Reward.
+            ========================================= */
+
+            if(
+
+                context.mode ===
+
+                    "reward"
+
+            ){
+
+                return {
+
+                    ...values
+
+                };
+
+            }
+
+
+            /* =========================================
+               ACTIVITY
+
+               Gunakan normalizer Activity milik
+               module Airdrop.
+            ========================================= */
+
+            if(
+
+                context.mode ===
+
+                    "activity"
+
+                ||
+
+                !context.mode
+
+            ){
+
+                return buildActivityValues(
+
+                    values
+
+                );
+
+            }
+
+
+            /* =========================================
+               FALLBACK
+
+               Mode tidak dikenal tidak boleh
+               diproses dengan aturan Activity
+               secara diam-diam.
+            ========================================= */
 
             return {
 
@@ -311,60 +491,13 @@ prepareTransaction :
 
             };
 
-        }
+        },
 
 
-        /* =========================================
-           ACTIVITY
-
-           Gunakan normalizer Activity milik
-           module Airdrop.
-        ========================================= */
-
-        if(
-
-            context.mode ===
-
-                "activity"
-
-            ||
-
-            !context.mode
-
-        ){
-
-            return buildActivityValues(
-
-                values
-
-            );
-
-        }
-
-
-        /* =========================================
-           FALLBACK
-
-           Mode tidak dikenal tidak boleh
-           diproses dengan aturan Activity
-           secara diam-diam.
-
-           Kembalikan values apa adanya agar
-           controller tetap generic.
-        ========================================= */
-
-        return {
-
-            ...values
-
-        };
-
-    },
-
-   /* =================================================
+    /* =================================================
        ACTIVITY STEPS
     ================================================= */
-    
+
     steps : [
 
         /* =============================================
@@ -564,10 +697,6 @@ prepareTransaction :
            START
 
            Hanya campaign.
-
-           Bansos tidak mempunyai waktu
-           pengerjaan sehingga field ini
-           tidak ditampilkan.
         ============================================= */
 
         {
@@ -613,10 +742,6 @@ prepareTransaction :
            END
 
            Hanya campaign.
-
-           Bansos tidak mempunyai waktu
-           pengerjaan sehingga field ini
-           tidak ditampilkan.
         ============================================= */
 
         {
@@ -790,20 +915,6 @@ export function setAirdropMode(
    GET RULES
 ===================================================== */
 
-/*
-   Sumber :
-
-       getInputData()
-           ↓
-       sheet kedua workspace
-
-   Untuk Airdrop :
-
-       airdrop_rules
-
-   Tidak membaca API.data secara langsung.
-*/
-
 export function getRules(){
 
     const data =
@@ -959,10 +1070,6 @@ export function getTypeOptions(){
             }
 
 
-            /* =====================================
-               ACTIVE
-            ===================================== */
-
             if(
 
                 !isRuleActive(
@@ -977,10 +1084,6 @@ export function getTypeOptions(){
 
             }
 
-
-            /* =====================================
-               DUPLICATE
-            ===================================== */
 
             if(
 
@@ -1081,10 +1184,6 @@ export function getWalletOptions(){
             }
 
 
-            /* =====================================
-               ACTIVE
-            ===================================== */
-
             if(
 
                 !isRuleActive(
@@ -1099,10 +1198,6 @@ export function getWalletOptions(){
 
             }
 
-
-            /* =====================================
-               DUPLICATE
-            ===================================== */
 
             if(
 
@@ -1183,12 +1278,6 @@ function isRuleActive(
 
         .toUpperCase();
 
-
-    /* =============================================
-       ACTIVE KOSONG
-
-       Compatibility dengan rule lama.
-    ============================================= */
 
     if(
 
@@ -1350,18 +1439,6 @@ function normalizeValue(
    IS BANSOS
 ===================================================== */
 
-/*
-   Bansos adalah tipe khusus yang :
-
-       - tidak memiliki Start
-       - tidak memiliki End
-       - langsung Win
-       - membutuhkan $ Reward
-
-   Semua perbandingan type tetap
-   menggunakan normalized value.
-*/
-
 function isBansos(
 
     value
@@ -1404,20 +1481,6 @@ export function getActivitySteps(){
    GET CURRENT DATA
 ===================================================== */
 
-/*
-   Sumber :
-
-       getInputRaw()
-           ↓
-       sheet pertama workspace
-
-   Untuk Airdrop :
-
-       airdrop
-
-   Tidak membaca API.raw secara langsung.
-*/
-
 export function getAirdropData(){
 
     return getInputRaw();
@@ -1428,25 +1491,6 @@ export function getAirdropData(){
 /* =====================================================
    GET REWARD RECORDS
 ===================================================== */
-
-/*
-   Reward hanya boleh memilih record
-   yang statusnya:
-
-       ongoing
-       ended
-
-   Record:
-
-       win
-       not_win
-
-   tidak ditampilkan lagi.
-
-   Bansos yang sudah otomatis Win
-   juga tidak akan muncul pada
-   Reward Picker.
-*/
 
 export function getRewardRecords(){
 
@@ -1705,10 +1749,6 @@ export function buildRewardValues(
         );
 
 
-    /* =============================================
-       VALID STATUS
-    ============================================= */
-
     if(
 
         normalizedStatus !==
@@ -1809,15 +1849,6 @@ export function buildRewardValues(
 
     else{
 
-        /*
-           Not Win tidak mempunyai nominal.
-
-           clearReward digunakan oleh
-           transaction/write layer sebagai
-           instruksi bahwa reward lama,
-           jika ada, harus dikosongkan.
-        */
-
         values.clearReward =
 
             true;
@@ -1833,20 +1864,6 @@ export function buildRewardValues(
 /* =====================================================
    APPLY REWARD
 ===================================================== */
-
-/*
-   Reward bukan membuat ID baru.
-
-   ID record lama dipertahankan:
-
-       State.editingId
-           ↓
-       record.id
-
-   Dengan demikian write layer nantinya
-   dapat mencari baris berdasarkan ID
-   dan melakukan rewrite pada baris yang sama.
-*/
 
 export function applyReward(
 
@@ -1958,43 +1975,6 @@ export function applyReward(
    BUILD ACTIVITY VALUES
 ===================================================== */
 
-/*
-   Tanggal TIDAK berasal dari field Airdrop.
-
-   Sumber tanggal :
-
-       Global Input
-           ↓
-       State.date
-           ↓
-       values.tanggal
-
-   Dengan demikian user tidak perlu
-   memilih tanggal dua kali.
-
-
-   NORMAL CAMPAIGN :
-
-       type      = campaign
-       start     = input user
-       end       = input user
-       status    = ongoing
-
-
-   BANSOS :
-
-       type      = bansos
-       start     = ""
-       end       = ""
-       status    = win
-       $reward   = nominal USD
-
-
-   Bansos dianggap langsung Win karena
-   reward nyata sudah diterima pada hari
-   transaksi dibuat.
-*/
-
 export function buildActivityValues(
 
     values
@@ -2060,10 +2040,6 @@ export function buildActivityValues(
         );
 
 
-    /* =============================================
-       BASE RESULT
-    ============================================= */
-
     const result = {
 
         tanggal :
@@ -2079,18 +2055,15 @@ export function buildActivityValues(
 
         type :
 
-
             type,
 
 
         nama :
 
-
             nama,
 
 
         project :
-
 
             project,
 
@@ -2125,7 +2098,7 @@ export function buildActivityValues(
 
 
     /* =============================================
-       VALIDATION DASAR
+       BASIC VALIDATION
     ============================================= */
 
     if(
@@ -2161,32 +2134,14 @@ export function buildActivityValues(
 
     ){
 
-        /*
-           Bansos tidak memiliki periode
-           pengerjaan.
-
-           Start dan End selalu kosong.
-        */
-
         result.start = "";
 
         result.end = "";
-
-
-        /*
-           Bansos langsung Win.
-
-           User tidak perlu memilih status.
-        */
 
         result.status =
 
             STATUS_WIN;
 
-
-        /*
-           Reward wajib ada.
-        */
 
         const rawReward =
 
@@ -2231,11 +2186,6 @@ export function buildActivityValues(
             );
 
 
-        /*
-           Reward harus angka
-           dan tidak boleh negatif.
-        */
-
         if(
 
             !Number.isFinite(
@@ -2275,9 +2225,6 @@ export function buildActivityValues(
 
     /* =============================================
        NON CAMPAIGN
-       
-       Start / End tidak digunakan
-       untuk type selain campaign.
     ============================================= */
 
     if(
@@ -2405,10 +2352,6 @@ export function validateReward(
         );
 
 
-    /* =============================================
-       STATUS
-    ============================================= */
-
     if(
 
         normalizedStatus !==
@@ -2438,10 +2381,6 @@ export function validateReward(
 
     }
 
-
-    /* =============================================
-       WIN
-    ============================================= */
 
     if(
 
@@ -2528,10 +2467,6 @@ export function validateReward(
     }
 
 
-    /* =============================================
-       NOT WIN
-    ============================================= */
-
     return {
 
         valid :
@@ -2551,23 +2486,6 @@ export function validateReward(
 /* =====================================================
    VALIDATE BANSOS
 ===================================================== */
-
-/*
-   Validation khusus Activity Bansos.
-
-   Bansos harus memiliki :
-
-       type
-       nama
-       project
-       $reward
-
-   Dan otomatis :
-
-       status = win
-       start  = ""
-       end    = ""
-*/
 
 export function validateBansos(
 
@@ -3114,23 +3032,6 @@ export function renderModeSelector(
    RENDER REWARD PICKER
 ===================================================== */
 
-/*
-   UI khusus Reward.
-
-   Tidak menggunakan field.js
-   karena Reward membutuhkan:
-
-       list project
-           ↓
-       pilih record
-           ↓
-       detail record
-           ↓
-       status
-           ↓
-       nominal jika Win
-*/
-
 export function renderRewardPicker(
 
     container,
@@ -3189,7 +3090,7 @@ export function renderRewardPicker(
 
 
     /* =============================================
-       SCROLL BOX
+       LIST
     ============================================= */
 
     const list =
@@ -3247,7 +3148,7 @@ export function renderRewardPicker(
 
 
     /* =============================================
-       PROJECT ITEMS
+       ITEMS
     ============================================= */
 
     records.forEach(
@@ -3330,9 +3231,7 @@ export function renderRewardPicker(
 
                         record.status
 
-                    )
-
-                }`;
+                    )}`;
 
 
             item.appendChild(
@@ -3521,9 +3420,7 @@ export function renderSelectedReward(
 
 
     /* =============================================
-       TYPE
-
-       LOCKED
+       TYPE LOCKED
     ============================================= */
 
     appendInfo(
@@ -3619,9 +3516,7 @@ export function renderSelectedReward(
         );
 
 
-    placeholder.value =
-
-        "";
+    placeholder.value = "";
 
 
     placeholder.textContent =
@@ -3913,7 +3808,7 @@ export function renderSelectedReward(
 
         "click",
 
-        () => {
+        async () => {
 
             const status =
 
@@ -3954,29 +3849,14 @@ export function renderSelectedReward(
             }
 
 
-            const success =
+            /*
+               Jangan melakukan update langsung
+               dari UI.
 
-                applyReward(
-
-                    record,
-
-                    status,
-
-                    reward
-
-                );
-
-
-            if(
-
-                !success
-
-            ){
-
-                return;
-
-            }
-
+               Submit diteruskan ke controller,
+               kemudian controller meneruskan
+               ke Reward engine.
+            */
 
             if(
 
@@ -3986,25 +3866,13 @@ export function renderSelectedReward(
 
             ){
 
-                onSubmit({
+                await onSubmit({
 
                     record,
 
                     status,
 
-                    reward,
-
-                    values :
-
-                        {
-
-                            ...State.values
-
-                        },
-
-                    editingId :
-
-                        State.editingId
+                    reward
 
                 });
 
@@ -4146,6 +4014,600 @@ function appendInfo(
         row
 
     );
+
+}
+
+
+/* =====================================================
+   OPEN EDIT REWARD
+===================================================== */
+
+/*
+   Overlay dibuat dari JS.
+
+   TIDAK ditambahkan ke :
+
+       components/input/index.html
+
+   Flow :
+
+       Input.openEdit()
+            ↓
+       Airdrop.openEdit()
+            ↓
+       openEditReward()
+            ↓
+       renderRewardPicker()
+            ↓
+       renderSelectedReward()
+            ↓
+       Reward.save()
+*/
+
+async function openEditReward(){
+
+    console.log(
+
+        "===== AIRDROP EDIT REWARD OPEN ====="
+
+    );
+
+
+    /* =============================================
+       EXISTING OVERLAY
+    ============================================= */
+
+    const existing =
+
+        document.getElementById(
+
+            "airdrop-edit-reward-overlay"
+
+        );
+
+
+    if(
+
+        existing
+
+    ){
+
+        existing.classList.add(
+
+            "is-open"
+
+        );
+
+
+        document.body.classList.add(
+
+            "input-open"
+
+        );
+
+
+        return existing;
+
+    }
+
+
+    /* =============================================
+       OVERLAY
+    ============================================= */
+
+    const overlay =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    overlay.id =
+
+        "airdrop-edit-reward-overlay";
+
+
+    overlay.className =
+
+        "airdrop-edit-reward-overlay";
+
+
+    /* =============================================
+       PANEL
+    ============================================= */
+
+    const panel =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    panel.className =
+
+        "airdrop-edit-reward-panel";
+
+
+    /* =============================================
+       HEADER
+    ============================================= */
+
+    const header =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    header.className =
+
+        "airdrop-edit-reward-header";
+
+
+    const title =
+
+        document.createElement(
+
+            "h2"
+
+        );
+
+
+    title.textContent =
+
+        "Edit Input Reward";
+
+
+    const closeButton =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    closeButton.type =
+
+        "button";
+
+
+    closeButton.className =
+
+        "airdrop-edit-reward-close";
+
+
+    closeButton.setAttribute(
+
+        "aria-label",
+
+        "Tutup"
+
+    );
+
+
+    closeButton.textContent =
+
+        "×";
+
+
+    header.appendChild(
+
+        title
+
+    );
+
+
+    header.appendChild(
+
+        closeButton
+
+    );
+
+
+    /* =============================================
+       CONTENT
+    ============================================= */
+
+    const content =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    content.className =
+
+        "airdrop-edit-reward-content";
+
+
+    /* =============================================
+       PICKER
+    ============================================= */
+
+    const picker =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    picker.className =
+
+        "airdrop-edit-reward-picker";
+
+
+    /* =============================================
+       SELECTED
+    ============================================= */
+
+    const selected =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    selected.className =
+
+        "airdrop-edit-reward-selected-container";
+
+
+    /* =============================================
+       APPEND
+    ============================================= */
+
+    content.appendChild(
+
+        picker
+
+    );
+
+
+    content.appendChild(
+
+        selected
+
+    );
+
+
+    panel.appendChild(
+
+        header
+
+    );
+
+
+    panel.appendChild(
+
+        content
+
+    );
+
+
+    overlay.appendChild(
+
+        panel
+
+    );
+
+
+    document.body.appendChild(
+
+        overlay
+
+    );
+
+
+    /* =============================================
+       CLOSE
+    ============================================= */
+
+    const close =
+
+        () => {
+
+            overlay.classList.remove(
+
+                "is-open"
+
+            );
+
+
+            document.body.classList.remove(
+
+                "input-open"
+
+            );
+
+        };
+
+
+    closeButton.addEventListener(
+
+        "click",
+
+        close
+
+    );
+
+
+    /* =============================================
+       BACKDROP
+    ============================================= */
+
+    overlay.addEventListener(
+
+        "click",
+
+        event => {
+
+            if(
+
+                event.target ===
+
+                overlay
+
+            ){
+
+                close();
+
+            }
+
+        }
+
+    );
+
+
+    /* =============================================
+       ESCAPE
+    ============================================= */
+
+    const escapeHandler =
+
+        event => {
+
+            if(
+
+                event.key ===
+
+                "Escape"
+
+            ){
+
+                close();
+
+
+                document.removeEventListener(
+
+                    "keydown",
+
+                    escapeHandler
+
+                );
+
+            }
+
+        };
+
+
+    document.addEventListener(
+
+        "keydown",
+
+        escapeHandler
+
+    );
+
+
+    /* =============================================
+       SHOW
+    ============================================= */
+
+    overlay.classList.add(
+
+        "is-open"
+
+    );
+
+
+    document.body.classList.add(
+
+        "input-open"
+
+    );
+
+
+    /* =============================================
+       RENDER SELECTED
+    ============================================= */
+
+    const renderSelected =
+
+        record => {
+
+            renderSelectedReward(
+
+                selected,
+
+                record,
+
+                async ({
+
+                    status,
+
+                    reward
+
+                }) => {
+
+                    console.log(
+
+                        "===== AIRDROP REWARD SUBMIT =====",
+
+                        {
+
+                            id :
+
+                                record?.id,
+
+                            project :
+
+                                record?.project,
+
+                            status,
+
+                            reward
+
+                        }
+
+                    );
+
+
+                    /* =================================
+                       SAVE VIA REWARD ENGINE
+                    ================================= */
+
+                    const result =
+
+                        await Reward.save({
+
+                            result :
+
+                                status,
+
+                            reward
+
+                        });
+
+
+                    console.log(
+
+                        "AIRDROP REWARD SAVE RESULT:",
+
+                        result
+
+                    );
+
+
+                    /* =================================
+                       FAILED
+                    ================================= */
+
+                    if(
+
+                        !result?.success
+
+                    ){
+
+                        console.warn(
+
+                            result?.message ??
+
+                            "Gagal menyimpan Edit Input Reward."
+
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    /* =================================
+                       SUCCESS
+                    ================================= */
+
+                    console.log(
+
+                        "===== AIRDROP EDIT REWARD SUCCESS ====="
+
+                    );
+
+
+                    /*
+                       Bersihkan selected record
+                       setelah update berhasil.
+                    */
+
+                    if(
+
+                        typeof Reward.clearSelection ===
+
+                        "function"
+
+                    ){
+
+                        Reward.clearSelection();
+
+                    }
+
+
+                    /*
+                       Bersihkan detail.
+                    */
+
+                    selected.innerHTML = "";
+
+
+                    /*
+                       Render ulang picker.
+
+                       Record yang tadi berubah :
+
+                           ongoing → win
+                           ended   → win
+
+                       atau :
+
+                           ongoing → not_win
+                           ended   → not_win
+
+                       tidak akan muncul lagi karena
+                       getRewardRecords() hanya mengambil
+                       ongoing dan ended.
+                    */
+
+                    renderRewardPicker(
+
+                        picker,
+
+                        renderSelected
+
+                    );
+
+                }
+
+            );
+
+        };
+
+
+    /* =============================================
+       INITIAL PICKER
+    ============================================= */
+
+    renderRewardPicker(
+
+        picker,
+
+        renderSelected
+
+    );
+
+
+    return overlay;
 
 }
 
