@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 6.0.0
+   Version      : 6.2.0
 
    Description :
    Global Input Controller
@@ -11,6 +11,7 @@
    - Load HTML
    - Init
    - Open
+   - Open Edit Input
    - Close
    - Global Workspace connection
    - Input Data connection
@@ -23,70 +24,69 @@
         ↓
    Global Input
         ↓
-   data.js
-        ↓
-   Input Flow
-===================================================== */
+   ┌─────────────────────────────┐
+   │                             │
+   │  Normal Input               │
+   │      ↓                      │
+   │  data.js                    │
+   │      ↓                      │
+   │  flow.js                    │
+   │                             │
+   │  Edit Input                 │
+   │      ↓                      │
+   │  workspace edit controller  │
+   │      ↓                      │
+   │  Reward / EditRow engine    │
+   │                             │
+   └─────────────────────────────┘
+   ===================================================== */
 
 
 /* =====================================================
    IMPORT
-===================================================== */
+   ===================================================== */
 
 import {
-
     State
-
 } from "./state.js";
 
 
 import {
-
     getActiveWorkspace,
-
     getWorkspaceConfig
-
 } from "../../js/workspace.js";
 
 
 import {
-
     initSession
-
 } from "./session.js";
 
 
 import {
-
     startFlow
-
 } from "./flow.js";
 
 
 import {
-
     initTransaction
-
 } from "./transaction.js";
 
 
 import {
-
     loadInputData
-
 } from "./data.js";
 
 
 /* =====================================================
    STATE
-===================================================== */
+   ===================================================== */
 
 let initialized = false;
 
 
 /* =====================================================
    INPUT
-===================================================== */
+   ===================================================== */
 
 export const Input = {
 
@@ -98,9 +98,7 @@ export const Input = {
     async init(){
 
         if(
-
             initialized
-
         ){
 
             return;
@@ -113,20 +111,15 @@ export const Input = {
         ============================================= */
 
         const overlay =
-
             await loadHTML();
 
 
         if(
-
             !overlay
-
         ){
 
             console.error(
-
                 "Global Input gagal dimuat."
-
             );
 
             return;
@@ -146,30 +139,22 @@ export const Input = {
         ============================================= */
 
         const closeButton =
-
             document.getElementById(
-
                 "global-input-close"
-
             );
 
 
         if(
-
             closeButton
-
         ){
 
             closeButton.addEventListener(
-
                 "click",
-
                 () => {
 
                     Input.close();
 
                 }
-
             );
 
         }
@@ -180,30 +165,22 @@ export const Input = {
         ============================================= */
 
         const backdrop =
-
             document.getElementById(
-
                 "global-input-backdrop"
-
             );
 
 
         if(
-
             backdrop
-
         ){
 
             backdrop.addEventListener(
-
                 "click",
-
                 () => {
 
                     Input.close();
 
                 }
-
             );
 
         }
@@ -214,15 +191,11 @@ export const Input = {
         ============================================= */
 
         document.addEventListener(
-
             "keydown",
-
             event => {
 
                 if(
-
                     event.key === "Escape"
-
                 ){
 
                     Input.close();
@@ -230,12 +203,10 @@ export const Input = {
                 }
 
             }
-
         );
 
 
         initialized =
-
             true;
 
     },
@@ -243,20 +214,19 @@ export const Input = {
 
     /* =================================================
        OPEN
+
+       NORMAL INPUT
+
+       Flow lama tetap dipertahankan.
     ================================================= */
 
     async open(
-
         workspace = null
-
     ){
 
         console.log(
-
             "INPUT OPEN",
-
             workspace
-
         );
 
 
@@ -268,15 +238,11 @@ export const Input = {
 
 
         if(
-
             !initialized
-
         ){
 
             console.error(
-
                 "INPUT INIT gagal."
-
             );
 
             return;
@@ -289,24 +255,17 @@ export const Input = {
         ============================================= */
 
         const overlay =
-
             document.getElementById(
-
                 "global-input-overlay"
-
             );
 
 
         if(
-
             !overlay
-
         ){
 
             console.error(
-
                 "Element #global-input-overlay tidak ditemukan."
-
             );
 
             return;
@@ -315,39 +274,27 @@ export const Input = {
 
 
         console.log(
-
             "INPUT ROOT",
-
             overlay
-
         );
 
 
         /* =============================================
            RESOLVE WORKSPACE
-           
-           Tidak lagi menggunakan
-           components/input/workspace.js.
 
-           Workspace langsung berasal dari
+           Workspace berasal dari
            global js/workspace.js.
         ============================================= */
 
         const activeWorkspace =
-
             workspace
-
             ||
-
             getActiveWorkspace();
 
 
         console.log(
-
             "INPUT ACTIVE WORKSPACE:",
-
             activeWorkspace
-
         );
 
 
@@ -356,15 +303,11 @@ export const Input = {
         ============================================= */
 
         if(
-
             !activeWorkspace
-
         ){
 
             console.warn(
-
                 "Global Input: workspace tidak ditemukan."
-
             );
 
             return;
@@ -374,44 +317,22 @@ export const Input = {
 
         /* =============================================
            GLOBAL WORKSPACE CONFIG
-           
-           Config ini berasal langsung dari
-           js/workspace.js.
-
-           Contoh :
-
-           {
-               id,
-               title,
-               icon,
-               sheets,
-               module
-           }
         ============================================= */
 
         const workspaceConfig =
-
             getWorkspaceConfig()
-
             ?.[
-
                 activeWorkspace
-
             ];
 
 
         if(
-
             !workspaceConfig
-
         ){
 
             console.warn(
-
                 "Global Input: konfigurasi workspace tidak ditemukan:",
-
                 activeWorkspace
-
             );
 
             return;
@@ -420,38 +341,27 @@ export const Input = {
 
 
         console.log(
-
             "INPUT WORKSPACE CONFIG:",
-
             workspaceConfig
-
         );
 
 
         /* =============================================
            LOAD INPUT DATA
-           
-           data.js bertugas membaca sheet yang
-           ditentukan oleh workspace global.
 
-           Tidak ada URL OpenSheet di sini.
+           data.js bertugas membaca data
+           berdasarkan workspace.
         ============================================= */
 
         const inputData =
-
             await loadInputData(
-
                 activeWorkspace
-
             );
 
 
         console.log(
-
             "INPUT DATA:",
-
             inputData
-
         );
 
 
@@ -467,26 +377,16 @@ export const Input = {
         ============================================= */
 
         State.workspace =
-
             activeWorkspace;
 
 
         /* =============================================
            SET CONFIG
-           
-           Untuk sementara config State berasal
-           dari konfigurasi workspace global.
-
-           Konfigurasi khusus field/input akan
-           ditangani oleh module input masing-masing.
         ============================================= */
 
         State.config =
-
             workspaceConfig
-
             ||
-
             {};
 
 
@@ -495,9 +395,7 @@ export const Input = {
         ============================================= */
 
         initSession(
-
             activeWorkspace
-
         );
 
 
@@ -527,23 +425,383 @@ export const Input = {
         ============================================= */
 
         overlay.classList.add(
-
             "is-open"
-
         );
 
 
         document.body.classList.add(
-
             "input-open"
-
         );
 
 
         console.log(
-
             "INPUT FLOW STARTED"
+        );
 
+    },
+
+
+    /* =================================================
+       OPEN EDIT
+
+       Controller entry point untuk Edit Input.
+
+       Supported :
+
+       Input.openEdit(
+           "airdrop",
+           "reward"
+       );
+
+       atau :
+
+       Input.openEdit({
+           workspace: "airdrop",
+           mode: "reward"
+       });
+
+       Penting :
+       - Tidak memakai flow.js
+       - Tidak mengubah Normal Input
+       - Tidak menyimpan logic Reward di sini
+       - Workspace menentukan engine/edit flow
+    ================================================= */
+
+    async openEdit(
+        workspace = null,
+        mode = null
+    ){
+
+        /* =============================================
+           NORMALIZE EDIT REQUEST
+
+           Mendukung dua bentuk API :
+
+           1. Legacy / positional :
+              openEdit(workspace, mode)
+
+           2. Context object :
+              openEdit({
+                  workspace,
+                  mode
+              })
+
+           Bentuk object dipakai agar selaras dengan
+           controller workspace.
+        ============================================= */
+
+        let editWorkspace =
+            workspace;
+
+        let editMode =
+            mode;
+
+
+        if(
+            workspace
+            &&
+            typeof workspace === "object"
+            &&
+            !Array.isArray(workspace)
+        ){
+
+            editWorkspace =
+                workspace.workspace
+                ??
+                null;
+
+            editMode =
+                workspace.mode
+                ??
+                null;
+
+        }
+
+
+        console.log(
+            "INPUT EDIT OPEN",
+            {
+                workspace:
+                    editWorkspace,
+
+                mode:
+                    editMode
+            }
+        );
+
+
+        /* =============================================
+           RESOLVE WORKSPACE
+        ============================================= */
+
+        const activeWorkspace =
+            editWorkspace
+            ||
+            getActiveWorkspace();
+
+
+        if(
+            !activeWorkspace
+        ){
+
+            console.warn(
+                "Global Input Edit: workspace tidak ditemukan."
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           VALIDATE MODE
+        ============================================= */
+
+        if(
+            !editMode
+        ){
+
+            console.warn(
+                "Global Input Edit: mode edit belum ditentukan."
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           GLOBAL WORKSPACE CONFIG
+        ============================================= */
+
+        const workspaceConfig =
+            getWorkspaceConfig()
+            ?.[
+                activeWorkspace
+            ];
+
+
+        if(
+            !workspaceConfig
+        ){
+
+            console.warn(
+                "Global Input Edit: konfigurasi workspace tidak ditemukan:",
+                activeWorkspace
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           LOAD INPUT DATA
+
+           Edit Input tetap menggunakan sumber data
+           Global Input yang sama.
+        ============================================= */
+
+        const inputData =
+            await loadInputData(
+                activeWorkspace
+            );
+
+
+        console.log(
+            "INPUT EDIT DATA:",
+            inputData
+        );
+
+
+        /* =============================================
+           PREPARE EDIT STATE
+
+           Hanya state edit yang dibersihkan.
+
+           State Normal Input tidak di-reset karena
+           Edit Input bukan bagian dari flow normal.
+        ============================================= */
+
+        clearEditState();
+
+
+        /* =============================================
+           SET WORKSPACE
+        ============================================= */
+
+        State.workspace =
+            activeWorkspace;
+
+
+        /* =============================================
+           SET CONFIG
+        ============================================= */
+
+        State.config =
+            workspaceConfig;
+
+
+        /* =============================================
+           SET EDIT MODE
+        ============================================= */
+
+        if(
+            typeof State.setEditMode ===
+            "function"
+        ){
+
+            State.setEditMode(
+                editMode
+            );
+
+        }
+        else{
+
+            State.editMode =
+                editMode;
+
+        }
+
+
+        /* =============================================
+           STORE EDIT DATA
+
+           Jangan mengubah struktur State lama.
+
+           Jika State menyediakan setter/data khusus,
+           gunakan setter tersebut.
+        ============================================= */
+
+        if(
+            typeof State.setInputData ===
+            "function"
+        ){
+
+            State.setInputData(
+                inputData
+            );
+
+        }
+        else if(
+            "inputData" in State
+        ){
+
+            State.inputData =
+                inputData;
+
+        }
+
+
+        /* =============================================
+           WORKSPACE EDIT CONTROLLER
+
+           Workspace-specific JS yang menentukan
+           bagaimana UI Edit Input dibuka.
+
+           Contoh Airdrop :
+
+           mode = reward
+              ↓
+           Airdrop.openEdit()
+              ↓
+           Reward engine
+
+           mode = row
+              ↓
+           Airdrop.openEdit()
+              ↓
+           Edit Row engine
+        ============================================= */
+
+        const editController =
+            await loadEditController(
+                activeWorkspace,
+                editMode
+            );
+
+
+        if(
+            !editController
+        ){
+
+            console.warn(
+                "Global Input Edit: edit controller tidak ditemukan.",
+                {
+                    workspace:
+                        activeWorkspace,
+
+                    mode:
+                        editMode
+                }
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           OPEN EDIT
+
+           Controller workspace bertanggung jawab
+           membuat / membuka UI edit.
+
+           Context object menjadi format utama.
+        ============================================= */
+
+        const editContext = {
+
+            workspace:
+                activeWorkspace,
+
+            mode:
+                editMode,
+
+            data:
+                inputData,
+
+            state:
+                State
+
+        };
+
+
+        if(
+            typeof editController.openEdit ===
+            "function"
+        ){
+
+            return await editController.openEdit(
+                editContext
+            );
+
+        }
+
+
+        /* =============================================
+           FALLBACK
+
+           Jika module memakai nama open(),
+           tetap bisa digunakan tanpa mengubah
+           controller global.
+        ============================================= */
+
+        if(
+            typeof editController.open ===
+            "function"
+        ){
+
+            return await editController.open(
+                editContext
+            );
+
+        }
+
+
+        console.warn(
+            "Global Input Edit: controller tidak memiliki openEdit() atau open().",
+            editController
         );
 
     },
@@ -551,23 +809,23 @@ export const Input = {
 
     /* =================================================
        CLOSE
+
+       Menutup Normal Input.
+
+       Edit Input yang memiliki overlay sendiri
+       ditutup oleh workspace edit controller.
     ================================================= */
 
     close(){
 
         const overlay =
-
             document.getElementById(
-
                 "global-input-overlay"
-
             );
 
 
         if(
-
             !overlay
-
         ){
 
             return;
@@ -576,21 +834,292 @@ export const Input = {
 
 
         overlay.classList.remove(
-
             "is-open"
-
         );
 
 
         document.body.classList.remove(
-
             "input-open"
-
         );
 
     }
 
 };
+
+
+/* =====================================================
+   CLEAR EDIT STATE
+===================================================== */
+
+function clearEditState(){
+
+    /* =============================================
+       SELECTED RECORD
+    ============================================= */
+
+    if(
+        typeof State.clearEditSelectedRecord ===
+        "function"
+    ){
+
+        State.clearEditSelectedRecord();
+
+    }
+    else{
+
+        State.editSelectedRecord =
+            null;
+
+    }
+
+
+    /* =============================================
+       EDIT TRANSACTIONS
+    ============================================= */
+
+    if(
+        typeof State.clearEditTransactions ===
+        "function"
+    ){
+
+        State.clearEditTransactions();
+
+    }
+    else{
+
+        State.editTransactions =
+            [];
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD EDIT CONTROLLER
+===================================================== */
+
+async function loadEditController(
+    workspace,
+    mode
+){
+
+    const normalizedWorkspace =
+        String(
+            workspace
+            ??
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const normalizedMode =
+        String(
+            mode
+            ??
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if(
+        !normalizedWorkspace
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+        !normalizedMode
+    ){
+
+        console.warn(
+            "Global Input Edit: mode edit belum ditentukan."
+        );
+
+        return null;
+
+    }
+
+
+    /* =============================================
+       WORKSPACE EDIT MAP
+
+       Semua file tetap berada di
+       components/input/.
+
+       Controller hanya menentukan module mana
+       yang diminta.
+    ============================================= */
+
+    const controllerMap = {
+
+        airdrop: {
+
+            reward:
+                "./airdrop.js",
+
+            row:
+                "./airdrop.js"
+
+        }
+
+    };
+
+
+    const workspaceMap =
+        controllerMap[
+            normalizedWorkspace
+        ];
+
+
+    if(
+        !workspaceMap
+    ){
+
+        console.warn(
+            "Global Input Edit: workspace edit belum tersedia:",
+            normalizedWorkspace
+        );
+
+        return null;
+
+    }
+
+
+    const modulePath =
+        workspaceMap[
+            normalizedMode
+        ];
+
+
+    if(
+        !modulePath
+    ){
+
+        console.warn(
+            "Global Input Edit: mode edit belum tersedia:",
+            {
+                workspace:
+                    normalizedWorkspace,
+
+                mode:
+                    normalizedMode
+            }
+        );
+
+        return null;
+
+    }
+
+
+    try{
+
+        const module =
+            await import(
+                modulePath
+            );
+
+
+        /* =========================================
+           PRIORITY
+
+           1. Named export berdasarkan workspace
+           2. default export
+        ========================================= */
+
+        const controller =
+            module[
+                getWorkspaceExportName(
+                    normalizedWorkspace
+                )
+            ]
+            ??
+            module.default
+            ??
+            null;
+
+
+        if(
+            !controller
+        ){
+
+            console.warn(
+                "Global Input Edit: export controller tidak ditemukan:",
+                {
+                    workspace:
+                        normalizedWorkspace,
+
+                    mode:
+                        normalizedMode,
+
+                    module:
+                        modulePath
+                }
+            );
+
+            return null;
+
+        }
+
+
+        return controller;
+
+    }
+    catch(error){
+
+        console.error(
+            "Global Input Edit: gagal memuat edit controller.",
+            {
+                workspace:
+                    normalizedWorkspace,
+
+                mode:
+                    normalizedMode,
+
+                module:
+                    modulePath,
+
+                error
+            }
+        );
+
+        return null;
+
+    }
+
+}
+
+
+/* =====================================================
+   WORKSPACE EXPORT NAME
+===================================================== */
+
+function getWorkspaceExportName(
+    workspace
+){
+
+    const map = {
+
+        airdrop:
+            "Airdrop"
+
+    };
+
+
+    return (
+        map[
+            workspace
+        ]
+        ??
+        ""
+    );
+
+}
 
 
 /* =====================================================
@@ -604,18 +1133,13 @@ async function loadHTML(){
     ============================================= */
 
     let overlay =
-
         document.getElementById(
-
             "global-input-overlay"
-
         );
 
 
     if(
-
         overlay
-
     ){
 
         return overlay;
@@ -630,37 +1154,28 @@ async function loadHTML(){
     try{
 
         const response =
-
             await fetch(
 
                 new URL(
-
                     "./index.html",
-
                     import.meta.url
-
                 )
 
             );
 
 
         if(
-
             !response.ok
-
         ){
 
             throw new Error(
-
                 `HTTP ${response.status}`
-
             );
 
         }
 
 
         const html =
-
             await response.text();
 
 
@@ -669,34 +1184,25 @@ async function loadHTML(){
         ========================================= */
 
         const wrapper =
-
             document.createElement(
-
                 "div"
-
             );
 
 
         wrapper.innerHTML =
-
             html.trim();
 
 
         overlay =
-
             wrapper.firstElementChild;
 
 
         if(
-
             !overlay
-
         ){
 
             throw new Error(
-
                 "Root Global Input tidak ditemukan."
-
             );
 
         }
@@ -707,17 +1213,12 @@ async function loadHTML(){
         ========================================= */
 
         if(
-
             overlay.id !==
-
             "global-input-overlay"
-
         ){
 
             throw new Error(
-
                 "Root Global Input harus menggunakan id global-input-overlay."
-
             );
 
         }
@@ -728,24 +1229,18 @@ async function loadHTML(){
         ========================================= */
 
         document.body.appendChild(
-
             overlay
-
         );
 
 
         return overlay;
 
     }
-
     catch(error){
 
         console.error(
-
             "Global Input HTML Error:",
-
             error
-
         );
 
 
@@ -763,41 +1258,28 @@ async function loadHTML(){
 function renderHeader(){
 
     const title =
-
         document.getElementById(
-
             "global-input-title"
-
         );
 
 
     const subtitle =
-
         document.getElementById(
-
             "global-input-subtitle"
-
         );
 
 
     /* =============================================
        TITLE
-       
-       Menggunakan title dari global workspace.
     ============================================= */
 
     if(
-
         title
-
     ){
 
         title.textContent =
-
             State.config?.title
-
             ??
-
             "Input";
 
     }
@@ -805,22 +1287,13 @@ function renderHeader(){
 
     /* =============================================
        SUBTITLE
-       
-       Global workspace.js tidak mempunyai
-       subtitle input.
-
-       Jadi jangan menganggap field tersebut
-       ada di global config.
     ============================================= */
 
     if(
-
         subtitle
-
     ){
 
         subtitle.textContent =
-
             "Tambahkan data";
 
     }
@@ -835,18 +1308,13 @@ function renderHeader(){
 function renderWorkspace(){
 
     const workspaceElement =
-
         document.getElementById(
-
             "global-input-workspace"
-
         );
 
 
     if(
-
         !workspaceElement
-
     ){
 
         return;
@@ -856,21 +1324,20 @@ function renderWorkspace(){
 
     /* =============================================
        WORKSPACE LABEL
-       
-       Global workspace menggunakan "title",
-       bukan workspaceLabel.
     ============================================= */
 
     workspaceElement.textContent =
-
         State.config?.title
-
         ??
-
         State.workspace
-
         ??
-
         "-";
 
 }
+
+
+/* =====================================================
+   DEFAULT
+===================================================== */
+
+export default Input;
