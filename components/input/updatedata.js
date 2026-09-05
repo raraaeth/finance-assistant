@@ -3433,6 +3433,69 @@ function defaultGetRecordId(
 
 }
 
+/* =====================================================
+   RECORD LABEL
+   Mengambil label dari adapter workspace jika tersedia.
+===================================================== */
+
+function getRecordLabel(record){
+
+    if(!currentOptions){
+
+        return defaultGetRecordLabel(record);
+
+    }
+
+    try{
+
+        return currentOptions.getRecordLabel(record);
+
+    }
+    catch(error){
+
+        console.error(
+            "UpdateData getRecordLabel error:",
+            error
+        );
+
+        return defaultGetRecordLabel(record);
+
+    }
+
+}
+
+
+/* =====================================================
+   RECORD META
+   Mengambil metadata dari adapter workspace jika tersedia.
+===================================================== */
+
+function getRecordMeta(record){
+
+    if(!currentOptions){
+
+        return defaultGetRecordMeta(record);
+
+    }
+
+    try{
+
+        return currentOptions.getRecordMeta(record);
+
+    }
+    catch(error){
+
+        console.error(
+            "UpdateData getRecordMeta error:",
+            error
+        );
+
+        return defaultGetRecordMeta(record);
+
+    }
+
+}
+
 
 /* =====================================================
    DEFAULT RECORD LABEL
