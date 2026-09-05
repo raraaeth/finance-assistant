@@ -164,6 +164,12 @@ import {
 
 } from "./updatedata.js";
 
+import {
+   
+    EditRow
+   
+} from "./editrow.js";
+
 
 /* =====================================================
    CONSTANT
@@ -4118,74 +4124,1097 @@ async function openEditReward(){
 
 /* =====================================================
    EDIT INPUT ROW
-   SKELETON
+   AIRDROP ADAPTER
 ===================================================== */
 
 /*
-   EDIT INPUT ROW BELUM DIAKTIFKAN.
+   Edit Row menggunakan engine global :
 
-   Konsep target yang sudah ditetapkan :
+       components/input/editrow.js
 
-       ID + Tanggal
+   Airdrop hanya menentukan rule workspace.
 
-   BUKAN :
+   Generic engine menangani :
+   - maksimal 20 transaksi terakhir
+   - direct record list
+   - search
+   - selected record
+   - ID + Tanggal sebagai target
+   - ID locked
+   - Tanggal locked
+   - staging
+   - pending
+   - Konfirmasi
 
-       ID + Project
+   Airdrop menentukan :
+   - field yang boleh diedit
+   - field tambahan yang locked
+   - label
+   - tipe input
+   - option field tertentu
+   - validasi khusus Airdrop
 
-   Nantinya Edit Input Row akan digunakan
-   untuk mengoreksi seluruh data satu baris,
-   termasuk :
+   Tidak ada request Apps Script
+   ketika record dipilih.
 
-   - Type
-   - Nama / Wallet
-   - Project
-   - $ Reward
-   - Start
-   - End
-   - Status
-   - dan field lain yang memang tersedia
-     pada row tersebut.
+   Tidak ada request Apps Script
+   ketika Tambahkan.
 
-   Ketentuan :
-
-   - ID menjadi identifier utama dan locked.
-   - Tanggal menjadi bagian target row.
-   - Pada Edit Row, tanggal tidak boleh diganti.
-   - Tidak menggunakan Reward.confirm().
-   - Akan menggunakan UpdateData sebagai UI.
-   - Business logic akan dipisahkan dari UI.
-   - Update.js akan dipanggil hanya saat Konfirmasi.
-
-   Untuk sekarang fungsi hanya memberi
-   warning dan tidak membuka overlay.
+   Update hanya dilakukan ketika
+   user menekan Konfirmasi.
 */
 
 async function openEditRow(){
 
-    console.warn(
-
-        "===== AIRDROP EDIT INPUT ROW ====="
-
+    console.log(
+        "===== AIRDROP EDIT INPUT ROW OPEN ====="
     );
 
 
-    console.warn(
+    /* =============================================
+       GET RECORDS
+    ============================================= */
 
-        "Edit Input Row belum tersedia."
+    const records =
+        typeof EditRow.getEditableRecords ===
+            "function"
+            ? EditRow.getEditableRecords()
+            : getAirdropData();
 
+
+    console.log(
+        "Airdrop Edit Row records:",
+        records
     );
 
 
-    console.warn(
+    /* =============================================
+       CLEAR CURRENT STATE
+    ============================================= */
 
-        "Target row nantinya menggunakan ID + Tanggal."
+    if(
+        typeof EditRow.reset ===
+        "function"
+    ){
 
-    );
+        EditRow.reset();
+
+    }
 
 
-    return null;
+    /* =============================================
+       OPEN CHECK
+    ============================================= */
+
+    if(
+        !EditRow ||
+        typeof EditRow.open !==
+            "function"
+    ){
+
+        console.error(
+            "[Airdrop] EditRow.open() tidak tersedia."
+        );
+
+        return null;
+
+    }
+
+
+    /* =============================================
+       OPEN GLOBAL EDIT ROW
+    ============================================= */
+
+    return EditRow.open({
+
+        /* =========================================
+           WORKSPACE
+        ========================================= */
+
+        workspace :
+            "airdrop",
+
+
+        mode :
+            "row",
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        title :
+            "Edit Input Row",
+
+
+        subtitle :
+            "Pilih transaksi dari daftar untuk mengubah data.",
+
+
+        /* =========================================
+           RECORD SOURCE
+        ========================================= */
+
+        /*
+           EditRow sendiri sudah membatasi
+           menjadi maksimal 20 transaksi terakhir.
+
+           records tetap diberikan di sini supaya
+           adapter Airdrop eksplisit terhadap
+           source workspace.
+        */
+
+        getRecords :
+            () => getAirdropData(),
+
+
+        /* =========================================
+           TARGET FIELD
+        ========================================= */
+
+        /*
+           Target generic :
+
+               ID + Tanggal
+
+           ID dan Tanggal otomatis locked
+           oleh editrow.js.
+        */
+
+        getIdField :
+            record => {
+
+                return "id";
+
+            },
+
+
+        getDateField :
+            record => {
+
+                return "tanggal";
+
+            },
+
+
+        /* =========================================
+           RECORD LABEL
+        ========================================= */
+
+        getRecordLabel :
+            record => {
+
+                const project =
+                    String(
+                        record?.project ??
+                        ""
+                    ).trim();
+
+
+                if(
+                    project
+                ){
+
+                    return project;
+
+                }
+
+
+                const nama =
+                    String(
+                        record?.nama ??
+                        ""
+                    ).trim();
+
+
+                if(
+                    nama
+                ){
+
+                    return nama;
+
+                }
+
+
+                const id =
+                    String(
+                        record?.id ??
+                        ""
+                    ).trim();
+
+
+                return id ||
+                       "Transaksi Airdrop";
+
+            },
+
+
+        /* =========================================
+           RECORD META
+        ========================================= */
+
+        getRecordMeta :
+            record => {
+
+                const tanggal =
+                    String(
+                        record?.tanggal ??
+                        ""
+                    ).trim();
+
+
+                const type =
+                    formatOptionLabel(
+                        record?.type
+                    );
+
+
+                const status =
+                    getStatusLabel(
+                        record?.status
+                    );
+
+
+                const parts = [];
+
+
+                if(
+                    tanggal
+                ){
+
+                    parts.push(
+                        tanggal
+                    );
+
+                }
+
+
+                if(
+                    type
+                ){
+
+                    parts.push(
+                        type
+                    );
+
+                }
+
+
+                if(
+                    status
+                ){
+
+                    parts.push(
+                        status
+                    );
+
+                }
+
+
+                return parts.join(
+                    " · "
+                );
+
+            },
+
+
+        /* =========================================
+           LIST
+        ========================================= */
+
+        listTitle :
+            "Daftar Transaksi",
+
+
+        searchPlaceholder :
+            "Cari transaksi...",
+
+
+        emptyText :
+            "Tidak ada transaksi yang dapat diedit.",
+
+
+        /* =========================================
+           FIELD RULE
+        ========================================= */
+
+        /*
+           Airdrop tetap mengikuti struktur
+           row yang sekarang :
+
+           tanggal
+           id
+           type
+           nama
+           project
+           $reward
+           start
+           end
+           status
+
+           ID + tanggal :
+               locked oleh generic EditRow.
+
+           Field lain :
+               editable secara default.
+
+           Workspace dapat menambahkan
+           locked rule di sini.
+        */
+
+        isFieldLocked :
+            (
+                field,
+                record
+            ) => {
+
+                /*
+                   Type pada Airdrop tidak dikunci
+                   untuk Edit Row.
+
+                   Status juga tidak dikunci.
+
+                   Karena Edit Row memang ditujukan
+                   untuk koreksi seluruh row.
+                */
+
+                return false;
+
+            },
+
+
+        /* =========================================
+           FIELD TYPE
+        ========================================= */
+
+        getFieldType :
+            (
+                field,
+                value,
+                record
+            ) => {
+
+                const normalized =
+                    normalizeValue(
+                        field
+                    );
+
+
+                if(
+                    normalized ===
+                    "status"
+                ){
+
+                    return "select";
+
+                }
+
+
+                if(
+                    normalized ===
+                    "type"
+                ){
+
+                    return "select";
+
+                }
+
+
+                if(
+                    normalized ===
+                    "$reward"
+                ){
+
+                    return "number";
+
+                }
+
+
+                if(
+                    normalized ===
+                    "start" ||
+                    normalized ===
+                    "end"
+                ){
+
+                    return "date";
+
+                }
+
+
+                return undefined;
+
+            },
+
+
+        /* =========================================
+           FIELD LABEL
+        ========================================= */
+
+        getFieldLabel :
+            (
+                field,
+                record
+            ) => {
+
+                switch(
+                    field
+                ){
+
+                    case "id":
+                        return "ID";
+
+                    case "tanggal":
+                        return "Tanggal";
+
+                    case "type":
+                        return "Type";
+
+                    case "nama":
+                        return "Nama / Wallet";
+
+                    case "project":
+                        return "Project";
+
+                    case "$reward":
+                        return "$ Reward";
+
+                    case "start":
+                        return "Start";
+
+                    case "end":
+                        return "End";
+
+                    case "status":
+                        return "Status";
+
+                    default:
+                        return formatOptionLabel(
+                            field
+                        );
+
+                }
+
+            },
+
+
+        /* =========================================
+           FIELD CONFIG
+        ========================================= */
+
+        getFieldConfig :
+            (
+                field,
+                record
+            ) => {
+
+                switch(
+                    field
+                ){
+
+                    case "type":
+
+                        return {
+
+                            type :
+                                "select",
+
+                            options :
+                                getTypeOptions(),
+
+                            placeholder :
+                                "Pilih type"
+
+                        };
+
+
+                    case "nama":
+
+                        return {
+
+                            type :
+                                "text",
+
+                            placeholder :
+                                "Masukkan nama / wallet"
+
+                        };
+
+
+                    case "project":
+
+                        return {
+
+                            type :
+                                "text",
+
+                            placeholder :
+                                "Masukkan nama project"
+
+                        };
+
+
+                    case "$reward":
+
+                        return {
+
+                            type :
+                                "number",
+
+                            min :
+                                0,
+
+                            step :
+                                "any",
+
+                            placeholder :
+                                "Masukkan nominal USD"
+
+                        };
+
+
+                    case "start":
+
+                        return {
+
+                            type :
+                                "date"
+
+                        };
+
+
+                    case "end":
+
+                        return {
+
+                            type :
+                                "date"
+
+                        };
+
+
+                    case "status":
+
+                        return {
+
+                            type :
+                                "select",
+
+                            options : [
+
+                                {
+                                    value :
+                                        STATUS_ONGOING,
+
+                                    label :
+                                        "Ongoing"
+                                },
+
+                                {
+                                    value :
+                                        STATUS_ENDED,
+
+                                    label :
+                                        "Ended"
+                                },
+
+                                {
+                                    value :
+                                        STATUS_WIN,
+
+                                    label :
+                                        "Win"
+                                },
+
+                                {
+                                    value :
+                                        STATUS_NOT_WIN,
+
+                                    label :
+                                        "Not Win"
+                                }
+
+                            ],
+
+                            placeholder :
+                                "Pilih status"
+
+                        };
+
+
+                    default:
+
+                        return {};
+
+                }
+
+            },
+
+
+        /* =========================================
+           FIELD ORDER
+        ========================================= */
+
+        /*
+           Karena API sudah mengembalikan object
+           row, kita tidak perlu mengetahui seluruh
+           header Sheet.
+
+           Untuk Airdrop, bila field ini memang
+           tersedia, tampilkan dengan urutan yang
+           sama dengan struktur transaksi Airdrop.
+        */
+
+        getFieldOrder :
+            record => {
+
+                const preferred = [
+
+                    "id",
+                    "tanggal",
+                    "type",
+                    "nama",
+                    "project",
+                    "$reward",
+                    "start",
+                    "end",
+                    "status"
+
+                ];
+
+
+                const existing =
+                    Object.keys(
+                        record || {}
+                    );
+
+
+                return [
+
+                    ...preferred.filter(
+                        field =>
+                            existing.includes(
+                                field
+                            )
+                    ),
+
+                    ...existing.filter(
+                        field =>
+                            !preferred.includes(
+                                field
+                            )
+                    )
+
+                ];
+
+            },
+
+
+        /* =========================================
+           DETAIL
+        ========================================= */
+
+        renderDetail :
+            record => {
+
+                return {
+
+                    title :
+                        "Informasi Transaksi",
+
+                    items : [
+
+                        {
+                            label :
+                                "ID",
+
+                            value :
+                                String(
+                                    record?.id ??
+                                    "-"
+                                ),
+
+                            locked :
+                                true
+
+                        },
+
+                        {
+                            label :
+                                "Tanggal",
+
+                            value :
+                                String(
+                                    record?.tanggal ??
+                                    "-"
+                                ),
+
+                            locked :
+                                true
+
+                        },
+
+                        {
+                            label :
+                                "Type",
+
+                            value :
+                                formatOptionLabel(
+                                    record?.type
+                                )
+
+                        },
+
+                        {
+                            label :
+                                "Nama / Wallet",
+
+                            value :
+                                String(
+                                    record?.nama ??
+                                    "-"
+                                )
+
+                        },
+
+                        {
+                            label :
+                                "Project",
+
+                            value :
+                                String(
+                                    record?.project ??
+                                    "-"
+                                )
+
+                        },
+
+                        {
+                            label :
+                                "$ Reward",
+
+                            value :
+                                String(
+                                    record?.["$reward"] ??
+                                    "-"
+                                )
+
+                        },
+
+                        {
+                            label :
+                                "Start",
+
+                            value :
+                                String(
+                                    record?.start ??
+                                    "-"
+                                )
+
+                        },
+
+                        {
+                            label :
+                                "End",
+
+                            value :
+                                String(
+                                    record?.end ??
+                                    "-"
+                                )
+
+                        },
+
+                        {
+                            label :
+                                "Status",
+
+                            value :
+                                getStatusLabel(
+                                    record?.status
+                                )
+
+                        }
+
+                    ]
+
+                };
+
+            },
+
+
+        /* =========================================
+           VALIDATE
+        ========================================= */
+
+        validate :
+            (
+                record,
+                overlay,
+                context
+            ) => {
+
+                if(
+                    !record
+                ){
+
+                    return false;
+
+                }
+
+
+                const id =
+                    String(
+                        record?.id ??
+                        ""
+                    ).trim();
+
+
+                const tanggal =
+                    String(
+                        record?.tanggal ??
+                        ""
+                    ).trim();
+
+
+                if(
+                    !id
+                ){
+
+                    console.error(
+                        "[Airdrop EditRow] ID kosong."
+                    );
+
+                    return false;
+
+                }
+
+
+                if(
+                    !tanggal
+                ){
+
+                    console.error(
+                        "[Airdrop EditRow] Tanggal kosong."
+                    );
+
+                    return false;
+
+                }
+
+
+                /*
+                   Rule tambahan workspace
+                   dapat ditambahkan di sini.
+
+                   Untuk sekarang tidak mengunci
+                   type/status/project/etc.
+                */
+
+                return true;
+
+            },
+
+
+        /* =========================================
+           BUILD CHANGES
+        ========================================= */
+
+        buildChanges :
+            (
+                record,
+                overlay
+            ) => {
+
+                /*
+                   EditRow generic sudah membaca
+                   seluruh editable field dan
+                   membangun full row.
+
+                   Di sini kita hanya memastikan
+                   ID + tanggal tidak berubah.
+                */
+
+                const result =
+                    EditRow.buildRow
+                        ? null
+                        : null;
+
+
+                /*
+                   Jangan membuat row baru
+                   berdasarkan daftar field manual.
+
+                   Generic EditRow yang menangani
+                   full-row preservation.
+
+                   Return null akan membuat
+                   EditRow menggunakan default
+                   builder.
+                */
+
+                return undefined;
+
+            },
+
+
+        /* =========================================
+           STAGING
+        ========================================= */
+
+        onAdd :
+            async (
+                record,
+                values,
+                changes
+            ) => {
+
+                console.log(
+                    "===== AIRDROP EDIT ROW STAGE ====="
+                );
+
+
+                console.log(
+                    "Record:",
+                    record
+                );
+
+
+                console.log(
+                    "Values:",
+                    values
+                );
+
+
+                console.log(
+                    "Changes:",
+                    changes
+                );
+
+
+                /*
+                   Tidak ada Apps Script request.
+
+                   Semua staging ditangani
+                   oleh EditRow / UpdateData.
+                */
+
+                return true;
+
+            },
+
+
+        /* =========================================
+           PENDING LABEL
+        ========================================= */
+
+        getPendingLabel :
+            item => {
+
+                const record =
+                    item?.record ??
+                    item;
+
+
+                const project =
+                    String(
+                        record?.project ??
+                        ""
+                    ).trim();
+
+
+                const tanggal =
+                    String(
+                        record?.tanggal ??
+                        ""
+                    ).trim();
+
+
+                const id =
+                    String(
+                        record?.id ??
+                        ""
+                    ).trim();
+
+
+                if(
+                    project &&
+                    tanggal
+                ){
+
+                    return (
+                        `${project} · ${tanggal}`
+                    );
+
+                }
+
+
+                if(
+                    id &&
+                    tanggal
+                ){
+
+                    return (
+                        `${id} · ${tanggal}`
+                    );
+
+                }
+
+
+                return (
+                    project ||
+                    id ||
+                    "Data Airdrop"
+                );
+
+            },
+
+
+        /* =========================================
+           UI TEXT
+        ========================================= */
+
+        addText :
+            "Tambahkan",
+
+
+        confirmText :
+            "Konfirmasi",
+
+
+        removeText :
+            "Hapus",
+
+
+        pendingTitle :
+            "Sudah Ditambahkan",
+
+
+        duplicateText :
+            "Transaksi ini sudah ditambahkan.",
+
+
+        confirmLoadingText :
+            "Menyimpan...",
+
+
+        fullscreen :
+            true,
+
+
+        allowBackdropClose :
+            true,
+
+
+        allowEscapeClose :
+            true
+
+    });
 
 }
+
+
+
 
 
 /* =====================================================
