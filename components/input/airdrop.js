@@ -146,7 +146,7 @@ import {
 
     UpdateData
 
-} from ".updatedata.js";
+} from "./updatedata.js";
 
 
 /* =====================================================
