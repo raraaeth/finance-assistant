@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : reward.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Airdrop Edit Input Reward Engine
@@ -14,8 +14,10 @@
    - Result validation
    - Reward validation
    - Build update payload
-   - Send update to Apps Script
-   - Update local selected record
+   - Stage multiple reward edits
+   - Manage accumulated edit transactions
+   - Send accumulated updates to Apps Script
+   - Update local records after success
 
    RULE :
 
@@ -28,37 +30,52 @@
    Record dengan status :
 
    - win
-   - notwin
+   - not_win
 
    tidak boleh masuk ke Edit Input Reward.
 
    RESULT :
 
    ongoing → win
-   ongoing → notwin
+   ongoing → not_win
 
    ended → win
-   ended → notwin
+   ended → not_win
 
    WIN :
    - status = win
    - $reward = nominal baru
 
    NOT WIN :
-   - status = notwin
+   - status = not_win
    - $reward = kosong
 
-   PRINCIPLE :
+   FLOW :
 
-   script.js
+   User memilih record
         ↓
-   Reward.js
+   pilih Result
+        ↓
+   isi Reward jika Win
+        ↓
+   Tambahkan
+        ↓
+   State.editTransactions
+        ↓
+   pilih record lain
+        ↓
+   Tambahkan lagi
+        ↓
+   Konfirmasi
+        ↓
+   Reward.confirm()
         ↓
    Update.js
         ↓
    Apps Script
         ↓
    Google Sheet
+
 ===================================================== */
 
 
@@ -112,7 +129,7 @@ const STATUS_WIN =
 
 
 const STATUS_NOTWIN =
-   
+
     "not_win";
 
 
@@ -125,7 +142,7 @@ export const Reward = {
 
     /* =================================================
        GET EDITABLE RECORDS
-       
+
        Hanya ongoing dan ended.
     ================================================= */
 
@@ -187,7 +204,7 @@ export const Reward = {
 
     /* =================================================
        FIND RECORD
-       
+
        Digunakan controller ketika user memilih ID.
     ================================================= */
 
@@ -222,7 +239,9 @@ export const Reward = {
 
                 id
 
-            ).trim();
+            )
+
+                .trim();
 
 
         if(
@@ -246,13 +265,125 @@ export const Reward = {
 
                         record?.id ??
 
-                        ""
+                            ""
 
-                    ).trim()
+                    )
+
+                        .trim()
 
                     ===
 
                     targetId
+
+            )
+
+            ??
+
+            null
+
+        );
+
+    },
+
+
+    /* =================================================
+       FIND RECORD BY TARGET
+
+       Target Edit Reward :
+
+       ID + Project
+    ================================================= */
+
+    findTarget(
+
+        target = {}
+
+    ){
+
+        const id =
+
+            String(
+
+                target?.id ??
+
+                    ""
+
+            )
+
+                .trim();
+
+
+        const project =
+
+            String(
+
+                target?.project ??
+
+                    ""
+
+            )
+
+                .trim();
+
+
+        if(
+
+            !id ||
+
+            !project
+
+        ){
+
+            return null;
+
+        }
+
+
+        return (
+
+            this.getRecords().find(
+
+                record => {
+
+                    const recordId =
+
+                        String(
+
+                            record?.id ??
+
+                                ""
+
+                        )
+
+                            .trim();
+
+
+                    const recordProject =
+
+                        String(
+
+                            record?.project ??
+
+                                ""
+
+                        )
+
+                            .trim();
+
+
+                    return (
+
+                        recordId === id
+
+                        &&
+
+                        recordProject ===
+
+                            project
+
+                    );
+
+                }
 
             )
 
@@ -292,26 +423,13 @@ export const Reward = {
            Pastikan record memang masih editable.
         ============================================= */
 
-        const status =
-
-            normalizeStatus(
-
-                record.status
-
-            );
-
-
         if(
 
-            status !==
+            !this.isEditable(
 
-                STATUS_ONGOING
+                record
 
-            &&
-
-            status !==
-
-                STATUS_ENDED
+            )
 
         ){
 
@@ -340,13 +458,16 @@ export const Reward = {
 
         /* =============================================
            SET STATE
+
+           Edit Reward menggunakan selected record
+           milik State.
         ============================================= */
 
         if(
 
             typeof State.setSelectedRecord ===
 
-            "function"
+                "function"
 
         ){
 
@@ -372,6 +493,27 @@ export const Reward = {
         }
 
 
+        /* =============================================
+           Edit-specific state jika tersedia.
+        ============================================= */
+
+        if(
+
+            typeof State.setEditSelectedRecord ===
+
+                "function"
+
+        ){
+
+            State.setEditSelectedRecord(
+
+                selectedRecord
+
+            );
+
+        }
+
+
         console.log(
 
             "REWARD RECORD SELECTED:",
@@ -391,6 +533,21 @@ export const Reward = {
     ================================================= */
 
     getSelectedRecord(){
+
+        if(
+
+            State.editSelectedRecord
+
+        ){
+
+            return (
+
+                State.editSelectedRecord
+
+            );
+
+        }
+
 
         return (
 
@@ -413,34 +570,48 @@ export const Reward = {
 
         if(
 
+            typeof State.clearEditSelectedRecord ===
+
+                "function"
+
+        ){
+
+            State.clearEditSelectedRecord();
+
+        }
+
+
+        if(
+
             typeof State.clearSelectedRecord ===
 
-            "function"
+                "function"
 
         ){
 
             State.clearSelectedRecord();
 
-            return;
-
         }
 
+        else{
 
-        State.selectedRecord =
+            State.selectedRecord =
 
-            null;
+                null;
 
 
-        State.editingId =
+            State.editingId =
 
-            null;
+                null;
+
+        }
 
     },
 
 
     /* =================================================
        RESULT OPTIONS
-       
+
        Hanya hasil akhir.
     ================================================= */
 
@@ -540,7 +711,7 @@ export const Reward = {
 
     /* =================================================
        VALIDATE REWARD
-       
+
        Reward hanya wajib ketika Win.
     ================================================= */
 
@@ -563,7 +734,7 @@ export const Reward = {
 
         /* =============================================
            NOT WIN
-           
+
            Tidak membutuhkan nominal.
         ============================================= */
 
@@ -639,9 +810,11 @@ export const Reward = {
 
                 reward
 
-            ).trim() ===
+            )
 
-                ""
+                .trim() ===
+
+                    ""
 
         ){
 
@@ -740,11 +913,13 @@ export const Reward = {
 
     /* =================================================
        VALIDATE
-       
-       Validasi lengkap sebelum update.
+
+       Validasi lengkap sebelum Tambahkan.
     ================================================= */
 
     validate({
+
+        record = null,
 
         result,
 
@@ -753,6 +928,10 @@ export const Reward = {
     } = {}){
 
         const selectedRecord =
+
+            record
+
+            ??
 
             this.getSelectedRecord();
 
@@ -783,32 +962,16 @@ export const Reward = {
 
 
         /* =============================================
-           RECORD STATUS
-           
-           Record harus tetap ongoing / ended
-           sebelum proses update.
+           EDITABLE STATUS
         ============================================= */
-
-        const currentStatus =
-
-            normalizeStatus(
-
-                selectedRecord.status
-
-            );
-
 
         if(
 
-            currentStatus !==
+            !this.isEditable(
 
-                STATUS_ONGOING
+                selectedRecord
 
-            &&
-
-            currentStatus !==
-
-                STATUS_ENDED
+            )
 
         ){
 
@@ -821,6 +984,82 @@ export const Reward = {
                 message :
 
                     "Data ini sudah tidak tersedia untuk Edit Input Reward."
+
+            };
+
+        }
+
+
+        /* =============================================
+           ID
+        ============================================= */
+
+        const id =
+
+            String(
+
+                selectedRecord.id ??
+
+                    ""
+
+            )
+
+                .trim();
+
+
+        if(
+
+            !id
+
+        ){
+
+            return {
+
+                valid :
+
+                    false,
+
+                message :
+
+                    "ID data Airdrop tidak ditemukan."
+
+            };
+
+        }
+
+
+        /* =============================================
+           PROJECT
+        ============================================= */
+
+        const project =
+
+            String(
+
+                selectedRecord.project ??
+
+                    ""
+
+            )
+
+                .trim();
+
+
+        if(
+
+            !project
+
+        ){
+
+            return {
+
+                valid :
+
+                    false,
+
+                message :
+
+                    "Project data Airdrop tidak ditemukan."
 
             };
 
@@ -883,13 +1122,21 @@ export const Reward = {
 
                 true,
 
+            id,
+
+            project,
+
             status :
 
                 resultValidation.status,
 
             reward :
 
-                rewardValidation.reward
+                rewardValidation.reward,
+
+            record :
+
+                selectedRecord
 
         };
 
@@ -898,8 +1145,10 @@ export const Reward = {
 
     /* =================================================
        BUILD CHANGES
-       
-       Payload yang akan dikirim ke Update.js.
+
+       Membuat payload perubahan.
+
+       Fungsi ini TIDAK mengirim Apps Script.
     ================================================= */
 
     buildChanges({
@@ -910,20 +1159,40 @@ export const Reward = {
 
     } = {}){
 
-        const validation =
+        const resultValidation =
 
-            this.validate({
+            this.validateResult(
 
-                result,
+                result
 
-                reward
-
-            });
+            );
 
 
         if(
 
-            !validation.valid
+            !resultValidation.valid
+
+        ){
+
+            return null;
+
+        }
+
+
+        const rewardValidation =
+
+            this.validateReward(
+
+                resultValidation.status,
+
+                reward
+
+            );
+
+
+        if(
+
+            !rewardValidation.valid
 
         ){
 
@@ -938,7 +1207,7 @@ export const Reward = {
 
         if(
 
-            validation.status ===
+            resultValidation.status ===
 
                 STATUS_WIN
 
@@ -954,7 +1223,7 @@ export const Reward = {
 
                     String(
 
-                        validation.reward
+                        rewardValidation.reward
 
                     )
 
@@ -983,12 +1252,16 @@ export const Reward = {
 
 
     /* =================================================
-       SAVE
-       
-       Kirim perubahan ke Apps Script.
+       BUILD EDIT TRANSACTION
+
+       Membuat satu item perubahan untuk batch.
+
+       Tidak mengirim Apps Script.
     ================================================= */
 
-    async save({
+    buildTransaction({
+
+        record = null,
 
         result,
 
@@ -996,18 +1269,11 @@ export const Reward = {
 
     } = {}){
 
-        const selectedRecord =
-
-            this.getSelectedRecord();
-
-
-        /* =============================================
-           VALIDATION
-        ============================================= */
-
         const validation =
 
             this.validate({
+
+                record,
 
                 result,
 
@@ -1037,94 +1303,17 @@ export const Reward = {
         }
 
 
-        /* =============================================
-           ID
-        ============================================= */
-
-        const id =
-
-            String(
-
-                selectedRecord.id ??
-
-                ""
-
-            ).trim();
-
-
-        if(
-
-            !id
-
-        ){
-
-            return {
-
-                success :
-
-                    false,
-
-                message :
-
-                    "ID data Airdrop tidak ditemukan."
-
-            };
-
-        }
-
-
-        /* =============================================
-           PROJECT
-           
-           Project tidak diubah.
-           
-           Digunakan sebagai bagian dari target
-           update field saat ini.
-        ============================================= */
-
-        const project =
-
-            String(
-
-                selectedRecord.project ??
-
-                ""
-
-            ).trim();
-
-
-        if(
-
-            !project
-
-        ){
-
-            return {
-
-                success :
-
-                    false,
-
-                message :
-
-                    "Project data Airdrop tidak ditemukan."
-
-            };
-
-        }
-
-
-        /* =============================================
-           CHANGES
-        ============================================= */
-
         const changes =
 
             this.buildChanges({
 
-                result,
+                result :
 
-                reward
+                    validation.status,
+
+                reward :
+
+                    validation.reward
 
             });
 
@@ -1150,199 +1339,528 @@ export const Reward = {
         }
 
 
-        console.log(
+        const transaction = {
 
-            "===== AIRDROP REWARD UPDATE ====="
+            id :
 
-        );
+                validation.id,
 
+            project :
 
-        console.log(
+                validation.project,
 
-            "TARGET:",
+            record :
 
-            {
+                {
 
-                id,
+                    ...validation.record
 
-                project
+                },
 
-            }
+            result :
 
-        );
+                validation.status,
 
+            reward :
 
-        console.log(
+                validation.reward,
 
-            "CHANGES:",
+            changes :
 
-            changes
+                {
 
-        );
+                    ...changes
 
+                }
 
-        /* =============================================
-           SEND UPDATE
-        ============================================= */
-
-        try{
-
-            const response =
-
-                await Update.updateField(
-
-                    WORKSPACE,
-
-                    {
-
-                        id,
-
-                        project
-
-                    },
-
-                    changes
-
-                );
+        };
 
 
-            console.log(
+        return {
 
-                "REWARD UPDATE RESPONSE:",
+            success :
 
-                response
+                true,
 
-            );
+            transaction
+
+        };
+
+    },
 
 
-            /* =========================================
-               CHECK RESPONSE
-            ========================================= */
+    /* =================================================
+       HAS PENDING EDIT
 
-            if(
+       Mengecek apakah target sudah ada di batch.
+    ================================================= */
 
-                !isSuccess(
+    hasPendingEdit(
 
-                    response
+        id,
+
+        project
+
+    ){
+
+        const transactions =
+
+            this.getPendingEdits();
+
+
+        const targetId =
+
+            String(
+
+                id ??
+
+                    ""
+
+            )
+
+                .trim();
+
+
+        const targetProject =
+
+            String(
+
+                project ??
+
+                    ""
+
+            )
+
+                .trim();
+
+
+        if(
+
+            !targetId ||
+
+            !targetProject
+
+        ){
+
+            return false;
+
+        }
+
+
+        return transactions.some(
+
+            transaction =>
+
+                String(
+
+                    transaction?.id ??
+
+                        ""
 
                 )
 
-            ){
+                    .trim() ===
 
-                return {
+                        targetId
 
-                    success :
+                &&
 
-                        false,
+                String(
 
-                    message :
+                    transaction?.project ??
 
-                        getResponseMessage(
+                        ""
 
-                            response
+                )
 
-                        ),
+                    .trim() ===
 
-                    response
+                        targetProject
 
-                };
+        );
 
-            }
-
-
-            /* =========================================
-               UPDATE LOCAL RECORD
-            ========================================= */
-
-            const updatedRecord = {
-
-                ...selectedRecord,
-
-                ...changes
-
-            };
+    },
 
 
-            if(
+    /* =================================================
+       ADD / STAGE EDIT
 
-                typeof State.setSelectedRecord ===
+       Dipanggil ketika user menekan Tambahkan.
 
-                "function"
+       BELUM mengirim Apps Script.
+    ================================================= */
 
-            ){
+    add({
 
-                State.setSelectedRecord(
+        record = null,
 
-                    updatedRecord
+        result,
 
-                );
+        reward
 
-            }
+    } = {}){
 
-            else{
+        const built =
 
-                State.selectedRecord =
+            this.buildTransaction({
 
-                    updatedRecord;
+                record,
 
-            }
+                result,
+
+                reward
+
+            });
 
 
-            console.log(
+        if(
 
-                "===== AIRDROP REWARD UPDATE SUCCESS =====",
+            !built.success
 
-                updatedRecord
+        ){
 
-            );
+            return built;
 
+        }
+
+
+        const transaction =
+
+            built.transaction;
+
+
+        /* =============================================
+           DUPLICATE TARGET
+
+           Satu ID + Project hanya boleh satu perubahan
+           aktif di dalam batch.
+        ============================================= */
+
+        if(
+
+            this.hasPendingEdit(
+
+                transaction.id,
+
+                transaction.project
+
+            )
+
+        ){
 
             return {
 
                 success :
 
+                    false,
+
+                duplicate :
+
                     true,
 
                 message :
 
-                    validation.status ===
-
-                        STATUS_WIN
-
-                        ?
-
-                        "Reward berhasil disimpan sebagai Win."
-
-                        :
-
-                        "Data berhasil disimpan sebagai Not Win.",
-
-                record :
-
-                    updatedRecord,
-
-                changes,
-
-                response
+                    "Data Airdrop tersebut sudah ditambahkan."
 
             };
 
         }
 
-        catch(
 
-            error
+        /* =============================================
+           STATE
+        ============================================= */
+
+        if(
+
+            typeof State.addEditTransaction ===
+
+                "function"
 
         ){
 
-            console.error(
+            State.addEditTransaction(
 
-                "Airdrop Reward Update Error:",
-
-                error
+                transaction
 
             );
 
+        }
+
+        else{
+
+            if(
+
+                !Array.isArray(
+
+                    State.editTransactions
+
+                )
+
+            ){
+
+                State.editTransactions =
+
+                    [];
+
+            }
+
+
+            State.editTransactions.push(
+
+                transaction
+
+            );
+
+        }
+
+
+        console.log(
+
+            "REWARD EDIT STAGED:",
+
+            transaction
+
+        );
+
+
+        return {
+
+            success :
+
+                true,
+
+            transaction,
+
+            transactions :
+
+                this.getPendingEdits()
+
+        };
+
+    },
+
+
+    /* =================================================
+       GET PENDING EDITS
+
+       Semua perubahan yang sudah ditekan Tambahkan.
+    ================================================= */
+
+    getPendingEdits(){
+
+        if(
+
+            typeof State.getEditTransactions ===
+
+                "function"
+
+        ){
+
+            const transactions =
+
+                State.getEditTransactions();
+
+
+            return Array.isArray(
+
+                transactions
+
+            )
+
+                ?
+
+                transactions
+
+                :
+
+                [];
+
+        }
+
+
+        return Array.isArray(
+
+            State.editTransactions
+
+        )
+
+            ?
+
+            State.editTransactions
+
+            :
+
+            [];
+
+    },
+
+
+    /* =================================================
+       GET PENDING COUNT
+    ================================================= */
+
+    getPendingCount(){
+
+        return this.getPendingEdits().length;
+
+    },
+
+
+    /* =================================================
+       REMOVE PENDING EDIT
+    ================================================= */
+
+    remove(
+
+        index
+
+    ){
+
+        const transactions =
+
+            this.getPendingEdits();
+
+
+        if(
+
+            !Number.isInteger(
+
+                index
+
+            )
+
+        ){
+
+            return null;
+
+        }
+
+
+        if(
+
+            index <
+
+                0
+
+            ||
+
+            index >=
+
+                transactions.length
+
+        ){
+
+            return null;
+
+        }
+
+
+        const removed =
+
+            transactions[index];
+
+
+        if(
+
+            typeof State.removeEditTransaction ===
+
+                "function"
+
+        ){
+
+            State.removeEditTransaction(
+
+                index
+
+            );
+
+        }
+
+        else{
+
+            State.editTransactions.splice(
+
+                index,
+
+                1
+
+            );
+
+        }
+
+
+        console.log(
+
+            "REWARD EDIT REMOVED:",
+
+            removed
+
+        );
+
+
+        return removed;
+
+    },
+
+
+    /* =================================================
+       CLEAR PENDING EDITS
+    ================================================= */
+
+    clearPendingEdits(){
+
+        if(
+
+            typeof State.clearEditTransactions ===
+
+                "function"
+
+        ){
+
+            State.clearEditTransactions();
+
+        }
+
+        else{
+
+            State.editTransactions =
+
+                [];
+
+        }
+
+
+        console.log(
+
+            "REWARD EDIT BATCH CLEARED"
+
+        );
+
+    },
+
+
+    /* =================================================
+       CONFIRM
+
+       Mengirim SEMUA perubahan yang sudah
+       ditekan Tambahkan.
+
+       Hanya method ini yang mengirim ke Update.js.
+    ================================================= */
+
+    async confirm(){
+
+        const transactions =
+
+            this.getPendingEdits();
+
+
+        if(
+
+            !transactions.length
+
+        ){
 
             return {
 
@@ -1352,17 +1870,776 @@ export const Reward = {
 
                 message :
 
-                    error?.message
-
-                    ??
-
-                    "Gagal menyimpan Edit Input Reward.",
-
-                error
+                    "Belum ada perubahan reward yang ditambahkan."
 
             };
 
         }
+
+
+        console.log(
+
+            "===== AIRDROP REWARD BATCH UPDATE ====="
+
+        );
+
+
+        console.log(
+
+            "TOTAL TRANSACTIONS:",
+
+            transactions.length
+
+        );
+
+
+        const results = [];
+
+        const failed = [];
+
+
+        /* =============================================
+           PROSES SATU PER SATU
+
+           Tetap menggunakan Update.updateField()
+           dengan target ID + Project.
+        ============================================= */
+
+        for(
+
+            let index = 0;
+
+            index < transactions.length;
+
+            index++
+
+        ){
+
+            const transaction =
+
+                transactions[index];
+
+
+            const id =
+
+                String(
+
+                    transaction?.id ??
+
+                        ""
+
+                )
+
+                    .trim();
+
+
+            const project =
+
+                String(
+
+                    transaction?.project ??
+
+                        ""
+
+                )
+
+                    .trim();
+
+
+            const changes =
+
+                transaction?.changes
+
+                &&
+
+                typeof transaction.changes ===
+
+                    "object"
+
+                    ?
+
+                    {
+
+                        ...transaction.changes
+
+                    }
+
+                    :
+
+                    null;
+
+
+            if(
+
+                !id ||
+
+                !project ||
+
+                !changes
+
+            ){
+
+                failed.push({
+
+                    index,
+
+                    transaction,
+
+                    message :
+
+                        "Target atau perubahan reward tidak valid."
+
+                });
+
+
+                continue;
+
+            }
+
+
+            console.log(
+
+                "REWARD BATCH UPDATE:",
+
+                {
+
+                    id,
+
+                    project,
+
+                    changes
+
+                }
+
+            );
+
+
+            try{
+
+                const response =
+
+                    await Update.updateField(
+
+                        WORKSPACE,
+
+                        {
+
+                            id,
+
+                            project
+
+                        },
+
+                        changes
+
+                    );
+
+
+                console.log(
+
+                    "REWARD BATCH RESPONSE:",
+
+                    response
+
+                );
+
+
+                if(
+
+                    !isSuccess(
+
+                        response
+
+                    )
+
+                ){
+
+                    failed.push({
+
+                        index,
+
+                        transaction,
+
+                        response,
+
+                        message :
+
+                            getResponseMessage(
+
+                                response
+
+                            )
+
+                    });
+
+
+                    continue;
+
+                }
+
+
+                const updatedRecord = {
+
+                    ...(transaction.record ??
+
+                        {}),
+
+                    ...changes
+
+                };
+
+
+                results.push({
+
+                    index,
+
+                    transaction,
+
+                    record :
+
+                        updatedRecord,
+
+                    changes,
+
+                    response
+
+                });
+
+            }
+
+            catch(
+
+                error
+
+            ){
+
+                console.error(
+
+                    "Airdrop Reward Batch Update Error:",
+
+                    error
+
+                );
+
+
+                failed.push({
+
+                    index,
+
+                    transaction,
+
+                    error,
+
+                    message :
+
+                        error?.message
+
+                        ??
+
+                        "Gagal menyimpan Edit Input Reward."
+
+                });
+
+            }
+
+        }
+
+
+        /* =============================================
+           UPDATE LOCAL STATE
+
+           Hanya transaction yang sukses.
+        ============================================= */
+
+        if(
+
+            results.length
+
+        ){
+
+            this.applyLocalResults(
+
+                results
+
+            );
+
+        }
+
+
+        /* =============================================
+           REMOVE SUCCESSFUL ITEMS DARI BATCH
+
+           Item gagal tetap berada di State agar
+           user dapat mencoba Konfirmasi lagi.
+        ============================================= */
+
+        if(
+
+            results.length
+
+        ){
+
+            const successfulTargets =
+
+                new Set(
+
+                    results.map(
+
+                        item =>
+
+                            makeTargetKey(
+
+                                item.transaction?.id,
+
+                                item.transaction?.project
+
+                            )
+
+                    )
+
+                );
+
+
+            const remaining =
+
+                transactions.filter(
+
+                    transaction =>
+
+                        !successfulTargets.has(
+
+                            makeTargetKey(
+
+                                transaction?.id,
+
+                                transaction?.project
+
+                            )
+
+                        )
+
+                );
+
+
+            if(
+
+                typeof State.clearEditTransactions ===
+
+                    "function"
+
+            ){
+
+                State.clearEditTransactions();
+
+
+                remaining.forEach(
+
+                    transaction => {
+
+                        if(
+
+                            typeof State.addEditTransaction ===
+
+                                "function"
+
+                        ){
+
+                            State.addEditTransaction(
+
+                                transaction
+
+                            );
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+            else{
+
+                State.editTransactions =
+
+                    remaining;
+
+            }
+
+        }
+
+
+        /* =============================================
+           RESULT
+        ============================================= */
+
+        const success =
+
+            results.length > 0
+
+            &&
+
+            failed.length === 0;
+
+
+        console.log(
+
+            "===== AIRDROP REWARD BATCH COMPLETE ====="
+
+        );
+
+
+        console.log(
+
+            {
+
+                success,
+
+                total :
+
+                    transactions.length,
+
+                updated :
+
+                    results.length,
+
+                failed :
+
+                    failed.length
+
+            }
+
+        );
+
+
+        if(
+
+            success
+
+        ){
+
+            return {
+
+                success :
+
+                    true,
+
+                message :
+
+                    results.length === 1
+
+                        ?
+
+                        "Reward berhasil disimpan."
+
+                        :
+
+                        `${results.length} reward berhasil disimpan.`,
+
+                updated :
+
+                    results,
+
+                failed :
+
+                    [],
+
+                total :
+
+                    transactions.length,
+
+                remaining :
+
+                    0
+
+            };
+
+        }
+
+
+        if(
+
+            results.length
+
+        ){
+
+            return {
+
+                success :
+
+                    false,
+
+                partial :
+
+                    true,
+
+                message :
+
+                    `${results.length} data berhasil disimpan, ${failed.length} data gagal.`,
+
+                updated :
+
+                    results,
+
+                failed,
+
+                total :
+
+                    transactions.length,
+
+                remaining :
+
+                    this.getPendingCount()
+
+            };
+
+        }
+
+
+        return {
+
+            success :
+
+                false,
+
+            message :
+
+                "Tidak ada perubahan reward yang berhasil disimpan.",
+
+            updated :
+
+                [],
+
+            failed,
+
+            total :
+
+                transactions.length,
+
+            remaining :
+
+                this.getPendingCount()
+
+        };
+
+    },
+
+
+    /* =================================================
+       APPLY LOCAL RESULTS
+
+       Memperbarui selected/local record setelah
+       Apps Script berhasil.
+    ================================================= */
+
+    applyLocalResults(
+
+        results
+
+    ){
+
+        if(
+
+            !Array.isArray(
+
+                results
+
+            )
+
+        ){
+
+            return;
+
+        }
+
+
+        results.forEach(
+
+            result => {
+
+                const record =
+
+                    result?.record;
+
+
+                if(
+
+                    !record
+
+                ){
+
+                    return;
+
+                }
+
+
+                /* =====================================
+                   Selected record
+                ===================================== */
+
+                const selected =
+
+                    this.getSelectedRecord();
+
+
+                if(
+
+                    selected
+
+                ){
+
+                    const sameTarget =
+
+                        makeTargetKey(
+
+                            selected?.id,
+
+                            selected?.project
+
+                        )
+
+                        ===
+
+                        makeTargetKey(
+
+                            record?.id,
+
+                            record?.project
+
+                        );
+
+
+                    if(
+
+                        sameTarget
+
+                    ){
+
+                        if(
+
+                            typeof State.setSelectedRecord ===
+
+                                "function"
+
+                        ){
+
+                            State.setSelectedRecord(
+
+                                {
+
+                                    ...selected,
+
+                                    ...record
+
+                                }
+
+                            );
+
+                        }
+
+                        else{
+
+                            State.selectedRecord = {
+
+                                ...selected,
+
+                                ...record
+
+                            };
+
+                        }
+
+
+                        if(
+
+                            typeof State.setEditSelectedRecord ===
+
+                                "function"
+
+                        ){
+
+                            State.setEditSelectedRecord(
+
+                                {
+
+                                    ...selected,
+
+                                    ...record
+
+                                }
+
+                            );
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+    },
+
+
+    /* =================================================
+       SAVE
+
+       Compatibility method.
+
+       Untuk Edit Reward batch baru, controller
+       seharusnya menggunakan add() lalu confirm().
+
+       Method ini tetap disediakan agar pemanggilan lama
+       tidak langsung merusak API Reward.
+    ================================================= */
+
+    async save({
+
+        result,
+
+        reward
+
+    } = {}){
+
+        const staged =
+
+            this.add({
+
+                record :
+
+                    this.getSelectedRecord(),
+
+                result,
+
+                reward
+
+            });
+
+
+        if(
+
+            !staged.success
+
+        ){
+
+            return {
+
+                success :
+
+                    false,
+
+                message :
+
+                    staged.message
+
+            };
+
+        }
+
+
+        return this.confirm();
 
     },
 
@@ -1411,6 +2688,35 @@ export const Reward = {
 
         );
 
+    },
+
+
+    /* =================================================
+       GET STATUS
+    ================================================= */
+
+    getStatusConstants(){
+
+        return {
+
+            ongoing :
+
+                STATUS_ONGOING,
+
+            ended :
+
+                STATUS_ENDED,
+
+            win :
+
+                STATUS_WIN,
+
+            not_win :
+
+                STATUS_NOTWIN
+
+        };
+
     }
 
 };
@@ -1430,7 +2736,7 @@ function normalizeStatus(
 
         value ??
 
-        ""
+            ""
 
     )
 
@@ -1482,7 +2788,7 @@ function normalizeReward(
 
             value ??
 
-            ""
+                ""
 
         )
 
@@ -1502,11 +2808,17 @@ function normalizeReward(
 
     /* =============================================
        Hapus simbol dollar dan pemisah umum.
-       
+
        Contoh :
-       "$100"     → 100
-       "100 USD"  → 100
-       "1,250.50" → 1250.50
+
+       "$100"
+           → 100
+
+       "100 USD"
+           → 100
+
+       "1,250.50"
+           → 1250.50
     ============================================= */
 
     text =
@@ -1576,6 +2888,61 @@ function normalizeReward(
 
 
     return number;
+
+}
+
+
+/* =====================================================
+   TARGET KEY
+===================================================== */
+
+function makeTargetKey(
+
+    id,
+
+    project
+
+){
+
+    const normalizedId =
+
+        String(
+
+            id ??
+
+                ""
+
+        )
+
+            .trim();
+
+
+    const normalizedProject =
+
+        String(
+
+            project ??
+
+                ""
+
+        )
+
+            .trim();
+
+
+    return (
+
+        normalizedId
+
+        +
+
+        "::"
+
+        +
+
+        normalizedProject
+
+    );
 
 }
 
