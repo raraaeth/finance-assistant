@@ -2230,4 +2230,567 @@ body.input-open{
     }
 
 }
+/* =====================================================
+   AIRDROP EDIT INPUT REWARD
+===================================================== */
+
+/* =============================================
+   OVERLAY
+============================================= */
+
+.airdrop-edit-reward-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    background: rgba(15, 23, 42, 0.45);
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
+}
+
+
+/* =============================================
+   OPEN
+============================================= */
+
+.airdrop-edit-reward-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+
+/* =============================================
+   PANEL
+============================================= */
+
+.airdrop-edit-reward-panel {
+    position: relative;
+
+    width: 100%;
+    max-width: 680px;
+
+    max-height: 90vh;
+
+    background: #ffffff;
+
+    border-radius:
+        28px 28px 0 0;
+
+    overflow: hidden;
+
+    transform:
+        translateY(30px);
+
+    transition:
+        transform 0.25s ease;
+}
+
+
+/* =============================================
+   PANEL OPEN
+============================================= */
+
+.airdrop-edit-reward-overlay.is-open
+.airdrop-edit-reward-panel {
+
+    transform:
+        translateY(0);
+}
+
+
+/* =============================================
+   HEADER
+============================================= */
+
+.airdrop-edit-reward-header {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 24px 24px 18px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+}
+
+
+/* =============================================
+   TITLE
+============================================= */
+
+.airdrop-edit-reward-header h2 {
+
+    margin: 0;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+/* =============================================
+   CLOSE
+============================================= */
+
+.airdrop-edit-reward-close {
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    font-size: 30px;
+    line-height: 1;
+
+    color: #111827;
+
+    cursor: pointer;
+}
+
+
+/* =============================================
+   CONTENT
+============================================= */
+
+.airdrop-edit-reward-content {
+
+    padding: 20px 24px 28px;
+
+    max-height:
+        calc(90vh - 90px);
+
+    overflow-y: auto;
+}
+
+
+/* =============================================
+   PICKER
+============================================= */
+
+.airdrop-edit-reward-picker {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+/* =============================================
+   TITLE PICKER
+============================================= */
+
+.airdrop-reward-title {
+
+    font-size: 17px;
+    font-weight: 700;
+
+    color: #111827;
+
+    margin-bottom: 2px;
+}
+
+
+/* =============================================
+   PROJECT LIST
+============================================= */
+
+.airdrop-reward-project-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+/* =============================================
+   PROJECT ITEM
+============================================= */
+
+.airdrop-reward-project {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding: 14px 16px;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+.airdrop-reward-project:hover {
+
+    background: #f9fafb;
+
+}
+
+
+.airdrop-reward-project:active {
+
+    transform:
+        scale(0.99);
+
+}
+
+
+/* =============================================
+   PROJECT SELECTED
+============================================= */
+
+.airdrop-reward-project.selected {
+
+    border-color:
+        #2563eb;
+
+    background:
+        #eff6ff;
+}
+
+
+/* =============================================
+   PROJECT NAME
+============================================= */
+
+.airdrop-reward-project-name {
+
+    font-size: 16px;
+    font-weight: 600;
+
+    color: #111827;
+}
+
+
+/* =============================================
+   PROJECT META
+============================================= */
+
+.airdrop-reward-project small {
+
+    flex-shrink: 0;
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+/* =============================================
+   EMPTY
+============================================= */
+
+.airdrop-reward-empty {
+
+    padding: 20px;
+
+    border-radius: 14px;
+
+    background:
+        #f9fafb;
+
+    color:
+        #6b7280;
+
+    text-align: center;
+
+    font-size: 14px;
+}
+
+
+/* =============================================
+   SELECTED CONTAINER
+============================================= */
+
+.airdrop-edit-reward-selected-container {
+
+    margin-top: 20px;
+}
+
+
+/* =============================================
+   SELECTED CARD
+============================================= */
+
+.airdrop-reward-selected {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    padding: 18px;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    background:
+        #f9fafb;
+}
+
+
+/* =============================================
+   INFO
+============================================= */
+
+.airdrop-reward-info {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+
+.airdrop-reward-info span {
+
+    color:
+        #6b7280;
+
+    font-size: 14px;
+}
+
+
+.airdrop-reward-info strong {
+
+    color:
+        #111827;
+
+    font-size: 15px;
+
+    text-align: right;
+}
+
+
+/* =============================================
+   LOCKED
+============================================= */
+
+.airdrop-reward-info.locked {
+
+    opacity:
+        0.75;
+}
+
+
+/* =============================================
+   STATUS
+============================================= */
+
+.airdrop-reward-status {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+
+.airdrop-reward-status label {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color:
+        #374151;
+}
+
+
+/* =============================================
+   REWARD AMOUNT
+============================================= */
+
+.airdrop-reward-amount {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+
+.airdrop-reward-amount label {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color:
+        #374151;
+}
+
+
+/* =============================================
+   HIDDEN
+============================================= */
+
+.airdrop-edit-reward-overlay .hidden {
+
+    display: none !important;
+}
+
+
+/* =============================================
+   ACTION BUTTON
+============================================= */
+
+.airdrop-edit-reward-panel
+.global-input-action-button {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    margin-top: 4px;
+
+    border: 0;
+
+    border-radius: 14px;
+
+    background:
+        #111827;
+
+    color:
+        #ffffff;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+.airdrop-edit-reward-panel
+.global-input-action-button:disabled {
+
+    opacity:
+        0.45;
+
+    cursor:
+        not-allowed;
+}
+
+
+.airdrop-edit-reward-panel
+.global-input-action-button:not(:disabled):active {
+
+    transform:
+        scale(0.99);
+}
+
+
+/* =============================================
+   MOBILE
+============================================= */
+
+@media (max-width: 600px) {
+
+    .airdrop-edit-reward-panel {
+
+        max-height: 92vh;
+
+        border-radius:
+            24px 24px 0 0;
+    }
+
+
+    .airdrop-edit-reward-header {
+
+        padding:
+            20px 20px 16px;
+    }
+
+
+    .airdrop-edit-reward-header h2 {
+
+        font-size: 22px;
+    }
+
+
+    .airdrop-edit-reward-content {
+
+        padding:
+            18px 20px 24px;
+
+        max-height:
+            calc(92vh - 82px);
+    }
+
+
+    .airdrop-reward-project {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 5px;
+    }
+
+
+    .airdrop-reward-project small {
+
+        font-size: 12px;
+    }
+
+}
 
