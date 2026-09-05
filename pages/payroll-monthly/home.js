@@ -154,6 +154,8 @@ export async function init(){
 
     renderInput();
 
+    renderEditInput();
+
     renderSetting();
 
 
@@ -1197,6 +1199,78 @@ function renderInput(){
     }
 
 }
+
+/* =====================================================
+   EDIT INPUT
+===================================================== */
+function renderEditInput(){
+
+    const card =
+        document.getElementById(
+            "edit-input-card"
+        );
+
+    if(!card){
+        return;
+    }
+
+    card.innerHTML = `
+
+        <div
+            id="workspace-edit-row-menu"
+            class="profile-menu-item">
+
+            <div class="profile-menu-left">
+
+                <div class="profile-menu-icon">
+                    ✏️
+                </div>
+
+                <div class="profile-menu-content">
+
+                    <span class="profile-menu-title">
+                        Edit Input Row
+                    </span>
+
+                    <span class="profile-menu-description">
+                        Edit data yang sudah tersimpan
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="profile-menu-arrow">
+                ›
+            </div>
+
+        </div>
+
+    `;
+
+    const rowMenu =
+        document.getElementById(
+            "workspace-edit-row-menu"
+        );
+
+    if(rowMenu){
+
+        rowMenu.addEventListener(
+            "click",
+            () => {
+
+                Input.openEdit(
+                    "payroll-monthly",
+                    "row"
+                );
+
+            }
+        );
+
+    }
+
+}
+
 
 /* =====================================================
    SETTING
