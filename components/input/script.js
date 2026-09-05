@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 6.1.0
+   Version      : 6.2.0
 
    Description :
    Global Input Controller
@@ -214,9 +214,9 @@ export const Input = {
 
     /* =================================================
        OPEN
-       
+
        NORMAL INPUT
-       
+
        Flow lama tetap dipertahankan.
     ================================================= */
 
@@ -443,8 +443,22 @@ export const Input = {
 
     /* =================================================
        OPEN EDIT
-       
+
        Controller entry point untuk Edit Input.
+
+       Supported :
+
+       Input.openEdit(
+           "airdrop",
+           "reward"
+       );
+
+       atau :
+
+       Input.openEdit({
+           workspace: "airdrop",
+           mode: "reward"
+       });
 
        Penting :
        - Tidak memakai flow.js
@@ -458,11 +472,60 @@ export const Input = {
         mode = null
     ){
 
+        /* =============================================
+           NORMALIZE EDIT REQUEST
+
+           Mendukung dua bentuk API :
+
+           1. Legacy / positional :
+              openEdit(workspace, mode)
+
+           2. Context object :
+              openEdit({
+                  workspace,
+                  mode
+              })
+
+           Bentuk object dipakai agar selaras dengan
+           controller workspace.
+        ============================================= */
+
+        let editWorkspace =
+            workspace;
+
+        let editMode =
+            mode;
+
+
+        if(
+            workspace
+            &&
+            typeof workspace === "object"
+            &&
+            !Array.isArray(workspace)
+        ){
+
+            editWorkspace =
+                workspace.workspace
+                ??
+                null;
+
+            editMode =
+                workspace.mode
+                ??
+                null;
+
+        }
+
+
         console.log(
             "INPUT EDIT OPEN",
             {
-                workspace,
-                mode
+                workspace:
+                    editWorkspace,
+
+                mode:
+                    editMode
             }
         );
 
@@ -472,7 +535,7 @@ export const Input = {
         ============================================= */
 
         const activeWorkspace =
-            workspace
+            editWorkspace
             ||
             getActiveWorkspace();
 
@@ -491,7 +554,24 @@ export const Input = {
 
 
         /* =============================================
-           VALIDATE WORKSPACE
+           VALIDATE MODE
+        ============================================= */
+
+        if(
+            !editMode
+        ){
+
+            console.warn(
+                "Global Input Edit: mode edit belum ditentukan."
+            );
+
+            return;
+
+        }
+
+
+        /* =============================================
+           GLOBAL WORKSPACE CONFIG
         ============================================= */
 
         const workspaceConfig =
@@ -516,28 +596,8 @@ export const Input = {
 
 
         /* =============================================
-           EDIT REQUEST
-           
-           Simpan request di State agar module
-           workspace dapat mengetahui konteks
-           edit yang sedang dibuka.
-        ============================================= */
-
-        State.workspace =
-            activeWorkspace;
-
-
-        State.config =
-            workspaceConfig;
-
-
-        State.editMode =
-            mode;
-
-
-        /* =============================================
            LOAD INPUT DATA
-           
+
            Edit Input tetap menggunakan sumber data
            Global Input yang sama.
         ============================================= */
@@ -555,9 +615,60 @@ export const Input = {
 
 
         /* =============================================
+           PREPARE EDIT STATE
+
+           Hanya state edit yang dibersihkan.
+
+           State Normal Input tidak di-reset karena
+           Edit Input bukan bagian dari flow normal.
+        ============================================= */
+
+        clearEditState();
+
+
+        /* =============================================
+           SET WORKSPACE
+        ============================================= */
+
+        State.workspace =
+            activeWorkspace;
+
+
+        /* =============================================
+           SET CONFIG
+        ============================================= */
+
+        State.config =
+            workspaceConfig;
+
+
+        /* =============================================
+           SET EDIT MODE
+        ============================================= */
+
+        if(
+            typeof State.setEditMode ===
+            "function"
+        ){
+
+            State.setEditMode(
+                editMode
+            );
+
+        }
+        else{
+
+            State.editMode =
+                editMode;
+
+        }
+
+
+        /* =============================================
            STORE EDIT DATA
-           
+
            Jangan mengubah struktur State lama.
+
            Jika State menyediakan setter/data khusus,
            gunakan setter tersebut.
         ============================================= */
@@ -584,25 +695,29 @@ export const Input = {
 
         /* =============================================
            WORKSPACE EDIT CONTROLLER
-           
+
            Workspace-specific JS yang menentukan
            bagaimana UI Edit Input dibuka.
 
            Contoh Airdrop :
-           
+
            mode = reward
               ↓
-           Reward.js
-           
+           Airdrop.openEdit()
+              ↓
+           Reward engine
+
            mode = row
               ↓
-           EditRow.js
+           Airdrop.openEdit()
+              ↓
+           Edit Row engine
         ============================================= */
 
         const editController =
             await loadEditController(
                 activeWorkspace,
-                mode
+                editMode
             );
 
 
@@ -616,7 +731,8 @@ export const Input = {
                     workspace:
                         activeWorkspace,
 
-                    mode
+                    mode:
+                        editMode
                 }
             );
 
@@ -627,37 +743,45 @@ export const Input = {
 
         /* =============================================
            OPEN EDIT
-           
+
            Controller workspace bertanggung jawab
            membuat / membuka UI edit.
+
+           Context object menjadi format utama.
         ============================================= */
+
+        const editContext = {
+
+            workspace:
+                activeWorkspace,
+
+            mode:
+                editMode,
+
+            data:
+                inputData,
+
+            state:
+                State
+
+        };
+
 
         if(
             typeof editController.openEdit ===
             "function"
         ){
 
-            return await editController.openEdit({
-
-                workspace:
-                    activeWorkspace,
-
-                mode,
-
-                data:
-                    inputData,
-
-                state:
-                    State
-
-            });
+            return await editController.openEdit(
+                editContext
+            );
 
         }
 
 
         /* =============================================
            FALLBACK
-           
+
            Jika module memakai nama open(),
            tetap bisa digunakan tanpa mengubah
            controller global.
@@ -668,20 +792,9 @@ export const Input = {
             "function"
         ){
 
-            return await editController.open({
-
-                workspace:
-                    activeWorkspace,
-
-                mode,
-
-                data:
-                    inputData,
-
-                state:
-                    State
-
-            });
+            return await editController.open(
+                editContext
+            );
 
         }
 
@@ -696,7 +809,7 @@ export const Input = {
 
     /* =================================================
        CLOSE
-       
+
        Menutup Normal Input.
 
        Edit Input yang memiliki overlay sendiri
@@ -732,6 +845,54 @@ export const Input = {
     }
 
 };
+
+
+/* =====================================================
+   CLEAR EDIT STATE
+===================================================== */
+
+function clearEditState(){
+
+    /* =============================================
+       SELECTED RECORD
+    ============================================= */
+
+    if(
+        typeof State.clearEditSelectedRecord ===
+        "function"
+    ){
+
+        State.clearEditSelectedRecord();
+
+    }
+    else{
+
+        State.editSelectedRecord =
+            null;
+
+    }
+
+
+    /* =============================================
+       EDIT TRANSACTIONS
+    ============================================= */
+
+    if(
+        typeof State.clearEditTransactions ===
+        "function"
+    ){
+
+        State.clearEditTransactions();
+
+    }
+    else{
+
+        State.editTransactions =
+            [];
+
+    }
+
+}
 
 
 /* =====================================================
@@ -787,10 +948,10 @@ async function loadEditController(
 
     /* =============================================
        WORKSPACE EDIT MAP
-       
+
        Semua file tetap berada di
        components/input/.
-       
+
        Controller hanya menentukan module mana
        yang diminta.
     ============================================= */
