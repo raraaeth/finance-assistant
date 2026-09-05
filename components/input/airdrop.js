@@ -294,81 +294,89 @@ export const Airdrop = {
        Edit Input Row belum diaktifkan.
     ================================================= */
 
-    async openEdit({
+    async openEdit(context = null) {
 
-        mode = null
+    /* =============================================
+       RESOLVE EDIT MODE
+       
+       Global Input mengirim object:
+       
+       {
+           workspace,
+           mode,
+           data,
+           state
+       }
+       
+       Tetap dukung pemanggilan lama
+       dengan string untuk menjaga kompatibilitas.
+    ============================================= */
 
-    } = {}){
+    const mode =
 
-        const normalizedMode =
+        typeof context === "object" &&
+        context !== null
 
-            String(
+            ? context.mode
 
-                mode ??
-
-                ""
-
-            )
-
-            .trim()
-
-            .toLowerCase();
-
-
-        /* =============================================
-           EDIT REWARD
-        ============================================= */
-
-        if(
-
-            normalizedMode ===
-
-            "reward"
-
-        ){
-
-            return openEditReward();
-
-        }
+            : context;
 
 
-        /* =============================================
-           EDIT ROW
-           
-           Belum dikerjakan.
-        ============================================= */
+    const normalizedMode =
 
-        if(
-
-            normalizedMode ===
-
-            "row"
-
-        ){
-
-            console.warn(
-
-                "Airdrop Edit Input Row belum tersedia."
-
-            );
-
-            return null;
-
-        }
-
-
-        console.warn(
-
-            "Airdrop Edit Input: mode tidak dikenal.",
-
-            normalizedMode
-
+        normalizeValue(
+            mode
         );
 
 
+    /* =============================================
+       EDIT REWARD
+    ============================================= */
+
+    if(
+        normalizedMode === "reward"
+    ){
+
+        return openEditReward();
+
+    }
+
+
+    /* =============================================
+       EDIT ROW
+    ============================================= */
+
+    if(
+        normalizedMode === "row"
+    ){
+
+        console.warn(
+            "Airdrop Edit Input Row belum tersedia."
+        );
+
         return null;
 
-    },
+    }
+
+
+    /* =============================================
+       UNKNOWN MODE
+    ============================================= */
+
+    console.warn(
+        "Airdrop Edit Input: mode tidak dikenal:",
+        mode
+    );
+
+
+    return null;
+
+},
+
+        
+
+
+        
 
 
     /* =================================================
