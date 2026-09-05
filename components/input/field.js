@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : field.js
-   Version      : 2.0.0
+   Version      : 2.1.0
 
    Description :
    Global Input Field Renderer
@@ -18,16 +18,33 @@
    - Field event
    - Progressive flow compatibility
 
+   Edit Input :
+   - Readonly field
+   - Edit select
+   - Edit number
+   - Edit text
+   - Edit value
+   - Edit field event
+
    Principle :
    Global Input menggunakan custom control.
 
    Select :
        option.note
-           ↓
+       ↓
        field.note
-           ↓
+       ↓
        empty
-===================================================== */
+
+   Edit Input :
+       Edit field
+       ↓
+       State.editSelectedRecord
+       ↓
+       callback
+       ↓
+       Render / Controller
+   ===================================================== */
 
 
 /* =====================================================
@@ -158,40 +175,44 @@ export function renderField(
 
     }
 
-/* =================================================
-   CONDITION
 
-   Checkbox group untuk progressive condition.
-================================================= */
+    /* =================================================
+       CONDITION
 
-if(
+       Checkbox group untuk progressive condition.
+    ================================================= */
 
-    field.type ===
-    "condition"
+    if(
 
-){
+        field.type ===
 
-    renderCondition(
+        "condition"
 
-        field,
-        wrapper,
-        onComplete
+    ){
 
-    );
+        renderCondition(
 
+            field,
 
-    container.appendChild(
+            wrapper,
 
-        wrapper
+            onComplete
 
-    );
+        );
 
 
-    return;
+        container.appendChild(
 
-}
+            wrapper
 
-   
+        );
+
+
+        return;
+
+    }
+
+
     /* =================================================
        NORMAL INPUT
     ================================================= */
@@ -363,6 +384,1927 @@ if(
 
 
 /* =====================================================
+   EDIT INPUT FIELD
+===================================================== */
+
+/*
+   Renderer tambahan untuk Edit Input.
+
+   Fungsi ini sengaja dipisahkan dari renderField()
+   agar Normal Input tidak berubah.
+
+   Contoh :
+
+   renderEditField(
+       {
+           id        : "status",
+           type      : "edit-select",
+           label     : "Hasil",
+           options   : [
+               {
+                   value : "win",
+                   label : "Win"
+               },
+               {
+                   value : "not_win",
+                   label : "Not Win"
+               }
+           ]
+       },
+       container,
+       value => {}
+   );
+
+   Value awal dibaca dari :
+
+       State.editSelectedRecord
+
+   Bukan State.values.
+===================================================== */
+
+export function renderEditField(
+
+    field,
+
+    container,
+
+    onChange
+
+){
+
+    if(
+
+        !field
+
+        ||
+
+        !container
+
+    ){
+
+        return null;
+
+    }
+
+
+    /* =================================================
+       WRAPPER
+    ================================================= */
+
+    const wrapper =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    wrapper.className =
+
+        "global-input-edit-field";
+
+
+    wrapper.dataset.field =
+
+        field.id;
+
+
+    /* =================================================
+       LABEL
+    ================================================= */
+
+    if(
+
+        field.label !==
+
+        false
+
+    ){
+
+        const label =
+
+            document.createElement(
+
+                "label"
+
+            );
+
+
+        label.className =
+
+            "global-input-edit-label";
+
+
+        label.textContent =
+
+            getEditFieldLabel(
+
+                field
+
+            );
+
+
+        wrapper.appendChild(
+
+            label
+
+        );
+
+    }
+
+
+    /* =================================================
+       INITIAL VALUE
+    ================================================= */
+
+    const initialValue =
+
+        getEditFieldValue(
+
+            field
+
+        );
+
+
+    /* =================================================
+       READONLY
+    ================================================= */
+
+    if(
+
+        field.type ===
+
+        "readonly"
+
+        ||
+
+        field.readonly ===
+
+        true
+
+    ){
+
+        const valueElement =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+        valueElement.className =
+
+            "global-input-edit-readonly";
+
+
+        valueElement.dataset.field =
+
+            field.id;
+
+
+        valueElement.textContent =
+
+            initialValue
+
+            ??
+
+            "";
+
+
+        wrapper.appendChild(
+
+            valueElement
+
+        );
+
+
+        appendEditNote(
+
+            field,
+
+            wrapper
+
+        );
+
+
+        container.appendChild(
+
+            wrapper
+
+        );
+
+
+        return {
+
+            wrapper,
+
+            element :
+
+                valueElement,
+
+            value :
+
+                initialValue
+
+        };
+
+    }
+
+
+    /* =================================================
+       SELECT
+    ================================================= */
+
+    if(
+
+        field.type ===
+
+        "edit-select"
+
+        ||
+
+        field.type ===
+
+        "select"
+
+    ){
+
+        const result =
+
+            renderEditSelect(
+
+                field,
+
+                wrapper,
+
+                initialValue,
+
+                onChange
+
+            );
+
+
+        appendEditNote(
+
+            field,
+
+            wrapper
+
+        );
+
+
+        container.appendChild(
+
+            wrapper
+
+        );
+
+
+        return result;
+
+    }
+
+
+    /* =================================================
+       INPUT
+    ================================================= */
+
+    const element =
+
+        document.createElement(
+
+            "input"
+
+        );
+
+
+    element.type =
+
+        field.type ===
+
+        "edit-number"
+
+        ?
+
+        "number"
+
+        :
+
+        "text";
+
+
+    element.className =
+
+        "global-input-edit-control";
+
+
+    element.dataset.field =
+
+        field.id;
+
+
+    if(
+
+        initialValue !==
+
+        undefined
+
+        &&
+
+        initialValue !==
+
+        null
+
+    ){
+
+        element.value =
+
+            initialValue;
+
+    }
+
+
+    if(
+
+        field.placeholder
+
+    ){
+
+        element.placeholder =
+
+            field.placeholder;
+
+    }
+
+
+    if(
+
+        field.required
+
+    ){
+
+        element.required =
+
+            true;
+
+    }
+
+
+    if(
+
+        field.min !==
+
+        undefined
+
+    ){
+
+        element.min =
+
+            field.min;
+
+    }
+
+
+    if(
+
+        field.max !==
+
+        undefined
+
+    ){
+
+        element.max =
+
+            field.max;
+
+    }
+
+
+    if(
+
+        field.step !==
+
+        undefined
+
+    ){
+
+        element.step =
+
+            field.step;
+
+    }
+
+
+    wrapper.appendChild(
+
+        element
+
+    );
+
+
+    appendEditNote(
+
+        field,
+
+        wrapper
+
+    );
+
+
+    container.appendChild(
+
+        wrapper
+
+    );
+
+
+    /* =================================================
+       CHANGE
+    ================================================= */
+
+    const handleChange =
+
+        () => {
+
+            const value =
+
+                getEditElementValue(
+
+                    element
+
+                );
+
+
+            if(
+
+                typeof onChange ===
+
+                "function"
+
+            ){
+
+                onChange(
+
+                    field,
+
+                    value
+
+                );
+
+            }
+
+        };
+
+
+    element.addEventListener(
+
+        "input",
+
+        handleChange
+
+    );
+
+
+    element.addEventListener(
+
+        "change",
+
+        handleChange
+
+    );
+
+
+    /* =================================================
+       ENTER
+    ================================================= */
+
+    element.addEventListener(
+
+        "keydown",
+
+        event => {
+
+            if(
+
+                event.key ===
+
+                "Enter"
+
+            ){
+
+                event.preventDefault();
+
+                handleChange();
+
+            }
+
+        }
+
+    );
+
+
+    return {
+
+        wrapper,
+
+        element,
+
+        value :
+
+            initialValue
+
+    };
+
+}
+
+
+/* =====================================================
+   GET EDIT FIELD LABEL
+===================================================== */
+
+function getEditFieldLabel(
+
+    field
+
+){
+
+    if(
+
+        !field
+
+    ){
+
+        return "";
+
+    }
+
+
+    if(
+
+        typeof field.label ===
+
+        "function"
+
+    ){
+
+        try{
+
+            return String(
+
+                field.label(
+
+                    State.editSelectedRecord
+
+                )
+
+                ??
+
+                ""
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "Edit field label error:",
+
+                error
+
+            );
+
+
+            return "";
+
+        }
+
+    }
+
+
+    return String(
+
+        field.label
+
+        ??
+
+        ""
+
+    );
+
+}
+
+
+/* =====================================================
+   GET EDIT FIELD VALUE
+===================================================== */
+
+function getEditFieldValue(
+
+    field
+
+){
+
+    if(
+
+        !field
+
+        ||
+
+        !field.id
+
+    ){
+
+        return "";
+
+    }
+
+
+    const record =
+
+        State.editSelectedRecord;
+
+
+    if(
+
+        !record
+
+    ){
+
+        if(
+
+            field.value !==
+
+            undefined
+
+        ){
+
+            return field.value;
+
+        }
+
+
+        return "";
+
+    }
+
+
+    /* =================================================
+       FUNCTION VALUE
+    ================================================= */
+
+    if(
+
+        typeof field.value ===
+
+        "function"
+
+    ){
+
+        try{
+
+            return (
+
+                field.value(
+
+                    record
+
+                )
+
+                ??
+
+                ""
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "Edit field value error:",
+
+                error
+
+            );
+
+        }
+
+    }
+
+
+    /* =================================================
+       RECORD VALUE
+    ================================================= */
+
+    if(
+
+        record[field.id] !==
+
+        undefined
+
+    ){
+
+        return record[field.id];
+
+    }
+
+
+    /* =================================================
+       ALTERNATIVE KEY
+    ================================================= */
+
+    if(
+
+        field.key
+
+        &&
+
+        record[field.key] !==
+
+        undefined
+
+    ){
+
+        return record[field.key];
+
+    }
+
+
+    /* =================================================
+       FIELD DEFAULT
+    ================================================= */
+
+    return (
+
+        field.value
+
+        ??
+
+        ""
+
+    );
+
+}
+
+
+/* =====================================================
+   GET EDIT ELEMENT VALUE
+===================================================== */
+
+function getEditElementValue(
+
+    element
+
+){
+
+    if(
+
+        !element
+
+    ){
+
+        return "";
+
+    }
+
+
+    return String(
+
+        element.value
+
+        ??
+
+        ""
+
+    ).trim();
+
+}
+
+
+/* =====================================================
+   APPEND EDIT NOTE
+===================================================== */
+
+function appendEditNote(
+
+    field,
+
+    wrapper
+
+){
+
+    if(
+
+        !field
+
+        ||
+
+        !field.note
+
+    ){
+
+        return;
+
+    }
+
+
+    const note =
+
+        document.createElement(
+
+            "small"
+
+        );
+
+
+    note.className =
+
+        "global-input-edit-field-note";
+
+
+    note.textContent =
+
+        field.note;
+
+
+    wrapper.appendChild(
+
+        note
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER EDIT SELECT
+===================================================== */
+
+function renderEditSelect(
+
+    field,
+
+    wrapper,
+
+    initialValue,
+
+    onChange
+
+){
+
+    const selectWrapper =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    selectWrapper.className =
+
+        "global-input-edit-select-wrapper";
+
+
+    const button =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    button.type =
+
+        "button";
+
+
+    button.className =
+
+        "global-input-edit-select";
+
+
+    button.dataset.field =
+
+        field.id;
+
+
+    const valueElement =
+
+        document.createElement(
+
+            "span"
+
+        );
+
+
+    valueElement.className =
+
+        "global-input-edit-value";
+
+
+    const arrow =
+
+        document.createElement(
+
+            "span"
+
+        );
+
+
+    arrow.className =
+
+        "global-input-edit-arrow";
+
+
+    arrow.textContent =
+
+        "▾";
+
+
+    const hidden =
+
+        document.createElement(
+
+            "input"
+
+        );
+
+
+    hidden.type =
+
+        "hidden";
+
+
+    hidden.value =
+
+        initialValue
+
+        ??
+
+        "";
+
+
+    hidden.dataset.field =
+
+        field.id;
+
+
+    valueElement.textContent =
+
+        getEditOptionLabel(
+
+            field,
+
+            hidden.value
+
+        );
+
+
+    if(
+
+        hidden.value !==
+
+        ""
+
+    ){
+
+        button.classList.add(
+
+            "has-value"
+
+        );
+
+    }
+
+
+    button.appendChild(
+
+        valueElement
+
+    );
+
+
+    button.appendChild(
+
+        arrow
+
+    );
+
+
+    selectWrapper.appendChild(
+
+        button
+
+    );
+
+
+    selectWrapper.appendChild(
+
+        hidden
+
+    );
+
+
+    wrapper.appendChild(
+
+        selectWrapper
+
+    );
+
+
+    /* =================================================
+       CLICK
+    ================================================= */
+
+    button.addEventListener(
+
+        "click",
+
+        event => {
+
+            event.preventDefault();
+
+
+            openEditPicker(
+
+                field,
+
+                button,
+
+                hidden,
+
+                valueElement,
+
+                onChange
+
+            );
+
+        }
+
+    );
+
+
+    return {
+
+        wrapper,
+
+        element :
+
+            hidden,
+
+        button,
+
+        valueElement,
+
+        value :
+
+            initialValue
+
+    };
+
+}
+
+
+/* =====================================================
+   OPEN EDIT PICKER
+===================================================== */
+
+function openEditPicker(
+
+    field,
+
+    button,
+
+    hidden,
+
+    valueElement,
+
+    onChange
+
+){
+
+    closeEditPicker();
+
+
+    const picker =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    picker.className =
+
+        "global-input-edit-picker";
+
+
+    const backdrop =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    backdrop.className =
+
+        "global-input-edit-picker-backdrop";
+
+
+    const panel =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    panel.className =
+
+        "global-input-edit-picker-panel";
+
+
+    const header =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    header.className =
+
+        "global-input-edit-picker-header";
+
+
+    const title =
+
+        document.createElement(
+
+            "strong"
+
+        );
+
+
+    title.textContent =
+
+        getEditFieldLabel(
+
+            field
+
+        ) ||
+
+        "Pilih";
+
+
+    const closeButton =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    closeButton.type =
+
+        "button";
+
+
+    closeButton.className =
+
+        "global-input-edit-picker-close";
+
+
+    closeButton.textContent =
+
+        "×";
+
+
+    header.appendChild(
+
+        title
+
+    );
+
+
+    header.appendChild(
+
+        closeButton
+
+    );
+
+
+    const list =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    list.className =
+
+        "global-input-edit-picker-list";
+
+
+    const options =
+
+        getEditOptions(
+
+            field
+
+        );
+
+
+    if(
+
+        Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        options.forEach(
+
+            option => {
+
+                const value =
+
+                    typeof option ===
+
+                    "object"
+
+                    ?
+
+                    option.value
+
+                    :
+
+                    option;
+
+
+                const label =
+
+                    typeof option ===
+
+                    "object"
+
+                    ?
+
+                    option.label
+
+                    ??
+
+                    option.value
+
+                    :
+
+                    option;
+
+
+                if(
+
+                    value ===
+
+                    undefined
+
+                    ||
+
+                    value ===
+
+                    null
+
+                ){
+
+                    return;
+
+                }
+
+
+                const item =
+
+                    document.createElement(
+
+                        "button"
+
+                    );
+
+
+                item.type =
+
+                    "button";
+
+
+                item.className =
+
+                    "global-input-edit-picker-option";
+
+
+                if(
+
+                    String(
+
+                        hidden.value
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    )
+
+                ){
+
+                    item.classList.add(
+
+                        "selected"
+
+                    );
+
+                }
+
+
+                const content =
+
+                    document.createElement(
+
+                        "span"
+
+                    );
+
+
+                content.className =
+
+                    "global-input-edit-picker-option-content";
+
+
+                content.textContent =
+
+                    label;
+
+
+                const radio =
+
+                    document.createElement(
+
+                        "span"
+
+                    );
+
+
+                radio.className =
+
+                    "global-input-edit-picker-radio";
+
+
+                radio.textContent =
+
+                    String(
+
+                        hidden.value
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    )
+
+                    ?
+
+                    "●"
+
+                    :
+
+                    "○";
+
+
+                item.appendChild(
+
+                    content
+
+                );
+
+
+                item.appendChild(
+
+                    radio
+
+                );
+
+
+                if(
+
+                    option
+
+                    &&
+
+                    typeof option ===
+
+                    "object"
+
+                    &&
+
+                    option.note
+
+                ){
+
+                    const note =
+
+                        document.createElement(
+
+                            "small"
+
+                        );
+
+
+                    note.className =
+
+                        "global-input-edit-picker-option-note";
+
+
+                    note.textContent =
+
+                        option.note;
+
+
+                    item.appendChild(
+
+                        note
+
+                    );
+
+                }
+
+
+                item.addEventListener(
+
+                    "click",
+
+                    () => {
+
+                        hidden.value =
+
+                            value;
+
+
+                        valueElement.textContent =
+
+                            label;
+
+
+                        button.classList.add(
+
+                            "has-value"
+
+                        );
+
+
+                        closeEditPicker();
+
+
+                        if(
+
+                            typeof onChange ===
+
+                            "function"
+
+                        ){
+
+                            onChange(
+
+                                field,
+
+                                value
+
+                            );
+
+                        }
+
+                    }
+
+                );
+
+
+                list.appendChild(
+
+                    item
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    panel.appendChild(
+
+        header
+
+    );
+
+
+    panel.appendChild(
+
+        list
+
+    );
+
+
+    picker.appendChild(
+
+        backdrop
+
+    );
+
+
+    picker.appendChild(
+
+        panel
+
+    );
+
+
+    document.body.appendChild(
+
+        picker
+
+    );
+
+
+    closeButton.addEventListener(
+
+        "click",
+
+        closeEditPicker
+
+    );
+
+
+    backdrop.addEventListener(
+
+        "click",
+
+        closeEditPicker
+
+    );
+
+
+    picker._escapeHandler =
+
+        event => {
+
+            if(
+
+                event.key ===
+
+                "Escape"
+
+            ){
+
+                closeEditPicker();
+
+            }
+
+        };
+
+
+    document.addEventListener(
+
+        "keydown",
+
+        picker._escapeHandler
+
+    );
+
+
+    requestAnimationFrame(
+
+        () => {
+
+            picker.classList.add(
+
+                "is-open"
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   GET EDIT OPTIONS
+===================================================== */
+
+function getEditOptions(
+
+    field
+
+){
+
+    if(
+
+        !field
+
+    ){
+
+        return [];
+
+    }
+
+
+    if(
+
+        typeof field.options ===
+
+        "function"
+
+    ){
+
+        try{
+
+            return (
+
+                field.options(
+
+                    State.editSelectedRecord,
+
+                    State.editMode
+
+                )
+
+                ??
+
+                []
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "Edit field options error:",
+
+                error
+
+            );
+
+
+            return [];
+
+        }
+
+    }
+
+
+    return (
+
+        field.options
+
+        ??
+
+        []
+
+    );
+
+}
+
+
+/* =====================================================
+   GET EDIT OPTION LABEL
+===================================================== */
+
+function getEditOptionLabel(
+
+    field,
+
+    value
+
+){
+
+    if(
+
+        value ===
+
+        undefined
+
+        ||
+
+        value ===
+
+        null
+
+        ||
+
+        value ===
+
+        ""
+
+    ){
+
+        return (
+
+            field.placeholder
+
+            ??
+
+            "Pilih..."
+
+        );
+
+    }
+
+
+    const options =
+
+        getEditOptions(
+
+            field
+
+        );
+
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        return String(
+
+            value
+
+        );
+
+    }
+
+
+    const option =
+
+        options.find(
+
+            item => {
+
+                const optionValue =
+
+                    typeof item ===
+
+                    "object"
+
+                    ?
+
+                    item.value
+
+                    :
+
+                    item;
+
+
+                return (
+
+                    String(
+
+                        optionValue
+
+                    )
+
+                    ===
+
+                    String(
+
+                        value
+
+                    )
+
+                );
+
+            }
+
+        );
+
+
+    if(
+
+        option ===
+
+        undefined
+
+    ){
+
+        return String(
+
+            value
+
+        );
+
+    }
+
+
+    return (
+
+        typeof option ===
+
+        "object"
+
+        ?
+
+        option.label
+
+        ??
+
+        option.value
+
+        :
+
+        option
+
+    );
+
+}
+
+
+/* =====================================================
+   CLOSE EDIT PICKER
+===================================================== */
+
+function closeEditPicker(){
+
+    const picker =
+
+        document.querySelector(
+
+            ".global-input-edit-picker"
+
+        );
+
+
+    if(
+
+        !picker
+
+    ){
+
+        return;
+
+    }
+
+
+    if(
+
+        picker._escapeHandler
+
+    ){
+
+        document.removeEventListener(
+
+            "keydown",
+
+            picker._escapeHandler
+
+        );
+
+    }
+
+
+    picker.remove();
+
+}
+
+
+/* =====================================================
    GET FIELD LABEL
 ===================================================== */
 
@@ -387,7 +2329,7 @@ function getFieldLabel(
 
         typeof field.label ===
 
-            "function"
+        "function"
 
     ){
 
@@ -418,6 +2360,7 @@ function getFieldLabel(
                 error
 
             );
+
 
             return "";
 
@@ -492,7 +2435,9 @@ function createInputElement(
 
         element.type =
 
-            field.type ??
+            field.type
+
+            ??
 
             "text";
 
@@ -613,6 +2558,7 @@ function createInputElement(
 
 }
 
+
 /* =====================================================
    RENDER CONDITION
 ===================================================== */
@@ -675,11 +2621,11 @@ function renderCondition(
 
                 "object"
 
-                    ?
+                ?
 
                 option.value
 
-                    :
+                :
 
                 option;
 
@@ -690,13 +2636,15 @@ function renderCondition(
 
                 "object"
 
-                    ?
+                ?
 
-                option.label ??
+                option.label
+
+                ??
 
                 option.value
 
-                    :
+                :
 
                 option;
 
@@ -871,6 +2819,8 @@ function renderCondition(
     }
 
 }
+
+
 /* =====================================================
    UPDATE CONDITION VALUE
 ===================================================== */
@@ -947,7 +2897,7 @@ function updateConditionValue(
 
         typeof onComplete ===
 
-            "function"
+        "function"
 
     ){
 
@@ -962,6 +2912,7 @@ function updateConditionValue(
     }
 
 }
+
 
 /* =====================================================
    CUSTOM SELECT
@@ -1043,7 +2994,9 @@ function renderCustomSelect(
 
     valueElement.textContent =
 
-        field.placeholder ??
+        field.placeholder
+
+        ??
 
         "Pilih...";
 
@@ -1114,15 +3067,15 @@ function renderCustomSelect(
 
     hidden.value =
 
-    State.values?.[field.id]
+        State.values?.[field.id]
 
-    ??
+        ??
 
-    field.value
+        field.value
 
-    ??
+        ??
 
-    "";
+        "";
 
 
     hidden.dataset.field =
@@ -1136,7 +3089,9 @@ function renderCustomSelect(
 
     if(
 
-        hidden.value !== ""
+        hidden.value !==
+
+        ""
 
     ){
 
@@ -1395,7 +3350,9 @@ function openCustomPicker(
 
             field
 
-        ) ||
+        )
+
+        ||
 
         "Pilih";
 
@@ -1489,11 +3446,11 @@ function openCustomPicker(
 
                     "object"
 
-                        ?
+                    ?
 
                     option.value
 
-                        :
+                    :
 
                     option;
 
@@ -1504,13 +3461,15 @@ function openCustomPicker(
 
                     "object"
 
-                        ?
+                    ?
 
-                    option.label ??
+                    option.label
+
+                    ??
 
                     option.value
 
-                        :
+                    :
 
                     option;
 
@@ -1615,11 +3574,11 @@ function openCustomPicker(
 
                     selected
 
-                        ?
+                    ?
 
                     "●"
 
-                        :
+                    :
 
                     "○";
 
@@ -1648,7 +3607,9 @@ function openCustomPicker(
 
                     typeof option ===
 
-                    "object" &&
+                    "object"
+
+                    &&
 
                     option.note
 
@@ -1903,10 +3864,6 @@ function selectCustomOption(
     }
 
 
-    /* =================================================
-       STATE
-    ================================================= */
-
     button.classList.add(
 
         "has-value"
@@ -1982,7 +3939,9 @@ function submitField(
 
         String(
 
-            element.value ??
+            element.value
+
+            ??
 
             ""
 
@@ -2052,7 +4011,7 @@ function submitValue(
 
         typeof onComplete ===
 
-            "function"
+        "function"
 
     ){
 
@@ -2093,7 +4052,7 @@ function getOptions(
 
         typeof field.options ===
 
-            "function"
+        "function"
 
     ){
 
@@ -2216,11 +4175,11 @@ function getOptionLabel(
 
                     "object"
 
-                        ?
+                    ?
 
                     item.value
 
-                        :
+                    :
 
                     item;
 
@@ -2269,13 +4228,15 @@ function getOptionLabel(
 
         "object"
 
-            ?
+        ?
 
-        option.label ??
+        option.label
+
+        ??
 
         option.value
 
-            :
+        :
 
         option;
 
@@ -2371,11 +4332,11 @@ function getOptionNote(
 
                     "object"
 
-                        ?
+                    ?
 
                     item.value
 
-                        :
+                    :
 
                     item;
 
