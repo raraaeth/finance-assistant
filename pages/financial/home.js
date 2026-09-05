@@ -1265,7 +1265,7 @@ function renderEditInput(){
     card.innerHTML = `
 
         <div
-            id="workspace-edit-row-menu"
+            id="financial-edit-row-menu"
             class="profile-menu-item">
 
             <div class="profile-menu-left">
