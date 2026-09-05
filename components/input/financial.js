@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Financial
    File         : financial.js
-   Version      : 1.2.0
+   Version      : 1.2.1
 
    Description :
    Input Flow Configuration for Financial
@@ -14,6 +14,8 @@
    Global Workspace
         ↓
    financial.sheets
+        ↓
+   financial_activity
         ↓
    getInputData()
 
@@ -35,8 +37,8 @@
    - Menggunakan Global EditRow Engine.
    - Target record berdasarkan ID + Tanggal.
    - ID dan Tanggal dikunci.
-   - Control mengikuti konfigurasi Input.
-   - Value select tetap menggunakan canonical value.
+   - Control mengikuti struktur Input Financial.
+   - Select mempertahankan canonical value.
    - Tidak mengubah flow Input normal.
 ===================================================== */
 
@@ -673,7 +675,76 @@ export const Financial = {
 
         }
 
-    ]
+    ],
+
+
+    /* =================================================
+       EDIT INPUT
+    ================================================= */
+
+    async openEdit(
+
+        context = null
+
+    ){
+
+        const mode =
+
+            typeof context ===
+
+                "object" &&
+
+            context !== null
+
+                ?
+
+                context.mode
+
+                :
+
+                context;
+
+
+        const normalizedMode =
+
+            normalizeValue(
+
+                mode
+
+            );
+
+
+        /*
+           Financial hanya mempunyai
+           Edit Input Row.
+
+           Jika mode kosong, tetap buka
+           Edit Row agar kompatibel dengan
+           Global Input Edit Controller.
+        */
+
+        if(
+
+            normalizedMode &&
+
+            normalizedMode !== "row"
+
+        ){
+
+            console.warn(
+
+                "[Financial] Mode Edit Input tidak dikenal:",
+
+                mode
+
+            );
+
+        }
+
+
+        return openEditRow();
+
+    }
 
 };
 
@@ -683,73 +754,185 @@ export const Financial = {
 ===================================================== */
 
 /*
-   Edit Row menggunakan engine global.
+   Financial adapter untuk Global EditRow.
 
-   Financial hanya menyediakan konfigurasi
-   workspace-specific.
+   Generic EditRow menangani :
 
-   Target :
+   - maksimal 20 record
+   - direct list
+   - search
+   - selected record
+   - detail
+   - editable field
+   - staging
+   - pending
+   - duplicate protection
+   - Konfirmasi
+   - Update Row
 
-       ID + Tanggal
+   Financial hanya menentukan :
 
-   Field :
-
-       jenis
-       type
-       nominal
-       keterangan
-
-   ID dan Tanggal ditangani sebagai
-   locked field oleh Global EditRow.
+   - source data
+   - ID
+   - Tanggal
+   - label
+   - tipe field
+   - option field
+   - urutan field
+   - validation
 */
 
-export function openFinancialEditRow(){
+async function openEditRow(){
 
-    EditRow.open({
+    console.log(
 
-        /* =============================================
+        "===== FINANCIAL EDIT INPUT ROW OPEN ====="
+
+    );
+
+
+    /* =============================================
+       GET RECORDS
+    ============================================= */
+
+    const records =
+
+        typeof EditRow.getEditableRecords ===
+
+            "function"
+
+            ?
+
+            EditRow.getEditableRecords()
+
+            :
+
+            getInputRaw();
+
+
+    console.log(
+
+        "Financial Edit Row records:",
+
+        records
+
+    );
+
+
+    /* =============================================
+       RESET
+    ============================================= */
+
+    if(
+
+        typeof EditRow.reset ===
+
+            "function"
+
+    ){
+
+        EditRow.reset();
+
+    }
+
+
+    /* =============================================
+       OPEN CHECK
+    ============================================= */
+
+    if(
+
+        !EditRow ||
+
+        typeof EditRow.open !==
+
+            "function"
+
+    ){
+
+        console.error(
+
+            "[Financial] EditRow.open() tidak tersedia."
+
+        );
+
+        return null;
+
+    }
+
+
+    /* =============================================
+       OPEN GLOBAL EDIT ROW
+    ============================================= */
+
+    return EditRow.open({
+
+        /* =========================================
            WORKSPACE
-        ============================================= */
+        ========================================= */
 
         workspace :
 
             "financial",
 
 
-        /* =============================================
+        /* =========================================
+           MODE
+        ========================================= */
+
+        mode :
+
+            "row",
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        title :
+
+            "Edit Input Row",
+
+
+        subtitle :
+
+            "Pilih transaksi dari daftar untuk mengubah data.",
+
+
+        /* =========================================
            RECORD SOURCE
-        ============================================= */
+        ========================================= */
 
-        records :
+        getRecords :
 
-            getInputRaw(),
+            () => getInputRaw(),
 
 
-        /* =============================================
-           ID FIELD
-        ============================================= */
+        /* =========================================
+           TARGET FIELD
+        ========================================= */
 
         getIdField :
 
-            () =>
+            record => {
 
-                "id",
+                return "id";
 
+            },
 
-        /* =============================================
-           DATE FIELD
-        ============================================= */
 
         getDateField :
 
-            () =>
+            record => {
 
-                "tanggal",
+                return "tanggal";
+
+            },
 
 
-        /* =============================================
+        /* =========================================
            RECORD LABEL
-        ============================================= */
+        ========================================= */
 
         getRecordLabel :
 
@@ -757,46 +940,103 @@ export function openFinancialEditRow(){
 
                 const jenis =
 
-                    record?.jenis ??
+                    formatFinancialValue(
 
-                    "-";
+                        record?.jenis
+
+                    );
 
 
                 const activity =
 
-                    record?.type ??
+                    formatActivity(
 
-                    "-";
+                        record?.type
+
+                    );
 
 
-                return `${
+                const id =
 
-                    formatFinancialValue(
+                    String(
+
+                        record?.id ??
+
+                        ""
+
+                    ).trim();
+
+
+                const main =
+
+                    jenis !== "-"
+
+                        ?
 
                         jenis
 
-                    )
+                        :
 
-                } · ${
+                        "Financial";
 
-                    formatActivity(
+
+                const detail =
+
+                    activity !== "-"
+
+                        ?
 
                         activity
 
-                    )
+                        :
 
-                }`;
+                        "";
+
+
+                if(
+
+                    detail
+
+                ){
+
+                    return `${
+
+                        main
+
+                    } · ${
+
+                        detail
+
+                    }`;
+
+                }
+
+
+                return id ||
+
+                    main;
 
             },
 
 
-        /* =============================================
+        /* =========================================
            RECORD META
-        ============================================= */
+        ========================================= */
 
         getRecordMeta :
 
             record => {
+
+                const tanggal =
+
+                    String(
+
+                        record?.tanggal ??
+
+                        ""
+
+                    ).trim();
+
 
                 const nominal =
 
@@ -805,7 +1045,13 @@ export function openFinancialEditRow(){
 
                 const keterangan =
 
-                    record?.keterangan;
+                    String(
+
+                        record?.keterangan ??
+
+                        ""
+
+                    ).trim();
 
 
                 const parts = [];
@@ -813,17 +1059,32 @@ export function openFinancialEditRow(){
 
                 if(
 
+                    tanggal
+
+                ){
+
+                    parts.push(
+
+                        tanggal
+
+                    );
+
+                }
+
+
+                if(
+
                     nominal !==
 
-                    undefined &&
+                        undefined &&
 
                     nominal !==
 
-                    null &&
+                        null &&
 
                     nominal !==
 
-                    ""
+                        ""
 
                 ){
 
@@ -848,11 +1109,7 @@ export function openFinancialEditRow(){
 
                     parts.push(
 
-                        String(
-
-                            keterangan
-
-                        )
+                        keterangan
 
                     );
 
@@ -868,9 +1125,9 @@ export function openFinancialEditRow(){
             },
 
 
-        /* =============================================
+        /* =========================================
            SEARCH
-        ============================================= */
+        ========================================= */
 
         getSearchText :
 
@@ -911,13 +1168,128 @@ export function openFinancialEditRow(){
             },
 
 
-        /* =============================================
+        /* =========================================
+           FIELD RULE
+        ========================================= */
+
+        isFieldLocked :
+
+            (
+
+                field,
+
+                record
+
+            ) => {
+
+                /*
+                   Tidak ada field tambahan
+                   yang dikunci.
+
+                   ID + Tanggal otomatis
+                   dikunci oleh EditRow.
+                */
+
+                return false;
+
+            },
+
+
+        /* =========================================
            FIELD TYPE
-        ============================================= */
+        ========================================= */
 
         getFieldType :
 
-            field => {
+            (
+
+                field,
+
+                value,
+
+                record
+
+            ) => {
+
+                const normalized =
+
+                    normalizeValue(
+
+                        field
+
+                    );
+
+
+                if(
+
+                    normalized ===
+
+                    "jenis"
+
+                ){
+
+                    return "select";
+
+                }
+
+
+                if(
+
+                    normalized ===
+
+                    "type"
+
+                ){
+
+                    return "select";
+
+                }
+
+
+                if(
+
+                    normalized ===
+
+                    "nominal"
+
+                ){
+
+                    return "number";
+
+                }
+
+
+                if(
+
+                    normalized ===
+
+                    "keterangan"
+
+                ){
+
+                    return "text";
+
+                }
+
+
+                return undefined;
+
+            },
+
+
+        /* =========================================
+           FIELD LABEL
+        ========================================= */
+
+        getFieldLabel :
+
+            (
+
+                field,
+
+                record
+
+            ) => {
 
                 switch(
 
@@ -925,84 +1297,62 @@ export function openFinancialEditRow(){
 
                 ){
 
+                    case "id":
+
+                        return "ID";
+
+
+                    case "tanggal":
+
+                        return "Tanggal";
+
+
                     case "jenis":
 
-                        return "select";
+                        return "Jenis Transaksi";
 
 
                     case "type":
 
-                        return "select";
+                        return "Aktivitas";
 
 
                     case "nominal":
 
-                        return "number";
+                        return "Nominal";
 
 
                     case "keterangan":
 
-                        return "text";
+                        return "Keterangan";
 
 
                     default:
 
-                        return undefined;
+                        return formatFinancialValue(
+
+                            field
+
+                        );
 
                 }
 
             },
 
 
-        /* =============================================
-           FIELD LABEL
-        ============================================= */
-
-        getFieldLabel :
-
-            field => {
-
-                const labels = {
-
-                    id :
-                        "ID",
-
-                    tanggal :
-                        "Tanggal",
-
-                    jenis :
-                        "Jenis Transaksi",
-
-                    type :
-                        "Aktivitas",
-
-                    nominal :
-                        "Nominal",
-
-                    keterangan :
-                        "Keterangan"
-
-                };
-
-
-                return (
-
-                    labels[field] ??
-
-                    field
-
-                );
-
-            },
-
-
-        /* =============================================
+        /* =========================================
            FIELD CONFIG
-        ============================================= */
+        ========================================= */
 
         getFieldConfig :
 
-            (field, record, values) => {
+            (
+
+                field,
+
+                record
+
+            ) => {
 
                 switch(
 
@@ -1028,7 +1378,11 @@ export function openFinancialEditRow(){
 
                             required :
 
-                                true
+                                true,
+
+                            placeholder :
+
+                                "Pilih jenis transaksi"
 
                         };
 
@@ -1047,17 +1401,23 @@ export function openFinancialEditRow(){
 
                             options :
 
-                                getActivityByType(
+                                values =>
 
-                                    values?.jenis ??
+                                    getActivityByType(
 
-                                    record?.jenis
+                                        values?.jenis ??
 
-                                ),
+                                        record?.jenis
+
+                                    ),
 
                             required :
 
-                                true
+                                true,
+
+                            placeholder :
+
+                                "Pilih aktivitas"
 
                         };
 
@@ -1073,6 +1433,18 @@ export function openFinancialEditRow(){
                             type :
 
                                 "number",
+
+                            required :
+
+                                true,
+
+                            min :
+
+                                0,
+
+                            step :
+
+                                "any",
 
                             placeholder :
 
@@ -1109,61 +1481,19 @@ export function openFinancialEditRow(){
             },
 
 
-        /* =============================================
+        /* =========================================
            FIELD ORDER
-        ============================================= */
+        ========================================= */
 
         getFieldOrder :
 
-            () => [
+            record => {
 
-                "id",
+                const preferred = [
 
-                "tanggal",
+                    "id",
 
-                "jenis",
-
-                "type",
-
-                "nominal",
-
-                "keterangan"
-
-            ],
-
-
-        /* =============================================
-           LOCKED FIELD
-        ============================================= */
-
-        isFieldLocked :
-
-            field => {
-
-                return (
-
-                    field ===
-
-                    "id" ||
-
-                    field ===
-
-                    "tanggal"
-
-                );
-
-            },
-
-
-        /* =============================================
-           EDITABLE FIELD
-        ============================================= */
-
-        isFieldEditable :
-
-            field => {
-
-                return [
+                    "tanggal",
 
                     "jenis",
 
@@ -1173,200 +1503,302 @@ export function openFinancialEditRow(){
 
                     "keterangan"
 
-                ].includes(
+                ];
 
-                    field
 
-                );
+                const existing =
+
+                    Object.keys(
+
+                        record ||
+
+                        {}
+
+                    );
+
+
+                return [
+
+                    ...preferred.filter(
+
+                        field =>
+
+                            existing.includes(
+
+                                field
+
+                            )
+
+                    ),
+
+                    ...existing.filter(
+
+                        field =>
+
+                            !preferred.includes(
+
+                                field
+
+                            )
+
+                    )
+
+                ];
 
             },
 
 
-        /* =============================================
+        /* =========================================
            DETAIL
-        ============================================= */
+        ========================================= */
 
         renderDetail :
 
             record => {
 
-                const id =
+                return {
 
-                    escapeHTML(
+                    title :
 
-                        record?.id ??
+                        "Informasi Transaksi",
 
-                        "-"
+                    items : [
 
-                    );
+                        {
 
+                            label :
 
-                const tanggal =
+                                "ID",
 
-                    escapeHTML(
+                            value :
 
-                        record?.tanggal ??
+                                String(
 
-                        "-"
+                                    record?.id ??
 
-                    );
+                                    "-"
 
+                                ),
 
-                const jenis =
+                            locked :
 
-                    escapeHTML(
+                                true
 
-                        formatFinancialValue(
-
-                            record?.jenis
-
-                        )
-
-                    );
+                        },
 
 
-                const activity =
+                        {
 
-                    escapeHTML(
+                            label :
 
-                        formatActivity(
+                                "Tanggal",
 
-                            record?.type
+                            value :
 
-                        )
+                                String(
 
-                    );
+                                    record?.tanggal ??
 
+                                    "-"
 
-                return `
+                                ),
 
-                    <div class="global-edit-row-detail">
+                            locked :
 
-                        <div>
+                                true
 
-                            <span>ID</span>
-
-                            <strong>
-
-                                ${id}
-
-                            </strong>
-
-                        </div>
+                        },
 
 
-                        <div>
+                        {
 
-                            <span>Tanggal</span>
+                            label :
 
-                            <strong>
+                                "Jenis Transaksi",
 
-                                ${tanggal}
+                            value :
 
-                            </strong>
+                                formatFinancialValue(
 
-                        </div>
+                                    record?.jenis
 
+                                )
 
-                        <div>
-
-                            <span>Jenis Transaksi</span>
-
-                            <strong>
-
-                                ${jenis}
-
-                            </strong>
-
-                        </div>
+                        },
 
 
-                        <div>
+                        {
 
-                            <span>Aktivitas</span>
+                            label :
 
-                            <strong>
+                                "Aktivitas",
 
-                                ${activity}
+                            value :
 
-                            </strong>
+                                formatActivity(
 
-                        </div>
+                                    record?.type
 
-                    </div>
+                                )
 
-                `;
+                        },
+
+
+                        {
+
+                            label :
+
+                                "Nominal",
+
+                            value :
+
+                                formatNominal(
+
+                                    record?.nominal
+
+                                )
+
+                        },
+
+
+                        {
+
+                            label :
+
+                                "Keterangan",
+
+                            value :
+
+                                String(
+
+                                    record?.keterangan ??
+
+                                    "-"
+
+                                )
+
+                        }
+
+                    ]
+
+                };
 
             },
 
 
-        /* =============================================
-           VALIDATION
-        ============================================= */
+        /* =========================================
+           VALIDATE
+        ========================================= */
 
         validate :
 
-            (record, values) => {
+            (
+
+                record,
+
+                values,
+
+                context
+
+            ) => {
 
                 if(
 
-                    !values
+                    !record
 
                 ){
 
-                    return {
+                    return false;
 
-                        valid :
+                }
 
-                            false,
 
-                        message :
+                const id =
 
-                            "Data tidak ditemukan."
+                    String(
 
-                    };
+                        record?.id ??
+
+                        ""
+
+                    ).trim();
+
+
+                const tanggal =
+
+                    String(
+
+                        record?.tanggal ??
+
+                        ""
+
+                    ).trim();
+
+
+                if(
+
+                    !id
+
+                ){
+
+                    console.error(
+
+                        "[Financial EditRow] ID kosong."
+
+                    );
+
+                    return false;
 
                 }
 
 
                 if(
 
-                    !values.jenis
+                    !tanggal
 
                 ){
 
-                    return {
+                    console.error(
 
-                        valid :
+                        "[Financial EditRow] Tanggal kosong."
 
-                            false,
+                    );
 
-                        message :
-
-                            "Jenis Transaksi wajib dipilih."
-
-                    };
+                    return false;
 
                 }
 
 
                 if(
 
-                    !values.type
+                    !values?.jenis
 
                 ){
 
-                    return {
+                    console.error(
 
-                        valid :
+                        "[Financial EditRow] Jenis transaksi kosong."
 
-                            false,
+                    );
 
-                        message :
+                    return false;
 
-                            "Aktivitas wajib dipilih."
+                }
 
-                    };
+
+                if(
+
+                    !values?.type
+
+                ){
+
+                    console.error(
+
+                        "[Financial EditRow] Aktivitas kosong."
+
+                    );
+
+                    return false;
 
                 }
 
@@ -1375,7 +1807,7 @@ export function openFinancialEditRow(){
 
                     Number(
 
-                        values.nominal
+                        values?.nominal
 
                     );
 
@@ -1392,43 +1824,188 @@ export function openFinancialEditRow(){
 
                 ){
 
-                    return {
+                    console.error(
 
-                        valid :
+                        "[Financial EditRow] Nominal tidak valid."
 
-                            false,
+                    );
 
-                        message :
-
-                            "Nominal harus lebih dari 0."
-
-                    };
+                    return false;
 
                 }
 
 
-                return {
+                /*
+                   Pastikan activity memang
+                   tersedia untuk jenis transaksi
+                   yang dipilih.
+                */
 
-                    valid :
+                const activities =
 
-                        true
+                    getActivityByType(
 
-                };
+                        values.jenis
+
+                    );
+
+
+                const validActivity =
+
+                    activities.some(
+
+                        option =>
+
+                            String(
+
+                                option.value
+
+                            ) ===
+
+                            String(
+
+                                values.type
+
+                            )
+
+                    );
+
+
+                if(
+
+                    !validActivity
+
+                ){
+
+                    console.error(
+
+                        "[Financial EditRow] " +
+                        "Aktivitas tidak sesuai " +
+                        "dengan jenis transaksi."
+
+                    );
+
+                    return false;
+
+                }
+
+
+                return true;
 
             },
 
 
-        /* =============================================
+        /* =========================================
+           STAGING
+        ========================================= */
+
+        onAdd :
+
+            async (
+
+                record,
+
+                values,
+
+                changes
+
+            ) => {
+
+                console.log(
+
+                    "===== FINANCIAL EDIT ROW STAGE ====="
+
+                );
+
+
+                console.log(
+
+                    "Record:",
+
+                    record
+
+                );
+
+
+                console.log(
+
+                    "Values:",
+
+                    values
+
+                );
+
+
+                console.log(
+
+                    "Changes:",
+
+                    changes
+
+                );
+
+
+                /*
+                   Tidak ada Apps Script.
+
+                   Staging sepenuhnya ditangani
+                   oleh Global EditRow.
+                */
+
+                return true;
+
+            },
+
+
+        /* =========================================
+           REMOVE
+        ========================================= */
+
+        onRemove :
+
+            item => {
+
+                console.log(
+
+                    "===== FINANCIAL EDIT ROW REMOVE =====",
+
+                    item
+
+                );
+
+
+                return true;
+
+            },
+
+
+        /* =========================================
            PENDING LABEL
-        ============================================= */
+        ========================================= */
 
         getPendingLabel :
 
-            (record, changes) => {
+            item => {
+
+                const record =
+
+                    item?.record ??
+
+                    {};
+
+
+                const changes =
+
+                    item?.changes ??
+
+                    {};
+
 
                 const jenis =
 
                     formatFinancialValue(
+
+                        changes?.values?.jenis ??
 
                         changes?.jenis ??
 
@@ -1441,6 +2018,8 @@ export function openFinancialEditRow(){
 
                     formatActivity(
 
+                        changes?.values?.type ??
+
                         changes?.type ??
 
                         record?.type
@@ -1448,73 +2027,99 @@ export function openFinancialEditRow(){
                     );
 
 
-                return `${
+                const tanggal =
 
-                    jenis
+                    String(
 
-                } · ${
+                        record?.tanggal ??
 
-                    activity
+                        ""
 
-                }`;
+                    ).trim();
+
+
+                const main =
+
+                    jenis !== "-"
+
+                        ?
+
+                        jenis
+
+                        :
+
+                        "Financial";
+
+
+                const detail =
+
+                    activity !== "-"
+
+                        ?
+
+                        activity
+
+                        :
+
+                        "";
+
+
+                if(
+
+                    detail &&
+
+                    tanggal
+
+                ){
+
+                    return `${
+
+                        main
+
+                    } · ${
+
+                        detail
+
+                    } · ${
+
+                        tanggal
+
+                    }`;
+
+                }
+
+
+                if(
+
+                    detail
+
+                ){
+
+                    return `${
+
+                        main
+
+                    } · ${
+
+                        detail
+
+                    }`;
+
+                }
+
+
+                return main;
 
             },
 
 
-        /* =============================================
-           ADD
-           Tidak menyentuh Apps Script.
-           Semua perubahan tetap lokal sampai
-           Konfirmasi.
-        ============================================= */
-
-        onAdd :
-
-            () => {
-
-                return true;
-
-            },
-
-
-        /* =============================================
-           REMOVE
-        ============================================= */
-
-        onRemove :
-
-            () => {
-
-                return true;
-
-            },
-
-
-        /* =============================================
-           CONFIRM
-           Update dilakukan oleh Global EditRow.
-        ============================================= */
-
-        onConfirm :
-
-            pending => {
-
-                return EditRow.confirm(
-
-                    pending
-
-                );
-
-            },
-
-
-        /* =============================================
+        /* =========================================
            UI TEXT
-        ============================================= */
+        ========================================= */
 
         listTitle :
 
-            "Data Financial",
+            "Daftar Transaksi",
 
 
         searchPlaceholder :
@@ -1522,14 +2127,59 @@ export function openFinancialEditRow(){
             "Cari ID, tanggal, aktivitas...",
 
 
-        addButtonText :
+        emptyText :
+
+            "Tidak ada transaksi yang dapat diedit.",
+
+
+        addText :
 
             "Tambahkan",
 
 
-        confirmButtonText :
+        confirmText :
 
-            "Konfirmasi"
+            "Konfirmasi",
+
+
+        removeText :
+
+            "Hapus",
+
+
+        pendingTitle :
+
+            "Sudah Ditambahkan",
+
+
+        addedText :
+
+            "Sudah Ditambahkan",
+
+
+        duplicateText :
+
+            "Transaksi ini sudah ditambahkan.",
+
+
+        confirmLoadingText :
+
+            "Menyimpan...",
+
+
+        fullscreen :
+
+            true,
+
+
+        allowBackdropClose :
+
+            true,
+
+
+        allowEscapeClose :
+
+            true
 
     });
 
@@ -1708,6 +2358,39 @@ export function debugFinancialInput(){
             Financial
 
     };
+
+}
+
+
+/* =====================================================
+   NORMALIZE VALUE
+===================================================== */
+
+function normalizeValue(
+
+    value
+
+){
+
+    return String(
+
+        value ??
+
+        ""
+
+    )
+
+        .trim()
+
+        .toLowerCase()
+
+        .replace(
+
+            /[\s-]+/g,
+
+            "_"
+
+        );
 
 }
 
