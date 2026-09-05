@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Financial
    File         : financial.js
-   Version      : 1.2.2
+   Version      : 1.2.3
 
    Description :
    Input Flow Configuration for Financial
@@ -35,8 +35,8 @@
 
    Edit Row :
    - Menggunakan Global EditRow Engine.
-   - Target record berdasarkan ID + Tanggal.
-   - ID dan Tanggal dikunci.
+   - Target record berdasarkan ID + Date.
+   - ID dan Date dikunci.
    - Control mengikuti struktur Input Financial.
    - Select mempertahankan canonical value.
    - Field hasil proses / field tambahan tidak diedit.
@@ -139,7 +139,7 @@ const TYPE_LABEL = {
    Normal Input Financial yang boleh diedit
    melalui Edit Row.
 
-   ID + Tanggal tetap dikunci oleh Global EditRow.
+   ID + Date tetap dikunci oleh Global EditRow.
 
    Field lain yang mungkin terdapat pada row
    karena hasil proses / kolom tambahan Sheet
@@ -558,15 +558,6 @@ export const Financial = {
 
     /* =================================================
        PREFIX
-    =================================================
-
-       Digunakan oleh Global Input Controller
-       untuk membuat ID transaksi.
-
-       Contoh :
-
-           FIN-XXXXXXXX
-
     ================================================= */
 
     prefix :
@@ -804,7 +795,7 @@ export const Financial = {
 
    - source data
    - ID
-   - Tanggal
+   - Date
    - label
    - tipe field
    - option field
@@ -948,6 +939,11 @@ async function openEditRow(){
 
             record => {
 
+                /*
+                   Semua workspace menggunakan
+                   field ID huruf kecil.
+                */
+
                 return "id";
 
             },
@@ -957,7 +953,26 @@ async function openEditRow(){
 
             record => {
 
-                return "tanggal";
+                /*
+                   🔧 FIX DATE FINANCIAL
+
+                   Financial menggunakan:
+
+                       id
+                       Date
+
+                   BUKAN:
+
+                       tanggal
+
+                   Karena EditRow menggunakan
+                   getDateField() sebagai target
+                   Update Row, field ini harus
+                   benar-benar sama dengan nama
+                   kolom Sheet.
+                */
+
+                return "Date";
 
             },
 
@@ -999,13 +1014,15 @@ async function openEditRow(){
 
 
                 /*
-                   ID dan Tanggal selalu
+                   ID dan Date selalu
                    dikunci oleh Global EditRow.
                 */
 
                 if(
 
                     normalized === "id" ||
+
+                    normalized === "date" ||
 
                     normalized === "tanggal"
 
@@ -1167,11 +1184,18 @@ async function openEditRow(){
 
             record => {
 
+                /*
+                   🔧 FIX DATE FINANCIAL
+
+                   Ambil tanggal dari kolom
+                   Sheet bernama Date.
+                */
+
                 const tanggal =
 
                     String(
 
-                        record?.tanggal ??
+                        record?.Date ??
 
                         ""
 
@@ -1273,11 +1297,18 @@ async function openEditRow(){
 
             record => {
 
+                /*
+                   🔧 FIX DATE FINANCIAL
+
+                   Search juga menggunakan
+                   kolom Date.
+                */
+
                 return [
 
                     record?.id,
 
-                    record?.tanggal,
+                    record?.Date,
 
                     record?.jenis,
 
@@ -1434,6 +1465,8 @@ async function openEditRow(){
 
                         return "ID";
 
+
+                    case "date":
 
                     case "tanggal":
 
@@ -1635,19 +1668,24 @@ async function openEditRow(){
             record => {
 
                 /*
-                   Field input Financial selalu
-                   ditampilkan dalam urutan yang
-                   sama dengan Normal Input.
+                   🔧 FIX DATE FINANCIAL
 
-                   Field lain tidak dimasukkan
-                   ke area edit.
+                   Financial memakai kolom:
+
+                       id
+                       Date
+
+                   bukan:
+
+                       id
+                       tanggal
                 */
 
                 return [
 
                     "id",
 
-                    "tanggal",
+                    "Date",
 
                     "jenis",
 
@@ -1683,6 +1721,12 @@ async function openEditRow(){
         renderDetail :
 
             record => {
+
+                /*
+                   🔧 FIX DATE FINANCIAL
+
+                   Detail membaca record.Date.
+                */
 
                 return {
 
@@ -1725,7 +1769,7 @@ async function openEditRow(){
 
                                 String(
 
-                                    record?.tanggal ??
+                                    record?.Date ??
 
                                     "-"
 
@@ -1877,21 +1921,45 @@ async function openEditRow(){
                    TANGGAL
                 ================================= */
 
+                /*
+                   🔧 FIX DATE FINANCIAL
+
+                   Prioritas utama Financial adalah
+                   kolom Sheet "Date".
+
+                   date/tanggal tetap diterima
+                   sebagai fallback agar validator
+                   tidak terlalu sensitif terhadap
+                   bentuk data.
+                */
+
                 const tanggal =
-    record.Date ??
-    record.date ??
-    record.tanggal ??
-    "";
 
-if (!tanggal) {
+                    record?.Date ??
 
-    console.warn(
-        "[Financial EditRow] Tanggal kosong."
-    );
+                    record?.date ??
 
-    return false;
+                    record?.tanggal ??
 
-}
+                    "";
+
+
+                if(
+
+                    !tanggal
+
+                ){
+
+                    console.warn(
+
+                        "[Financial EditRow] Tanggal kosong."
+
+                    );
+
+                    return false;
+
+                }
+
 
                 /* =================================
                    JENIS
@@ -2178,11 +2246,18 @@ if (!tanggal) {
                     );
 
 
+                /*
+                   🔧 FIX DATE FINANCIAL
+
+                   Pending label menggunakan
+                   record.Date.
+                */
+
                 const tanggal =
 
                     String(
 
-                        record?.tanggal ??
+                        record?.Date ??
 
                         ""
 
