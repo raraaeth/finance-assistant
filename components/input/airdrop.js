@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.7.0
+   Version      : 4.8.0
 
    Description :
    Airdrop Input Configuration
@@ -43,7 +43,15 @@
 
    EDIT INPUT REWARD :
 
-   User memilih project
+   Saat overlay dibuka :
+        ↓
+   Daftar project langsung tampil
+        ↓
+   Project terbaru berada di atas
+        ↓
+   User tap project
+        ↓
+   Detail project tampil
         ↓
    pilih Status
         ↓
@@ -53,7 +61,7 @@
         ↓
    UpdateData temporary state
         ↓
-   pilih project lain
+   pilih project lain dari daftar
         ↓
    Tambahkan lagi
         ↓
@@ -79,8 +87,11 @@
 
    EDIT UI :
    - Ditangani oleh global updatedata.js.
-   - Custom picker, bukan native Android select.
+   - Daftar record langsung tampil saat overlay dibuka.
+   - Tidak menggunakan picker / dropdown untuk memilih record.
+   - Custom searchable record list.
    - Full-screen overlay.
+   - Daftar internal scrollable.
    - Mendukung multi-project batch.
    - Apps Script hanya dipanggil saat Konfirmasi.
 
@@ -122,7 +133,7 @@ import {
 
    updatedata.js :
    - UI Edit Input global
-   - custom picker
+   - direct record list
    - selected detail
    - fields
    - Tambahkan
@@ -1408,6 +1419,467 @@ export function getRewardRecords(){
 
 
 /* =====================================================
+   GET REWARD RECORDS - LATEST FIRST
+===================================================== */
+
+/*
+   Edit Reward menampilkan daftar secara langsung.
+
+   Prioritas :
+   - Record dengan tanggal terbaru berada di atas.
+   - Record tanpa tanggal valid tetap ditampilkan.
+   - Jika tanggal tidak dapat dibandingkan,
+     urutan sumber dipertahankan.
+
+   Beberapa sumber data dapat menggunakan
+   nama field tanggal yang berbeda, sehingga
+   helper dibuat cukup fleksibel tanpa
+   mengubah data aslinya.
+*/
+
+export function getRewardRecordsLatestFirst(){
+
+    const records =
+
+        getRewardRecords();
+
+
+    if(
+
+        !Array.isArray(
+
+            records
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return records
+
+        .map(
+
+            (
+
+                record,
+
+                index
+
+            ) => ({
+
+                record :
+
+                    record,
+
+
+                index :
+
+                    index,
+
+
+                timestamp :
+
+                    getRecordTimestamp(
+
+                        record
+
+                    )
+
+            })
+
+        )
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            ) => {
+
+                const aTime =
+
+                    a.timestamp;
+
+
+                const bTime =
+
+                    b.timestamp;
+
+
+                /* =================================
+                   Keduanya tidak punya tanggal
+                ================================= */
+
+                if(
+
+                    aTime === null &&
+
+                    bTime === null
+
+                ){
+
+                    return (
+
+                        a.index -
+
+                        b.index
+
+                    );
+
+                }
+
+
+                /* =================================
+                   A tidak punya tanggal
+                ================================= */
+
+                if(
+
+                    aTime === null
+
+                ){
+
+                    return 1;
+
+                }
+
+
+                /* =================================
+                   B tidak punya tanggal
+                ================================= */
+
+                if(
+
+                    bTime === null
+
+                ){
+
+                    return -1;
+
+                }
+
+
+                /* =================================
+                   Terbaru ke terlama
+                ================================= */
+
+                if(
+
+                    bTime !== aTime
+
+                ){
+
+                    return (
+
+                        bTime -
+
+                        aTime
+
+                    );
+
+                }
+
+
+                /* =================================
+                   Jika tanggal sama,
+                   pertahankan urutan sumber
+                ================================= */
+
+                return (
+
+                    a.index -
+
+                    b.index
+
+                );
+
+            }
+
+        )
+
+        .map(
+
+            item =>
+
+                item.record
+
+        );
+
+}
+
+
+/* =====================================================
+   GET RECORD TIMESTAMP
+===================================================== */
+
+/*
+   Tidak mengubah record.
+
+   Hanya mencari field tanggal/waktu
+   yang tersedia untuk kebutuhan sorting
+   daftar Edit Reward.
+*/
+
+function getRecordTimestamp(
+
+    record
+
+){
+
+    if(
+
+        !record ||
+
+        typeof record !== "object"
+
+    ){
+
+        return null;
+
+    }
+
+
+    const candidates = [
+
+        record.tanggal,
+
+        record.date,
+
+        record.datetime,
+
+        record.createdAt,
+
+        record.created_at,
+
+        record.timestamp,
+
+        record.time
+
+    ];
+
+
+    for(
+
+        const value of candidates
+
+    ){
+
+        if(
+
+            value === null ||
+
+            value === undefined ||
+
+            String(
+
+                value
+
+            ).trim() === ""
+
+        ){
+
+            continue;
+
+        }
+
+
+        const parsed =
+
+            parseRecordDate(
+
+                value
+
+            );
+
+
+        if(
+
+            parsed !== null
+
+        ){
+
+            return parsed;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   PARSE RECORD DATE
+===================================================== */
+
+function parseRecordDate(
+
+    value
+
+){
+
+    if(
+
+        value instanceof Date
+
+    ){
+
+        const time =
+
+            value.getTime();
+
+
+        return Number.isFinite(
+
+            time
+
+        )
+
+            ? time
+
+            : null;
+
+    }
+
+
+    const text =
+
+        String(
+
+            value
+
+        ).trim();
+
+
+    if(
+
+        !text
+
+    ){
+
+        return null;
+
+    }
+
+
+    /*
+       Format YYYY-MM-DD
+       dibuat eksplisit agar tidak bergantung
+       pada parsing browser yang berbeda.
+    */
+
+    const dateOnlyMatch =
+
+        text.match(
+
+            /^(\d{4})-(\d{1,2})-(\d{1,2})$/
+
+        );
+
+
+    if(
+
+        dateOnlyMatch
+
+    ){
+
+        const year =
+
+            Number(
+
+                dateOnlyMatch[1]
+
+            );
+
+
+        const month =
+
+            Number(
+
+                dateOnlyMatch[2]
+
+            );
+
+
+        const day =
+
+            Number(
+
+                dateOnlyMatch[3]
+
+            );
+
+
+        const date =
+
+            new Date(
+
+                year,
+
+                month - 1,
+
+                day
+
+            );
+
+
+        const time =
+
+            date.getTime();
+
+
+        return Number.isFinite(
+
+            time
+
+        )
+
+            ? time
+
+            : null;
+
+    }
+
+
+    const parsed =
+
+        Date.parse(
+
+            text
+
+        );
+
+
+    if(
+
+        Number.isFinite(
+
+            parsed
+
+        )
+
+    ){
+
+        return parsed;
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
    NORMALIZE STATUS
 ===================================================== */
 
@@ -2614,25 +3086,57 @@ export function getStatusLabel(
    Semua UI Edit Reward ditangani
    oleh components/input/updatedata.js.
 
-   Airdrop hanya menyediakan adapter :
+   Konsep UI :
 
-   - records
-   - identity
-   - label
-   - metadata
-   - detail
-   - fields
-   - validation
-   - build changes
-   - staging
-   - removal
-   - confirmation
+   Saat dibuka :
 
-   Tidak ada request Apps Script
-   ketika user memilih project.
+       ┌─────────────────────────────┐
+       │ Edit Input Reward           │
+       │                             │
+       │ Cari project...             │
+       │                             │
+       │ ┌─────────────────────────┐ │
+       │ │ Project terbaru          │ │
+       │ │ Type · Status            │ │
+       │ ├─────────────────────────┤ │
+       │ │ Project berikutnya       │ │
+       │ │ Type · Status            │ │
+       │ ├─────────────────────────┤ │
+       │ │ Project berikutnya       │ │
+       │ │ Type · Status            │ │
+       │ └─────────────────────────┘ │
+       │                             │
+       │ Detail / Edit Fields        │
+       │                             │
+       │ Tambahkan                   │
+       │                             │
+       │ Sudah Ditambahkan           │
+       │                             │
+       │ Konfirmasi                  │
+       └─────────────────────────────┘
 
-   Tidak ada request Apps Script
-   ketika user menekan Tambahkan.
+   Tidak ada :
+
+       [Pilih Project ▼]
+
+   User langsung melihat daftar
+   project yang dapat diedit.
+
+   Daftar project :
+   - ongoing
+   - ended
+
+   Tidak menampilkan :
+   - win
+   - not_win
+
+   Pemilihan project hanya mengubah
+   state UI.
+
+   Tidak ada Apps Script request
+   ketika project dipilih.
+
+   Tambahkan hanya melakukan staging.
 
    Apps Script hanya dipanggil oleh :
 
@@ -2670,6 +3174,19 @@ async function openEditReward(){
             :
 
             getRewardRecords();
+
+
+    /* =============================================
+       SORT LATEST FIRST
+    ============================================= */
+
+    const sortedRecords =
+
+        getRewardRecordsLatestFirstFrom(
+
+            records
+
+        );
 
 
     /* =============================================
@@ -2746,16 +3263,29 @@ async function openEditReward(){
 
         subtitle :
 
-            "Pilih project lalu tentukan hasil reward.",
+            "Pilih project dari daftar untuk mengubah hasil reward.",
 
 
         /* =========================================
-           DATA SOURCE
+           DIRECT RECORD LIST
         ========================================= */
+
+        /*
+           UpdateData versi direct-list akan
+           langsung merender records di dalam
+           overlay.
+
+           Tidak menggunakan picker button.
+        */
+
+        listTitle :
+
+            "Daftar Project",
+
 
         records :
 
-            records,
+            sortedRecords,
 
 
         /* =========================================
@@ -3147,6 +3677,13 @@ async function openEditReward(){
         /* =========================================
            SELECT CALLBACK
         ========================================= */
+
+        /*
+           Dipanggil ketika user mengetuk
+           salah satu item daftar.
+
+           Tidak ada request Apps Script.
+        */
 
         onSelect :
 
@@ -3592,13 +4129,15 @@ async function openEditReward(){
 
 
         /* =========================================
-           PLACEHOLDER
+           SEARCH
         ========================================= */
 
-        pickerPlaceholder :
+        /*
+           Search tetap tersedia sebagai input
+           biasa di atas daftar.
 
-            "Pilih Project",
-
+           Search bukan picker/dropdown.
+        */
 
         searchPlaceholder :
 
@@ -3661,10 +4200,14 @@ async function openEditReward(){
             true,
 
 
-        customPicker :
+        /*
+           customPicker sengaja tidak lagi
+           digunakan sebagai mekanisme pemilihan
+           record.
 
-            true,
-
+           Property tetap tidak diperlukan
+           oleh konsep direct-list.
+        */
 
         allowBackdropClose :
 
@@ -3676,6 +4219,176 @@ async function openEditReward(){
             true
 
     });
+
+}
+
+
+/* =====================================================
+   GET REWARD RECORDS LATEST FIRST FROM
+===================================================== */
+
+/*
+   openEditReward() menggunakan helper ini
+   supaya data dari Reward.getRecords()
+   juga tetap dapat diurutkan.
+
+   Fungsi getRewardRecordsLatestFirst()
+   tetap tersedia sebagai public helper
+   untuk kebutuhan lain.
+*/
+
+function getRewardRecordsLatestFirstFrom(
+
+    records
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            records
+
+        )
+
+    ){
+
+        return [];
+
+    }
+
+
+    return records
+
+        .map(
+
+            (
+
+                record,
+
+                index
+
+            ) => ({
+
+                record :
+
+                    record,
+
+
+                index :
+
+                    index,
+
+
+                timestamp :
+
+                    getRecordTimestamp(
+
+                        record
+
+                    )
+
+            })
+
+        )
+
+        .sort(
+
+            (
+
+                a,
+
+                b
+
+            ) => {
+
+                const aTime =
+
+                    a.timestamp;
+
+
+                const bTime =
+
+                    b.timestamp;
+
+
+                if(
+
+                    aTime === null &&
+
+                    bTime === null
+
+                ){
+
+                    return (
+
+                        a.index -
+
+                        b.index
+
+                    );
+
+                }
+
+
+                if(
+
+                    aTime === null
+
+                ){
+
+                    return 1;
+
+                }
+
+
+                if(
+
+                    bTime === null
+
+                ){
+
+                    return -1;
+
+                }
+
+
+                if(
+
+                    bTime !== aTime
+
+                ){
+
+                    return (
+
+                        bTime -
+
+                        aTime
+
+                    );
+
+                }
+
+
+                return (
+
+                    a.index -
+
+                    b.index
+
+                );
+
+            }
+
+        )
+
+        .map(
+
+            item =>
+
+                item.record
+
+        );
 
 }
 
