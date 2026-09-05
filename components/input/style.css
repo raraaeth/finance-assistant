@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : style.css
-   Version      : 7.2.0
+   Version      : 7.3.0
 
    Description :
    Reusable Global Input Overlay
@@ -779,18 +779,10 @@ body.input-open {
 }
 
 
-/* =====================================================
-   SELECT HAS VALUE
-===================================================== */
-
 .global-input-custom-select.has-value {
     color: #263f3c;
 }
 
-
-/* =====================================================
-   VALUE
-===================================================== */
 
 .global-input-custom-value {
     flex: 1;
@@ -802,10 +794,6 @@ body.input-open {
     white-space: nowrap;
 }
 
-
-/* =====================================================
-   ARROW
-===================================================== */
 
 .global-input-custom-arrow {
     flex-shrink: 0;
@@ -864,19 +852,11 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PICKER OPEN
-===================================================== */
-
 .global-input-picker.is-open {
     visibility: visible;
     opacity: 1;
 }
 
-
-/* =====================================================
-   PICKER BACKDROP
-===================================================== */
 
 .global-input-picker-backdrop {
     position: absolute;
@@ -885,10 +865,6 @@ body.input-open {
     background: rgba(0, 0, 0, .38);
 }
 
-
-/* =====================================================
-   PICKER PANEL
-===================================================== */
 
 .global-input-picker-panel {
     position: relative;
@@ -923,10 +899,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PICKER HEADER
-===================================================== */
-
 .global-input-picker-header {
     min-height: 64px;
 
@@ -942,10 +914,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PICKER TITLE
-===================================================== */
-
 .global-input-picker-header strong {
     color: #263f3c;
 
@@ -953,10 +921,6 @@ body.input-open {
     line-height: 1.3;
 }
 
-
-/* =====================================================
-   PICKER CLOSE
-===================================================== */
 
 .global-input-picker-close {
     width: 40px;
@@ -979,10 +943,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   OPTION LIST
-===================================================== */
-
 .global-input-picker-list {
     max-height: calc(75vh - 64px);
 
@@ -991,10 +951,6 @@ body.input-open {
     overscroll-behavior: contain;
 }
 
-
-/* =====================================================
-   OPTION
-===================================================== */
 
 .global-input-picker-option {
     position: relative;
@@ -1028,27 +984,15 @@ body.input-open {
 }
 
 
-/* =====================================================
-   OPTION HOVER
-===================================================== */
-
 .global-input-picker-option:hover {
     background: #f4f7f6;
 }
 
 
-/* =====================================================
-   OPTION SELECTED
-===================================================== */
-
 .global-input-picker-option.selected {
     background: #f0f5f4;
 }
 
-
-/* =====================================================
-   OPTION CONTENT
-===================================================== */
 
 .global-input-picker-option-content {
     min-width: 0;
@@ -1057,10 +1001,6 @@ body.input-open {
     line-height: 1.4;
 }
 
-
-/* =====================================================
-   OPTION RADIO
-===================================================== */
 
 .global-input-picker-radio {
     width: 28px;
@@ -1085,10 +1025,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   OPTION NOTE
-===================================================== */
-
 .global-input-picker-option-note {
     grid-column: 1 / -1;
 
@@ -1102,8 +1038,7 @@ body.input-open {
 
 
 /* =====================================================
-   PAYROLL MONTHLY
-   CONDITION CHECKBOX
+   PAYROLL MONTHLY CONDITION
 ===================================================== */
 
 .global-input-condition-list {
@@ -1120,10 +1055,6 @@ body.input-open {
     margin-top: 4px;
 }
 
-
-/* =====================================================
-   CONDITION ITEM
-===================================================== */
 
 .global-input-condition-item {
     display: flex;
@@ -1142,10 +1073,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   CONDITION LABEL
-===================================================== */
-
 .global-input-condition-item span {
     order: 1;
 
@@ -1153,10 +1080,6 @@ body.input-open {
     min-width: 0;
 }
 
-
-/* =====================================================
-   CHECKBOX
-===================================================== */
 
 .global-input-condition-item input[type="checkbox"] {
     order: 2;
@@ -1173,10 +1096,6 @@ body.input-open {
     appearance: auto;
 }
 
-
-/* =====================================================
-   CONDITION NOTE
-===================================================== */
 
 .global-input-condition-list
 + .global-input-field-note {
@@ -1197,10 +1116,6 @@ body.input-open {
     width: 100%;
 }
 
-
-/* =====================================================
-   EDIT INPUT ITEM
-===================================================== */
 
 .global-edit-input-item {
     width: 100%;
@@ -1233,10 +1148,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   EDIT INPUT LEFT
-===================================================== */
-
 .global-edit-input-item-left {
     display: flex;
     align-items: center;
@@ -1246,10 +1157,6 @@ body.input-open {
     min-width: 0;
 }
 
-
-/* =====================================================
-   EDIT INPUT ICON
-===================================================== */
 
 .global-edit-input-item-icon {
     width: 48px;
@@ -1270,10 +1177,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   EDIT INPUT CONTENT
-===================================================== */
-
 .global-edit-input-item-content {
     display: flex;
     flex-direction: column;
@@ -1284,10 +1187,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   EDIT INPUT TITLE
-===================================================== */
-
 .global-edit-input-item-title {
     color: #253f3d;
 
@@ -1297,10 +1196,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   EDIT INPUT DESCRIPTION
-===================================================== */
-
 .global-edit-input-item-description {
     color: #7d8988;
 
@@ -1308,10 +1203,6 @@ body.input-open {
     line-height: 1.4;
 }
 
-
-/* =====================================================
-   EDIT INPUT ARROW
-===================================================== */
 
 .global-edit-input-item-arrow {
     flex-shrink: 0;
@@ -1323,10 +1214,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   EDIT INPUT ACTIVE
-===================================================== */
-
 .global-edit-input-item:active {
     background: #f4f7f6;
 
@@ -1335,8 +1222,8 @@ body.input-open {
 
 
 /* =====================================================
-   AIRDROP EDIT INPUT
-   REWARD OVERLAY
+   AIRDROP EDIT REWARD
+   LEGACY COMPATIBILITY
 ===================================================== */
 
 .airdrop-edit-reward-overlay {
@@ -1361,20 +1248,12 @@ body.input-open {
 }
 
 
-/* =====================================================
-   AIRDROP REWARD OVERLAY OPEN
-===================================================== */
-
 .airdrop-edit-reward-overlay.is-open {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
 }
 
-
-/* =====================================================
-   AIRDROP REWARD PANEL
-===================================================== */
 
 .airdrop-edit-reward-panel {
     position: relative;
@@ -1402,19 +1281,11 @@ body.input-open {
 }
 
 
-/* =====================================================
-   AIRDROP REWARD PANEL OPEN
-===================================================== */
-
 .airdrop-edit-reward-overlay.is-open
 .airdrop-edit-reward-panel {
     transform: translateY(0);
 }
 
-
-/* =====================================================
-   AIRDROP REWARD HEADER
-===================================================== */
 
 .airdrop-edit-reward-header {
     display: flex;
@@ -1431,10 +1302,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   AIRDROP REWARD TITLE
-===================================================== */
-
 .airdrop-edit-reward-header h2 {
     margin: 0;
 
@@ -1445,10 +1312,6 @@ body.input-open {
     font-weight: 700;
 }
 
-
-/* =====================================================
-   AIRDROP REWARD CLOSE
-===================================================== */
 
 .airdrop-edit-reward-close {
     width: 40px;
@@ -1480,10 +1343,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   AIRDROP REWARD CONTENT
-===================================================== */
-
 .airdrop-edit-reward-content {
     padding: 20px 24px 28px;
 
@@ -1494,10 +1353,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   AIRDROP REWARD PICKER
-===================================================== */
-
 .airdrop-edit-reward-picker {
     display: flex;
     flex-direction: column;
@@ -1505,10 +1360,6 @@ body.input-open {
     gap: 14px;
 }
 
-
-/* =====================================================
-   PICKER TITLE
-===================================================== */
 
 .airdrop-reward-title {
     margin: 0 0 2px;
@@ -1521,10 +1372,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PROJECT LIST
-===================================================== */
-
 .airdrop-reward-project-list {
     display: flex;
     flex-direction: column;
@@ -1533,10 +1380,6 @@ body.input-open {
 
     width: 100%;
 
-    /*
-       Menampilkan sekitar 5 project.
-       Sisanya dapat discroll.
-    */
     max-height: 350px;
 
     overflow-y: auto;
@@ -1546,10 +1389,6 @@ body.input-open {
     overscroll-behavior: contain;
 }
 
-
-/* =====================================================
-   PROJECT ITEM
-===================================================== */
 
 .airdrop-reward-project {
     width: 100%;
@@ -1593,20 +1432,12 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PROJECT SELECTED
-===================================================== */
-
 .airdrop-reward-project.selected {
     border-color: #2563eb;
 
     background: #eff6ff;
 }
 
-
-/* =====================================================
-   PROJECT NAME
-===================================================== */
 
 .airdrop-reward-project-name {
     min-width: 0;
@@ -1624,10 +1455,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PROJECT META
-===================================================== */
-
 .airdrop-reward-project small {
     flex-shrink: 0;
 
@@ -1637,10 +1464,6 @@ body.input-open {
     line-height: 1.4;
 }
 
-
-/* =====================================================
-   EMPTY PROJECT LIST
-===================================================== */
 
 .airdrop-reward-empty {
     padding: 20px;
@@ -1657,18 +1480,10 @@ body.input-open {
 }
 
 
-/* =====================================================
-   SELECTED CONTAINER
-===================================================== */
-
 .airdrop-edit-reward-selected-container {
     margin-top: 20px;
 }
 
-
-/* =====================================================
-   SELECTED CARD
-===================================================== */
 
 .airdrop-reward-selected {
     display: flex;
@@ -1684,10 +1499,6 @@ body.input-open {
     background: #f9fafb;
 }
 
-
-/* =====================================================
-   SELECTED INFO
-===================================================== */
 
 .airdrop-reward-info {
     display: flex;
@@ -1720,40 +1531,12 @@ body.input-open {
 }
 
 
-/* =====================================================
-   LOCKED INFO
-===================================================== */
-
 .airdrop-reward-info.locked {
     opacity: .75;
 }
 
 
-/* =====================================================
-   STATUS
-===================================================== */
-
-.airdrop-reward-status {
-    display: flex;
-    flex-direction: column;
-
-    gap: 7px;
-}
-
-
-.airdrop-reward-status label {
-    color: #374151;
-
-    font-size: 14px;
-    line-height: 1.4;
-    font-weight: 600;
-}
-
-
-/* =====================================================
-   REWARD AMOUNT
-===================================================== */
-
+.airdrop-reward-status,
 .airdrop-reward-amount {
     display: flex;
     flex-direction: column;
@@ -1762,6 +1545,7 @@ body.input-open {
 }
 
 
+.airdrop-reward-status label,
 .airdrop-reward-amount label {
     color: #374151;
 
@@ -1770,10 +1554,6 @@ body.input-open {
     font-weight: 600;
 }
 
-
-/* =====================================================
-   EDIT REWARD ACTION
-===================================================== */
 
 .airdrop-edit-reward-panel
 .global-input-action-button {
@@ -1798,10 +1578,6 @@ body.input-open {
     font-family: inherit;
 
     cursor: pointer;
-
-    transition:
-        opacity .15s ease,
-        transform .15s ease;
 }
 
 
@@ -1812,16 +1588,6 @@ body.input-open {
     cursor: not-allowed;
 }
 
-
-.airdrop-edit-reward-panel
-.global-input-action-button:not(:disabled):active {
-    transform: scale(.99);
-}
-
-
-/* =====================================================
-   PENDING EDIT SECTION
-===================================================== */
 
 .airdrop-edit-reward-pending {
     display: flex;
@@ -1836,10 +1602,6 @@ body.input-open {
     border-top: 1px solid #e5e7eb;
 }
 
-
-/* =====================================================
-   PENDING TITLE
-===================================================== */
 
 .airdrop-edit-reward-pending-title {
     display: flex;
@@ -1860,10 +1622,6 @@ body.input-open {
     font-weight: 700;
 }
 
-
-/* =====================================================
-   PENDING COUNT
-===================================================== */
 
 .airdrop-edit-reward-pending-count {
     min-width: 28px;
@@ -1887,10 +1645,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PENDING LIST
-===================================================== */
-
 .airdrop-edit-reward-pending-list {
     display: flex;
     flex-direction: column;
@@ -1900,10 +1654,6 @@ body.input-open {
     width: 100%;
 }
 
-
-/* =====================================================
-   PENDING ITEM
-===================================================== */
 
 .airdrop-edit-reward-pending-item {
     display: flex;
@@ -1924,10 +1674,6 @@ body.input-open {
     background: #f9fafb;
 }
 
-
-/* =====================================================
-   PENDING ITEM INFO
-===================================================== */
 
 .airdrop-edit-reward-pending-item-info {
     min-width: 0;
@@ -1958,10 +1704,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   PENDING REMOVE
-===================================================== */
-
 .airdrop-edit-reward-pending-remove {
     flex-shrink: 0;
 
@@ -1983,30 +1725,12 @@ body.input-open {
 }
 
 
-.airdrop-edit-reward-pending-remove:hover {
-    color: #8f4545;
-}
-
-
-.airdrop-edit-reward-pending-remove:active {
-    transform: scale(.96);
-}
-
-
-/* =====================================================
-   CONFIRM EDIT
-===================================================== */
-
 .airdrop-edit-reward-confirm {
     width: 100%;
 
     margin-top: 20px;
 }
 
-
-/* =====================================================
-   CONFIRM BUTTON
-===================================================== */
 
 .airdrop-edit-reward-confirm button {
     width: 100%;
@@ -2028,10 +1752,6 @@ body.input-open {
     font-family: inherit;
 
     cursor: pointer;
-
-    transition:
-        opacity .15s ease,
-        transform .1s ease;
 }
 
 
@@ -2041,15 +1761,6 @@ body.input-open {
     cursor: not-allowed;
 }
 
-
-.airdrop-edit-reward-confirm button:not(:disabled):active {
-    transform: scale(.98);
-}
-
-
-/* =====================================================
-   AIRDROP REWARD SCROLLBAR
-===================================================== */
 
 .airdrop-reward-project-list::-webkit-scrollbar,
 .airdrop-edit-reward-content::-webkit-scrollbar {
@@ -2063,19 +1774,12 @@ body.input-open {
 }
 
 
-.airdrop-reward-project-list::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-
-    background: #d5dddb;
-}
-
-
+.airdrop-reward-project-list::-webkit-scrollbar-thumb,
 .airdrop-edit-reward-content::-webkit-scrollbar-thumb {
     border-radius: 999px;
 
     background: #d5dddb;
 }
-
 
 
 /* =====================================================
@@ -2117,7 +1821,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    BACKDROP
 ===================================================== */
 
@@ -2133,7 +1836,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    PANEL
 ===================================================== */
 
@@ -2157,7 +1859,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    HEADER
 ===================================================== */
 
@@ -2181,11 +1882,6 @@ body.input-open {
     border-bottom: 1px solid #e5e9e8;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   HEADING
-===================================================== */
 
 .global-update-data-heading {
     min-width: 0;
@@ -2219,11 +1915,6 @@ body.input-open {
     overflow-wrap: anywhere;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   CLOSE
-===================================================== */
 
 .global-update-data-close {
     width: 36px;
@@ -2266,7 +1957,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    CONTENT
 ===================================================== */
 
@@ -2290,7 +1980,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    PICKER
 ===================================================== */
 
@@ -2302,11 +1991,6 @@ body.input-open {
     box-sizing: border-box;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PICKER LABEL
-===================================================== */
 
 .global-update-data-picker-label {
     display: block;
@@ -2320,11 +2004,6 @@ body.input-open {
     font-weight: 600;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PICKER BUTTON
-===================================================== */
 
 .global-update-data-picker-button {
     width: 100%;
@@ -2384,11 +2063,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PICKER VALUE
-===================================================== */
-
 .global-update-data-picker-value {
     flex: 1;
     min-width: 0;
@@ -2399,11 +2073,6 @@ body.input-open {
     white-space: nowrap;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PICKER ARROW
-===================================================== */
 
 .global-update-data-picker-arrow {
     flex-shrink: 0;
@@ -2425,7 +2094,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    PICKER PANEL
 ===================================================== */
 
@@ -2449,11 +2117,6 @@ body.input-open {
         0 12px 32px rgba(37, 63, 61, .10);
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PICKER SEARCH
-===================================================== */
 
 .global-update-data-picker-search {
     width: 100%;
@@ -2488,18 +2151,13 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    PICKER LIST
+   Approximately 5 records
 ===================================================== */
 
 .global-update-data-picker-list {
     width: 100%;
 
-    /*
-       Internal scrolling.
-       Approximately 5 records are visible
-       before scrolling is required.
-    */
     max-height: 340px;
 
     overflow-y: auto;
@@ -2510,7 +2168,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    PICKER OPTION
 ===================================================== */
 
@@ -2554,20 +2211,11 @@ body.input-open {
 }
 
 
-.global-update-data-picker-option:active {
-    background: #f0f5f4;
-}
-
-
+.global-update-data-picker-option:active,
 .global-update-data-picker-option.selected {
     background: #f0f5f4;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   OPTION CONTENT
-===================================================== */
 
 .global-update-data-picker-option-content {
     min-width: 0;
@@ -2606,11 +2254,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   OPTION ARROW
-===================================================== */
-
 .global-update-data-picker-option-arrow {
     flex-shrink: 0;
 
@@ -2620,11 +2263,6 @@ body.input-open {
     line-height: 1;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   EMPTY
-===================================================== */
 
 .global-update-data-empty {
     width: 100%;
@@ -2643,7 +2281,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    DETAIL
 ===================================================== */
 
@@ -2655,11 +2292,6 @@ body.input-open {
     box-sizing: border-box;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   DETAIL CARD
-===================================================== */
 
 .global-update-data-detail-card {
     width: 100%;
@@ -2675,11 +2307,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   DETAIL TITLE
-===================================================== */
-
 .global-update-data-detail-title {
     margin: 0 0 14px;
 
@@ -2690,11 +2317,6 @@ body.input-open {
     font-weight: 700;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   DETAIL ROW
-===================================================== */
 
 .global-update-data-detail-row {
     display: flex;
@@ -2744,7 +2366,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    FIELDS
 ===================================================== */
 
@@ -2760,11 +2381,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   FIELD
-===================================================== */
-
 .global-update-data-field {
     display: flex;
     flex-direction: column;
@@ -2775,11 +2391,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   FIELD LABEL
-===================================================== */
-
 .global-update-data-field label {
     color: #667574;
 
@@ -2788,11 +2399,6 @@ body.input-open {
     font-weight: 600;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   FIELD INPUT
-===================================================== */
 
 .global-update-data-field input,
 .global-update-data-field select,
@@ -2850,11 +2456,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   FIELD NOTE
-===================================================== */
-
 .global-update-data-field-note {
     display: block;
 
@@ -2868,8 +2469,7 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
-   CUSTOM SELECT
+   CUSTOM FIELD SELECT
 ===================================================== */
 
 .global-update-data-field-select {
@@ -2955,7 +2555,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    ACTION
 ===================================================== */
 
@@ -2967,11 +2566,6 @@ body.input-open {
     box-sizing: border-box;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   ADD BUTTON
-===================================================== */
 
 .global-update-data-add {
     width: 100%;
@@ -2996,6 +2590,7 @@ body.input-open {
     font-size: 16px;
     line-height: 1.4;
     font-weight: 700;
+
     font-family: inherit;
 
     cursor: pointer;
@@ -3025,7 +2620,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    PENDING
 ===================================================== */
 
@@ -3040,11 +2634,6 @@ body.input-open {
     border-top: 1px solid #e5e9e8;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PENDING HEADER
-===================================================== */
 
 .global-update-data-pending-header {
     display: flex;
@@ -3070,11 +2659,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PENDING COUNT
-===================================================== */
-
 .global-update-data-pending-count {
     min-width: 28px;
     height: 28px;
@@ -3097,11 +2681,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PENDING LIST
-===================================================== */
-
 .global-update-data-pending-list {
     display: flex;
     flex-direction: column;
@@ -3111,11 +2690,6 @@ body.input-open {
     width: 100%;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PENDING ITEM
-===================================================== */
 
 .global-update-data-pending-item {
     width: 100%;
@@ -3136,11 +2710,6 @@ body.input-open {
     background: #f7f9f8;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   PENDING ITEM CONTENT
-===================================================== */
 
 .global-update-data-pending-item-content {
     min-width: 0;
@@ -3174,11 +2743,6 @@ body.input-open {
     overflow-wrap: anywhere;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   REMOVE
-===================================================== */
 
 .global-update-data-remove {
     flex-shrink: 0;
@@ -3216,7 +2780,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    CONFIRM
 ===================================================== */
 
@@ -3236,11 +2799,6 @@ body.input-open {
     border-top: 1px solid #e5e9e8;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   CONFIRM BUTTON
-===================================================== */
 
 .global-update-data-confirm button {
     width: 100%;
@@ -3296,7 +2854,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    LOADING
 ===================================================== */
 
@@ -3319,11 +2876,6 @@ body.input-open {
     line-height: 1.4;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   LOADING SPINNER
-===================================================== */
 
 .global-update-data-loading-spinner {
     width: 18px;
@@ -3355,7 +2907,6 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
    RESULT
 ===================================================== */
 
@@ -3384,11 +2935,6 @@ body.input-open {
 }
 
 
-/* =====================================================
-   GLOBAL UPDATE DATA
-   RESULT SUCCESS
-===================================================== */
-
 .global-update-data-result.success {
     border-color: #d6e5df;
 
@@ -3397,11 +2943,6 @@ body.input-open {
     color: #294845;
 }
 
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-   RESULT ERROR
-===================================================== */
 
 .global-update-data-result.error {
     border-color: #ead9d9;
@@ -3413,7 +2954,27 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
+   ACCESSIBILITY
+===================================================== */
+
+.global-update-data-picker-option:focus {
+    outline: none;
+
+    background: #f0f5f4;
+
+    box-shadow:
+        inset 0 0 0 2px rgba(40, 75, 71, .08);
+}
+
+
+.global-update-data-picker-option[aria-disabled="true"] {
+    opacity: .55;
+
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
    SCROLLBAR
 ===================================================== */
 
@@ -3438,36 +2999,10 @@ body.input-open {
 
 
 /* =====================================================
-   GLOBAL UPDATE DATA
-   SELECTION / ACCESSIBILITY
-===================================================== */
-
-.global-update-data-picker-option:focus {
-    outline: none;
-
-    background: #f0f5f4;
-
-    box-shadow:
-        inset 0 0 0 2px rgba(40, 75, 71, .08);
-}
-
-
-.global-update-data-picker-option[aria-disabled="true"] {
-    opacity: .55;
-
-    cursor: not-allowed;
-}
-
-
-/* =====================================================
    MOBILE
 ===================================================== */
 
 @media (max-width: 600px) {
-
-    /* ---------------------------------------------
-       GLOBAL UPDATE DATA
-    --------------------------------------------- */
 
     .global-update-data-header {
         padding: 18px;
@@ -3643,4 +3178,3 @@ body.input-open {
     }
 
 }
-       
