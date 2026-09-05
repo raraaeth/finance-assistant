@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Financial
    File         : financial.js
-   Version      : 1.1.0
+   Version      : 1.2.0
 
    Description :
    Input Flow Configuration for Financial
@@ -14,8 +14,6 @@
    Global Workspace
         ↓
    financial.sheets
-        ↓
-   financial_activity
         ↓
    getInputData()
 
@@ -32,6 +30,14 @@
      Global Workspace.
    - TYPE_RULE tetap menjadi konfigurasi
      bisnis milik Financial.
+
+   Edit Row :
+   - Menggunakan Global EditRow Engine.
+   - Target record berdasarkan ID + Tanggal.
+   - ID dan Tanggal dikunci.
+   - Control mengikuti konfigurasi Input.
+   - Value select tetap menggunakan canonical value.
+   - Tidak mengubah flow Input normal.
 ===================================================== */
 
 
@@ -41,9 +47,22 @@
 
 import {
 
-    getInputData
+    getInputData,
+    getInputRaw
 
 } from "./data.js";
+
+
+/* =====================================================
+   IMPORT EDIT ROW
+===================================================== */
+
+import {
+
+    EditRow
+
+} from "./editrow.js";
+
 
 /* =====================================================
    PREFIX
@@ -504,7 +523,8 @@ export const Financial = {
 
         "financial",
 
-   /* =================================================
+
+    /* =================================================
        PREFIX
     =================================================
 
@@ -513,7 +533,7 @@ export const Financial = {
 
        Contoh :
 
-           PDR-XXXXXXXX
+           FIN-XXXXXXXX
 
     ================================================= */
 
@@ -656,6 +676,864 @@ export const Financial = {
     ]
 
 };
+
+
+/* =====================================================
+   EDIT INPUT ROW
+===================================================== */
+
+/*
+   Edit Row menggunakan engine global.
+
+   Financial hanya menyediakan konfigurasi
+   workspace-specific.
+
+   Target :
+
+       ID + Tanggal
+
+   Field :
+
+       jenis
+       type
+       nominal
+       keterangan
+
+   ID dan Tanggal ditangani sebagai
+   locked field oleh Global EditRow.
+*/
+
+export function openFinancialEditRow(){
+
+    EditRow.open({
+
+        /* =============================================
+           WORKSPACE
+        ============================================= */
+
+        workspace :
+
+            "financial",
+
+
+        /* =============================================
+           RECORD SOURCE
+        ============================================= */
+
+        records :
+
+            getInputRaw(),
+
+
+        /* =============================================
+           ID FIELD
+        ============================================= */
+
+        getIdField :
+
+            () =>
+
+                "id",
+
+
+        /* =============================================
+           DATE FIELD
+        ============================================= */
+
+        getDateField :
+
+            () =>
+
+                "tanggal",
+
+
+        /* =============================================
+           RECORD LABEL
+        ============================================= */
+
+        getRecordLabel :
+
+            record => {
+
+                const jenis =
+
+                    record?.jenis ??
+
+                    "-";
+
+
+                const activity =
+
+                    record?.type ??
+
+                    "-";
+
+
+                return `${
+
+                    formatFinancialValue(
+
+                        jenis
+
+                    )
+
+                } · ${
+
+                    formatActivity(
+
+                        activity
+
+                    )
+
+                }`;
+
+            },
+
+
+        /* =============================================
+           RECORD META
+        ============================================= */
+
+        getRecordMeta :
+
+            record => {
+
+                const nominal =
+
+                    record?.nominal;
+
+
+                const keterangan =
+
+                    record?.keterangan;
+
+
+                const parts = [];
+
+
+                if(
+
+                    nominal !==
+
+                    undefined &&
+
+                    nominal !==
+
+                    null &&
+
+                    nominal !==
+
+                    ""
+
+                ){
+
+                    parts.push(
+
+                        formatNominal(
+
+                            nominal
+
+                        )
+
+                    );
+
+                }
+
+
+                if(
+
+                    keterangan
+
+                ){
+
+                    parts.push(
+
+                        String(
+
+                            keterangan
+
+                        )
+
+                    );
+
+                }
+
+
+                return parts.join(
+
+                    " · "
+
+                );
+
+            },
+
+
+        /* =============================================
+           SEARCH
+        ============================================= */
+
+        getSearchText :
+
+            record => {
+
+                return [
+
+                    record?.id,
+
+                    record?.tanggal,
+
+                    record?.jenis,
+
+                    record?.type,
+
+                    record?.nominal,
+
+                    record?.keterangan
+
+                ]
+
+                    .filter(
+
+                        value =>
+
+                            value !==
+
+                            undefined &&
+
+                            value !==
+
+                            null
+
+                    )
+
+                    .join(" ");
+
+            },
+
+
+        /* =============================================
+           FIELD TYPE
+        ============================================= */
+
+        getFieldType :
+
+            field => {
+
+                switch(
+
+                    field
+
+                ){
+
+                    case "jenis":
+
+                        return "select";
+
+
+                    case "type":
+
+                        return "select";
+
+
+                    case "nominal":
+
+                        return "number";
+
+
+                    case "keterangan":
+
+                        return "text";
+
+
+                    default:
+
+                        return undefined;
+
+                }
+
+            },
+
+
+        /* =============================================
+           FIELD LABEL
+        ============================================= */
+
+        getFieldLabel :
+
+            field => {
+
+                const labels = {
+
+                    id :
+                        "ID",
+
+                    tanggal :
+                        "Tanggal",
+
+                    jenis :
+                        "Jenis Transaksi",
+
+                    type :
+                        "Aktivitas",
+
+                    nominal :
+                        "Nominal",
+
+                    keterangan :
+                        "Keterangan"
+
+                };
+
+
+                return (
+
+                    labels[field] ??
+
+                    field
+
+                );
+
+            },
+
+
+        /* =============================================
+           FIELD CONFIG
+        ============================================= */
+
+        getFieldConfig :
+
+            (field, record, values) => {
+
+                switch(
+
+                    field
+
+                ){
+
+                    /* =================================
+                       JENIS
+                    ================================= */
+
+                    case "jenis":
+
+                        return {
+
+                            type :
+
+                                "select",
+
+                            options :
+
+                                getAvailableTypes(),
+
+                            required :
+
+                                true
+
+                        };
+
+
+                    /* =================================
+                       ACTIVITY
+                    ================================= */
+
+                    case "type":
+
+                        return {
+
+                            type :
+
+                                "select",
+
+                            options :
+
+                                getActivityByType(
+
+                                    values?.jenis ??
+
+                                    record?.jenis
+
+                                ),
+
+                            required :
+
+                                true
+
+                        };
+
+
+                    /* =================================
+                       NOMINAL
+                    ================================= */
+
+                    case "nominal":
+
+                        return {
+
+                            type :
+
+                                "number",
+
+                            placeholder :
+
+                                "Masukkan nominal"
+
+                        };
+
+
+                    /* =================================
+                       KETERANGAN
+                    ================================= */
+
+                    case "keterangan":
+
+                        return {
+
+                            type :
+
+                                "text",
+
+                            placeholder :
+
+                                "Keterangan transaksi"
+
+                        };
+
+
+                    default:
+
+                        return {};
+
+                }
+
+            },
+
+
+        /* =============================================
+           FIELD ORDER
+        ============================================= */
+
+        getFieldOrder :
+
+            () => [
+
+                "id",
+
+                "tanggal",
+
+                "jenis",
+
+                "type",
+
+                "nominal",
+
+                "keterangan"
+
+            ],
+
+
+        /* =============================================
+           LOCKED FIELD
+        ============================================= */
+
+        isFieldLocked :
+
+            field => {
+
+                return (
+
+                    field ===
+
+                    "id" ||
+
+                    field ===
+
+                    "tanggal"
+
+                );
+
+            },
+
+
+        /* =============================================
+           EDITABLE FIELD
+        ============================================= */
+
+        isFieldEditable :
+
+            field => {
+
+                return [
+
+                    "jenis",
+
+                    "type",
+
+                    "nominal",
+
+                    "keterangan"
+
+                ].includes(
+
+                    field
+
+                );
+
+            },
+
+
+        /* =============================================
+           DETAIL
+        ============================================= */
+
+        renderDetail :
+
+            record => {
+
+                const id =
+
+                    escapeHTML(
+
+                        record?.id ??
+
+                        "-"
+
+                    );
+
+
+                const tanggal =
+
+                    escapeHTML(
+
+                        record?.tanggal ??
+
+                        "-"
+
+                    );
+
+
+                const jenis =
+
+                    escapeHTML(
+
+                        formatFinancialValue(
+
+                            record?.jenis
+
+                        )
+
+                    );
+
+
+                const activity =
+
+                    escapeHTML(
+
+                        formatActivity(
+
+                            record?.type
+
+                        )
+
+                    );
+
+
+                return `
+
+                    <div class="global-edit-row-detail">
+
+                        <div>
+
+                            <span>ID</span>
+
+                            <strong>
+
+                                ${id}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>Tanggal</span>
+
+                            <strong>
+
+                                ${tanggal}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>Jenis Transaksi</span>
+
+                            <strong>
+
+                                ${jenis}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>Aktivitas</span>
+
+                            <strong>
+
+                                ${activity}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            },
+
+
+        /* =============================================
+           VALIDATION
+        ============================================= */
+
+        validate :
+
+            (record, values) => {
+
+                if(
+
+                    !values
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+                        message :
+
+                            "Data tidak ditemukan."
+
+                    };
+
+                }
+
+
+                if(
+
+                    !values.jenis
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+                        message :
+
+                            "Jenis Transaksi wajib dipilih."
+
+                    };
+
+                }
+
+
+                if(
+
+                    !values.type
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+                        message :
+
+                            "Aktivitas wajib dipilih."
+
+                    };
+
+                }
+
+
+                const nominal =
+
+                    Number(
+
+                        values.nominal
+
+                    );
+
+
+                if(
+
+                    !Number.isFinite(
+
+                        nominal
+
+                    ) ||
+
+                    nominal <= 0
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+                        message :
+
+                            "Nominal harus lebih dari 0."
+
+                    };
+
+                }
+
+
+                return {
+
+                    valid :
+
+                        true
+
+                };
+
+            },
+
+
+        /* =============================================
+           PENDING LABEL
+        ============================================= */
+
+        getPendingLabel :
+
+            (record, changes) => {
+
+                const jenis =
+
+                    formatFinancialValue(
+
+                        changes?.jenis ??
+
+                        record?.jenis
+
+                    );
+
+
+                const activity =
+
+                    formatActivity(
+
+                        changes?.type ??
+
+                        record?.type
+
+                    );
+
+
+                return `${
+
+                    jenis
+
+                } · ${
+
+                    activity
+
+                }`;
+
+            },
+
+
+        /* =============================================
+           ADD
+           Tidak menyentuh Apps Script.
+           Semua perubahan tetap lokal sampai
+           Konfirmasi.
+        ============================================= */
+
+        onAdd :
+
+            () => {
+
+                return true;
+
+            },
+
+
+        /* =============================================
+           REMOVE
+        ============================================= */
+
+        onRemove :
+
+            () => {
+
+                return true;
+
+            },
+
+
+        /* =============================================
+           CONFIRM
+           Update dilakukan oleh Global EditRow.
+        ============================================= */
+
+        onConfirm :
+
+            pending => {
+
+                return EditRow.confirm(
+
+                    pending
+
+                );
+
+            },
+
+
+        /* =============================================
+           UI TEXT
+        ============================================= */
+
+        listTitle :
+
+            "Data Financial",
+
+
+        searchPlaceholder :
+
+            "Cari ID, tanggal, aktivitas...",
+
+
+        addButtonText :
+
+            "Tambahkan",
+
+
+        confirmButtonText :
+
+            "Konfirmasi"
+
+    });
+
+}
 
 
 /* =====================================================
@@ -830,5 +1708,163 @@ export function debugFinancialInput(){
             Financial
 
     };
+
+}
+
+
+/* =====================================================
+   FINANCIAL VALUE FORMAT
+===================================================== */
+
+function formatFinancialValue(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return "-";
+
+    }
+
+
+    return String(
+
+        value
+
+    )
+
+        .replace(
+
+            /_/g,
+
+            " "
+
+        )
+
+        .replace(
+
+            /\b\w/g,
+
+            char =>
+
+                char.toUpperCase()
+
+        );
+
+}
+
+
+/* =====================================================
+   NOMINAL FORMAT
+===================================================== */
+
+function formatNominal(
+
+    value
+
+){
+
+    const number =
+
+        Number(
+
+            value
+
+        );
+
+
+    if(
+
+        !Number.isFinite(
+
+            number
+
+        )
+
+    ){
+
+        return String(
+
+            value ??
+
+            "-"
+
+        );
+
+    }
+
+
+    return number.toLocaleString(
+
+        "id-ID"
+
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+
+    value
+
+){
+
+    return String(
+
+        value ??
+
+        ""
+
+    )
+
+        .replace(
+
+            /&/g,
+
+            "&amp;"
+
+        )
+
+        .replace(
+
+            /</g,
+
+            "&lt;"
+
+        )
+
+        .replace(
+
+            />/g,
+
+            "&gt;"
+
+        )
+
+        .replace(
+
+            /"/g,
+
+            "&quot;"
+
+        )
+
+        .replace(
+
+            /'/g,
+
+            "&#039;"
+
+        );
 
 }
