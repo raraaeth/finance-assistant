@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Financial
    File         : financial.js
-   Version      : 1.2.1
+   Version      : 1.2.2
 
    Description :
    Input Flow Configuration for Financial
@@ -39,6 +39,7 @@
    - ID dan Tanggal dikunci.
    - Control mengikuti struktur Input Financial.
    - Select mempertahankan canonical value.
+   - Field hasil proses / field tambahan tidak diedit.
    - Tidak mengubah flow Input normal.
 ===================================================== */
 
@@ -127,6 +128,35 @@ const TYPE_LABEL = {
         "🤝 Hutang"
 
 };
+
+
+/* =====================================================
+   EDITABLE FIELDS
+===================================================== */
+
+/*
+   Hanya field yang memang digunakan oleh
+   Normal Input Financial yang boleh diedit
+   melalui Edit Row.
+
+   ID + Tanggal tetap dikunci oleh Global EditRow.
+
+   Field lain yang mungkin terdapat pada row
+   karena hasil proses / kolom tambahan Sheet
+   tidak boleh ikut diedit.
+*/
+
+const EDITABLE_FIELDS = [
+
+    "jenis",
+
+    "type",
+
+    "nominal",
+
+    "keterangan"
+
+];
 
 
 /* =====================================================
@@ -779,8 +809,10 @@ export const Financial = {
    - tipe field
    - option field
    - urutan field
+   - editable field
    - validation
 */
+
 
 async function openEditRow(){
 
@@ -926,6 +958,114 @@ async function openEditRow(){
             record => {
 
                 return "tanggal";
+
+            },
+
+
+        /* =========================================
+           EDITABLE FIELD LIST
+        ========================================= */
+
+        editableFields :
+
+            [
+
+                ...EDITABLE_FIELDS
+
+            ],
+
+
+        /* =========================================
+           LOCKED FIELD
+        ========================================= */
+
+        isFieldLocked :
+
+            (
+
+                field,
+
+                record
+
+            ) => {
+
+                const normalized =
+
+                    normalizeValue(
+
+                        field
+
+                    );
+
+
+                /*
+                   ID dan Tanggal selalu
+                   dikunci oleh Global EditRow.
+                */
+
+                if(
+
+                    normalized === "id" ||
+
+                    normalized === "tanggal"
+
+                ){
+
+                    return true;
+
+                }
+
+
+                /*
+                   Field yang bukan bagian
+                   dari Normal Input Financial
+                   juga dikunci.
+
+                   Contoh :
+
+                   Month
+                   Year
+                   field hasil proses
+                   atau kolom tambahan Sheet.
+                */
+
+                return !EDITABLE_FIELDS.includes(
+
+                    normalized
+
+                );
+
+            },
+
+
+        /* =========================================
+           EDITABLE CHECK
+        ========================================= */
+
+        isFieldEditable :
+
+            (
+
+                field,
+
+                record
+
+            ) => {
+
+                const normalized =
+
+                    normalizeValue(
+
+                        field
+
+                    );
+
+
+                return EDITABLE_FIELDS.includes(
+
+                    normalized
+
+                );
 
             },
 
@@ -1169,33 +1309,6 @@ async function openEditRow(){
 
 
         /* =========================================
-           FIELD RULE
-        ========================================= */
-
-        isFieldLocked :
-
-            (
-
-                field,
-
-                record
-
-            ) => {
-
-                /*
-                   Tidak ada field tambahan
-                   yang dikunci.
-
-                   ID + Tanggal otomatis
-                   dikunci oleh EditRow.
-                */
-
-                return false;
-
-            },
-
-
-        /* =========================================
            FIELD TYPE
         ========================================= */
 
@@ -1220,6 +1333,10 @@ async function openEditRow(){
                     );
 
 
+                /* =================================
+                   JENIS
+                ================================= */
+
                 if(
 
                     normalized ===
@@ -1232,6 +1349,10 @@ async function openEditRow(){
 
                 }
 
+
+                /* =================================
+                   ACTIVITY
+                ================================= */
 
                 if(
 
@@ -1246,6 +1367,10 @@ async function openEditRow(){
                 }
 
 
+                /* =================================
+                   NOMINAL
+                ================================= */
+
                 if(
 
                     normalized ===
@@ -1258,6 +1383,10 @@ async function openEditRow(){
 
                 }
 
+
+                /* =================================
+                   KETERANGAN
+                ================================= */
 
                 if(
 
@@ -1293,7 +1422,11 @@ async function openEditRow(){
 
                 switch(
 
-                    field
+                    normalizeValue(
+
+                        field
+
+                    )
 
                 ){
 
@@ -1350,13 +1483,19 @@ async function openEditRow(){
 
                 field,
 
-                record
+                record,
+
+                context
 
             ) => {
 
                 switch(
 
-                    field
+                    normalizeValue(
+
+                        field
+
+                    )
 
                 ){
 
@@ -1474,7 +1613,13 @@ async function openEditRow(){
 
                     default:
 
-                        return {};
+                        return {
+
+                            type :
+
+                                "text"
+
+                        };
 
                 }
 
@@ -1489,7 +1634,16 @@ async function openEditRow(){
 
             record => {
 
-                const preferred = [
+                /*
+                   Field input Financial selalu
+                   ditampilkan dalam urutan yang
+                   sama dengan Normal Input.
+
+                   Field lain tidak dimasukkan
+                   ke area edit.
+                */
+
+                return [
 
                     "id",
 
@@ -1503,47 +1657,21 @@ async function openEditRow(){
 
                     "keterangan"
 
-                ];
+                ].filter(
 
+                    field =>
 
-                const existing =
+                        record &&
 
-                    Object.keys(
+                        Object.prototype.hasOwnProperty.call(
 
-                        record ||
+                            record,
 
-                        {}
+                            field
 
-                    );
+                        )
 
-
-                return [
-
-                    ...preferred.filter(
-
-                        field =>
-
-                            existing.includes(
-
-                                field
-
-                            )
-
-                    ),
-
-                    ...existing.filter(
-
-                        field =>
-
-                            !preferred.includes(
-
-                                field
-
-                            )
-
-                    )
-
-                ];
+                );
 
             },
 
@@ -1713,22 +1841,15 @@ async function openEditRow(){
                 }
 
 
+                /* =================================
+                   ID
+                ================================= */
+
                 const id =
 
                     String(
 
                         record?.id ??
-
-                        ""
-
-                    ).trim();
-
-
-                const tanggal =
-
-                    String(
-
-                        record?.tanggal ??
 
                         ""
 
@@ -1752,6 +1873,21 @@ async function openEditRow(){
                 }
 
 
+                /* =================================
+                   TANGGAL
+                ================================= */
+
+                const tanggal =
+
+                    String(
+
+                        record?.tanggal ??
+
+                        ""
+
+                    ).trim();
+
+
                 if(
 
                     !tanggal
@@ -1768,6 +1904,10 @@ async function openEditRow(){
 
                 }
 
+
+                /* =================================
+                   JENIS
+                ================================= */
 
                 if(
 
@@ -1786,6 +1926,10 @@ async function openEditRow(){
                 }
 
 
+                /* =================================
+                   ACTIVITY
+                ================================= */
+
                 if(
 
                     !values?.type
@@ -1802,6 +1946,10 @@ async function openEditRow(){
 
                 }
 
+
+                /* =================================
+                   NOMINAL
+                ================================= */
 
                 const nominal =
 
@@ -1835,11 +1983,9 @@ async function openEditRow(){
                 }
 
 
-                /*
-                   Pastikan activity memang
-                   tersedia untuk jenis transaksi
-                   yang dipilih.
-                */
+                /* =================================
+                   ACTIVITY RULE
+                ================================= */
 
                 const activities =
 
@@ -1880,7 +2026,9 @@ async function openEditRow(){
                     console.error(
 
                         "[Financial EditRow] " +
+
                         "Aktivitas tidak sesuai " +
+
                         "dengan jenis transaksi."
 
                     );
@@ -1946,7 +2094,7 @@ async function openEditRow(){
 
 
                 /*
-                   Tidak ada Apps Script.
+                   Tidak ada Apps Script di sini.
 
                    Staging sepenuhnya ditangani
                    oleh Global EditRow.
@@ -2000,6 +2148,21 @@ async function openEditRow(){
 
                     {};
 
+
+                /*
+                   Global EditRow dapat menyimpan
+                   perubahan langsung sebagai:
+
+                       changes.jenis
+                       changes.type
+
+                   atau melalui:
+
+                       changes.values.jenis
+                       changes.values.type
+
+                   Keduanya didukung di sini.
+                */
 
                 const jenis =
 
