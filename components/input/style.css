@@ -2077,6 +2077,7 @@ body.input-open {
 }
 
 
+
 /* =====================================================
    GLOBAL UPDATE DATA
    ROOT
@@ -2204,6 +2205,8 @@ body.input-open {
     font-size: 20px;
     line-height: 1.3;
     font-weight: 700;
+
+    overflow-wrap: anywhere;
 }
 
 
@@ -2212,6 +2215,8 @@ body.input-open {
 
     font-size: 12px;
     line-height: 1.4;
+
+    overflow-wrap: anywhere;
 }
 
 
@@ -2243,6 +2248,15 @@ body.input-open {
     font-family: inherit;
 
     cursor: pointer;
+
+    transition:
+        background-color .15s ease,
+        transform .1s ease;
+}
+
+
+.global-update-data-close:hover {
+    background: #e9efed;
 }
 
 
@@ -2268,6 +2282,8 @@ body.input-open {
 
     overflow-y: auto;
     overflow-x: hidden;
+
+    overscroll-behavior: contain;
 
     background: #ffffff;
 }
@@ -2479,7 +2495,12 @@ body.input-open {
 .global-update-data-picker-list {
     width: 100%;
 
-    max-height: 350px;
+    /*
+       Internal scrolling.
+       Approximately 5 records are visible
+       before scrolling is required.
+    */
+    max-height: 340px;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -2519,7 +2540,7 @@ body.input-open {
     cursor: pointer;
 
     transition:
-        background .15s ease;
+        background-color .15s ease;
 }
 
 
@@ -2794,6 +2815,11 @@ body.input-open {
     font-family: inherit;
 
     outline: none;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease,
+        background-color .15s ease;
 }
 
 
@@ -2830,10 +2856,14 @@ body.input-open {
 ===================================================== */
 
 .global-update-data-field-note {
+    display: block;
+
     color: #7d8988;
 
     font-size: 12px;
     line-height: 1.45;
+
+    overflow-wrap: anywhere;
 }
 
 
@@ -2868,11 +2898,18 @@ body.input-open {
     text-align: left;
 
     cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background-color .2s ease;
 }
 
 
 .global-update-data-field-select:hover {
     border-color: #9aabaa;
+
+    background: #fbfcfc;
 }
 
 
@@ -2883,6 +2920,16 @@ body.input-open {
 
     box-shadow:
         0 0 0 3px rgba(40, 75, 71, .10);
+}
+
+
+.global-update-data-field-select:disabled {
+    background: #f1f4f3;
+    color: #7d8988;
+
+    cursor: not-allowed;
+
+    opacity: .75;
 }
 
 
@@ -2903,6 +2950,7 @@ body.input-open {
     color: #687875;
 
     font-size: 15px;
+    line-height: 1;
 }
 
 
@@ -2954,7 +3002,13 @@ body.input-open {
 
     transition:
         opacity .15s ease,
-        transform .1s ease;
+        transform .1s ease,
+        background-color .15s ease;
+}
+
+
+.global-update-data-add:hover {
+    background: #1f3634;
 }
 
 
@@ -3144,6 +3198,10 @@ body.input-open {
     font-family: inherit;
 
     cursor: pointer;
+
+    transition:
+        color .15s ease,
+        transform .1s ease;
 }
 
 
@@ -3194,6 +3252,12 @@ body.input-open {
 
     box-sizing: border-box;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
     border: 0;
     border-radius: 14px;
 
@@ -3209,7 +3273,13 @@ body.input-open {
 
     transition:
         opacity .15s ease,
-        transform .1s ease;
+        transform .1s ease,
+        background-color .15s ease;
+}
+
+
+.global-update-data-confirm button:hover {
+    background: #1f3634;
 }
 
 
@@ -3298,6 +3368,7 @@ body.input-open {
 
     box-sizing: border-box;
 
+    border: 1px solid #dfe6e4;
     border-radius: 16px;
 
     background: #f7f9f8;
@@ -3308,6 +3379,8 @@ body.input-open {
     line-height: 1.5;
 
     text-align: center;
+
+    overflow-wrap: anywhere;
 }
 
 
@@ -3317,9 +3390,11 @@ body.input-open {
 ===================================================== */
 
 .global-update-data-result.success {
-    border: 1px solid #d6e5df;
+    border-color: #d6e5df;
 
     background: #f3f8f6;
+
+    color: #294845;
 }
 
 
@@ -3329,7 +3404,7 @@ body.input-open {
 ===================================================== */
 
 .global-update-data-result.error {
-    border: 1px solid #ead9d9;
+    border-color: #ead9d9;
 
     background: #fbf6f6;
 
@@ -3363,108 +3438,32 @@ body.input-open {
 
 
 /* =====================================================
+   GLOBAL UPDATE DATA
+   SELECTION / ACCESSIBILITY
+===================================================== */
+
+.global-update-data-picker-option:focus {
+    outline: none;
+
+    background: #f0f5f4;
+
+    box-shadow:
+        inset 0 0 0 2px rgba(40, 75, 71, .08);
+}
+
+
+.global-update-data-picker-option[aria-disabled="true"] {
+    opacity: .55;
+
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
    MOBILE
 ===================================================== */
 
 @media (max-width: 600px) {
-
-    .global-input-picker-panel {
-        width: calc(100% - 20px);
-
-        margin: 0 10px 10px;
-
-        border-radius: 22px;
-
-        max-height: 80vh;
-    }
-
-
-    .global-input-picker-list {
-        max-height: calc(80vh - 64px);
-    }
-
-
-    .global-input-picker-option {
-        min-height: 64px;
-
-        padding: 15px 18px;
-    }
-
-
-    .global-input-picker-option-content {
-        font-size: 16px;
-    }
-
-
-    .global-input-picker-option-note {
-        font-size: 13px;
-    }
-
-
-    /* ---------------------------------------------
-       AIRDROP EDIT REWARD
-    --------------------------------------------- */
-
-    .airdrop-edit-reward-panel {
-        max-height: 92vh;
-
-        border-radius: 24px 24px 0 0;
-    }
-
-
-    .airdrop-edit-reward-header {
-        padding: 20px 20px 16px;
-    }
-
-
-    .airdrop-edit-reward-header h2 {
-        font-size: 22px;
-    }
-
-
-    .airdrop-edit-reward-content {
-        padding: 18px 20px 24px;
-
-        max-height: calc(92vh - 82px);
-    }
-
-
-    .airdrop-reward-project-list {
-        max-height: 300px;
-    }
-
-
-    .airdrop-reward-project {
-        min-height: 64px;
-
-        padding: 13px 14px;
-    }
-
-
-    .airdrop-reward-project-name {
-        font-size: 15px;
-    }
-
-
-    .airdrop-reward-project small {
-        font-size: 12px;
-    }
-
-
-    .airdrop-reward-info {
-        align-items: flex-start;
-    }
-
-
-    .airdrop-reward-info strong {
-        max-width: 62%;
-    }
-
-
-    .airdrop-edit-reward-pending-item {
-        align-items: flex-start;
-    }
-
 
     /* ---------------------------------------------
        GLOBAL UPDATE DATA
@@ -3516,82 +3515,10 @@ body.input-open {
 
 
 /* =====================================================
-   MOBILE GLOBAL INPUT
+   MOBILE SMALL
 ===================================================== */
 
 @media (max-width: 480px) {
-
-    .global-input-header {
-        padding: 18px;
-    }
-
-
-    .global-input-content {
-        padding: 18px;
-    }
-
-
-    .global-input-footer {
-        padding: 14px 18px 18px;
-    }
-
-
-    .global-input-meta strong {
-        min-width: 110px;
-    }
-
-
-    .global-input-date {
-        width: 145px;
-    }
-
-
-    .global-input-list-item {
-        padding: 13px;
-    }
-
-
-    /* ---------------------------------------------
-       EDIT INPUT MENU
-    --------------------------------------------- */
-
-    .global-edit-input-item {
-        min-height: 88px;
-
-        padding: 15px;
-
-        border-radius: 17px;
-    }
-
-
-    .global-edit-input-item-icon {
-        width: 44px;
-        height: 44px;
-
-        border-radius: 13px;
-
-        font-size: 22px;
-    }
-
-
-    .global-edit-input-item-title {
-        font-size: 14px;
-    }
-
-
-    .global-edit-input-item-description {
-        font-size: 12px;
-    }
-
-
-    .global-edit-input-item-arrow {
-        font-size: 22px;
-    }
-
-
-    /* ---------------------------------------------
-       GLOBAL UPDATE DATA
-    --------------------------------------------- */
 
     .global-update-data-picker-button {
         min-height: 54px;
@@ -3629,76 +3556,6 @@ body.input-open {
 ===================================================== */
 
 @media (max-width: 360px) {
-
-    .global-input-custom-select {
-        min-height: 52px;
-
-        padding: 13px 15px;
-    }
-
-
-    .global-input-picker-panel {
-        width: calc(100% - 12px);
-
-        margin-bottom: 6px;
-    }
-
-
-    .global-input-picker-header {
-        padding: 14px 16px;
-    }
-
-
-    .global-input-picker-option {
-        padding: 14px 16px;
-    }
-
-
-    .airdrop-edit-reward-content {
-        padding:
-            16px 16px 20px;
-    }
-
-
-    .airdrop-reward-project-list {
-        max-height: 280px;
-    }
-
-
-    .airdrop-reward-selected {
-        padding: 15px;
-    }
-
-
-    .airdrop-reward-info {
-        flex-direction: column;
-
-        gap: 3px;
-    }
-
-
-    .airdrop-reward-info strong {
-        max-width: 100%;
-
-        text-align: left;
-    }
-
-
-    .airdrop-edit-reward-pending-item {
-        flex-direction: column;
-
-        align-items: stretch;
-    }
-
-
-    .airdrop-edit-reward-pending-remove {
-        align-self: flex-end;
-    }
-
-
-    /* ---------------------------------------------
-       GLOBAL UPDATE DATA
-    --------------------------------------------- */
 
     .global-update-data-header {
         padding: 16px;
@@ -3765,21 +3622,15 @@ body.input-open {
 
 @media (prefers-reduced-motion: reduce) {
 
-    .global-input-picker,
-    .global-input-picker-panel,
-    .global-input-custom-select,
-    .global-input-custom-arrow,
-    .airdrop-edit-reward-overlay,
-    .airdrop-edit-reward-panel,
-    .airdrop-reward-project,
-    .global-edit-input-item,
-    .airdrop-edit-reward-panel
-    .global-input-action-button,
-    .airdrop-edit-reward-confirm button,
     .global-update-data-overlay,
+    .global-update-data-close,
     .global-update-data-picker-button,
     .global-update-data-picker-arrow,
     .global-update-data-picker-option,
+    .global-update-data-field input,
+    .global-update-data-field select,
+    .global-update-data-field textarea,
+    .global-update-data-field-select,
     .global-update-data-add,
     .global-update-data-remove,
     .global-update-data-confirm button {
@@ -3792,3 +3643,4 @@ body.input-open {
     }
 
 }
+       
