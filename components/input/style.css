@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : style.css
-   Version      : 7.0.0
+   Version      : 7.1.0
 
    Description :
    Reusable Global Input Overlay
@@ -11,6 +11,14 @@
    Full Screen
    No Slide
    No Floating
+
+   Includes :
+   - Global Input
+   - Custom Select
+   - Global Picker
+   - Payroll Monthly Condition
+   - Edit Input Menu
+   - Airdrop Edit Input Reward
 ===================================================== */
 
 
@@ -18,26 +26,19 @@
    OVERLAY ROOT
 ===================================================== */
 
-.global-input-overlay{
+.global-input-overlay {
+    position: fixed;
+    inset: 0;
 
-    position:fixed;
+    width: 100%;
+    height: 100%;
 
-    top:0;
-    right:0;
-    bottom:0;
-    left:0;
+    z-index: 10000;
 
-    width:100%;
-    height:100%;
+    visibility: hidden;
+    pointer-events: none;
 
-    z-index:10000;
-
-    visibility:hidden;
-
-    pointer-events:none;
-
-    background:#ffffff;
-
+    background: #ffffff;
 }
 
 
@@ -45,12 +46,9 @@
    OPEN STATE
 ===================================================== */
 
-.global-input-overlay.is-open{
-
-    visibility:visible;
-
-    pointer-events:auto;
-
+.global-input-overlay.is-open {
+    visibility: visible;
+    pointer-events: auto;
 }
 
 
@@ -58,20 +56,14 @@
    BACKDROP
 ===================================================== */
 
-.global-input-backdrop{
+.global-input-backdrop {
+    position: absolute;
+    inset: 0;
 
-    position:absolute;
+    width: 100%;
+    height: 100%;
 
-    top:0;
-    right:0;
-    bottom:0;
-    left:0;
-
-    width:100%;
-    height:100%;
-
-    background:#ffffff;
-
+    background: #ffffff;
 }
 
 
@@ -79,30 +71,22 @@
    PANEL
 ===================================================== */
 
-.global-input-panel{
+.global-input-panel {
+    position: absolute;
+    inset: 0;
 
-    position:absolute;
+    width: 100%;
+    height: 100%;
 
-    top:0;
-    right:0;
-    bottom:0;
-    left:0;
+    box-sizing: border-box;
 
-    width:100%;
-    height:100%;
+    display: flex;
+    flex-direction: column;
 
-    box-sizing:border-box;
+    overflow: hidden;
 
-    background:#ffffff;
-
-    color:#253f3d;
-
-    display:flex;
-
-    flex-direction:column;
-
-    overflow:hidden;
-
+    background: #ffffff;
+    color: #253f3d;
 }
 
 
@@ -110,28 +94,22 @@
    HEADER
 ===================================================== */
 
-.global-input-header{
+.global-input-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
 
-    display:flex;
+    gap: 16px;
 
-    align-items:flex-start;
+    padding: 20px;
 
-    justify-content:space-between;
+    box-sizing: border-box;
 
-    gap:16px;
+    background: #ffffff;
 
-    padding:20px;
+    border-bottom: 1px solid #e5e9e8;
 
-    box-sizing:border-box;
-
-    background:#ffffff;
-
-    border-bottom:
-        1px solid
-        #e5e9e8;
-
-    flex-shrink:0;
-
+    flex-shrink: 0;
 }
 
 
@@ -139,40 +117,30 @@
    HEADING
 ===================================================== */
 
-.global-input-heading{
+.global-input-heading {
+    display: flex;
+    flex-direction: column;
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
+    gap: 5px;
 }
 
 
-.global-input-heading h2{
+.global-input-heading h2 {
+    margin: 0;
 
-    margin:0;
+    color: #253f3d;
 
-    font-size:20px;
-
-    line-height:1.3;
-
-    font-weight:700;
-
-    color:#253f3d;
-
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 700;
 }
 
 
-.global-input-heading span{
+.global-input-heading span {
+    color: #7d8988;
 
-    font-size:12px;
-
-    line-height:1.4;
-
-    color:#7d8988;
-
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 
@@ -180,45 +148,34 @@
    CLOSE
 ===================================================== */
 
-.global-input-close{
+.global-input-close {
+    width: 36px;
+    height: 36px;
 
-    width:36px;
+    flex-shrink: 0;
 
-    height:36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    flex-shrink:0;
+    padding: 0;
 
-    display:flex;
+    border: none;
+    border-radius: 50%;
 
-    align-items:center;
+    background: #f1f5f4;
+    color: #334b4a;
 
-    justify-content:center;
+    font-size: 20px;
+    line-height: 1;
+    font-family: inherit;
 
-    padding:0;
-
-    border:none;
-
-    border-radius:50%;
-
-    background:#f1f5f4;
-
-    color:#334b4a;
-
-    font-size:20px;
-
-    line-height:1;
-
-    font-family:inherit;
-
-    cursor:pointer;
-
+    cursor: pointer;
 }
 
 
-.global-input-close:active{
-
-    transform:scale(.94);
-
+.global-input-close:active {
+    transform: scale(.94);
 }
 
 
@@ -226,24 +183,20 @@
    CONTENT
 ===================================================== */
 
-.global-input-content{
+.global-input-content {
+    flex: 1;
+    min-height: 0;
 
-    flex:1;
+    width: 100%;
 
-    min-height:0;
+    box-sizing: border-box;
 
-    width:100%;
+    padding: 20px;
 
-    box-sizing:border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
 
-    padding:20px;
-
-    overflow-y:auto;
-
-    overflow-x:hidden;
-
-    background:#ffffff;
-
+    background: #ffffff;
 }
 
 
@@ -251,18 +204,15 @@
    SESSION
 ===================================================== */
 
-.global-input-session{
+.global-input-session {
+    display: flex;
+    flex-direction: column;
 
-    display:flex;
+    gap: 4px;
 
-    flex-direction:column;
+    width: 100%;
 
-    gap:4px;
-
-    width:100%;
-
-    margin:0 0 20px;
-
+    margin: 0 0 20px;
 }
 
 
@@ -270,24 +220,19 @@
    META ROW
 ===================================================== */
 
-.global-input-meta{
+.global-input-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    display:flex;
+    gap: 20px;
 
-    align-items:center;
+    width: 100%;
+    min-height: 40px;
 
-    justify-content:space-between;
+    padding: 8px 0;
 
-    gap:20px;
-
-    width:100%;
-
-    min-height:40px;
-
-    padding:8px 0;
-
-    box-sizing:border-box;
-
+    box-sizing: border-box;
 }
 
 
@@ -295,18 +240,14 @@
    META LABEL
 ===================================================== */
 
-.global-input-meta span{
+.global-input-meta span {
+    flex: 1;
+    min-width: 0;
 
-    flex:1;
+    color: #354846;
 
-    min-width:0;
-
-    font-size:15px;
-
-    line-height:1.4;
-
-    color:#354846;
-
+    font-size: 15px;
+    line-height: 1.4;
 }
 
 
@@ -314,22 +255,17 @@
    META VALUE
 ===================================================== */
 
-.global-input-meta strong{
+.global-input-meta strong {
+    flex-shrink: 0;
+    min-width: 120px;
 
-    flex-shrink:0;
+    text-align: right;
 
-    min-width:120px;
+    color: #294845;
 
-    text-align:right;
-
-    font-size:15px;
-
-    line-height:1.4;
-
-    font-weight:700;
-
-    color:#294845;
-
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 700;
 }
 
 
@@ -337,41 +273,31 @@
    DATE
 ===================================================== */
 
-.global-input-date{
+.global-input-date {
+    flex-shrink: 0;
 
-    flex-shrink:0;
+    width: 145px;
+    min-height: 40px;
 
-    width:145px;
+    padding: 8px 10px;
 
-    min-height:40px;
+    box-sizing: border-box;
 
-    padding:8px 10px;
+    border: 1px solid #d7dfdd;
+    border-radius: 10px;
 
-    box-sizing:border-box;
+    background: #ffffff;
+    color: #294845;
 
-    border:
-        1px solid
-        #d7dfdd;
+    font-size: 14px;
+    font-family: inherit;
 
-    border-radius:10px;
-
-    background:#ffffff;
-
-    color:#294845;
-
-    font-size:14px;
-
-    font-family:inherit;
-
-    outline:none;
-
+    outline: none;
 }
 
 
-.global-input-date:focus{
-
-    border-color:#6f9994;
-
+.global-input-date:focus {
+    border-color: #6f9994;
 }
 
 
@@ -379,16 +305,13 @@
    DYNAMIC FORM
 ===================================================== */
 
-.global-input-form{
+.global-input-form {
+    display: flex;
+    flex-direction: column;
 
-    display:flex;
+    gap: 16px;
 
-    flex-direction:column;
-
-    gap:16px;
-
-    width:100%;
-
+    width: 100%;
 }
 
 
@@ -396,16 +319,13 @@
    FORM FIELD
 ===================================================== */
 
-.global-input-field{
+.global-input-field {
+    display: flex;
+    flex-direction: column;
 
-    display:flex;
+    gap: 7px;
 
-    flex-direction:column;
-
-    gap:7px;
-
-    width:100%;
-
+    width: 100%;
 }
 
 
@@ -413,16 +333,12 @@
    FORM LABEL
 ===================================================== */
 
-.global-input-field label{
+.global-input-field label {
+    color: #667574;
 
-    font-size:13px;
-
-    line-height:1.4;
-
-    font-weight:600;
-
-    color:#667574;
-
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
 }
 
 
@@ -432,32 +348,24 @@
 
 .global-input-field input,
 .global-input-field select,
-.global-input-field textarea{
+.global-input-field textarea {
+    width: 100%;
+    min-height: 46px;
 
-    width:100%;
+    padding: 10px 12px;
 
-    min-height:46px;
+    box-sizing: border-box;
 
-    padding:10px 12px;
+    border: 1px solid #d7dfdd;
+    border-radius: 12px;
 
-    box-sizing:border-box;
+    background: #ffffff;
+    color: #253f3d;
 
-    border:
-        1px solid
-        #d7dfdd;
+    font-size: 15px;
+    font-family: inherit;
 
-    border-radius:12px;
-
-    background:#ffffff;
-
-    color:#253f3d;
-
-    font-size:15px;
-
-    font-family:inherit;
-
-    outline:none;
-
+    outline: none;
 }
 
 
@@ -465,12 +373,10 @@
    TEXTAREA
 ===================================================== */
 
-.global-input-field textarea{
+.global-input-field textarea {
+    min-height: 90px;
 
-    min-height:90px;
-
-    resize:vertical;
-
+    resize: vertical;
 }
 
 
@@ -480,10 +386,8 @@
 
 .global-input-field input:focus,
 .global-input-field select:focus,
-.global-input-field textarea:focus{
-
-    border-color:#6f9994;
-
+.global-input-field textarea:focus {
+    border-color: #6f9994;
 }
 
 
@@ -491,73 +395,56 @@
    ADD TRANSACTION
 ===================================================== */
 
-.global-input-action{
+.global-input-action {
+    width: 100%;
 
-    width:100%;
+    margin-top: 20px;
 
-    margin-top:20px;
-
-    box-sizing:border-box;
-
+    box-sizing: border-box;
 }
 
 
-.global-input-add{
+.global-input-add {
+    width: 100%;
+    min-height: 50px;
 
-    width:100%;
+    padding: 12px 16px;
 
-    min-height:50px;
+    box-sizing: border-box;
 
-    padding:12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    box-sizing:border-box;
+    gap: 8px;
 
-    border:
-        1px solid
-        #253f3d;
+    border: 1px solid #253f3d;
+    border-radius: 12px;
 
-    border-radius:12px;
+    background: #ffffff;
+    color: #253f3d;
 
-    background:#ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
 
-    color:#253f3d;
-
-    font-size:16px;
-
-    font-weight:700;
-
-    font-family:inherit;
-
-    cursor:pointer;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:8px;
+    cursor: pointer;
 
     transition:
         background-color .2s ease,
         transform .1s ease;
-
 }
 
 
-.global-input-add:hover{
-
-    background:#f5f8f7;
-
+.global-input-add:hover {
+    background: #f5f8f7;
 }
 
 
-.global-input-add:active{
+.global-input-add:active {
+    background: #eef3f2;
 
-    background:#eef3f2;
-
-    transform:scale(.98);
-
+    transform: scale(.98);
 }
 
 
@@ -565,14 +452,12 @@
    CURRENT INPUT SECTION
 ===================================================== */
 
-.global-input-list-section{
+.global-input-list-section {
+    width: 100%;
 
-    width:100%;
+    margin-top: 24px;
 
-    margin-top:24px;
-
-    box-sizing:border-box;
-
+    box-sizing: border-box;
 }
 
 
@@ -580,20 +465,16 @@
    LIST HEADER
 ===================================================== */
 
-.global-input-list-header{
+.global-input-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    display:flex;
+    gap: 12px;
 
-    align-items:center;
+    width: 100%;
 
-    justify-content:space-between;
-
-    gap:12px;
-
-    width:100%;
-
-    margin-bottom:12px;
-
+    margin-bottom: 12px;
 }
 
 
@@ -601,16 +482,13 @@
    LIST TITLE
 ===================================================== */
 
-.global-input-list-header h3{
+.global-input-list-header h3 {
+    margin: 0;
 
-    margin:0;
+    color: #253f3d;
 
-    font-size:17px;
-
-    line-height:1.3;
-
-    color:#253f3d;
-
+    font-size: 17px;
+    line-height: 1.3;
 }
 
 
@@ -618,16 +496,13 @@
    LIST DESCRIPTION
 ===================================================== */
 
-.global-input-list-header p{
+.global-input-list-header p {
+    margin: 4px 0 0;
 
-    margin:4px 0 0;
+    color: #81908f;
 
-    font-size:12px;
-
-    line-height:1.4;
-
-    color:#81908f;
-
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 
@@ -635,30 +510,23 @@
    COUNT
 ===================================================== */
 
-.global-input-count{
+.global-input-count {
+    min-width: 32px;
+    height: 32px;
 
-    min-width:32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    height:32px;
+    flex-shrink: 0;
 
-    display:flex;
+    border-radius: 50%;
 
-    align-items:center;
+    background: #f1f5f4;
+    color: #294845;
 
-    justify-content:center;
-
-    flex-shrink:0;
-
-    border-radius:50%;
-
-    background:#f1f5f4;
-
-    color:#294845;
-
-    font-size:13px;
-
-    font-weight:700;
-
+    font-size: 13px;
+    font-weight: 700;
 }
 
 
@@ -666,18 +534,15 @@
    CURRENT INPUT LIST
 ===================================================== */
 
-.global-input-list{
+.global-input-list {
+    display: flex;
+    flex-direction: column;
 
-    display:flex;
+    gap: 12px;
 
-    flex-direction:column;
+    width: 100%;
 
-    gap:12px;
-
-    width:100%;
-
-    box-sizing:border-box;
-
+    box-sizing: border-box;
 }
 
 
@@ -685,24 +550,18 @@
    INPUT LIST ITEM
 ===================================================== */
 
-.global-input-list-item{
+.global-input-list-item {
+    width: 100%;
 
-    width:100%;
+    padding: 14px;
 
-    box-sizing:border-box;
+    box-sizing: border-box;
 
-    padding:14px;
+    border: 1px solid #dfe6e4;
+    border-radius: 12px;
 
-    border:
-        1px solid
-        #dfe6e4;
-
-    border-radius:12px;
-
-    background:#f7f9f8;
-
-    color:#253f3d;
-
+    background: #f7f9f8;
+    color: #253f3d;
 }
 
 
@@ -710,18 +569,15 @@
    INPUT ITEM CONTENT
 ===================================================== */
 
-.global-input-list-item > div{
+.global-input-list-item > div {
+    width: 100%;
 
-    width:100%;
+    box-sizing: border-box;
 
-    box-sizing:border-box;
+    color: #4f5f5d;
 
-    font-size:14px;
-
-    line-height:1.5;
-
-    color:#4f5f5d;
-
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 
@@ -729,20 +585,16 @@
    INPUT ITEM TITLE
 ===================================================== */
 
-.global-input-list-item strong{
+.global-input-list-item strong {
+    display: block;
 
-    display:block;
+    margin-bottom: 5px;
 
-    margin-bottom:5px;
+    color: #294845;
 
-    font-size:15px;
-
-    line-height:1.4;
-
-    font-weight:700;
-
-    color:#294845;
-
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 700;
 }
 
 
@@ -750,26 +602,19 @@
    INPUT ITEM ACTIONS
 ===================================================== */
 
-.global-input-item-actions{
+.global-input-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 
-    display:flex;
+    width: 100%;
 
-    align-items:center;
+    margin-top: 12px;
+    padding-top: 10px;
 
-    justify-content:flex-end;
+    box-sizing: border-box;
 
-    width:100%;
-
-    margin-top:12px;
-
-    padding-top:10px;
-
-    box-sizing:border-box;
-
-    border-top:
-        1px solid
-        #e1e7e5;
-
+    border-top: 1px solid #e1e7e5;
 }
 
 
@@ -777,42 +622,32 @@
    DELETE BUTTON
 ===================================================== */
 
-.global-input-item-actions button{
+.global-input-item-actions button {
+    min-height: 30px;
 
-    min-height:30px;
+    padding: 4px 2px;
 
-    padding:4px 2px;
+    border: none;
 
-    border:none;
+    background: transparent;
+    color: #a85b5b;
 
-    background:transparent;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+    font-family: inherit;
 
-    color:#a85b5b;
-
-    font-size:13px;
-
-    line-height:1.4;
-
-    font-weight:600;
-
-    font-family:inherit;
-
-    cursor:pointer;
-
+    cursor: pointer;
 }
 
 
-.global-input-item-actions button:hover{
-
-    color:#8f4545;
-
+.global-input-item-actions button:hover {
+    color: #8f4545;
 }
 
 
-.global-input-item-actions button:active{
-
-    transform:scale(.96);
-
+.global-input-item-actions button:active {
+    transform: scale(.96);
 }
 
 
@@ -820,25 +655,18 @@
    FOOTER
 ===================================================== */
 
-.global-input-footer{
+.global-input-footer {
+    width: 100%;
 
-    width:100%;
+    flex-shrink: 0;
 
-    flex-shrink:0;
+    padding: 14px 20px 20px;
 
-    padding:
-        14px
-        20px
-        20px;
+    box-sizing: border-box;
 
-    box-sizing:border-box;
+    background: #ffffff;
 
-    background:#ffffff;
-
-    border-top:
-        1px solid
-        #e5e9e8;
-
+    border-top: 1px solid #e5e9e8;
 }
 
 
@@ -846,39 +674,28 @@
    CONFIRM BUTTON
 ===================================================== */
 
-.global-input-confirm{
+.global-input-confirm {
+    width: 100%;
+    min-height: 50px;
 
-    width:100%;
+    padding: 12px 16px;
 
-    min-height:50px;
+    border: none;
+    border-radius: 12px;
 
-    padding:
-        12px
-        16px;
+    background: #253f3d;
+    color: #ffffff;
 
-    border:none;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
 
-    border-radius:12px;
-
-    background:#253f3d;
-
-    color:#ffffff;
-
-    font-size:16px;
-
-    font-weight:700;
-
-    font-family:inherit;
-
-    cursor:pointer;
-
+    cursor: pointer;
 }
 
 
-.global-input-confirm:active{
-
-    transform:scale(.98);
-
+.global-input-confirm:active {
+    transform: scale(.98);
 }
 
 
@@ -886,10 +703,8 @@
    BODY LOCK
 ===================================================== */
 
-body.input-open{
-
-    overflow:hidden;
-
+body.input-open {
+    overflow: hidden;
 }
 
 
@@ -897,63 +712,8 @@ body.input-open{
    HIDDEN
 ===================================================== */
 
-.hidden{
-
-    display:none !important;
-
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media(max-width:480px){
-
-    .global-input-header{
-
-        padding:18px;
-
-    }
-
-
-    .global-input-content{
-
-        padding:18px;
-
-    }
-
-
-    .global-input-footer{
-
-        padding:
-            14px
-            18px
-            18px;
-
-    }
-
-
-    .global-input-meta strong{
-
-        min-width:110px;
-
-    }
-
-
-    .global-input-date{
-
-        width:145px;
-
-    }
-
-
-    .global-input-list-item{
-
-        padding:13px;
-
-    }
-
+.hidden {
+    display: none !important;
 }
 
 
@@ -961,12 +721,10 @@ body.input-open{
    CUSTOM SELECT WRAPPER
 ===================================================== */
 
-.global-input-custom-select-wrapper{
+.global-input-custom-select-wrapper {
+    position: relative;
 
-    position:relative;
-
-    width:100%;
-
+    width: 100%;
 }
 
 
@@ -974,72 +732,49 @@ body.input-open{
    CUSTOM SELECT BUTTON
 ===================================================== */
 
-.global-input-custom-select{
+.global-input-custom-select {
+    width: 100%;
+    min-height: 56px;
 
-    width:100%;
+    padding: 14px 18px;
 
-    min-height:56px;
+    border: 1px solid #d6dcdc;
+    border-radius: 16px;
 
-    padding:14px 18px;
+    background: #ffffff;
+    color: #263f3c;
 
-    border:1px solid #d6dcdc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    border-radius:16px;
+    gap: 12px;
 
-    background:#ffffff;
+    font-size: 16px;
+    font-family: inherit;
+    text-align: left;
 
-    color:#263f3c;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:12px;
-
-    font-size:16px;
-
-    font-family:inherit;
-
-    text-align:left;
-
-    cursor:pointer;
+    cursor: pointer;
 
     transition:
-
         border-color .2s ease,
-
         box-shadow .2s ease,
-
         background .2s ease;
-
 }
 
 
-/* =====================================================
-   HOVER / FOCUS
-===================================================== */
-
-.global-input-custom-select:hover{
-
-    border-color:#9aabaa;
-
+.global-input-custom-select:hover {
+    border-color: #9aabaa;
 }
 
 
-.global-input-custom-select:focus{
+.global-input-custom-select:focus {
+    outline: none;
 
-    outline:none;
-
-    border-color:#284b47;
+    border-color: #284b47;
 
     box-shadow:
-
-        0 0 0 3px
-
-        rgba(40,75,71,.10);
-
+        0 0 0 3px rgba(40, 75, 71, .10);
 }
 
 
@@ -1047,10 +782,8 @@ body.input-open{
    SELECT HAS VALUE
 ===================================================== */
 
-.global-input-custom-select.has-value{
-
-    color:#263f3c;
-
+.global-input-custom-select.has-value {
+    color: #263f3c;
 }
 
 
@@ -1058,18 +791,14 @@ body.input-open{
    VALUE
 ===================================================== */
 
-.global-input-custom-value{
+.global-input-custom-value {
+    flex: 1;
+    min-width: 0;
 
-    flex:1;
+    overflow: hidden;
 
-    min-width:0;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
@@ -1077,29 +806,21 @@ body.input-open{
    ARROW
 ===================================================== */
 
-.global-input-custom-arrow{
+.global-input-custom-arrow {
+    flex-shrink: 0;
 
-    flex-shrink:0;
+    color: #687875;
 
-    font-size:16px;
-
-    color:#687875;
+    font-size: 16px;
+    line-height: 1;
 
     transition:
-
         transform .2s ease;
-
 }
 
 
-.global-input-custom-select:focus
-
-.global-input-custom-arrow{
-
-    transform:
-
-        rotate(180deg);
-
+.global-input-custom-select:focus .global-input-custom-arrow {
+    transform: rotate(180deg);
 }
 
 
@@ -1107,18 +828,15 @@ body.input-open{
    FIELD NOTE
 ===================================================== */
 
-.global-input-field-note{
+.global-input-field-note {
+    display: block;
 
-    display:block;
+    margin-top: 8px;
 
-    margin-top:8px;
+    color: #7b8987;
 
-    color:#7b8987;
-
-    font-size:14px;
-
-    line-height:1.45;
-
+    font-size: 14px;
+    line-height: 1.45;
 }
 
 
@@ -1126,30 +844,22 @@ body.input-open{
    PICKER ROOT
 ===================================================== */
 
-.global-input-picker{
+.global-input-picker {
+    position: fixed;
+    inset: 0;
 
-    position:fixed;
+    z-index: 99999;
 
-    inset:0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
 
-    z-index:99999;
-
-    display:flex;
-
-    align-items:flex-end;
-
-    justify-content:center;
-
-    visibility:hidden;
-
-    opacity:0;
+    visibility: hidden;
+    opacity: 0;
 
     transition:
-
         opacity .2s ease,
-
         visibility .2s ease;
-
 }
 
 
@@ -1157,29 +867,21 @@ body.input-open{
    PICKER OPEN
 ===================================================== */
 
-.global-input-picker.is-open{
-
-    visibility:visible;
-
-    opacity:1;
-
+.global-input-picker.is-open {
+    visibility: visible;
+    opacity: 1;
 }
 
 
 /* =====================================================
-   BACKDROP
+   PICKER BACKDROP
 ===================================================== */
 
-.global-input-picker-backdrop{
+.global-input-picker-backdrop {
+    position: absolute;
+    inset: 0;
 
-    position:absolute;
-
-    inset:0;
-
-    background:
-
-        rgba(0,0,0,.38);
-
+    background: rgba(0, 0, 0, .38);
 }
 
 
@@ -1187,59 +889,36 @@ body.input-open{
    PICKER PANEL
 ===================================================== */
 
-.global-input-picker-panel{
+.global-input-picker-panel {
+    position: relative;
 
-    position:relative;
+    z-index: 1;
 
-    z-index:1;
+    width: min(100%, 560px);
 
-    width:
+    max-height: 75vh;
 
-        min(
+    margin: 0 12px 12px;
 
-            100%,
+    overflow: hidden;
 
-            560px
+    background: #ffffff;
 
-        );
-
-    max-height:75vh;
-
-    margin:
-
-        0 12px 12px;
-
-    background:#ffffff;
-
-    border-radius:24px;
-
-    overflow:hidden;
+    border-radius: 24px;
 
     box-shadow:
+        0 20px 60px rgba(0, 0, 0, .22);
 
-        0 20px 60px
-
-        rgba(0,0,0,.22);
-
-    transform:
-
-        translateY(24px);
+    transform: translateY(24px);
 
     transition:
-
         transform .25s ease;
-
 }
 
 
 .global-input-picker.is-open
-
-.global-input-picker-panel{
-
-    transform:
-
-        translateY(0);
-
+.global-input-picker-panel {
+    transform: translateY(0);
 }
 
 
@@ -1247,22 +926,18 @@ body.input-open{
    PICKER HEADER
 ===================================================== */
 
-.global-input-picker-header{
+.global-input-picker-header {
+    min-height: 64px;
 
-    min-height:64px;
+    padding: 16px 20px;
 
-    padding:16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    display:flex;
+    gap: 16px;
 
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:16px;
-
-    border-bottom:1px solid #e5e9e8;
-
+    border-bottom: 1px solid #e5e9e8;
 }
 
 
@@ -1270,47 +945,36 @@ body.input-open{
    PICKER TITLE
 ===================================================== */
 
-.global-input-picker-header strong{
+.global-input-picker-header strong {
+    color: #263f3c;
 
-    color:#263f3c;
-
-    font-size:18px;
-
-    line-height:1.3;
-
+    font-size: 18px;
+    line-height: 1.3;
 }
 
 
 /* =====================================================
-   CLOSE
+   PICKER CLOSE
 ===================================================== */
 
-.global-input-picker-close{
+.global-input-picker-close {
+    width: 40px;
+    height: 40px;
 
-    width:40px;
+    border: 0;
+    border-radius: 50%;
 
-    height:40px;
+    background: #eef3f2;
+    color: #263f3c;
 
-    border:0;
+    font-size: 24px;
+    line-height: 1;
 
-    border-radius:50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    background:#eef3f2;
-
-    color:#263f3c;
-
-    font-size:24px;
-
-    line-height:1;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    cursor:pointer;
-
+    cursor: pointer;
 }
 
 
@@ -1318,20 +982,12 @@ body.input-open{
    OPTION LIST
 ===================================================== */
 
-.global-input-picker-list{
+.global-input-picker-list {
+    max-height: calc(75vh - 64px);
 
-    max-height:
+    overflow-y: auto;
 
-        calc(
-
-            75vh - 64px
-
-        );
-
-    overflow-y:auto;
-
-    overscroll-behavior:contain;
-
+    overscroll-behavior: contain;
 }
 
 
@@ -1339,44 +995,35 @@ body.input-open{
    OPTION
 ===================================================== */
 
-.global-input-picker-option{
+.global-input-picker-option {
+    position: relative;
 
-    position:relative;
+    width: 100%;
+    min-height: 68px;
 
-    width:100%;
+    padding: 16px 20px;
 
-    min-height:68px;
+    border: 0;
+    border-bottom: 1px solid #edf0ef;
 
-    padding:16px 20px;
+    background: #ffffff;
+    color: #263f3c;
 
-    border:0;
+    display: grid;
 
-    border-bottom:1px solid #edf0ef;
+    grid-template-columns: 1fr auto;
 
-    background:#ffffff;
+    align-items: center;
 
-    color:#263f3c;
+    column-gap: 16px;
 
-    display:grid;
+    text-align: left;
+    font-family: inherit;
 
-    grid-template-columns:
-
-        1fr auto;
-
-    align-items:center;
-
-    column-gap:16px;
-
-    text-align:left;
-
-    font-family:inherit;
-
-    cursor:pointer;
+    cursor: pointer;
 
     transition:
-
         background .15s ease;
-
 }
 
 
@@ -1384,10 +1031,8 @@ body.input-open{
    OPTION HOVER
 ===================================================== */
 
-.global-input-picker-option:hover{
-
-    background:#f4f7f6;
-
+.global-input-picker-option:hover {
+    background: #f4f7f6;
 }
 
 
@@ -1395,10 +1040,8 @@ body.input-open{
    OPTION SELECTED
 ===================================================== */
 
-.global-input-picker-option.selected{
-
-    background:#f0f5f4;
-
+.global-input-picker-option.selected {
+    background: #f0f5f4;
 }
 
 
@@ -1406,14 +1049,11 @@ body.input-open{
    OPTION CONTENT
 ===================================================== */
 
-.global-input-picker-option-content{
+.global-input-picker-option-content {
+    min-width: 0;
 
-    min-width:0;
-
-    font-size:17px;
-
-    line-height:1.4;
-
+    font-size: 17px;
+    line-height: 1.4;
 }
 
 
@@ -1421,35 +1061,26 @@ body.input-open{
    OPTION RADIO
 ===================================================== */
 
-.global-input-picker-radio{
+.global-input-picker-radio {
+    width: 28px;
+    height: 28px;
 
-    width:28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    height:28px;
+    flex-shrink: 0;
 
-    display:flex;
+    color: #8b9694;
 
-    align-items:center;
-
-    justify-content:center;
-
-    flex-shrink:0;
-
-    font-size:28px;
-
-    line-height:1;
-
-    color:#8b9694;
-
+    font-size: 28px;
+    line-height: 1;
 }
 
 
 .global-input-picker-option.selected
-
-.global-input-picker-radio{
-
-    color:#e88ca2;
-
+.global-input-picker-radio {
+    color: #e88ca2;
 }
 
 
@@ -1457,191 +1088,35 @@ body.input-open{
    OPTION NOTE
 ===================================================== */
 
-.global-input-picker-option-note{
+.global-input-picker-option-note {
+    grid-column: 1 / -1;
 
-    grid-column:1 / -1;
+    margin-top: 4px;
 
-    margin-top:4px;
+    color: #7b8987;
 
-    color:#7b8987;
-
-    font-size:13px;
-
-    line-height:1.4;
-
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media(
-
-    max-width:600px
-
-){
-
-    .global-input-picker-panel{
-
-        width:
-
-            calc(
-
-                100% - 20px
-
-            );
-
-        margin:
-
-            0 10px 10px;
-
-        border-radius:22px;
-
-        max-height:80vh;
-
-    }
-
-
-    .global-input-picker-list{
-
-        max-height:
-
-            calc(
-
-                80vh - 64px
-
-            );
-
-    }
-
-
-    .global-input-picker-option{
-
-        min-height:64px;
-
-        padding:
-
-            15px 18px;
-
-    }
-
-
-    .global-input-picker-option-content{
-
-        font-size:16px;
-
-    }
-
-
-    .global-input-picker-option-note{
-
-        font-size:13px;
-
-    }
-
-}
-
-
-/* =====================================================
-   VERY SMALL SCREEN
-===================================================== */
-
-@media(
-
-    max-width:360px
-
-){
-
-    .global-input-custom-select{
-
-        min-height:52px;
-
-        padding:
-
-            13px 15px;
-
-    }
-
-
-    .global-input-picker-panel{
-
-        width:
-
-            calc(
-
-                100% - 12px
-
-            );
-
-        margin-bottom:6px;
-
-    }
-
-
-    .global-input-picker-header{
-
-        padding:
-
-            14px 16px;
-
-    }
-
-
-    .global-input-picker-option{
-
-        padding:
-
-            14px 16px;
-
-    }
-
-}
-
-
-/* =====================================================
-   REDUCE MOTION
-===================================================== */
-
-@media(
-
-    prefers-reduced-motion: reduce
-
-){
-
-    .global-input-picker,
-
-    .global-input-picker-panel,
-
-    .global-input-custom-select,
-
-    .global-input-custom-arrow{
-
-        transition:none;
-
-    }
-
-}
 /* =====================================================
    PAYROLL MONTHLY
    CONDITION CHECKBOX
 ===================================================== */
 
-.global-input-condition-list{
-
-    display:grid;
+.global-input-condition-list {
+    display: grid;
 
     grid-template-columns:
         repeat(2, minmax(0, 1fr));
 
-    column-gap:24px;
+    column-gap: 24px;
+    row-gap: 18px;
 
-    row-gap:18px;
+    width: 100%;
 
-    width:100%;
-
-    margin-top:4px;
-
+    margin-top: 4px;
 }
 
 
@@ -1649,26 +1124,20 @@ body.input-open{
    CONDITION ITEM
 ===================================================== */
 
-.global-input-condition-item{
+.global-input-condition-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    display:flex;
+    width: 100%;
 
-    align-items:center;
+    margin: 0;
+    padding: 0;
 
-    justify-content:space-between;
+    cursor: pointer;
 
-    width:100%;
-
-    margin:0;
-
-    padding:0;
-
-    cursor:pointer;
-
-    font-size:16px;
-
-    line-height:1.4;
-
+    font-size: 16px;
+    line-height: 1.4;
 }
 
 
@@ -1676,14 +1145,11 @@ body.input-open{
    CONDITION LABEL
 ===================================================== */
 
-.global-input-condition-item span{
+.global-input-condition-item span {
+    order: 1;
 
-    order:1;
-
-    flex:1;
-
-    min-width:0;
-
+    flex: 1;
+    min-width: 0;
 }
 
 
@@ -1691,53 +1157,43 @@ body.input-open{
    CHECKBOX
 ===================================================== */
 
-.global-input-condition-item input[type="checkbox"]{
+.global-input-condition-item input[type="checkbox"] {
+    order: 2;
 
-    order:2;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
 
-    width:18px;
+    margin: 0 0 0 10px;
+    padding: 0;
 
-    height:18px;
+    cursor: pointer;
 
-    min-width:18px;
-
-    margin:0 0 0 10px;
-
-    padding:0;
-
-    cursor:pointer;
-
-    appearance:auto;
-
+    appearance: auto;
 }
 
 
 /* =====================================================
-   NOTE
+   CONDITION NOTE
 ===================================================== */
 
 .global-input-condition-list
-+
-.global-input-field-note{
-
-    margin-top:16px;
-
++ .global-input-field-note {
+    margin-top: 16px;
 }
+
 
 /* =====================================================
    EDIT INPUT MENU
 ===================================================== */
 
-.global-edit-input-list{
+.global-edit-input-list {
+    display: flex;
+    flex-direction: column;
 
-    display:flex;
+    gap: 12px;
 
-    flex-direction:column;
-
-    gap:12px;
-
-    width:100%;
-
+    width: 100%;
 }
 
 
@@ -1745,524 +1201,168 @@ body.input-open{
    EDIT INPUT ITEM
 ===================================================== */
 
-.global-edit-input-item{
-
-    width:100%;
-
-    min-height:92px;
-
-    padding:16px;
-
-    box-sizing:border-box;
-
-    border:0;
-
-    border-radius:18px;
-
-    background:#ffffff;
-
-    color:#253f3d;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:14px;
-
-    font-family:inherit;
-
-    text-align:left;
-
-    cursor:pointer;
-
-    transition:
-
-        background-color .2s ease,
-
-        transform .1s ease;
-
-}
-
-
-/* =====================================================
-   LEFT
-===================================================== */
-
-.global-edit-input-item-left{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:14px;
-
-    min-width:0;
-
-}
-
-
-/* =====================================================
-   ICON
-===================================================== */
-
-.global-edit-input-item-icon{
-
-    width:48px;
-
-    height:48px;
-
-    flex-shrink:0;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    border-radius:14px;
-
-    background:#eef3ff;
-
-    font-size:24px;
-
-    line-height:1;
-
-}
-
-
-/* =====================================================
-   CONTENT
-===================================================== */
-
-.global-edit-input-item-content{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:4px;
-
-    min-width:0;
-
-}
-
-
-/* =====================================================
-   TITLE
-===================================================== */
-
-.global-edit-input-item-title{
-
-    color:#253f3d;
-
-    font-size:15px;
-
-    line-height:1.35;
-
-    font-weight:700;
-
-}
-
-
-/* =====================================================
-   DESCRIPTION
-===================================================== */
-
-.global-edit-input-item-description{
-
-    color:#7d8988;
-
-    font-size:13px;
-
-    line-height:1.4;
-
-}
-
-
-/* =====================================================
-   ARROW
-===================================================== */
-
-.global-edit-input-item-arrow{
-
-    flex-shrink:0;
-
-    color:#9aa3a2;
-
-    font-size:24px;
-
-    line-height:1;
-
-}
-
-
-/* =====================================================
-   ACTIVE
-===================================================== */
-
-.global-edit-input-item:active{
-
-    background:#f4f7f6;
-
-    transform:scale(.985);
-
-}
-
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media(max-width:480px){
-
-    .global-edit-input-item{
-
-        min-height:88px;
-
-        padding:15px;
-
-        border-radius:17px;
-
-    }
-
-
-    .global-edit-input-item-icon{
-
-        width:44px;
-
-        height:44px;
-
-        border-radius:13px;
-
-        font-size:22px;
-
-    }
-
-
-    .global-edit-input-item-title{
-
-        font-size:14px;
-
-    }
-
-
-    .global-edit-input-item-description{
-
-        font-size:12px;
-
-    }
-
-
-    .global-edit-input-item-arrow{
-
-        font-size:22px;
-
-    }
-
-}
-
-/* =====================================================
-   AIRDROP EDIT INPUT
-   Reward Overlay
-===================================================== */
-
-#airdrop-edit-reward-overlay {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 9999;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 20px;
+.global-edit-input-item {
+    width: 100%;
+    min-height: 92px;
+
+    padding: 16px;
 
     box-sizing: border-box;
-
-    background:
-        rgba(0, 0, 0, 0.45);
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    pointer-events: none;
-
-    transition:
-        opacity 0.2s ease,
-        visibility 0.2s ease;
-
-}
-
-
-/* =====================================================
-   OPEN
-===================================================== */
-
-#airdrop-edit-reward-overlay.is-open {
-
-    opacity: 1;
-
-    visibility: visible;
-
-    pointer-events: auto;
-
-}
-
-
-/* =====================================================
-   BACKDROP
-===================================================== */
-
-#airdrop-edit-reward-overlay
-.airdrop-edit-reward-backdrop {
-
-    position: absolute;
-
-    inset: 0;
-
-    background:
-        rgba(0, 0, 0, 0.45);
-
-}
-
-
-/* =====================================================
-   PANEL
-===================================================== */
-
-#airdrop-edit-reward-overlay
-.airdrop-edit-reward-panel {
-
-    position: relative;
-
-    z-index: 1;
-
-    width: min(
-        100%,
-        520px
-    );
-
-    max-height: calc(
-        100vh - 40px
-    );
-
-    overflow-y: auto;
-
-    box-sizing: border-box;
-
-    padding: 22px;
-
-    border-radius: 18px;
-
-    background:
-        var(--card-bg, #ffffff);
-
-    box-shadow:
-        0 20px 60px
-        rgba(0, 0, 0, 0.25);
-
-    transform:
-        translateY(12px)
-        scale(0.98);
-
-    transition:
-        transform 0.2s ease;
-
-}
-
-
-/* =====================================================
-   PANEL OPEN
-===================================================== */
-
-#airdrop-edit-reward-overlay.is-open
-.airdrop-edit-reward-panel {
-
-    transform:
-        translateY(0)
-        scale(1);
-
-}
-
-
-/* =====================================================
-   HEADER
-===================================================== */
-
-.airdrop-edit-reward-header {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 12px;
-
-    margin-bottom: 18px;
-
-}
-
-
-.airdrop-edit-reward-title {
-
-    margin: 0;
-
-    font-size: 20px;
-
-    font-weight: 700;
-
-}
-
-
-.airdrop-edit-reward-close {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 36px;
-
-    height: 36px;
-
-    padding: 0;
 
     border: 0;
+    border-radius: 18px;
 
-    border-radius: 50%;
-
-    background:
-        transparent;
-
-    cursor: pointer;
-
-    font-size: 22px;
-
-    line-height: 1;
-
-}
-
-
-/* =====================================================
-   CONTENT
-===================================================== */
-
-.airdrop-edit-reward-content {
+    background: #ffffff;
+    color: #253f3d;
 
     display: flex;
-
-    flex-direction: column;
-
-    gap: 16px;
-
-}
-
-
-/* =====================================================
-   PICKER
-===================================================== */
-
-.airdrop-edit-reward-picker {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-
-}
-
-
-/* =====================================================
-   SELECTED
-===================================================== */
-
-.airdrop-edit-reward-selected {
-
-    display: flex;
-
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 
     gap: 14px;
 
+    font-family: inherit;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        transform .1s ease;
 }
 
 
 /* =====================================================
-   MOBILE
+   EDIT INPUT LEFT
 ===================================================== */
 
-@media (
-    max-width: 600px
-){
+.global-edit-input-item-left {
+    display: flex;
+    align-items: center;
 
-    #airdrop-edit-reward-overlay {
+    gap: 14px;
 
-        padding: 12px;
-
-        align-items: flex-end;
-
-    }
-
-
-    #airdrop-edit-reward-overlay
-    .airdrop-edit-reward-panel {
-
-        width: 100%;
-
-        max-height: 90vh;
-
-        border-radius:
-            18px 18px 0 0;
-
-        padding: 18px;
-
-    }
-
+    min-width: 0;
 }
+
+
 /* =====================================================
-   AIRDROP EDIT INPUT REWARD
+   EDIT INPUT ICON
 ===================================================== */
 
-/* =============================================
-   OVERLAY
-============================================= */
+.global-edit-input-item-icon {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #eef3ff;
+
+    font-size: 24px;
+    line-height: 1;
+}
+
+
+/* =====================================================
+   EDIT INPUT CONTENT
+===================================================== */
+
+.global-edit-input-item-content {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    min-width: 0;
+}
+
+
+/* =====================================================
+   EDIT INPUT TITLE
+===================================================== */
+
+.global-edit-input-item-title {
+    color: #253f3d;
+
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   EDIT INPUT DESCRIPTION
+===================================================== */
+
+.global-edit-input-item-description {
+    color: #7d8988;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   EDIT INPUT ARROW
+===================================================== */
+
+.global-edit-input-item-arrow {
+    flex-shrink: 0;
+
+    color: #9aa3a2;
+
+    font-size: 24px;
+    line-height: 1;
+}
+
+
+/* =====================================================
+   EDIT INPUT ACTIVE
+===================================================== */
+
+.global-edit-input-item:active {
+    background: #f4f7f6;
+
+    transform: scale(.985);
+}
+
+
+/* =====================================================
+   AIRDROP EDIT INPUT
+   REWARD OVERLAY
+===================================================== */
 
 .airdrop-edit-reward-overlay {
     position: fixed;
     inset: 0;
+
     z-index: 9999;
 
     display: flex;
     align-items: flex-end;
     justify-content: center;
 
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(15, 23, 42, .45);
 
     opacity: 0;
     visibility: hidden;
-
     pointer-events: none;
 
     transition:
-        opacity 0.2s ease,
-        visibility 0.2s ease;
+        opacity .2s ease,
+        visibility .2s ease;
 }
 
 
-/* =============================================
-   OPEN
-============================================= */
+/* =====================================================
+   AIRDROP REWARD OVERLAY OPEN
+===================================================== */
 
 .airdrop-edit-reward-overlay.is-open {
     opacity: 1;
@@ -2271,9 +1371,9 @@ body.input-open{
 }
 
 
-/* =============================================
-   PANEL
-============================================= */
+/* =====================================================
+   AIRDROP REWARD PANEL
+===================================================== */
 
 .airdrop-edit-reward-panel {
     position: relative;
@@ -2283,41 +1383,40 @@ body.input-open{
 
     max-height: 90vh;
 
-    background: #ffffff;
-
-    border-radius:
-        28px 28px 0 0;
+    box-sizing: border-box;
 
     overflow: hidden;
 
-    transform:
-        translateY(30px);
+    background: #ffffff;
+
+    border-radius: 28px 28px 0 0;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .25);
+
+    transform: translateY(30px);
 
     transition:
-        transform 0.25s ease;
+        transform .25s ease;
 }
 
 
-/* =============================================
-   PANEL OPEN
-============================================= */
+/* =====================================================
+   AIRDROP REWARD PANEL OPEN
+===================================================== */
 
 .airdrop-edit-reward-overlay.is-open
 .airdrop-edit-reward-panel {
-
-    transform:
-        translateY(0);
+    transform: translateY(0);
 }
 
 
-/* =============================================
-   HEADER
-============================================= */
+/* =====================================================
+   AIRDROP REWARD HEADER
+===================================================== */
 
 .airdrop-edit-reward-header {
-
     display: flex;
-
     align-items: center;
     justify-content: space-between;
 
@@ -2325,123 +1424,137 @@ body.input-open{
 
     padding: 24px 24px 18px;
 
-    border-bottom:
-        1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+
+    flex-shrink: 0;
 }
 
 
-/* =============================================
-   TITLE
-============================================= */
+/* =====================================================
+   AIRDROP REWARD TITLE
+===================================================== */
 
 .airdrop-edit-reward-header h2 {
-
     margin: 0;
 
-    font-size: 24px;
-    font-weight: 700;
-
     color: #111827;
+
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: 700;
 }
 
 
-/* =============================================
-   CLOSE
-============================================= */
+/* =====================================================
+   AIRDROP REWARD CLOSE
+===================================================== */
 
 .airdrop-edit-reward-close {
-
     width: 40px;
     height: 40px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
+
+    flex-shrink: 0;
 
     padding: 0;
 
     border: 0;
+    border-radius: 50%;
 
     background: transparent;
+    color: #111827;
 
     font-size: 30px;
     line-height: 1;
-
-    color: #111827;
 
     cursor: pointer;
 }
 
 
-/* =============================================
-   CONTENT
-============================================= */
-
-.airdrop-edit-reward-content {
-
-    padding: 20px 24px 28px;
-
-    max-height:
-        calc(90vh - 90px);
-
-    overflow-y: auto;
+.airdrop-edit-reward-close:active {
+    transform: scale(.94);
 }
 
 
-/* =============================================
-   PICKER
-============================================= */
+/* =====================================================
+   AIRDROP REWARD CONTENT
+===================================================== */
+
+.airdrop-edit-reward-content {
+    padding: 20px 24px 28px;
+
+    max-height: calc(90vh - 90px);
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+
+/* =====================================================
+   AIRDROP REWARD PICKER
+===================================================== */
 
 .airdrop-edit-reward-picker {
-
     display: flex;
-
     flex-direction: column;
 
     gap: 14px;
 }
 
 
-/* =============================================
-   TITLE PICKER
-============================================= */
+/* =====================================================
+   PICKER TITLE
+===================================================== */
 
 .airdrop-reward-title {
-
-    font-size: 17px;
-    font-weight: 700;
+    margin: 0 0 2px;
 
     color: #111827;
 
-    margin-bottom: 2px;
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 700;
 }
 
 
-/* =============================================
+/* =====================================================
    PROJECT LIST
-============================================= */
+===================================================== */
 
 .airdrop-reward-project-list {
-
     display: flex;
-
     flex-direction: column;
 
     gap: 10px;
-}
-
-
-/* =============================================
-   PROJECT ITEM
-============================================= */
-
-.airdrop-reward-project {
 
     width: 100%;
 
-    display: flex;
+    /*
+       Menampilkan sekitar 5 project.
+       Sisanya dapat discroll.
+    */
+    max-height: 350px;
 
+    overflow-y: auto;
+
+    padding-right: 3px;
+
+    overscroll-behavior: contain;
+}
+
+
+/* =====================================================
+   PROJECT ITEM
+===================================================== */
+
+.airdrop-reward-project {
+    width: 100%;
+    min-height: 66px;
+
+    display: flex;
     align-items: center;
     justify-content: space-between;
 
@@ -2449,144 +1562,134 @@ body.input-open{
 
     padding: 14px 16px;
 
-    border:
-        1px solid #e5e7eb;
+    box-sizing: border-box;
 
+    border: 1px solid #e5e7eb;
     border-radius: 14px;
 
     background: #ffffff;
+    color: #111827;
 
     text-align: left;
+    font-family: inherit;
 
     cursor: pointer;
 
     transition:
-        background 0.15s ease,
-        border-color 0.15s ease,
-        transform 0.15s ease;
+        background .15s ease,
+        border-color .15s ease,
+        transform .15s ease;
 }
 
 
 .airdrop-reward-project:hover {
-
     background: #f9fafb;
-
 }
 
 
 .airdrop-reward-project:active {
-
-    transform:
-        scale(0.99);
-
+    transform: scale(.99);
 }
 
 
-/* =============================================
+/* =====================================================
    PROJECT SELECTED
-============================================= */
+===================================================== */
 
 .airdrop-reward-project.selected {
+    border-color: #2563eb;
 
-    border-color:
-        #2563eb;
-
-    background:
-        #eff6ff;
+    background: #eff6ff;
 }
 
 
-/* =============================================
+/* =====================================================
    PROJECT NAME
-============================================= */
+===================================================== */
 
 .airdrop-reward-project-name {
-
-    font-size: 16px;
-    font-weight: 600;
+    min-width: 0;
 
     color: #111827;
+
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 600;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
-/* =============================================
+/* =====================================================
    PROJECT META
-============================================= */
+===================================================== */
 
 .airdrop-reward-project small {
-
     flex-shrink: 0;
 
-    font-size: 13px;
-
     color: #6b7280;
+
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 
-/* =============================================
-   EMPTY
-============================================= */
+/* =====================================================
+   EMPTY PROJECT LIST
+===================================================== */
 
 .airdrop-reward-empty {
-
     padding: 20px;
 
     border-radius: 14px;
 
-    background:
-        #f9fafb;
-
-    color:
-        #6b7280;
+    background: #f9fafb;
+    color: #6b7280;
 
     text-align: center;
 
     font-size: 14px;
+    line-height: 1.5;
 }
 
 
-/* =============================================
+/* =====================================================
    SELECTED CONTAINER
-============================================= */
+===================================================== */
 
 .airdrop-edit-reward-selected-container {
-
     margin-top: 20px;
 }
 
 
-/* =============================================
+/* =====================================================
    SELECTED CARD
-============================================= */
+===================================================== */
 
 .airdrop-reward-selected {
-
     display: flex;
-
     flex-direction: column;
 
     gap: 14px;
 
     padding: 18px;
 
-    border:
-        1px solid #e5e7eb;
-
+    border: 1px solid #e5e7eb;
     border-radius: 18px;
 
-    background:
-        #f9fafb;
+    background: #f9fafb;
 }
 
 
-/* =============================================
-   INFO
-============================================= */
+/* =====================================================
+   SELECTED INFO
+===================================================== */
 
 .airdrop-reward-info {
-
     display: flex;
-
     align-items: center;
     justify-content: space-between;
 
@@ -2595,44 +1698,42 @@ body.input-open{
 
 
 .airdrop-reward-info span {
-
-    color:
-        #6b7280;
+    color: #6b7280;
 
     font-size: 14px;
+    line-height: 1.4;
 }
 
 
 .airdrop-reward-info strong {
+    min-width: 0;
 
-    color:
-        #111827;
+    color: #111827;
 
     font-size: 15px;
+    line-height: 1.4;
 
     text-align: right;
+
+    overflow-wrap: anywhere;
 }
 
 
-/* =============================================
-   LOCKED
-============================================= */
+/* =====================================================
+   LOCKED INFO
+===================================================== */
 
 .airdrop-reward-info.locked {
-
-    opacity:
-        0.75;
+    opacity: .75;
 }
 
 
-/* =============================================
+/* =====================================================
    STATUS
-============================================= */
+===================================================== */
 
 .airdrop-reward-status {
-
     display: flex;
-
     flex-direction: column;
 
     gap: 7px;
@@ -2640,24 +1741,20 @@ body.input-open{
 
 
 .airdrop-reward-status label {
+    color: #374151;
 
     font-size: 14px;
-
+    line-height: 1.4;
     font-weight: 600;
-
-    color:
-        #374151;
 }
 
 
-/* =============================================
+/* =====================================================
    REWARD AMOUNT
-============================================= */
+===================================================== */
 
 .airdrop-reward-amount {
-
     display: flex;
-
     flex-direction: column;
 
     gap: 7px;
@@ -2665,132 +1762,588 @@ body.input-open{
 
 
 .airdrop-reward-amount label {
+    color: #374151;
 
     font-size: 14px;
-
+    line-height: 1.4;
     font-weight: 600;
-
-    color:
-        #374151;
 }
 
 
-/* =============================================
-   HIDDEN
-============================================= */
-
-.airdrop-edit-reward-overlay .hidden {
-
-    display: none !important;
-}
-
-
-/* =============================================
-   ACTION BUTTON
-============================================= */
+/* =====================================================
+   EDIT REWARD ACTION
+===================================================== */
 
 .airdrop-edit-reward-panel
 .global-input-action-button {
-
     width: 100%;
-
     min-height: 48px;
 
     margin-top: 4px;
 
-    border: 0;
+    padding: 12px 16px;
 
+    box-sizing: border-box;
+
+    border: 0;
     border-radius: 14px;
 
-    background:
-        #111827;
-
-    color:
-        #ffffff;
+    background: #111827;
+    color: #ffffff;
 
     font-size: 16px;
-
+    line-height: 1.4;
     font-weight: 600;
+    font-family: inherit;
 
     cursor: pointer;
 
     transition:
-        opacity 0.15s ease,
-        transform 0.15s ease;
+        opacity .15s ease,
+        transform .15s ease;
 }
 
 
 .airdrop-edit-reward-panel
 .global-input-action-button:disabled {
+    opacity: .45;
 
-    opacity:
-        0.45;
-
-    cursor:
-        not-allowed;
+    cursor: not-allowed;
 }
 
 
 .airdrop-edit-reward-panel
 .global-input-action-button:not(:disabled):active {
-
-    transform:
-        scale(0.99);
+    transform: scale(.99);
 }
 
 
-/* =============================================
+/* =====================================================
+   PENDING EDIT SECTION
+===================================================== */
+
+.airdrop-edit-reward-pending {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 24px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =====================================================
+   PENDING TITLE
+===================================================== */
+
+.airdrop-edit-reward-pending-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+
+.airdrop-edit-reward-pending-title h3 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   PENDING COUNT
+===================================================== */
+
+.airdrop-edit-reward-pending-count {
+    min-width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 8px;
+
+    box-sizing: border-box;
+
+    border-radius: 999px;
+
+    background: #eef3f2;
+    color: #294845;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   PENDING LIST
+===================================================== */
+
+.airdrop-edit-reward-pending-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    width: 100%;
+}
+
+
+/* =====================================================
+   PENDING ITEM
+===================================================== */
+
+.airdrop-edit-reward-pending-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 12px 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    background: #f9fafb;
+}
+
+
+/* =====================================================
+   PENDING ITEM INFO
+===================================================== */
+
+.airdrop-edit-reward-pending-item-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.airdrop-edit-reward-pending-item-info strong {
+    color: #111827;
+
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 700;
+
+    overflow-wrap: anywhere;
+}
+
+
+.airdrop-edit-reward-pending-item-info span {
+    color: #6b7280;
+
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   PENDING REMOVE
+===================================================== */
+
+.airdrop-edit-reward-pending-remove {
+    flex-shrink: 0;
+
+    min-height: 32px;
+
+    padding: 5px 8px;
+
+    border: 0;
+
+    background: transparent;
+    color: #a85b5b;
+
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+
+.airdrop-edit-reward-pending-remove:hover {
+    color: #8f4545;
+}
+
+
+.airdrop-edit-reward-pending-remove:active {
+    transform: scale(.96);
+}
+
+
+/* =====================================================
+   CONFIRM EDIT
+===================================================== */
+
+.airdrop-edit-reward-confirm {
+    width: 100%;
+
+    margin-top: 20px;
+}
+
+
+/* =====================================================
+   CONFIRM BUTTON
+===================================================== */
+
+.airdrop-edit-reward-confirm button {
+    width: 100%;
+    min-height: 50px;
+
+    padding: 12px 16px;
+
+    box-sizing: border-box;
+
+    border: 0;
+    border-radius: 14px;
+
+    background: #253f3d;
+    color: #ffffff;
+
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 700;
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        opacity .15s ease,
+        transform .1s ease;
+}
+
+
+.airdrop-edit-reward-confirm button:disabled {
+    opacity: .45;
+
+    cursor: not-allowed;
+}
+
+
+.airdrop-edit-reward-confirm button:not(:disabled):active {
+    transform: scale(.98);
+}
+
+
+/* =====================================================
+   AIRDROP REWARD SCROLLBAR
+===================================================== */
+
+.airdrop-reward-project-list::-webkit-scrollbar,
+.airdrop-edit-reward-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+.airdrop-reward-project-list::-webkit-scrollbar-track,
+.airdrop-edit-reward-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+.airdrop-reward-project-list::-webkit-scrollbar-thumb,
+.airdrop-edit-reward-content::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+
+    background: #d5dddb;
+}
+
+
+/* =====================================================
    MOBILE
-============================================= */
+===================================================== */
 
 @media (max-width: 600px) {
 
-    .airdrop-edit-reward-panel {
+    .global-input-picker-panel {
+        width: calc(100% - 20px);
 
+        margin: 0 10px 10px;
+
+        border-radius: 22px;
+
+        max-height: 80vh;
+    }
+
+
+    .global-input-picker-list {
+        max-height: calc(80vh - 64px);
+    }
+
+
+    .global-input-picker-option {
+        min-height: 64px;
+
+        padding: 15px 18px;
+    }
+
+
+    .global-input-picker-option-content {
+        font-size: 16px;
+    }
+
+
+    .global-input-picker-option-note {
+        font-size: 13px;
+    }
+
+
+    /* ---------------------------------------------
+       AIRDROP EDIT REWARD
+    --------------------------------------------- */
+
+    .airdrop-edit-reward-panel {
         max-height: 92vh;
 
-        border-radius:
-            24px 24px 0 0;
+        border-radius: 24px 24px 0 0;
     }
 
 
     .airdrop-edit-reward-header {
-
-        padding:
-            20px 20px 16px;
+        padding: 20px 20px 16px;
     }
 
 
     .airdrop-edit-reward-header h2 {
-
         font-size: 22px;
     }
 
 
     .airdrop-edit-reward-content {
+        padding: 18px 20px 24px;
 
-        padding:
-            18px 20px 24px;
+        max-height: calc(92vh - 82px);
+    }
 
-        max-height:
-            calc(92vh - 82px);
+
+    .airdrop-reward-project-list {
+        max-height: 300px;
     }
 
 
     .airdrop-reward-project {
+        min-height: 64px;
 
-        flex-direction: column;
+        padding: 13px 14px;
+    }
 
-        align-items: flex-start;
 
-        gap: 5px;
+    .airdrop-reward-project-name {
+        font-size: 15px;
     }
 
 
     .airdrop-reward-project small {
-
         font-size: 12px;
+    }
+
+
+    .airdrop-reward-info {
+        align-items: flex-start;
+    }
+
+
+    .airdrop-reward-info strong {
+        max-width: 62%;
+    }
+
+
+    .airdrop-edit-reward-pending-item {
+        align-items: flex-start;
     }
 
 }
 
+
+/* =====================================================
+   MOBILE GLOBAL INPUT
+===================================================== */
+
+@media (max-width: 480px) {
+
+    .global-input-header {
+        padding: 18px;
+    }
+
+
+    .global-input-content {
+        padding: 18px;
+    }
+
+
+    .global-input-footer {
+        padding: 14px 18px 18px;
+    }
+
+
+    .global-input-meta strong {
+        min-width: 110px;
+    }
+
+
+    .global-input-date {
+        width: 145px;
+    }
+
+
+    .global-input-list-item {
+        padding: 13px;
+    }
+
+
+    /* ---------------------------------------------
+       EDIT INPUT MENU
+    --------------------------------------------- */
+
+    .global-edit-input-item {
+        min-height: 88px;
+
+        padding: 15px;
+
+        border-radius: 17px;
+    }
+
+
+    .global-edit-input-item-icon {
+        width: 44px;
+        height: 44px;
+
+        border-radius: 13px;
+
+        font-size: 22px;
+    }
+
+
+    .global-edit-input-item-title {
+        font-size: 14px;
+    }
+
+
+    .global-edit-input-item-description {
+        font-size: 12px;
+    }
+
+
+    .global-edit-input-item-arrow {
+        font-size: 22px;
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREEN
+===================================================== */
+
+@media (max-width: 360px) {
+
+    .global-input-custom-select {
+        min-height: 52px;
+
+        padding: 13px 15px;
+    }
+
+
+    .global-input-picker-panel {
+        width: calc(100% - 12px);
+
+        margin-bottom: 6px;
+    }
+
+
+    .global-input-picker-header {
+        padding: 14px 16px;
+    }
+
+
+    .global-input-picker-option {
+        padding: 14px 16px;
+    }
+
+
+    .airdrop-edit-reward-content {
+        padding:
+            16px 16px 20px;
+    }
+
+
+    .airdrop-reward-project-list {
+        max-height: 280px;
+    }
+
+
+    .airdrop-reward-selected {
+        padding: 15px;
+    }
+
+
+    .airdrop-reward-info {
+        flex-direction: column;
+
+        gap: 3px;
+    }
+
+
+    .airdrop-reward-info strong {
+        max-width: 100%;
+
+        text-align: left;
+    }
+
+
+    .airdrop-edit-reward-pending-item {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .airdrop-edit-reward-pending-remove {
+        align-self: flex-end;
+    }
+
+}
+
+
+/* =====================================================
+   REDUCE MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .global-input-picker,
+    .global-input-picker-panel,
+    .global-input-custom-select,
+    .global-input-custom-arrow,
+    .airdrop-edit-reward-overlay,
+    .airdrop-edit-reward-panel,
+    .airdrop-reward-project,
+    .global-edit-input-item,
+    .airdrop-edit-reward-panel
+    .global-input-action-button,
+    .airdrop-edit-reward-confirm button {
+        transition: none;
+    }
+
+}
