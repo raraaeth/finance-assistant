@@ -84,7 +84,7 @@ import {
 
     Update
 
-} from "../../../js/update.js";
+} from "../../js/update.js";
 
 
 /* =====================================================
@@ -112,8 +112,8 @@ const STATUS_WIN =
 
 
 const STATUS_NOTWIN =
-
-    "notwin";
+   
+    "not_win";
 
 
 /* =====================================================
