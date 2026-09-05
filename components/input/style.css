@@ -2,1332 +2,53 @@
    Finance Assistant
    Component    : Global Input
    File         : style.css
-   Version      : 7.2.0
+   Version      : 7.1.0
 
    Description :
-   Global Input + Global Update Data UI
+   Reusable Global Input Overlay
+
+   Behavior :
+   Full Screen
+   No Slide
+   No Floating
 
    Includes :
-   - Normal Input
+   - Global Input
    - Custom Select
-   - Custom Picker
-   - Payroll Condition
-   - Edit Input
-   - Airdrop Edit Reward
-   - Global Update Data
+   - Global Picker
+   - Payroll Monthly Condition
+   - Edit Input Menu
+   - Airdrop Edit Input Reward
 ===================================================== */
 
 
 /* =====================================================
-   GLOBAL INPUT
+   OVERLAY ROOT
 ===================================================== */
 
-.global-input-overlay{
+.global-input-overlay {
+    position: fixed;
+    inset: 0;
 
-    position:fixed;
+    width: 100%;
+    height: 100%;
 
-    inset:0;
+    z-index: 10000;
 
-    z-index:9999;
+    visibility: hidden;
+    pointer-events: none;
 
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    padding:16px;
-
-    opacity:0;
-
-    visibility:hidden;
-
-    pointer-events:none;
-
-    transition:
-        opacity .2s ease,
-        visibility .2s ease;
-
-}
-
-
-.global-input-overlay.is-open{
-
-    opacity:1;
-
-    visibility:visible;
-
-    pointer-events:auto;
-
+    background: #ffffff;
 }
 
 
 /* =====================================================
-   INPUT BACKDROP
+   OPEN STATE
 ===================================================== */
 
-.global-input-backdrop{
-
-    position:absolute;
-
-    inset:0;
-
-    background:rgba(0,0,0,.45);
-
-    backdrop-filter:blur(4px);
-
-    -webkit-backdrop-filter:blur(4px);
-
-}
-
-
-/* =====================================================
-   INPUT PANEL
-===================================================== */
-
-.global-input-panel{
-
-    position:relative;
-
-    z-index:1;
-
-    width:min(100%,560px);
-
-    max-height:min(92vh,900px);
-
-    display:flex;
-
-    flex-direction:column;
-
-    overflow:hidden;
-
-    background:#fff;
-
-    border-radius:24px;
-
-    box-shadow:
-        0 20px 60px rgba(0,0,0,.20);
-
-    transform:translateY(10px) scale(.98);
-
-    transition:
-        transform .2s ease;
-
-}
-
-
-.global-input-overlay.is-open
-.global-input-panel{
-
-    transform:
-        translateY(0)
-        scale(1);
-
-}
-
-
-/* =====================================================
-   INPUT HEADER
-===================================================== */
-
-.global-input-header{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:16px;
-
-    padding:20px 20px 16px;
-
-    border-bottom:1px solid #ececec;
-
-}
-
-
-.global-input-header-content{
-
-    min-width:0;
-
-}
-
-
-.global-input-title{
-
-    margin:0;
-
-    font-size:22px;
-
-    line-height:1.2;
-
-    font-weight:700;
-
-    color:#1f2937;
-
-}
-
-
-.global-input-subtitle{
-
-    margin:5px 0 0;
-
-    font-size:13px;
-
-    line-height:1.4;
-
-    color:#7b8491;
-
-}
-
-
-.global-input-close{
-
-    flex:0 0 auto;
-
-    width:40px;
-
-    height:40px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    border:0;
-
-    border-radius:12px;
-
-    background:transparent;
-
-    color:#1f2937;
-
-    font-size:28px;
-
-    line-height:1;
-
-    cursor:pointer;
-
-}
-
-
-.global-input-close:hover{
-
-    background:#f3f4f6;
-
-}
-
-
-.global-input-close:active{
-
-    transform:scale(.96);
-
-}
-
-
-/* =====================================================
-   INPUT CONTENT
-===================================================== */
-
-.global-input-content{
-
-    flex:1;
-
-    min-height:0;
-
-    overflow-y:auto;
-
-    padding:18px 20px 20px;
-
-}
-
-
-/* =====================================================
-   INPUT SESSION
-===================================================== */
-
-.global-input-session{
-
-    display:grid;
-
-    gap:10px;
-
-    margin-bottom:18px;
-
-}
-
-
-.global-input-session-row{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:14px;
-
-    padding:11px 14px;
-
-    border-radius:12px;
-
-    background:#f7f8fa;
-
-}
-
-
-.global-input-session-label{
-
-    font-size:13px;
-
-    color:#7b8491;
-
-}
-
-
-.global-input-session-value{
-
-    min-width:0;
-
-    font-size:14px;
-
-    font-weight:600;
-
-    color:#273142;
-
-    text-align:right;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-
-}
-
-
-/* =====================================================
-   INPUT FORM
-===================================================== */
-
-.global-input-form{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:16px;
-
-}
-
-
-.global-input-field{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:7px;
-
-}
-
-
-.global-input-field-label{
-
-    font-size:14px;
-
-    font-weight:600;
-
-    color:#374151;
-
-}
-
-
-.global-input-field-note{
-
-    margin-top:-2px;
-
-    font-size:12px;
-
-    color:#8a919b;
-
-}
-
-
-/* =====================================================
-   INPUT ELEMENT
-===================================================== */
-
-.global-input-field input,
-.global-input-field textarea{
-
-    width:100%;
-
-    box-sizing:border-box;
-
-    min-height:48px;
-
-    padding:12px 14px;
-
-    border:1px solid #dfe3e8;
-
-    border-radius:13px;
-
-    outline:none;
-
-    background:#fff;
-
-    color:#202733;
-
-    font:inherit;
-
-    font-size:15px;
-
-    transition:
-        border-color .15s ease,
-        box-shadow .15s ease;
-
-}
-
-
-.global-input-field textarea{
-
-    min-height:100px;
-
-    resize:vertical;
-
-}
-
-
-.global-input-field input:focus,
-.global-input-field textarea:focus{
-
-    border-color:#9ca3af;
-
-    box-shadow:
-        0 0 0 3px rgba(156,163,175,.14);
-
-}
-
-
-.global-input-field input[readonly]{
-
-    background:#f5f6f8;
-
-    color:#737b86;
-
-    cursor:not-allowed;
-
-}
-
-
-/* =====================================================
-   CUSTOM SELECT
-===================================================== */
-
-.global-input-custom-select{
-
-    position:relative;
-
-    width:100%;
-
-}
-
-
-.global-input-custom-select-button{
-
-    width:100%;
-
-    min-height:48px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:12px;
-
-    padding:12px 14px;
-
-    border:1px solid #dfe3e8;
-
-    border-radius:13px;
-
-    background:#fff;
-
-    color:#202733;
-
-    font:inherit;
-
-    font-size:15px;
-
-    text-align:left;
-
-    cursor:pointer;
-
-}
-
-
-.global-input-custom-select-button.is-open{
-
-    border-color:#9ca3af;
-
-    box-shadow:
-        0 0 0 3px rgba(156,163,175,.14);
-
-}
-
-
-.global-input-custom-select-arrow{
-
-    flex:0 0 auto;
-
-    font-size:18px;
-
-    transition:
-        transform .18s ease;
-
-}
-
-
-.global-input-custom-select-button.is-open
-.global-input-custom-select-arrow{
-
-    transform:rotate(180deg);
-
-}
-
-
-.global-input-custom-select-panel{
-
-    position:absolute;
-
-    left:0;
-
-    right:0;
-
-    top:calc(100% + 7px);
-
-    z-index:100;
-
-    max-height:280px;
-
-    overflow-y:auto;
-
-    padding:6px;
-
-    border:1px solid #e4e7eb;
-
-    border-radius:15px;
-
-    background:#fff;
-
-    box-shadow:
-        0 12px 35px rgba(0,0,0,.14);
-
-}
-
-
-.global-input-custom-select-option{
-
-    width:100%;
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:flex-start;
-
-    gap:3px;
-
-    padding:11px 12px;
-
-    border:0;
-
-    border-radius:10px;
-
-    background:transparent;
-
-    color:#273142;
-
-    text-align:left;
-
-    cursor:pointer;
-
-}
-
-
-.global-input-custom-select-option:hover{
-
-    background:#f5f6f8;
-
-}
-
-
-.global-input-custom-select-option.is-selected{
-
-    background:#f0f2f5;
-
-    font-weight:600;
-
-}
-
-
-.global-input-custom-select-option-label{
-
-    font-size:14px;
-
-}
-
-
-.global-input-custom-select-option-note{
-
-    font-size:12px;
-
-    color:#858d98;
-
-}
-
-
-/* =====================================================
-   INPUT ACTION
-===================================================== */
-
-.global-input-action{
-
-    margin-top:20px;
-
-}
-
-
-.global-input-action-button{
-
-    width:100%;
-
-    min-height:50px;
-
-    border:0;
-
-    border-radius:15px;
-
-    background:#202733;
-
-    color:#fff;
-
-    font-size:15px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    transition:
-        transform .15s ease,
-        opacity .15s ease;
-
-}
-
-
-.global-input-action-button:hover{
-
-    opacity:.92;
-
-}
-
-
-.global-input-action-button:active{
-
-    transform:scale(.985);
-
-}
-
-
-.global-input-action-button:disabled{
-
-    opacity:.45;
-
-    cursor:not-allowed;
-
-}
-
-
-/* =====================================================
-   INPUT TRANSACTION LIST
-===================================================== */
-
-.global-input-list-section{
-
-    margin-top:20px;
-
-}
-
-
-.global-input-list-title{
-
-    margin-bottom:10px;
-
-    font-size:14px;
-
-    font-weight:700;
-
-    color:#374151;
-
-}
-
-
-.global-input-list{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:10px;
-
-}
-
-
-.global-input-list-item{
-
-    padding:13px 14px;
-
-    border:1px solid #e5e7eb;
-
-    border-radius:14px;
-
-    background:#fafafa;
-
-}
-
-
-/* =====================================================
-   INPUT FOOTER
-===================================================== */
-
-.global-input-footer{
-
-    padding:14px 20px 18px;
-
-    border-top:1px solid #ececec;
-
-    background:#fff;
-
-}
-
-
-.global-input-confirm{
-
-    width:100%;
-
-    min-height:50px;
-
-    border:0;
-
-    border-radius:15px;
-
-    background:#202733;
-
-    color:#fff;
-
-    font-size:15px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-}
-
-
-.global-input-confirm:disabled{
-
-    opacity:.45;
-
-    cursor:not-allowed;
-
-}
-
-
-/* =====================================================
-   EDIT INPUT MENU
-===================================================== */
-
-.edit-input-menu{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:10px;
-
-}
-
-
-.edit-input-menu-item{
-
-    width:100%;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:14px;
-
-    padding:15px;
-
-    border:1px solid #e5e7eb;
-
-    border-radius:16px;
-
-    background:#fff;
-
-    text-align:left;
-
-    cursor:pointer;
-
-    transition:
-        transform .15s ease,
-        background .15s ease,
-        border-color .15s ease;
-
-}
-
-
-.edit-input-menu-item:hover{
-
-    background:#f8f9fa;
-
-    border-color:#d9dde2;
-
-}
-
-
-.edit-input-menu-item:active{
-
-    transform:scale(.99);
-
-}
-
-
-.edit-input-menu-icon{
-
-    flex:0 0 auto;
-
-    width:42px;
-
-    height:42px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    border-radius:12px;
-
-    background:#f3f4f6;
-
-    font-size:20px;
-
-}
-
-
-.edit-input-menu-content{
-
-    min-width:0;
-
-}
-
-
-.edit-input-menu-title{
-
-    font-size:15px;
-
-    font-weight:700;
-
-    color:#252d3a;
-
-}
-
-
-.edit-input-menu-description{
-
-    margin-top:3px;
-
-    font-size:12px;
-
-    line-height:1.4;
-
-    color:#818995;
-
-}
-
-
-/* =====================================================
-   AIRDROP EDIT REWARD
-===================================================== */
-
-.airdrop-edit-reward-overlay{
-
-    position:fixed;
-
-    inset:0;
-
-    z-index:10000;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    padding:0;
-
-    opacity:0;
-
-    visibility:hidden;
-
-    pointer-events:none;
-
-    transition:
-        opacity .2s ease,
-        visibility .2s ease;
-
-}
-
-
-.airdrop-edit-reward-overlay.is-open{
-
-    opacity:1;
-
-    visibility:visible;
-
-    pointer-events:auto;
-
-}
-
-
-.airdrop-edit-reward-backdrop{
-
-    position:absolute;
-
-    inset:0;
-
-    background:rgba(0,0,0,.5);
-
-    backdrop-filter:blur(5px);
-
-    -webkit-backdrop-filter:blur(5px);
-
-}
-
-
-.airdrop-edit-reward-panel{
-
-    position:relative;
-
-    z-index:1;
-
-    width:min(100%,640px);
-
-    max-height:94vh;
-
-    overflow-y:auto;
-
-    padding:22px;
-
-    border-radius:24px;
-
-    background:#fff;
-
-    box-shadow:
-        0 20px 60px rgba(0,0,0,.2);
-
-}
-
-
-/* =====================================================
-   AIRDROP REWARD PICKER
-===================================================== */
-
-.airdrop-edit-reward-project-list{
-
-    max-height:350px;
-
-    overflow-y:auto;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:10px;
-
-}
-
-
-.airdrop-edit-reward-project-item{
-
-    width:100%;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:14px;
-
-    padding:16px;
-
-    border:1px solid #e3e6ea;
-
-    border-radius:16px;
-
-    background:#fff;
-
-    text-align:left;
-
-    cursor:pointer;
-
-    transition:
-        background .15s ease,
-        border-color .15s ease,
-        transform .15s ease;
-
-}
-
-
-.airdrop-edit-reward-project-item:hover{
-
-    background:#f8f9fa;
-
-}
-
-
-.airdrop-edit-reward-project-item:active{
-
-    transform:scale(.99);
-
-}
-
-
-.airdrop-edit-reward-project-item.is-selected{
-
-    border-color:#9ca3af;
-
-    background:#f5f6f8;
-
-}
-
-
-.airdrop-edit-reward-project-name{
-
-    font-size:15px;
-
-    font-weight:700;
-
-    color:#252d3a;
-
-}
-
-
-.airdrop-edit-reward-project-meta{
-
-    font-size:13px;
-
-    color:#777f8b;
-
-}
-
-
-/* =====================================================
-   AIRDROP REWARD SELECTED DETAIL
-===================================================== */
-
-.airdrop-edit-reward-selected{
-
-    margin-top:18px;
-
-    padding:18px;
-
-    border:1px solid #e4e7eb;
-
-    border-radius:18px;
-
-    background:#fafafa;
-
-}
-
-
-.airdrop-edit-reward-selected-row{
-
-    display:flex;
-
-    align-items:flex-start;
-
-    justify-content:space-between;
-
-    gap:18px;
-
-    padding:7px 0;
-
-}
-
-
-.airdrop-edit-reward-selected-label{
-
-    color:#7d8590;
-
-    font-size:14px;
-
-}
-
-
-.airdrop-edit-reward-selected-value{
-
-    max-width:65%;
-
-    color:#252d3a;
-
-    font-size:14px;
-
-    font-weight:700;
-
-    text-align:right;
-
-    word-break:break-word;
-
-}
-
-
-/* =====================================================
-   AIRDROP REWARD PENDING
-===================================================== */
-
-.airdrop-edit-reward-pending{
-
-    margin-top:20px;
-
-}
-
-
-.airdrop-edit-reward-pending-title{
-
-    font-size:15px;
-
-    font-weight:700;
-
-    color:#252d3a;
-
-}
-
-
-.airdrop-edit-reward-pending-count{
-
-    margin-left:5px;
-
-    color:#7c8490;
-
-}
-
-
-.airdrop-edit-reward-pending-list{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:10px;
-
-    margin-top:10px;
-
-}
-
-
-.airdrop-edit-reward-pending-item{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:12px;
-
-    padding:13px 14px;
-
-    border:1px solid #e4e7eb;
-
-    border-radius:14px;
-
-    background:#fafafa;
-
-}
-
-
-.airdrop-edit-reward-pending-item-info{
-
-    min-width:0;
-
-}
-
-
-.airdrop-edit-reward-pending-item-title{
-
-    font-size:14px;
-
-    font-weight:700;
-
-    color:#29313d;
-
-}
-
-
-.airdrop-edit-reward-pending-item-description{
-
-    margin-top:3px;
-
-    font-size:12px;
-
-    color:#7c8490;
-
-}
-
-
-.airdrop-edit-reward-pending-remove{
-
-    flex:0 0 auto;
-
-    padding:7px 10px;
-
-    border:0;
-
-    border-radius:9px;
-
-    background:#f0f1f3;
-
-    color:#626a75;
-
-    font-size:12px;
-
-    cursor:pointer;
-
-}
-
-
-/* =====================================================
-   AIRDROP REWARD CONFIRM
-===================================================== */
-
-.airdrop-edit-reward-confirm{
-
-    width:100%;
-
-    min-height:50px;
-
-    margin-top:16px;
-
-    border:0;
-
-    border-radius:15px;
-
-    background:#202733;
-
-    color:#fff;
-
-    font-size:15px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    transition:
-        transform .15s ease,
-        opacity .15s ease;
-
-}
-
-
-.airdrop-edit-reward-confirm:hover{
-
-    opacity:.92;
-
-}
-
-
-.airdrop-edit-reward-confirm:active{
-
-    transform:scale(.985);
-
-}
-
-
-.airdrop-edit-reward-confirm:disabled{
-
-    opacity:.45;
-
-    cursor:not-allowed;
-
-}
-
-
-/* =====================================================
-   GLOBAL UPDATE DATA
-===================================================== */
-
-
-/* =====================================================
-   BODY LOCK
-===================================================== */
-
-body.update-data-open{
-
-    overflow:hidden;
-
-}
-
-
-/* =====================================================
-   OVERLAY
-===================================================== */
-
-.global-update-data-overlay{
-
-    position:fixed;
-
-    inset:0;
-
-    z-index:11000;
-
-    display:flex;
-
-    align-items:stretch;
-
-    justify-content:center;
-
-    opacity:0;
-
-    visibility:hidden;
-
-    pointer-events:none;
-
-    background:#fff;
-
-    transition:
-        opacity .2s ease,
-        visibility .2s ease;
-
-}
-
-
-.global-update-data-overlay.is-open{
-
-    opacity:1;
-
-    visibility:visible;
-
-    pointer-events:auto;
-
+.global-input-overlay.is-open {
+    visibility: visible;
+    pointer-events: auto;
 }
 
 
@@ -1335,41 +56,37 @@ body.update-data-open{
    BACKDROP
 ===================================================== */
 
-.global-update-data-backdrop{
+.global-input-backdrop {
+    position: absolute;
+    inset: 0;
 
-    position:absolute;
+    width: 100%;
+    height: 100%;
 
-    inset:0;
-
-    background:#fff;
-
+    background: #ffffff;
 }
 
 
 /* =====================================================
    PANEL
-
-   Full screen sesuai desain Edit Input.
 ===================================================== */
 
-.global-update-data-panel{
+.global-input-panel {
+    position: absolute;
+    inset: 0;
 
-    position:relative;
+    width: 100%;
+    height: 100%;
 
-    z-index:1;
+    box-sizing: border-box;
 
-    width:100%;
+    display: flex;
+    flex-direction: column;
 
-    height:100%;
+    overflow: hidden;
 
-    display:flex;
-
-    flex-direction:column;
-
-    overflow:hidden;
-
-    background:#fff;
-
+    background: #ffffff;
+    color: #253f3d;
 }
 
 
@@ -1377,107 +94,88 @@ body.update-data-open{
    HEADER
 ===================================================== */
 
-.global-update-data-header{
+.global-input-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
 
-    flex:0 0 auto;
+    gap: 16px;
 
-    display:flex;
+    padding: 20px;
 
-    align-items:center;
+    box-sizing: border-box;
 
-    justify-content:space-between;
+    background: #ffffff;
 
-    gap:16px;
+    border-bottom: 1px solid #e5e9e8;
 
-    padding:
-        max(18px, env(safe-area-inset-top))
-        20px
-        16px;
-
-    border-bottom:1px solid #eceff2;
-
-    background:#fff;
-
+    flex-shrink: 0;
 }
 
 
-.global-update-data-header-content{
+/* =====================================================
+   HEADING
+===================================================== */
 
-    min-width:0;
+.global-input-heading {
+    display: flex;
+    flex-direction: column;
 
+    gap: 5px;
 }
 
 
-.global-update-data-title{
+.global-input-heading h2 {
+    margin: 0;
 
-    margin:0;
+    color: #253f3d;
 
-    font-size:22px;
-
-    line-height:1.2;
-
-    font-weight:750;
-
-    color:#202733;
-
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 700;
 }
 
 
-.global-update-data-subtitle{
+.global-input-heading span {
+    color: #7d8988;
 
-    margin:5px 0 0;
-
-    font-size:13px;
-
-    line-height:1.4;
-
-    color:#7d8590;
-
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 
-.global-update-data-close{
+/* =====================================================
+   CLOSE
+===================================================== */
 
-    flex:0 0 auto;
+.global-input-close {
+    width: 36px;
+    height: 36px;
 
-    width:42px;
+    flex-shrink: 0;
 
-    height:42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    display:flex;
+    padding: 0;
 
-    align-items:center;
+    border: none;
+    border-radius: 50%;
 
-    justify-content:center;
+    background: #f1f5f4;
+    color: #334b4a;
 
-    border:0;
+    font-size: 20px;
+    line-height: 1;
+    font-family: inherit;
 
-    border-radius:13px;
-
-    background:transparent;
-
-    color:#202733;
-
-    font-size:30px;
-
-    line-height:1;
-
-    cursor:pointer;
-
+    cursor: pointer;
 }
 
 
-.global-update-data-close:hover{
-
-    background:#f3f4f6;
-
-}
-
-
-.global-update-data-close:active{
-
-    transform:scale(.96);
-
+.global-input-close:active {
+    transform: scale(.94);
 }
 
 
@@ -1485,158 +183,705 @@ body.update-data-open{
    CONTENT
 ===================================================== */
 
-.global-update-data-content{
+.global-input-content {
+    flex: 1;
+    min-height: 0;
 
-    flex:1;
+    width: 100%;
 
-    min-height:0;
+    box-sizing: border-box;
 
-    overflow-y:auto;
+    padding: 20px;
 
-    overscroll-behavior:contain;
+    overflow-y: auto;
+    overflow-x: hidden;
 
-    padding:
-        18px
-        20px
-        calc(28px + env(safe-area-inset-bottom));
-
-    background:#fff;
-
+    background: #ffffff;
 }
 
 
 /* =====================================================
-   SECTION LABEL
+   SESSION
 ===================================================== */
 
-.global-update-data-section-label{
+.global-input-session {
+    display: flex;
+    flex-direction: column;
 
-    margin-bottom:8px;
+    gap: 4px;
 
-    font-size:14px;
+    width: 100%;
 
-    font-weight:700;
-
-    color:#374151;
-
+    margin: 0 0 20px;
 }
 
 
 /* =====================================================
-   PICKER SECTION
+   META ROW
 ===================================================== */
 
-.global-update-data-picker-section{
+.global-input-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    position:relative;
+    gap: 20px;
 
+    width: 100%;
+    min-height: 40px;
+
+    padding: 8px 0;
+
+    box-sizing: border-box;
 }
 
 
 /* =====================================================
-   PICKER
+   META LABEL
 ===================================================== */
 
-.global-update-data-picker{
+.global-input-meta span {
+    flex: 1;
+    min-width: 0;
 
-    position:relative;
+    color: #354846;
 
+    font-size: 15px;
+    line-height: 1.4;
 }
 
 
-.global-update-data-picker-button{
+/* =====================================================
+   META VALUE
+===================================================== */
 
-    width:100%;
+.global-input-meta strong {
+    flex-shrink: 0;
+    min-width: 120px;
 
-    min-height:52px;
+    text-align: right;
 
-    display:flex;
+    color: #294845;
 
-    align-items:center;
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 700;
+}
 
-    justify-content:space-between;
 
-    gap:12px;
+/* =====================================================
+   DATE
+===================================================== */
 
-    padding:13px 15px;
+.global-input-date {
+    flex-shrink: 0;
 
-    border:1px solid #dfe3e8;
+    width: 145px;
+    min-height: 40px;
 
-    border-radius:15px;
+    padding: 8px 10px;
 
-    outline:none;
+    box-sizing: border-box;
 
-    background:#fff;
+    border: 1px solid #d7dfdd;
+    border-radius: 10px;
 
-    color:#252d3a;
+    background: #ffffff;
+    color: #294845;
 
-    font:inherit;
+    font-size: 14px;
+    font-family: inherit;
 
-    font-size:15px;
+    outline: none;
+}
 
-    text-align:left;
 
-    cursor:pointer;
+.global-input-date:focus {
+    border-color: #6f9994;
+}
+
+
+/* =====================================================
+   DYNAMIC FORM
+===================================================== */
+
+.global-input-form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+
+    width: 100%;
+}
+
+
+/* =====================================================
+   FORM FIELD
+===================================================== */
+
+.global-input-field {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    width: 100%;
+}
+
+
+/* =====================================================
+   FORM LABEL
+===================================================== */
+
+.global-input-field label {
+    color: #667574;
+
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   FORM INPUT
+===================================================== */
+
+.global-input-field input,
+.global-input-field select,
+.global-input-field textarea {
+    width: 100%;
+    min-height: 46px;
+
+    padding: 10px 12px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d7dfdd;
+    border-radius: 12px;
+
+    background: #ffffff;
+    color: #253f3d;
+
+    font-size: 15px;
+    font-family: inherit;
+
+    outline: none;
+}
+
+
+/* =====================================================
+   TEXTAREA
+===================================================== */
+
+.global-input-field textarea {
+    min-height: 90px;
+
+    resize: vertical;
+}
+
+
+/* =====================================================
+   FORM FOCUS
+===================================================== */
+
+.global-input-field input:focus,
+.global-input-field select:focus,
+.global-input-field textarea:focus {
+    border-color: #6f9994;
+}
+
+
+/* =====================================================
+   ADD TRANSACTION
+===================================================== */
+
+.global-input-action {
+    width: 100%;
+
+    margin-top: 20px;
+
+    box-sizing: border-box;
+}
+
+
+.global-input-add {
+    width: 100%;
+    min-height: 50px;
+
+    padding: 12px 16px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    border: 1px solid #253f3d;
+    border-radius: 12px;
+
+    background: #ffffff;
+    color: #253f3d;
+
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+
+    cursor: pointer;
 
     transition:
-        border-color .15s ease,
-        box-shadow .15s ease,
-        background .15s ease;
-
+        background-color .2s ease,
+        transform .1s ease;
 }
 
 
-.global-update-data-picker-button:hover{
-
-    background:#fafbfc;
-
+.global-input-add:hover {
+    background: #f5f8f7;
 }
 
 
-.global-update-data-picker-button.is-open{
+.global-input-add:active {
+    background: #eef3f2;
 
-    border-color:#9ca3af;
+    transform: scale(.98);
+}
+
+
+/* =====================================================
+   CURRENT INPUT SECTION
+===================================================== */
+
+.global-input-list-section {
+    width: 100%;
+
+    margin-top: 24px;
+
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   LIST HEADER
+===================================================== */
+
+.global-input-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    width: 100%;
+
+    margin-bottom: 12px;
+}
+
+
+/* =====================================================
+   LIST TITLE
+===================================================== */
+
+.global-input-list-header h3 {
+    margin: 0;
+
+    color: #253f3d;
+
+    font-size: 17px;
+    line-height: 1.3;
+}
+
+
+/* =====================================================
+   LIST DESCRIPTION
+===================================================== */
+
+.global-input-list-header p {
+    margin: 4px 0 0;
+
+    color: #81908f;
+
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   COUNT
+===================================================== */
+
+.global-input-count {
+    min-width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #f1f5f4;
+    color: #294845;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   CURRENT INPUT LIST
+===================================================== */
+
+.global-input-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   INPUT LIST ITEM
+===================================================== */
+
+.global-input-list-item {
+    width: 100%;
+
+    padding: 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #dfe6e4;
+    border-radius: 12px;
+
+    background: #f7f9f8;
+    color: #253f3d;
+}
+
+
+/* =====================================================
+   INPUT ITEM CONTENT
+===================================================== */
+
+.global-input-list-item > div {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    color: #4f5f5d;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* =====================================================
+   INPUT ITEM TITLE
+===================================================== */
+
+.global-input-list-item strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #294845;
+
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   INPUT ITEM ACTIONS
+===================================================== */
+
+.global-input-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    width: 100%;
+
+    margin-top: 12px;
+    padding-top: 10px;
+
+    box-sizing: border-box;
+
+    border-top: 1px solid #e1e7e5;
+}
+
+
+/* =====================================================
+   DELETE BUTTON
+===================================================== */
+
+.global-input-item-actions button {
+    min-height: 30px;
+
+    padding: 4px 2px;
+
+    border: none;
+
+    background: transparent;
+    color: #a85b5b;
+
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+
+.global-input-item-actions button:hover {
+    color: #8f4545;
+}
+
+
+.global-input-item-actions button:active {
+    transform: scale(.96);
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.global-input-footer {
+    width: 100%;
+
+    flex-shrink: 0;
+
+    padding: 14px 20px 20px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border-top: 1px solid #e5e9e8;
+}
+
+
+/* =====================================================
+   CONFIRM BUTTON
+===================================================== */
+
+.global-input-confirm {
+    width: 100%;
+    min-height: 50px;
+
+    padding: 12px 16px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #253f3d;
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+
+.global-input-confirm:active {
+    transform: scale(.98);
+}
+
+
+/* =====================================================
+   BODY LOCK
+===================================================== */
+
+body.input-open {
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   HIDDEN
+===================================================== */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =====================================================
+   CUSTOM SELECT WRAPPER
+===================================================== */
+
+.global-input-custom-select-wrapper {
+    position: relative;
+
+    width: 100%;
+}
+
+
+/* =====================================================
+   CUSTOM SELECT BUTTON
+===================================================== */
+
+.global-input-custom-select {
+    width: 100%;
+    min-height: 56px;
+
+    padding: 14px 18px;
+
+    border: 1px solid #d6dcdc;
+    border-radius: 16px;
+
+    background: #ffffff;
+    color: #263f3c;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    font-size: 16px;
+    font-family: inherit;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+
+.global-input-custom-select:hover {
+    border-color: #9aabaa;
+}
+
+
+.global-input-custom-select:focus {
+    outline: none;
+
+    border-color: #284b47;
 
     box-shadow:
-        0 0 0 3px rgba(156,163,175,.14);
-
+        0 0 0 3px rgba(40, 75, 71, .10);
 }
 
 
-.global-update-data-picker-label{
+/* =====================================================
+   SELECT HAS VALUE
+===================================================== */
 
-    min-width:0;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-
+.global-input-custom-select.has-value {
+    color: #263f3c;
 }
 
 
-.global-update-data-picker-arrow{
+/* =====================================================
+   VALUE
+===================================================== */
 
-    flex:0 0 auto;
+.global-input-custom-value {
+    flex: 1;
+    min-width: 0;
 
-    font-size:20px;
+    overflow: hidden;
 
-    line-height:1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    color:#68717d;
+
+/* =====================================================
+   ARROW
+===================================================== */
+
+.global-input-custom-arrow {
+    flex-shrink: 0;
+
+    color: #687875;
+
+    font-size: 16px;
+    line-height: 1;
 
     transition:
-        transform .18s ease;
-
+        transform .2s ease;
 }
 
 
-.global-update-data-picker-button.is-open
-.global-update-data-picker-arrow{
+.global-input-custom-select:focus .global-input-custom-arrow {
+    transform: rotate(180deg);
+}
 
-    transform:rotate(180deg);
 
+/* =====================================================
+   FIELD NOTE
+===================================================== */
+
+.global-input-field-note {
+    display: block;
+
+    margin-top: 8px;
+
+    color: #7b8987;
+
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+
+/* =====================================================
+   PICKER ROOT
+===================================================== */
+
+.global-input-picker {
+    position: fixed;
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    visibility: hidden;
+    opacity: 0;
+
+    transition:
+        opacity .2s ease,
+        visibility .2s ease;
+}
+
+
+/* =====================================================
+   PICKER OPEN
+===================================================== */
+
+.global-input-picker.is-open {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+/* =====================================================
+   PICKER BACKDROP
+===================================================== */
+
+.global-input-picker-backdrop {
+    position: absolute;
+    inset: 0;
+
+    background: rgba(0, 0, 0, .38);
 }
 
 
@@ -1644,803 +889,1014 @@ body.update-data-open{
    PICKER PANEL
 ===================================================== */
 
-.global-update-data-picker-panel{
+.global-input-picker-panel {
+    position: relative;
 
-    position:absolute;
+    z-index: 1;
 
-    left:0;
+    width: min(100%, 560px);
 
-    right:0;
+    max-height: 75vh;
 
-    top:calc(100% + 8px);
+    margin: 0 12px 12px;
 
-    z-index:200;
+    overflow: hidden;
 
-    overflow:hidden;
+    background: #ffffff;
 
-    border:1px solid #e2e5e9;
-
-    border-radius:17px;
-
-    background:#fff;
+    border-radius: 24px;
 
     box-shadow:
-        0 15px 40px rgba(0,0,0,.15);
+        0 20px 60px rgba(0, 0, 0, .22);
 
+    transform: translateY(24px);
+
+    transition:
+        transform .25s ease;
 }
 
 
-.global-update-data-picker-panel[hidden]{
-
-    display:none;
-
-}
-
-
-/* =====================================================
-   PICKER SEARCH
-===================================================== */
-
-.global-update-data-picker-search-wrap{
-
-    padding:10px;
-
-    border-bottom:1px solid #eceff2;
-
-    background:#fff;
-
-}
-
-
-.global-update-data-picker-search{
-
-    width:100%;
-
-    box-sizing:border-box;
-
-    min-height:44px;
-
-    padding:10px 12px;
-
-    border:1px solid #dfe3e8;
-
-    border-radius:12px;
-
-    outline:none;
-
-    background:#f8f9fa;
-
-    color:#252d3a;
-
-    font:inherit;
-
-    font-size:14px;
-
-}
-
-
-.global-update-data-picker-search:focus{
-
-    border-color:#9ca3af;
-
-    background:#fff;
-
-    box-shadow:
-        0 0 0 3px rgba(156,163,175,.12);
-
+.global-input-picker.is-open
+.global-input-picker-panel {
+    transform: translateY(0);
 }
 
 
 /* =====================================================
-   PICKER LIST
+   PICKER HEADER
 ===================================================== */
 
-.global-update-data-picker-list{
+.global-input-picker-header {
+    min-height: 64px;
 
-    max-height:350px;
+    padding: 16px 20px;
 
-    overflow-y:auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    padding:6px;
+    gap: 16px;
 
+    border-bottom: 1px solid #e5e9e8;
 }
 
 
 /* =====================================================
-   PICKER ITEM
+   PICKER TITLE
 ===================================================== */
 
-.global-update-data-picker-item{
+.global-input-picker-header strong {
+    color: #263f3c;
 
-    width:100%;
+    font-size: 18px;
+    line-height: 1.3;
+}
 
-    display:flex;
 
-    align-items:center;
+/* =====================================================
+   PICKER CLOSE
+===================================================== */
 
-    justify-content:space-between;
+.global-input-picker-close {
+    width: 40px;
+    height: 40px;
 
-    gap:12px;
+    border: 0;
+    border-radius: 50%;
 
-    padding:13px 12px;
+    background: #eef3f2;
+    color: #263f3c;
 
-    border:0;
+    font-size: 24px;
+    line-height: 1;
 
-    border-radius:12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    background:transparent;
+    cursor: pointer;
+}
 
-    color:#252d3a;
 
-    font:inherit;
+/* =====================================================
+   OPTION LIST
+===================================================== */
 
-    text-align:left;
+.global-input-picker-list {
+    max-height: calc(75vh - 64px);
 
-    cursor:pointer;
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+}
+
+
+/* =====================================================
+   OPTION
+===================================================== */
+
+.global-input-picker-option {
+    position: relative;
+
+    width: 100%;
+    min-height: 68px;
+
+    padding: 16px 20px;
+
+    border: 0;
+    border-bottom: 1px solid #edf0ef;
+
+    background: #ffffff;
+    color: #263f3c;
+
+    display: grid;
+
+    grid-template-columns: 1fr auto;
+
+    align-items: center;
+
+    column-gap: 16px;
+
+    text-align: left;
+    font-family: inherit;
+
+    cursor: pointer;
 
     transition:
         background .15s ease;
-
-}
-
-
-.global-update-data-picker-item:hover{
-
-    background:#f5f6f8;
-
-}
-
-
-.global-update-data-picker-item:active{
-
-    background:#eef0f3;
-
-}
-
-
-.global-update-data-picker-item.is-selected{
-
-    background:#f0f2f5;
-
-}
-
-
-.global-update-data-picker-item.is-pending{
-
-    opacity:.58;
-
-}
-
-
-.global-update-data-picker-item-main{
-
-    min-width:0;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:3px;
-
-}
-
-
-.global-update-data-picker-item-label{
-
-    font-size:14px;
-
-    font-weight:650;
-
-    color:#252d3a;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-
-}
-
-
-.global-update-data-picker-item-meta{
-
-    font-size:12px;
-
-    color:#808894;
-
-}
-
-
-.global-update-data-picker-item-status{
-
-    flex:0 0 auto;
-
-    padding:5px 8px;
-
-    border-radius:8px;
-
-    background:#f0f1f3;
-
-    color:#747c87;
-
-    font-size:10px;
-
-    font-weight:600;
-
-    white-space:nowrap;
-
 }
 
 
 /* =====================================================
-   PICKER EMPTY
+   OPTION HOVER
 ===================================================== */
 
-.global-update-data-picker-empty{
-
-    padding:28px 16px;
-
-    text-align:center;
-
-    font-size:13px;
-
-    line-height:1.5;
-
-    color:#858d98;
-
+.global-input-picker-option:hover {
+    background: #f4f7f6;
 }
 
 
 /* =====================================================
-   EMPTY DETAIL
+   OPTION SELECTED
 ===================================================== */
 
-.global-update-data-empty-detail{
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    justify-content:center;
-
-    padding:30px 18px;
-
-    text-align:center;
-
-}
-
-
-.global-update-data-empty-detail-icon{
-
-    width:52px;
-
-    height:52px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    margin-bottom:10px;
-
-    border-radius:16px;
-
-    background:#f3f4f6;
-
-    font-size:24px;
-
-}
-
-
-.global-update-data-empty-detail-title{
-
-    font-size:15px;
-
-    font-weight:700;
-
-    color:#303846;
-
-}
-
-
-.global-update-data-empty-detail-text{
-
-    max-width:320px;
-
-    margin-top:5px;
-
-    font-size:12px;
-
-    line-height:1.5;
-
-    color:#858d98;
-
+.global-input-picker-option.selected {
+    background: #f0f5f4;
 }
 
 
 /* =====================================================
-   DETAIL
+   OPTION CONTENT
 ===================================================== */
 
-.global-update-data-detail{
+.global-input-picker-option-content {
+    min-width: 0;
 
-    margin-top:16px;
-
-}
-
-
-.global-update-data-detail-card{
-
-    padding:16px;
-
-    border:1px solid #e4e7eb;
-
-    border-radius:18px;
-
-    background:#fafbfc;
-
-}
-
-
-.global-update-data-detail-row{
-
-    display:flex;
-
-    align-items:flex-start;
-
-    justify-content:space-between;
-
-    gap:18px;
-
-    padding:7px 0;
-
-}
-
-
-.global-update-data-detail-row + 
-.global-update-data-detail-row{
-
-    border-top:1px solid #eef0f2;
-
-}
-
-
-.global-update-data-detail-label{
-
-    color:#858d98;
-
-    font-size:14px;
-
-}
-
-
-.global-update-data-detail-value{
-
-    max-width:68%;
-
-    color:#252d3a;
-
-    font-size:14px;
-
-    font-weight:700;
-
-    text-align:right;
-
-    word-break:break-word;
-
+    font-size: 17px;
+    line-height: 1.4;
 }
 
 
 /* =====================================================
-   EDIT FIELDS
+   OPTION RADIO
 ===================================================== */
 
-.global-update-data-fields{
+.global-input-picker-radio {
+    width: 28px;
+    height: 28px;
 
-    display:flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    flex-direction:column;
+    flex-shrink: 0;
 
-    gap:16px;
+    color: #8b9694;
 
-    margin-top:16px;
-
+    font-size: 28px;
+    line-height: 1;
 }
 
 
-.global-update-data-fields:empty{
-
-    display:none;
-
-}
-
-
-.global-update-data-field{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:7px;
-
-}
-
-
-.global-update-data-field-label{
-
-    font-size:14px;
-
-    font-weight:650;
-
-    color:#374151;
-
-}
-
-
-.global-update-data-field-note{
-
-    margin-top:-2px;
-
-    font-size:12px;
-
-    line-height:1.4;
-
-    color:#858d98;
-
-}
-
-
-.global-update-data-field input,
-.global-update-data-field textarea{
-
-    width:100%;
-
-    box-sizing:border-box;
-
-    min-height:48px;
-
-    padding:12px 14px;
-
-    border:1px solid #dfe3e8;
-
-    border-radius:13px;
-
-    outline:none;
-
-    background:#fff;
-
-    color:#252d3a;
-
-    font:inherit;
-
-    font-size:15px;
-
-}
-
-
-.global-update-data-field input:focus,
-.global-update-data-field textarea:focus{
-
-    border-color:#9ca3af;
-
-    box-shadow:
-        0 0 0 3px rgba(156,163,175,.12);
-
-}
-
-
-.global-update-data-field input[readonly],
-.global-update-data-field textarea[readonly]{
-
-    background:#f5f6f8;
-
-    color:#777f8b;
-
-    cursor:not-allowed;
-
+.global-input-picker-option.selected
+.global-input-picker-radio {
+    color: #e88ca2;
 }
 
 
 /* =====================================================
-   UPDATE DATA CUSTOM FIELD SELECT
+   OPTION NOTE
 ===================================================== */
 
-.global-update-data-field-select{
+.global-input-picker-option-note {
+    grid-column: 1 / -1;
 
-    position:relative;
+    margin-top: 4px;
 
+    color: #7b8987;
+
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 
-.global-update-data-field-select-button{
+/* =====================================================
+   PAYROLL MONTHLY
+   CONDITION CHECKBOX
+===================================================== */
 
-    width:100%;
+.global-input-condition-list {
+    display: grid;
 
-    min-height:48px;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
 
-    display:flex;
+    column-gap: 24px;
+    row-gap: 18px;
 
-    align-items:center;
+    width: 100%;
 
-    justify-content:space-between;
-
-    gap:12px;
-
-    padding:12px 14px;
-
-    border:1px solid #dfe3e8;
-
-    border-radius:13px;
-
-    background:#fff;
-
-    color:#252d3a;
-
-    font:inherit;
-
-    font-size:15px;
-
-    text-align:left;
-
-    cursor:pointer;
-
+    margin-top: 4px;
 }
 
 
-.global-update-data-field-select-button.is-open{
+/* =====================================================
+   CONDITION ITEM
+===================================================== */
 
-    border-color:#9ca3af;
+.global-input-condition-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    box-shadow:
-        0 0 0 3px rgba(156,163,175,.12);
+    width: 100%;
 
+    margin: 0;
+    padding: 0;
+
+    cursor: pointer;
+
+    font-size: 16px;
+    line-height: 1.4;
 }
 
 
-.global-update-data-field-select-arrow{
+/* =====================================================
+   CONDITION LABEL
+===================================================== */
+
+.global-input-condition-item span {
+    order: 1;
+
+    flex: 1;
+    min-width: 0;
+}
+
+
+/* =====================================================
+   CHECKBOX
+===================================================== */
+
+.global-input-condition-item input[type="checkbox"] {
+    order: 2;
+
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+
+    margin: 0 0 0 10px;
+    padding: 0;
+
+    cursor: pointer;
+
+    appearance: auto;
+}
+
+
+/* =====================================================
+   CONDITION NOTE
+===================================================== */
+
+.global-input-condition-list
++ .global-input-field-note {
+    margin-top: 16px;
+}
+
+
+/* =====================================================
+   EDIT INPUT MENU
+===================================================== */
+
+.global-edit-input-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    width: 100%;
+}
+
+
+/* =====================================================
+   EDIT INPUT ITEM
+===================================================== */
+
+.global-edit-input-item {
+    width: 100%;
+    min-height: 92px;
+
+    padding: 16px;
+
+    box-sizing: border-box;
+
+    border: 0;
+    border-radius: 18px;
+
+    background: #ffffff;
+    color: #253f3d;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    font-family: inherit;
+    text-align: left;
+
+    cursor: pointer;
 
     transition:
-        transform .18s ease;
-
-}
-
-
-.global-update-data-field-select-button.is-open
-.global-update-data-field-select-arrow{
-
-    transform:rotate(180deg);
-
-}
-
-
-.global-update-data-field-select-panel{
-
-    position:absolute;
-
-    left:0;
-
-    right:0;
-
-    top:calc(100% + 7px);
-
-    z-index:210;
-
-    max-height:280px;
-
-    overflow-y:auto;
-
-    padding:6px;
-
-    border:1px solid #e2e5e9;
-
-    border-radius:15px;
-
-    background:#fff;
-
-    box-shadow:
-        0 12px 35px rgba(0,0,0,.14);
-
-}
-
-
-.global-update-data-field-select-option{
-
-    width:100%;
-
-    padding:11px 12px;
-
-    border:0;
-
-    border-radius:10px;
-
-    background:transparent;
-
-    color:#252d3a;
-
-    font:inherit;
-
-    font-size:14px;
-
-    text-align:left;
-
-    cursor:pointer;
-
-}
-
-
-.global-update-data-field-select-option:hover{
-
-    background:#f5f6f8;
-
-}
-
-
-.global-update-data-field-select-option.is-selected{
-
-    background:#f0f2f5;
-
-    font-weight:650;
-
+        background-color .2s ease,
+        transform .1s ease;
 }
 
 
 /* =====================================================
-   ACTION / TAMBAHKAN
+   EDIT INPUT LEFT
 ===================================================== */
 
-.global-update-data-action{
+.global-edit-input-item-left {
+    display: flex;
+    align-items: center;
 
-    margin-top:20px;
+    gap: 14px;
 
+    min-width: 0;
 }
 
 
-.global-update-data-add{
+/* =====================================================
+   EDIT INPUT ICON
+===================================================== */
 
-    width:100%;
+.global-edit-input-item-icon {
+    width: 48px;
+    height: 48px;
 
-    min-height:52px;
+    flex-shrink: 0;
 
-    border:0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    border-radius:15px;
+    border-radius: 14px;
 
-    background:#202733;
+    background: #eef3ff;
 
-    color:#fff;
+    font-size: 24px;
+    line-height: 1;
+}
 
-    font:inherit;
 
-    font-size:15px;
+/* =====================================================
+   EDIT INPUT CONTENT
+===================================================== */
 
-    font-weight:700;
+.global-edit-input-item-content {
+    display: flex;
+    flex-direction: column;
 
-    cursor:pointer;
+    gap: 4px;
+
+    min-width: 0;
+}
+
+
+/* =====================================================
+   EDIT INPUT TITLE
+===================================================== */
+
+.global-edit-input-item-title {
+    color: #253f3d;
+
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   EDIT INPUT DESCRIPTION
+===================================================== */
+
+.global-edit-input-item-description {
+    color: #7d8988;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   EDIT INPUT ARROW
+===================================================== */
+
+.global-edit-input-item-arrow {
+    flex-shrink: 0;
+
+    color: #9aa3a2;
+
+    font-size: 24px;
+    line-height: 1;
+}
+
+
+/* =====================================================
+   EDIT INPUT ACTIVE
+===================================================== */
+
+.global-edit-input-item:active {
+    background: #f4f7f6;
+
+    transform: scale(.985);
+}
+
+
+/* =====================================================
+   AIRDROP EDIT INPUT
+   REWARD OVERLAY
+===================================================== */
+
+.airdrop-edit-reward-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    background: rgba(15, 23, 42, .45);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 
     transition:
-        transform .15s ease,
-        opacity .15s ease;
-
-}
-
-
-.global-update-data-add:hover{
-
-    opacity:.92;
-
-}
-
-
-.global-update-data-add:active{
-
-    transform:scale(.985);
-
-}
-
-
-.global-update-data-add:disabled{
-
-    opacity:.42;
-
-    cursor:not-allowed;
-
+        opacity .2s ease,
+        visibility .2s ease;
 }
 
 
 /* =====================================================
-   PENDING SECTION
+   AIRDROP REWARD OVERLAY OPEN
 ===================================================== */
 
-.global-update-data-pending{
-
-    margin-top:24px;
-
+.airdrop-edit-reward-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 
-.global-update-data-pending-header{
+/* =====================================================
+   AIRDROP REWARD PANEL
+===================================================== */
 
-    display:flex;
+.airdrop-edit-reward-panel {
+    position: relative;
 
-    align-items:center;
+    width: 100%;
+    max-width: 680px;
 
-    justify-content:space-between;
+    max-height: 90vh;
 
-    gap:12px;
+    box-sizing: border-box;
 
-    margin-bottom:10px;
+    overflow: hidden;
 
+    background: #ffffff;
+
+    border-radius: 28px 28px 0 0;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .25);
+
+    transform: translateY(30px);
+
+    transition:
+        transform .25s ease;
 }
 
 
-.global-update-data-pending-title{
+/* =====================================================
+   AIRDROP REWARD PANEL OPEN
+===================================================== */
 
-    font-size:15px;
-
-    font-weight:750;
-
-    color:#29313d;
-
+.airdrop-edit-reward-overlay.is-open
+.airdrop-edit-reward-panel {
+    transform: translateY(0);
 }
 
 
-.global-update-data-pending-count{
+/* =====================================================
+   AIRDROP REWARD HEADER
+===================================================== */
 
-    min-width:24px;
+.airdrop-edit-reward-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    height:24px;
+    gap: 16px;
 
-    display:flex;
+    padding: 24px 24px 18px;
 
-    align-items:center;
+    border-bottom: 1px solid #e5e7eb;
 
-    justify-content:center;
-
-    padding:0 7px;
-
-    border-radius:8px;
-
-    background:#f0f1f3;
-
-    color:#666e79;
-
-    font-size:12px;
-
-    font-weight:700;
-
+    flex-shrink: 0;
 }
 
 
-.global-update-data-pending-list{
+/* =====================================================
+   AIRDROP REWARD TITLE
+===================================================== */
 
-    display:flex;
+.airdrop-edit-reward-header h2 {
+    margin: 0;
 
-    flex-direction:column;
+    color: #111827;
 
-    gap:10px;
-
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: 700;
 }
 
 
-.global-update-data-pending-empty{
+/* =====================================================
+   AIRDROP REWARD CLOSE
+===================================================== */
 
-    padding:16px;
+.airdrop-edit-reward-close {
+    width: 40px;
+    height: 40px;
 
-    border:1px dashed #dfe3e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    border-radius:14px;
+    flex-shrink: 0;
 
-    color:#858d98;
+    padding: 0;
 
-    font-size:13px;
+    border: 0;
+    border-radius: 50%;
 
-    line-height:1.5;
+    background: transparent;
+    color: #111827;
 
-    text-align:center;
+    font-size: 30px;
+    line-height: 1;
 
+    cursor: pointer;
+}
+
+
+.airdrop-edit-reward-close:active {
+    transform: scale(.94);
+}
+
+
+/* =====================================================
+   AIRDROP REWARD CONTENT
+===================================================== */
+
+.airdrop-edit-reward-content {
+    padding: 20px 24px 28px;
+
+    max-height: calc(90vh - 90px);
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+
+/* =====================================================
+   AIRDROP REWARD PICKER
+===================================================== */
+
+.airdrop-edit-reward-picker {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+/* =====================================================
+   PICKER TITLE
+===================================================== */
+
+.airdrop-reward-title {
+    margin: 0 0 2px;
+
+    color: #111827;
+
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   PROJECT LIST
+===================================================== */
+
+.airdrop-reward-project-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    width: 100%;
+
+    /*
+       Menampilkan sekitar 5 project.
+       Sisanya dapat discroll.
+    */
+    max-height: 350px;
+
+    overflow-y: auto;
+
+    padding-right: 3px;
+
+    overscroll-behavior: contain;
+}
+
+
+/* =====================================================
+   PROJECT ITEM
+===================================================== */
+
+.airdrop-reward-project {
+    width: 100%;
+    min-height: 66px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding: 14px 16px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    background: #ffffff;
+    color: #111827;
+
+    text-align: left;
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        transform .15s ease;
+}
+
+
+.airdrop-reward-project:hover {
+    background: #f9fafb;
+}
+
+
+.airdrop-reward-project:active {
+    transform: scale(.99);
+}
+
+
+/* =====================================================
+   PROJECT SELECTED
+===================================================== */
+
+.airdrop-reward-project.selected {
+    border-color: #2563eb;
+
+    background: #eff6ff;
+}
+
+
+/* =====================================================
+   PROJECT NAME
+===================================================== */
+
+.airdrop-reward-project-name {
+    min-width: 0;
+
+    color: #111827;
+
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 600;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   PROJECT META
+===================================================== */
+
+.airdrop-reward-project small {
+    flex-shrink: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   EMPTY PROJECT LIST
+===================================================== */
+
+.airdrop-reward-empty {
+    padding: 20px;
+
+    border-radius: 14px;
+
+    background: #f9fafb;
+    color: #6b7280;
+
+    text-align: center;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* =====================================================
+   SELECTED CONTAINER
+===================================================== */
+
+.airdrop-edit-reward-selected-container {
+    margin-top: 20px;
+}
+
+
+/* =====================================================
+   SELECTED CARD
+===================================================== */
+
+.airdrop-reward-selected {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+
+    padding: 18px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+
+    background: #f9fafb;
+}
+
+
+/* =====================================================
+   SELECTED INFO
+===================================================== */
+
+.airdrop-reward-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+}
+
+
+.airdrop-reward-info span {
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+
+.airdrop-reward-info strong {
+    min-width: 0;
+
+    color: #111827;
+
+    font-size: 15px;
+    line-height: 1.4;
+
+    text-align: right;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =====================================================
+   LOCKED INFO
+===================================================== */
+
+.airdrop-reward-info.locked {
+    opacity: .75;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.airdrop-reward-status {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+
+.airdrop-reward-status label {
+    color: #374151;
+
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   REWARD AMOUNT
+===================================================== */
+
+.airdrop-reward-amount {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+
+.airdrop-reward-amount label {
+    color: #374151;
+
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   EDIT REWARD ACTION
+===================================================== */
+
+.airdrop-edit-reward-panel
+.global-input-action-button {
+    width: 100%;
+    min-height: 48px;
+
+    margin-top: 4px;
+
+    padding: 12px 16px;
+
+    box-sizing: border-box;
+
+    border: 0;
+    border-radius: 14px;
+
+    background: #111827;
+    color: #ffffff;
+
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 600;
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        opacity .15s ease,
+        transform .15s ease;
+}
+
+
+.airdrop-edit-reward-panel
+.global-input-action-button:disabled {
+    opacity: .45;
+
+    cursor: not-allowed;
+}
+
+
+.airdrop-edit-reward-panel
+.global-input-action-button:not(:disabled):active {
+    transform: scale(.99);
+}
+
+
+/* =====================================================
+   PENDING EDIT SECTION
+===================================================== */
+
+.airdrop-edit-reward-pending {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 24px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =====================================================
+   PENDING TITLE
+===================================================== */
+
+.airdrop-edit-reward-pending-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+
+.airdrop-edit-reward-pending-title h3 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   PENDING COUNT
+===================================================== */
+
+.airdrop-edit-reward-pending-count {
+    min-width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 8px;
+
+    box-sizing: border-box;
+
+    border-radius: 999px;
+
+    background: #eef3f2;
+    color: #294845;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   PENDING LIST
+===================================================== */
+
+.airdrop-edit-reward-pending-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    width: 100%;
 }
 
 
@@ -2448,347 +1904,169 @@ body.update-data-open{
    PENDING ITEM
 ===================================================== */
 
-.global-update-data-pending-item{
+.airdrop-edit-reward-pending-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    display:flex;
+    gap: 12px;
 
-    align-items:center;
+    width: 100%;
 
-    justify-content:space-between;
+    padding: 12px 14px;
 
-    gap:14px;
+    box-sizing: border-box;
 
-    padding:14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
 
-    border:1px solid #e3e6ea;
-
-    border-radius:15px;
-
-    background:#fafbfc;
-
-}
-
-
-.global-update-data-pending-item-content{
-
-    min-width:0;
-
-}
-
-
-.global-update-data-pending-item-title{
-
-    font-size:14px;
-
-    font-weight:700;
-
-    color:#29313d;
-
-    word-break:break-word;
-
-}
-
-
-.global-update-data-pending-item-description{
-
-    margin-top:4px;
-
-    font-size:12px;
-
-    line-height:1.45;
-
-    color:#7e8792;
-
-    word-break:break-word;
-
-}
-
-
-.global-update-data-pending-remove{
-
-    flex:0 0 auto;
-
-    min-height:34px;
-
-    padding:7px 11px;
-
-    border:0;
-
-    border-radius:9px;
-
-    background:#eef0f2;
-
-    color:#626a75;
-
-    font:inherit;
-
-    font-size:12px;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-}
-
-
-.global-update-data-pending-remove:hover{
-
-    background:#e7e9ec;
-
+    background: #f9fafb;
 }
 
 
 /* =====================================================
-   CONFIRM SECTION
+   PENDING ITEM INFO
 ===================================================== */
 
-.global-update-data-confirm-section{
+.airdrop-edit-reward-pending-item-info {
+    min-width: 0;
 
-    margin-top:18px;
+    display: flex;
+    flex-direction: column;
 
+    gap: 3px;
 }
 
 
-.global-update-data-confirm{
+.airdrop-edit-reward-pending-item-info strong {
+    color: #111827;
 
-    width:100%;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 700;
 
-    min-height:52px;
+    overflow-wrap: anywhere;
+}
 
-    border:0;
 
-    border-radius:15px;
+.airdrop-edit-reward-pending-item-info span {
+    color: #6b7280;
 
-    background:#202733;
+    font-size: 12px;
+    line-height: 1.4;
+}
 
-    color:#fff;
 
-    font:inherit;
+/* =====================================================
+   PENDING REMOVE
+===================================================== */
 
-    font-size:15px;
+.airdrop-edit-reward-pending-remove {
+    flex-shrink: 0;
 
-    font-weight:750;
+    min-height: 32px;
 
-    cursor:pointer;
+    padding: 5px 8px;
+
+    border: 0;
+
+    background: transparent;
+    color: #a85b5b;
+
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+    font-family: inherit;
+
+    cursor: pointer;
+}
+
+
+.airdrop-edit-reward-pending-remove:hover {
+    color: #8f4545;
+}
+
+
+.airdrop-edit-reward-pending-remove:active {
+    transform: scale(.96);
+}
+
+
+/* =====================================================
+   CONFIRM EDIT
+===================================================== */
+
+.airdrop-edit-reward-confirm {
+    width: 100%;
+
+    margin-top: 20px;
+}
+
+
+/* =====================================================
+   CONFIRM BUTTON
+===================================================== */
+
+.airdrop-edit-reward-confirm button {
+    width: 100%;
+    min-height: 50px;
+
+    padding: 12px 16px;
+
+    box-sizing: border-box;
+
+    border: 0;
+    border-radius: 14px;
+
+    background: #253f3d;
+    color: #ffffff;
+
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 700;
+    font-family: inherit;
+
+    cursor: pointer;
 
     transition:
-        transform .15s ease,
-        opacity .15s ease;
-
+        opacity .15s ease,
+        transform .1s ease;
 }
 
 
-.global-update-data-confirm:hover{
+.airdrop-edit-reward-confirm button:disabled {
+    opacity: .45;
 
-    opacity:.92;
-
+    cursor: not-allowed;
 }
 
 
-.global-update-data-confirm:active{
-
-    transform:scale(.985);
-
-}
-
-
-.global-update-data-confirm:disabled{
-
-    opacity:.42;
-
-    cursor:not-allowed;
-
+.airdrop-edit-reward-confirm button:not(:disabled):active {
+    transform: scale(.98);
 }
 
 
 /* =====================================================
-   RESULT
+   AIRDROP REWARD SCROLLBAR
 ===================================================== */
 
-.global-update-data-result{
-
-    display:none;
-
-    align-items:center;
-
-    gap:10px;
-
-    margin-top:14px;
-
-    padding:13px 14px;
-
-    border-radius:13px;
-
-    font-size:13px;
-
-    line-height:1.45;
-
+.airdrop-reward-project-list::-webkit-scrollbar,
+.airdrop-edit-reward-content::-webkit-scrollbar {
+    width: 5px;
 }
 
 
-.global-update-data-result.success,
-.global-update-data-result.error,
-.global-update-data-result.warning,
-.global-update-data-result.loading{
-
-    display:flex;
-
+.airdrop-reward-project-list::-webkit-scrollbar-track,
+.airdrop-edit-reward-content::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 
-.global-update-data-result-icon{
-
-    flex:0 0 auto;
-
-    width:28px;
-
-    height:28px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    border-radius:9px;
-
-    background:#eef0f2;
-
-    font-size:16px;
-
-    font-weight:800;
-
-}
-
-
-.global-update-data-result-message{
-
-    min-width:0;
-
-    color:#4b5563;
-
-}
-
-
-.global-update-data-result.success{
-
-    background:#f1f7f2;
-
-}
-
-
-.global-update-data-result.success
-.global-update-data-result-icon{
-
-    background:#dfeee1;
-
-    color:#3f6b46;
-
-}
-
-
-.global-update-data-result.error{
-
-    background:#faf1f1;
-
-}
-
-
-.global-update-data-result.error
-.global-update-data-result-icon{
-
-    background:#f2dddd;
-
-    color:#8a4b4b;
-
-}
-
-
-.global-update-data-result.warning{
-
-    background:#faf7ee;
-
-}
-
-
-.global-update-data-result.warning
-.global-update-data-result-icon{
-
-    background:#eee7d4;
-
-    color:#76653b;
-
-}
-
-
-.global-update-data-result.loading{
-
-    background:#f3f4f6;
-
-}
-
-
-/* =====================================================
-   BUSY STATE
-===================================================== */
-
-.global-update-data-overlay.is-busy
-.global-update-data-content{
-
-    pointer-events:none;
-
-}
-
-
-.global-update-data-overlay.is-busy
-.global-update-data-close{
-
-    opacity:.45;
-
-    pointer-events:none;
-
-}
-
-
-/* =====================================================
-   SCROLLBAR
-===================================================== */
-
-.global-update-data-content::-webkit-scrollbar,
-.global-update-data-picker-list::-webkit-scrollbar,
-.global-update-data-picker-panel::-webkit-scrollbar,
-.global-input-content::-webkit-scrollbar,
-.global-input-custom-select-panel::-webkit-scrollbar,
-.airdrop-edit-reward-project-list::-webkit-scrollbar{
-
-    width:6px;
-
-}
-
-
-.global-update-data-content::-webkit-scrollbar-track,
-.global-update-data-picker-list::-webkit-scrollbar-track,
-.global-update-data-picker-panel::-webkit-scrollbar-track,
-.global-input-content::-webkit-scrollbar-track,
-.global-input-custom-select-panel::-webkit-scrollbar-track,
-.airdrop-edit-reward-project-list::-webkit-scrollbar-track{
-
-    background:transparent;
-
-}
-
-
-.global-update-data-content::-webkit-scrollbar-thumb,
-.global-update-data-picker-list::-webkit-scrollbar-thumb,
-.global-update-data-picker-panel::-webkit-scrollbar-thumb,
-.global-input-content::-webkit-scrollbar-thumb,
-.global-input-custom-select-panel::-webkit-scrollbar-thumb,
-.airdrop-edit-reward-project-list::-webkit-scrollbar-thumb{
-
-    border-radius:999px;
-
-    background:#d5d9de;
-
+.airdrop-reward-project-list::-webkit-scrollbar-thumb,
+.airdrop-edit-reward-content::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+
+    background: #d5dddb;
 }
 
 
@@ -2796,172 +2074,276 @@ body.update-data-open{
    MOBILE
 ===================================================== */
 
-@media(
-    max-width:600px
-){
+@media (max-width: 600px) {
 
-    .global-input-overlay{
+    .global-input-picker-panel {
+        width: calc(100% - 20px);
 
-        padding:0;
+        margin: 0 10px 10px;
 
-        align-items:stretch;
+        border-radius: 22px;
 
+        max-height: 80vh;
     }
 
 
-    .global-input-panel{
-
-        width:100%;
-
-        max-height:100%;
-
-        height:100%;
-
-        border-radius:0;
-
+    .global-input-picker-list {
+        max-height: calc(80vh - 64px);
     }
 
 
-    .global-input-header{
+    .global-input-picker-option {
+        min-height: 64px;
 
-        padding:
-            max(16px, env(safe-area-inset-top))
-            16px
-            14px;
-
+        padding: 15px 18px;
     }
 
 
-    .global-input-content{
-
-        padding:
-            16px
-            16px
-            calc(20px + env(safe-area-inset-bottom));
-
+    .global-input-picker-option-content {
+        font-size: 16px;
     }
 
 
-    .airdrop-edit-reward-panel{
-
-        width:100%;
-
-        max-height:100%;
-
-        height:100%;
-
-        padding:18px 16px;
-
-        border-radius:0;
-
+    .global-input-picker-option-note {
+        font-size: 13px;
     }
 
 
-    .global-update-data-header{
+    /* ---------------------------------------------
+       AIRDROP EDIT REWARD
+    --------------------------------------------- */
 
-        padding:
-            max(16px, env(safe-area-inset-top))
-            16px
-            14px;
+    .airdrop-edit-reward-panel {
+        max-height: 92vh;
 
+        border-radius: 24px 24px 0 0;
     }
 
 
-    .global-update-data-title{
-
-        font-size:20px;
-
+    .airdrop-edit-reward-header {
+        padding: 20px 20px 16px;
     }
 
 
-    .global-update-data-content{
-
-        padding:
-            16px
-            16px
-            calc(24px + env(safe-area-inset-bottom));
-
+    .airdrop-edit-reward-header h2 {
+        font-size: 22px;
     }
 
 
-    .global-update-data-picker-panel{
+    .airdrop-edit-reward-content {
+        padding: 18px 20px 24px;
 
-        position:fixed;
-
-        left:12px;
-
-        right:12px;
-
-        top:auto;
-
-        bottom:
-            calc(12px + env(safe-area-inset-bottom));
-
-        max-height:min(
-            70vh,
-            520px
-        );
-
-        border-radius:18px;
-
-        box-shadow:
-            0 20px 50px rgba(0,0,0,.20);
-
+        max-height: calc(92vh - 82px);
     }
 
 
-    .global-update-data-picker-list{
-
-        max-height:calc(70vh - 72px);
-
+    .airdrop-reward-project-list {
+        max-height: 300px;
     }
 
 
-    .global-update-data-pending-item{
+    .airdrop-reward-project {
+        min-height: 64px;
 
-        align-items:flex-start;
-
+        padding: 13px 14px;
     }
 
 
-    .global-update-data-pending-remove{
+    .airdrop-reward-project-name {
+        font-size: 15px;
+    }
 
-        margin-top:1px;
 
+    .airdrop-reward-project small {
+        font-size: 12px;
+    }
+
+
+    .airdrop-reward-info {
+        align-items: flex-start;
+    }
+
+
+    .airdrop-reward-info strong {
+        max-width: 62%;
+    }
+
+
+    .airdrop-edit-reward-pending-item {
+        align-items: flex-start;
     }
 
 }
 
 
 /* =====================================================
-   REDUCED MOTION
+   MOBILE GLOBAL INPUT
 ===================================================== */
 
-@media(
-    prefers-reduced-motion:reduce
-){
+@media (max-width: 480px) {
 
-    .global-input-overlay,
-    .global-input-panel,
-    .airdrop-edit-reward-overlay,
-    .global-update-data-overlay,
-    .global-update-data-picker-arrow,
-    .global-input-custom-select-arrow,
-    .global-update-data-field-select-arrow{
-
-        transition:none;
-
+    .global-input-header {
+        padding: 18px;
     }
 
 
+    .global-input-content {
+        padding: 18px;
+    }
+
+
+    .global-input-footer {
+        padding: 14px 18px 18px;
+    }
+
+
+    .global-input-meta strong {
+        min-width: 110px;
+    }
+
+
+    .global-input-date {
+        width: 145px;
+    }
+
+
+    .global-input-list-item {
+        padding: 13px;
+    }
+
+
+    /* ---------------------------------------------
+       EDIT INPUT MENU
+    --------------------------------------------- */
+
+    .global-edit-input-item {
+        min-height: 88px;
+
+        padding: 15px;
+
+        border-radius: 17px;
+    }
+
+
+    .global-edit-input-item-icon {
+        width: 44px;
+        height: 44px;
+
+        border-radius: 13px;
+
+        font-size: 22px;
+    }
+
+
+    .global-edit-input-item-title {
+        font-size: 14px;
+    }
+
+
+    .global-edit-input-item-description {
+        font-size: 12px;
+    }
+
+
+    .global-edit-input-item-arrow {
+        font-size: 22px;
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREEN
+===================================================== */
+
+@media (max-width: 360px) {
+
+    .global-input-custom-select {
+        min-height: 52px;
+
+        padding: 13px 15px;
+    }
+
+
+    .global-input-picker-panel {
+        width: calc(100% - 12px);
+
+        margin-bottom: 6px;
+    }
+
+
+    .global-input-picker-header {
+        padding: 14px 16px;
+    }
+
+
+    .global-input-picker-option {
+        padding: 14px 16px;
+    }
+
+
+    .airdrop-edit-reward-content {
+        padding:
+            16px 16px 20px;
+    }
+
+
+    .airdrop-reward-project-list {
+        max-height: 280px;
+    }
+
+
+    .airdrop-reward-selected {
+        padding: 15px;
+    }
+
+
+    .airdrop-reward-info {
+        flex-direction: column;
+
+        gap: 3px;
+    }
+
+
+    .airdrop-reward-info strong {
+        max-width: 100%;
+
+        text-align: left;
+    }
+
+
+    .airdrop-edit-reward-pending-item {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .airdrop-edit-reward-pending-remove {
+        align-self: flex-end;
+    }
+
+}
+
+
+/* =====================================================
+   REDUCE MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .global-input-picker,
+    .global-input-picker-panel,
+    .global-input-custom-select,
+    .global-input-custom-arrow,
+    .airdrop-edit-reward-overlay,
+    .airdrop-edit-reward-panel,
+    .airdrop-reward-project,
+    .global-edit-input-item,
+    .airdrop-edit-reward-panel
     .global-input-action-button,
-    .global-input-confirm,
-    .airdrop-edit-reward-confirm,
-    .global-update-data-add,
-    .global-update-data-confirm{
-
-        transition:none;
-
+    .airdrop-edit-reward-confirm button {
+        transition: none;
     }
 
 }
