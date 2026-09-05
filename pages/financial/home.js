@@ -1298,7 +1298,7 @@ function renderEditInput(){
 
     const rowMenu =
         document.getElementById(
-            "workspace-edit-row-menu"
+            "financial-edit-row-menu"
         );
 
     if(rowMenu){
