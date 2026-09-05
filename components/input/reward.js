@@ -70,14 +70,14 @@ import {
 
     State
 
-} from "../state.js";
+} from "./state.js";
 
 
 import {
 
     getInputRaw
 
-} from "../data.js";
+} from "./data.js";
 
 
 import {
