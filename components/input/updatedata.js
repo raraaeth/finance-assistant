@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : updatedata.js
-   Version      : 1.0.0
+   Version      : 1.1.0
 
    Description :
    Global Edit Data UI Engine
@@ -208,12 +208,16 @@ export const UpdateData = {
            renderDetail,
            renderFields,
 
+           getFieldValue,
+
            validate,
            buildChanges,
 
            onSelect,
+
            onAdd,
            onAdded,
+
            onRemove,
 
            validateBatch,
@@ -270,15 +274,11 @@ export const UpdateData = {
 
         renderBase();
 
-
         renderPicker();
-
 
         renderDetail();
 
-
         renderPending();
-
 
         show();
 
@@ -355,9 +355,6 @@ export const UpdateData = {
 
     /* =================================================
        SET RECORDS
-
-       Bisa dipakai workspace setelah data
-       berubah tanpa membuka ulang overlay.
     ================================================= */
 
     setRecords(
@@ -365,7 +362,9 @@ export const UpdateData = {
     ){
 
         currentRecords =
-            Array.isArray(records)
+            Array.isArray(
+                records
+            )
             ? [
                 ...records
             ]
@@ -431,9 +430,7 @@ export const UpdateData = {
 
         renderPending();
 
-
         renderPicker();
-
 
         updateButtons();
 
@@ -455,7 +452,7 @@ export const UpdateData = {
             isBusy
         ){
 
-            return;
+            return UpdateData;
 
         }
 
@@ -464,7 +461,7 @@ export const UpdateData = {
             !record
         ){
 
-            return;
+            return UpdateData;
 
         }
 
@@ -483,7 +480,7 @@ export const UpdateData = {
 
 
         if(
-            typeof currentOptions.onSelect ===
+            typeof currentOptions?.onSelect ===
             "function"
         ){
 
@@ -535,6 +532,10 @@ export const UpdateData = {
             !selectedRecord
         ){
 
+            showValidationMessage(
+                "Pilih data terlebih dahulu."
+            );
+
             return;
 
         }
@@ -572,7 +573,7 @@ export const UpdateData = {
         }
 
 
-        const item = {
+        const baseItem = {
 
             record:
                 selectedRecord,
@@ -586,16 +587,18 @@ export const UpdateData = {
         /* =============================================
            WORKSPACE CALLBACK
 
-           Workspace dapat melakukan business-rule
-           khusus sebelum item dimasukkan ke batch.
+           Callback hanya boleh menangani business
+           rule / normalisasi item.
+
+           Apps Script tidak dijalankan oleh engine ini.
         ============================================= */
 
         let result =
-            item;
+            baseItem;
 
 
         if(
-            typeof currentOptions.onAdd ===
+            typeof currentOptions?.onAdd ===
             "function"
         ){
 
@@ -603,7 +606,7 @@ export const UpdateData = {
 
                 result =
                     await currentOptions.onAdd(
-                        item,
+                        baseItem,
                         {
                             record:
                                 selectedRecord,
@@ -626,12 +629,14 @@ export const UpdateData = {
                     error
                 );
 
+
                 showResult(
                     "error",
                     getErrorMessage(
                         error
                     )
                 );
+
 
                 return;
 
@@ -654,15 +659,19 @@ export const UpdateData = {
 
 
         const pendingItem =
-            result === true
-            ? item
-            : (
-                result
-                &&
-                typeof result === "object"
-                ? result
-                : item
+            normalizePendingItemResult(
+                result,
+                baseItem
             );
+
+
+        if(
+            !pendingItem
+        ){
+
+            return;
+
+        }
 
 
         /* =============================================
@@ -688,6 +697,7 @@ export const UpdateData = {
                 currentOptions.duplicateText
             );
 
+
             return;
 
         }
@@ -699,11 +709,11 @@ export const UpdateData = {
 
 
         /* =============================================
-           CALLBACK
+           CALLBACK AFTER ADD
         ============================================= */
 
         if(
-            typeof currentOptions.onAdded ===
+            typeof currentOptions?.onAdded ===
             "function"
         ){
 
@@ -730,17 +740,14 @@ export const UpdateData = {
 
 
         /* =============================================
-           REFRESH
+           REFRESH UI
         ============================================= */
 
         renderPending();
 
-
         renderPicker();
 
-
         clearCurrentEditor();
-
 
         updateButtons();
 
@@ -773,10 +780,27 @@ export const UpdateData = {
         }
 
 
+        const numericIndex =
+            Number(
+                index
+            );
+
+
         if(
-            index < 0
+            !Number.isInteger(
+                numericIndex
+            )
+        ){
+
+            return;
+
+        }
+
+
+        if(
+            numericIndex < 0
             ||
-            index >= pendingChanges.length
+            numericIndex >= pendingChanges.length
         ){
 
             return;
@@ -786,18 +810,18 @@ export const UpdateData = {
 
         const removed =
             pendingChanges[
-                index
+                numericIndex
             ];
 
 
         pendingChanges.splice(
-            index,
+            numericIndex,
             1
         );
 
 
         if(
-            typeof currentOptions.onRemove ===
+            typeof currentOptions?.onRemove ===
             "function"
         ){
 
@@ -805,7 +829,7 @@ export const UpdateData = {
 
                 await currentOptions.onRemove(
                     removed,
-                    index,
+                    numericIndex,
                     [
                         ...pendingChanges
                     ]
@@ -826,9 +850,7 @@ export const UpdateData = {
 
         renderPending();
 
-
         renderPicker();
-
 
         updateButtons();
 
@@ -850,9 +872,7 @@ export const UpdateData = {
 
         renderPending();
 
-
         renderPicker();
-
 
         updateButtons();
 
@@ -891,7 +911,7 @@ export const UpdateData = {
         ============================================= */
 
         if(
-            typeof currentOptions.validateBatch ===
+            typeof currentOptions?.validateBatch ===
             "function"
         ){
 
@@ -915,12 +935,14 @@ export const UpdateData = {
                     error
                 );
 
+
                 showResult(
                     "error",
                     getErrorMessage(
                         error
                     )
                 );
+
 
                 return;
 
@@ -935,6 +957,7 @@ export const UpdateData = {
                     "warning",
                     validation
                 );
+
 
                 return;
 
@@ -964,7 +987,7 @@ export const UpdateData = {
         try{
 
             if(
-                typeof currentOptions.onConfirm ===
+                typeof currentOptions?.onConfirm ===
                 "function"
             ){
 
@@ -1024,7 +1047,7 @@ export const UpdateData = {
 
 
         /* =============================================
-           HANDLE RESULT
+           NORMALIZE RESULT
         ============================================= */
 
         const normalized =
@@ -1032,6 +1055,10 @@ export const UpdateData = {
                 result
             );
 
+
+        /* =============================================
+           SUCCESS
+        ============================================= */
 
         if(
             normalized.success
@@ -1043,12 +1070,9 @@ export const UpdateData = {
 
             renderPending();
 
-
             renderPicker();
 
-
             renderDetail();
-
 
             updateButtons();
 
@@ -1060,7 +1084,7 @@ export const UpdateData = {
 
 
             if(
-                typeof currentOptions.onConfirmed ===
+                typeof currentOptions?.onConfirmed ===
                 "function"
             ){
 
@@ -1083,6 +1107,12 @@ export const UpdateData = {
             }
 
         }
+
+
+        /* =============================================
+           FAILURE / PARTIAL FAILURE
+        ============================================= */
+
         else{
 
             pendingChanges =
@@ -1091,9 +1121,7 @@ export const UpdateData = {
 
             renderPending();
 
-
             renderPicker();
-
 
             updateButtons();
 
@@ -1118,7 +1146,7 @@ export const UpdateData = {
 ===================================================== */
 
 function normalizeOptions(
-    options
+    options = {}
 ){
 
     return {
@@ -1147,6 +1175,11 @@ function normalizeOptions(
             ? options.pending
             : [],
 
+
+        /* ---------------------------------------------
+           RECORD
+        --------------------------------------------- */
+
         getRecordId:
             typeof options.getRecordId ===
             "function"
@@ -1165,6 +1198,11 @@ function normalizeOptions(
             ? options.getRecordMeta
             : defaultGetRecordMeta,
 
+
+        /* ---------------------------------------------
+           RENDER
+        --------------------------------------------- */
+
         renderDetail:
             typeof options.renderDetail ===
             "function"
@@ -1177,11 +1215,21 @@ function normalizeOptions(
             ? options.renderFields
             : null,
 
+
+        /* ---------------------------------------------
+           FIELD
+        --------------------------------------------- */
+
         getFieldValue:
             typeof options.getFieldValue ===
             "function"
             ? options.getFieldValue
             : defaultGetFieldValue,
+
+
+        /* ---------------------------------------------
+           VALIDATION
+        --------------------------------------------- */
 
         validate:
             typeof options.validate ===
@@ -1189,11 +1237,27 @@ function normalizeOptions(
             ? options.validate
             : defaultValidate,
 
+        validateBatch:
+            typeof options.validateBatch ===
+            "function"
+            ? options.validateBatch
+            : null,
+
+
+        /* ---------------------------------------------
+           CHANGE BUILDER
+        --------------------------------------------- */
+
         buildChanges:
             typeof options.buildChanges ===
             "function"
             ? options.buildChanges
             : defaultBuildChanges,
+
+
+        /* ---------------------------------------------
+           EVENTS
+        --------------------------------------------- */
 
         onSelect:
             typeof options.onSelect ===
@@ -1219,12 +1283,6 @@ function normalizeOptions(
             ? options.onRemove
             : null,
 
-        validateBatch:
-            typeof options.validateBatch ===
-            "function"
-            ? options.validateBatch
-            : null,
-
         onConfirm:
             typeof options.onConfirm ===
             "function"
@@ -1237,11 +1295,21 @@ function normalizeOptions(
             ? options.onConfirmed
             : null,
 
+
+        /* ---------------------------------------------
+           PENDING
+        --------------------------------------------- */
+
         getPendingLabel:
             typeof options.getPendingLabel ===
             "function"
             ? options.getPendingLabel
             : defaultGetPendingLabel,
+
+
+        /* ---------------------------------------------
+           TEXT
+        --------------------------------------------- */
 
         emptyText:
             options.emptyText
@@ -1299,16 +1367,18 @@ function normalizeOptions(
 
 function createOverlay(){
 
-    if(
+    const existing =
         document.getElementById(
             IDS.overlay
-        )
+        );
+
+
+    if(
+        existing
     ){
 
         overlay =
-            document.getElementById(
-                IDS.overlay
-            );
+            existing;
 
         return;
 
@@ -1358,6 +1428,7 @@ function createOverlay(){
                     >
                         Edit Input
                     </h2>
+
 
                     <p
                         id="${IDS.subtitle}"
@@ -1648,124 +1719,108 @@ function bindEvents(){
         );
 
 
-    if(
-        closeButton
-    ){
+    /* ---------------------------------------------
+       CLOSE
+    --------------------------------------------- */
 
-        closeButton.addEventListener(
-            "click",
-            () => {
+    closeButton?.addEventListener(
+        "click",
+        () => {
 
-                if(
-                    !isBusy
-                ){
+            if(
+                !isBusy
+            ){
 
-                    UpdateData.close();
-
-                }
+                UpdateData.close();
 
             }
-        );
 
-    }
+        }
+    );
 
 
-    if(
-        backdrop
-    ){
+    backdrop?.addEventListener(
+        "click",
+        () => {
 
-        backdrop.addEventListener(
-            "click",
-            () => {
+            if(
+                !isBusy
+            ){
 
-                if(
-                    !isBusy
-                ){
-
-                    UpdateData.close();
-
-                }
+                UpdateData.close();
 
             }
-        );
 
-    }
-
-
-    if(
-        pickerButton
-    ){
-
-        pickerButton.addEventListener(
-            "click",
-            () => {
-
-                if(
-                    isBusy
-                ){
-
-                    return;
-
-                }
+        }
+    );
 
 
-                togglePicker();
+    /* ---------------------------------------------
+       PICKER
+    --------------------------------------------- */
+
+    pickerButton?.addEventListener(
+        "click",
+        () => {
+
+            if(
+                isBusy
+            ){
+
+                return;
 
             }
-        );
-
-    }
 
 
-    if(
-        search
-    ){
+            togglePicker();
 
-        search.addEventListener(
-            "input",
-            () => {
-
-                renderPickerList(
-                    search.value
-                );
-
-            }
-        );
-
-    }
+        }
+    );
 
 
-    if(
-        addButton
-    ){
+    search?.addEventListener(
+        "input",
+        () => {
 
-        addButton.addEventListener(
-            "click",
-            () => {
+            renderPickerList(
+                search.value
+            );
 
-                UpdateData.add();
-
-            }
-        );
-
-    }
+        }
+    );
 
 
-    if(
-        confirmButton
-    ){
+    /* ---------------------------------------------
+       ADD
+    --------------------------------------------- */
 
-        confirmButton.addEventListener(
-            "click",
-            () => {
+    addButton?.addEventListener(
+        "click",
+        () => {
 
-                UpdateData.confirm();
+            UpdateData.add();
 
-            }
-        );
+        }
+    );
 
-    }
 
+    /* ---------------------------------------------
+       CONFIRM
+    --------------------------------------------- */
+
+    confirmButton?.addEventListener(
+        "click",
+        () => {
+
+            UpdateData.confirm();
+
+        }
+    );
+
+
+    /* ---------------------------------------------
+       ESCAPE
+    --------------------------------------------- */
 
     document.addEventListener(
         "keydown",
@@ -1785,27 +1840,30 @@ function bindEvents(){
 
 
             if(
-                event.key === "Escape"
+                event.key !== "Escape"
             ){
 
-                if(
-                    isPickerOpen()
-                ){
+                return;
 
-                    closePicker();
-
-                    return;
-
-                }
+            }
 
 
-                if(
-                    !isBusy
-                ){
+            if(
+                isPickerOpen()
+            ){
 
-                    UpdateData.close();
+                closePicker();
 
-                }
+                return;
+
+            }
+
+
+            if(
+                !isBusy
+            ){
+
+                UpdateData.close();
 
             }
 
@@ -1821,6 +1879,15 @@ function bindEvents(){
 
 function renderBase(){
 
+    if(
+        !currentOptions
+    ){
+
+        return;
+
+    }
+
+
     const title =
         document.getElementById(
             IDS.title
@@ -1830,6 +1897,24 @@ function renderBase(){
     const subtitle =
         document.getElementById(
             IDS.subtitle
+        );
+
+
+    const search =
+        document.getElementById(
+            IDS.pickerSearch
+        );
+
+
+    const addButton =
+        document.getElementById(
+            IDS.add
+        );
+
+
+    const confirmButton =
+        document.getElementById(
+            IDS.confirm
         );
 
 
@@ -1853,12 +1938,6 @@ function renderBase(){
     }
 
 
-    const search =
-        document.getElementById(
-            IDS.pickerSearch
-        );
-
-
     if(
         search
     ){
@@ -1869,12 +1948,6 @@ function renderBase(){
     }
 
 
-    const addButton =
-        document.getElementById(
-            IDS.add
-        );
-
-
     if(
         addButton
     ){
@@ -1883,12 +1956,6 @@ function renderBase(){
             currentOptions.addText;
 
     }
-
-
-    const confirmButton =
-        document.getElementById(
-            IDS.confirm
-        );
 
 
     if(
@@ -1941,7 +2008,17 @@ function renderPicker(){
     }
 
 
-    renderPickerList();
+    const search =
+        document.getElementById(
+            IDS.pickerSearch
+        );
+
+
+    renderPickerList(
+        search?.value
+        ??
+        ""
+    );
 
 }
 
@@ -1969,77 +2046,33 @@ function renderPickerList(
     }
 
 
-    const term =
-        String(
-            searchTerm
-            ??
-            ""
-        )
-        .trim()
-        .toLowerCase();
+    if(
+        !currentOptions
+    ){
+
+        list.innerHTML =
+            "";
+
+        return;
+
+    }
 
 
     const filtered =
-        currentRecords.filter(
-            record => {
-
-                if(
-                    !term
-                ){
-
-                    return true;
-
-                }
-
-
-                const label =
-                    String(
-                        getRecordLabel(
-                            record
-                        )
-                        ??
-                        ""
-                    )
-                    .toLowerCase();
-
-
-                const meta =
-                    String(
-                        getRecordMeta(
-                            record
-                        )
-                        ??
-                        ""
-                    )
-                    .toLowerCase();
-
-
-                const id =
-                    String(
-                        currentOptions.getRecordId(
-                            record
-                        )
-                        ??
-                        ""
-                    )
-                    .toLowerCase();
-
-
-                return (
-                    label.includes(term)
-                    ||
-                    meta.includes(term)
-                    ||
-                    id.includes(term)
-                );
-
-            }
+        filterRecords(
+            searchTerm
         );
 
 
     if(
         filtered.length === 0
     ){
+
+        const term =
+            normalizeSearchTerm(
+                searchTerm
+            );
+
 
         list.innerHTML = `
 
@@ -2064,9 +2097,13 @@ function renderPickerList(
     list.innerHTML =
         filtered
         .map(
-            record =>
+            (
+                record,
+                index
+            ) =>
                 renderPickerItem(
-                    record
+                    record,
+                    index
                 )
         )
         .join("");
@@ -2115,11 +2152,85 @@ function renderPickerList(
 
 
 /* =====================================================
+   FILTER RECORDS
+===================================================== */
+
+function filterRecords(
+    searchTerm = ""
+){
+
+    const term =
+        normalizeSearchTerm(
+            searchTerm
+        );
+
+
+    return currentRecords.filter(
+        record => {
+
+            if(
+                !term
+            ){
+
+                return true;
+
+            }
+
+
+            const label =
+                String(
+                    getRecordLabel(
+                        record
+                    )
+                    ??
+                    ""
+                )
+                .toLowerCase();
+
+
+            const meta =
+                String(
+                    getRecordMeta(
+                        record
+                    )
+                    ??
+                    ""
+                )
+                .toLowerCase();
+
+
+            const id =
+                String(
+                    getRecordId(
+                        record
+                    )
+                    ??
+                    ""
+                )
+                .toLowerCase();
+
+
+            return (
+                label.includes(term)
+                ||
+                meta.includes(term)
+                ||
+                id.includes(term)
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
    PICKER ITEM
 ===================================================== */
 
 function renderPickerItem(
-    record
+    record,
+    index
 ){
 
     const identity =
@@ -2141,11 +2252,13 @@ function renderPickerItem(
 
 
     const selected =
-        selectedRecord
-        &&
-        getRecordIdentity(
+        Boolean(
             selectedRecord
-        ) === identity;
+            &&
+            getRecordIdentity(
+                selectedRecord
+            ) === identity
+        );
 
 
     const pending =
@@ -2164,9 +2277,7 @@ function renderPickerItem(
                 ${pending ? "is-pending" : ""}
             "
             data-update-record="true"
-            data-index="${getFilteredIndex(
-                record
-            )}"
+            data-index="${index}"
         >
 
             <span
@@ -2218,104 +2329,6 @@ function renderPickerItem(
         </button>
 
     `;
-
-}
-
-
-/* =====================================================
-   GET FILTERED INDEX
-===================================================== */
-
-function getFilteredIndex(
-    record
-){
-
-    if(
-        !currentRecords.length
-    ){
-
-        return 0;
-
-    }
-
-
-    const search =
-        document.getElementById(
-            IDS.pickerSearch
-        );
-
-
-    const term =
-        String(
-            search?.value
-            ??
-            ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-    const filtered =
-        currentRecords.filter(
-            item => {
-
-                if(
-                    !term
-                ){
-
-                    return true;
-
-                }
-
-
-                const label =
-                    String(
-                        getRecordLabel(
-                            item
-                        )
-                        ??
-                        ""
-                    )
-                    .toLowerCase();
-
-
-                const meta =
-                    String(
-                        getRecordMeta(
-                            item
-                        )
-                        ??
-                        ""
-                    )
-                    .toLowerCase();
-
-
-                const id =
-                    String(
-                        currentOptions.getRecordId(
-                            item
-                        )
-                        ??
-                        ""
-                    )
-                    .toLowerCase();
-
-
-                return (
-                    label.includes(term)
-                    ||
-                    meta.includes(term)
-                    ||
-                    id.includes(term)
-                );
-
-            }
-        );
-
-
-    return filtered.indexOf(
-        record
-    );
 
 }
 
@@ -2380,6 +2393,7 @@ function renderDetail(){
 
         updateButtons();
 
+
         return;
 
     }
@@ -2421,7 +2435,6 @@ function renderDetail(){
 
     renderFields();
 
-
     updateButtons();
 
 }
@@ -2462,7 +2475,7 @@ function renderFields(){
 
 
     if(
-        typeof currentOptions.renderFields !==
+        typeof currentOptions?.renderFields !==
         "function"
     ){
 
@@ -2477,6 +2490,7 @@ function renderFields(){
             selectedRecord,
             container,
             {
+
                 getValue:
                     field =>
                         currentOptions.getFieldValue(
@@ -2542,9 +2556,7 @@ function clearCurrentEditor(){
 
     closePicker();
 
-
     renderPicker();
-
 
     renderDetail();
 
@@ -2793,11 +2805,33 @@ function renderPendingItem(
     index
 ){
 
-    const label =
-        currentOptions.getPendingLabel(
-            item,
-            index
+    let label;
+
+
+    try{
+
+        label =
+            currentOptions.getPendingLabel(
+                item,
+                index
+            );
+
+    }
+    catch(error){
+
+        console.error(
+            "UpdateData getPendingLabel error:",
+            error
         );
+
+
+        label =
+            defaultGetPendingLabel(
+                item,
+                index
+            );
+
+    }
 
 
     return `
@@ -3197,6 +3231,7 @@ function showResult(
 
         `;
 
+
         return;
 
     }
@@ -3223,6 +3258,7 @@ function showResult(
 
         `;
 
+
         return;
 
     }
@@ -3248,6 +3284,7 @@ function showResult(
             </div>
 
         `;
+
 
         return;
 
@@ -3360,6 +3397,81 @@ function isSamePending(
 
 
 /* =====================================================
+   NORMALIZE PENDING ITEM RESULT
+===================================================== */
+
+function normalizePendingItemResult(
+    result,
+    baseItem
+){
+
+    if(
+        result === false
+        ||
+        result === null
+        ||
+        typeof result === "undefined"
+    ){
+
+        return null;
+
+    }
+
+
+    if(
+        result === true
+    ){
+
+        return baseItem;
+
+    }
+
+
+    if(
+        typeof result !== "object"
+    ){
+
+        return baseItem;
+
+    }
+
+
+    /*
+       Callback boleh mengembalikan:
+
+       {
+           record,
+           changes
+       }
+
+       atau object tambahan.
+
+       Jika callback hanya mengembalikan metadata,
+       base record/changes tetap dipertahankan.
+    */
+
+    return {
+
+        ...baseItem,
+
+        ...result,
+
+        record:
+            result.record
+            ??
+            baseItem.record,
+
+        changes:
+            result.changes
+            ??
+            baseItem.changes
+
+    };
+
+}
+
+
+/* =====================================================
    RECORD IDENTITY
 ===================================================== */
 
@@ -3376,23 +3488,180 @@ function getRecordIdentity(
     }
 
 
+    return String(
+        getRecordId(
+            record
+        )
+        ??
+        ""
+    );
+
+}
+
+
+/* =====================================================
+   RECORD ID
+===================================================== */
+
+function getRecordId(
+    record
+){
+
+    if(
+        !record
+    ){
+
+        return "";
+
+    }
+
+
     try{
 
-        return String(
-            currentOptions?.getRecordId(
+        if(
+            currentOptions
+            &&
+            typeof currentOptions.getRecordId ===
+            "function"
+        ){
+
+            return (
+                currentOptions.getRecordId(
+                    record
+                )
+                ??
+                ""
+            );
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "UpdateData getRecordId error:",
+            error
+        );
+
+    }
+
+
+    return defaultGetRecordId(
+        record
+    );
+
+}
+
+
+/* =====================================================
+   RECORD LABEL
+===================================================== */
+
+function getRecordLabel(
+    record
+){
+
+    if(
+        !record
+    ){
+
+        return "-";
+
+    }
+
+
+    if(
+        !currentOptions
+    ){
+
+        return defaultGetRecordLabel(
+            record
+        );
+
+    }
+
+
+    try{
+
+        return (
+            currentOptions.getRecordLabel(
                 record
             )
             ??
-            ""
+            defaultGetRecordLabel(
+                record
+            )
         );
 
     }
     catch(error){
 
-        return String(
-            defaultGetRecordId(
+        console.error(
+            "UpdateData getRecordLabel error:",
+            error
+        );
+
+
+        return defaultGetRecordLabel(
+            record
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   RECORD META
+===================================================== */
+
+function getRecordMeta(
+    record
+){
+
+    if(
+        !record
+    ){
+
+        return "";
+
+    }
+
+
+    if(
+        !currentOptions
+    ){
+
+        return defaultGetRecordMeta(
+            record
+        );
+
+    }
+
+
+    try{
+
+        return (
+            currentOptions.getRecordMeta(
                 record
             )
+            ??
+            defaultGetRecordMeta(
+                record
+            )
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "UpdateData getRecordMeta error:",
+            error
+        );
+
+
+        return defaultGetRecordMeta(
+            record
         );
 
     }
@@ -3430,69 +3699,6 @@ function defaultGetRecordId(
             record
         )
     );
-
-}
-
-/* =====================================================
-   RECORD LABEL
-   Mengambil label dari adapter workspace jika tersedia.
-===================================================== */
-
-function getRecordLabel(record){
-
-    if(!currentOptions){
-
-        return defaultGetRecordLabel(record);
-
-    }
-
-    try{
-
-        return currentOptions.getRecordLabel(record);
-
-    }
-    catch(error){
-
-        console.error(
-            "UpdateData getRecordLabel error:",
-            error
-        );
-
-        return defaultGetRecordLabel(record);
-
-    }
-
-}
-
-
-/* =====================================================
-   RECORD META
-   Mengambil metadata dari adapter workspace jika tersedia.
-===================================================== */
-
-function getRecordMeta(record){
-
-    if(!currentOptions){
-
-        return defaultGetRecordMeta(record);
-
-    }
-
-    try{
-
-        return currentOptions.getRecordMeta(record);
-
-    }
-    catch(error){
-
-        console.error(
-            "UpdateData getRecordMeta error:",
-            error
-        );
-
-        return defaultGetRecordMeta(record);
-
-    }
 
 }
 
@@ -3831,7 +4037,7 @@ function defaultGetPendingLabel(
 
 
     const title =
-        currentOptions.getRecordLabel(
+        getRecordLabel(
             record
         );
 
@@ -3904,7 +4110,16 @@ function normalizePending(
                     )
                 ){
 
-                    return item;
+                    return {
+
+                        ...item,
+
+                        changes:
+                            item.changes
+                            ??
+                            {}
+
+                    };
 
                 }
 
@@ -3995,16 +4210,22 @@ function normalizeConfirmResult(
         typeof result === "object"
     ){
 
+        const success =
+            result.success !== false;
+
+
         return {
 
             success:
-                result.success !== false,
+
+                success,
 
             message:
+
                 result.message
                 ??
                 (
-                    result.success !== false
+                    success
                     ?
                     "Semua perubahan berhasil dikonfirmasi."
                     :
@@ -4012,14 +4233,17 @@ function normalizeConfirmResult(
                 ),
 
             remaining:
+
                 Array.isArray(
                     result.remaining
                 )
                 ?
-                result.remaining
+                [
+                    ...result.remaining
+                ]
                 :
                 (
-                    result.success !== false
+                    success
                     ?
                     []
                     :
@@ -4029,13 +4253,27 @@ function normalizeConfirmResult(
                 ),
 
             updated:
-                result.updated
-                ??
+
+                Array.isArray(
+                    result.updated
+                )
+                ?
+                [
+                    ...result.updated
+                ]
+                :
                 [],
 
             failed:
-                result.failed
-                ??
+
+                Array.isArray(
+                    result.failed
+                )
+                ?
+                [
+                    ...result.failed
+                ]
+                :
                 [],
 
             raw:
@@ -4066,6 +4304,25 @@ function normalizeConfirmResult(
             []
 
     };
+
+}
+
+
+/* =====================================================
+   NORMALIZE SEARCH TERM
+===================================================== */
+
+function normalizeSearchTerm(
+    value
+){
+
+    return String(
+        value
+        ??
+        ""
+    )
+    .trim()
+    .toLowerCase();
 
 }
 
