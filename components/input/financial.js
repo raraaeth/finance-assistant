@@ -36,6 +36,8 @@
    Edit Row :
    - Menggunakan Global EditRow Engine.
    - Target record berdasarkan ID + Date.
+   - Header ID Financial = id.
+   - Header tanggal Financial = Date.
    - ID dan Date dikunci.
    - Control mengikuti struktur Input Financial.
    - Select mempertahankan canonical value.
@@ -558,6 +560,15 @@ export const Financial = {
 
     /* =================================================
        PREFIX
+    =================================================
+
+       Digunakan oleh Global Input Controller
+       untuk membuat ID transaksi.
+
+       Contoh :
+
+           FIN-XXXXXXXX
+
     ================================================= */
 
     prefix :
@@ -935,14 +946,18 @@ async function openEditRow(){
            TARGET FIELD
         ========================================= */
 
+        /*
+           Financial menggunakan header Sheet:
+
+               id
+               Date
+
+           Jangan gunakan "tanggal" di sini.
+        */
+
         getIdField :
 
             record => {
-
-                /*
-                   Semua workspace menggunakan
-                   field ID huruf kecil.
-                */
 
                 return "id";
 
@@ -952,25 +967,6 @@ async function openEditRow(){
         getDateField :
 
             record => {
-
-                /*
-                   🔧 FIX DATE FINANCIAL
-
-                   Financial menggunakan:
-
-                       id
-                       Date
-
-                   BUKAN:
-
-                       tanggal
-
-                   Karena EditRow menggunakan
-                   getDateField() sebagai target
-                   Update Row, field ini harus
-                   benar-benar sama dengan nama
-                   kolom Sheet.
-                */
 
                 return "Date";
 
@@ -1185,10 +1181,7 @@ async function openEditRow(){
             record => {
 
                 /*
-                   🔧 FIX DATE FINANCIAL
-
-                   Ambil tanggal dari kolom
-                   Sheet bernama Date.
+                   Financial Sheet memakai header Date.
                 */
 
                 const tanggal =
@@ -1296,13 +1289,6 @@ async function openEditRow(){
         getSearchText :
 
             record => {
-
-                /*
-                   🔧 FIX DATE FINANCIAL
-
-                   Search juga menggunakan
-                   kolom Date.
-                */
 
                 return [
 
@@ -1668,17 +1654,18 @@ async function openEditRow(){
             record => {
 
                 /*
-                   🔧 FIX DATE FINANCIAL
-
-                   Financial memakai kolom:
+                   Header Sheet Financial:
 
                        id
                        Date
+                       jenis
+                       type
+                       nominal
+                       keterangan
 
-                   bukan:
-
-                       id
-                       tanggal
+                   Date adalah nama header Sheet.
+                   Di UI tetap ditampilkan sebagai
+                   "Tanggal".
                 */
 
                 return [
@@ -1721,12 +1708,6 @@ async function openEditRow(){
         renderDetail :
 
             record => {
-
-                /*
-                   🔧 FIX DATE FINANCIAL
-
-                   Detail membaca record.Date.
-                */
 
                 return {
 
@@ -1918,28 +1899,21 @@ async function openEditRow(){
 
 
                 /* =================================
-                   TANGGAL
+                   DATE
                 ================================= */
 
                 /*
-                   🔧 FIX DATE FINANCIAL
+                   Financial menggunakan header
+                   Sheet "Date".
 
-                   Prioritas utama Financial adalah
-                   kolom Sheet "Date".
-
-                   date/tanggal tetap diterima
-                   sebagai fallback agar validator
-                   tidak terlalu sensitif terhadap
-                   bentuk data.
+                   Jangan mengambil State.date
+                   karena ini adalah tanggal record
+                   yang sedang diedit.
                 */
 
                 const tanggal =
 
                     record?.Date ??
-
-                    record?.date ??
-
-                    record?.tanggal ??
 
                     "";
 
@@ -1952,7 +1926,7 @@ async function openEditRow(){
 
                     console.warn(
 
-                        "[Financial EditRow] Tanggal kosong."
+                        "[Financial EditRow] Date kosong."
 
                     );
 
@@ -2247,10 +2221,8 @@ async function openEditRow(){
 
 
                 /*
-                   🔧 FIX DATE FINANCIAL
-
-                   Pending label menggunakan
-                   record.Date.
+                   Financial menggunakan
+                   header Sheet "Date".
                 */
 
                 const tanggal =
