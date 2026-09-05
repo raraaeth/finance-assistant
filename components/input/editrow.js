@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : editrow.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
    Generic Edit Input Row Engine
@@ -13,9 +13,13 @@
    - Menampilkan record terbaru terlebih dahulu
    - Target record menggunakan ID + Tanggal
    - ID dan Tanggal selalu locked
-   - Field lain editable
-   - Menyediakan default field renderer
-   - Mendukung rule khusus workspace
+   - Mengikuti definisi field/control dari workspace
+   - Mempertahankan canonical option.value
+   - Mendukung select / number / date / text / textarea /
+     checkbox / condition
+   - Mendukung dynamic options
+   - Mendukung conditional fields
+   - Mendukung perbedaan field UI dan field Sheet
    - Temporary staging
    - Multi-row editing
    - Duplicate protection
@@ -36,9 +40,11 @@
        ↓
    selected row
        ↓
-   full detail
+   detail
        ↓
-   editable fields
+   workspace steps
+       ↓
+   editable controls
        ↓
    Tambahkan
        ↓
@@ -54,15 +60,22 @@
 
    Principle :
    - Workspace agnostic
-   - Tidak hardcode struktur Airdrop
-   - Tidak hardcode field workspace
+   - Tidak hardcode struktur workspace
+   - Tidak hardcode field Airdrop
+   - Tidak hardcode field Financial
+   - Tidak hardcode field Kas
+   - Tidak hardcode field Payroll
    - ID + Tanggal adalah target generic
-   - Field khusus dapat diatur oleh workspace adapter
-   - Tidak ada rule transaksi 1 minggu
-   - Maksimal 20 transaksi terkini
+   - Control mengikuti steps workspace
+   - option.value adalah nilai authoritative
+   - option.label hanya untuk presentation
    - Tidak melakukan update saat record dipilih
    - Tidak melakukan update saat Tambahkan
    - Apps Script hanya dipanggil saat Konfirmasi
+
+   Compatibility :
+   - Tetap kompatibel dengan UpdateData
+   - Tidak mengubah Reward Airdrop
 ===================================================== */
 
 
@@ -141,13 +154,14 @@ function normalizeKey(
 
     return normalizeText(
         value
-    ).toLowerCase();
+    )
+        .toLowerCase();
 
 }
 
 
 /* =====================================================
-   RECORD OBJECT
+   OBJECT
 ===================================================== */
 
 function isObject(
@@ -164,17 +178,68 @@ function isObject(
 
 
 /* =====================================================
-   ID FIELD
+   SAFE ARRAY
 ===================================================== */
 
-/*
-   Workspace boleh override:
+function safeArray(
+    value
+){
 
-       getIdField(record)
+    return Array.isArray(
+        value
+    )
+        ? value
+        : [];
 
-   Kalau tidak ada,
-   engine mencoba field umum.
-*/
+}
+
+
+/* =====================================================
+   SAFE FUNCTION
+===================================================== */
+
+function callFunction(
+    fn,
+    args = [],
+    fallback = undefined
+){
+
+    if(
+        typeof fn !== "function"
+    ){
+
+        return fallback;
+
+    }
+
+
+    try{
+
+        const result =
+            fn(
+                ...args
+            );
+
+        return result;
+
+    }
+    catch(error){
+
+        console.warn(
+            "[EditRow] callback failed:",
+            error
+        );
+
+        return fallback;
+
+    }
+
+}
+
+
+/* =====================================================
+   ID FIELD
+===================================================== */
 
 function getIdField(
     record
@@ -185,28 +250,18 @@ function getIdField(
         "function"
     ){
 
-        try{
-
-            const result =
-                currentOptions.getIdField(
-                    record
-                );
-
-            if(
-                result
-            ){
-
-                return result;
-
-            }
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] getIdField failed:",
-                error
+        const result =
+            callFunction(
+                currentOptions.getIdField,
+                [record]
             );
+
+
+        if(
+            result
+        ){
+
+            return result;
 
         }
 
@@ -230,7 +285,7 @@ function getIdField(
 
         if(
             record &&
-            Object.prototype.hasOwnProperty.call(
+        Object.prototype.hasOwnProperty.call(
                 record,
                 field
             )
@@ -252,15 +307,6 @@ function getIdField(
    DATE FIELD
 ===================================================== */
 
-/*
-   Workspace boleh override:
-
-       getDateField(record)
-
-   Default :
-   tanggal / date / datetime
-*/
-
 function getDateField(
     record
 ){
@@ -270,28 +316,18 @@ function getDateField(
         "function"
     ){
 
-        try{
-
-            const result =
-                currentOptions.getDateField(
-                    record
-                );
-
-            if(
-                result
-            ){
-
-                return result;
-
-            }
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] getDateField failed:",
-                error
+        const result =
+            callFunction(
+                currentOptions.getDateField,
+                [record]
             );
+
+
+        if(
+            result
+        ){
+
+            return result;
 
         }
 
@@ -318,7 +354,7 @@ function getDateField(
 
         if(
             record &&
-            Object.prototype.hasOwnProperty.call(
+        Object.prototype.hasOwnProperty.call(
                 record,
                 field
             )
@@ -337,7 +373,7 @@ function getDateField(
 
 
 /* =====================================================
-   GET ID
+   RECORD ID
 ===================================================== */
 
 function getRecordId(
@@ -358,7 +394,7 @@ function getRecordId(
 
 
 /* =====================================================
-   GET DATE
+   RECORD DATE
 ===================================================== */
 
 function getRecordDate(
@@ -381,17 +417,6 @@ function getRecordDate(
    TARGET KEY
 ===================================================== */
 
-/*
-   Edit Row target :
-
-       ID + Tanggal
-
-   Contoh :
-
-       AIR-001|2026-09-05
-
-*/
-
 function getTargetKey(
     record
 ){
@@ -401,20 +426,20 @@ function getTargetKey(
         "function"
     ){
 
-        try{
-
-            return normalizeText(
-                currentOptions.getTargetKey(
-                    record
-                )
+        const result =
+            callFunction(
+                currentOptions.getTargetKey,
+                [record]
             );
 
-        }
-        catch(error){
 
-            console.warn(
-                "[EditRow] getTargetKey failed:",
-                error
+        if(
+            result !== undefined &&
+            result !== null
+        ){
+
+            return normalizeText(
+                result
             );
 
         }
@@ -442,6 +467,207 @@ function getTargetKey(
 
 
 /* =====================================================
+   FIELD MAP
+===================================================== */
+
+/*
+   Workspace dapat memberikan:
+
+       fieldMap : {
+           type     : "jenis",
+           category : "kategori",
+           member   : "nama",
+           amount   : "nominal",
+           note     : "keterangan"
+       }
+
+   atau:
+
+       getSheetField(field, record)
+
+   Jika tidak ada,
+   field dianggap sama dengan key
+   yang ada pada record.
+*/
+
+function getSheetField(
+    field,
+    record
+){
+
+    if(
+        typeof currentOptions.getSheetField ===
+        "function"
+    ){
+
+        const result =
+            callFunction(
+                currentOptions.getSheetField,
+                [
+                    field,
+                    record
+                ]
+            );
+
+
+        if(
+            result
+        ){
+
+            return result;
+
+        }
+
+    }
+
+
+    const map =
+        currentOptions.fieldMap;
+
+
+    if(
+        map &&
+        typeof map === "object"
+    ){
+
+        if(
+            map[field]
+        ){
+
+            return map[field];
+
+        }
+
+    }
+
+
+    return field;
+
+}
+
+
+/* =====================================================
+   FIELD UI VALUE
+===================================================== */
+
+/*
+   Membaca nilai field berdasarkan:
+
+   1. UI field
+   2. Sheet field
+
+   Ini penting untuk Kas:
+
+       UI:
+       type
+       category
+       member
+       amount
+       note
+
+       Sheet:
+       jenis
+       kategori
+       nama
+       nominal
+       keterangan
+*/
+
+function getFieldValue(
+    field,
+    record
+){
+
+    if(
+        typeof currentOptions.getFieldValue ===
+        "function"
+    ){
+
+        const result =
+            callFunction(
+                currentOptions.getFieldValue,
+                [
+                    field,
+                    record
+                ],
+                undefined
+            );
+
+
+        if(
+            result !== undefined
+        ){
+
+            return result;
+
+        }
+
+    }
+
+
+    const sheetField =
+        getSheetField(
+            field,
+            record
+        );
+
+
+    if(
+        record &&
+        Object.prototype.hasOwnProperty.call(
+            record,
+            field
+        )
+    ){
+
+        return record[field];
+
+    }
+
+
+    if(
+        record &&
+        Object.prototype.hasOwnProperty.call(
+            record,
+            sheetField
+        )
+    ){
+
+        return record[sheetField];
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =====================================================
+   SET FIELD VALUE
+===================================================== */
+
+function setFieldValue(
+    row,
+    field,
+    value,
+    record
+){
+
+    const sheetField =
+        getSheetField(
+            field,
+            record
+        );
+
+
+    row[sheetField] =
+        value;
+
+}
+
+
+/* =====================================================
    FIELD LOCK
 ===================================================== */
 
@@ -462,12 +688,13 @@ function isLockedField(
 
 
     /*
-       ID dan Tanggal selalu locked.
+       ID selalu locked.
     */
 
     if(
         field === idField ||
-        field === dateField
+        field === "id" ||
+        field === "ID"
     ){
 
         return true;
@@ -476,31 +703,44 @@ function isLockedField(
 
 
     /*
-       Workspace dapat menambahkan
-       field locked lain.
+       Tanggal selalu locked
+       di Edit Row.
     */
+
+    if(
+        field === dateField ||
+        normalizeKey(field) ===
+            "tanggal" ||
+        normalizeKey(field) ===
+            "date"
+    ){
+
+        return true;
+
+    }
+
 
     if(
         typeof currentOptions.isFieldLocked ===
         "function"
     ){
 
-        try{
-
-            return (
-                currentOptions.isFieldLocked(
+        const result =
+            callFunction(
+                currentOptions.isFieldLocked,
+                [
                     field,
                     record
-                ) === true
+                ],
+                false
             );
 
-        }
-        catch(error){
 
-            console.warn(
-                "[EditRow] isFieldLocked failed:",
-                error
-            );
+        if(
+            result === true
+        ){
+
+            return true;
 
         }
 
@@ -508,11 +748,9 @@ function isLockedField(
 
 
     const lockedFields =
-        Array.isArray(
+        safeArray(
             currentOptions.lockedFields
-        )
-            ? currentOptions.lockedFields
-            : [];
+        );
 
 
     return lockedFields.includes(
@@ -543,50 +781,48 @@ function isEditableField(
     }
 
 
+    /*
+       Workspace override.
+    */
+
     if(
         typeof currentOptions.isFieldEditable ===
         "function"
     ){
 
-        try{
-
-            return (
-                currentOptions.isFieldEditable(
+        const result =
+            callFunction(
+                currentOptions.isFieldEditable,
+                [
                     field,
                     record
-                ) !== false
+                ],
+                undefined
             );
 
-        }
-        catch(error){
 
-            console.warn(
-                "[EditRow] isFieldEditable failed:",
-                error
-            );
+        if(
+            result !== undefined
+        ){
+
+            return result !== false;
 
         }
 
     }
 
 
-    const editableFields =
-        currentOptions.editableFields;
-
-
     /*
-       Jika workspace memberikan daftar
-       editableFields, hanya field tersebut
-       yang boleh diedit.
+       Explicit editableFields.
     */
 
     if(
         Array.isArray(
-            editableFields
+            currentOptions.editableFields
         )
     ){
 
-        return editableFields.includes(
+        return currentOptions.editableFields.includes(
             field
         );
 
@@ -594,10 +830,344 @@ function isEditableField(
 
 
     /*
-       Default :
+       Default:
        semua field selain locked
-       dapat diedit.
+       boleh diedit.
     */
+
+    return true;
+
+}
+
+
+/* =====================================================
+   STEP RESOLUTION
+===================================================== */
+
+/*
+   Generic engine mengambil metadata
+   dari workspace steps.
+
+   Tidak perlu hardcode:
+
+       Airdrop
+       Financial
+       Kas
+       Payroll Monthly
+       Payroll Daily
+       Saving
+*/
+
+function getSteps(
+    record
+){
+
+    let steps =
+        currentOptions.steps;
+
+
+    if(
+        typeof steps ===
+        "function"
+    ){
+
+        steps =
+            callFunction(
+                steps,
+                [
+                    record
+                ],
+                []
+            );
+
+    }
+
+
+    return safeArray(
+        steps
+    );
+
+}
+
+
+/* =====================================================
+   STEP FIELD
+===================================================== */
+
+function getStepFieldName(
+    step
+){
+
+    if(
+        !step ||
+        typeof step !== "object"
+    ){
+
+        return null;
+
+    }
+
+
+    return (
+        step.id ??
+        step.field ??
+        step.name ??
+        null
+    );
+
+}
+
+
+/* =====================================================
+   FIND STEP
+===================================================== */
+
+function findStep(
+    field,
+    record
+){
+
+    const steps =
+        getSteps(
+            record
+        );
+
+
+    for(
+        const step of steps
+    ){
+
+        const stepField =
+            getStepFieldName(
+                step
+            );
+
+
+        if(
+            stepField ===
+            field
+        ){
+
+            return step;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   STEP CONDITION
+===================================================== */
+
+function evaluateCondition(
+    condition,
+    values,
+    record
+){
+
+    if(
+        condition ===
+        undefined ||
+        condition ===
+        null
+    ){
+
+        return true;
+
+    }
+
+
+    if(
+        typeof condition ===
+        "function"
+    ){
+
+        try{
+
+            return condition(
+                values,
+                record
+            ) !== false;
+
+        }
+        catch(error){
+
+            console.warn(
+                "[EditRow] condition failed:",
+                error
+            );
+
+            return false;
+
+        }
+
+    }
+
+
+    /*
+       Object condition:
+
+       {
+           field : "jenis",
+           equals : "transfer"
+       }
+    */
+
+    if(
+        isObject(
+            condition
+        )
+    ){
+
+        const field =
+            condition.field ??
+            condition.id;
+
+
+        const actual =
+            values?.[field] ??
+            getFieldValue(
+                field,
+                record
+            );
+
+
+        if(
+            Object.prototype.hasOwnProperty.call(
+                condition,
+                "equals"
+            )
+        ){
+
+            return String(actual) ===
+                   String(condition.equals);
+
+        }
+
+
+        if(
+            Object.prototype.hasOwnProperty.call(
+                condition,
+                "notEquals"
+            )
+        ){
+
+            return String(actual) !==
+                   String(condition.notEquals);
+
+        }
+
+
+        if(
+            Array.isArray(
+                condition.includes
+            )
+        ){
+
+            return condition.includes.includes(
+                actual
+            );
+
+        }
+
+
+        return true;
+
+    }
+
+
+    return Boolean(
+        condition
+    );
+
+}
+
+
+/* =====================================================
+   STEP VISIBILITY
+===================================================== */
+
+function isStepVisible(
+    step,
+    record,
+    values = {}
+){
+
+    if(
+        !step
+    ){
+
+        return false;
+
+    }
+
+
+    /*
+       showIf
+    */
+
+    if(
+        step.showIf !==
+        undefined
+    ){
+
+        if(
+            !evaluateCondition(
+                step.showIf,
+                values,
+                record
+            )
+        ){
+
+            return false;
+
+        }
+
+    }
+
+
+    /*
+       visibleIf
+    */
+
+    if(
+        step.visibleIf !==
+        undefined
+    ){
+
+        if(
+            !evaluateCondition(
+                step.visibleIf,
+                values,
+                record
+            )
+        ){
+
+            return false;
+
+        }
+
+    }
+
+
+    /*
+       hidden
+    */
+
+    if(
+        step.hidden ===
+        true
+    ){
+
+        return false;
+
+    }
+
 
     return true;
 
@@ -618,31 +1188,24 @@ function getFieldLabel(
         "function"
     ){
 
-        try{
-
-            const result =
-                currentOptions.getFieldLabel(
+        const result =
+            callFunction(
+                currentOptions.getFieldLabel,
+                [
                     field,
                     record
-                );
+                ],
+                undefined
+            );
 
-            if(
-                result !== null &&
-                result !== undefined
-            ){
 
-                return String(
-                    result
-                );
+        if(
+            result !== undefined &&
+            result !== null
+        ){
 
-            }
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] getFieldLabel failed:",
-                error
+            return String(
+                result
             );
 
         }
@@ -650,13 +1213,24 @@ function getFieldLabel(
     }
 
 
-    /*
-       Default sederhana.
-       Contoh :
+    const step =
+        findStep(
+            field,
+            record
+        );
 
-       $reward → $ Reward
-       created_at → Created At
-    */
+
+    if(
+        step?.label !==
+        undefined
+    ){
+
+        return String(
+            step.label
+        );
+
+    }
+
 
     return String(
         field
@@ -698,45 +1272,70 @@ function getFieldType(
         "function"
     ){
 
-        try{
-
-            const result =
-                currentOptions.getFieldType(
+        const result =
+            callFunction(
+                currentOptions.getFieldType,
+                [
                     field,
                     value,
                     record
-                );
-
-            if(
-                result
-            ){
-
-                return result;
-
-            }
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] getFieldType failed:",
-                error
+                ],
+                undefined
             );
+
+
+        if(
+            result
+        ){
+
+            return result;
 
         }
 
     }
 
 
+    const step =
+        findStep(
+            field,
+            record
+        );
+
+
+    /*
+       PENTING:
+
+       steps adalah authoritative source
+       untuk tipe control.
+
+       Jadi jika Input mengatakan:
+
+           type: "select"
+
+       Edit Row juga select.
+
+       Tidak boleh berubah menjadi text
+       hanya karena value berupa string.
+    */
+
+    if(
+        step?.type
+    ){
+
+        return step.type;
+
+    }
+
+
+    /*
+       Fallback generic.
+    */
+
     const normalizedField =
         normalizeKey(
             field
         );
 
-
-    /*
-       Date
-    */
 
     if(
         normalizedField ===
@@ -752,10 +1351,6 @@ function getFieldType(
     }
 
 
-    /*
-       Number
-    */
-
     if(
         typeof value ===
         "number"
@@ -765,10 +1360,6 @@ function getFieldType(
 
     }
 
-
-    /*
-       Boolean
-    */
 
     if(
         typeof value ===
@@ -780,50 +1371,12 @@ function getFieldType(
     }
 
 
-    /*
-       Object / Array
-       → textarea agar tidak
-       kehilangan struktur.
-    */
-
     if(
-        Array.isArray(
-            value
-        ) ||
-        isObject(
-            value
-        )
+        Array.isArray(value) ||
+        isObject(value)
     ){
 
         return "textarea";
-
-    }
-
-
-    /*
-       Field yang umum mengandung
-       nominal.
-    */
-
-    if(
-        normalizedField.includes(
-            "amount"
-        ) ||
-        normalizedField.includes(
-            "nominal"
-        ) ||
-        normalizedField.includes(
-            "reward"
-        ) ||
-        normalizedField.includes(
-            "price"
-        ) ||
-        normalizedField.includes(
-            "saldo"
-        )
-    ){
-
-        return "number";
 
     }
 
@@ -834,7 +1387,706 @@ function getFieldType(
 
 
 /* =====================================================
-   FIELD VALUE SERIALIZATION
+   OPTION NORMALIZATION
+===================================================== */
+
+function normalizeOption(
+    option
+){
+
+    if(
+        isObject(
+            option
+        )
+    ){
+
+        return {
+
+            value :
+                option.value ??
+                option.id ??
+                "",
+
+            label :
+                option.label ??
+                option.name ??
+                option.value ??
+                "",
+
+            note :
+                option.note ??
+                "",
+
+            disabled :
+                option.disabled === true
+
+        };
+
+    }
+
+
+    return {
+
+        value :
+            option,
+
+        label :
+            option,
+
+        note :
+            "",
+
+        disabled :
+            false
+
+    };
+
+}
+
+
+/* =====================================================
+   GET OPTIONS
+===================================================== */
+
+function getFieldOptions(
+    field,
+    record,
+    values = {}
+){
+
+    /*
+       Workspace override.
+    */
+
+    if(
+        typeof currentOptions.getFieldOptions ===
+        "function"
+    ){
+
+        const result =
+            callFunction(
+                currentOptions.getFieldOptions,
+                [
+                    field,
+                    record,
+                    values
+                ],
+                undefined
+            );
+
+
+        if(
+            Array.isArray(
+                result
+            )
+        ){
+
+            return result.map(
+                normalizeOption
+            );
+
+        }
+
+    }
+
+
+    const step =
+        findStep(
+            field,
+            record
+        );
+
+
+    let options =
+        step?.options;
+
+
+    /*
+       Dynamic options dari steps.
+    */
+
+    if(
+        typeof options ===
+        "function"
+    ){
+
+        try{
+
+            options =
+                options(
+                    values,
+                    record
+                );
+
+        }
+        catch(error){
+
+            console.warn(
+                "[EditRow] step options failed:",
+                error
+            );
+
+            options =
+                [];
+
+        }
+
+    }
+
+
+    if(
+        !Array.isArray(
+            options
+        )
+    ){
+
+        options =
+            [];
+
+    }
+
+
+    return options.map(
+        normalizeOption
+    );
+
+}
+
+
+/* =====================================================
+   FIELD CONFIG
+===================================================== */
+
+function getFieldConfig(
+    field,
+    record,
+    values = {}
+){
+
+    let config = {};
+
+
+    if(
+        typeof currentOptions.getFieldConfig ===
+        "function"
+    ){
+
+        const result =
+            callFunction(
+                currentOptions.getFieldConfig,
+                [
+                    field,
+                    record,
+                    values
+                ],
+                undefined
+            );
+
+
+        if(
+            result &&
+            typeof result ===
+            "object"
+        ){
+
+            config = {
+
+                ...result
+
+            };
+
+        }
+
+    }
+
+
+    const step =
+        findStep(
+            field,
+            record
+        );
+
+
+    /*
+       Step metadata menjadi fallback utama.
+    */
+
+    if(
+        step
+    ){
+
+        config = {
+
+            ...step,
+
+            ...config
+
+        };
+
+    }
+
+
+    const value =
+        getFieldValue(
+            field,
+            record
+        );
+
+
+    const type =
+        config.type ||
+        getFieldType(
+            field,
+            value,
+            record
+        );
+
+
+    let options =
+        config.options;
+
+
+    if(
+        typeof options ===
+        "function"
+    ){
+
+        try{
+
+            options =
+                options(
+                    values,
+                    record
+                );
+
+        }
+        catch(error){
+
+            console.warn(
+                "[EditRow] dynamic options failed:",
+                error
+            );
+
+            options =
+                [];
+
+        }
+
+    }
+
+
+    if(
+        !Array.isArray(
+            options
+        ) &&
+        type ===
+            "select"
+    ){
+
+        options =
+            getFieldOptions(
+                field,
+                record,
+                values
+            );
+
+    }
+
+
+    return {
+
+        id :
+            field,
+
+        sheetField :
+            config.sheetField ??
+            getSheetField(
+                field,
+                record
+            ),
+
+        label :
+            config.label ??
+            getFieldLabel(
+                field,
+                record
+            ),
+
+        type,
+
+        placeholder :
+            config.placeholder ??
+            "",
+
+        required :
+            config.required === true,
+
+        disabled :
+            config.disabled === true,
+
+        readonly :
+            config.readonly === true,
+
+        min :
+            config.min,
+
+        max :
+            config.max,
+
+        step :
+            config.step,
+
+        options :
+            Array.isArray(
+                options
+            )
+                ? options.map(
+                    normalizeOption
+                )
+                : [],
+
+        rows :
+            config.rows ||
+            3,
+
+        showIf :
+            config.showIf,
+
+        visibleIf :
+            config.visibleIf,
+
+        condition :
+            config.condition,
+
+        multiple :
+            config.multiple === true
+
+    };
+
+}
+
+
+/* =====================================================
+   FIELD LIST
+===================================================== */
+
+function getFieldList(
+    record
+){
+
+    if(
+        !isObject(
+            record
+        )
+    ){
+
+        return [];
+
+    }
+
+
+    /*
+       Workspace explicit order.
+    */
+
+    if(
+        typeof currentOptions.getFieldOrder ===
+        "function"
+    ){
+
+        const result =
+            callFunction(
+                currentOptions.getFieldOrder,
+                [
+                    record
+                ],
+                undefined
+            );
+
+
+        if(
+            Array.isArray(
+                result
+            )
+        ){
+
+            return result.filter(
+                field =>
+                    field &&
+                    isEditableField(
+                        field,
+                        record
+                    )
+            );
+
+        }
+
+    }
+
+
+    /*
+       Kalau steps tersedia,
+       gunakan steps sebagai source
+       field list.
+
+       Ini membuat EditRow mengikuti
+       Input workspace.
+    */
+
+    const steps =
+        getSteps(
+            record
+        );
+
+
+    if(
+        steps.length
+    ){
+
+        const fields =
+            [];
+
+
+        steps.forEach(
+            step => {
+
+                const field =
+                    getStepFieldName(
+                        step
+                    );
+
+
+                if(
+                    !field
+                ){
+
+                    return;
+
+                }
+
+
+                /*
+                   Jangan tampilkan ID/Tanggal
+                   di editor.
+                */
+
+                if(
+                    isLockedField(
+                        field,
+                        record
+                    )
+                ){
+
+                    return;
+
+                }
+
+
+                if(
+                    !isEditableField(
+                        field,
+                        record
+                    )
+                ){
+
+                    return;
+
+                }
+
+
+                if(
+                    !fields.includes(
+                        field
+                    )
+                ){
+
+                    fields.push(
+                        field
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+           Tambahkan field Sheet lain
+           yang belum ada di steps.
+
+           Hanya jika workspace tidak
+           memberikan strictFieldList.
+        */
+
+        if(
+            currentOptions.strictFieldList !==
+            true
+        ){
+
+            Object.keys(
+                record
+            ).forEach(
+                field => {
+
+                    if(
+                        fields.includes(
+                            field
+                        )
+                    ){
+
+                        return;
+
+                    }
+
+
+                    if(
+                        isLockedField(
+                            field,
+                            record
+                        )
+                    ){
+
+                        return;
+
+                    }
+
+
+                    if(
+                        !isEditableField(
+                            field,
+                            record
+                        )
+                    ){
+
+                        return;
+
+                    }
+
+
+                    fields.push(
+                        field
+                    );
+
+                }
+            );
+
+        }
+
+
+        return fields;
+
+    }
+
+
+    /*
+       Fallback jika steps tidak tersedia.
+    */
+
+    return Object.keys(
+        record
+    ).filter(
+        field =>
+            isEditableField(
+                field,
+                record
+            )
+    );
+
+}
+
+
+/* =====================================================
+   VISIBLE FIELDS
+===================================================== */
+
+function getVisibleFields(
+    record,
+    values = {}
+){
+
+    return getFieldList(
+        record
+    ).filter(
+        field => {
+
+            const config =
+                getFieldConfig(
+                    field,
+                    record,
+                    values
+                );
+
+
+            if(
+                config.showIf !==
+                undefined
+            ){
+
+                if(
+                    !evaluateCondition(
+                        config.showIf,
+                        values,
+                        record
+                    )
+                ){
+
+                    return false;
+
+                }
+
+            }
+
+
+            if(
+                config.visibleIf !==
+                undefined
+            ){
+
+                if(
+                    !evaluateCondition(
+                        config.visibleIf,
+                        values,
+                        record
+                    )
+                ){
+
+                    return false;
+
+                }
+
+            }
+
+
+            if(
+                config.condition !==
+                undefined
+            ){
+
+                if(
+                    !evaluateCondition(
+                        config.condition,
+                        values,
+                        record
+                    )
+                ){
+
+                    return false;
+
+                }
+
+            }
+
+
+            return true;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   SERIALIZE
 ===================================================== */
 
 function serializeFieldValue(
@@ -843,7 +2095,8 @@ function serializeFieldValue(
 ){
 
     if(
-        type === "checkbox"
+        type ===
+        "checkbox"
     ){
 
         return Boolean(
@@ -864,12 +2117,8 @@ function serializeFieldValue(
 
 
     if(
-        isObject(
-            value
-        ) ||
-        Array.isArray(
-            value
-        )
+        isObject(value) ||
+        Array.isArray(value)
     ){
 
         try{
@@ -898,17 +2147,19 @@ function serializeFieldValue(
 
 
 /* =====================================================
-   PARSE FIELD VALUE
+   PARSE
 ===================================================== */
 
 function parseFieldValue(
     field,
     rawValue,
     originalValue,
-    record
+    record,
+    config = {}
 ){
 
     const type =
+        config.type ||
         getFieldType(
             field,
             originalValue,
@@ -959,10 +2210,6 @@ function parseFieldValue(
     }
 
 
-    /*
-       Object / Array
-    */
-
     if(
         isObject(
             originalValue
@@ -988,440 +2235,233 @@ function parseFieldValue(
     }
 
 
+    /*
+       SELECT:
+
+       Jangan mengubah option.value.
+
+       Jika value:
+
+           main_wallet
+
+       maka yang dikembalikan:
+
+           main_wallet
+
+       bukan:
+
+           main wallet
+    */
+
+    if(
+        type ===
+        "select"
+    ){
+
+        const options =
+            config.options ||
+            [];
+
+
+        const match =
+            options.find(
+                option =>
+                    String(
+                        option.value
+                    ) ===
+                    String(
+                        rawValue
+                    )
+            );
+
+
+        if(
+            match
+        ){
+
+            return match.value;
+
+        }
+
+    }
+
+
     return rawValue;
 
 }
 
 
 /* =====================================================
-   FIELD CONFIG
-===================================================== */
-
-function getFieldConfig(
-    field,
-    record
-){
-
-    let config = {};
-
-
-    if(
-        typeof currentOptions.getFieldConfig ===
-        "function"
-    ){
-
-        try{
-
-            const result =
-                currentOptions.getFieldConfig(
-                    field,
-                    record
-                );
-
-            if(
-                result &&
-                typeof result ===
-                "object"
-            ){
-
-                config = {
-                    ...result
-                };
-
-            }
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] getFieldConfig failed:",
-                error
-            );
-
-        }
-
-    }
-
-
-    const value =
-        record?.[field];
-
-
-    const type =
-        config.type ||
-        getFieldType(
-            field,
-            value,
-            record
-        );
-
-
-    return {
-
-        label :
-            config.label ||
-            getFieldLabel(
-                field,
-                record
-            ),
-
-        type,
-
-        placeholder :
-            config.placeholder ||
-            "",
-
-        required :
-            config.required === true,
-
-        min :
-            config.min,
-
-        max :
-            config.max,
-
-        step :
-            config.step,
-
-        options :
-            Array.isArray(
-                config.options
-            )
-                ? config.options
-                : null,
-
-        rows :
-            config.rows ||
-            3
-
-    };
-
-}
-
-
-/* =====================================================
-   GET FIELD LIST
-===================================================== */
-
-function getEditableFieldList(
-    record
-){
-
-    if(
-        !isObject(
-            record
-        )
-    ){
-
-        return [];
-
-    }
-
-
-    let fields =
-        Object.keys(
-            record
-        );
-
-
-    /*
-       Workspace dapat menentukan
-       urutan field.
-    */
-
-    if(
-        typeof currentOptions.getFieldOrder ===
-        "function"
-    ){
-
-        try{
-
-            const result =
-                currentOptions.getFieldOrder(
-                    record
-                );
-
-            if(
-                Array.isArray(
-                    result
-                )
-            ){
-
-                const ordered =
-                    [];
-
-                result.forEach(
-                    field => {
-
-                        if(
-                            fields.includes(
-                                field
-                            )
-                        ){
-
-                            ordered.push(
-                                field
-                            );
-
-                        }
-
-                    }
-                );
-
-
-                fields.forEach(
-                    field => {
-
-                        if(
-                            !ordered.includes(
-                                field
-                            )
-                        ){
-
-                            ordered.push(
-                                field
-                            );
-
-                        }
-
-                    }
-                );
-
-
-                fields =
-                    ordered;
-
-            }
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] getFieldOrder failed:",
-                error
-            );
-
-        }
-
-    }
-
-
-    return fields;
-
-}
-
-
-/* =====================================================
-   SOURCE DATA
-===================================================== */
-
-function getSourceRecords(
-){
-
-    if(
-        typeof currentOptions.getRecords ===
-        "function"
-    ){
-
-        try{
-
-            const records =
-                currentOptions.getRecords();
-
-            if(
-                Array.isArray(
-                    records
-                )
-            ){
-
-                return records;
-
-            }
-
-        }
-        catch(error){
-
-            console.error(
-                "[EditRow] getRecords failed:",
-                error
-            );
-
-        }
-
-    }
-
-
-    /*
-       Default menggunakan data Global Input.
-       Data source workspace tetap ditentukan
-       oleh data.js.
-    */
-
-    const records =
-        getInputRaw();
-
-
-    return Array.isArray(
-        records
-    )
-        ? records
-        : [];
-
-}
-
-
-/* =====================================================
-   LAST 20 RECORDS
+   BUILD VALUES FROM UI
 ===================================================== */
 
 /*
-   Rule utama Edit Row :
+   IMPORTANT
 
-       maksimal 20 transaksi terkini
+   Versi sebelumnya menggunakan:
 
-   Jika source mengikuti urutan Sheet :
+       overlay.querySelector()
 
-       lama
-       lama
-       ...
-       terbaru
+   sebagai satu-satunya cara membaca
+   nilai form.
 
-   maka:
+   Itu menyebabkan:
 
-       slice(-20)
+       TypeError:
+       overlay.querySelector is not a function
 
-   mengambil 20 baris paling bawah.
+   Engine baru menerima beberapa bentuk
+   input dari UpdateData:
 
-   Untuk UI :
-   terbaru ditampilkan paling atas.
+       values
+       context.values
+       DOM overlay
 
-   Karena itu hasilnya di-reverse().
+   Tetapi DOM hanya digunakan sebagai
+   fallback terakhir.
 */
 
-function getLatestRecords(
-    records
+function normalizeIncomingValues(
+    incoming,
+    record
 ){
 
     if(
-        !Array.isArray(
-            records
-        )
+        !incoming
     ){
 
-        return [];
+        return {};
 
     }
 
 
-    const latest =
-        records.slice(
-            -MAX_RECORDS
+    /*
+       Direct values object.
+    */
+
+    if(
+        isObject(
+            incoming.values
+        )
+    ){
+
+        return {
+
+            ...incoming.values
+
+        };
+
+    }
+
+
+    /*
+       Context object.
+    */
+
+    if(
+        isObject(
+            incoming.context
+        ) &&
+        isObject(
+            incoming.context.values
+        )
+    ){
+
+        return {
+
+            ...incoming.context.values
+
+        };
+
+    }
+
+
+    /*
+       Kalau incoming sendiri adalah
+       values object.
+
+       Hindari menganggap DOM sebagai object.
+    */
+
+    if(
+        isObject(
+            incoming
+        ) &&
+        typeof incoming.querySelector !==
+            "function"
+    ){
+
+        /*
+           Jangan menganggap object
+           seperti pending item sebagai values.
+
+           Hanya ambil field yang dikenal.
+        */
+
+        const result = {};
+
+
+        getFieldList(
+            record
+        ).forEach(
+            field => {
+
+                if(
+                    Object.prototype.hasOwnProperty.call(
+                        incoming,
+                        field
+                    )
+                ){
+
+                    result[field] =
+                        incoming[field];
+
+                }
+
+            }
         );
 
 
-    return latest.reverse();
+        if(
+            Object.keys(
+                result
+            ).length
+        ){
 
-}
+            return result;
 
-
-/* =====================================================
-   FILTER
-===================================================== */
-
-function matchesSearch(
-    record,
-    query
-){
-
-    const normalizedQuery =
-        normalizeText(
-            query
-        ).toLowerCase();
-
-
-    if(
-        !normalizedQuery
-    ){
-
-        return true;
+        }
 
     }
 
 
     /*
-       Workspace dapat menentukan
-       data pencarian.
+       DOM fallback.
     */
 
     if(
-        typeof currentOptions.getSearchText ===
+        typeof incoming.querySelector ===
         "function"
     ){
 
-        try{
-
-            const text =
-                normalizeText(
-                    currentOptions.getSearchText(
-                        record
-                    )
-                ).toLowerCase();
-
-            return text.includes(
-                normalizedQuery
-            );
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] getSearchText failed:",
-                error
-            );
-
-        }
+        return readValuesFromDOM(
+            record,
+            incoming
+        );
 
     }
 
 
-    /*
-       Default :
-       cari di seluruh field record.
-    */
-
-    try{
-
-        return Object.values(
-            record
-        )
-            .map(
-                value =>
-                    normalizeText(
-                        value
-                    ).toLowerCase()
-            )
-            .some(
-                value =>
-                    value.includes(
-                        normalizedQuery
-                    )
-            );
-
-    }
-    catch{
-
-        return false;
-
-    }
+    return {};
 
 }
 
 
 /* =====================================================
-   BUILD VALUES
+   READ DOM VALUES
 ===================================================== */
 
-function readFieldValues(
+function readValuesFromDOM(
     record,
     overlay
 ){
@@ -1430,7 +2470,9 @@ function readFieldValues(
 
 
     if(
-        !overlay
+        !overlay ||
+        typeof overlay.querySelector !==
+            "function"
     ){
 
         return values;
@@ -1439,7 +2481,7 @@ function readFieldValues(
 
 
     const fields =
-        getEditableFieldList(
+        getFieldList(
             record
         );
 
@@ -1459,9 +2501,18 @@ function readFieldValues(
             }
 
 
+            const selectorName =
+                CSS?.escape
+                    ? CSS.escape(field)
+                    : field.replace(
+                        /["\\]/g,
+                        "\\$&"
+                    );
+
+
             const element =
                 overlay.querySelector(
-                    `[name="${CSS.escape(field)}"]`
+                    `[name="${selectorName}"]`
                 );
 
 
@@ -1475,18 +2526,34 @@ function readFieldValues(
 
 
             const originalValue =
-                record?.[field];
+                getFieldValue(
+                    field,
+                    record
+                );
+
+
+            const config =
+                getFieldConfig(
+                    field,
+                    record,
+                    values
+                );
+
+
+            const rawValue =
+                element.type ===
+                    "checkbox"
+                    ? element.checked
+                    : element.value;
 
 
             values[field] =
                 parseFieldValue(
                     field,
-                    element.type ===
-                        "checkbox"
-                        ? element.checked
-                        : element.value,
+                    rawValue,
                     originalValue,
-                    record
+                    record,
+                    config
                 );
 
         }
@@ -1499,7 +2566,7 @@ function readFieldValues(
 
 
 /* =====================================================
-   BUILD ROW
+   BUILD UPDATED ROW
 ===================================================== */
 
 function buildUpdatedRow(
@@ -1508,13 +2575,11 @@ function buildUpdatedRow(
 ){
 
     /*
-       Seluruh row asli dipertahankan.
+       Pertahankan seluruh row asli.
 
-       Field editable diganti
-       dengan nilai baru.
-
-       ID dan Tanggal tidak pernah
-       diambil dari input UI.
+       Ini penting karena Edit Row
+       tidak boleh kehilangan field
+       Sheet yang tidak sedang diedit.
     */
 
     const row = {
@@ -1524,8 +2589,12 @@ function buildUpdatedRow(
     };
 
 
+    const inputValues =
+        values || {};
+
+
     Object.keys(
-        values || {}
+        inputValues
     ).forEach(
         field => {
 
@@ -1553,22 +2622,51 @@ function buildUpdatedRow(
             }
 
 
-            row[field] =
-                values[field];
+            const config =
+                getFieldConfig(
+                    field,
+                    record,
+                    inputValues
+                );
+
+
+            const originalValue =
+                getFieldValue(
+                    field,
+                    record
+                );
+
+
+            const parsedValue =
+                parseFieldValue(
+                    field,
+                    inputValues[field],
+                    originalValue,
+                    record,
+                    config
+                );
+
+
+            setFieldValue(
+                row,
+                field,
+                parsedValue,
+                record
+            );
 
         }
     );
 
 
     /*
-       Pastikan ID dan Tanggal
-       tetap identik dengan data asli.
+       ID dan Tanggal SELALU dipertahankan.
     */
 
     const idField =
         getIdField(
             record
         );
+
 
     const dateField =
         getDateField(
@@ -1595,28 +2693,143 @@ function buildUpdatedRow(
 
 function buildChanges(
     record,
-    overlay
+    incoming
 ){
 
     const values =
-        readFieldValues(
-            record,
-            overlay
+        normalizeIncomingValues(
+            incoming,
+            record
         );
+
+
+    /*
+       Workspace dapat melakukan
+       transform tambahan.
+
+       Misalnya jika workspace mempunyai
+       field controller yang harus dipetakan.
+    */
+
+    let finalValues = {
+
+        ...values
+
+    };
+
+
+    if(
+        typeof currentOptions.prepareValues ===
+        "function"
+    ){
+
+        const prepared =
+            callFunction(
+                currentOptions.prepareValues,
+                [
+                    finalValues,
+                    record
+                ],
+                undefined
+            );
+
+
+        if(
+            isObject(
+                prepared
+            )
+        ){
+
+            finalValues =
+                prepared;
+
+        }
+
+    }
 
 
     const row =
         buildUpdatedRow(
             record,
-            values
+            finalValues
         );
+
+
+    /*
+       Workspace dapat mengubah full row
+       sebelum dikirim.
+
+       Ini hanya transform.
+       Tidak ada Apps Script.
+    */
+
+    let finalRow =
+        row;
+
+
+    if(
+        typeof currentOptions.prepareRow ===
+        "function"
+    ){
+
+        const preparedRow =
+            callFunction(
+                currentOptions.prepareRow,
+                [
+                    row,
+                    record,
+                    finalValues
+                ],
+                undefined
+            );
+
+
+        if(
+            isObject(
+                preparedRow
+            )
+        ){
+
+            finalRow =
+                preparedRow;
+
+        }
+
+    }
+
+
+    /*
+       Pastikan ID dan Tanggal tetap asli
+       walaupun prepareRow melakukan perubahan.
+    */
+
+    const idField =
+        getIdField(
+            record
+        );
+
+
+    const dateField =
+        getDateField(
+            record
+        );
+
+
+    finalRow[idField] =
+        record[idField];
+
+
+    finalRow[dateField] =
+        record[dateField];
 
 
     return {
 
-        values,
+        values :
+            finalValues,
 
-        row,
+        row :
+            finalRow,
 
         target : {
 
@@ -1643,7 +2856,7 @@ function buildChanges(
 
 function validateRecord(
     record,
-    overlay
+    incoming
 ){
 
     if(
@@ -1697,6 +2910,17 @@ function validateRecord(
     }
 
 
+    const values =
+        normalizeIncomingValues(
+            incoming,
+            record
+        );
+
+
+    /*
+       Workspace validation.
+    */
+
     if(
         typeof currentOptions.validate ===
         "function"
@@ -1704,19 +2928,39 @@ function validateRecord(
 
         try{
 
-            return (
+            const result =
                 currentOptions.validate(
                     record,
-                    overlay,
+                    values,
                     {
-                        values :
-                            readFieldValues(
+                        values,
+
+                        record,
+
+                        fields :
+                            getVisibleFields(
                                 record,
-                                overlay
+                                values
                             )
+
                     }
-                ) === true
-            );
+                );
+
+
+            /*
+               Undefined dianggap valid.
+
+               Ini penting agar workspace
+               tidak wajib return true.
+            */
+
+            if(
+                result === false
+            ){
+
+                return false;
+
+            }
 
         }
         catch(error){
@@ -1740,12 +2984,13 @@ function validateRecord(
 
 
     /*
-       Required field default.
+       Required validation.
     */
 
     const fields =
-        getEditableFieldList(
-            record
+        getVisibleFields(
+            record,
+            values
         );
 
 
@@ -1753,22 +2998,11 @@ function validateRecord(
         const field of fields
     ){
 
-        if(
-            !isEditableField(
-                field,
-                record
-            )
-        ){
-
-            continue;
-
-        }
-
-
         const config =
             getFieldConfig(
                 field,
-                record
+                record,
+                values
             );
 
 
@@ -1781,28 +3015,12 @@ function validateRecord(
         }
 
 
-        const element =
-            overlay?.querySelector(
-                `[name="${CSS.escape(field)}"]`
-            );
-
-
-        if(
-            !element
-        ){
-
-            continue;
-
-        }
-
-
         const value =
-            element.type ===
-                "checkbox"
-                ? element.checked
-                : normalizeText(
-                    element.value
-                );
+            values[field] ??
+            getFieldValue(
+                field,
+                record
+            );
 
 
         if(
@@ -1829,7 +3047,7 @@ function validateRecord(
 
 
 /* =====================================================
-   WORKSPACE VALIDATION
+   VALIDATE BATCH
 ===================================================== */
 
 async function validateBatch(
@@ -1841,11 +3059,13 @@ async function validateBatch(
         "function"
     ){
 
-        return (
+        const result =
             await currentOptions.validateBatch(
                 pending
-            )
-        ) !== false;
+            );
+
+
+        return result !== false;
 
     }
 
@@ -1905,7 +3125,7 @@ function renderDetail(
 
 
     const fields =
-        getEditableFieldList(
+        getFieldList(
             record
         );
 
@@ -1942,12 +3162,19 @@ function renderDetail(
                 );
 
 
+            const fieldValue =
+                getFieldValue(
+                    field,
+                    record
+                );
+
+
             value.textContent =
                 serializeFieldValue(
-                    record[field],
+                    fieldValue,
                     getFieldType(
                         field,
-                        record[field],
+                        fieldValue,
                         record
                     )
                 );
@@ -1977,19 +3204,25 @@ function renderDetail(
 
 
 /* =====================================================
-   FIELD ELEMENT
+   CREATE FIELD
 ===================================================== */
 
 function createFieldElement(
     field,
     record,
-    context
+    context = {}
 ){
+
+    const values =
+        context?.values ||
+        {};
+
 
     const config =
         getFieldConfig(
             field,
-            record
+            record,
+            values
         );
 
 
@@ -2003,44 +3236,33 @@ function createFieldElement(
         "global-update-data-field";
 
 
-    const label =
-        document.createElement(
-            "label"
-        );
-
-
-    label.className =
-        "global-update-data-field-label";
-
-
-    label.textContent =
-        config.label;
-
-
-    wrapper.appendChild(
-        label
-    );
-
-
-    const value =
-        record[field];
-
-
-    const type =
-        config.type;
-
-
     /*
        SELECT
     */
 
     if(
-        type ===
-        "select" &&
-        Array.isArray(
-            config.options
-        )
+        config.type ===
+            "select"
     ){
+
+        const label =
+            document.createElement(
+                "label"
+            );
+
+
+        label.className =
+            "global-update-data-field-label";
+
+
+        label.textContent =
+            config.label;
+
+
+        wrapper.appendChild(
+            label
+        );
+
 
         const select =
             document.createElement(
@@ -2056,6 +3278,33 @@ function createFieldElement(
             "global-update-data-field-input";
 
 
+        if(
+            config.multiple
+        ){
+
+            select.multiple =
+                true;
+
+        }
+
+
+        const currentValue =
+            getFieldValue(
+                field,
+                record
+            );
+
+
+        /*
+           Pastikan current canonical value
+           tersedia walaupun options tidak
+           memuat value tersebut.
+        */
+
+        let currentFound =
+            false;
+
+
         config.options.forEach(
             option => {
 
@@ -2065,32 +3314,25 @@ function createFieldElement(
                     );
 
 
-                if(
-                    typeof option ===
-                    "object"
-                ){
+                /*
+                   IMPORTANT:
+                   value = canonical value
+                   label = display value
+                */
 
-                    optionElement.value =
-                        option.value ??
-                        "";
-
-
-                    optionElement.textContent =
-                        option.label ??
-                        option.value ??
-                        "";
-
-                }
-                else{
-
-                    optionElement.value =
-                        option;
+                optionElement.value =
+                    option.value ??
+                    "";
 
 
-                    optionElement.textContent =
-                        option;
+                optionElement.textContent =
+                    option.label ??
+                    option.value ??
+                    "";
 
-                }
+
+                optionElement.disabled =
+                    option.disabled === true;
 
 
                 if(
@@ -2098,11 +3340,14 @@ function createFieldElement(
                         optionElement.value
                     ) ===
                     String(
-                        value
+                        currentValue
                     )
                 ){
 
                     optionElement.selected =
+                        true;
+
+                    currentFound =
                         true;
 
                 }
@@ -2114,6 +3359,57 @@ function createFieldElement(
 
             }
         );
+
+
+        /*
+           Jika value lama tidak ada
+           dalam options, jangan ubah
+           menjadi value lain.
+
+           Tambahkan sebagai option
+           sementara agar data lama
+           tetap aman.
+        */
+
+        if(
+            currentValue !== "" &&
+            currentValue !== null &&
+            currentValue !== undefined &&
+            !currentFound &&
+            !config.multiple
+        ){
+
+            const fallbackOption =
+                document.createElement(
+                    "option"
+                );
+
+
+            fallbackOption.value =
+                currentValue;
+
+
+            fallbackOption.textContent =
+                String(
+                    currentValue
+                );
+
+
+            fallbackOption.selected =
+                true;
+
+
+            select.insertBefore(
+                fallbackOption,
+                select.firstChild
+            );
+
+        }
+
+
+        select.disabled =
+            config.disabled ||
+            config.readonly;
 
 
         wrapper.appendChild(
@@ -2131,8 +3427,8 @@ function createFieldElement(
     */
 
     if(
-        type ===
-        "checkbox"
+        config.type ===
+            "checkbox"
     ){
 
         const checkboxWrapper =
@@ -2161,8 +3457,16 @@ function createFieldElement(
 
         checkbox.checked =
             Boolean(
-                value
+                getFieldValue(
+                    field,
+                    record
+                )
             );
+
+
+        checkbox.disabled =
+            config.disabled ||
+            config.readonly;
 
 
         checkboxWrapper.appendChild(
@@ -2185,14 +3489,6 @@ function createFieldElement(
         );
 
 
-        /*
-           Label utama tidak perlu
-           ditampilkan dua kali.
-        */
-
-        label.remove();
-
-
         wrapper.appendChild(
             checkboxWrapper
         );
@@ -2208,9 +3504,28 @@ function createFieldElement(
     */
 
     if(
-        type ===
-        "textarea"
+        config.type ===
+            "textarea"
     ){
+
+        const label =
+            document.createElement(
+                "label"
+            );
+
+
+        label.className =
+            "global-update-data-field-label";
+
+
+        label.textContent =
+            config.label;
+
+
+        wrapper.appendChild(
+            label
+        );
+
 
         const textarea =
             document.createElement(
@@ -2234,10 +3549,21 @@ function createFieldElement(
             config.placeholder;
 
 
+        textarea.disabled =
+            config.disabled;
+
+
+        textarea.readOnly =
+            config.readonly;
+
+
         textarea.value =
             serializeFieldValue(
-                value,
-                type
+                getFieldValue(
+                    field,
+                    record
+                ),
+                config.type
             );
 
 
@@ -2255,6 +3581,25 @@ function createFieldElement(
        DEFAULT INPUT
     */
 
+    const label =
+        document.createElement(
+            "label"
+        );
+
+
+    label.className =
+        "global-update-data-field-label";
+
+
+    label.textContent =
+        config.label;
+
+
+    wrapper.appendChild(
+        label
+    );
+
+
     const input =
         document.createElement(
             "input"
@@ -2270,15 +3615,25 @@ function createFieldElement(
 
 
     input.type =
-        type === "number"
+        config.type ===
+            "number"
             ? "number"
-            : type === "date"
+            : config.type ===
+                "date"
                 ? "date"
                 : "text";
 
 
     input.placeholder =
         config.placeholder;
+
+
+    input.disabled =
+        config.disabled;
+
+
+    input.readOnly =
+        config.readonly;
 
 
     if(
@@ -2316,8 +3671,11 @@ function createFieldElement(
 
     input.value =
         serializeFieldValue(
-            value,
-            type
+            getFieldValue(
+                field,
+                record
+            ),
+            config.type
         );
 
 
@@ -2337,7 +3695,7 @@ function createFieldElement(
 
 function renderFields(
     record,
-    context
+    context = {}
 ){
 
     if(
@@ -2363,9 +3721,15 @@ function renderFields(
         "global-update-data-fields-wrapper";
 
 
+    const values =
+        context?.values ||
+        {};
+
+
     const fields =
-        getEditableFieldList(
-            record
+        getVisibleFields(
+            record,
+            values
         );
 
 
@@ -2388,7 +3752,12 @@ function renderFields(
                 createFieldElement(
                     field,
                     record,
-                    context
+                    {
+                        ...context,
+
+                        values
+
+                    }
                 );
 
 
@@ -2418,20 +3787,23 @@ function getRecordLabel(
         "function"
     ){
 
-        try{
-
-            return normalizeText(
-                currentOptions.getRecordLabel(
+        const result =
+            callFunction(
+                currentOptions.getRecordLabel,
+                [
                     record
-                )
+                ],
+                undefined
             );
 
-        }
-        catch(error){
 
-            console.warn(
-                "[EditRow] getRecordLabel failed:",
-                error
+        if(
+            result !== undefined &&
+            result !== null
+        ){
+
+            return normalizeText(
+                result
             );
 
         }
@@ -2439,14 +3811,12 @@ function getRecordLabel(
     }
 
 
-    const id =
+    return (
         getRecordId(
             record
-        );
-
-
-    return id ||
-           "Transaksi";
+        ) ||
+        "Transaksi"
+    );
 
 }
 
@@ -2464,20 +3834,23 @@ function getRecordMeta(
         "function"
     ){
 
-        try{
-
-            return normalizeText(
-                currentOptions.getRecordMeta(
+        const result =
+            callFunction(
+                currentOptions.getRecordMeta,
+                [
                     record
-                )
+                ],
+                undefined
             );
 
-        }
-        catch(error){
 
-            console.warn(
-                "[EditRow] getRecordMeta failed:",
-                error
+        if(
+            result !== undefined &&
+            result !== null
+        ){
+
+            return normalizeText(
+                result
             );
 
         }
@@ -2485,15 +3858,501 @@ function getRecordMeta(
     }
 
 
-    const tanggal =
-        normalizeText(
-            getRecordDate(
-                record
+    return normalizeText(
+        getRecordDate(
+            record
+        )
+    );
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function getSearchText(
+    record
+){
+
+    if(
+        typeof currentOptions.getSearchText ===
+        "function"
+    ){
+
+        const result =
+            callFunction(
+                currentOptions.getSearchText,
+                [
+                    record
+                ],
+                undefined
+            );
+
+
+        if(
+            result !== undefined &&
+            result !== null
+        ){
+
+            return normalizeText(
+                result
+            ).toLowerCase();
+
+        }
+
+    }
+
+
+    try{
+
+        return Object.values(
+            record
+        )
+            .map(
+                value =>
+                    normalizeText(
+                        value
+                    ).toLowerCase()
             )
+            .join(
+                " "
+            );
+
+    }
+    catch{
+
+        return "";
+
+    }
+
+}
+
+
+/* =====================================================
+   MATCH SEARCH
+===================================================== */
+
+function matchesSearch(
+    record,
+    query
+){
+
+    const normalizedQuery =
+        normalizeText(
+            query
+        ).toLowerCase();
+
+
+    if(
+        !normalizedQuery
+    ){
+
+        return true;
+
+    }
+
+
+    return getSearchText(
+        record
+    ).includes(
+        normalizedQuery
+    );
+
+}
+
+
+/* =====================================================
+   SOURCE DATA
+===================================================== */
+
+function getSourceRecords(){
+
+    if(
+        typeof currentOptions.getRecords ===
+        "function"
+    ){
+
+        const records =
+            callFunction(
+                currentOptions.getRecords,
+                [],
+                []
+            );
+
+
+        return Array.isArray(
+            records
+        )
+            ? records
+            : [];
+
+    }
+
+
+    const records =
+        getInputRaw();
+
+
+    return Array.isArray(
+        records
+    )
+        ? records
+        : [];
+
+}
+
+
+/* =====================================================
+   LATEST 20
+===================================================== */
+
+function getLatestRecords(
+    records
+){
+
+    if(
+        !Array.isArray(
+            records
+        )
+    ){
+
+        return [];
+
+    }
+
+
+    /*
+       Source diasumsikan mengikuti
+       urutan Sheet:
+
+           lama
+           ...
+           terbaru
+
+       Ambil 20 paling bawah,
+       lalu reverse agar terbaru
+       berada paling atas.
+    */
+
+    return records
+        .slice(
+            -MAX_RECORDS
+        )
+        .reverse();
+
+}
+
+
+/* =====================================================
+   PENDING KEY
+===================================================== */
+
+function getPendingKey(
+    item
+){
+
+    if(
+        item?.key
+    ){
+
+        return normalizeText(
+            item.key
+        );
+
+    }
+
+
+    if(
+        item?.record
+    ){
+
+        return getTargetKey(
+            item.record
+        );
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =====================================================
+   IS DUPLICATE
+===================================================== */
+
+function isPending(
+    record
+){
+
+    const key =
+        getTargetKey(
+            record
         );
 
 
-    return tanggal;
+    return pendingChanges.some(
+        item =>
+            getPendingKey(
+                item
+            ) ===
+            key
+    );
+
+}
+
+
+/* =====================================================
+   ADD PENDING
+===================================================== */
+
+function addPending(
+    record,
+    incoming
+){
+
+    if(
+        !record
+    ){
+
+        return {
+
+            success :
+                false,
+
+            message :
+                "Transaksi tidak ditemukan."
+
+        };
+
+    }
+
+
+    if(
+        isPending(
+            record
+        )
+    ){
+
+        return {
+
+            success :
+                false,
+
+            duplicate :
+                true,
+
+            message :
+                currentOptions.duplicateText ||
+                "Transaksi ini sudah ditambahkan."
+
+        };
+
+    }
+
+
+    const valid =
+        validateRecord(
+            record,
+            incoming
+        );
+
+
+    if(
+        !valid
+    ){
+
+        return {
+
+            success :
+                false,
+
+            message :
+                "Data tidak valid."
+
+        };
+
+    }
+
+
+    const changes =
+        buildChanges(
+            record,
+            incoming
+        );
+
+
+    const item = {
+
+        key :
+            getTargetKey(
+                record
+            ),
+
+        record,
+
+        changes,
+
+        addedAt :
+            Date.now()
+
+    };
+
+
+    pendingChanges.push(
+        item
+    );
+
+
+    return {
+
+        success :
+            true,
+
+        item,
+
+        pending :
+            pendingChanges.slice(),
+
+        count :
+            pendingChanges.length
+
+    };
+
+}
+
+
+/* =====================================================
+   REMOVE PENDING
+===================================================== */
+
+function removePending(
+    target
+){
+
+    const key =
+        typeof target ===
+            "string"
+            ? target
+            : getPendingKey(
+                target
+            );
+
+
+    const index =
+        pendingChanges.findIndex(
+            item =>
+                getPendingKey(
+                    item
+                ) ===
+                key
+        );
+
+
+    if(
+        index ===
+        -1
+    ){
+
+        return false;
+
+    }
+
+
+    pendingChanges.splice(
+        index,
+        1
+    );
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   UPDATE LOCAL SOURCE
+===================================================== */
+
+function applyLocalUpdate(
+    item
+){
+
+    if(
+        !item?.record ||
+        !item?.changes?.row
+    ){
+
+        return;
+
+    }
+
+
+    const key =
+        getTargetKey(
+            item.record
+        );
+
+
+    /*
+       Update sourceRecords.
+    */
+
+    sourceRecords =
+        sourceRecords.map(
+            record =>
+                getTargetKey(
+                    record
+                ) === key
+                    ? {
+                        ...record,
+                        ...item.changes.row
+                    }
+                    : record
+        );
+
+
+    /*
+       Update editableRecords.
+    */
+
+    editableRecords =
+        editableRecords.map(
+            record =>
+                getTargetKey(
+                    record
+                ) === key
+                    ? {
+                        ...record,
+                        ...item.changes.row
+                    }
+                    : record
+        );
+
+
+    /*
+       Jika record sedang dipilih,
+       update object lokal juga.
+    */
+
+    if(
+        selectedRecord &&
+        getTargetKey(
+            selectedRecord
+        ) === key
+    ){
+
+        selectedRecord = {
+
+            ...selectedRecord,
+
+            ...item.changes.row
+
+        };
+
+    }
 
 }
 
@@ -2507,21 +4366,30 @@ function showMessage(
     type = ""
 ){
 
-    /*
-       UpdateData akan menangani result UI.
-       Kita coba akses result element agar
-       engine tetap tidak bergantung pada
-       fungsi internal UpdateData.
-    */
-
     const overlay =
         document.getElementById(
             "global-update-data-overlay"
         );
 
 
+    if(
+        !overlay ||
+        typeof overlay.querySelector !==
+            "function"
+    ){
+
+        console.warn(
+            "[EditRow]",
+            message
+        );
+
+        return;
+
+    }
+
+
     const result =
-        overlay?.querySelector(
+        overlay.querySelector(
             '[data-role="result"]'
         );
 
@@ -2571,8 +4439,8 @@ function showMessage(
 ===================================================== */
 
 /*
-   Hanya fungsi ini yang melakukan
-   Update ke Apps Script.
+   HANYA fungsi ini yang memanggil
+   Apps Script.
 */
 
 async function confirm(
@@ -2595,7 +4463,21 @@ async function confirm(
         !pending.length
     ){
 
-        return false;
+        return {
+
+            success :
+                false,
+
+            remaining :
+                [],
+
+            count :
+                0,
+
+            message :
+                "Belum ada data yang ditambahkan."
+
+        };
 
     }
 
@@ -2651,30 +4533,27 @@ async function confirm(
                     item.changes;
 
 
-                const target =
-                    {
+                const target = {
 
-                        id :
-                            getRecordId(
-                                record
-                            ),
+                    id :
+                        getRecordId(
+                            record
+                        ),
 
-                        tanggal :
-                            getRecordDate(
-                                record
-                            )
+                    tanggal :
+                        getRecordDate(
+                            record
+                        )
 
-                    };
+                };
 
-
-                /*
-                   Workspace dapat mengambil alih
-                   update jika mempunyai kebutuhan
-                   khusus.
-                */
 
                 let result;
 
+
+                /*
+                   Workspace custom update.
+                */
 
                 if(
                     typeof currentOptions.update ===
@@ -2684,6 +4563,7 @@ async function confirm(
                     result =
                         await currentOptions.update(
                             {
+
                                 workspace :
                                     currentOptions.workspace,
 
@@ -2695,6 +4575,7 @@ async function confirm(
                                 record,
 
                                 changes
+
                             }
                         );
 
@@ -2702,8 +4583,7 @@ async function confirm(
                 else{
 
                     /*
-                       Default :
-                       gunakan Update.updateRow()
+                       Default global update.
                     */
 
                     result =
@@ -2730,6 +4610,16 @@ async function confirm(
                 }
 
 
+                /*
+                   Update local state hanya
+                   setelah Apps Script sukses.
+                */
+
+                applyLocalUpdate(
+                    item
+                );
+
+
                 successCount++;
 
             }
@@ -2750,14 +4640,18 @@ async function confirm(
         }
 
 
+        /*
+           Semua berhasil.
+        */
+
         if(
             successCount ===
             pending.length
         ){
 
-            /*
-               Semua berhasil.
-            */
+            pendingChanges =
+                [];
+
 
             if(
                 typeof currentOptions.onConfirmed ===
@@ -2768,6 +4662,7 @@ async function confirm(
 
                     await currentOptions.onConfirmed(
                         {
+
                             success :
                                 true,
 
@@ -2775,6 +4670,7 @@ async function confirm(
                                 successCount,
 
                             pending
+
                         }
                     );
 
@@ -2808,6 +4704,16 @@ async function confirm(
             };
 
         }
+
+
+        /*
+           Partial success.
+
+           Yang gagal tetap pending.
+        */
+
+        pendingChanges =
+            remaining.slice();
 
 
         if(
@@ -2920,13 +4826,24 @@ export const EditRow = {
             duplicateText :
                 "Transaksi ini sudah ditambahkan.",
 
+            /*
+               Jika true,
+               field hanya berasal dari steps.
+
+               Default false agar kompatibel
+               dengan workspace lama.
+            */
+
+            strictFieldList :
+                false,
+
             ...options
 
         };
 
 
         /*
-           Ambil seluruh source.
+           Ambil source.
         */
 
         sourceRecords =
@@ -2934,7 +4851,7 @@ export const EditRow = {
 
 
         /*
-           Ambil 20 baris paling bawah.
+           Ambil 20 transaksi terakhir.
         */
 
         editableRecords =
@@ -2944,7 +4861,7 @@ export const EditRow = {
 
 
         /*
-           Reset temporary state.
+           Reset session Edit Row.
         */
 
         pendingChanges =
@@ -2980,7 +4897,19 @@ export const EditRow = {
 
 
         /*
-           Adapter ke global UI.
+           Adapter ke global UpdateData.
+
+           UI tetap menggunakan desain
+           Edit Input yang sudah disepakati:
+
+           - direct list
+           - search
+           - selected record
+           - detail
+           - fields
+           - Tambahkan
+           - Sudah Ditambahkan
+           - Konfirmasi
         */
 
         return UpdateData.open({
@@ -2988,26 +4917,18 @@ export const EditRow = {
             ...currentOptions,
 
             /*
-               IMPORTANT :
-               direct list menggunakan
-               20 record hasil EditRow.
+               Hanya 20 record terbaru.
             */
 
             records :
                 editableRecords,
 
 
-            listTitle :
-                currentOptions.listTitle,
-
-
-            searchPlaceholder :
-                currentOptions.searchPlaceholder,
-
-
-            emptyText :
-                currentOptions.emptyText,
-
+            /*
+               ID UI untuk list harus
+               tetap unik berdasarkan
+               ID + Tanggal.
+            */
 
             getRecordId :
                 record =>
@@ -3026,6 +4947,13 @@ export const EditRow = {
             getRecordMeta :
                 record =>
                     getRecordMeta(
+                        record
+                    ),
+
+
+            getSearchText :
+                record =>
+                    getSearchText(
                         record
                     ),
 
@@ -3061,7 +4989,7 @@ export const EditRow = {
             renderFields :
                 (
                     record,
-                    context
+                    context = {}
                 ) =>
                     renderFields(
                         record,
@@ -3069,27 +4997,49 @@ export const EditRow = {
                     ),
 
 
+            /*
+               Callback dibuat fleksibel.
+
+               Jika UpdateData mengirim:
+
+                   (record, values)
+
+               atau:
+
+                   (record, context)
+
+               atau:
+
+                   (record, overlay)
+
+               semuanya ditangani.
+            */
+
             validate :
                 (
                     record,
-                    overlay
+                    incoming
                 ) =>
                     validateRecord(
                         record,
-                        overlay
+                        incoming
                     ),
 
 
             buildChanges :
                 (
                     record,
-                    overlay
+                    incoming
                 ) =>
                     buildChanges(
                         record,
-                        overlay
+                        incoming
                     ),
 
+
+            /*
+               Pending label.
+            */
 
             getPendingLabel :
                 item => {
@@ -3112,6 +5062,118 @@ export const EditRow = {
 
                 },
 
+
+            /*
+               Add.
+
+               Tidak ada Apps Script.
+            */
+
+            onAdd :
+                (
+                    record,
+                    incoming
+                ) => {
+
+                    const result =
+                        addPending(
+                            record,
+                            incoming
+                        );
+
+
+                    if(
+                        typeof currentOptions.onAdd ===
+                        "function"
+                    ){
+
+                        try{
+
+                            currentOptions.onAdd(
+                                record,
+                                incoming,
+                                result
+                            );
+
+                        }
+                        catch(error){
+
+                            console.warn(
+                                "[EditRow] onAdd callback failed:",
+                                error
+                            );
+
+                        }
+
+                    }
+
+
+                    return result;
+
+                },
+
+
+            /*
+               Remove pending.
+            */
+
+            onRemove :
+                item => {
+
+                    const result =
+                        removePending(
+                            item
+                        );
+
+
+                    if(
+                        result &&
+                        typeof currentOptions.onRemove ===
+                        "function"
+                    ){
+
+                        try{
+
+                            currentOptions.onRemove(
+                                item
+                            );
+
+                        }
+                        catch(error){
+
+                            console.warn(
+                                "[EditRow] onRemove callback failed:",
+                                error
+                            );
+
+                        }
+
+                    }
+
+
+                    return result;
+
+                },
+
+
+            /*
+               Pending getter.
+            */
+
+            getPending :
+                () =>
+                    pendingChanges.slice(),
+
+
+            getPendingCount :
+                () =>
+                    pendingChanges.length,
+
+
+            /*
+               Hanya Konfirmasi yang
+               menjalankan Update.
+            */
 
             onConfirm :
                 pending =>
@@ -3136,7 +5198,7 @@ export const EditRow = {
 
 
     /* =================================================
-       GET EDITABLE RECORDS
+       GET EDITABLE
     ================================================= */
 
     getEditableRecords(){
@@ -3235,7 +5297,7 @@ export const EditRow = {
 
 
     /* =================================================
-       GET TARGET KEY
+       GET KEY
     ================================================= */
 
     getKey(
@@ -3250,6 +5312,40 @@ export const EditRow = {
 
 
     /* =================================================
+       GET SHEET FIELD
+    ================================================= */
+
+    getSheetField(
+        field,
+        record
+    ){
+
+        return getSheetField(
+            field,
+            record
+        );
+
+    },
+
+
+    /* =================================================
+       GET FIELD VALUE
+    ================================================= */
+
+    getFieldValue(
+        field,
+        record
+    ){
+
+        return getFieldValue(
+            field,
+            record
+        );
+
+    },
+
+
+    /* =================================================
        GET FIELD LIST
     ================================================= */
 
@@ -3257,7 +5353,79 @@ export const EditRow = {
         record
     ){
 
-        return getEditableFieldList(
+        return getFieldList(
+            record
+        );
+
+    },
+
+
+    /* =================================================
+       GET VISIBLE FIELDS
+    ================================================= */
+
+    getVisibleFields(
+        record,
+        values = {}
+    ){
+
+        return getVisibleFields(
+            record,
+            values
+        );
+
+    },
+
+
+    /* =================================================
+       GET FIELD CONFIG
+    ================================================= */
+
+    getFieldConfig(
+        field,
+        record,
+        values = {}
+    ){
+
+        return getFieldConfig(
+            field,
+            record,
+            values
+        );
+
+    },
+
+
+    /* =================================================
+       GET OPTIONS
+    ================================================= */
+
+    getFieldOptions(
+        field,
+        record,
+        values = {}
+    ){
+
+        return getFieldOptions(
+            field,
+            record,
+            values
+        );
+
+    },
+
+
+    /* =================================================
+       GET STEP
+    ================================================= */
+
+    getStep(
+        field,
+        record
+    ){
+
+        return findStep(
+            field,
             record
         );
 
@@ -3316,7 +5484,24 @@ export const EditRow = {
 
 
     /* =================================================
-       REFRESH SOURCE
+       BUILD CHANGES
+    ================================================= */
+
+    buildChanges(
+        record,
+        values
+    ){
+
+        return buildChanges(
+            record,
+            values
+        );
+
+    },
+
+
+    /* =================================================
+       REFRESH
     ================================================= */
 
     refresh(){
@@ -3330,6 +5515,11 @@ export const EditRow = {
                 sourceRecords
             );
 
+
+        /*
+           UpdateData versi baru dapat
+           melakukan refresh list.
+        */
 
         if(
             typeof UpdateData.setRecords ===
