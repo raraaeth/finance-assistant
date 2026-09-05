@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : script.js
-   Version      : 6.2.0
+   Version      : 6.3.0
 
    Description :
    Global Input Controller
@@ -39,12 +39,25 @@
    │  Reward / EditRow engine    │
    │                             │
    └─────────────────────────────┘
-   ===================================================== */
+
+   Edit Controller :
+   - Airdrop
+   - Financial
+   - Kas
+   - Payroll Monthly
+   - Payroll Daily
+   - Saving
+
+   Principle :
+   - Tidak mengubah Normal Input.
+   - Tidak menyimpan logic workspace di sini.
+   - script.js hanya melakukan routing.
+===================================================== */
 
 
 /* =====================================================
    IMPORT
-   ===================================================== */
+===================================================== */
 
 import {
     State
@@ -79,14 +92,14 @@ import {
 
 /* =====================================================
    STATE
-   ===================================================== */
+===================================================== */
 
 let initialized = false;
 
 
 /* =====================================================
    INPUT
-   ===================================================== */
+===================================================== */
 
 export const Input = {
 
@@ -453,17 +466,47 @@ export const Input = {
            "reward"
        );
 
+       Input.openEdit(
+           "airdrop",
+           "row"
+       );
+
+       Input.openEdit(
+           "financial",
+           "row"
+       );
+
+       Input.openEdit(
+           "kas",
+           "row"
+       );
+
+       Input.openEdit(
+           "payroll-monthly",
+           "row"
+       );
+
+       Input.openEdit(
+           "payroll-daily",
+           "row"
+       );
+
+       Input.openEdit(
+           "saving",
+           "row"
+       );
+
        atau :
 
        Input.openEdit({
            workspace: "airdrop",
-           mode: "reward"
+           mode: "row"
        });
 
        Penting :
        - Tidak memakai flow.js
        - Tidak mengubah Normal Input
-       - Tidak menyimpan logic Reward di sini
+       - Tidak menyimpan logic workspace di sini
        - Workspace menentukan engine/edit flow
     ================================================= */
 
@@ -699,19 +742,14 @@ export const Input = {
            Workspace-specific JS yang menentukan
            bagaimana UI Edit Input dibuka.
 
-           Contoh Airdrop :
+           Contoh :
 
-           mode = reward
-              ↓
-           Airdrop.openEdit()
-              ↓
-           Reward engine
+           Airdrop :
+              reward → Reward
+              row    → EditRow
 
-           mode = row
-              ↓
-           Airdrop.openEdit()
-              ↓
-           Edit Row engine
+           Workspace lain :
+              row    → EditRow
         ============================================= */
 
         const editController =
@@ -949,22 +987,87 @@ async function loadEditController(
     /* =============================================
        WORKSPACE EDIT MAP
 
-       Semua file tetap berada di
+       Semua file workspace berada di
        components/input/.
 
-       Controller hanya menentukan module mana
-       yang diminta.
+       Global controller hanya melakukan routing.
+
+       Normal Input TIDAK melewati map ini.
     ============================================= */
 
     const controllerMap = {
 
+        /* =========================================
+           AIRDROP
+        ========================================= */
+
         airdrop: {
 
-            reward:
+            reward :
                 "./airdrop.js",
 
-            row:
+            row :
                 "./airdrop.js"
+
+        },
+
+
+        /* =========================================
+           FINANCIAL
+        ========================================= */
+
+        financial: {
+
+            row :
+                "./financial.js"
+
+        },
+
+
+        /* =========================================
+           KAS
+        ========================================= */
+
+        kas: {
+
+            row :
+                "./kas.js"
+
+        },
+
+
+        /* =========================================
+           PAYROLL MONTHLY
+        ========================================= */
+
+        "payroll-monthly": {
+
+            row :
+                "./monthly.js"
+
+        },
+
+
+        /* =========================================
+           PAYROLL DAILY
+        ========================================= */
+
+        "payroll-daily": {
+
+            row :
+                "./daily.js"
+
+        },
+
+
+        /* =========================================
+           SAVING
+        ========================================= */
+
+        saving: {
+
+            row :
+                "./saving.js"
 
         }
 
@@ -1105,8 +1208,52 @@ function getWorkspaceExportName(
 
     const map = {
 
-        airdrop:
-            "Airdrop"
+        /* =========================================
+           Airdrop
+        ========================================= */
+
+        airdrop :
+            "Airdrop",
+
+
+        /* =========================================
+           Financial
+        ========================================= */
+
+        financial :
+            "Financial",
+
+
+        /* =========================================
+           Kas
+        ========================================= */
+
+        kas :
+            "Kas",
+
+
+        /* =========================================
+           Payroll Monthly
+        ========================================= */
+
+        "payroll-monthly" :
+            "Monthly",
+
+
+        /* =========================================
+           Payroll Daily
+        ========================================= */
+
+        "payroll-daily" :
+            "Daily",
+
+
+        /* =========================================
+           Saving
+        ========================================= */
+
+        saving :
+            "Saving"
 
     };
 
