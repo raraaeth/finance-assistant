@@ -2,15 +2,16 @@
    Finance Assistant
    Component    : Global Input
    File         : updatedata.js
-   Version      : 1.1.0
+   Version      : 1.2.0
 
    Description :
    Reusable Global Update Data Engine
 
    Handles :
    - Full screen edit overlay
-   - Custom record picker
+   - Direct record card list
    - Search
+   - Internal record list scrolling
    - Selected record detail
    - Dynamic edit fields
    - Temporary pending changes
@@ -25,6 +26,15 @@
    - No Spreadsheet logic
    - No Airdrop logic
    - Business logic supplied by adapter
+
+   UI Concept :
+   - Tidak menggunakan picker / dropdown record
+   - Daftar record langsung tampil
+   - Search berada di atas daftar
+   - User klik card untuk memilih record
+   - Detail + field edit muncul setelah record dipilih
+   - Tambahkan hanya melakukan staging
+   - Konfirmasi melakukan batch confirmation
 ===================================================== */
 
 
@@ -33,13 +43,14 @@
 ===================================================== */
 
 let overlay = null;
+
 let initialized = false;
 
 let currentOptions = {};
+
 let currentRecords = [];
 
 let selectedRecord = null;
-let selectedValue = null;
 
 let pendingChanges = [];
 
@@ -52,29 +63,48 @@ let isBusy = false;
 
 const DEFAULTS = {
 
-    title: "Edit Input",
+    title :
+        "Edit Input",
 
-    subtitle: "Ubah data yang sudah tersimpan",
+    subtitle :
+        "Ubah data yang sudah tersimpan",
 
-    pickerPlaceholder: "Pilih data",
+    listTitle :
+        "Daftar Data",
 
-    searchPlaceholder: "Cari data...",
+    searchPlaceholder :
+        "Cari data...",
 
-    emptyText: "Tidak ada data yang tersedia.",
+    emptyText :
+        "Tidak ada data yang tersedia.",
 
-    addText: "Tambahkan",
+    addText :
+        "Tambahkan",
 
-    confirmText: "Konfirmasi",
+    confirmText :
+        "Konfirmasi",
 
-    removeText: "Hapus",
+    removeText :
+        "Hapus",
 
-    pendingTitle: "Sudah Ditambahkan",
+    pendingTitle :
+        "Sudah Ditambahkan",
 
-    addedText: "Data berhasil ditambahkan.",
+    addedText :
+        "Data berhasil ditambahkan.",
 
-    duplicateText: "Data ini sudah ditambahkan.",
+    duplicateText :
+        "Data ini sudah ditambahkan.",
 
-    confirmLoadingText: "Menyimpan perubahan..."
+    confirmLoadingText :
+        "Menyimpan perubahan...",
+
+    closeOnEscape :
+        true,
+
+    lockBody :
+        true
+
 };
 
 
@@ -82,53 +112,230 @@ const DEFAULTS = {
    DOM HELPERS
 ===================================================== */
 
-function getElement(id) {
+function getElement(id){
+
     return document.getElementById(id);
+
 }
 
 
-function createElement(tag, className = "", text = "") {
+function createElement(
 
-    const element = document.createElement(tag);
+    tag,
 
-    if (className) {
-        element.className = className;
+    className = "",
+
+    text = ""
+
+){
+
+    const element =
+
+        document.createElement(
+
+            tag
+
+        );
+
+
+    if(
+
+        className
+
+    ){
+
+        element.className =
+
+            className;
+
     }
 
-    if (text !== "") {
-        element.textContent = safeText(text);
+
+    if(
+
+        text !== ""
+
+    ){
+
+        element.textContent =
+
+            safeText(
+
+                text
+
+            );
+
     }
+
 
     return element;
+
 }
 
 
-function safeText(value) {
+/* =====================================================
+   SAFE TEXT
+===================================================== */
 
-    if (
+function safeText(
+
+    value
+
+){
+
+    if(
+
         value === null ||
+
         value === undefined
-    ) {
+
+    ){
+
         return "";
+
     }
 
-    if (
+
+    if(
+
         typeof value === "string" ||
+
         typeof value === "number" ||
+
         typeof value === "boolean"
-    ) {
-        return String(value);
-    }
 
-    try {
+    ){
 
-        return JSON.stringify(value);
+        return String(
 
-    } catch {
+            value
 
-        return String(value);
+        );
 
     }
+
+
+    try{
+
+        return JSON.stringify(
+
+            value
+
+        );
+
+    }
+
+    catch{
+
+        return String(
+
+            value
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   VALUE HELPERS
+===================================================== */
+
+function isElement(
+
+    value
+
+){
+
+    return (
+
+        typeof HTMLElement !== "undefined" &&
+
+        value instanceof HTMLElement
+
+    );
+
+}
+
+
+function normalizeBoolean(
+
+    value,
+
+    fallback = false
+
+){
+
+    if(
+
+        value === undefined ||
+
+        value === null
+
+    ){
+
+        return fallback;
+
+    }
+
+
+    if(
+
+        typeof value === "boolean"
+
+    ){
+
+        return value;
+
+    }
+
+
+    const normalized =
+
+        String(
+
+            value
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+
+    if(
+
+        normalized === "true" ||
+
+        normalized === "1" ||
+
+        normalized === "yes"
+
+    ){
+
+        return true;
+
+    }
+
+
+    if(
+
+        normalized === "false" ||
+
+        normalized === "0" ||
+
+        normalized === "no"
+
+    ){
+
+        return false;
+
+    }
+
+
+    return fallback;
+
 }
 
 
@@ -136,168 +343,383 @@ function safeText(value) {
    IDENTITY
 ===================================================== */
 
-function getRecordId(record) {
+function getRecordId(
 
-    if (!record) {
+    record
+
+){
+
+    if(
+
+        !record
+
+    ){
+
         return "";
+
     }
 
-    if (typeof currentOptions.getRecordId === "function") {
 
-        try {
+    if(
+
+        typeof currentOptions.getRecordId ===
+
+        "function"
+
+    ){
+
+        try{
 
             const result =
-                currentOptions.getRecordId(record);
 
-            return safeText(result);
+                currentOptions.getRecordId(
 
-        } catch (error) {
+                    record
+
+                );
+
+
+            return safeText(
+
+                result
+
+            );
+
+        }
+
+        catch(error){
 
             console.warn(
+
                 "[UpdateData] getRecordId failed:",
+
                 error
+
             );
 
         }
 
     }
 
+
     const candidates = [
+
         record.id,
+
         record.ID,
+
         record.Id,
+
         record.key,
+
         record._id
+
     ];
 
-    for (const value of candidates) {
 
-        if (
+    for(
+
+        const value of candidates
+
+    ){
+
+        if(
+
             value !== null &&
+
             value !== undefined &&
+
             value !== ""
-        ) {
-            return safeText(value);
+
+        ){
+
+            return safeText(
+
+                value
+
+            );
+
         }
 
     }
 
-    try {
 
-        return JSON.stringify(record);
+    try{
 
-    } catch {
+        return JSON.stringify(
 
-        return String(record);
+            record
+
+        );
 
     }
+
+    catch{
+
+        return String(
+
+            record
+
+        );
+
+    }
+
 }
 
 
-function getRecordLabel(record) {
+/* =====================================================
+   RECORD LABEL
+===================================================== */
 
-    if (!record) {
+function getRecordLabel(
+
+    record
+
+){
+
+    if(
+
+        !record
+
+    ){
+
         return "";
+
     }
 
-    if (typeof currentOptions.getRecordLabel === "function") {
 
-        try {
+    if(
+
+        typeof currentOptions.getRecordLabel ===
+
+        "function"
+
+    ){
+
+        try{
 
             return safeText(
-                currentOptions.getRecordLabel(record)
+
+                currentOptions.getRecordLabel(
+
+                    record
+
+                )
+
             );
 
-        } catch (error) {
+        }
+
+        catch(error){
 
             console.warn(
+
                 "[UpdateData] getRecordLabel failed:",
+
                 error
+
             );
 
         }
 
     }
 
+
     const candidates = [
+
         record.project,
+
         record.Project,
+
         record.nama,
+
         record.name,
+
         record.title,
+
         record.id,
+
         record.ID
+
     ];
 
-    for (const value of candidates) {
 
-        if (
+    for(
+
+        const value of candidates
+
+    ){
+
+        if(
+
             value !== null &&
+
             value !== undefined &&
+
             value !== ""
-        ) {
-            return safeText(value);
+
+        ){
+
+            return safeText(
+
+                value
+
+            );
+
         }
 
     }
+
 
     return "Data";
+
 }
 
 
-function getRecordMeta(record) {
+/* =====================================================
+   RECORD META
+===================================================== */
 
-    if (!record) {
+function getRecordMeta(
+
+    record
+
+){
+
+    if(
+
+        !record
+
+    ){
+
         return "";
+
     }
 
-    if (typeof currentOptions.getRecordMeta === "function") {
 
-        try {
+    if(
+
+        typeof currentOptions.getRecordMeta ===
+
+        "function"
+
+    ){
+
+        try{
 
             return safeText(
-                currentOptions.getRecordMeta(record)
+
+                currentOptions.getRecordMeta(
+
+                    record
+
+                )
+
             );
 
-        } catch (error) {
+        }
+
+        catch(error){
 
             console.warn(
+
                 "[UpdateData] getRecordMeta failed:",
+
                 error
+
             );
 
         }
 
     }
+
 
     const values = [];
 
-    if (
+
+    if(
+
         record.type !== undefined &&
+
         record.type !== null &&
+
         record.type !== ""
-    ) {
-        values.push(record.type);
+
+    ){
+
+        values.push(
+
+            record.type
+
+        );
+
     }
 
-    if (
+
+    if(
+
         record.status !== undefined &&
+
         record.status !== null &&
+
         record.status !== ""
-    ) {
-        values.push(record.status);
+
+    ){
+
+        values.push(
+
+            record.status
+
+        );
+
     }
+
 
     return values
-        .map(value => safeText(value))
-        .filter(Boolean)
-        .join(" · ");
+
+        .map(
+
+            value =>
+
+                safeText(
+
+                    value
+
+                )
+
+        )
+
+        .filter(
+
+            Boolean
+
+        )
+
+        .join(
+
+            " · "
+
+        );
+
 }
 
 
-function makeRecordKey(record) {
+/* =====================================================
+   RECORD KEY
+===================================================== */
 
-    return getRecordId(record);
+function makeRecordKey(
+
+    record
+
+){
+
+    return getRecordId(
+
+        record
+
+    );
+
 }
 
 
@@ -305,46 +727,100 @@ function makeRecordKey(record) {
    NORMALIZE RECORDS
 ===================================================== */
 
-function normalizeRecords(records) {
+function normalizeRecords(
 
-    if (!Array.isArray(records)) {
+    records
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            records
+
+        )
+
+    ){
+
         return [];
+
     }
 
-    return records.filter(record => {
-        return record !== null &&
-               record !== undefined;
-    });
 
-}
+    return records.filter(
 
+        record =>
 
-function normalizePending(pending) {
+            record !== null &&
 
-    if (!Array.isArray(pending)) {
-        return [];
-    }
+            record !== undefined
 
-    return pending.filter(item => {
-        return item !== null &&
-               item !== undefined;
-    });
+    );
 
 }
 
 
 /* =====================================================
-   OPTION GETTERS
+   NORMALIZE PENDING
 ===================================================== */
 
-function getOption(name) {
+function normalizePending(
 
-    if (
-        currentOptions &&
-        currentOptions[name] !== undefined
-    ) {
-        return currentOptions[name];
+    pending
+
+){
+
+    if(
+
+        !Array.isArray(
+
+            pending
+
+        )
+
+    ){
+
+        return [];
+
     }
+
+
+    return pending.filter(
+
+        item =>
+
+            item !== null &&
+
+            item !== undefined
+
+    );
+
+}
+
+
+/* =====================================================
+   OPTION GETTER
+===================================================== */
+
+function getOption(
+
+    name
+
+){
+
+    if(
+
+        currentOptions &&
+
+        currentOptions[name] !== undefined
+
+    ){
+
+        return currentOptions[name];
+
+    }
+
 
     return DEFAULTS[name];
 
@@ -352,24 +828,159 @@ function getOption(name) {
 
 
 /* =====================================================
-   RECORD FILTER
+   AVAILABLE RECORDS
 ===================================================== */
 
-function getAvailableRecords() {
+function getAvailableRecords(){
 
-    const pendingKeys = new Set(
-        pendingChanges.map(item => {
-            return item.key;
-        })
+    const pendingKeys =
+
+        new Set(
+
+            pendingChanges.map(
+
+                item =>
+
+                    item.key
+
+            )
+
+        );
+
+
+    return currentRecords.filter(
+
+        record => {
+
+            const key =
+
+                makeRecordKey(
+
+                    record
+
+                );
+
+
+            return !pendingKeys.has(
+
+                key
+
+            );
+
+        }
+
     );
 
-    return currentRecords.filter(record => {
+}
 
-        const key = makeRecordKey(record);
 
-        return !pendingKeys.has(key);
+/* =====================================================
+   SEARCH FILTER
+===================================================== */
 
-    });
+function getFilteredRecords(){
+
+    const search =
+
+        overlay?.querySelector(
+
+            '[data-role="record-search"]'
+
+        );
+
+
+    const query =
+
+        safeText(
+
+            search?.value
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+
+    return getAvailableRecords()
+
+        .filter(
+
+            record => {
+
+                if(
+
+                    !query
+
+                ){
+
+                    return true;
+
+                }
+
+
+                const label =
+
+                    getRecordLabel(
+
+                        record
+
+                    )
+
+                    .toLowerCase();
+
+
+                const meta =
+
+                    getRecordMeta(
+
+                        record
+
+                    )
+
+                    .toLowerCase();
+
+
+                const id =
+
+                    getRecordId(
+
+                        record
+
+                    )
+
+                    .toLowerCase();
+
+
+                return (
+
+                    label.includes(
+
+                        query
+
+                    )
+
+                    ||
+
+                    meta.includes(
+
+                        query
+
+                    )
+
+                    ||
+
+                    id.includes(
+
+                        query
+
+                    )
+
+                );
+
+            }
+
+        );
 
 }
 
@@ -378,26 +989,42 @@ function getAvailableRecords() {
    CREATE OVERLAY
 ===================================================== */
 
-function createOverlay() {
+function createOverlay(){
 
-    if (overlay) {
+    if(
+
+        overlay
+
+    ){
+
         return overlay;
+
     }
 
+
     overlay =
+
         createElement(
+
             "div",
+
             "global-update-data-overlay"
+
         );
 
+
     overlay.id =
+
         "global-update-data-overlay";
 
+
     overlay.innerHTML = `
+
         <div
             class="global-update-data-backdrop"
             data-role="backdrop"
         ></div>
+
 
         <div
             class="global-update-data-panel"
@@ -406,19 +1033,32 @@ function createOverlay() {
             aria-labelledby="global-update-data-title"
         >
 
-            <div class="global-update-data-header">
 
-                <div class="global-update-data-heading">
+            <!-- HEADER -->
 
-                    <h2 id="global-update-data-title">
+            <div
+                class="global-update-data-header"
+            >
+
+                <div
+                    class="global-update-data-heading"
+                >
+
+                    <h2
+                        id="global-update-data-title"
+                    >
                         Edit Input
                     </h2>
 
-                    <span id="global-update-data-subtitle">
+
+                    <span
+                        id="global-update-data-subtitle"
+                    >
                         Ubah data yang sudah tersimpan
                     </span>
 
                 </div>
+
 
                 <button
                     type="button"
@@ -432,72 +1072,82 @@ function createOverlay() {
             </div>
 
 
-            <div class="global-update-data-content">
+            <!-- CONTENT -->
 
-                <div class="global-update-data-picker">
+            <div
+                class="global-update-data-content"
+            >
 
-                    <label
-                        class="global-update-data-picker-label"
-                    >
-                        Pilih Data
-                    </label>
 
-                    <button
-                        type="button"
-                        class="global-update-data-picker-button"
-                        data-role="picker-button"
-                    >
+                <!-- RECORD LIST -->
 
-                        <span
-                            class="global-update-data-picker-value"
-                            data-role="picker-value"
-                        >
-                            Pilih data
-                        </span>
-
-                        <span
-                            class="global-update-data-picker-arrow"
-                            aria-hidden="true"
-                        >
-                            ▾
-                        </span>
-
-                    </button>
-
+                <section
+                    class="global-update-data-record-section"
+                    data-role="record-section"
+                >
 
                     <div
-                        class="global-update-data-picker-panel hidden"
-                        data-role="picker-panel"
+                        class="global-update-data-record-header"
                     >
 
-                        <input
-                            type="search"
-                            class="global-update-data-picker-search"
-                            data-role="picker-search"
-                            autocomplete="off"
-                        />
-
-                        <div
-                            class="global-update-data-picker-list"
-                            data-role="picker-list"
-                        ></div>
+                        <h3
+                            class="global-update-data-record-title"
+                            data-role="record-title"
+                        >
+                            Daftar Data
+                        </h3>
 
                     </div>
 
-                </div>
+
+                    <div
+                        class="global-update-data-record-search-wrap"
+                    >
+
+                        <span
+                            class="global-update-data-record-search-icon"
+                            aria-hidden="true"
+                        >
+                            🔎
+                        </span>
 
 
-                <div
+                        <input
+                            type="search"
+                            class="global-update-data-record-search"
+                            data-role="record-search"
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
+
+                    </div>
+
+
+                    <div
+                        class="global-update-data-record-list"
+                        data-role="record-list"
+                    ></div>
+
+                </section>
+
+
+                <!-- DETAIL -->
+
+                <section
                     class="global-update-data-detail hidden"
                     data-role="detail"
-                ></div>
+                ></section>
 
 
-                <div
+                <!-- FIELDS -->
+
+                <section
                     class="global-update-data-fields hidden"
                     data-role="fields"
-                ></div>
+                ></section>
 
+
+                <!-- ADD -->
 
                 <div
                     class="global-update-data-action hidden"
@@ -516,7 +1166,9 @@ function createOverlay() {
                 </div>
 
 
-                <div
+                <!-- PENDING -->
+
+                <section
                     class="global-update-data-pending hidden"
                     data-role="pending"
                 >
@@ -525,9 +1177,12 @@ function createOverlay() {
                         class="global-update-data-pending-header"
                     >
 
-                        <h3>
+                        <h3
+                            data-role="pending-title"
+                        >
                             Sudah Ditambahkan
                         </h3>
+
 
                         <span
                             class="global-update-data-pending-count"
@@ -538,21 +1193,27 @@ function createOverlay() {
 
                     </div>
 
+
                     <div
                         class="global-update-data-pending-list"
                         data-role="pending-list"
                     ></div>
 
-                </div>
+                </section>
 
+
+                <!-- RESULT -->
 
                 <div
                     class="global-update-data-result hidden"
                     data-role="result"
                 ></div>
 
+
             </div>
 
+
+            <!-- CONFIRM -->
 
             <div
                 class="global-update-data-confirm hidden"
@@ -569,14 +1230,23 @@ function createOverlay() {
 
             </div>
 
+
         </div>
     `;
 
-    document.body.appendChild(overlay);
+
+    document.body.appendChild(
+
+        overlay
+
+    );
+
 
     bindEvents();
 
+
     return overlay;
+
 }
 
 
@@ -584,94 +1254,148 @@ function createOverlay() {
    BIND EVENTS
 ===================================================== */
 
-function bindEvents() {
+function bindEvents(){
 
-    if (!overlay) {
+    if(
+
+        !overlay
+
+    ){
+
         return;
+
     }
 
+
     const closeButton =
+
         overlay.querySelector(
+
             '[data-role="close"]'
+
         );
+
 
     const backdrop =
+
         overlay.querySelector(
+
             '[data-role="backdrop"]'
+
         );
 
-    const pickerButton =
+
+    const search =
+
         overlay.querySelector(
-            '[data-role="picker-button"]'
+
+            '[data-role="record-search"]'
+
         );
 
-    const pickerSearch =
-        overlay.querySelector(
-            '[data-role="picker-search"]'
-        );
 
     const addButton =
+
         overlay.querySelector(
+
             '[data-role="add"]'
+
         );
 
+
     const confirmButton =
+
         overlay.querySelector(
+
             '[data-role="confirm"]'
+
         );
 
 
     closeButton?.addEventListener(
+
         "click",
+
         () => {
+
             UpdateData.close();
+
         }
+
     );
 
 
     backdrop?.addEventListener(
+
         "click",
+
         () => {
+
+            if(
+
+                currentOptions.allowBackdropClose ===
+
+                false
+
+            ){
+
+                return;
+
+            }
+
+
             UpdateData.close();
+
         }
+
     );
 
 
-    pickerButton?.addEventListener(
-        "click",
-        () => {
-            togglePicker();
-        }
-    );
+    search?.addEventListener(
 
-
-    pickerSearch?.addEventListener(
         "input",
+
         () => {
-            renderPickerList();
+
+            renderRecordList();
+
         }
+
     );
 
 
     addButton?.addEventListener(
+
         "click",
+
         () => {
+
             UpdateData.add();
+
         }
+
     );
 
 
     confirmButton?.addEventListener(
+
         "click",
+
         () => {
+
             UpdateData.confirm();
+
         }
+
     );
 
 
     document.addEventListener(
+
         "keydown",
+
         handleKeydown
+
     );
 
 }
@@ -681,40 +1405,49 @@ function bindEvents() {
    KEYBOARD
 ===================================================== */
 
-function handleKeydown(event) {
+function handleKeydown(
 
-    if (!overlay) {
+    event
+
+){
+
+    if(
+
+        !overlay
+
+    ){
+
         return;
+
     }
 
-    if (
-        !overlay.classList.contains("is-open")
-    ) {
+
+    if(
+
+        !overlay.classList.contains(
+
+            "is-open"
+
+        )
+
+    ){
+
         return;
+
     }
 
-    if (
+
+    if(
+
         event.key === "Escape" &&
-        currentOptions.closeOnEscape !== false
-    ) {
 
-        const pickerPanel =
-            getElement(
-                "global-update-data-overlay"
-            )?.querySelector(
-                '[data-role="picker-panel"]'
-            );
+        getOption(
 
-        if (
-            pickerPanel &&
-            !pickerPanel.classList.contains("hidden")
-        ) {
+            "closeOnEscape"
 
-            closePicker();
+        ) !== false
 
-            return;
-
-        }
+    ){
 
         UpdateData.close();
 
@@ -724,265 +1457,343 @@ function handleKeydown(event) {
 
 
 /* =====================================================
-   PICKER
+   RECORD LIST
 ===================================================== */
 
-function togglePicker() {
-
-    if (isBusy) {
-        return;
-    }
-
-    const panel =
-        overlay.querySelector(
-            '[data-role="picker-panel"]'
-        );
-
-    if (!panel) {
-        return;
-    }
-
-    if (panel.classList.contains("hidden")) {
-
-        openPicker();
-
-    } else {
-
-        closePicker();
-
-    }
-
-}
-
-
-function openPicker() {
-
-    const panel =
-        overlay.querySelector(
-            '[data-role="picker-panel"]'
-        );
-
-    const button =
-        overlay.querySelector(
-            '[data-role="picker-button"]'
-        );
-
-    const search =
-        overlay.querySelector(
-            '[data-role="picker-search"]'
-        );
-
-    if (!panel) {
-        return;
-    }
-
-    panel.classList.remove("hidden");
-
-    button?.classList.add("is-open");
-
-    renderPickerList();
-
-    if (search) {
-
-        search.value = "";
-
-        requestAnimationFrame(() => {
-            search.focus();
-        });
-
-    }
-
-}
-
-
-function closePicker() {
-
-    const panel =
-        overlay?.querySelector(
-            '[data-role="picker-panel"]'
-        );
-
-    const button =
-        overlay?.querySelector(
-            '[data-role="picker-button"]'
-        );
-
-    if (!panel) {
-        return;
-    }
-
-    panel.classList.add("hidden");
-
-    button?.classList.remove("is-open");
-
-}
-
-
-/* =====================================================
-   PICKER LIST
-===================================================== */
-
-function renderPickerList() {
+function renderRecordList(){
 
     const list =
+
         overlay?.querySelector(
-            '[data-role="picker-list"]'
+
+            '[data-role="record-list"]'
+
         );
 
-    const search =
-        overlay?.querySelector(
-            '[data-role="picker-search"]'
-        );
 
-    if (!list) {
+    if(
+
+        !list
+
+    ){
+
         return;
-    }
 
-    const query =
-        safeText(search?.value)
-            .trim()
-            .toLowerCase();
+    }
 
 
     const records =
-        getAvailableRecords()
-            .filter(record => {
 
-                if (!query) {
-                    return true;
-                }
-
-                const label =
-                    getRecordLabel(record)
-                        .toLowerCase();
-
-                const meta =
-                    getRecordMeta(record)
-                        .toLowerCase();
-
-                const id =
-                    getRecordId(record)
-                        .toLowerCase();
-
-                return (
-                    label.includes(query) ||
-                    meta.includes(query) ||
-                    id.includes(query)
-                );
-
-            });
+        getFilteredRecords();
 
 
     list.innerHTML = "";
 
 
-    if (!records.length) {
+    if(
 
-        const empty =
-            createElement(
-                "div",
-                "global-update-data-empty",
-                query
-                    ? "Data tidak ditemukan."
-                    : getOption("emptyText")
+        !records.length
+
+    ){
+
+        const search =
+
+            overlay?.querySelector(
+
+                '[data-role="record-search"]'
+
             );
 
-        list.appendChild(empty);
+
+        const query =
+
+            safeText(
+
+                search?.value
+
+            )
+
+            .trim();
+
+
+        const empty =
+
+            createElement(
+
+                "div",
+
+                "global-update-data-empty",
+
+                query
+
+                    ? "Data tidak ditemukan."
+
+                    : getOption(
+
+                        "emptyText"
+
+                    )
+
+            );
+
+
+        list.appendChild(
+
+            empty
+
+        );
+
 
         return;
+
     }
 
 
-    records.forEach(record => {
+    records.forEach(
 
-        const option =
-            createElement(
-                "button",
-                "global-update-data-picker-option"
-            );
+        record => {
 
-        option.type = "button";
+            const item =
 
-        const key =
-            makeRecordKey(record);
+                createElement(
 
-        if (
-            selectedRecord &&
-            makeRecordKey(selectedRecord) === key
-        ) {
-            option.classList.add("selected");
-        }
+                    "button",
 
-        option.dataset.key = key;
+                    "global-update-data-record-item"
+
+                );
 
 
-        const content =
-            createElement(
-                "div",
-                "global-update-data-picker-option-content"
-            );
+            item.type =
+
+                "button";
 
 
-        const strong =
-            createElement(
-                "strong",
-                "",
-                getRecordLabel(record)
-            );
+            const key =
+
+                makeRecordKey(
+
+                    record
+
+                );
 
 
-        const metaText =
-            getRecordMeta(record);
+            item.dataset.key =
 
-        const span =
-            createElement(
-                "span",
-                "",
-                metaText
-            );
+                key;
 
 
-        content.appendChild(strong);
+            if(
 
-        if (metaText) {
-            content.appendChild(span);
-        }
+                selectedRecord &&
 
+                makeRecordKey(
 
-        const arrow =
-            createElement(
-                "span",
-                "global-update-data-picker-option-arrow",
-                "›"
-            );
+                    selectedRecord
 
-        arrow.setAttribute(
-            "aria-hidden",
-            "true"
-        );
+                ) === key
 
+            ){
 
-        option.appendChild(content);
-        option.appendChild(arrow);
+                item.classList.add(
 
+                    "selected"
 
-        option.addEventListener(
-            "click",
-            () => {
+                );
 
-                if (isBusy) {
-                    return;
-                }
+                item.setAttribute(
 
-                UpdateData.selectRecord(record);
+                    "aria-current",
+
+                    "true"
+
+                );
 
             }
-        );
 
 
-        list.appendChild(option);
+            const content =
 
-    });
+                createElement(
+
+                    "div",
+
+                    "global-update-data-record-item-content"
+
+                );
+
+
+            const title =
+
+                createElement(
+
+                    "strong",
+
+                    "global-update-data-record-item-title",
+
+                    getRecordLabel(
+
+                        record
+
+                    )
+
+                );
+
+
+            content.appendChild(
+
+                title
+
+            );
+
+
+            const metaText =
+
+                getRecordMeta(
+
+                    record
+
+                );
+
+
+            if(
+
+                metaText
+
+            ){
+
+                const meta =
+
+                    createElement(
+
+                        "span",
+
+                        "global-update-data-record-item-meta",
+
+                        metaText
+
+                    );
+
+
+                content.appendChild(
+
+                    meta
+
+                );
+
+            }
+
+
+            const id =
+
+                getRecordId(
+
+                    record
+
+                );
+
+
+            if(
+
+                id
+
+            ){
+
+                const idElement =
+
+                    createElement(
+
+                        "span",
+
+                        "global-update-data-record-item-id",
+
+                        id
+
+                    );
+
+
+                content.appendChild(
+
+                    idElement
+
+                );
+
+            }
+
+
+            const arrow =
+
+                createElement(
+
+                    "span",
+
+                    "global-update-data-record-item-arrow",
+
+                    "›"
+
+                );
+
+
+            arrow.setAttribute(
+
+                "aria-hidden",
+
+                "true"
+
+            );
+
+
+            item.appendChild(
+
+                content
+
+            );
+
+
+            item.appendChild(
+
+                arrow
+
+            );
+
+
+            item.addEventListener(
+
+                "click",
+
+                () => {
+
+                    if(
+
+                        isBusy
+
+                    ){
+
+                        return;
+
+                    }
+
+
+                    UpdateData.selectRecord(
+
+                        record
+
+                    );
+
+                }
+
+            );
+
+
+            list.appendChild(
+
+                item
+
+            );
+
+        }
+
+    );
 
 }
 
@@ -991,45 +1802,100 @@ function renderPickerList() {
    SELECT RECORD
 ===================================================== */
 
-function selectRecordInternal(record) {
+function selectRecordInternal(
 
-    if (!record) {
+    record
+
+){
+
+    if(
+
+        !record ||
+
+        isBusy
+
+    ){
+
         return;
+
     }
+
 
     const key =
-        makeRecordKey(record);
 
-    const duplicate =
-        pendingChanges.some(
-            item => item.key === key
+        makeRecordKey(
+
+            record
+
         );
 
-    if (duplicate) {
+
+    const duplicate =
+
+        pendingChanges.some(
+
+            item =>
+
+                item.key === key
+
+        );
+
+
+    if(
+
+        duplicate
+
+    ){
+
+        showResult(
+
+            getOption(
+
+                "duplicateText"
+
+            ),
+
+            "error"
+
+        );
+
+
         return;
+
     }
 
-    selectedRecord = record;
 
-    selectedValue = null;
+    selectedRecord =
+
+        record;
 
 
-    if (
+    if(
+
         typeof currentOptions.onSelect ===
-        "function"
-    ) {
 
-        try {
+        "function"
+
+    ){
+
+        try{
 
             currentOptions.onSelect(
+
                 record
+
             );
 
-        } catch (error) {
+        }
+
+        catch(error){
 
             console.error(
+
                 "[UpdateData] onSelect failed:",
+
                 error
+
             );
 
         }
@@ -1037,9 +1903,10 @@ function selectRecordInternal(record) {
     }
 
 
-    closePicker();
+    hideResult();
 
-    renderPickerButton();
+
+    renderRecordList();
 
     renderDetail();
 
@@ -1047,344 +1914,1961 @@ function selectRecordInternal(record) {
 
     renderAction();
 
+
+    requestAnimationFrame(
+
+        () => {
+
+            const detail =
+
+                overlay?.querySelector(
+
+                    '[data-role="detail"]'
+
+                );
+
+
+            if(
+
+                detail &&
+
+                typeof detail.scrollIntoView ===
+
+                "function"
+
+            ){
+
+                detail.scrollIntoView({
+
+                    behavior :
+
+                        "smooth",
+
+                    block :
+
+                        "nearest"
+
+                });
+
+            }
+
+        }
+
+    );
+
 }
 
 
 /* =====================================================
-   PICKER BUTTON
+   RENDER DETAIL
 ===================================================== */
 
-function renderPickerButton() {
-
-    const valueElement =
-        overlay?.querySelector(
-            '[data-role="picker-value"]'
-        );
-
-    if (!valueElement) {
-        return;
-    }
-
-    if (!selectedRecord) {
-
-        valueElement.textContent =
-            getOption(
-                "pickerPlaceholder"
-            );
-
-        return;
-
-    }
-
-    valueElement.textContent =
-        getRecordLabel(
-            selectedRecord
-        );
-
-}
-
-
-/* =====================================================
-   DETAIL
-===================================================== */
-
-function renderDetail() {
+function renderDetail(){
 
     const container =
+
         overlay?.querySelector(
+
             '[data-role="detail"]'
+
         );
 
-    if (!container) {
+
+    if(
+
+        !container
+
+    ){
+
         return;
+
     }
+
 
     container.innerHTML = "";
 
 
-    if (!selectedRecord) {
+    if(
 
-        container.classList.add("hidden");
+        !selectedRecord
+
+    ){
+
+        container.classList.add(
+
+            "hidden"
+
+        );
 
         return;
 
     }
 
 
-    container.classList.remove("hidden");
+    container.classList.remove(
+
+        "hidden"
+
+    );
 
 
-    if (
+    let result = null;
+
+
+    if(
+
         typeof currentOptions.renderDetail ===
+
         "function"
-    ) {
 
-        try {
+    ){
 
-            const result =
+        try{
+
+            result =
+
                 currentOptions.renderDetail(
+
                     selectedRecord
+
                 );
 
-            if (result instanceof HTMLElement) {
+        }
 
-                container.appendChild(result);
-
-            } else {
-
-                container.innerHTML =
-                    safeText(result);
-
-            }
-
-            return;
-
-        } catch (error) {
+        catch(error){
 
             console.error(
+
                 "[UpdateData] renderDetail failed:",
+
                 error
+
             );
+
+            result = null;
 
         }
 
     }
 
 
+    if(
+
+        isElement(
+
+            result
+
+        )
+
+    ){
+
+        container.appendChild(
+
+            result
+
+        );
+
+        return;
+
+    }
+
+
+    if(
+
+        typeof result === "string"
+
+    ){
+
+        container.innerHTML =
+
+            result;
+
+        return;
+
+    }
+
+
+    if(
+
+        result &&
+
+        typeof result === "object"
+
+    ){
+
+        renderDetailDescriptor(
+
+            container,
+
+            result
+
+        );
+
+        return;
+
+    }
+
+
+    renderDefaultDetail(
+
+        container
+
+    );
+
+}
+
+
+/* =====================================================
+   DETAIL DESCRIPTOR
+===================================================== */
+
+function renderDetailDescriptor(
+
+    container,
+
+    descriptor
+
+){
+
     const card =
+
         createElement(
+
             "div",
+
             "global-update-data-detail-card"
+
+        );
+
+
+    const titleText =
+
+        descriptor.title ||
+
+        "Detail Data";
+
+
+    const title =
+
+        createElement(
+
+            "h3",
+
+            "global-update-data-detail-title",
+
+            titleText
+
+        );
+
+
+    card.appendChild(
+
+        title
+
+    );
+
+
+    const items =
+
+        Array.isArray(
+
+            descriptor.items
+
+        )
+
+            ?
+
+            descriptor.items
+
+            :
+
+            [];
+
+
+    items.forEach(
+
+        item => {
+
+            if(
+
+                !item ||
+
+                typeof item !== "object"
+
+            ){
+
+                return;
+
+            }
+
+
+            addDetailRow(
+
+                card,
+
+                item.label,
+
+                item.value,
+
+                item.locked
+
+            );
+
+        }
+
+    );
+
+
+    container.appendChild(
+
+        card
+
+    );
+
+}
+
+
+/* =====================================================
+   DEFAULT DETAIL
+===================================================== */
+
+function renderDefaultDetail(
+
+    container
+
+){
+
+    const card =
+
+        createElement(
+
+            "div",
+
+            "global-update-data-detail-card"
+
         );
 
 
     const title =
+
         createElement(
+
             "h3",
+
             "global-update-data-detail-title",
+
             "Detail Data"
+
         );
 
 
-    card.appendChild(title);
+    card.appendChild(
 
+        title
 
-    addDetailRow(
-        card,
-        "ID",
-        getRecordId(selectedRecord)
     );
 
 
     addDetailRow(
+
         card,
+
+        "ID",
+
+        getRecordId(
+
+            selectedRecord
+
+        ),
+
+        true
+
+    );
+
+
+    addDetailRow(
+
+        card,
+
         "Data",
-        getRecordLabel(selectedRecord)
+
+        getRecordLabel(
+
+            selectedRecord
+
+        )
+
     );
 
 
     const meta =
-        getRecordMeta(selectedRecord);
 
-    if (meta) {
+        getRecordMeta(
+
+            selectedRecord
+
+        );
+
+
+    if(
+
+        meta
+
+    ){
 
         addDetailRow(
+
             card,
+
             "Info",
+
             meta
+
         );
 
     }
 
 
-    container.appendChild(card);
+    container.appendChild(
 
-}
+        card
 
-
-function addDetailRow(
-    parent,
-    label,
-    value
-) {
-
-    const row =
-        createElement(
-            "div",
-            "global-update-data-detail-row"
-        );
-
-    const labelElement =
-        createElement(
-            "span",
-            "",
-            label
-        );
-
-    const valueElement =
-        createElement(
-            "strong",
-            "",
-            value
-        );
-
-    row.appendChild(labelElement);
-    row.appendChild(valueElement);
-
-    parent.appendChild(row);
+    );
 
 }
 
 
 /* =====================================================
-   FIELDS
+   DETAIL ROW
 ===================================================== */
 
-function renderFields() {
+function addDetailRow(
 
-    const container =
-        overlay?.querySelector(
-            '[data-role="fields"]'
+    parent,
+
+    label,
+
+    value,
+
+    locked = false
+
+){
+
+    const row =
+
+        createElement(
+
+            "div",
+
+            "global-update-data-detail-row"
+
         );
 
-    if (!container) {
-        return;
+
+    if(
+
+        normalizeBoolean(
+
+            locked
+
+        )
+
+    ){
+
+        row.classList.add(
+
+            "locked"
+
+        );
+
     }
+
+
+    const labelElement =
+
+        createElement(
+
+            "span",
+
+            "global-update-data-detail-label",
+
+            label
+
+        );
+
+
+    const valueElement =
+
+        createElement(
+
+            "strong",
+
+            "global-update-data-detail-value",
+
+            value
+
+        );
+
+
+    row.appendChild(
+
+        labelElement
+
+    );
+
+
+    const valueWrap =
+
+        createElement(
+
+            "div",
+
+            "global-update-data-detail-value-wrap"
+
+        );
+
+
+    valueWrap.appendChild(
+
+        valueElement
+
+    );
+
+
+    if(
+
+        normalizeBoolean(
+
+            locked
+
+        )
+
+    ){
+
+        const lock =
+
+            createElement(
+
+                "span",
+
+                "global-update-data-detail-lock",
+
+                "🔒"
+
+            );
+
+
+        lock.setAttribute(
+
+            "aria-hidden",
+
+            "true"
+
+        );
+
+
+        valueWrap.appendChild(
+
+            lock
+
+        );
+
+    }
+
+
+    row.appendChild(
+
+        valueWrap
+
+    );
+
+
+    parent.appendChild(
+
+        row
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER FIELDS
+===================================================== */
+
+function renderFields(){
+
+    const container =
+
+        overlay?.querySelector(
+
+            '[data-role="fields"]'
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
 
     container.innerHTML = "";
 
 
-    if (!selectedRecord) {
+    if(
 
-        container.classList.add("hidden");
+        !selectedRecord
 
-        return;
+    ){
 
-    }
+        container.classList.add(
 
+            "hidden"
 
-    container.classList.remove("hidden");
-
-
-    if (
-        typeof currentOptions.renderFields !==
-        "function"
-    ) {
-        return;
-    }
-
-
-    try {
-
-        const result =
-            currentOptions.renderFields(
-                selectedRecord,
-                {
-                    root: container,
-                    getValue:
-                        getFieldValue,
-                    setValue:
-                        setFieldValue,
-                    onChange:
-                        renderAction
-                }
-            );
-
-
-        if (
-            result instanceof HTMLElement
-        ) {
-
-            container.appendChild(result);
-
-        } else if (
-            typeof result === "string"
-        ) {
-
-            container.innerHTML = result;
-
-        }
-
-
-        bindFieldChanges();
-
-    } catch (error) {
-
-        console.error(
-            "[UpdateData] renderFields failed:",
-            error
         );
 
-        container.innerHTML = "";
+        return;
 
     }
+
+
+    container.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    if(
+
+        typeof currentOptions.renderFields !==
+
+        "function"
+
+    ){
+
+        return;
+
+    }
+
+
+    let result = null;
+
+
+    try{
+
+        result =
+
+            currentOptions.renderFields(
+
+                selectedRecord,
+
+                {
+
+                    root :
+
+                        container,
+
+                    getValue :
+
+                        field =>
+
+                            getFieldValue(
+
+                                field
+
+                            ),
+
+                    setValue :
+
+                        (
+
+                            field,
+
+                            value
+
+                        ) =>
+
+                            setFieldValue(
+
+                                field,
+
+                                value
+
+                            ),
+
+                    onChange :
+
+                        () =>
+
+                            renderAction()
+
+                }
+
+            );
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "[UpdateData] renderFields failed:",
+
+            error
+
+        );
+
+
+        return;
+
+    }
+
+
+    if(
+
+        isElement(
+
+            result
+
+        )
+
+    ){
+
+        container.appendChild(
+
+            result
+
+        );
+
+    }
+
+    else if(
+
+        typeof result === "string"
+
+    ){
+
+        container.innerHTML =
+
+            result;
+
+    }
+
+    else if(
+
+        Array.isArray(
+
+            result
+
+        ) || (
+
+            result &&
+
+            typeof result === "object" &&
+
+            Array.isArray(
+
+                result.fields
+
+            )
+
+        )
+
+    ){
+
+        const fields =
+
+            Array.isArray(
+
+                result
+
+            )
+
+                ?
+
+                result
+
+                :
+
+                result.fields;
+
+
+        renderFieldDescriptors(
+
+            container,
+
+            fields
+
+        );
+
+    }
+
+
+    bindFieldChanges();
+
+    updateConditionalFields();
+
+    renderAction();
 
 }
 
 
 /* =====================================================
-   FIELD VALUE
+   FIELD DESCRIPTORS
 ===================================================== */
 
-function getFieldValue(name) {
+function renderFieldDescriptors(
 
-    if (
-        typeof currentOptions.getFieldValue ===
-        "function"
-    ) {
+    container,
 
-        try {
+    fields
 
-            return currentOptions.getFieldValue(
-                name,
-                selectedRecord,
-                overlay
+){
+
+    if(
+
+        !Array.isArray(
+
+            fields
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+
+    fields.forEach(
+
+        field => {
+
+            if(
+
+                !field ||
+
+                typeof field !== "object"
+
+            ){
+
+                return;
+
+            }
+
+
+            const wrapper =
+
+                createElement(
+
+                    "div",
+
+                    "global-update-data-field"
+
+                );
+
+
+            wrapper.dataset.fieldId =
+
+                safeText(
+
+                    field.id
+
+                );
+
+
+            const label =
+
+                createElement(
+
+                    "label",
+
+                    "global-update-data-field-label",
+
+                    field.label ||
+
+                    field.id ||
+
+                    "Field"
+
+                );
+
+
+            wrapper.appendChild(
+
+                label
+
             );
 
-        } catch (error) {
+
+            let control;
+
+
+            const type =
+
+                String(
+
+                    field.type ||
+
+                    "text"
+
+                )
+
+                .trim()
+
+                .toLowerCase();
+
+
+            if(
+
+                type === "select"
+
+            ){
+
+                control =
+
+                    renderSelectField(
+
+                        field
+
+                    );
+
+            }
+
+            else if(
+
+                type === "number"
+
+            ){
+
+                control =
+
+                    renderNumberField(
+
+                        field
+
+                    );
+
+            }
+
+            else if(
+
+                type === "textarea"
+
+            ){
+
+                control =
+
+                    renderTextareaField(
+
+                        field
+
+                    );
+
+            }
+
+            else{
+
+                control =
+
+                    renderTextField(
+
+                        field
+
+                    );
+
+            }
+
+
+            if(
+
+                control
+
+            ){
+
+                wrapper.appendChild(
+
+                    control
+
+                );
+
+            }
+
+
+            if(
+
+                field.note
+
+            ){
+
+                const note =
+
+                    createElement(
+
+                        "small",
+
+                        "global-update-data-field-note",
+
+                        field.note
+
+                    );
+
+
+                wrapper.appendChild(
+
+                    note
+
+                );
+
+            }
+
+
+            container.appendChild(
+
+                wrapper
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   SELECT FIELD
+===================================================== */
+
+function renderSelectField(
+
+    field
+
+){
+
+    const select =
+
+        document.createElement(
+
+            "select"
+
+        );
+
+
+    select.className =
+
+        "global-update-data-field-control global-update-data-field-select";
+
+
+    select.name =
+
+        safeText(
+
+            field.id
+
+        );
+
+
+    select.dataset.updateField =
+
+        "true";
+
+
+    if(
+
+        field.required !== undefined
+
+    ){
+
+        select.required =
+
+            normalizeBoolean(
+
+                field.required
+
+            );
+
+    }
+
+
+    const placeholder =
+
+        createElement(
+
+            "option",
+
+            "",
+
+            field.placeholder ||
+
+            "Pilih..."
+
+        );
+
+
+    placeholder.value =
+
+        "";
+
+
+    placeholder.disabled =
+
+        false;
+
+
+    select.appendChild(
+
+        placeholder
+
+    );
+
+
+    let options =
+
+        field.options;
+
+
+    if(
+
+        typeof options === "function"
+
+    ){
+
+        try{
+
+            options =
+
+                options(
+
+                    selectedRecord
+
+                );
+
+        }
+
+        catch(error){
 
             console.warn(
-                "[UpdateData] getFieldValue failed:",
+
+                "[UpdateData] select options failed:",
+
                 error
+
+            );
+
+            options = [];
+
+        }
+
+    }
+
+
+    if(
+
+        !Array.isArray(
+
+            options
+
+        )
+
+    ){
+
+        options = [];
+
+    }
+
+
+    options.forEach(
+
+        option => {
+
+            let value;
+
+            let label;
+
+            let disabled = false;
+
+
+            if(
+
+                option &&
+
+                typeof option === "object"
+
+            ){
+
+                value =
+
+                    option.value;
+
+
+                label =
+
+                    option.label ??
+
+                    option.value;
+
+
+                disabled =
+
+                    normalizeBoolean(
+
+                        option.disabled ||
+
+                        option.ariaDisabled
+
+                    );
+
+            }
+
+            else{
+
+                value =
+
+                    option;
+
+                label =
+
+                    option;
+
+            }
+
+
+            const element =
+
+                createElement(
+
+                    "option",
+
+                    "",
+
+                    label
+
+                );
+
+
+            element.value =
+
+                safeText(
+
+                    value
+
+                );
+
+
+            element.disabled =
+
+                disabled;
+
+
+            select.appendChild(
+
+                element
+
+            );
+
+        }
+
+    );
+
+
+    const initialValue =
+
+        getInitialFieldValue(
+
+            field
+
+        );
+
+
+    if(
+
+        initialValue !== null &&
+
+        initialValue !== undefined
+
+    ){
+
+        select.value =
+
+            safeText(
+
+                initialValue
+
+            );
+
+    }
+
+
+    return select;
+
+}
+
+
+/* =====================================================
+   NUMBER FIELD
+===================================================== */
+
+function renderNumberField(
+
+    field
+
+){
+
+    const input =
+
+        document.createElement(
+
+            "input"
+
+        );
+
+
+    input.type =
+
+        "number";
+
+
+    input.className =
+
+        "global-update-data-field-control global-update-data-field-number";
+
+
+    input.name =
+
+        safeText(
+
+            field.id
+
+        );
+
+
+    input.dataset.updateField =
+
+        "true";
+
+
+    if(
+
+        field.placeholder
+
+    ){
+
+        input.placeholder =
+
+            safeText(
+
+                field.placeholder
+
+            );
+
+    }
+
+
+    if(
+
+        field.min !== undefined
+
+    ){
+
+        input.min =
+
+            safeText(
+
+                field.min
+
+            );
+
+    }
+
+
+    if(
+
+        field.max !== undefined
+
+    ){
+
+        input.max =
+
+            safeText(
+
+                field.max
+
+            );
+
+    }
+
+
+    if(
+
+        field.step !== undefined
+
+    ){
+
+        input.step =
+
+            safeText(
+
+                field.step
+
+            );
+
+    }
+
+
+    if(
+
+        field.required !== undefined
+
+    ){
+
+        input.required =
+
+            normalizeBoolean(
+
+                field.required
+
+            );
+
+    }
+
+
+    const initialValue =
+
+        getInitialFieldValue(
+
+            field
+
+        );
+
+
+    if(
+
+        initialValue !== null &&
+
+        initialValue !== undefined
+
+    ){
+
+        input.value =
+
+            safeText(
+
+                initialValue
+
+            );
+
+    }
+
+
+    return input;
+
+}
+
+
+/* =====================================================
+   TEXT FIELD
+===================================================== */
+
+function renderTextField(
+
+    field
+
+){
+
+    const input =
+
+        document.createElement(
+
+            "input"
+
+        );
+
+
+    input.type =
+
+        "text";
+
+
+    input.className =
+
+        "global-update-data-field-control global-update-data-field-text";
+
+
+    input.name =
+
+        safeText(
+
+            field.id
+
+        );
+
+
+    input.dataset.updateField =
+
+        "true";
+
+
+    if(
+
+        field.placeholder
+
+    ){
+
+        input.placeholder =
+
+            safeText(
+
+                field.placeholder
+
+            );
+
+    }
+
+
+    if(
+
+        field.required !== undefined
+
+    ){
+
+        input.required =
+
+            normalizeBoolean(
+
+                field.required
+
+            );
+
+    }
+
+
+    const initialValue =
+
+        getInitialFieldValue(
+
+            field
+
+        );
+
+
+    if(
+
+        initialValue !== null &&
+
+        initialValue !== undefined
+
+    ){
+
+        input.value =
+
+            safeText(
+
+                initialValue
+
+            );
+
+    }
+
+
+    return input;
+
+}
+
+
+/* =====================================================
+   TEXTAREA FIELD
+===================================================== */
+
+function renderTextareaField(
+
+    field
+
+){
+
+    const textarea =
+
+        document.createElement(
+
+            "textarea"
+
+        );
+
+
+    textarea.className =
+
+        "global-update-data-field-control global-update-data-field-textarea";
+
+
+    textarea.name =
+
+        safeText(
+
+            field.id
+
+        );
+
+
+    textarea.dataset.updateField =
+
+        "true";
+
+
+    if(
+
+        field.placeholder
+
+    ){
+
+        textarea.placeholder =
+
+            safeText(
+
+                field.placeholder
+
+            );
+
+    }
+
+
+    if(
+
+        field.rows !== undefined
+
+    ){
+
+        textarea.rows =
+
+            Number(
+
+                field.rows
+
+            );
+
+    }
+
+
+    if(
+
+        field.required !== undefined
+
+    ){
+
+        textarea.required =
+
+            normalizeBoolean(
+
+                field.required
+
+            );
+
+    }
+
+
+    const initialValue =
+
+        getInitialFieldValue(
+
+            field
+
+        );
+
+
+    if(
+
+        initialValue !== null &&
+
+        initialValue !== undefined
+
+    ){
+
+        textarea.value =
+
+            safeText(
+
+                initialValue
+
+            );
+
+    }
+
+
+    return textarea;
+
+}
+
+
+/* =====================================================
+   INITIAL FIELD VALUE
+===================================================== */
+
+function getInitialFieldValue(
+
+    field
+
+){
+
+    if(
+
+        !field
+
+    ){
+
+        return "";
+
+    }
+
+
+    if(
+
+        field.value !== undefined
+
+    ){
+
+        return field.value;
+
+    }
+
+
+    if(
+
+        field.defaultValue !== undefined
+
+    ){
+
+        return field.defaultValue;
+
+    }
+
+
+    if(
+
+        typeof currentOptions.getFieldValue ===
+
+        "function"
+
+    ){
+
+        try{
+
+            return currentOptions.getFieldValue(
+
+                selectedRecord,
+
+                field,
+
+                overlay
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "[UpdateData] getFieldValue failed:",
+
+                error
+
             );
 
         }
 
     }
 
-    const field =
-        overlay?.querySelector(
-            `[name="${CSS.escape(name)}"]`
-        );
 
-    if (!field) {
-        return "";
-    }
-
-    return field.value;
+    return "";
 
 }
 
 
-function setFieldValue(
-    name,
-    value
-) {
+/* =====================================================
+   GET FIELD VALUE
+===================================================== */
 
-    const field =
-        overlay?.querySelector(
-            `[name="${CSS.escape(name)}"]`
-        );
+function getFieldValue(
 
-    if (!field) {
-        return;
+    field
+
+){
+
+    const name =
+
+        typeof field === "string"
+
+            ?
+
+            field
+
+            :
+
+            field?.id;
+
+
+    if(
+
+        !name
+
+    ){
+
+        return "";
+
     }
 
-    field.value =
+
+    const element =
+
+        overlay?.querySelector(
+
+            `[name="${escapeSelector(name)}"]`
+
+        );
+
+
+    if(
+
+        !element
+
+    ){
+
+        return "";
+
+    }
+
+
+    return element.value ?? "";
+
+}
+
+
+/* =====================================================
+   SET FIELD VALUE
+===================================================== */
+
+function setFieldValue(
+
+    field,
+
+    value
+
+){
+
+    const name =
+
+        typeof field === "string"
+
+            ?
+
+            field
+
+            :
+
+            field?.id;
+
+
+    if(
+
+        !name
+
+    ){
+
+        return;
+
+    }
+
+
+    const element =
+
+        overlay?.querySelector(
+
+            `[name="${escapeSelector(name)}"]`
+
+        );
+
+
+    if(
+
+        !element
+
+    ){
+
+        return;
+
+    }
+
+
+    element.value =
+
         value === null ||
+
         value === undefined
-            ? ""
-            : String(value);
+
+            ?
+
+            ""
+
+            :
+
+            String(
+
+                value
+
+            );
+
+}
+
+
+/* =====================================================
+   ESCAPE SELECTOR
+===================================================== */
+
+function escapeSelector(
+
+    value
+
+){
+
+    const text =
+
+        String(
+
+            value
+
+        );
+
+
+    if(
+
+        typeof CSS !== "undefined" &&
+
+        typeof CSS.escape === "function"
+
+    ){
+
+        return CSS.escape(
+
+            text
+
+        );
+
+    }
+
+
+    return text.replace(
+
+        /["\\]/g,
+
+        "\\$&"
+
+    );
 
 }
 
@@ -1393,34 +3877,628 @@ function setFieldValue(
    FIELD EVENTS
 ===================================================== */
 
-function bindFieldChanges() {
+function bindFieldChanges(){
 
     const fields =
+
         overlay?.querySelectorAll(
-            '[data-update-field], [name]'
+
+            "[data-update-field], [name]"
+
         );
 
-    if (!fields) {
+
+    if(
+
+        !fields
+
+    ){
+
         return;
+
     }
 
-    fields.forEach(field => {
 
-        field.addEventListener(
-            "input",
-            () => {
-                renderAction();
+    fields.forEach(
+
+        field => {
+
+            if(
+
+                field.dataset.updateBound ===
+
+                "true"
+
+            ){
+
+                return;
+
             }
+
+
+            field.dataset.updateBound =
+
+                "true";
+
+
+            field.addEventListener(
+
+                "input",
+
+                () => {
+
+                    updateConditionalFields();
+
+                    renderAction();
+
+                }
+
+            );
+
+
+            field.addEventListener(
+
+                "change",
+
+                () => {
+
+                    updateConditionalFields();
+
+                    renderAction();
+
+                }
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   CONDITIONAL FIELDS
+===================================================== */
+
+function updateConditionalFields(){
+
+    const fieldWrappers =
+
+        overlay?.querySelectorAll(
+
+            "[data-field-id]"
+
         );
 
-        field.addEventListener(
-            "change",
-            () => {
-                renderAction();
+
+    if(
+
+        !fieldWrappers
+
+    ){
+
+        return;
+
+    }
+
+
+    fieldWrappers.forEach(
+
+        wrapper => {
+
+            const fieldId =
+
+                wrapper.dataset.fieldId;
+
+
+            const fieldConfig =
+
+                findFieldConfig(
+
+                    fieldId
+
+                );
+
+
+            if(
+
+                !fieldConfig
+
+            ){
+
+                return;
+
             }
+
+
+            if(
+
+                typeof fieldConfig.showWhen !==
+
+                "function"
+
+            ){
+
+                wrapper.classList.remove(
+
+                    "hidden"
+
+                );
+
+                return;
+
+            }
+
+
+            let values =
+
+                collectFieldValues();
+
+
+            let visible = false;
+
+
+            try{
+
+                visible =
+
+                    fieldConfig.showWhen(
+
+                        values,
+
+                        selectedRecord
+
+                    ) !== false;
+
+            }
+
+            catch(error){
+
+                console.warn(
+
+                    "[UpdateData] showWhen failed:",
+
+                    error
+
+                );
+
+
+                visible = false;
+
+            }
+
+
+            wrapper.classList.toggle(
+
+                "hidden",
+
+                !visible
+
+            );
+
+
+            if(
+
+                !visible
+
+            ){
+
+                const control =
+
+                    wrapper.querySelector(
+
+                        "[name]"
+
+                    );
+
+
+                if(
+
+                    control
+
+                ){
+
+                    control.value =
+
+                        "";
+
+                }
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   FIELD CONFIG
+===================================================== */
+
+function getRenderedFieldConfigs(){
+
+    if(
+
+        typeof currentOptions.renderFields !==
+
+        "function"
+
+    ){
+
+        return [];
+
+    }
+
+
+    try{
+
+        const result =
+
+            currentOptions.renderFields(
+
+                selectedRecord,
+
+                {
+
+                    root :
+
+                        overlay?.querySelector(
+
+                            '[data-role="fields"]'
+
+                        ),
+
+                    getValue :
+
+                        field =>
+
+                            getFieldValue(
+
+                                field
+
+                            ),
+
+                    setValue :
+
+                        (
+
+                            field,
+
+                            value
+
+                        ) =>
+
+                            setFieldValue(
+
+                                field,
+
+                                value
+
+                            ),
+
+                    onChange :
+
+                        () =>
+
+                            renderAction()
+
+                }
+
+            );
+
+
+        if(
+
+            Array.isArray(
+
+                result
+
+            )
+
+        ){
+
+            return result;
+
+        }
+
+
+        if(
+
+            result &&
+
+            Array.isArray(
+
+                result.fields
+
+            )
+
+        ){
+
+            return result.fields;
+
+        }
+
+    }
+
+    catch{
+
+        return [];
+
+    }
+
+
+    return [];
+
+}
+
+
+function findFieldConfig(
+
+    id
+
+){
+
+    const fields =
+
+        getRenderedFieldConfigs();
+
+
+    return fields.find(
+
+        field =>
+
+            safeText(
+
+                field?.id
+
+            ) ===
+
+            safeText(
+
+                id
+
+            )
+
+    ) || null;
+
+}
+
+
+/* =====================================================
+   COLLECT FIELD VALUES
+===================================================== */
+
+function collectFieldValues(){
+
+    const values = {};
+
+
+    const fields =
+
+        overlay?.querySelectorAll(
+
+            "[name]"
+
         );
 
-    });
+
+    if(
+
+        fields
+
+    ){
+
+        fields.forEach(
+
+            field => {
+
+                const name =
+
+                    field.name;
+
+
+                if(
+
+                    !name
+
+                ){
+
+                    return;
+
+                }
+
+
+                values[name] =
+
+                    field.value ?? "";
+
+            }
+
+        );
+
+    }
+
+
+    return values;
+
+}
+
+
+/* =====================================================
+   VALIDATION
+===================================================== */
+
+async function validateCurrent(){
+
+    if(
+
+        !selectedRecord
+
+    ){
+
+        return {
+
+            valid :
+
+                false,
+
+            message :
+
+                "Data belum dipilih."
+
+        };
+
+    }
+
+
+    const values =
+
+        collectFieldValues();
+
+
+    if(
+
+        typeof currentOptions.validate !==
+
+        "function"
+
+    ){
+
+        return {
+
+            valid :
+
+                true,
+
+            values
+
+        };
+
+    }
+
+
+    try{
+
+        const result =
+
+            await currentOptions.validate(
+
+                selectedRecord,
+
+                values
+
+            );
+
+
+        if(
+
+            result === true
+
+        ){
+
+            return {
+
+                valid :
+
+                    true,
+
+                values
+
+            };
+
+        }
+
+
+        if(
+
+            result === false
+
+        ){
+
+            return {
+
+                valid :
+
+                    false,
+
+                values,
+
+                message :
+
+                    "Data belum lengkap atau tidak valid."
+
+            };
+
+        }
+
+
+        if(
+
+            result &&
+
+            typeof result === "object"
+
+        ){
+
+            return {
+
+                valid :
+
+                    result.valid === true,
+
+                values,
+
+                message :
+
+                    result.message ||
+
+                    result.error ||
+
+                    ""
+
+            };
+
+        }
+
+    }
+
+    catch(error){
+
+        return {
+
+            valid :
+
+                false,
+
+            values,
+
+            message :
+
+                error?.message ||
+
+                "Validasi gagal."
+
+        };
+
+    }
+
+
+    return {
+
+        valid :
+
+            false,
+
+        values,
+
+        message :
+
+            "Data belum lengkap atau tidak valid."
+
+    };
 
 }
 
@@ -1429,248 +4507,77 @@ function bindFieldChanges() {
    ACTION
 ===================================================== */
 
-function renderAction() {
+async function renderAction(){
 
     const action =
+
         overlay?.querySelector(
+
             '[data-role="action"]'
+
         );
+
 
     const button =
+
         overlay?.querySelector(
+
             '[data-role="add"]'
+
         );
 
-    if (!action || !button) {
-        return;
-    }
 
+    if(
 
-    if (!selectedRecord) {
+        !action ||
 
-        action.classList.add("hidden");
+        !button
 
-        button.disabled = true;
+    ){
 
         return;
 
     }
 
 
-    action.classList.remove("hidden");
+    if(
 
+        !selectedRecord
 
-    let valid = false;
+    ){
 
+        action.classList.add(
 
-    if (
-        typeof currentOptions.validate ===
-        "function"
-    ) {
+            "hidden"
 
-        try {
+        );
 
-            valid =
-                currentOptions.validate(
-                    selectedRecord,
-                    overlay
-                ) === true;
+        button.disabled =
 
-        } catch (error) {
+            true;
 
-            console.warn(
-                "[UpdateData] validate failed:",
-                error
-            );
-
-            valid = false;
-
-        }
-
-    } else {
-
-        valid = true;
+        return;
 
     }
+
+
+    action.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    const validation =
+
+        await validateCurrent();
 
 
     button.disabled =
-        !valid ||
+
+        !validation.valid ||
+
         isBusy;
-
-}
-
-
-/* =====================================================
-   PENDING
-===================================================== */
-
-function renderPending() {
-
-    const section =
-        overlay?.querySelector(
-            '[data-role="pending"]'
-        );
-
-    const list =
-        overlay?.querySelector(
-            '[data-role="pending-list"]'
-        );
-
-    const count =
-        overlay?.querySelector(
-            '[data-role="pending-count"]'
-        );
-
-    const confirmContainer =
-        overlay?.querySelector(
-            '[data-role="confirm-container"]'
-        );
-
-    const confirmButton =
-        overlay?.querySelector(
-            '[data-role="confirm"]'
-        );
-
-
-    if (!section || !list) {
-        return;
-    }
-
-
-    list.innerHTML = "";
-
-
-    if (count) {
-        count.textContent =
-            String(pendingChanges.length);
-    }
-
-
-    if (!pendingChanges.length) {
-
-        section.classList.add("hidden");
-
-        confirmContainer?.classList.add(
-            "hidden"
-        );
-
-        if (confirmButton) {
-            confirmButton.disabled = true;
-        }
-
-        return;
-
-    }
-
-
-    section.classList.remove("hidden");
-
-    confirmContainer?.classList.remove(
-        "hidden"
-    );
-
-
-    pendingChanges.forEach(
-        (item, index) => {
-
-            const row =
-                createElement(
-                    "div",
-                    "global-update-data-pending-item"
-                );
-
-
-            const content =
-                createElement(
-                    "div",
-                    "global-update-data-pending-item-content"
-                );
-
-
-            const title =
-                safeText(
-                    typeof currentOptions.getPendingLabel ===
-                    "function"
-                        ? currentOptions.getPendingLabel(
-                            item
-                        )
-                        : item.label ||
-                          item.name ||
-                          item.key
-                );
-
-
-            const strong =
-                createElement(
-                    "strong",
-                    "",
-                    title
-                );
-
-
-            const meta =
-                safeText(
-                    item.meta ||
-                    item.status ||
-                    ""
-                );
-
-
-            content.appendChild(strong);
-
-
-            if (meta) {
-
-                content.appendChild(
-                    createElement(
-                        "span",
-                        "",
-                        meta
-                    )
-                );
-
-            }
-
-
-            const remove =
-                createElement(
-                    "button",
-                    "global-update-data-remove",
-                    getOption("removeText")
-                );
-
-            remove.type = "button";
-
-
-            remove.addEventListener(
-                "click",
-                () => {
-
-                    if (isBusy) {
-                        return;
-                    }
-
-                    UpdateData.remove(index);
-
-                }
-            );
-
-
-            row.appendChild(content);
-            row.appendChild(remove);
-
-            list.appendChild(row);
-
-        }
-    );
-
-
-    if (confirmButton) {
-        confirmButton.disabled =
-            isBusy ||
-            pendingChanges.length === 0;
-    }
 
 }
 
@@ -1680,48 +4587,86 @@ function renderPending() {
 ===================================================== */
 
 function showResult(
+
     message,
+
     type = ""
-) {
+
+){
 
     const result =
+
         overlay?.querySelector(
+
             '[data-role="result"]'
+
         );
 
-    if (!result) {
+
+    if(
+
+        !result
+
+    ){
+
         return;
+
     }
 
+
     result.className =
+
         "global-update-data-result";
 
 
-    if (type) {
-        result.classList.add(type);
+    if(
+
+        type
+
+    ){
+
+        result.classList.add(
+
+            type
+
+        );
+
     }
 
 
     result.textContent =
-        safeText(message);
+
+        safeText(
+
+            message
+
+        );
 
 
     result.classList.remove(
+
         "hidden"
+
     );
 
 }
 
 
-function hideResult() {
+function hideResult(){
 
     const result =
+
         overlay?.querySelector(
+
             '[data-role="result"]'
+
         );
 
+
     result?.classList.add(
+
         "hidden"
+
     );
 
 }
@@ -1731,13 +4676,14 @@ function hideResult() {
    CLEAR EDITOR
 ===================================================== */
 
-function clearEditor() {
+function clearEditor(){
 
-    selectedRecord = null;
+    selectedRecord =
 
-    selectedValue = null;
+        null;
 
-    renderPickerButton();
+
+    renderRecordList();
 
     renderDetail();
 
@@ -1749,75 +4695,1025 @@ function clearEditor() {
 
 
 /* =====================================================
-   CONFIRM RESULT
+   ADD / STAGE
 ===================================================== */
 
-function normalizeConfirmResult(result) {
+async function addCurrent(){
 
-    if (result === true) {
+    if(
+
+        isBusy
+
+    ){
+
+        return false;
+
+    }
+
+
+    if(
+
+        !selectedRecord
+
+    ){
+
+        return false;
+
+    }
+
+
+    const validation =
+
+        await validateCurrent();
+
+
+    if(
+
+        !validation.valid
+
+    ){
+
+        if(
+
+            validation.message
+
+        ){
+
+            showResult(
+
+                validation.message,
+
+                "error"
+
+            );
+
+        }
+
+        return false;
+
+    }
+
+
+    const values =
+
+        validation.values;
+
+
+    const key =
+
+        makeRecordKey(
+
+            selectedRecord
+
+        );
+
+
+    if(
+
+        pendingChanges.some(
+
+            item =>
+
+                item.key === key
+
+        )
+
+    ){
+
+        showResult(
+
+            getOption(
+
+                "duplicateText"
+
+            ),
+
+            "error"
+
+        );
+
+
+        return false;
+
+    }
+
+
+    let changes = {};
+
+
+    if(
+
+        typeof currentOptions.buildChanges ===
+
+        "function"
+
+    ){
+
+        try{
+
+            changes =
+
+                await currentOptions.buildChanges(
+
+                    selectedRecord,
+
+                    values
+
+                );
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                "[UpdateData] buildChanges failed:",
+
+                error
+
+            );
+
+
+            showResult(
+
+                error?.message ||
+
+                "Data perubahan tidak dapat dibuat.",
+
+                "error"
+
+            );
+
+
+            return false;
+
+        }
+
+    }
+
+
+    if(
+
+        changes === null ||
+
+        changes === false
+
+    ){
+
+        showResult(
+
+            "Data perubahan tidak dapat dibuat.",
+
+            "error"
+
+        );
+
+
+        return false;
+
+    }
+
+
+    let callbackResult = null;
+
+
+    if(
+
+        typeof currentOptions.onAdd ===
+
+        "function"
+
+    ){
+
+        try{
+
+            callbackResult =
+
+                await currentOptions.onAdd(
+
+                    selectedRecord,
+
+                    values,
+
+                    changes,
+
+                    {
+
+                        pending :
+
+                            pendingChanges.slice()
+
+                    }
+
+                );
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                "[UpdateData] onAdd failed:",
+
+                error
+
+            );
+
+
+            showResult(
+
+                error?.message ||
+
+                "Data gagal ditambahkan.",
+
+                "error"
+
+            );
+
+
+            return false;
+
+        }
+
+    }
+
+
+    const pendingItem = {
+
+        key,
+
+        record :
+
+            selectedRecord,
+
+        values,
+
+        changes,
+
+        label :
+
+            getRecordLabel(
+
+                selectedRecord
+
+            ),
+
+        meta :
+
+            getRecordMeta(
+
+                selectedRecord
+
+            ),
+
+        callbackResult
+
+    };
+
+
+    pendingChanges.push(
+
+        pendingItem
+
+    );
+
+
+    if(
+
+        typeof currentOptions.onAdded ===
+
+        "function"
+
+    ){
+
+        try{
+
+            await currentOptions.onAdded(
+
+                pendingItem,
+
+                pendingChanges.slice()
+
+            );
+
+        }
+
+        catch(error){
+
+            console.warn(
+
+                "[UpdateData] onAdded failed:",
+
+                error
+
+            );
+
+        }
+
+    }
+
+
+    clearEditor();
+
+
+    hideResult();
+
+
+    renderPending();
+
+
+    renderRecordList();
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   PENDING
+===================================================== */
+
+function renderPending(){
+
+    const section =
+
+        overlay?.querySelector(
+
+            '[data-role="pending"]'
+
+        );
+
+
+    const list =
+
+        overlay?.querySelector(
+
+            '[data-role="pending-list"]'
+
+        );
+
+
+    const count =
+
+        overlay?.querySelector(
+
+            '[data-role="pending-count"]'
+
+        );
+
+
+    const title =
+
+        overlay?.querySelector(
+
+            '[data-role="pending-title"]'
+
+        );
+
+
+    const confirmContainer =
+
+        overlay?.querySelector(
+
+            '[data-role="confirm-container"]'
+
+        );
+
+
+    const confirmButton =
+
+        overlay?.querySelector(
+
+            '[data-role="confirm"]'
+
+        );
+
+
+    if(
+
+        !section ||
+
+        !list
+
+    ){
+
+        return;
+
+    }
+
+
+    list.innerHTML = "";
+
+
+    if(
+
+        title
+
+    ){
+
+        title.textContent =
+
+            safeText(
+
+                getOption(
+
+                    "pendingTitle"
+
+                )
+
+            );
+
+    }
+
+
+    if(
+
+        count
+
+    ){
+
+        count.textContent =
+
+            String(
+
+                pendingChanges.length
+
+            );
+
+    }
+
+
+    if(
+
+        !pendingChanges.length
+
+    ){
+
+        section.classList.add(
+
+            "hidden"
+
+        );
+
+
+        confirmContainer?.classList.add(
+
+            "hidden"
+
+        );
+
+
+        if(
+
+            confirmButton
+
+        ){
+
+            confirmButton.disabled =
+
+                true;
+
+            confirmButton.textContent =
+
+                safeText(
+
+                    getOption(
+
+                        "confirmText"
+
+                    )
+
+                );
+
+        }
+
+
+        return;
+
+    }
+
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    confirmContainer?.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    pendingChanges.forEach(
+
+        (
+
+            item,
+
+            index
+
+        ) => {
+
+            const row =
+
+                createElement(
+
+                    "div",
+
+                    "global-update-data-pending-item"
+
+                );
+
+
+            const content =
+
+                createElement(
+
+                    "div",
+
+                    "global-update-data-pending-item-content"
+
+                );
+
+
+            let label = "";
+
+
+            if(
+
+                typeof currentOptions.getPendingLabel ===
+
+                "function"
+
+            ){
+
+                try{
+
+                    label =
+
+                        safeText(
+
+                            currentOptions.getPendingLabel(
+
+                                item
+
+                            )
+
+                        );
+
+                }
+
+                catch(error){
+
+                    console.warn(
+
+                        "[UpdateData] getPendingLabel failed:",
+
+                        error
+
+                    );
+
+                }
+
+            }
+
+
+            if(
+
+                !label
+
+            ){
+
+                label =
+
+                    safeText(
+
+                        item.label ||
+
+                        item.name ||
+
+                        item.key ||
+
+                        "Data"
+
+                    );
+
+            }
+
+
+            const strong =
+
+                createElement(
+
+                    "strong",
+
+                    "global-update-data-pending-item-title",
+
+                    label
+
+                );
+
+
+            content.appendChild(
+
+                strong
+
+            );
+
+
+            const meta =
+
+                safeText(
+
+                    item.meta ||
+
+                    item.status ||
+
+                    ""
+
+                );
+
+
+            if(
+
+                meta
+
+            ){
+
+                content.appendChild(
+
+                    createElement(
+
+                        "span",
+
+                        "global-update-data-pending-item-meta",
+
+                        meta
+
+                    )
+
+                );
+
+            }
+
+
+            const remove =
+
+                createElement(
+
+                    "button",
+
+                    "global-update-data-remove",
+
+                    getOption(
+
+                        "removeText"
+
+                    )
+
+                );
+
+
+            remove.type =
+
+                "button";
+
+
+            remove.addEventListener(
+
+                "click",
+
+                () => {
+
+                    if(
+
+                        isBusy
+
+                    ){
+
+                        return;
+
+                    }
+
+
+                    UpdateData.remove(
+
+                        index
+
+                    );
+
+                }
+
+            );
+
+
+            row.appendChild(
+
+                content
+
+            );
+
+
+            row.appendChild(
+
+                remove
+
+            );
+
+
+            list.appendChild(
+
+                row
+
+            );
+
+        }
+
+    );
+
+
+    if(
+
+        confirmButton
+
+    ){
+
+        confirmButton.disabled =
+
+            isBusy ||
+
+            pendingChanges.length === 0;
+
+    }
+
+}
+
+
+/* =====================================================
+   NORMALIZE CONFIRM RESULT
+===================================================== */
+
+function normalizeConfirmResult(
+
+    result
+
+){
+
+    if(
+
+        result === true
+
+    ){
 
         return {
-            success: true,
-            remaining: []
+
+            success :
+
+                true,
+
+            remaining :
+
+                []
+
         };
 
     }
 
 
-    if (result === false) {
+    if(
+
+        result === false
+
+    ){
 
         return {
-            success: false,
-            remaining: pendingChanges.slice()
+
+            success :
+
+                false,
+
+            remaining :
+
+                pendingChanges.slice()
+
         };
 
     }
 
 
-    if (!result || typeof result !== "object") {
+    if(
+
+        !result ||
+
+        typeof result !== "object"
+
+    ){
 
         return {
-            success: false,
-            remaining: pendingChanges.slice()
+
+            success :
+
+                false,
+
+            remaining :
+
+                pendingChanges.slice()
+
         };
 
     }
 
 
     const success =
+
         result.success === true ||
+
         result.ok === true;
 
 
     let remaining;
 
 
-    if (Array.isArray(result.remaining)) {
+    if(
+
+        Array.isArray(
+
+            result.remaining
+
+        )
+
+    ){
 
         remaining =
+
             result.remaining;
 
-    } else if (
-        Array.isArray(result.failed)
-    ) {
+    }
+
+    else if(
+
+        Array.isArray(
+
+            result.failed
+
+        )
+
+    ){
 
         remaining =
+
             result.failed;
 
-    } else {
+    }
+
+    else{
 
         remaining =
+
             success
-                ? []
-                : pendingChanges.slice();
+
+                ?
+
+                []
+
+                :
+
+                pendingChanges.slice();
 
     }
 
 
     return {
+
         success,
+
         remaining
+
     };
+
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+function showLoading(){
+
+    const content =
+
+        overlay?.querySelector(
+
+            ".global-update-data-content"
+
+        );
+
+
+    if(
+
+        !content
+
+    ){
+
+        return null;
+
+    }
+
+
+    const existing =
+
+        content.querySelector(
+
+            ".global-update-data-loading"
+
+        );
+
+
+    if(
+
+        existing
+
+    ){
+
+        return existing;
+
+    }
+
+
+    const loading =
+
+        createElement(
+
+            "div",
+
+            "global-update-data-loading"
+
+        );
+
+
+    const spinner =
+
+        createElement(
+
+            "span",
+
+            "global-update-data-loading-spinner"
+
+        );
+
+
+    spinner.setAttribute(
+
+        "aria-hidden",
+
+        "true"
+
+    );
+
+
+    const text =
+
+        createElement(
+
+            "span",
+
+            "",
+
+            getOption(
+
+                "confirmLoadingText"
+
+            )
+
+        );
+
+
+    loading.appendChild(
+
+        spinner
+
+    );
+
+
+    loading.appendChild(
+
+        text
+
+    );
+
+
+    content.appendChild(
+
+        loading
+
+    );
+
+
+    return loading;
 
 }
 
@@ -1833,15 +5729,26 @@ export const UpdateData = {
        INIT
     ================================================= */
 
-    init() {
+    init(){
 
-        if (initialized) {
+        if(
+
+            initialized
+
+        ){
+
             return this;
+
         }
+
 
         createOverlay();
 
-        initialized = true;
+
+        initialized =
+
+            true;
+
 
         return this;
 
@@ -1852,85 +5759,205 @@ export const UpdateData = {
        OPEN
     ================================================= */
 
-    open(options = {}) {
+    open(
+
+        options = {}
+
+    ){
 
         this.init();
 
+
         currentOptions = {
+
             ...DEFAULTS,
+
             ...options
+
         };
 
 
         currentRecords =
+
             normalizeRecords(
+
                 options.records
+
             );
 
 
         pendingChanges =
+
             normalizePending(
+
                 options.pending
+
             );
 
 
-        selectedRecord = null;
-        selectedValue = null;
+        selectedRecord =
 
-        isBusy = false;
+            null;
+
+
+        isBusy =
+
+            false;
 
 
         const title =
+
             overlay.querySelector(
+
                 "#global-update-data-title"
+
             );
+
 
         const subtitle =
+
             overlay.querySelector(
+
                 "#global-update-data-subtitle"
+
             );
+
+
+        const listTitle =
+
+            overlay.querySelector(
+
+                '[data-role="record-title"]'
+
+            );
+
 
         const search =
+
             overlay.querySelector(
-                '[data-role="picker-search"]'
+
+                '[data-role="record-search"]'
+
             );
 
 
-        if (title) {
+        if(
+
+            title
+
+        ){
 
             title.textContent =
+
                 safeText(
-                    getOption("title")
+
+                    getOption(
+
+                        "title"
+
+                    )
+
                 );
 
         }
 
 
-        if (subtitle) {
+        if(
+
+            subtitle
+
+        ){
 
             subtitle.textContent =
+
                 safeText(
-                    getOption("subtitle")
+
+                    getOption(
+
+                        "subtitle"
+
+                    )
+
                 );
 
         }
 
 
-        if (search) {
+        if(
+
+            listTitle
+
+        ){
+
+            listTitle.textContent =
+
+                safeText(
+
+                    getOption(
+
+                        "listTitle"
+
+                    )
+
+                );
+
+        }
+
+
+        if(
+
+            search
+
+        ){
 
             search.placeholder =
+
                 safeText(
+
                     getOption(
+
                         "searchPlaceholder"
-                    )
-                );
+
+                    ));
+
+
+            search.value =
+
+                "";
 
         }
 
 
         hideResult();
 
-        renderPickerButton();
+
+        overlay.classList.add(
+
+            "is-open"
+
+        );
+
+
+        if(
+
+            getOption(
+
+                "lockBody"
+
+            ) !== false
+
+        ){
+
+            document.body.classList.add(
+
+                "input-open"
+
+            );
+
+        }
+
+
+        renderRecordList();
 
         renderDetail();
 
@@ -1939,25 +5966,6 @@ export const UpdateData = {
         renderAction();
 
         renderPending();
-
-
-        overlay.classList.add(
-            "is-open"
-        );
-
-
-        if (
-            currentOptions.lockBody !== false
-        ) {
-
-            document.body.classList.add(
-                "input-open"
-            );
-
-        }
-
-
-        renderPickerList();
 
 
         return this;
@@ -1969,26 +5977,41 @@ export const UpdateData = {
        CLOSE
     ================================================= */
 
-    close() {
+    close(){
 
-        if (!overlay) {
+        if(
+
+            !overlay
+
+        ){
+
             return;
+
         }
 
-        if (
-            typeof currentOptions.onClose ===
-            "function"
-        ) {
 
-            try {
+        if(
+
+            typeof currentOptions.onClose ===
+
+            "function"
+
+        ){
+
+            try{
 
                 currentOptions.onClose();
 
-            } catch (error) {
+            }
+
+            catch(error){
 
                 console.warn(
+
                     "[UpdateData] onClose failed:",
+
                     error
+
                 );
 
             }
@@ -1997,19 +6020,26 @@ export const UpdateData = {
 
 
         overlay.classList.remove(
+
             "is-open"
+
         );
 
 
-        closePicker();
+        if(
 
+            getOption(
 
-        if (
-            currentOptions.lockBody !== false
-        ) {
+                "lockBody"
+
+            ) !== false
+
+        ){
 
             document.body.classList.remove(
+
                 "input-open"
+
             );
 
         }
@@ -2020,8 +6050,6 @@ export const UpdateData = {
         currentRecords = [];
 
         selectedRecord = null;
-
-        selectedValue = null;
 
         pendingChanges = [];
 
@@ -2034,7 +6062,7 @@ export const UpdateData = {
        GET SELECTED
     ================================================= */
 
-    getSelectedRecord() {
+    getSelectedRecord(){
 
         return selectedRecord;
 
@@ -2045,7 +6073,7 @@ export const UpdateData = {
        GET PENDING
     ================================================= */
 
-    getPending() {
+    getPending(){
 
         return pendingChanges.slice();
 
@@ -2056,7 +6084,7 @@ export const UpdateData = {
        GET PENDING COUNT
     ================================================= */
 
-    getPendingCount() {
+    getPendingCount(){
 
         return pendingChanges.length;
 
@@ -2067,12 +6095,23 @@ export const UpdateData = {
        SET RECORDS
     ================================================= */
 
-    setRecords(records) {
+    setRecords(
+
+        records
+
+    ){
 
         currentRecords =
-            normalizeRecords(records);
 
-        renderPickerList();
+            normalizeRecords(
+
+                records
+
+            );
+
+
+        renderRecordList();
+
 
         return this;
 
@@ -2083,14 +6122,25 @@ export const UpdateData = {
        SET PENDING
     ================================================= */
 
-    setPending(pending) {
+    setPending(
+
+        pending
+
+    ){
 
         pendingChanges =
-            normalizePending(pending);
+
+            normalizePending(
+
+                pending
+
+            );
+
 
         renderPending();
 
-        renderPickerList();
+        renderRecordList();
+
 
         return this;
 
@@ -2101,9 +6151,18 @@ export const UpdateData = {
        SELECT RECORD
     ================================================= */
 
-    selectRecord(record) {
+    selectRecord(
 
-        selectRecordInternal(record);
+        record
+
+    ){
+
+        selectRecordInternal(
+
+            record
+
+        );
+
 
         return this;
 
@@ -2114,215 +6173,9 @@ export const UpdateData = {
        ADD
     ================================================= */
 
-    async add() {
+    async add(){
 
-        if (isBusy) {
-            return false;
-        }
-
-        if (!selectedRecord) {
-            return false;
-        }
-
-
-        let valid = true;
-
-
-        if (
-            typeof currentOptions.validate ===
-            "function"
-        ) {
-
-            try {
-
-                valid =
-                    currentOptions.validate(
-                        selectedRecord,
-                        overlay
-                    ) === true;
-
-            } catch (error) {
-
-                console.error(
-                    "[UpdateData] Validation failed:",
-                    error
-                );
-
-                valid = false;
-
-            }
-
-        }
-
-
-        if (!valid) {
-            return false;
-        }
-
-
-        const key =
-            makeRecordKey(
-                selectedRecord
-            );
-
-
-        if (
-            pendingChanges.some(
-                item => item.key === key
-            )
-        ) {
-
-            showResult(
-                getOption(
-                    "duplicateText"
-                ),
-                "error"
-            );
-
-            return false;
-
-        }
-
-
-        let changes = {};
-
-
-        if (
-            typeof currentOptions.buildChanges ===
-            "function"
-        ) {
-
-            try {
-
-                changes =
-                    await currentOptions.buildChanges(
-                        selectedRecord,
-                        overlay
-                    );
-
-            } catch (error) {
-
-                console.error(
-                    "[UpdateData] buildChanges failed:",
-                    error
-                );
-
-                showResult(
-                    error?.message ||
-                    "Data perubahan tidak dapat dibuat.",
-                    "error"
-                );
-
-                return false;
-
-            }
-
-        }
-
-
-        let callbackResult = null;
-
-
-        if (
-            typeof currentOptions.onAdd ===
-            "function"
-        ) {
-
-            try {
-
-                callbackResult =
-                    await currentOptions.onAdd(
-                        selectedRecord,
-                        changes,
-                        {
-                            pending:
-                                pendingChanges.slice()
-                        }
-                    );
-
-            } catch (error) {
-
-                console.error(
-                    "[UpdateData] onAdd failed:",
-                    error
-                );
-
-                showResult(
-                    error?.message ||
-                    "Data gagal ditambahkan.",
-                    "error"
-                );
-
-                return false;
-
-            }
-
-        }
-
-
-        const pendingItem = {
-
-            key,
-
-            record:
-                selectedRecord,
-
-            changes,
-
-            label:
-                getRecordLabel(
-                    selectedRecord
-                ),
-
-            meta:
-                getRecordMeta(
-                    selectedRecord
-                ),
-
-            callbackResult
-
-        };
-
-
-        pendingChanges.push(
-            pendingItem
-        );
-
-
-        if (
-            typeof currentOptions.onAdded ===
-            "function"
-        ) {
-
-            try {
-
-                await currentOptions.onAdded(
-                    pendingItem,
-                    pendingChanges.slice()
-                );
-
-            } catch (error) {
-
-                console.warn(
-                    "[UpdateData] onAdded failed:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        clearEditor();
-
-        hideResult();
-
-        renderPending();
-
-        renderPickerList();
-
-
-        return true;
+        return await addCurrent();
 
     },
 
@@ -2331,43 +6184,71 @@ export const UpdateData = {
        REMOVE
     ================================================= */
 
-    async remove(index) {
+    async remove(
 
-        if (isBusy) {
+        index
+
+    ){
+
+        if(
+
+            isBusy
+
+        ){
+
             return false;
+
         }
 
 
-        if (
+        if(
+
             index < 0 ||
+
             index >= pendingChanges.length
-        ) {
+
+        ){
+
             return false;
+
         }
 
 
         const item =
+
             pendingChanges[index];
 
 
-        if (
-            typeof currentOptions.onRemove ===
-            "function"
-        ) {
+        if(
 
-            try {
+            typeof currentOptions.onRemove ===
+
+            "function"
+
+        ){
+
+            try{
 
                 await currentOptions.onRemove(
+
                     item,
+
                     index,
+
                     pendingChanges.slice()
+
                 );
 
-            } catch (error) {
+            }
+
+            catch(error){
 
                 console.warn(
+
                     "[UpdateData] onRemove failed:",
+
                     error
+
                 );
 
             }
@@ -2376,14 +6257,17 @@ export const UpdateData = {
 
 
         pendingChanges.splice(
+
             index,
+
             1
+
         );
 
 
         renderPending();
 
-        renderPickerList();
+        renderRecordList();
 
 
         return true;
@@ -2395,17 +6279,26 @@ export const UpdateData = {
        CLEAR PENDING
     ================================================= */
 
-    clearPending() {
+    clearPending(){
 
-        if (isBusy) {
+        if(
+
+            isBusy
+
+        ){
+
             return this;
+
         }
+
 
         pendingChanges = [];
 
+
         renderPending();
 
-        renderPickerList();
+        renderRecordList();
+
 
         return this;
 
@@ -2416,48 +6309,94 @@ export const UpdateData = {
        CONFIRM
     ================================================= */
 
-    async confirm() {
+    async confirm(){
 
-        if (isBusy) {
+        if(
+
+            isBusy
+
+        ){
+
             return false;
+
         }
 
 
-        if (!pendingChanges.length) {
+        if(
+
+            !pendingChanges.length
+
+        ){
+
             return false;
+
         }
 
 
-        if (
+        if(
+
             typeof currentOptions.validateBatch ===
-            "function"
-        ) {
 
-            try {
+            "function"
+
+        ){
+
+            try{
 
                 const valid =
+
                     await currentOptions.validateBatch(
+
                         pendingChanges.slice()
+
                     );
 
-                if (valid === false) {
+
+                if(
+
+                    valid === false ||
+
+                    (
+
+                        valid &&
+
+                        typeof valid === "object" &&
+
+                        valid.valid === false
+
+                    )
+
+                ){
 
                     showResult(
+
+                        valid?.message ||
+
                         "Data belum dapat dikonfirmasi.",
+
                         "error"
+
                     );
+
 
                     return false;
 
                 }
 
-            } catch (error) {
+            }
+
+            catch(error){
 
                 showResult(
+
                     error?.message ||
+
                     "Validasi gagal.",
+
                     "error"
+
                 );
+
 
                 return false;
 
@@ -2466,7 +6405,10 @@ export const UpdateData = {
         }
 
 
-        isBusy = true;
+        isBusy =
+
+            true;
+
 
         renderPending();
 
@@ -2474,167 +6416,189 @@ export const UpdateData = {
 
 
         const confirmButton =
+
             overlay?.querySelector(
+
                 '[data-role="confirm"]'
+
             );
 
 
-        if (confirmButton) {
+        if(
 
-            confirmButton.disabled = true;
+            confirmButton
+
+        ){
+
+            confirmButton.disabled =
+
+                true;
+
 
             confirmButton.textContent =
-                getOption(
-                    "confirmLoadingText"
+
+                safeText(
+
+                    getOption(
+
+                        "confirmLoadingText"
+
+                    )
+
                 );
 
         }
 
 
         const loading =
-            createElement(
-                "div",
-                "global-update-data-loading"
-            );
 
-
-        loading.innerHTML = `
-            <span
-                class="global-update-data-loading-spinner"
-                aria-hidden="true"
-            ></span>
-            <span></span>
-        `;
-
-
-        const loadingText =
-            loading.querySelector(
-                "span:last-child"
-            );
-
-
-        if (loadingText) {
-
-            loadingText.textContent =
-                getOption(
-                    "confirmLoadingText"
-                );
-
-        }
-
-
-        const content =
-            overlay?.querySelector(
-                ".global-update-data-content"
-            );
-
-
-        const existingLoading =
-            content?.querySelector(
-                ".global-update-data-loading"
-            );
-
-
-        if (!existingLoading && content) {
-
-            content.appendChild(
-                loading
-            );
-
-        }
+            showLoading();
 
 
         let result;
 
 
-        try {
+        try{
 
-            if (
+            if(
+
                 typeof currentOptions.onConfirm ===
+
                 "function"
-            ) {
+
+            ){
 
                 result =
+
                     await currentOptions.onConfirm(
+
                         pendingChanges.slice()
+
                     );
 
-            } else {
+            }
+
+            else{
 
                 result = {
-                    success: true,
-                    remaining: []
+
+                    success :
+
+                        true,
+
+                    remaining :
+
+                        []
+
                 };
 
             }
 
-        } catch (error) {
+        }
+
+        catch(error){
 
             result = {
-                success: false,
-                remaining:
+
+                success :
+
+                    false,
+
+                remaining :
+
                     pendingChanges.slice(),
+
                 error
+
             };
 
         }
 
 
-        existingLoading?.remove();
-
-        loading.remove();
+        loading?.remove();
 
 
         const normalized =
+
             normalizeConfirmResult(
+
                 result
+
             );
 
 
         pendingChanges =
+
             normalizePending(
+
                 normalized.remaining
+
             );
 
 
-        isBusy = false;
+        isBusy =
+
+            false;
 
 
-        if (confirmButton) {
+        if(
+
+            confirmButton
+
+        ){
 
             confirmButton.textContent =
-                getOption(
-                    "confirmText"
+
+                safeText(
+
+                    getOption(
+
+                        "confirmText"
+
+                    )
+
                 );
 
         }
 
 
-        if (normalized.success) {
+        if(
 
-            clearEditor();
+            normalized.success
 
-            renderPending();
+        ){
 
-            renderPickerList();
+            selectedRecord =
+
+                null;
 
 
-            if (
+            if(
+
                 typeof currentOptions.onConfirmed ===
-                "function"
-            ) {
 
-                try {
+                "function"
+
+            ){
+
+                try{
 
                     await currentOptions.onConfirmed(
+
                         result
+
                     );
 
-                } catch (error) {
+                }
+
+                catch(error){
 
                     console.warn(
+
                         "[UpdateData] onConfirmed failed:",
+
                         error
+
                     );
 
                 }
@@ -2642,10 +6606,31 @@ export const UpdateData = {
             }
 
 
+            renderRecordList();
+
+            renderDetail();
+
+            renderFields();
+
+            renderAction();
+
+            renderPending();
+
+
             showResult(
+
                 result?.message ||
+
+                getOption(
+
+                    "addedText"
+
+                ) ||
+
                 "Perubahan berhasil disimpan.",
+
                 "success"
+
             );
 
 
@@ -2656,16 +6641,21 @@ export const UpdateData = {
 
         renderPending();
 
-        renderPickerList();
+        renderRecordList();
 
         renderAction();
 
 
         showResult(
+
             result?.message ||
+
             result?.error?.message ||
+
             "Sebagian atau seluruh perubahan gagal disimpan.",
+
             "error"
+
         );
 
 
