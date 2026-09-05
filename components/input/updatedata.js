@@ -1,58 +1,58 @@
- /* =====================================================
-    Finance Assistant
-    Component    : Global Input
-    File         : updatedata.js
-    Version      : 1.0.0
+/* =====================================================
+   Finance Assistant
+   Component    : Global Input
+   File         : updatedata.js
+   Version      : 1.0.0
 
-    Description :
-    Global Edit Data UI Engine
+   Description :
+   Global Edit Data UI Engine
 
-    Handles :
-    - Full screen edit overlay
-    - Custom picker
-    - Searchable picker
-    - Selected data detail
-    - Dynamic edit fields
-    - Add temporary changes
-    - Pending changes list
-    - Remove pending changes
-    - Confirm batch changes
-    - Loading state
-    - Success / error state
+   Handles :
+   - Full screen edit overlay
+   - Custom picker
+   - Searchable picker
+   - Selected data detail
+   - Dynamic edit fields
+   - Add temporary changes
+   - Pending changes list
+   - Remove pending changes
+   - Confirm batch changes
+   - Loading state
+   - Success / error state
 
-    PRINCIPLE :
+   PRINCIPLE :
 
-    Workspace Controller
-            ↓
-       UpdateData
-            ↓
-    ┌───────────────────────┐
-    │                       │
-    │ Custom Picker         │
-    │ Selected Detail       │
-    │ Edit Fields           │
-    │ Tambahkan             │
-    │ Pending Changes       │
-    │ Konfirmasi            │
-    │                       │
-    └───────────────────────┘
-            ↓
-      Workspace Logic
-            ↓
-         Update.js
+   Workspace Controller
+           ↓
+      UpdateData
+           ↓
+   ┌───────────────────────┐
+   │                       │
+   │ Custom Picker         │
+   │ Selected Detail       │
+   │ Edit Fields           │
+   │ Tambahkan             │
+   │ Pending Changes       │
+   │ Konfirmasi            │
+   │                       │
+   └───────────────────────┘
+           ↓
+     Workspace Logic
+           ↓
+        Update.js
 
-    IMPORTANT :
+   IMPORTANT :
 
-    File ini tidak mengetahui:
-    - Airdrop
-    - Reward
-    - Payroll
-    - Workspace tertentu
-    - Apps Script
-    - Spreadsheet
-    - Target update
+   File ini tidak mengetahui:
+   - Airdrop
+   - Reward
+   - Payroll
+   - Workspace tertentu
+   - Apps Script
+   - Spreadsheet
+   - Target update
 
-    Semua business logic diberikan melalui options.
+   Semua business logic diberikan melalui options.
 ===================================================== */
 
 
@@ -211,11 +211,16 @@ export const UpdateData = {
            validate,
            buildChanges,
 
+           onSelect,
            onAdd,
+           onAdded,
            onRemove,
-           onConfirm,
 
-           getPending,
+           validateBatch,
+
+           onConfirm,
+           onConfirmed,
+
            getPendingLabel,
 
            emptyText
@@ -425,6 +430,12 @@ export const UpdateData = {
 
 
         renderPending();
+
+
+        renderPicker();
+
+
+        updateButtons();
 
 
         return UpdateData;
@@ -816,6 +827,9 @@ export const UpdateData = {
         renderPending();
 
 
+        renderPicker();
+
+
         updateButtons();
 
 
@@ -835,6 +849,10 @@ export const UpdateData = {
 
 
         renderPending();
+
+
+        renderPicker();
+
 
         updateButtons();
 
@@ -1025,9 +1043,12 @@ export const UpdateData = {
 
             renderPending();
 
+
             renderPicker();
 
+
             renderDetail();
+
 
             updateButtons();
 
@@ -1069,6 +1090,10 @@ export const UpdateData = {
 
 
             renderPending();
+
+
+            renderPicker();
+
 
             updateButtons();
 
@@ -1399,7 +1424,7 @@ function createOverlay(){
                                 id="${IDS.pickerArrow}"
                                 class="global-update-data-picker-arrow"
                             >
-                               ⌄
+                                ⌄
                             </span>
 
                         </button>
@@ -1907,7 +1932,9 @@ function renderPicker(){
         else{
 
             label.textContent =
-                currentOptions.pickerPlaceholder;
+                currentOptions?.pickerPlaceholder
+                ??
+                "Pilih data";
 
         }
 
@@ -2068,9 +2095,15 @@ function renderPickerList(
                             ];
 
 
-                        UpdateData.selectRecord(
+                        if(
                             record
-                        );
+                        ){
+
+                            UpdateData.selectRecord(
+                                record
+                            );
+
+                        }
 
                     }
                 );
@@ -2197,15 +2230,7 @@ function getFilteredIndex(
     record
 ){
 
-    const list =
-        document.getElementById(
-            IDS.pickerList
-        );
-
-
     if(
-        !list
-        ||
         !currentRecords.length
     ){
 
@@ -2325,11 +2350,13 @@ function renderDetail(){
             <div
                 class="global-update-data-empty-detail"
             >
+
                 <div
                     class="global-update-data-empty-detail-icon"
                 >
                     ✏️
                 </div>
+
 
                 <div
                     class="global-update-data-empty-detail-title"
@@ -2337,11 +2364,13 @@ function renderDetail(){
                     Pilih data untuk diedit
                 </div>
 
+
                 <div
                     class="global-update-data-empty-detail-text"
                 >
                     Pilih salah satu data dari picker di atas.
                 </div>
+
             </div>
 
         `;
@@ -2356,7 +2385,8 @@ function renderDetail(){
     }
 
 
-    let html = "";
+    let html =
+        "";
 
 
     try{
@@ -2514,6 +2544,7 @@ function clearCurrentEditor(){
 
 
     renderPicker();
+
 
     renderDetail();
 
@@ -2783,7 +2814,7 @@ function renderPendingItem(
                     class="global-update-data-pending-item-title"
                 >
                     ${escapeHTML(
-                        label.title
+                        label?.title
                         ??
                         "Perubahan"
                     )}
@@ -2791,7 +2822,7 @@ function renderPendingItem(
 
 
                 ${
-                    label.description
+                    label?.description
                     ?
                     `
                     <div
@@ -3157,6 +3188,7 @@ function showResult(
                 ⏳
             </div>
 
+
             <div
                 class="global-update-data-result-message"
             >
@@ -3181,6 +3213,7 @@ function showResult(
             >
                 ✓
             </div>
+
 
             <div
                 class="global-update-data-result-message"
@@ -3207,6 +3240,7 @@ function showResult(
                 !
             </div>
 
+
             <div
                 class="global-update-data-result-message"
             >
@@ -3227,6 +3261,7 @@ function showResult(
         >
             •
         </div>
+
 
         <div
             class="global-update-data-result-message"
@@ -3354,8 +3389,10 @@ function getRecordIdentity(
     }
     catch(error){
 
-        return defaultGetRecordId(
-            record
+        return String(
+            defaultGetRecordId(
+                record
+            )
         );
 
     }
@@ -3543,6 +3580,7 @@ function defaultRenderDetail(
                     ID
                 </span>
 
+
                 <strong
                     class="global-update-data-detail-value"
                 >
@@ -3563,6 +3601,7 @@ function defaultRenderDetail(
                 >
                     Project
                 </span>
+
 
                 <strong
                     class="global-update-data-detail-value"
@@ -3585,6 +3624,7 @@ function defaultRenderDetail(
                     Type
                 </span>
 
+
                 <strong
                     class="global-update-data-detail-value"
                 >
@@ -3605,6 +3645,7 @@ function defaultRenderDetail(
                 >
                     Status
                 </span>
+
 
                 <strong
                     class="global-update-data-detail-value"
@@ -3842,6 +3883,12 @@ function normalizeConfirmResult(
                 "Semua perubahan berhasil dikonfirmasi.",
 
             remaining:
+                [],
+
+            updated:
+                [],
+
+            failed:
                 []
 
         };
@@ -3868,7 +3915,13 @@ function normalizeConfirmResult(
             remaining:
                 [
                     ...pendingChanges
-                ]
+                ],
+
+            updated:
+                [],
+
+            failed:
+                []
 
         };
 
@@ -3941,7 +3994,13 @@ function normalizeConfirmResult(
         remaining:
             [
                 ...pendingChanges
-            ]
+            ],
+
+        updated:
+            [],
+
+        failed:
+            []
 
     };
 
