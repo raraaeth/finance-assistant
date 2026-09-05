@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.4.0
+   Version      : 4.5.0
 
    Description :
    Airdrop Input Configuration
@@ -41,23 +41,31 @@
    - Status
    - Reward jika Win
 
-   DATA SOURCE :
+   EDIT INPUT REWARD :
 
-   Global Input data.js
+   User memilih project
         ↓
-   getInputRaw()
+   pilih Status
         ↓
-   sheet pertama workspace
+   isi Reward jika Win
         ↓
-   data aktivitas / project
-
-   Global Input data.js
+   Tambahkan
         ↓
-   getInputData()
+   State.editTransactions
         ↓
-   sheet kedua workspace
+   pilih project lain
         ↓
-   konfigurasi wallet / type
+   Tambahkan lagi
+        ↓
+   Konfirmasi
+        ↓
+   Reward.confirm()
+        ↓
+   Update.js
+        ↓
+   Apps Script
+        ↓
+   Google Sheet
 
    Principle :
    - Tidak ada daftar wallet / type hardcode.
@@ -69,21 +77,6 @@
    - Bansos otomatis berstatus win.
    - Reward bansos disimpan pada $reward.
 
-   EDIT INPUT :
-
-   Global Input script.js
-        ↓
-   Airdrop.openEdit()
-        ↓
-   Edit Input Reward
-        ↓
-   renderRewardPicker()
-        ↓
-   renderSelectedReward()
-        ↓
-   Reward.save()
-        ↓
-   Update.updateField()
 ===================================================== */
 
 
@@ -120,7 +113,8 @@ import {
    - selection
    - validation
    - build changes
-   - update
+   - staging
+   - batch confirmation
 */
 
 import {
@@ -278,7 +272,7 @@ export const Airdrop = {
 
     /* =================================================
        EDIT INPUT
-       
+
        Controller dari Global Input script.js.
 
        Mode :
@@ -290,93 +284,100 @@ export const Airdrop = {
        row
            ↓
        Edit Input Row
-       
+
        Edit Input Row belum diaktifkan.
     ================================================= */
 
     async openEdit(context = null) {
 
-    /* =============================================
-       RESOLVE EDIT MODE
-       
-       Global Input mengirim object:
-       
-       {
-           workspace,
-           mode,
-           data,
-           state
-       }
-       
-       Tetap dukung pemanggilan lama
-       dengan string untuk menjaga kompatibilitas.
-    ============================================= */
+        /* =============================================
+           RESOLVE EDIT MODE
 
-    const mode =
+           Global Input mengirim object:
 
-        typeof context === "object" &&
-        context !== null
+           {
+               workspace,
+               mode,
+               data,
+               state
+           }
 
-            ? context.mode
+           Tetap dukung pemanggilan lama
+           dengan string untuk menjaga kompatibilitas.
+        ============================================= */
 
-            : context;
+        const mode =
 
+            typeof context === "object" &&
+            context !== null
 
-    const normalizedMode =
+                ? context.mode
 
-        normalizeValue(
-            mode
-        );
+                : context;
 
 
-    /* =============================================
-       EDIT REWARD
-    ============================================= */
+        const normalizedMode =
 
-    if(
-        normalizedMode === "reward"
-    ){
+            normalizeValue(
 
-        return openEditReward();
+                mode
 
-    }
+            );
 
 
-    /* =============================================
-       EDIT ROW
-    ============================================= */
+        /* =============================================
+           EDIT REWARD
+        ============================================= */
 
-    if(
-        normalizedMode === "row"
-    ){
+        if(
+
+            normalizedMode === "reward"
+
+        ){
+
+            return openEditReward();
+
+        }
+
+
+        /* =============================================
+           EDIT ROW
+        ============================================= */
+
+        if(
+
+            normalizedMode === "row"
+
+        ){
+
+            console.warn(
+
+                "Airdrop Edit Input Row belum tersedia."
+
+            );
+
+
+            return null;
+
+        }
+
+
+        /* =============================================
+           UNKNOWN MODE
+        ============================================= */
 
         console.warn(
-            "Airdrop Edit Input Row belum tersedia."
+
+            "Airdrop Edit Input: mode tidak dikenal:",
+
+            mode
+
         );
+
 
         return null;
 
-    }
-
-
-    /* =============================================
-       UNKNOWN MODE
-    ============================================= */
-
-    console.warn(
-        "Airdrop Edit Input: mode tidak dikenal:",
-        mode
-    );
-
-
-    return null;
-
-},
-
-        
-
-
-        
+    },
 
 
     /* =================================================
@@ -1645,6 +1646,18 @@ export function selectRewardRecord(
 
         if(
 
+            typeof Reward.clearSelection ===
+
+            "function"
+
+        ){
+
+            Reward.clearSelection();
+
+        }
+
+        else if(
+
             typeof State.clearSelectedRecord ===
 
             "function"
@@ -1664,32 +1677,37 @@ export function selectRewardRecord(
         }
 
 
-        return;
+        return null;
 
     }
+
+
+    const selected =
+
+        typeof Reward.selectRecord ===
+
+            "function"
+
+            ?
+
+            Reward.selectRecord(
+
+                record
+
+            )
+
+            :
+
+            record;
 
 
     if(
 
-        typeof State.setSelectedRecord ===
-
-        "function"
+        !selected
 
     ){
 
-        State.setSelectedRecord(
-
-            record
-
-        );
-
-    }
-
-    else{
-
-        State.selectedRecord =
-
-            record;
+        return null;
 
     }
 
@@ -1702,23 +1720,26 @@ export function selectRewardRecord(
 
             id :
 
-                record.id,
+                selected.id,
 
             project :
 
-                record.project,
+                selected.project,
 
             type :
 
-                record.type,
+                selected.type,
 
             status :
 
-                record.status
+                selected.status
 
         }
 
     );
+
+
+    return selected;
 
 }
 
@@ -1857,9 +1878,13 @@ export function buildRewardValues(
 
     else{
 
-        values.clearReward =
+        values[
 
-            true;
+            "$reward"
+
+        ] =
+
+            "";
 
     }
 
@@ -1909,9 +1934,38 @@ export function applyReward(
 
     if(
 
+        typeof Reward.selectRecord ===
+
+            "function"
+
+    ){
+
+        const selected =
+
+            Reward.selectRecord(
+
+                record
+
+            );
+
+
+        if(
+
+            !selected
+
+        ){
+
+            return false;
+
+        }
+
+    }
+
+    else if(
+
         typeof State.setSelectedRecord ===
 
-        "function"
+            "function"
 
     ){
 
@@ -2295,7 +2349,7 @@ export function applyActivity(
 
         typeof State.resetCurrent ===
 
-        "function"
+            "function"
 
     ){
 
@@ -2308,7 +2362,7 @@ export function applyActivity(
 
         typeof State.setMode ===
 
-        "function"
+            "function"
 
     ){
 
@@ -3037,6 +3091,88 @@ export function renderModeSelector(
 
 
 /* =====================================================
+   GET PENDING TARGET KEY
+===================================================== */
+
+function getPendingTargetKey(
+
+    record
+
+){
+
+    if(
+
+        !record
+
+    ){
+
+        return "";
+
+    }
+
+
+    return (
+
+        String(
+
+            record.id ??
+
+            ""
+
+        ).trim()
+
+        +
+
+        "::"
+
+        +
+
+        String(
+
+            record.project ??
+
+            ""
+
+        ).trim()
+
+    );
+
+}
+
+
+/* =====================================================
+   HAS PENDING RECORD
+===================================================== */
+
+function hasPendingRewardRecord(
+
+    record
+
+){
+
+    if(
+
+        !record
+
+    ){
+
+        return false;
+
+    }
+
+
+    return Reward.hasPendingEdit(
+
+        record.id,
+
+        record.project
+
+    );
+
+}
+
+
+/* =====================================================
    RENDER REWARD PICKER
 ===================================================== */
 
@@ -3064,7 +3200,17 @@ export function renderRewardPicker(
 
     const records =
 
-        getRewardRecords();
+        typeof Reward.getRecords ===
+
+            "function"
+
+            ?
+
+            Reward.getRecords()
+
+            :
+
+            getRewardRecords();
 
 
     /* =============================================
@@ -3093,6 +3239,44 @@ export function renderRewardPicker(
     container.appendChild(
 
         title
+
+    );
+
+
+    /* =============================================
+       INFO
+    ============================================= */
+
+    const info =
+
+        document.createElement(
+
+            "small"
+
+        );
+
+
+    info.className =
+
+        "airdrop-reward-picker-info";
+
+
+    info.textContent =
+
+        records.length
+
+            ?
+
+            `${records.length} project tersedia`
+
+            :
+
+            "Tidak ada project tersedia";
+
+
+    container.appendChild(
+
+        info
 
     );
 
@@ -3193,6 +3377,17 @@ export function renderRewardPicker(
                 );
 
 
+            item.dataset.project =
+
+                String(
+
+                    record.project ??
+
+                    ""
+
+                );
+
+
             const project =
 
                 document.createElement(
@@ -3256,11 +3451,88 @@ export function renderRewardPicker(
             );
 
 
+            /* =====================================
+               PENDING
+            ===================================== */
+
+            if(
+
+                hasPendingRewardRecord(
+
+                    record
+
+                )
+
+            ){
+
+                item.classList.add(
+
+                    "pending"
+
+                );
+
+
+                const pending =
+
+                    document.createElement(
+
+                        "em"
+
+                    );
+
+
+                pending.className =
+
+                    "airdrop-reward-project-pending";
+
+
+                pending.textContent =
+
+                    "Sudah ditambahkan";
+
+
+                item.appendChild(
+
+                    pending
+
+                );
+
+            }
+
+
             item.addEventListener(
 
                 "click",
 
                 () => {
+
+                    if(
+
+                        hasPendingRewardRecord(
+
+                            record
+
+                        )
+
+                    ){
+
+                        console.warn(
+
+                            "Reward project sudah ada di batch:",
+
+                            getPendingTargetKey(
+
+                                record
+
+                            )
+
+                        );
+
+
+                        return;
+
+                    }
+
 
                     list
 
@@ -3292,11 +3564,24 @@ export function renderRewardPicker(
                     );
 
 
-                    selectRewardRecord(
+                    const selectedRecord =
 
-                        record
+                        selectRewardRecord(
 
-                    );
+                            record
+
+                        );
+
+
+                    if(
+
+                        !selectedRecord
+
+                    ){
+
+                        return;
+
+                    }
 
 
                     if(
@@ -3309,7 +3594,7 @@ export function renderRewardPicker(
 
                         onSelect(
 
-                            record
+                            selectedRecord
 
                         );
 
@@ -3809,7 +4094,7 @@ export function renderSelectedReward(
 
 
     /* =============================================
-       SUBMIT
+       SUBMIT / STAGE
     ============================================= */
 
     button.addEventListener(
@@ -3856,15 +4141,6 @@ export function renderSelectedReward(
 
             }
 
-
-            /*
-               Jangan melakukan update langsung
-               dari UI.
-
-               Submit diteruskan ke controller,
-               kemudian controller meneruskan
-               ke Reward engine.
-            */
 
             if(
 
@@ -4027,30 +4303,702 @@ function appendInfo(
 
 
 /* =====================================================
-   OPEN EDIT REWARD
+   RENDER PENDING EDITS
 ===================================================== */
 
-/*
-   Overlay dibuat dari JS.
+function renderPendingEdits(
 
-   TIDAK ditambahkan ke :
+    container,
 
-       components/input/index.html
+    onRemove
 
-   Flow :
+){
 
-       Input.openEdit()
-            ↓
-       Airdrop.openEdit()
-            ↓
-       openEditReward()
-            ↓
-       renderRewardPicker()
-            ↓
-       renderSelectedReward()
-            ↓
-       Reward.save()
-*/
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    const transactions =
+
+        Reward.getPendingEdits();
+
+
+    /* =============================================
+       WRAPPER
+    ============================================= */
+
+    const section =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    section.className =
+
+        "airdrop-reward-pending-section";
+
+
+    /* =============================================
+       HEADER
+    ============================================= */
+
+    const header =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    header.className =
+
+        "airdrop-reward-pending-header";
+
+
+    const title =
+
+        document.createElement(
+
+            "strong"
+
+        );
+
+
+    title.textContent =
+
+        "Sudah Ditambahkan";
+
+
+    const count =
+
+        document.createElement(
+
+            "span"
+
+        );
+
+
+    count.textContent =
+
+        String(
+
+            transactions.length
+
+        );
+
+
+    header.appendChild(
+
+        title
+
+    );
+
+
+    header.appendChild(
+
+        count
+
+    );
+
+
+    section.appendChild(
+
+        header
+
+    );
+
+
+    /* =============================================
+       EMPTY
+    ============================================= */
+
+    if(
+
+        transactions.length ===
+
+            0
+
+    ){
+
+        const empty =
+
+            document.createElement(
+
+                "small"
+
+            );
+
+
+        empty.className =
+
+            "airdrop-reward-pending-empty";
+
+
+        empty.textContent =
+
+            "Belum ada perubahan reward.";
+
+
+        section.appendChild(
+
+            empty
+
+        );
+
+
+        container.appendChild(
+
+            section
+
+        );
+
+
+        return;
+
+    }
+
+
+    /* =============================================
+       LIST
+    ============================================= */
+
+    const list =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    list.className =
+
+        "airdrop-reward-pending-list";
+
+
+    transactions.forEach(
+
+        (
+
+            transaction,
+
+            index
+
+        ) => {
+
+            const item =
+
+                document.createElement(
+
+                    "div"
+
+                );
+
+
+            item.className =
+
+                "airdrop-reward-pending-item";
+
+
+            /* =====================================
+               INFO
+            ===================================== */
+
+            const info =
+
+                document.createElement(
+
+                    "div"
+
+                );
+
+
+            info.className =
+
+                "airdrop-reward-pending-info";
+
+
+            const project =
+
+                document.createElement(
+
+                    "strong"
+
+                );
+
+
+            project.textContent =
+
+                transaction?.project ??
+
+                "-";
+
+
+            const meta =
+
+                document.createElement(
+
+                    "small"
+
+                );
+
+
+            const resultLabel =
+
+                transaction?.result ===
+
+                    STATUS_WIN
+
+                    ?
+
+                    "Win"
+
+                    :
+
+                    "Not Win";
+
+
+            meta.textContent =
+
+                `${resultLabel}${
+
+                    transaction?.result ===
+
+                        STATUS_WIN
+
+                        ?
+
+                        ` · $${transaction?.reward ?? ""}`
+
+                        :
+
+                        ""
+
+                }`;
+
+
+            const id =
+
+                document.createElement(
+
+                    "small"
+
+                );
+
+
+            id.textContent =
+
+                `ID: ${transaction?.id ?? "-"}`;
+
+
+            info.appendChild(
+
+                project
+
+            );
+
+
+            info.appendChild(
+
+                meta
+
+            );
+
+
+            info.appendChild(
+
+                id
+
+            );
+
+
+            /* =====================================
+               REMOVE
+            ===================================== */
+
+            const removeButton =
+
+                document.createElement(
+
+                    "button"
+
+                );
+
+
+            removeButton.type =
+
+                "button";
+
+
+            removeButton.className =
+
+                "airdrop-reward-pending-remove";
+
+
+            removeButton.textContent =
+
+                "Hapus";
+
+
+            removeButton.addEventListener(
+
+                "click",
+
+                () => {
+
+                    if(
+
+                        typeof onRemove ===
+
+                        "function"
+
+                    ){
+
+                        onRemove(
+
+                            index
+
+                        );
+
+                    }
+
+                }
+
+            );
+
+
+            item.appendChild(
+
+                info
+
+            );
+
+
+            item.appendChild(
+
+                removeButton
+
+            );
+
+
+            list.appendChild(
+
+                item
+
+            );
+
+        }
+
+    );
+
+
+    section.appendChild(
+
+        list
+
+    );
+
+
+    container.appendChild(
+
+        section
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER CONFIRM ACTION
+===================================================== */
+
+function renderRewardConfirm(
+
+    container,
+
+    onConfirm
+
+){
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    const transactions =
+
+        Reward.getPendingEdits();
+
+
+    if(
+
+        transactions.length ===
+
+            0
+
+    ){
+
+        return;
+
+    }
+
+
+    const footer =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    footer.className =
+
+        "airdrop-reward-confirm";
+
+
+    const info =
+
+        document.createElement(
+
+            "small"
+
+        );
+
+
+    info.textContent =
+
+        `${transactions.length} perubahan siap dikonfirmasi.`;
+
+
+    const button =
+
+        document.createElement(
+
+            "button"
+
+        );
+
+
+    button.type =
+
+        "button";
+
+
+    button.className =
+
+        "global-input-confirm-button";
+
+
+    button.textContent =
+
+        "Konfirmasi";
+
+
+    button.addEventListener(
+
+        "click",
+
+        async () => {
+
+            button.disabled =
+
+                true;
+
+
+            button.textContent =
+
+                "Menyimpan...";
+
+
+            try{
+
+                if(
+
+                    typeof onConfirm ===
+
+                    "function"
+
+                ){
+
+                    await onConfirm();
+
+                }
+
+            }
+
+            finally{
+
+                if(
+
+                    document.body.contains(
+
+                        button
+
+                    )
+
+                ){
+
+                    button.disabled =
+
+                        Reward.getPendingCount() ===
+
+                            0;
+
+
+                    button.textContent =
+
+                        "Konfirmasi";
+
+                }
+
+            }
+
+        }
+
+    );
+
+
+    footer.appendChild(
+
+        info
+
+    );
+
+
+    footer.appendChild(
+
+        button
+
+    );
+
+
+    container.appendChild(
+
+        footer
+
+    );
+
+}
+
+
+/* =====================================================
+   SHOW REWARD MESSAGE
+===================================================== */
+
+function showRewardMessage(
+
+    container,
+
+    message,
+
+    type = "info"
+
+){
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const existing =
+
+        container.querySelector(
+
+            ".airdrop-reward-message"
+
+        );
+
+
+    if(
+
+        existing
+
+    ){
+
+        existing.remove();
+
+    }
+
+
+    if(
+
+        !message
+
+    ){
+
+        return;
+
+    }
+
+
+    const element =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    element.className =
+
+        "airdrop-reward-message";
+
+
+    element.classList.add(
+
+        type
+
+    );
+
+
+    element.textContent =
+
+        message;
+
+
+    container.prepend(
+
+        element
+
+    );
+
+}
+
+
+/* =====================================================
+   OPEN EDIT REWARD
+===================================================== */
 
 async function openEditReward(){
 
@@ -4094,7 +5042,48 @@ async function openEditReward(){
         );
 
 
+        refreshEditRewardUI(
+
+            existing
+
+        );
+
+
         return existing;
+
+    }
+
+
+    /* =============================================
+       RESET EDIT STATE
+
+       Jangan menghapus State normal.
+
+       Hanya batch Edit Input Reward.
+    ============================================= */
+
+    if(
+
+        typeof Reward.clearPendingEdits ===
+
+            "function"
+
+    ){
+
+        Reward.clearPendingEdits();
+
+    }
+
+
+    if(
+
+        typeof Reward.clearSelection ===
+
+            "function"
+
+    ){
+
+        Reward.clearSelection();
 
     }
 
@@ -4238,6 +5227,24 @@ async function openEditReward(){
 
 
     /* =============================================
+       MESSAGE
+    ============================================= */
+
+    const message =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    message.className =
+
+        "airdrop-edit-reward-message-container";
+
+
+    /* =============================================
        PICKER
     ============================================= */
 
@@ -4274,8 +5281,51 @@ async function openEditReward(){
 
 
     /* =============================================
+       PENDING
+    ============================================= */
+
+    const pending =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    pending.className =
+
+        "airdrop-edit-reward-pending-container";
+
+
+    /* =============================================
+       CONFIRM
+    ============================================= */
+
+    const confirm =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    confirm.className =
+
+        "airdrop-edit-reward-confirm-container";
+
+
+    /* =============================================
        APPEND
     ============================================= */
+
+    content.appendChild(
+
+        message
+
+    );
+
 
     content.appendChild(
 
@@ -4287,6 +5337,20 @@ async function openEditReward(){
     content.appendChild(
 
         selected
+
+    );
+
+
+    content.appendChild(
+
+        pending
+
+    );
+
+
+    content.appendChild(
+
+        confirm
 
     );
 
@@ -4339,6 +5403,19 @@ async function openEditReward(){
                 "input-open"
 
             );
+
+
+            if(
+
+                typeof Reward.clearSelection ===
+
+                    "function"
+
+            ){
+
+                Reward.clearSelection();
+
+            }
 
         };
 
@@ -4421,24 +5498,6 @@ async function openEditReward(){
 
 
     /* =============================================
-       SHOW
-    ============================================= */
-
-    overlay.classList.add(
-
-        "is-open"
-
-    );
-
-
-    document.body.classList.add(
-
-        "input-open"
-
-    );
-
-
-    /* =============================================
        RENDER SELECTED
     ============================================= */
 
@@ -4446,13 +5505,38 @@ async function openEditReward(){
 
         record => {
 
+            const selectedRecord =
+
+                selectRewardRecord(
+
+                    record
+
+                );
+
+
+            if(
+
+                !selectedRecord
+
+            ){
+
+                selected.innerHTML = "";
+
+
+                return;
+
+            }
+
+
             renderSelectedReward(
 
                 selected,
 
-                record,
+                selectedRecord,
 
                 async ({
+
+                    record,
 
                     status,
 
@@ -4462,7 +5546,7 @@ async function openEditReward(){
 
                     console.log(
 
-                        "===== AIRDROP REWARD SUBMIT =====",
+                        "===== AIRDROP REWARD STAGE =====",
 
                         {
 
@@ -4484,12 +5568,16 @@ async function openEditReward(){
 
 
                     /* =================================
-                       SAVE VIA REWARD ENGINE
+                       STAGE ONLY
+
+                       TIDAK mengirim Apps Script.
                     ================================= */
 
                     const result =
 
-                        await Reward.save({
+                        Reward.add({
+
+                            record,
 
                             result :
 
@@ -4502,7 +5590,7 @@ async function openEditReward(){
 
                     console.log(
 
-                        "AIRDROP REWARD SAVE RESULT:",
+                        "AIRDROP REWARD STAGE RESULT:",
 
                         result
 
@@ -4519,11 +5607,23 @@ async function openEditReward(){
 
                     ){
 
-                        console.warn(
+                        showRewardMessage(
+
+                            message,
 
                             result?.message ??
 
-                            "Gagal menyimpan Edit Input Reward."
+                                "Gagal menambahkan perubahan reward.",
+
+                            result?.duplicate
+
+                                ?
+
+                                "warning"
+
+                                :
+
+                                "error"
 
                         );
 
@@ -4534,26 +5634,29 @@ async function openEditReward(){
 
 
                     /* =================================
-                       SUCCESS
+                       SUCCESS STAGED
                     ================================= */
 
-                    console.log(
+                    showRewardMessage(
 
-                        "===== AIRDROP EDIT REWARD SUCCESS ====="
+                        message,
+
+                        "Perubahan reward ditambahkan.",
+
+                        "success"
 
                     );
 
 
-                    /*
-                       Bersihkan selected record
-                       setelah update berhasil.
-                    */
+                    /* =================================
+                       CLEAR SELECTED
+                    ================================= */
 
                     if(
 
                         typeof Reward.clearSelection ===
 
-                        "function"
+                            "function"
 
                     ){
 
@@ -4562,36 +5665,19 @@ async function openEditReward(){
                     }
 
 
-                    /*
-                       Bersihkan detail.
-                    */
-
                     selected.innerHTML = "";
 
 
-                    /*
-                       Render ulang picker.
+                    /* =================================
+                       REFRESH ALL UI
 
-                       Record yang tadi berubah :
+                       Project yang sudah masuk batch
+                       tidak dapat ditambahkan dua kali.
+                    ================================= */
 
-                           ongoing → win
-                           ended   → win
+                    refreshEditRewardUI(
 
-                       atau :
-
-                           ongoing → not_win
-                           ended   → not_win
-
-                       tidak akan muncul lagi karena
-                       getRewardRecords() hanya mengambil
-                       ongoing dan ended.
-                    */
-
-                    renderRewardPicker(
-
-                        picker,
-
-                        renderSelected
+                        overlay
 
                     );
 
@@ -4603,7 +5689,199 @@ async function openEditReward(){
 
 
     /* =============================================
-       INITIAL PICKER
+       CONFIRM
+    ============================================= */
+
+    const confirmBatch =
+
+        async () => {
+
+            const count =
+
+                Reward.getPendingCount();
+
+
+            if(
+
+                count ===
+
+                    0
+
+            ){
+
+                showRewardMessage(
+
+                    message,
+
+                    "Belum ada perubahan reward yang ditambahkan.",
+
+                    "warning"
+
+                );
+
+
+                return;
+
+            }
+
+
+            console.log(
+
+                "===== AIRDROP REWARD CONFIRM =====",
+
+                {
+
+                    count
+
+                }
+
+            );
+
+
+            const result =
+
+                await Reward.confirm();
+
+
+            console.log(
+
+                "AIRDROP REWARD CONFIRM RESULT:",
+
+                result
+
+            );
+
+
+            /* =================================
+               FULL SUCCESS
+            ================================= */
+
+            if(
+
+                result?.success
+
+            ){
+
+                showRewardMessage(
+
+                    message,
+
+                    result.message ??
+
+                        "Reward berhasil disimpan.",
+
+                    "success"
+
+                );
+
+
+                if(
+
+                    typeof Reward.clearSelection ===
+
+                        "function"
+
+                ){
+
+                    Reward.clearSelection();
+
+                }
+
+
+                selected.innerHTML = "";
+
+
+                refreshEditRewardUI(
+
+                    overlay
+
+                );
+
+
+                return;
+
+            }
+
+
+            /* =================================
+               PARTIAL SUCCESS
+            ================================= */
+
+            if(
+
+                result?.partial
+
+            ){
+
+                showRewardMessage(
+
+                    message,
+
+                    result.message ??
+
+                        "Sebagian reward berhasil disimpan.",
+
+                    "warning"
+
+                );
+
+
+                if(
+
+                    typeof Reward.clearSelection ===
+
+                        "function"
+
+                ){
+
+                    Reward.clearSelection();
+
+                }
+
+
+                selected.innerHTML = "";
+
+
+                refreshEditRewardUI(
+
+                    overlay
+
+                );
+
+
+                return;
+
+            }
+
+
+            /* =================================
+               FAILED
+            ================================= */
+
+            showRewardMessage(
+
+                message,
+
+                result?.message ??
+
+                    "Tidak ada perubahan reward yang berhasil disimpan.",
+
+                "error"
+
+            );
+
+
+            refreshEditRewardUI(
+
+                overlay
+
+            );
+
+        };
+
+
+    /* =============================================
+       INITIAL RENDER
     ============================================= */
 
     renderRewardPicker(
@@ -4615,7 +5893,683 @@ async function openEditReward(){
     );
 
 
+    renderPendingEdits(
+
+        pending,
+
+        index => {
+
+            const removed =
+
+                Reward.remove(
+
+                    index
+
+                );
+
+
+            if(
+
+                removed
+
+            ){
+
+                showRewardMessage(
+
+                    message,
+
+                    "Perubahan reward dihapus dari daftar.",
+
+                    "info"
+
+                );
+
+            }
+
+
+            selected.innerHTML = "";
+
+
+            if(
+
+                typeof Reward.clearSelection ===
+
+                    "function"
+
+            ){
+
+                Reward.clearSelection();
+
+            }
+
+
+            refreshEditRewardUI(
+
+                overlay
+
+            );
+
+        }
+
+    );
+
+
+    renderRewardConfirm(
+
+        confirm,
+
+        confirmBatch
+
+    );
+
+
+    /* =============================================
+       SHOW
+    ============================================= */
+
+    overlay.classList.add(
+
+        "is-open"
+
+    );
+
+
+    document.body.classList.add(
+
+        "input-open"
+
+    );
+
+
     return overlay;
+
+}
+
+
+/* =====================================================
+   REFRESH EDIT REWARD UI
+===================================================== */
+
+function refreshEditRewardUI(
+
+    overlay
+
+){
+
+    if(
+
+        !overlay
+
+    ){
+
+        return;
+
+    }
+
+
+    const picker =
+
+        overlay.querySelector(
+
+            ".airdrop-edit-reward-picker"
+
+        );
+
+
+    const selected =
+
+        overlay.querySelector(
+
+            ".airdrop-edit-reward-selected-container"
+
+        );
+
+
+    const pending =
+
+        overlay.querySelector(
+
+            ".airdrop-edit-reward-pending-container"
+
+        );
+
+
+    const confirm =
+
+        overlay.querySelector(
+
+            ".airdrop-edit-reward-confirm-container"
+
+        );
+
+
+    if(
+
+        !picker
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CURRENT SELECTED
+    ============================================= */
+
+    const currentSelected =
+
+        typeof Reward.getSelectedRecord ===
+
+            "function"
+
+            ?
+
+            Reward.getSelectedRecord()
+
+            :
+
+            null;
+
+
+    /* =============================================
+       PICKER
+
+       Callback memilih record baru.
+    ============================================= */
+
+    renderRewardPicker(
+
+        picker,
+
+        record => {
+
+            if(
+
+                !selected
+
+            ){
+
+                return;
+
+            }
+
+
+            renderSelectedReward(
+
+                selected,
+
+                record,
+
+                async ({
+
+                    record,
+
+                    status,
+
+                    reward
+
+                }) => {
+
+                    const result =
+
+                        Reward.add({
+
+                            record,
+
+                            result :
+
+                                status,
+
+                            reward
+
+                        });
+
+
+                    if(
+
+                        !result?.success
+
+                    ){
+
+                        const message =
+
+                            overlay.querySelector(
+
+                                ".airdrop-edit-reward-message-container"
+
+                            );
+
+
+                        showRewardMessage(
+
+                            message,
+
+                            result?.message ??
+
+                                "Gagal menambahkan perubahan reward.",
+
+                            result?.duplicate
+
+                                ?
+
+                                "warning"
+
+                                :
+
+                                "error"
+
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    const message =
+
+                        overlay.querySelector(
+
+                            ".airdrop-edit-reward-message-container"
+
+                        );
+
+
+                    showRewardMessage(
+
+                        message,
+
+                        "Perubahan reward ditambahkan.",
+
+                        "success"
+
+                    );
+
+
+                    if(
+
+                        typeof Reward.clearSelection ===
+
+                            "function"
+
+                    ){
+
+                        Reward.clearSelection();
+
+                    }
+
+
+                    selected.innerHTML = "";
+
+
+                    refreshEditRewardUI(
+
+                        overlay
+
+                    );
+
+                }
+
+            );
+
+        }
+
+    );
+
+
+    /* =============================================
+       RESTORE SELECTED
+
+       Hanya restore kalau record tersebut
+       belum masuk batch.
+    ============================================= */
+
+    if(
+
+        currentSelected
+
+        &&
+
+        !hasPendingRewardRecord(
+
+            currentSelected
+
+        )
+
+        &&
+
+        selected
+
+    ){
+
+        renderSelectedReward(
+
+            selected,
+
+            currentSelected,
+
+            async ({
+
+                record,
+
+                status,
+
+                reward
+
+            }) => {
+
+                const result =
+
+                    Reward.add({
+
+                        record,
+
+                        result :
+
+                            status,
+
+                        reward
+
+                    });
+
+
+                const message =
+
+                    overlay.querySelector(
+
+                        ".airdrop-edit-reward-message-container"
+
+                    );
+
+
+                if(
+
+                    !result?.success
+
+                ){
+
+                    showRewardMessage(
+
+                        message,
+
+                        result?.message ??
+
+                            "Gagal menambahkan perubahan reward.",
+
+                        result?.duplicate
+
+                            ?
+
+                            "warning"
+
+                            :
+
+                            "error"
+
+                    );
+
+
+                    return;
+
+                }
+
+
+                showRewardMessage(
+
+                    message,
+
+                    "Perubahan reward ditambahkan.",
+
+                    "success"
+
+                );
+
+
+                Reward.clearSelection();
+
+
+                selected.innerHTML = "";
+
+
+                refreshEditRewardUI(
+
+                    overlay
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    /* =============================================
+       PENDING
+    ============================================= */
+
+    if(
+
+        pending
+
+    ){
+
+        renderPendingEdits(
+
+            pending,
+
+            index => {
+
+                const removed =
+
+                    Reward.remove(
+
+                        index
+
+                    );
+
+
+                if(
+
+                    removed
+
+                ){
+
+                    const message =
+
+                        overlay.querySelector(
+
+                            ".airdrop-edit-reward-message-container"
+
+                        );
+
+
+                    showRewardMessage(
+
+                        message,
+
+                        "Perubahan reward dihapus dari daftar.",
+
+                        "info"
+
+                    );
+
+                }
+
+
+                Reward.clearSelection();
+
+
+                if(
+
+                    selected
+
+                ){
+
+                    selected.innerHTML = "";
+
+                }
+
+
+                refreshEditRewardUI(
+
+                    overlay
+
+                );
+
+            }
+
+        );
+
+    }
+
+
+    /* =============================================
+       CONFIRM
+    ============================================= */
+
+    if(
+
+        confirm
+
+    ){
+
+        renderRewardConfirm(
+
+            confirm,
+
+            async () => {
+
+                const message =
+
+                    overlay.querySelector(
+
+                        ".airdrop-edit-reward-message-container"
+
+                    );
+
+
+                const result =
+
+                    await Reward.confirm();
+
+
+                if(
+
+                    result?.success
+
+                ){
+
+                    showRewardMessage(
+
+                        message,
+
+                        result.message ??
+
+                            "Reward berhasil disimpan.",
+
+                        "success"
+
+                    );
+
+
+                    Reward.clearSelection();
+
+
+                    if(
+
+                        selected
+
+                    ){
+
+                        selected.innerHTML = "";
+
+                    }
+
+
+                    refreshEditRewardUI(
+
+                        overlay
+
+                    );
+
+
+                    return;
+
+                }
+
+
+                if(
+
+                    result?.partial
+
+                ){
+
+                    showRewardMessage(
+
+                        message,
+
+                        result.message ??
+
+                            "Sebagian reward berhasil disimpan.",
+
+                        "warning"
+
+                    );
+
+
+                    Reward.clearSelection();
+
+
+                    if(
+
+                        selected
+
+                    ){
+
+                        selected.innerHTML = "";
+
+                    }
+
+
+                    refreshEditRewardUI(
+
+                        overlay
+
+                    );
+
+
+                    return;
+
+                }
+
+
+                showRewardMessage(
+
+                    message,
+
+                    result?.message ??
+
+                        "Tidak ada perubahan reward yang berhasil disimpan.",
+
+                    "error"
+
+                );
+
+
+                refreshEditRewardUI(
+
+                    overlay
+
+                );
+
+            }
+
+        );
+
+    }
 
 }
 
@@ -4630,7 +6584,7 @@ export function prepareActivity(){
 
         typeof State.setMode ===
 
-        "function"
+            "function"
 
     ){
 
@@ -4655,7 +6609,7 @@ export function prepareActivity(){
 
         typeof State.resetCurrent ===
 
-        "function"
+            "function"
 
     ){
 
@@ -4681,7 +6635,7 @@ export function prepareReward(){
 
         typeof State.setMode ===
 
-        "function"
+            "function"
 
     ){
 
@@ -4706,7 +6660,7 @@ export function prepareReward(){
 
         typeof State.resetCurrent ===
 
-        "function"
+            "function"
 
     ){
 
