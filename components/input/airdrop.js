@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.6.0
+   Version      : 4.7.0
 
    Description :
    Airdrop Input Configuration
@@ -83,6 +83,11 @@
    - Full-screen overlay.
    - Mendukung multi-project batch.
    - Apps Script hanya dipanggil saat Konfirmasi.
+
+   EDIT INPUT ROW :
+   - Skeleton saja.
+   - Belum ada business logic.
+   - Target nantinya ID + Tanggal.
 ===================================================== */
 
 
@@ -113,6 +118,7 @@ import {
    - konfigurasi workspace
    - aturan Activity
    - adapter Edit Reward
+   - skeleton Edit Row
 
    updatedata.js :
    - UI Edit Input global
@@ -339,14 +345,7 @@ export const Airdrop = {
 
         ){
 
-            console.warn(
-
-                "Airdrop Edit Input Row belum tersedia."
-
-            );
-
-
-            return null;
+            return openEditRow();
 
         }
 
@@ -1955,18 +1954,15 @@ export function buildActivityValues(
 
         type :
 
-
             type,
 
 
         nama :
 
-
             nama,
 
 
         project :
-
 
             project,
 
@@ -2610,27 +2606,43 @@ export function getStatusLabel(
 
 
 /* =====================================================
-   EDIT REWARD
+   EDIT INPUT REWARD
    GLOBAL UPDATEDATA ADAPTER
 ===================================================== */
 
 /*
-   Semua UI Edit Reward sekarang dipindahkan
-   ke components/input/updatedata.js.
+   Semua UI Edit Reward ditangani
+   oleh components/input/updatedata.js.
 
-   Airdrop hanya memberikan :
+   Airdrop hanya menyediakan adapter :
 
    - records
-   - detail record
-   - field configuration
+   - identity
+   - label
+   - metadata
+   - detail
+   - fields
    - validation
    - build changes
    - staging
+   - removal
    - confirmation
 
-   Dengan demikian updatedata.js dapat digunakan
-   kembali oleh workspace lain.
+   Tidak ada request Apps Script
+   ketika user memilih project.
+
+   Tidak ada request Apps Script
+   ketika user menekan Tambahkan.
+
+   Apps Script hanya dipanggil oleh :
+
+       Reward.confirm()
+
+   ketika user menekan :
+
+       Konfirmasi
 */
+
 
 async function openEditReward(){
 
@@ -2661,7 +2673,7 @@ async function openEditReward(){
 
 
     /* =============================================
-       CLEAR SELECTION
+       CLEAR CURRENT SELECTION
     ============================================= */
 
     if(
@@ -2678,7 +2690,7 @@ async function openEditReward(){
 
 
     /* =============================================
-       OPEN GLOBAL UPDATEDATA
+       UPDATE DATA CHECK
     ============================================= */
 
     if(
@@ -2702,6 +2714,10 @@ async function openEditReward(){
 
     }
 
+
+    /* =============================================
+       OPEN GLOBAL UPDATE DATA
+    ============================================= */
 
     return UpdateData.open({
 
@@ -2734,20 +2750,32 @@ async function openEditReward(){
 
 
         /* =========================================
-           DATA
+           DATA SOURCE
         ========================================= */
 
         records :
-
 
             records,
 
 
         /* =========================================
-           TARGET KEY
+           RECORD ID / IDENTITY
         ========================================= */
 
-        getRecordKey :
+        /*
+           Reward memakai target :
+
+               ID + Project
+
+           Ini khusus Reward.
+
+           Edit Input Row nantinya
+           akan memakai :
+
+               ID + Tanggal
+        */
+
+        getRecordId :
 
             record =>
 
@@ -2759,43 +2787,117 @@ async function openEditReward(){
 
 
         /* =========================================
-           PICKER
+           RECORD LABEL
         ========================================= */
 
-        getRecordTitle :
+        getRecordLabel :
 
-            record =>
+            record => {
 
-                String(
+                const project =
 
-                    record?.project ??
+                    String(
 
-                    "-"
+                        record?.project ??
 
-                ),
+                        ""
 
+                    ).trim();
+
+
+                if(
+
+                    project
+
+                ){
+
+                    return project;
+
+                }
+
+
+                const id =
+
+                    String(
+
+                        record?.id ??
+
+                        ""
+
+                    ).trim();
+
+
+                return id || "-";
+
+            },
+
+
+        /* =========================================
+           RECORD META
+        ========================================= */
 
         getRecordMeta :
 
-            record =>
+            record => {
 
-                `${
+                const type =
 
                     formatOptionLabel(
 
                         record?.type
 
-                    )
+                    );
 
-                } · ${
+
+                const status =
 
                     getStatusLabel(
 
                         record?.status
 
-                    )
+                    );
 
-                }`,
+
+                const parts = [];
+
+
+                if(
+
+                    type
+
+                ){
+
+                    parts.push(
+
+                        type
+
+                    );
+
+                }
+
+
+                if(
+
+                    status
+
+                ){
+
+                    parts.push(
+
+                        status
+
+                    );
+
+                }
+
+
+                return parts.join(
+
+                    " · "
+
+                );
+
+            },
 
 
         /* =========================================
@@ -2824,9 +2926,13 @@ async function openEditReward(){
 
                             value :
 
-                                record?.id ??
+                                String(
 
-                                "-"
+                                    record?.id ??
+
+                                    "-"
+
+                                )
 
                         },
 
@@ -2840,9 +2946,13 @@ async function openEditReward(){
 
                             value :
 
-                                record?.project ??
+                                String(
 
-                                "-"
+                                    record?.project ??
+
+                                    "-"
+
+                                )
 
                         },
 
@@ -2985,6 +3095,84 @@ async function openEditReward(){
                     }
 
                 ];
+
+            },
+
+
+        /* =========================================
+           INITIAL FIELD VALUES
+        ========================================= */
+
+        getFieldValue :
+
+            (
+
+                record,
+
+                field
+
+            ) => {
+
+                if(
+
+                    field?.id ===
+
+                    "status"
+
+                ){
+
+                    return "";
+
+                }
+
+
+                if(
+
+                    field?.id ===
+
+                    "$reward"
+
+                ){
+
+                    return "";
+
+                }
+
+
+                return "";
+
+            },
+
+
+        /* =========================================
+           SELECT CALLBACK
+        ========================================= */
+
+        onSelect :
+
+            record => {
+
+                console.log(
+
+                    "===== AIRDROP REWARD SELECT ====="
+
+                );
+
+
+                console.log(
+
+                    "Selected record:",
+
+                    record
+
+                );
+
+
+                return selectRewardRecord(
+
+                    record
+
+                );
 
             },
 
@@ -3140,11 +3328,19 @@ async function openEditReward(){
                 );
 
 
+                /*
+                   Reward.add() hanya melakukan
+                   staging ke State.
+
+                   Tidak ada Apps Script
+                   pada tahap ini.
+                */
+
                 const result =
 
                     Reward.add({
 
-                        record,
+                        record : record,
 
 
                         result :
@@ -3174,7 +3370,7 @@ async function openEditReward(){
 
 
         /* =========================================
-           REMOVE
+           REMOVE PENDING
         ========================================= */
 
         onRemove :
@@ -3189,15 +3385,25 @@ async function openEditReward(){
 
                 console.log(
 
-                    "AIRDROP REWARD REMOVE:",
+                    "===== AIRDROP REWARD REMOVE ====="
 
-                    {
+                );
 
-                        transaction,
 
-                        index
+                console.log(
 
-                    }
+                    "Transaction:",
+
+                    transaction
+
+                );
+
+
+                console.log(
+
+                    "Index:",
+
+                    index
 
                 );
 
@@ -3212,21 +3418,116 @@ async function openEditReward(){
 
 
         /* =========================================
-           PENDING
+           GET PENDING
         ========================================= */
 
         getPending :
 
-            () =>
+            () => {
 
-                Reward.getPendingEdits(),
+                if(
 
+                    typeof Reward.getPendingEdits ===
+
+                        "function"
+
+                ){
+
+                    return Reward.getPendingEdits();
+
+                }
+
+
+                return [];
+
+            },
+
+
+        /* =========================================
+           PENDING COUNT
+        ========================================= */
 
         getPendingCount :
 
-            () =>
+            () => {
 
-                Reward.getPendingCount(),
+                if(
+
+                    typeof Reward.getPendingCount ===
+
+                        "function"
+
+                ){
+
+                    return Reward.getPendingCount();
+
+                }
+
+
+                return 0;
+
+            },
+
+
+        /* =========================================
+           PENDING LABEL
+        ========================================= */
+
+        getPendingLabel :
+
+            transaction => {
+
+                const record =
+
+                    transaction?.record
+
+                    ??
+
+                    transaction;
+
+
+                const project =
+
+                    String(
+
+                        record?.project ??
+
+                        transaction?.project ??
+
+                        ""
+
+                    ).trim();
+
+
+                const id =
+
+                    String(
+
+                        record?.id ??
+
+                        transaction?.id ??
+
+                        ""
+
+                    ).trim();
+
+
+                if(
+
+                    project &&
+
+                    id
+
+                ){
+
+                    return `${project} · ${id}`;
+
+                }
+
+
+                return project || id || "Data Reward";
+
+            },
 
 
         /* =========================================
@@ -3235,7 +3536,11 @@ async function openEditReward(){
 
         onConfirm :
 
-            async () => {
+            async (
+
+                pending
+
+            ) => {
 
                 console.log(
 
@@ -3243,6 +3548,20 @@ async function openEditReward(){
 
                 );
 
+
+                console.log(
+
+                    "Pending changes:",
+
+                    pending
+
+                );
+
+
+                /*
+                   Satu-satunya titik komunikasi
+                   ke Apps Script adalah Reward.confirm().
+                */
 
                 const result =
 
@@ -3273,36 +3592,68 @@ async function openEditReward(){
 
 
         /* =========================================
-           LABEL
+           PLACEHOLDER
         ========================================= */
 
-        pickerTitle :
+        pickerPlaceholder :
 
             "Pilih Project",
 
 
-        addLabel :
+        searchPlaceholder :
+
+            "Cari project...",
+
+
+        /* =========================================
+           BUTTON TEXT
+        ========================================= */
+
+        addText :
 
             "Tambahkan",
 
 
-        confirmLabel :
+        confirmText :
 
             "Konfirmasi",
 
 
-        removeLabel :
+        removeText :
 
             "Hapus",
 
+
+        /* =========================================
+           PENDING TEXT
+        ========================================= */
 
         pendingTitle :
 
             "Sudah Ditambahkan",
 
 
+        addedText :
+
+            "Sudah Ditambahkan",
+
+
+        duplicateText :
+
+            "Project ini sudah ditambahkan.",
+
+
         /* =========================================
-           UI
+           CONFIRM LOADING
+        ========================================= */
+
+        confirmLoadingText :
+
+            "Menyimpan...",
+
+
+        /* =========================================
+           UI MODE
         ========================================= */
 
         fullscreen :
@@ -3330,8 +3681,92 @@ async function openEditReward(){
 
 
 /* =====================================================
+   EDIT INPUT ROW
+   SKELETON
+===================================================== */
+
+/*
+   EDIT INPUT ROW BELUM DIAKTIFKAN.
+
+   Konsep target yang sudah ditetapkan :
+
+       ID + Tanggal
+
+   BUKAN :
+
+       ID + Project
+
+   Nantinya Edit Input Row akan digunakan
+   untuk mengoreksi seluruh data satu baris,
+   termasuk :
+
+   - Type
+   - Nama / Wallet
+   - Project
+   - $ Reward
+   - Start
+   - End
+   - Status
+   - dan field lain yang memang tersedia
+     pada row tersebut.
+
+   Ketentuan :
+
+   - ID menjadi identifier utama dan locked.
+   - Tanggal menjadi bagian target row.
+   - Pada Edit Row, tanggal tidak boleh diganti.
+   - Tidak menggunakan Reward.confirm().
+   - Akan menggunakan UpdateData sebagai UI.
+   - Business logic akan dipisahkan dari UI.
+   - Update.js akan dipanggil hanya saat Konfirmasi.
+
+   Untuk sekarang fungsi hanya memberi
+   warning dan tidak membuka overlay.
+*/
+
+async function openEditRow(){
+
+    console.warn(
+
+        "===== AIRDROP EDIT INPUT ROW ====="
+
+    );
+
+
+    console.warn(
+
+        "Edit Input Row belum tersedia."
+
+    );
+
+
+    console.warn(
+
+        "Target row nantinya menggunakan ID + Tanggal."
+
+    );
+
+
+    return null;
+
+}
+
+
+/* =====================================================
    REWARD TARGET KEY
 ===================================================== */
+
+/*
+   Target Reward :
+
+       ID + Project
+
+   Ini sengaja berbeda dari Edit Input Row.
+
+   Reward bekerja pada project reward tertentu,
+   sehingga target business logic Reward tetap
+   menggunakan ID + Project.
+*/
 
 function getRewardTargetKey(
 
