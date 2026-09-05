@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : UPDATE
    File        : update.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
    Global Google Apps Script UPDATE Engine
@@ -33,6 +33,10 @@
        Digunakan untuk mengubah
        satu atau beberapa field tertentu.
 
+       Target :
+
+           ID + Project
+
        Contoh :
 
        Update.updateField(
@@ -58,6 +62,10 @@
        Digunakan untuk overwrite
        satu row secara penuh.
 
+       Target :
+
+           ID + Tanggal
+
        Contoh :
 
        Update.updateRow(
@@ -67,8 +75,8 @@
                id :
                    "AIRDROP-XXXX",
 
-               project :
-                   "Allox"
+               tanggal :
+                   "2026-09-04"
            },
 
            {
@@ -873,10 +881,21 @@ function validateWorkspace(
 
 
 /* =====================================================
-   VALIDATE TARGET
+   VALIDATE FIELD TARGET
 ===================================================== */
 
-function validateTarget(
+/*
+   Target untuk updateField :
+
+       ID + Project
+
+   Dipertahankan seperti arsitektur
+   sebelumnya karena updateField()
+   sudah digunakan oleh automation
+   dan Edit Reward.
+*/
+
+function validateFieldTarget(
     target
 ){
 
@@ -954,6 +973,108 @@ function validateTarget(
         project :
             String(
                 target.project
+            ).trim()
+
+    };
+
+}
+
+
+/* =====================================================
+   VALIDATE ROW TARGET
+===================================================== */
+
+/*
+   Target untuk updateRow :
+
+       ID + Tanggal
+
+   Digunakan oleh Edit Input Row.
+
+   Project TIDAK digunakan sebagai
+   locator karena project merupakan
+   salah satu field di dalam row yang
+   dapat berubah melalui overwrite row.
+*/
+
+function validateRowTarget(
+    target
+){
+
+    if(
+        !target
+        ||
+        typeof target !==
+            "object"
+        ||
+        Array.isArray(
+            target
+        )
+    ){
+
+        throw new Error(
+            "Update row target tidak valid."
+        );
+
+    }
+
+
+    /* =============================================
+       ID
+    ============================================= */
+
+    if(
+        target.id ===
+            undefined
+        ||
+        target.id ===
+            null
+        ||
+        String(
+            target.id
+        ).trim() === ""
+    ){
+
+        throw new Error(
+            "Update row target membutuhkan ID."
+        );
+
+    }
+
+
+    /* =============================================
+       TANGGAL
+    ============================================= */
+
+    if(
+        target.tanggal ===
+            undefined
+        ||
+        target.tanggal ===
+            null
+        ||
+        String(
+            target.tanggal
+        ).trim() === ""
+    ){
+
+        throw new Error(
+            "Update row target membutuhkan tanggal."
+        );
+
+    }
+
+
+    return {
+
+        id :
+            String(
+                target.id
+            ).trim(),
+
+        tanggal :
+            String(
+                target.tanggal
             ).trim()
 
     };
@@ -1054,6 +1175,23 @@ function validateFieldChanges(
    VALIDATE ROW
 ===================================================== */
 
+/*
+   Validasi row penuh.
+
+   Karena updateRow menggunakan
+   target ID + Tanggal, maka row
+   yang dikirim wajib mempunyai:
+
+       row.id
+       row.tanggal
+
+   dan keduanya harus sama dengan
+   locator target.
+
+   Field lain tetap dipertahankan
+   sebagai bagian dari full row.
+*/
+
 function validateRow(
     target,
     row
@@ -1116,6 +1254,50 @@ function validateRow(
 
         throw new Error(
             "ID target dan ID row tidak sama."
+        );
+
+    }
+
+
+    /* =============================================
+       ROW TANGGAL
+    ============================================= */
+
+    if(
+        row.tanggal ===
+            undefined
+        ||
+        row.tanggal ===
+            null
+        ||
+        String(
+            row.tanggal
+        ).trim() === ""
+    ){
+
+        throw new Error(
+            "Update row membutuhkan tanggal."
+        );
+
+    }
+
+
+    /* =============================================
+       TANGGAL MUST MATCH TARGET
+    ============================================= */
+
+    if(
+        String(
+            row.tanggal
+        ).trim()
+        !==
+        String(
+            target.tanggal
+        ).trim()
+    ){
+
+        throw new Error(
+            "Tanggal target dan tanggal row tidak sama."
         );
 
     }
@@ -1239,6 +1421,11 @@ function normalizeUpdateResponse(
        )
 
 
+   Target :
+
+       ID + Project
+
+
    Contoh :
 
        Update.updateField(
@@ -1299,7 +1486,7 @@ async function updateField(
 
 
     const validTarget =
-        validateTarget(
+        validateFieldTarget(
             target
         );
 
@@ -1346,6 +1533,11 @@ async function updateField(
        )
 
 
+   Target :
+
+       ID + Tanggal
+
+
    Contoh :
 
        Update.updateRow(
@@ -1355,8 +1547,8 @@ async function updateField(
                id :
                    "AIR-MTKJTZ",
 
-               project :
-                   "Dimension"
+               tanggal :
+                   "2026-09-04"
            },
 
            {
@@ -1405,7 +1597,7 @@ async function updateField(
                    id :
                        "...",
 
-                   project :
+                   tanggal :
                        "..."
                },
 
@@ -1429,7 +1621,7 @@ async function updateRow(
 
 
     const validTarget =
-        validateTarget(
+        validateRowTarget(
             target
         );
 
@@ -1536,9 +1728,20 @@ async function update(
     ============================================= */
 
     const target =
-        validateTarget(
-            data.target
-        );
+        data.mode ===
+            "field"
+
+            ?
+
+            validateFieldTarget(
+                data.target
+            )
+
+            :
+
+            validateRowTarget(
+                data.target
+            );
 
 
     /* =============================================
