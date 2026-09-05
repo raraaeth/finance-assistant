@@ -146,7 +146,7 @@ import {
 
     UpdateData
 
-} from "../../components/input/updatedata.js";
+} from ".updatedata.js";
 
 
 /* =====================================================
