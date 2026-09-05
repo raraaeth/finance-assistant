@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.5.0
+   Version      : 4.6.0
 
    Description :
    Airdrop Input Configuration
@@ -51,7 +51,7 @@
         ↓
    Tambahkan
         ↓
-   State.editTransactions
+   UpdateData temporary state
         ↓
    pilih project lain
         ↓
@@ -77,6 +77,12 @@
    - Bansos otomatis berstatus win.
    - Reward bansos disimpan pada $reward.
 
+   EDIT UI :
+   - Ditangani oleh global updatedata.js.
+   - Custom picker, bukan native Android select.
+   - Full-screen overlay.
+   - Mendukung multi-project batch.
+   - Apps Script hanya dipanggil saat Konfirmasi.
 ===================================================== */
 
 
@@ -101,12 +107,21 @@ import {
 
 
 /*
-   Reward adalah brain untuk Edit Input Reward.
+   Reward adalah business logic untuk Edit Input Reward.
 
    airdrop.js :
-   - menyediakan konfigurasi
-   - membuat UI
-   - mengatur flow workspace
+   - konfigurasi workspace
+   - aturan Activity
+   - adapter Edit Reward
+
+   updatedata.js :
+   - UI Edit Input global
+   - custom picker
+   - selected detail
+   - fields
+   - Tambahkan
+   - pending list
+   - Konfirmasi
 
    reward.js :
    - filtering
@@ -115,6 +130,9 @@ import {
    - build changes
    - staging
    - batch confirmation
+
+   update.js :
+   - komunikasi update ke Apps Script
 */
 
 import {
@@ -122,6 +140,13 @@ import {
     Reward
 
 } from "./reward.js";
+
+
+import {
+
+    UpdateData
+
+} from "../../components/input/updatedata.js";
 
 
 /* =====================================================
@@ -201,13 +226,6 @@ export const Airdrop = {
 
     /* =================================================
        PREFIX
-
-       Prefix khusus Input Airdrop.
-
-       Prefix digunakan hanya untuk membuat
-       ID transaksi Airdrop.
-
-       Tidak berasal dari global workspace.js.
     ================================================= */
 
     prefix :
@@ -272,43 +290,14 @@ export const Airdrop = {
 
     /* =================================================
        EDIT INPUT
-
-       Controller dari Global Input script.js.
-
-       Mode :
-
-       reward
-           ↓
-       Edit Input Reward
-
-       row
-           ↓
-       Edit Input Row
-
-       Edit Input Row belum diaktifkan.
     ================================================= */
 
-    async openEdit(context = null) {
-
-        /* =============================================
-           RESOLVE EDIT MODE
-
-           Global Input mengirim object:
-
-           {
-               workspace,
-               mode,
-               data,
-               state
-           }
-
-           Tetap dukung pemanggilan lama
-           dengan string untuk menjaga kompatibilitas.
-        ============================================= */
+    async openEdit(context = null){
 
         const mode =
 
             typeof context === "object" &&
+
             context !== null
 
                 ? context.mode
@@ -363,7 +352,7 @@ export const Airdrop = {
 
 
         /* =============================================
-           UNKNOWN MODE
+           UNKNOWN
         ============================================= */
 
         console.warn(
@@ -382,44 +371,6 @@ export const Airdrop = {
 
     /* =================================================
        TRANSACTION PREPARATION
-    =================================================
-
-       Hook untuk Global Transaction Controller.
-
-       Transaction.js tidak mengetahui aturan
-       khusus Airdrop.
-
-       Flow :
-
-           transaction.js
-                ↓
-           Airdrop.prepareTransaction()
-                ↓
-           mode
-                ↓
-           activity
-                ↓
-           buildActivityValues()
-
-       Activity :
-
-           campaign
-               ↓
-           status = ongoing
-
-           bansos
-               ↓
-           status = win
-           $reward wajib
-           start = ""
-           end = ""
-
-       Reward :
-
-           Tidak menggunakan Activity normalizer.
-
-           Reward mempunyai flow khususnya sendiri.
-
     ================================================= */
 
     prepareTransaction :
@@ -436,9 +387,6 @@ export const Airdrop = {
                REWARD
 
                Reward bukan Activity.
-
-               Jangan jalankan buildActivityValues()
-               pada mode Reward.
             ========================================= */
 
             if(
@@ -460,9 +408,6 @@ export const Airdrop = {
 
             /* =========================================
                ACTIVITY
-
-               Gunakan normalizer Activity milik
-               module Airdrop.
             ========================================= */
 
             if(
@@ -486,14 +431,6 @@ export const Airdrop = {
             }
 
 
-            /* =========================================
-               FALLBACK
-
-               Mode tidak dikenal tidak boleh
-               diproses dengan aturan Activity
-               secara diam-diam.
-            ========================================= */
-
             return {
 
                 ...values
@@ -508,10 +445,6 @@ export const Airdrop = {
     ================================================= */
 
     steps : [
-
-        /* =============================================
-           TYPE
-        ============================================= */
 
         {
 
@@ -549,10 +482,6 @@ export const Airdrop = {
         },
 
 
-        /* =============================================
-           NAMA / WALLET
-        ============================================= */
-
         {
 
             id :
@@ -589,10 +518,6 @@ export const Airdrop = {
         },
 
 
-        /* =============================================
-           PROJECT
-        ============================================= */
-
         {
 
             id :
@@ -621,26 +546,6 @@ export const Airdrop = {
 
         },
 
-
-        /* =============================================
-           $ REWARD
-
-           KHUSUS BANSOS.
-
-           Field baru muncul setelah :
-
-               type = bansos
-
-           DAN :
-
-               project sudah terisi.
-
-           Bansos dianggap langsung menang
-           karena reward nyata sudah diterima
-           pada tanggal input.
-
-           Tidak membutuhkan Start / End.
-        ============================================= */
 
         {
 
@@ -702,12 +607,6 @@ export const Airdrop = {
         },
 
 
-        /* =============================================
-           START
-
-           Hanya campaign.
-        ============================================= */
-
         {
 
             id :
@@ -746,12 +645,6 @@ export const Airdrop = {
 
         },
 
-
-        /* =============================================
-           END
-
-           Hanya campaign.
-        ============================================= */
 
         {
 
@@ -950,19 +843,11 @@ export function getRules(){
 
         item =>
 
-            item
+            item &&
 
-            &&
+            typeof item === "object" &&
 
-            typeof item ===
-
-                "object"
-
-            &&
-
-            typeof item.rules ===
-
-                "string"
+            typeof item.rules === "string"
 
     );
 
@@ -1290,9 +1175,7 @@ function isRuleActive(
 
     if(
 
-        active ===
-
-        ""
+        active === ""
 
     ){
 
@@ -1303,27 +1186,13 @@ function isRuleActive(
 
     return (
 
-        active ===
+        active === "TRUE" ||
 
-            "TRUE"
+        active === "1" ||
 
-        ||
+        active === "YES" ||
 
-        active ===
-
-            "1"
-
-        ||
-
-        active ===
-
-            "YES"
-
-        ||
-
-        active ===
-
-            "ACTIVE"
+        active === "ACTIVE"
 
     );
 
@@ -1780,15 +1649,9 @@ export function buildRewardValues(
 
     if(
 
-        normalizedStatus !==
+        normalizedStatus !== STATUS_WIN &&
 
-            STATUS_WIN
-
-        &&
-
-        normalizedStatus !==
-
-            STATUS_NOT_WIN
+        normalizedStatus !== STATUS_NOT_WIN
 
     ){
 
@@ -1817,15 +1680,9 @@ export function buildRewardValues(
     };
 
 
-    /* =============================================
-       WIN
-    ============================================= */
-
     if(
 
-        normalizedStatus ===
-
-            STATUS_WIN
+        normalizedStatus === STATUS_WIN
 
     ){
 
@@ -1857,11 +1714,7 @@ export function buildRewardValues(
         }
 
 
-        values[
-
-            "$reward"
-
-        ] =
+        values["$reward"] =
 
             String(
 
@@ -1871,20 +1724,9 @@ export function buildRewardValues(
 
     }
 
-
-    /* =============================================
-       NOT WIN
-    ============================================= */
-
     else{
 
-        values[
-
-            "$reward"
-
-        ] =
-
-            "";
+        values["$reward"] = "";
 
     }
 
@@ -2045,13 +1887,9 @@ export function buildActivityValues(
 
     if(
 
-        !values
+        !values ||
 
-        ||
-
-        typeof values !==
-
-            "object"
+        typeof values !== "object"
 
     ){
 
@@ -2117,15 +1955,18 @@ export function buildActivityValues(
 
         type :
 
+
             type,
 
 
         nama :
 
+
             nama,
 
 
         project :
+
 
             project,
 
@@ -2165,17 +2006,11 @@ export function buildActivityValues(
 
     if(
 
-        !result.tanggal
+        !result.tanggal ||
 
-        ||
+        !result.type ||
 
-        !result.type
-
-        ||
-
-        !result.nama
-
-        ||
+        !result.nama ||
 
         !result.project
 
@@ -2207,30 +2042,16 @@ export function buildActivityValues(
 
         const rawReward =
 
-            values[
-
-                "$reward"
-
-            ];
+            values["$reward"];
 
 
         if(
 
-            rawReward ===
+            rawReward === "" ||
 
-                ""
+            rawReward === null ||
 
-            ||
-
-            rawReward ===
-
-                null
-
-            ||
-
-            rawReward ===
-
-                undefined
+            rawReward === undefined
 
         ){
 
@@ -2254,9 +2075,7 @@ export function buildActivityValues(
 
                 numericReward
 
-            )
-
-            ||
+            ) ||
 
             numericReward < 0
 
@@ -2267,11 +2086,7 @@ export function buildActivityValues(
         }
 
 
-        result[
-
-            "$reward"
-
-        ] =
+        result["$reward"] =
 
             String(
 
@@ -2297,9 +2112,7 @@ export function buildActivityValues(
 
         )
 
-        !==
-
-        TYPE_CAMPAIGN
+        !== TYPE_CAMPAIGN
 
     ){
 
@@ -2416,15 +2229,9 @@ export function validateReward(
 
     if(
 
-        normalizedStatus !==
+        normalizedStatus !== STATUS_WIN &&
 
-            STATUS_WIN
-
-        &&
-
-        normalizedStatus !==
-
-            STATUS_NOT_WIN
+        normalizedStatus !== STATUS_NOT_WIN
 
     ){
 
@@ -2446,29 +2253,17 @@ export function validateReward(
 
     if(
 
-        normalizedStatus ===
-
-            STATUS_WIN
+        normalizedStatus === STATUS_WIN
 
     ){
 
         if(
 
-            reward ===
+            reward === "" ||
 
-                ""
+            reward === null ||
 
-            ||
-
-            reward ===
-
-                null
-
-            ||
-
-            reward ===
-
-                undefined
+            reward === undefined
 
         ){
 
@@ -2503,9 +2298,7 @@ export function validateReward(
 
                 numericReward
 
-            )
-
-            ||
+            ) ||
 
             numericReward < 0
 
@@ -2557,13 +2350,9 @@ export function validateBansos(
 
     if(
 
-        !values
+        !values ||
 
-        ||
-
-        typeof values !==
-
-            "object"
+        typeof values !== "object"
 
     ){
 
@@ -2644,30 +2433,16 @@ export function validateBansos(
 
     const reward =
 
-        values[
-
-            "$reward"
-
-        ];
+        values["$reward"];
 
 
     if(
 
-        reward ===
+        reward === "" ||
 
-            ""
+        reward === null ||
 
-        ||
-
-        reward ===
-
-            null
-
-        ||
-
-        reward ===
-
-            undefined
+        reward === undefined
 
     ){
 
@@ -2702,9 +2477,7 @@ export function validateBansos(
 
             numericReward
 
-        )
-
-        ||
+        ) ||
 
         numericReward < 0
 
@@ -2829,9 +2602,7 @@ export function getStatusLabel(
 
         default :
 
-            return status ??
-
-                "-";
+            return status ?? "-";
 
     }
 
@@ -2839,262 +2610,730 @@ export function getStatusLabel(
 
 
 /* =====================================================
-   ESCAPE HTML
+   EDIT REWARD
+   GLOBAL UPDATEDATA ADAPTER
 ===================================================== */
 
-function escapeHTML(
+/*
+   Semua UI Edit Reward sekarang dipindahkan
+   ke components/input/updatedata.js.
 
-    value
+   Airdrop hanya memberikan :
 
-){
+   - records
+   - detail record
+   - field configuration
+   - validation
+   - build changes
+   - staging
+   - confirmation
 
-    return String(
+   Dengan demikian updatedata.js dapat digunakan
+   kembali oleh workspace lain.
+*/
 
-        value ??
+async function openEditReward(){
 
-        ""
+    console.log(
 
-    )
+        "===== AIRDROP EDIT REWARD OPEN ====="
 
-        .replace(
-
-            /&/g,
-
-            "&amp;"
-
-        )
-
-        .replace(
-
-            /</g,
-
-            "&lt;"
-
-        )
-
-        .replace(
-
-            />/g,
-
-            "&gt;"
-
-        )
-
-        .replace(
-
-            /"/g,
-
-            "&quot;"
-
-        )
-
-        .replace(
-
-            /'/g,
-
-            "&#039;"
-
-        );
-
-}
+    );
 
 
-/* =====================================================
-   RENDER MODE SELECTOR
-===================================================== */
+    /* =============================================
+       GET RECORDS
+    ============================================= */
 
-export function renderModeSelector(
+    const records =
 
-    container,
+        typeof Reward.getRecords ===
 
-    onChange
+            "function"
 
-){
+            ?
+
+            Reward.getRecords()
+
+            :
+
+            getRewardRecords();
+
+
+    /* =============================================
+       CLEAR SELECTION
+    ============================================= */
 
     if(
 
-        !container
+        typeof Reward.clearSelection ===
+
+            "function"
 
     ){
 
-        return;
+        Reward.clearSelection();
 
     }
 
 
-    container.innerHTML = "";
+    /* =============================================
+       OPEN GLOBAL UPDATEDATA
+    ============================================= */
 
+    if(
 
-    const wrapper =
+        !UpdateData ||
 
-        document.createElement(
+        typeof UpdateData.open !==
 
-            "div"
+            "function"
+
+    ){
+
+        console.error(
+
+            "UpdateData.open() tidak tersedia."
 
         );
 
 
-    wrapper.className =
+        return null;
 
-        "airdrop-input-modes";
+    }
 
 
-    Airdrop.modes.forEach(
+    return UpdateData.open({
 
-        mode => {
+        /* =========================================
+           WORKSPACE
+        ========================================= */
 
-            const button =
+        workspace :
 
-                document.createElement(
+            "airdrop",
 
-                    "button"
+
+        mode :
+
+            "reward",
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        title :
+
+            "Edit Input Reward",
+
+
+        subtitle :
+
+            "Pilih project lalu tentukan hasil reward.",
+
+
+        /* =========================================
+           DATA
+        ========================================= */
+
+        records :
+
+
+            records,
+
+
+        /* =========================================
+           TARGET KEY
+        ========================================= */
+
+        getRecordKey :
+
+            record =>
+
+                getRewardTargetKey(
+
+                    record
+
+                ),
+
+
+        /* =========================================
+           PICKER
+        ========================================= */
+
+        getRecordTitle :
+
+            record =>
+
+                String(
+
+                    record?.project ??
+
+                    "-"
+
+                ),
+
+
+        getRecordMeta :
+
+            record =>
+
+                `${
+
+                    formatOptionLabel(
+
+                        record?.type
+
+                    )
+
+                } · ${
+
+                    getStatusLabel(
+
+                        record?.status
+
+                    )
+
+                }`,
+
+
+        /* =========================================
+           DETAIL
+        ========================================= */
+
+        renderDetail :
+
+            record => {
+
+                return {
+
+                    title :
+
+                        "Detail Project",
+
+
+                    items : [
+
+                        {
+
+                            label :
+
+                                "ID",
+
+
+                            value :
+
+                                record?.id ??
+
+                                "-"
+
+                        },
+
+
+                        {
+
+                            label :
+
+                                "Project",
+
+
+                            value :
+
+                                record?.project ??
+
+                                "-"
+
+                        },
+
+
+                        {
+
+                            label :
+
+                                "Type",
+
+
+                            value :
+
+                                formatOptionLabel(
+
+                                    record?.type
+
+                                ),
+
+
+                            locked :
+
+                                true
+
+                        },
+
+
+                        {
+
+                            label :
+
+                                "Status saat ini",
+
+
+                            value :
+
+                                getStatusLabel(
+
+                                    record?.status
+
+                                ),
+
+
+                            locked :
+
+                                true
+
+                        }
+
+                    ]
+
+                };
+
+            },
+
+
+        /* =========================================
+           EDIT FIELDS
+        ========================================= */
+
+        renderFields :
+
+            record => {
+
+                return [
+
+                    {
+
+                        id :
+
+                            "status",
+
+
+                        label :
+
+                            "Status",
+
+
+                        type :
+
+                            "select",
+
+
+                        placeholder :
+
+                            "Pilih status",
+
+
+                        options :
+
+                            getRewardStatusOptions()
+
+                    },
+
+
+                    {
+
+                        id :
+
+                            "$reward",
+
+
+                        label :
+
+                            "Nominal Reward",
+
+
+                        type :
+
+                            "number",
+
+
+                        placeholder :
+
+                            "Masukkan nominal reward",
+
+
+                        min :
+
+                            0,
+
+
+                        step :
+
+                            "any",
+
+
+                        showWhen :
+
+                            values =>
+
+                                normalizeStatus(
+
+                                    values?.status
+
+                                ) ===
+
+                                STATUS_WIN
+
+                    }
+
+                ];
+
+            },
+
+
+        /* =========================================
+           VALIDATE
+        ========================================= */
+
+        validate :
+
+            (
+
+                record,
+
+                values
+
+            ) => {
+
+                if(
+
+                    !record
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+
+                        message :
+
+                            "Project belum dipilih."
+
+                    };
+
+                }
+
+
+                return validateReward(
+
+                    values?.status,
+
+                    values?.["$reward"]
 
                 );
 
-
-            button.type =
-
-                "button";
+            },
 
 
-            button.className =
+        /* =========================================
+           BUILD CHANGES
+        ========================================= */
 
-                "airdrop-input-mode";
+        buildChanges :
 
+            (
 
-            button.dataset.mode =
+                record,
 
-                mode.id;
+                values
 
+            ) => {
 
-            const title =
+                const result =
 
-                document.createElement(
+                    buildRewardValues(
 
-                    "strong"
+                        record,
 
-                );
+                        values?.status,
 
-
-            title.textContent =
-
-                mode.label;
-
-
-            const description =
-
-                document.createElement(
-
-                    "small"
-
-                );
-
-
-            description.textContent =
-
-                mode.description;
-
-
-            button.appendChild(
-
-                title
-
-            );
-
-
-            button.appendChild(
-
-                description
-
-            );
-
-
-            button.addEventListener(
-
-                "click",
-
-                () => {
-
-                    setAirdropMode(
-
-                        mode.id
+                        values?.["$reward"]
 
                     );
 
 
-                    wrapper
+                if(
 
-                        .querySelectorAll(
+                    !result
 
-                            ".airdrop-input-mode"
+                ){
 
-                        )
-
-                        .forEach(
-
-                            item => {
-
-                                item.classList.toggle(
-
-                                    "active",
-
-                                    item.dataset.mode ===
-
-                                        mode.id
-
-                                );
-
-                            }
-
-                        );
-
-
-                    if(
-
-                        typeof onChange ===
-
-                        "function"
-
-                    ){
-
-                        onChange(
-
-                            mode.id
-
-                        );
-
-                    }
+                    return null;
 
                 }
 
-            );
+
+                return {
+
+                    status :
+
+                        result.status,
 
 
-            wrapper.appendChild(
+                    "$reward" :
 
-                button
+                        result["$reward"]
 
-            );
+                };
 
-        }
-
-    );
+            },
 
 
-    container.appendChild(
+        /* =========================================
+           STAGE
+        ========================================= */
 
-        wrapper
+        onAdd :
 
-    );
+            async (
+
+                record,
+
+                values,
+
+                changes
+
+            ) => {
+
+                console.log(
+
+                    "===== AIRDROP REWARD STAGE ====="
+
+                );
+
+
+                console.log(
+
+                    "Record:",
+
+                    record
+
+                );
+
+
+                console.log(
+
+                    "Values:",
+
+                    values
+
+                );
+
+
+                console.log(
+
+                    "Changes:",
+
+                    changes
+
+                );
+
+
+                const result =
+
+                    Reward.add({
+
+                        record,
+
+
+                        result :
+
+                            values?.status,
+
+
+                        reward :
+
+                            values?.["$reward"]
+
+                    });
+
+
+                console.log(
+
+                    "AIRDROP REWARD STAGE RESULT:",
+
+                    result
+
+                );
+
+
+                return result;
+
+            },
+
+
+        /* =========================================
+           REMOVE
+        ========================================= */
+
+        onRemove :
+
+            async (
+
+                transaction,
+
+                index
+
+            ) => {
+
+                console.log(
+
+                    "AIRDROP REWARD REMOVE:",
+
+                    {
+
+                        transaction,
+
+                        index
+
+                    }
+
+                );
+
+
+                return Reward.remove(
+
+                    index
+
+                );
+
+            },
+
+
+        /* =========================================
+           PENDING
+        ========================================= */
+
+        getPending :
+
+            () =>
+
+                Reward.getPendingEdits(),
+
+
+        getPendingCount :
+
+            () =>
+
+                Reward.getPendingCount(),
+
+
+        /* =========================================
+           CONFIRM
+        ========================================= */
+
+        onConfirm :
+
+            async () => {
+
+                console.log(
+
+                    "===== AIRDROP REWARD CONFIRM ====="
+
+                );
+
+
+                const result =
+
+                    await Reward.confirm();
+
+
+                console.log(
+
+                    "AIRDROP REWARD CONFIRM RESULT:",
+
+                    result
+
+                );
+
+
+                return result;
+
+            },
+
+
+        /* =========================================
+           EMPTY
+        ========================================= */
+
+        emptyText :
+
+            "Tidak ada project dengan status Ongoing atau Ended.",
+
+
+        /* =========================================
+           LABEL
+        ========================================= */
+
+        pickerTitle :
+
+            "Pilih Project",
+
+
+        addLabel :
+
+            "Tambahkan",
+
+
+        confirmLabel :
+
+            "Konfirmasi",
+
+
+        removeLabel :
+
+            "Hapus",
+
+
+        pendingTitle :
+
+            "Sudah Ditambahkan",
+
+
+        /* =========================================
+           UI
+        ========================================= */
+
+        fullscreen :
+
+            true,
+
+
+        customPicker :
+
+            true,
+
+
+        allowBackdropClose :
+
+            true,
+
+
+        allowEscapeClose :
+
+            true
+
+    });
 
 }
 
 
 /* =====================================================
-   GET PENDING TARGET KEY
+   REWARD TARGET KEY
 ===================================================== */
 
-function getPendingTargetKey(
+function getRewardTargetKey(
 
     record
 
@@ -3115,7 +3354,7 @@ function getPendingTargetKey(
 
         String(
 
-            record.id ??
+            record?.id ??
 
             ""
 
@@ -3129,3447 +3368,13 @@ function getPendingTargetKey(
 
         String(
 
-            record.project ??
+            record?.project ??
 
             ""
 
         ).trim()
 
     );
-
-}
-
-
-/* =====================================================
-   HAS PENDING RECORD
-===================================================== */
-
-function hasPendingRewardRecord(
-
-    record
-
-){
-
-    if(
-
-        !record
-
-    ){
-
-        return false;
-
-    }
-
-
-    return Reward.hasPendingEdit(
-
-        record.id,
-
-        record.project
-
-    );
-
-}
-
-
-/* =====================================================
-   RENDER REWARD PICKER
-===================================================== */
-
-export function renderRewardPicker(
-
-    container,
-
-    onSelect
-
-){
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
-    container.innerHTML = "";
-
-
-    const records =
-
-        typeof Reward.getRecords ===
-
-            "function"
-
-            ?
-
-            Reward.getRecords()
-
-            :
-
-            getRewardRecords();
-
-
-    /* =============================================
-       TITLE
-    ============================================= */
-
-    const title =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    title.className =
-
-        "airdrop-reward-title";
-
-
-    title.textContent =
-
-        "Pilih Project";
-
-
-    container.appendChild(
-
-        title
-
-    );
-
-
-    /* =============================================
-       INFO
-    ============================================= */
-
-    const info =
-
-        document.createElement(
-
-            "small"
-
-        );
-
-
-    info.className =
-
-        "airdrop-reward-picker-info";
-
-
-    info.textContent =
-
-        records.length
-
-            ?
-
-            `${records.length} project tersedia`
-
-            :
-
-            "Tidak ada project tersedia";
-
-
-    container.appendChild(
-
-        info
-
-    );
-
-
-    /* =============================================
-       LIST
-    ============================================= */
-
-    const list =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    list.className =
-
-        "airdrop-reward-project-list";
-
-
-    /* =============================================
-       EMPTY
-    ============================================= */
-
-    if(
-
-        records.length ===
-
-            0
-
-    ){
-
-        const empty =
-
-            document.createElement(
-
-                "div"
-
-            );
-
-
-        empty.className =
-
-            "airdrop-reward-empty";
-
-
-        empty.textContent =
-
-            "Tidak ada project dengan status Ongoing atau Ended.";
-
-
-        list.appendChild(
-
-            empty
-
-        );
-
-    }
-
-
-    /* =============================================
-       ITEMS
-    ============================================= */
-
-    records.forEach(
-
-        record => {
-
-            const item =
-
-                document.createElement(
-
-                    "button"
-
-                );
-
-
-            item.type =
-
-                "button";
-
-
-            item.className =
-
-                "airdrop-reward-project";
-
-
-            item.dataset.id =
-
-                String(
-
-                    record.id ??
-
-                    ""
-
-                );
-
-
-            item.dataset.project =
-
-                String(
-
-                    record.project ??
-
-                    ""
-
-                );
-
-
-            const project =
-
-                document.createElement(
-
-                    "span"
-
-                );
-
-
-            project.className =
-
-                "airdrop-reward-project-name";
-
-
-            project.textContent =
-
-                record.project ??
-
-                "-";
-
-
-            const meta =
-
-                document.createElement(
-
-                    "small"
-
-                );
-
-
-            meta.textContent =
-
-                `${
-
-                    formatOptionLabel(
-
-                        record.type
-
-                    )
-
-                } · ${
-
-                    getStatusLabel(
-
-                        record.status
-
-                    )}`;
-
-
-            item.appendChild(
-
-                project
-
-            );
-
-
-            item.appendChild(
-
-                meta
-
-            );
-
-
-            /* =====================================
-               PENDING
-            ===================================== */
-
-            if(
-
-                hasPendingRewardRecord(
-
-                    record
-
-                )
-
-            ){
-
-                item.classList.add(
-
-                    "pending"
-
-                );
-
-
-                const pending =
-
-                    document.createElement(
-
-                        "em"
-
-                    );
-
-
-                pending.className =
-
-                    "airdrop-reward-project-pending";
-
-
-                pending.textContent =
-
-                    "Sudah ditambahkan";
-
-
-                item.appendChild(
-
-                    pending
-
-                );
-
-            }
-
-
-            item.addEventListener(
-
-                "click",
-
-                () => {
-
-                    if(
-
-                        hasPendingRewardRecord(
-
-                            record
-
-                        )
-
-                    ){
-
-                        console.warn(
-
-                            "Reward project sudah ada di batch:",
-
-                            getPendingTargetKey(
-
-                                record
-
-                            )
-
-                        );
-
-
-                        return;
-
-                    }
-
-
-                    list
-
-                        .querySelectorAll(
-
-                            ".airdrop-reward-project"
-
-                        )
-
-                        .forEach(
-
-                            projectItem => {
-
-                                projectItem.classList.remove(
-
-                                    "selected"
-
-                                );
-
-                            }
-
-                        );
-
-
-                    item.classList.add(
-
-                        "selected"
-
-                    );
-
-
-                    const selectedRecord =
-
-                        selectRewardRecord(
-
-                            record
-
-                        );
-
-
-                    if(
-
-                        !selectedRecord
-
-                    ){
-
-                        return;
-
-                    }
-
-
-                    if(
-
-                        typeof onSelect ===
-
-                        "function"
-
-                    ){
-
-                        onSelect(
-
-                            selectedRecord
-
-                        );
-
-                    }
-
-                }
-
-            );
-
-
-            list.appendChild(
-
-                item
-
-            );
-
-        }
-
-    );
-
-
-    container.appendChild(
-
-        list
-
-    );
-
-}
-
-
-/* =====================================================
-   RENDER SELECTED REWARD
-===================================================== */
-
-export function renderSelectedReward(
-
-    container,
-
-    record,
-
-    onSubmit
-
-){
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
-    container.innerHTML = "";
-
-
-    if(
-
-        !record
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =============================================
-       CARD
-    ============================================= */
-
-    const card =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    card.className =
-
-        "airdrop-reward-selected";
-
-
-    /* =============================================
-       ID
-    ============================================= */
-
-    appendInfo(
-
-        card,
-
-        "ID",
-
-        record.id
-
-    );
-
-
-    /* =============================================
-       PROJECT
-    ============================================= */
-
-    appendInfo(
-
-        card,
-
-        "Project",
-
-        record.project
-
-    );
-
-
-    /* =============================================
-       TYPE LOCKED
-    ============================================= */
-
-    appendInfo(
-
-        card,
-
-        "Type",
-
-        formatOptionLabel(
-
-            record.type
-
-        ),
-
-        true
-
-    );
-
-
-    /* =============================================
-       CURRENT STATUS
-    ============================================= */
-
-    appendInfo(
-
-        card,
-
-        "Status saat ini",
-
-        getStatusLabel(
-
-            record.status
-
-        ),
-
-        true
-
-    );
-
-
-    /* =============================================
-       NEW STATUS
-    ============================================= */
-
-    const statusWrapper =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    statusWrapper.className =
-
-        "airdrop-reward-status";
-
-
-    const statusLabel =
-
-        document.createElement(
-
-            "label"
-
-        );
-
-
-    statusLabel.textContent =
-
-        "Status";
-
-
-    const statusSelect =
-
-        document.createElement(
-
-            "select"
-
-        );
-
-
-    statusSelect.className =
-
-        "global-input-control";
-
-
-    const placeholder =
-
-        document.createElement(
-
-            "option"
-
-        );
-
-
-    placeholder.value = "";
-
-
-    placeholder.textContent =
-
-        "Pilih status";
-
-
-    statusSelect.appendChild(
-
-        placeholder
-
-    );
-
-
-    getRewardStatusOptions().forEach(
-
-        option => {
-
-            const item =
-
-                document.createElement(
-
-                    "option"
-
-                );
-
-
-            item.value =
-
-                option.value;
-
-
-            item.textContent =
-
-                option.label;
-
-
-            statusSelect.appendChild(
-
-                item
-
-            );
-
-        }
-
-    );
-
-
-    statusWrapper.appendChild(
-
-        statusLabel
-
-    );
-
-
-    statusWrapper.appendChild(
-
-        statusSelect
-
-    );
-
-
-    card.appendChild(
-
-        statusWrapper
-
-    );
-
-
-    /* =============================================
-       REWARD
-
-       Hanya muncul jika Win.
-    ============================================= */
-
-    const rewardWrapper =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    rewardWrapper.className =
-
-        "airdrop-reward-amount hidden";
-
-
-    const rewardLabel =
-
-        document.createElement(
-
-            "label"
-
-        );
-
-
-    rewardLabel.textContent =
-
-        "Nominal Reward";
-
-
-    const rewardInput =
-
-        document.createElement(
-
-            "input"
-
-        );
-
-
-    rewardInput.type =
-
-        "number";
-
-
-    rewardInput.min =
-
-        "0";
-
-
-    rewardInput.step =
-
-        "any";
-
-
-    rewardInput.placeholder =
-
-        "Masukkan nominal";
-
-
-    rewardInput.className =
-
-        "global-input-control";
-
-
-    rewardWrapper.appendChild(
-
-        rewardLabel
-
-    );
-
-
-    rewardWrapper.appendChild(
-
-        rewardInput
-
-    );
-
-
-    card.appendChild(
-
-        rewardWrapper
-
-    );
-
-
-    /* =============================================
-       ACTION
-    ============================================= */
-
-    const button =
-
-        document.createElement(
-
-            "button"
-
-        );
-
-
-    button.type =
-
-        "button";
-
-
-    button.className =
-
-        "global-input-action-button";
-
-
-    button.textContent =
-
-        "Tambahkan";
-
-
-    button.disabled =
-
-        true;
-
-
-    card.appendChild(
-
-        button
-
-    );
-
-
-    /* =============================================
-       STATUS CHANGE
-    ============================================= */
-
-    statusSelect.addEventListener(
-
-        "change",
-
-        () => {
-
-            const status =
-
-                statusSelect.value;
-
-
-            if(
-
-                status ===
-
-                    STATUS_WIN
-
-            ){
-
-                rewardWrapper.classList.remove(
-
-                    "hidden"
-
-                );
-
-            }
-
-            else{
-
-                rewardWrapper.classList.add(
-
-                    "hidden"
-
-                );
-
-
-                rewardInput.value = "";
-
-            }
-
-
-            button.disabled =
-
-                !isRewardFormValid(
-
-                    status,
-
-                    rewardInput.value
-
-                );
-
-        }
-
-    );
-
-
-    /* =============================================
-       REWARD CHANGE
-    ============================================= */
-
-    rewardInput.addEventListener(
-
-        "input",
-
-        () => {
-
-            button.disabled =
-
-                !isRewardFormValid(
-
-                    statusSelect.value,
-
-                    rewardInput.value
-
-                );
-
-        }
-
-    );
-
-
-    /* =============================================
-       SUBMIT / STAGE
-    ============================================= */
-
-    button.addEventListener(
-
-        "click",
-
-        async () => {
-
-            const status =
-
-                statusSelect.value;
-
-
-            const reward =
-
-                rewardInput.value;
-
-
-            const validation =
-
-                validateReward(
-
-                    status,
-
-                    reward
-
-                );
-
-
-            if(
-
-                !validation.valid
-
-            ){
-
-                console.warn(
-
-                    validation.message
-
-                );
-
-
-                return;
-
-            }
-
-
-            if(
-
-                typeof onSubmit ===
-
-                "function"
-
-            ){
-
-                await onSubmit({
-
-                    record,
-
-                    status,
-
-                    reward
-
-                });
-
-            }
-
-        }
-
-    );
-
-
-    container.appendChild(
-
-        card
-
-    );
-
-}
-
-
-/* =====================================================
-   REWARD FORM VALIDATION
-===================================================== */
-
-function isRewardFormValid(
-
-    status,
-
-    reward
-
-){
-
-    const validation =
-
-        validateReward(
-
-            status,
-
-            reward
-
-        );
-
-
-    return validation.valid;
-
-}
-
-
-/* =====================================================
-   APPEND INFO
-===================================================== */
-
-function appendInfo(
-
-    container,
-
-    label,
-
-    value,
-
-    locked = false
-
-){
-
-    const row =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    row.className =
-
-        "airdrop-reward-info";
-
-
-    if(
-
-        locked
-
-    ){
-
-        row.classList.add(
-
-            "locked"
-
-        );
-
-    }
-
-
-    const labelElement =
-
-        document.createElement(
-
-            "span"
-
-        );
-
-
-    labelElement.textContent =
-
-        label;
-
-
-    const valueElement =
-
-        document.createElement(
-
-            "strong"
-
-        );
-
-
-    valueElement.textContent =
-
-        value ??
-
-        "-";
-
-
-    row.appendChild(
-
-        labelElement
-
-    );
-
-
-    row.appendChild(
-
-        valueElement
-
-    );
-
-
-    container.appendChild(
-
-        row
-
-    );
-
-}
-
-
-/* =====================================================
-   RENDER PENDING EDITS
-===================================================== */
-
-function renderPendingEdits(
-
-    container,
-
-    onRemove
-
-){
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
-    container.innerHTML = "";
-
-
-    const transactions =
-
-        Reward.getPendingEdits();
-
-
-    /* =============================================
-       WRAPPER
-    ============================================= */
-
-    const section =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    section.className =
-
-        "airdrop-reward-pending-section";
-
-
-    /* =============================================
-       HEADER
-    ============================================= */
-
-    const header =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    header.className =
-
-        "airdrop-reward-pending-header";
-
-
-    const title =
-
-        document.createElement(
-
-            "strong"
-
-        );
-
-
-    title.textContent =
-
-        "Sudah Ditambahkan";
-
-
-    const count =
-
-        document.createElement(
-
-            "span"
-
-        );
-
-
-    count.textContent =
-
-        String(
-
-            transactions.length
-
-        );
-
-
-    header.appendChild(
-
-        title
-
-    );
-
-
-    header.appendChild(
-
-        count
-
-    );
-
-
-    section.appendChild(
-
-        header
-
-    );
-
-
-    /* =============================================
-       EMPTY
-    ============================================= */
-
-    if(
-
-        transactions.length ===
-
-            0
-
-    ){
-
-        const empty =
-
-            document.createElement(
-
-                "small"
-
-            );
-
-
-        empty.className =
-
-            "airdrop-reward-pending-empty";
-
-
-        empty.textContent =
-
-            "Belum ada perubahan reward.";
-
-
-        section.appendChild(
-
-            empty
-
-        );
-
-
-        container.appendChild(
-
-            section
-
-        );
-
-
-        return;
-
-    }
-
-
-    /* =============================================
-       LIST
-    ============================================= */
-
-    const list =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    list.className =
-
-        "airdrop-reward-pending-list";
-
-
-    transactions.forEach(
-
-        (
-
-            transaction,
-
-            index
-
-        ) => {
-
-            const item =
-
-                document.createElement(
-
-                    "div"
-
-                );
-
-
-            item.className =
-
-                "airdrop-reward-pending-item";
-
-
-            /* =====================================
-               INFO
-            ===================================== */
-
-            const info =
-
-                document.createElement(
-
-                    "div"
-
-                );
-
-
-            info.className =
-
-                "airdrop-reward-pending-info";
-
-
-            const project =
-
-                document.createElement(
-
-                    "strong"
-
-                );
-
-
-            project.textContent =
-
-                transaction?.project ??
-
-                "-";
-
-
-            const meta =
-
-                document.createElement(
-
-                    "small"
-
-                );
-
-
-            const resultLabel =
-
-                transaction?.result ===
-
-                    STATUS_WIN
-
-                    ?
-
-                    "Win"
-
-                    :
-
-                    "Not Win";
-
-
-            meta.textContent =
-
-                `${resultLabel}${
-
-                    transaction?.result ===
-
-                        STATUS_WIN
-
-                        ?
-
-                        ` · $${transaction?.reward ?? ""}`
-
-                        :
-
-                        ""
-
-                }`;
-
-
-            const id =
-
-                document.createElement(
-
-                    "small"
-
-                );
-
-
-            id.textContent =
-
-                `ID: ${transaction?.id ?? "-"}`;
-
-
-            info.appendChild(
-
-                project
-
-            );
-
-
-            info.appendChild(
-
-                meta
-
-            );
-
-
-            info.appendChild(
-
-                id
-
-            );
-
-
-            /* =====================================
-               REMOVE
-            ===================================== */
-
-            const removeButton =
-
-                document.createElement(
-
-                    "button"
-
-                );
-
-
-            removeButton.type =
-
-                "button";
-
-
-            removeButton.className =
-
-                "airdrop-reward-pending-remove";
-
-
-            removeButton.textContent =
-
-                "Hapus";
-
-
-            removeButton.addEventListener(
-
-                "click",
-
-                () => {
-
-                    if(
-
-                        typeof onRemove ===
-
-                        "function"
-
-                    ){
-
-                        onRemove(
-
-                            index
-
-                        );
-
-                    }
-
-                }
-
-            );
-
-
-            item.appendChild(
-
-                info
-
-            );
-
-
-            item.appendChild(
-
-                removeButton
-
-            );
-
-
-            list.appendChild(
-
-                item
-
-            );
-
-        }
-
-    );
-
-
-    section.appendChild(
-
-        list
-
-    );
-
-
-    container.appendChild(
-
-        section
-
-    );
-
-}
-
-
-/* =====================================================
-   RENDER CONFIRM ACTION
-===================================================== */
-
-function renderRewardConfirm(
-
-    container,
-
-    onConfirm
-
-){
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
-    container.innerHTML = "";
-
-
-    const transactions =
-
-        Reward.getPendingEdits();
-
-
-    if(
-
-        transactions.length ===
-
-            0
-
-    ){
-
-        return;
-
-    }
-
-
-    const footer =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    footer.className =
-
-        "airdrop-reward-confirm";
-
-
-    const info =
-
-        document.createElement(
-
-            "small"
-
-        );
-
-
-    info.textContent =
-
-        `${transactions.length} perubahan siap dikonfirmasi.`;
-
-
-    const button =
-
-        document.createElement(
-
-            "button"
-
-        );
-
-
-    button.type =
-
-        "button";
-
-
-    button.className =
-
-        "global-input-confirm-button";
-
-
-    button.textContent =
-
-        "Konfirmasi";
-
-
-    button.addEventListener(
-
-        "click",
-
-        async () => {
-
-            button.disabled =
-
-                true;
-
-
-            button.textContent =
-
-                "Menyimpan...";
-
-
-            try{
-
-                if(
-
-                    typeof onConfirm ===
-
-                    "function"
-
-                ){
-
-                    await onConfirm();
-
-                }
-
-            }
-
-            finally{
-
-                if(
-
-                    document.body.contains(
-
-                        button
-
-                    )
-
-                ){
-
-                    button.disabled =
-
-                        Reward.getPendingCount() ===
-
-                            0;
-
-
-                    button.textContent =
-
-                        "Konfirmasi";
-
-                }
-
-            }
-
-        }
-
-    );
-
-
-    footer.appendChild(
-
-        info
-
-    );
-
-
-    footer.appendChild(
-
-        button
-
-    );
-
-
-    container.appendChild(
-
-        footer
-
-    );
-
-}
-
-
-/* =====================================================
-   SHOW REWARD MESSAGE
-===================================================== */
-
-function showRewardMessage(
-
-    container,
-
-    message,
-
-    type = "info"
-
-){
-
-    if(
-
-        !container
-
-    ){
-
-        return;
-
-    }
-
-
-    const existing =
-
-        container.querySelector(
-
-            ".airdrop-reward-message"
-
-        );
-
-
-    if(
-
-        existing
-
-    ){
-
-        existing.remove();
-
-    }
-
-
-    if(
-
-        !message
-
-    ){
-
-        return;
-
-    }
-
-
-    const element =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    element.className =
-
-        "airdrop-reward-message";
-
-
-    element.classList.add(
-
-        type
-
-    );
-
-
-    element.textContent =
-
-        message;
-
-
-    container.prepend(
-
-        element
-
-    );
-
-}
-
-
-/* =====================================================
-   OPEN EDIT REWARD
-===================================================== */
-
-async function openEditReward(){
-
-    console.log(
-
-        "===== AIRDROP EDIT REWARD OPEN ====="
-
-    );
-
-
-    /* =============================================
-       EXISTING OVERLAY
-    ============================================= */
-
-    const existing =
-
-        document.getElementById(
-
-            "airdrop-edit-reward-overlay"
-
-        );
-
-
-    if(
-
-        existing
-
-    ){
-
-        existing.classList.add(
-
-            "is-open"
-
-        );
-
-
-        document.body.classList.add(
-
-            "input-open"
-
-        );
-
-
-        refreshEditRewardUI(
-
-            existing
-
-        );
-
-
-        return existing;
-
-    }
-
-
-    /* =============================================
-       RESET EDIT STATE
-
-       Jangan menghapus State normal.
-
-       Hanya batch Edit Input Reward.
-    ============================================= */
-
-    if(
-
-        typeof Reward.clearPendingEdits ===
-
-            "function"
-
-    ){
-
-        Reward.clearPendingEdits();
-
-    }
-
-
-    if(
-
-        typeof Reward.clearSelection ===
-
-            "function"
-
-    ){
-
-        Reward.clearSelection();
-
-    }
-
-
-    /* =============================================
-       OVERLAY
-    ============================================= */
-
-    const overlay =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    overlay.id =
-
-        "airdrop-edit-reward-overlay";
-
-
-    overlay.className =
-
-        "airdrop-edit-reward-overlay";
-
-
-    /* =============================================
-       PANEL
-    ============================================= */
-
-    const panel =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    panel.className =
-
-        "airdrop-edit-reward-panel";
-
-
-    /* =============================================
-       HEADER
-    ============================================= */
-
-    const header =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    header.className =
-
-        "airdrop-edit-reward-header";
-
-
-    const title =
-
-        document.createElement(
-
-            "h2"
-
-        );
-
-
-    title.textContent =
-
-        "Edit Input Reward";
-
-
-    const closeButton =
-
-        document.createElement(
-
-            "button"
-
-        );
-
-
-    closeButton.type =
-
-        "button";
-
-
-    closeButton.className =
-
-        "airdrop-edit-reward-close";
-
-
-    closeButton.setAttribute(
-
-        "aria-label",
-
-        "Tutup"
-
-    );
-
-
-    closeButton.textContent =
-
-        "×";
-
-
-    header.appendChild(
-
-        title
-
-    );
-
-
-    header.appendChild(
-
-        closeButton
-
-    );
-
-
-    /* =============================================
-       CONTENT
-    ============================================= */
-
-    const content =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    content.className =
-
-        "airdrop-edit-reward-content";
-
-
-    /* =============================================
-       MESSAGE
-    ============================================= */
-
-    const message =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    message.className =
-
-        "airdrop-edit-reward-message-container";
-
-
-    /* =============================================
-       PICKER
-    ============================================= */
-
-    const picker =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    picker.className =
-
-        "airdrop-edit-reward-picker";
-
-
-    /* =============================================
-       SELECTED
-    ============================================= */
-
-    const selected =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    selected.className =
-
-        "airdrop-edit-reward-selected-container";
-
-
-    /* =============================================
-       PENDING
-    ============================================= */
-
-    const pending =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    pending.className =
-
-        "airdrop-edit-reward-pending-container";
-
-
-    /* =============================================
-       CONFIRM
-    ============================================= */
-
-    const confirm =
-
-        document.createElement(
-
-            "div"
-
-        );
-
-
-    confirm.className =
-
-        "airdrop-edit-reward-confirm-container";
-
-
-    /* =============================================
-       APPEND
-    ============================================= */
-
-    content.appendChild(
-
-        message
-
-    );
-
-
-    content.appendChild(
-
-        picker
-
-    );
-
-
-    content.appendChild(
-
-        selected
-
-    );
-
-
-    content.appendChild(
-
-        pending
-
-    );
-
-
-    content.appendChild(
-
-        confirm
-
-    );
-
-
-    panel.appendChild(
-
-        header
-
-    );
-
-
-    panel.appendChild(
-
-        content
-
-    );
-
-
-    overlay.appendChild(
-
-        panel
-
-    );
-
-
-    document.body.appendChild(
-
-        overlay
-
-    );
-
-
-    /* =============================================
-       CLOSE
-    ============================================= */
-
-    const close =
-
-        () => {
-
-            overlay.classList.remove(
-
-                "is-open"
-
-            );
-
-
-            document.body.classList.remove(
-
-                "input-open"
-
-            );
-
-
-            if(
-
-                typeof Reward.clearSelection ===
-
-                    "function"
-
-            ){
-
-                Reward.clearSelection();
-
-            }
-
-        };
-
-
-    closeButton.addEventListener(
-
-        "click",
-
-        close
-
-    );
-
-
-    /* =============================================
-       BACKDROP
-    ============================================= */
-
-    overlay.addEventListener(
-
-        "click",
-
-        event => {
-
-            if(
-
-                event.target ===
-
-                overlay
-
-            ){
-
-                close();
-
-            }
-
-        }
-
-    );
-
-
-    /* =============================================
-       ESCAPE
-    ============================================= */
-
-    const escapeHandler =
-
-        event => {
-
-            if(
-
-                event.key ===
-
-                "Escape"
-
-            ){
-
-                close();
-
-
-                document.removeEventListener(
-
-                    "keydown",
-
-                    escapeHandler
-
-                );
-
-            }
-
-        };
-
-
-    document.addEventListener(
-
-        "keydown",
-
-        escapeHandler
-
-    );
-
-
-    /* =============================================
-       RENDER SELECTED
-    ============================================= */
-
-    const renderSelected =
-
-        record => {
-
-            const selectedRecord =
-
-                selectRewardRecord(
-
-                    record
-
-                );
-
-
-            if(
-
-                !selectedRecord
-
-            ){
-
-                selected.innerHTML = "";
-
-
-                return;
-
-            }
-
-
-            renderSelectedReward(
-
-                selected,
-
-                selectedRecord,
-
-                async ({
-
-                    record,
-
-                    status,
-
-                    reward
-
-                }) => {
-
-                    console.log(
-
-                        "===== AIRDROP REWARD STAGE =====",
-
-                        {
-
-                            id :
-
-                                record?.id,
-
-                            project :
-
-                                record?.project,
-
-                            status,
-
-                            reward
-
-                        }
-
-                    );
-
-
-                    /* =================================
-                       STAGE ONLY
-
-                       TIDAK mengirim Apps Script.
-                    ================================= */
-
-                    const result =
-
-                        Reward.add({
-
-                            record,
-
-                            result :
-
-                                status,
-
-                            reward
-
-                        });
-
-
-                    console.log(
-
-                        "AIRDROP REWARD STAGE RESULT:",
-
-                        result
-
-                    );
-
-
-                    /* =================================
-                       FAILED
-                    ================================= */
-
-                    if(
-
-                        !result?.success
-
-                    ){
-
-                        showRewardMessage(
-
-                            message,
-
-                            result?.message ??
-
-                                "Gagal menambahkan perubahan reward.",
-
-                            result?.duplicate
-
-                                ?
-
-                                "warning"
-
-                                :
-
-                                "error"
-
-                        );
-
-
-                        return;
-
-                    }
-
-
-                    /* =================================
-                       SUCCESS STAGED
-                    ================================= */
-
-                    showRewardMessage(
-
-                        message,
-
-                        "Perubahan reward ditambahkan.",
-
-                        "success"
-
-                    );
-
-
-                    /* =================================
-                       CLEAR SELECTED
-                    ================================= */
-
-                    if(
-
-                        typeof Reward.clearSelection ===
-
-                            "function"
-
-                    ){
-
-                        Reward.clearSelection();
-
-                    }
-
-
-                    selected.innerHTML = "";
-
-
-                    /* =================================
-                       REFRESH ALL UI
-
-                       Project yang sudah masuk batch
-                       tidak dapat ditambahkan dua kali.
-                    ================================= */
-
-                    refreshEditRewardUI(
-
-                        overlay
-
-                    );
-
-                }
-
-            );
-
-        };
-
-
-    /* =============================================
-       CONFIRM
-    ============================================= */
-
-    const confirmBatch =
-
-        async () => {
-
-            const count =
-
-                Reward.getPendingCount();
-
-
-            if(
-
-                count ===
-
-                    0
-
-            ){
-
-                showRewardMessage(
-
-                    message,
-
-                    "Belum ada perubahan reward yang ditambahkan.",
-
-                    "warning"
-
-                );
-
-
-                return;
-
-            }
-
-
-            console.log(
-
-                "===== AIRDROP REWARD CONFIRM =====",
-
-                {
-
-                    count
-
-                }
-
-            );
-
-
-            const result =
-
-                await Reward.confirm();
-
-
-            console.log(
-
-                "AIRDROP REWARD CONFIRM RESULT:",
-
-                result
-
-            );
-
-
-            /* =================================
-               FULL SUCCESS
-            ================================= */
-
-            if(
-
-                result?.success
-
-            ){
-
-                showRewardMessage(
-
-                    message,
-
-                    result.message ??
-
-                        "Reward berhasil disimpan.",
-
-                    "success"
-
-                );
-
-
-                if(
-
-                    typeof Reward.clearSelection ===
-
-                        "function"
-
-                ){
-
-                    Reward.clearSelection();
-
-                }
-
-
-                selected.innerHTML = "";
-
-
-                refreshEditRewardUI(
-
-                    overlay
-
-                );
-
-
-                return;
-
-            }
-
-
-            /* =================================
-               PARTIAL SUCCESS
-            ================================= */
-
-            if(
-
-                result?.partial
-
-            ){
-
-                showRewardMessage(
-
-                    message,
-
-                    result.message ??
-
-                        "Sebagian reward berhasil disimpan.",
-
-                    "warning"
-
-                );
-
-
-                if(
-
-                    typeof Reward.clearSelection ===
-
-                        "function"
-
-                ){
-
-                    Reward.clearSelection();
-
-                }
-
-
-                selected.innerHTML = "";
-
-
-                refreshEditRewardUI(
-
-                    overlay
-
-                );
-
-
-                return;
-
-            }
-
-
-            /* =================================
-               FAILED
-            ================================= */
-
-            showRewardMessage(
-
-                message,
-
-                result?.message ??
-
-                    "Tidak ada perubahan reward yang berhasil disimpan.",
-
-                "error"
-
-            );
-
-
-            refreshEditRewardUI(
-
-                overlay
-
-            );
-
-        };
-
-
-    /* =============================================
-       INITIAL RENDER
-    ============================================= */
-
-    renderRewardPicker(
-
-        picker,
-
-        renderSelected
-
-    );
-
-
-    renderPendingEdits(
-
-        pending,
-
-        index => {
-
-            const removed =
-
-                Reward.remove(
-
-                    index
-
-                );
-
-
-            if(
-
-                removed
-
-            ){
-
-                showRewardMessage(
-
-                    message,
-
-                    "Perubahan reward dihapus dari daftar.",
-
-                    "info"
-
-                );
-
-            }
-
-
-            selected.innerHTML = "";
-
-
-            if(
-
-                typeof Reward.clearSelection ===
-
-                    "function"
-
-            ){
-
-                Reward.clearSelection();
-
-            }
-
-
-            refreshEditRewardUI(
-
-                overlay
-
-            );
-
-        }
-
-    );
-
-
-    renderRewardConfirm(
-
-        confirm,
-
-        confirmBatch
-
-    );
-
-
-    /* =============================================
-       SHOW
-    ============================================= */
-
-    overlay.classList.add(
-
-        "is-open"
-
-    );
-
-
-    document.body.classList.add(
-
-        "input-open"
-
-    );
-
-
-    return overlay;
-
-}
-
-
-/* =====================================================
-   REFRESH EDIT REWARD UI
-===================================================== */
-
-function refreshEditRewardUI(
-
-    overlay
-
-){
-
-    if(
-
-        !overlay
-
-    ){
-
-        return;
-
-    }
-
-
-    const picker =
-
-        overlay.querySelector(
-
-            ".airdrop-edit-reward-picker"
-
-        );
-
-
-    const selected =
-
-        overlay.querySelector(
-
-            ".airdrop-edit-reward-selected-container"
-
-        );
-
-
-    const pending =
-
-        overlay.querySelector(
-
-            ".airdrop-edit-reward-pending-container"
-
-        );
-
-
-    const confirm =
-
-        overlay.querySelector(
-
-            ".airdrop-edit-reward-confirm-container"
-
-        );
-
-
-    if(
-
-        !picker
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =============================================
-       CURRENT SELECTED
-    ============================================= */
-
-    const currentSelected =
-
-        typeof Reward.getSelectedRecord ===
-
-            "function"
-
-            ?
-
-            Reward.getSelectedRecord()
-
-            :
-
-            null;
-
-
-    /* =============================================
-       PICKER
-
-       Callback memilih record baru.
-    ============================================= */
-
-    renderRewardPicker(
-
-        picker,
-
-        record => {
-
-            if(
-
-                !selected
-
-            ){
-
-                return;
-
-            }
-
-
-            renderSelectedReward(
-
-                selected,
-
-                record,
-
-                async ({
-
-                    record,
-
-                    status,
-
-                    reward
-
-                }) => {
-
-                    const result =
-
-                        Reward.add({
-
-                            record,
-
-                            result :
-
-                                status,
-
-                            reward
-
-                        });
-
-
-                    if(
-
-                        !result?.success
-
-                    ){
-
-                        const message =
-
-                            overlay.querySelector(
-
-                                ".airdrop-edit-reward-message-container"
-
-                            );
-
-
-                        showRewardMessage(
-
-                            message,
-
-                            result?.message ??
-
-                                "Gagal menambahkan perubahan reward.",
-
-                            result?.duplicate
-
-                                ?
-
-                                "warning"
-
-                                :
-
-                                "error"
-
-                        );
-
-
-                        return;
-
-                    }
-
-
-                    const message =
-
-                        overlay.querySelector(
-
-                            ".airdrop-edit-reward-message-container"
-
-                        );
-
-
-                    showRewardMessage(
-
-                        message,
-
-                        "Perubahan reward ditambahkan.",
-
-                        "success"
-
-                    );
-
-
-                    if(
-
-                        typeof Reward.clearSelection ===
-
-                            "function"
-
-                    ){
-
-                        Reward.clearSelection();
-
-                    }
-
-
-                    selected.innerHTML = "";
-
-
-                    refreshEditRewardUI(
-
-                        overlay
-
-                    );
-
-                }
-
-            );
-
-        }
-
-    );
-
-
-    /* =============================================
-       RESTORE SELECTED
-
-       Hanya restore kalau record tersebut
-       belum masuk batch.
-    ============================================= */
-
-    if(
-
-        currentSelected
-
-        &&
-
-        !hasPendingRewardRecord(
-
-            currentSelected
-
-        )
-
-        &&
-
-        selected
-
-    ){
-
-        renderSelectedReward(
-
-            selected,
-
-            currentSelected,
-
-            async ({
-
-                record,
-
-                status,
-
-                reward
-
-            }) => {
-
-                const result =
-
-                    Reward.add({
-
-                        record,
-
-                        result :
-
-                            status,
-
-                        reward
-
-                    });
-
-
-                const message =
-
-                    overlay.querySelector(
-
-                        ".airdrop-edit-reward-message-container"
-
-                    );
-
-
-                if(
-
-                    !result?.success
-
-                ){
-
-                    showRewardMessage(
-
-                        message,
-
-                        result?.message ??
-
-                            "Gagal menambahkan perubahan reward.",
-
-                        result?.duplicate
-
-                            ?
-
-                            "warning"
-
-                            :
-
-                            "error"
-
-                    );
-
-
-                    return;
-
-                }
-
-
-                showRewardMessage(
-
-                    message,
-
-                    "Perubahan reward ditambahkan.",
-
-                    "success"
-
-                );
-
-
-                Reward.clearSelection();
-
-
-                selected.innerHTML = "";
-
-
-                refreshEditRewardUI(
-
-                    overlay
-
-                );
-
-            }
-
-        );
-
-    }
-
-
-    /* =============================================
-       PENDING
-    ============================================= */
-
-    if(
-
-        pending
-
-    ){
-
-        renderPendingEdits(
-
-            pending,
-
-            index => {
-
-                const removed =
-
-                    Reward.remove(
-
-                        index
-
-                    );
-
-
-                if(
-
-                    removed
-
-                ){
-
-                    const message =
-
-                        overlay.querySelector(
-
-                            ".airdrop-edit-reward-message-container"
-
-                        );
-
-
-                    showRewardMessage(
-
-                        message,
-
-                        "Perubahan reward dihapus dari daftar.",
-
-                        "info"
-
-                    );
-
-                }
-
-
-                Reward.clearSelection();
-
-
-                if(
-
-                    selected
-
-                ){
-
-                    selected.innerHTML = "";
-
-                }
-
-
-                refreshEditRewardUI(
-
-                    overlay
-
-                );
-
-            }
-
-        );
-
-    }
-
-
-    /* =============================================
-       CONFIRM
-    ============================================= */
-
-    if(
-
-        confirm
-
-    ){
-
-        renderRewardConfirm(
-
-            confirm,
-
-            async () => {
-
-                const message =
-
-                    overlay.querySelector(
-
-                        ".airdrop-edit-reward-message-container"
-
-                    );
-
-
-                const result =
-
-                    await Reward.confirm();
-
-
-                if(
-
-                    result?.success
-
-                ){
-
-                    showRewardMessage(
-
-                        message,
-
-                        result.message ??
-
-                            "Reward berhasil disimpan.",
-
-                        "success"
-
-                    );
-
-
-                    Reward.clearSelection();
-
-
-                    if(
-
-                        selected
-
-                    ){
-
-                        selected.innerHTML = "";
-
-                    }
-
-
-                    refreshEditRewardUI(
-
-                        overlay
-
-                    );
-
-
-                    return;
-
-                }
-
-
-                if(
-
-                    result?.partial
-
-                ){
-
-                    showRewardMessage(
-
-                        message,
-
-                        result.message ??
-
-                            "Sebagian reward berhasil disimpan.",
-
-                        "warning"
-
-                    );
-
-
-                    Reward.clearSelection();
-
-
-                    if(
-
-                        selected
-
-                    ){
-
-                        selected.innerHTML = "";
-
-                    }
-
-
-                    refreshEditRewardUI(
-
-                        overlay
-
-                    );
-
-
-                    return;
-
-                }
-
-
-                showRewardMessage(
-
-                    message,
-
-                    result?.message ??
-
-                        "Tidak ada perubahan reward yang berhasil disimpan.",
-
-                    "error"
-
-                );
-
-
-                refreshEditRewardUI(
-
-                    overlay
-
-                );
-
-            }
-
-        );
-
-    }
 
 }
 
