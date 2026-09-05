@@ -1638,19 +1638,25 @@ function renderEditInput(){
     ){
 
         rewardMenu.addEventListener(
+    "click",
+    () => {
 
-            "click",
-
-            () => {
-
-                Input.openEdit(
-    "airdrop",
-    "reward"
-);
-
-            }
-
+        console.log(
+            "=== CLICK EDIT REWARD ==="
         );
+
+        console.log(
+            "Input:",
+            Input
+        );
+
+        Input.openEdit(
+            "airdrop",
+            "reward"
+        );
+
+    }
+);
 
     }
 
