@@ -307,67 +307,63 @@ function getIdField(
    DATE FIELD
 ===================================================== */
 
-function getDateField(
-    record
-){
+function getDateField(record){
 
     if(
-        typeof currentOptions.getDateField ===
-        "function"
+        !record ||
+        typeof record !== "object"
     ){
 
-        const result =
-            callFunction(
-                currentOptions.getDateField,
-                [record]
-            );
-
-
-        if(
-            result
-        ){
-
-            return result;
-
-        }
+        return null;
 
     }
 
 
-    const candidates = [
+    const keys = Object.keys(record);
 
+
+    /*
+       Semua workspace menggunakan salah satu:
+
+       tanggal
+       Date
+       date
+
+       Pencarian dibuat case-insensitive
+       agar tidak bergantung pada kapitalisasi.
+    */
+
+    const normalizedCandidates = [
         "tanggal",
-        "Tanggal",
-        "date",
-        "Date",
-        "datetime",
-        "dateTime",
-        "createdAt",
-        "created_at"
-
+        "date"
     ];
 
 
     for(
-        const field of candidates
+        const key of keys
     ){
 
+        const normalizedKey =
+
+            String(key)
+                .trim()
+                .toLowerCase();
+
+
         if(
-            record &&
-        Object.prototype.hasOwnProperty.call(
-                record,
-                field
+            normalizedCandidates.includes(
+                normalizedKey
             )
         ){
 
-            return field;
+            return key;
 
         }
 
     }
 
 
-    return "tanggal";
+    return null;
 
 }
 
