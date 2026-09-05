@@ -3178,3 +3178,796 @@ body.input-open {
     }
 
 }
+
+/* =====================================================
+   GLOBAL UPDATE DATA
+   DIRECT RECORD LIST
+   Version : 1.2.0
+
+   Concept :
+   - Direct card list
+   - Search above list
+   - Internal scrolling
+   - No record picker
+   - Detail after selection
+   - Edit fields
+   - Tambahkan
+   - Pending
+   - Konfirmasi
+===================================================== */
+
+
+/* =====================================================
+   RECORD SECTION
+===================================================== */
+
+.global-update-data-record-section{
+    width:100%;
+    margin:0 0 20px;
+}
+
+
+.global-update-data-record-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:0 0 10px;
+}
+
+
+.global-update-data-record-title{
+    margin:0;
+    font-size:18px;
+    line-height:1.3;
+    font-weight:700;
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.global-update-data-record-search-wrap{
+    position:relative;
+    width:100%;
+    margin-bottom:12px;
+}
+
+
+.global-update-data-record-search-icon{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    pointer-events:none;
+    font-size:16px;
+    line-height:1;
+    opacity:.65;
+}
+
+
+.global-update-data-record-search{
+    width:100%;
+    min-height:48px;
+    box-sizing:border-box;
+    padding:0 15px 0 43px;
+    border:1px solid #d6dddd;
+    border-radius:14px;
+    background:#fff;
+    color:#263b3b;
+    font-size:16px;
+    outline:none;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+
+.global-update-data-record-search::placeholder{
+    color:#899494;
+}
+
+
+.global-update-data-record-search:focus{
+    border-color:#9aabab;
+    box-shadow:0 0 0 3px rgba(100,120,120,.10);
+}
+
+
+/* =====================================================
+   DIRECT RECORD LIST
+===================================================== */
+
+.global-update-data-record-list{
+    width:100%;
+    max-height:350px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    box-sizing:border-box;
+    padding:2px;
+    border-radius:16px;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+}
+
+
+.global-update-data-record-list::-webkit-scrollbar{
+    width:6px;
+}
+
+
+.global-update-data-record-list::-webkit-scrollbar-track{
+    background:transparent;
+}
+
+
+.global-update-data-record-list::-webkit-scrollbar-thumb{
+    background:#c4cece;
+    border-radius:20px;
+}
+
+
+/* =====================================================
+   RECORD CARD
+===================================================== */
+
+.global-update-data-record-item{
+    width:100%;
+    min-height:68px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    box-sizing:border-box;
+    padding:13px 14px;
+    margin:0 0 8px;
+    border:1px solid #dce3e3;
+    border-radius:15px;
+    background:#fff;
+    color:#263b3b;
+    text-align:left;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    transition:
+        transform .16s ease,
+        border-color .16s ease,
+        background .16s ease,
+        box-shadow .16s ease;
+}
+
+
+.global-update-data-record-item:last-child{
+    margin-bottom:2px;
+}
+
+
+.global-update-data-record-item:hover{
+    border-color:#aebbbb;
+    box-shadow:0 3px 12px rgba(40,60,60,.07);
+}
+
+
+.global-update-data-record-item:active{
+    transform:scale(.99);
+}
+
+
+.global-update-data-record-item.selected{
+    border-color:#879b9b;
+    background:#f2f6f6;
+    box-shadow:0 3px 12px rgba(40,60,60,.08);
+}
+
+
+.global-update-data-record-item-content{
+    min-width:0;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+
+
+.global-update-data-record-item-title{
+    display:block;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:16px;
+    line-height:1.35;
+    font-weight:700;
+}
+
+
+.global-update-data-record-item-meta{
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:13px;
+    line-height:1.35;
+    color:#687777;
+}
+
+
+.global-update-data-record-item-id{
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:11px;
+    line-height:1.3;
+    color:#929c9c;
+}
+
+
+.global-update-data-record-item-arrow{
+    flex:0 0 auto;
+    font-size:26px;
+    line-height:1;
+    color:#7c8989;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.global-update-data-empty{
+    width:100%;
+    box-sizing:border-box;
+    padding:22px 16px;
+    border:1px dashed #cfd8d8;
+    border-radius:14px;
+    text-align:center;
+    font-size:14px;
+    line-height:1.5;
+    color:#7d8989;
+    background:#fafcfc;
+}
+
+
+/* =====================================================
+   DETAIL
+===================================================== */
+
+.global-update-data-detail{
+    width:100%;
+    margin:18px 0 0;
+}
+
+
+.global-update-data-detail-card{
+    width:100%;
+    box-sizing:border-box;
+    padding:16px;
+    border:1px solid #dce3e3;
+    border-radius:16px;
+    background:#fff;
+}
+
+
+.global-update-data-detail-title{
+    margin:0 0 12px;
+    font-size:17px;
+    line-height:1.35;
+    font-weight:700;
+}
+
+
+.global-update-data-detail-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    padding:10px 0;
+    border-top:1px solid #edf1f1;
+}
+
+
+.global-update-data-detail-row:first-of-type{
+    border-top:0;
+}
+
+
+.global-update-data-detail-label{
+    flex:0 0 105px;
+    color:#748080;
+    font-size:14px;
+    line-height:1.4;
+}
+
+
+.global-update-data-detail-value-wrap{
+    min-width:0;
+    flex:1;
+    display:flex;
+    justify-content:flex-end;
+    align-items:flex-start;
+    gap:7px;
+    text-align:right;
+}
+
+
+.global-update-data-detail-value{
+    max-width:100%;
+    overflow-wrap:anywhere;
+    color:#263b3b;
+    font-size:14px;
+    line-height:1.4;
+}
+
+
+.global-update-data-detail-lock{
+    flex:0 0 auto;
+    font-size:12px;
+    line-height:1.4;
+}
+
+
+/* =====================================================
+   FIELDS
+===================================================== */
+
+.global-update-data-fields{
+    width:100%;
+    margin:16px 0 0;
+}
+
+
+.global-update-data-field{
+    width:100%;
+    margin:0 0 15px;
+}
+
+
+.global-update-data-field-label{
+    display:block;
+    margin:0 0 7px;
+    color:#556565;
+    font-size:14px;
+    line-height:1.35;
+    font-weight:600;
+}
+
+
+.global-update-data-field-control{
+    width:100%;
+    min-height:48px;
+    box-sizing:border-box;
+    padding:0 14px;
+    border:1px solid #d3dddd;
+    border-radius:13px;
+    background:#fff;
+    color:#263b3b;
+    font-size:16px;
+    outline:none;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.global-update-data-field-control:focus{
+    border-color:#9aabab;
+    box-shadow:0 0 0 3px rgba(100,120,120,.10);
+}
+
+
+.global-update-data-field-select{
+    padding-right:38px;
+    appearance:auto;
+    -webkit-appearance:auto;
+}
+
+
+.global-update-data-field-number{
+    appearance:textfield;
+    -moz-appearance:textfield;
+}
+
+
+.global-update-data-field-number::-webkit-inner-spin-button,
+.global-update-data-field-number::-webkit-outer-spin-button{
+    margin:0;
+}
+
+
+.global-update-data-field-textarea{
+    min-height:100px;
+    padding-top:12px;
+    padding-bottom:12px;
+    resize:vertical;
+}
+
+
+.global-update-data-field-note{
+    display:block;
+    margin-top:5px;
+    color:#879191;
+    font-size:12px;
+    line-height:1.4;
+}
+
+
+/* =====================================================
+   ACTION / TAMBAHKAN
+===================================================== */
+
+.global-update-data-action{
+    width:100%;
+    margin:4px 0 20px;
+}
+
+
+.global-update-data-add{
+    width:100%;
+    min-height:54px;
+    border:0;
+    border-radius:15px;
+    background:#263b3b;
+    color:#fff;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    transition:
+        opacity .2s ease,
+        transform .16s ease,
+        background .2s ease;
+}
+
+
+.global-update-data-add:not(:disabled):active{
+    transform:scale(.99);
+}
+
+
+.global-update-data-add:disabled{
+    opacity:.42;
+    cursor:not-allowed;
+}
+
+
+/* =====================================================
+   PENDING
+===================================================== */
+
+.global-update-data-pending{
+    width:100%;
+    margin:8px 0 20px;
+    padding:15px;
+    box-sizing:border-box;
+    border:1px solid #dce3e3;
+    border-radius:16px;
+    background:#fafcfc;
+}
+
+
+.global-update-data-pending-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+
+.global-update-data-pending-header h3{
+    margin:0;
+    font-size:16px;
+    line-height:1.35;
+    font-weight:700;
+}
+
+
+.global-update-data-pending-count{
+    min-width:25px;
+    height:25px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 7px;
+    box-sizing:border-box;
+    border-radius:20px;
+    background:#e5ebeb;
+    color:#455555;
+    font-size:12px;
+    font-weight:700;
+}
+
+
+.global-update-data-pending-list{
+    width:100%;
+}
+
+
+.global-update-data-pending-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:11px 0;
+    border-top:1px solid #e5ebeb;
+}
+
+
+.global-update-data-pending-item:first-child{
+    border-top:0;
+}
+
+
+.global-update-data-pending-item-content{
+    min-width:0;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+
+
+.global-update-data-pending-item-title{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#2e4141;
+    font-size:14px;
+    line-height:1.35;
+}
+
+
+.global-update-data-pending-item-meta{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#7a8686;
+    font-size:12px;
+    line-height:1.35;
+}
+
+
+.global-update-data-remove{
+    flex:0 0 auto;
+    min-height:34px;
+    padding:0 11px;
+    border:1px solid #d3dddd;
+    border-radius:10px;
+    background:#fff;
+    color:#657272;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+
+/* =====================================================
+   CONFIRM
+===================================================== */
+
+.global-update-data-confirm{
+    width:100%;
+    box-sizing:border-box;
+    padding:12px 16px 16px;
+    border-top:1px solid #e1e7e7;
+    background:#fff;
+}
+
+
+.global-update-data-confirm button{
+    width:100%;
+    min-height:54px;
+    border:0;
+    border-radius:15px;
+    background:#263b3b;
+    color:#fff;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    transition:
+        opacity .2s ease,
+        transform .16s ease;
+}
+
+
+.global-update-data-confirm button:not(:disabled):active{
+    transform:scale(.99);
+}
+
+
+.global-update-data-confirm button:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+
+/* =====================================================
+   RESULT
+===================================================== */
+
+.global-update-data-result{
+    width:100%;
+    box-sizing:border-box;
+    margin:4px 0 12px;
+    padding:12px 14px;
+    border-radius:12px;
+    font-size:13px;
+    line-height:1.45;
+}
+
+
+.global-update-data-result.success{
+    background:#eef7f1;
+    color:#46634e;
+    border:1px solid #d5e9da;
+}
+
+
+.global-update-data-result.error{
+    background:#faf0f0;
+    color:#765050;
+    border:1px solid #ecd7d7;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.global-update-data-loading{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    width:100%;
+    box-sizing:border-box;
+    margin:12px 0;
+    padding:12px;
+    border-radius:12px;
+    background:#f5f8f8;
+    color:#657272;
+    font-size:13px;
+}
+
+
+.global-update-data-loading-spinner{
+    width:17px;
+    height:17px;
+    box-sizing:border-box;
+    border:2px solid #c8d1d1;
+    border-top-color:#536666;
+    border-radius:50%;
+    animation:globalUpdateDataSpin .8s linear infinite;
+}
+
+
+@keyframes globalUpdateDataSpin{
+
+    from{
+        transform:rotate(0deg);
+    }
+
+    to{
+        transform:rotate(360deg);
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width:600px){
+
+    .global-update-data-record-list{
+        max-height:350px;
+    }
+
+
+    .global-update-data-record-item{
+        min-height:66px;
+        padding:12px;
+    }
+
+
+    .global-update-data-detail-card{
+        padding:14px;
+    }
+
+
+    .global-update-data-detail-label{
+        flex-basis:95px;
+    }
+
+}
+
+
+@media (max-width:480px){
+
+    .global-update-data-record-list{
+        max-height:340px;
+    }
+
+
+    .global-update-data-record-item-title{
+        font-size:15px;
+    }
+
+
+    .global-update-data-record-item-meta{
+        font-size:12px;
+    }
+
+
+    .global-update-data-record-item-id{
+        font-size:10px;
+    }
+
+
+    .global-update-data-detail-row{
+        gap:10px;
+    }
+
+
+    .global-update-data-detail-label{
+        flex-basis:90px;
+        font-size:13px;
+    }
+
+
+    .global-update-data-detail-value{
+        font-size:13px;
+    }
+
+}
+
+
+@media (max-width:360px){
+
+    .global-update-data-record-list{
+        max-height:320px;
+    }
+
+
+    .global-update-data-record-item{
+        padding:10px;
+    }
+
+
+    .global-update-data-record-item-arrow{
+        font-size:22px;
+    }
+
+
+    .global-update-data-detail-label{
+        flex-basis:78px;
+    }
+
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion:reduce){
+
+    .global-update-data-record-item,
+    .global-update-data-record-search,
+    .global-update-data-add,
+    .global-update-data-confirm button{
+
+        transition:none;
+
+    }
+
+
+    .global-update-data-loading-spinner{
+
+        animation:none;
+
+    }
+
+}
