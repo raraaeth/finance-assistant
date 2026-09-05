@@ -77,7 +77,7 @@ import {
 
 import {
     Update
-} from "./update.js";
+} from "../../js/update.js";
 
 
 import {
