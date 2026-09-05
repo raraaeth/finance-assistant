@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Airdrop
    File         : airdrop.js
-   Version      : 4.8.0
+   Version      : 4.8.1
 
    Description :
    Airdrop Input Configuration
@@ -94,9 +94,12 @@
    - Apps Script hanya dipanggil saat Konfirmasi.
 
    EDIT INPUT ROW :
-   - Skeleton saja.
-   - Belum ada business logic.
-   - Target nantinya ID + Tanggal.
+   - Menggunakan global editrow.js.
+   - Maksimal 20 transaksi terbaru.
+   - Target ID + Tanggal.
+   - ID + Tanggal locked.
+   - Field control mengikuti konfigurasi
+     Airdrop Input.
 ===================================================== */
 
 
@@ -127,7 +130,7 @@ import {
    - konfigurasi workspace
    - aturan Activity
    - adapter Edit Reward
-   - skeleton Edit Row
+   - adapter Edit Row
 
    updatedata.js :
    - UI Edit Input global
@@ -147,6 +150,15 @@ import {
    - staging
    - batch confirmation
 
+   editrow.js :
+   - generic Edit Input Row engine
+   - maksimal 20 transaksi terakhir
+   - target ID + Tanggal
+   - field control
+   - staging
+   - pending
+   - full-row update
+
    update.js :
    - komunikasi update ke Apps Script
 */
@@ -164,10 +176,11 @@ import {
 
 } from "./updatedata.js";
 
+
 import {
-   
+
     EditRow
-   
+
 } from "./editrow.js";
 
 
@@ -2630,7 +2643,9 @@ export function validateReward(
 
                 numericReward
 
-            ) ||
+            )
+
+            ||
 
             numericReward < 0
 
@@ -3173,16 +3188,6 @@ async function openEditReward(){
            DIRECT LIST
         ========================================= */
 
-        /*
-           updatedata.js versi terbaru
-           menggunakan direct record list.
-
-           Tidak ada picker/dropdown.
-
-           List langsung tampil ketika overlay
-           dibuka.
-        */
-
         listTitle :
 
             "Daftar Project",
@@ -3196,19 +3201,6 @@ async function openEditReward(){
         /* =========================================
            RECORD ID / IDENTITY
         ========================================= */
-
-        /*
-           Reward memakai target :
-
-               ID + Project
-
-           Ini khusus Reward.
-
-           Edit Input Row nantinya
-           akan memakai :
-
-               ID + Tanggal
-        */
 
         getRecordId :
 
@@ -3583,15 +3575,6 @@ async function openEditReward(){
            SELECT CALLBACK
         ========================================= */
 
-        /*
-           Penting :
-
-           Klik card hanya memilih record
-           dan membuka editor.
-
-           Tidak ada Apps Script di sini.
-        */
-
         onSelect :
 
             record => {
@@ -3725,13 +3708,6 @@ async function openEditReward(){
         /* =========================================
            STAGE
         ========================================= */
-
-        /*
-           Tambahkan hanya memasukkan perubahan
-           ke temporary state melalui Reward.add().
-
-           Tidak ada Apps Script.
-        */
 
         onAdd :
 
@@ -3979,18 +3955,6 @@ async function openEditReward(){
            CONFIRM
         ========================================= */
 
-        /*
-           Ini satu-satunya titik yang
-           boleh mengirim perubahan ke server.
-
-           UpdateData hanya mengumpulkan
-           pending changes.
-
-           Reward.confirm() yang menjalankan
-           Update.updateField() untuk setiap
-           record.
-        */
-
         onConfirm :
 
             async (
@@ -4167,39 +4131,10 @@ async function openEditReward(){
 async function openEditRow(){
 
     console.log(
+
         "===== AIRDROP EDIT INPUT ROW OPEN ====="
+
     );
-
-
-    /* =============================================
-       GET RECORDS
-    ============================================= */
-
-    const records =
-        typeof EditRow.getEditableRecords ===
-            "function"
-            ? EditRow.getEditableRecords()
-            : getAirdropData();
-
-
-    console.log(
-        "Airdrop Edit Row records:",
-        records
-    );
-
-
-    /* =============================================
-       CLEAR CURRENT STATE
-    ============================================= */
-
-    if(
-        typeof EditRow.reset ===
-        "function"
-    ){
-
-        EditRow.reset();
-
-    }
 
 
     /* =============================================
@@ -4207,16 +4142,40 @@ async function openEditRow(){
     ============================================= */
 
     if(
+
         !EditRow ||
+
         typeof EditRow.open !==
+
             "function"
+
     ){
 
         console.error(
+
             "[Airdrop] EditRow.open() tidak tersedia."
+
         );
 
+
         return null;
+
+    }
+
+
+    /* =============================================
+       CLEAR CURRENT STATE
+    ============================================= */
+
+    if(
+
+        typeof EditRow.reset ===
+
+        "function"
+
+    ){
+
+        EditRow.reset();
 
     }
 
@@ -4232,10 +4191,12 @@ async function openEditRow(){
         ========================================= */
 
         workspace :
+
             "airdrop",
 
 
         mode :
+
             "row",
 
 
@@ -4244,10 +4205,12 @@ async function openEditRow(){
         ========================================= */
 
         title :
+
             "Edit Input Row",
 
 
         subtitle :
+
             "Pilih transaksi dari daftar untuk mengubah data.",
 
 
@@ -4255,17 +4218,11 @@ async function openEditRow(){
            RECORD SOURCE
         ========================================= */
 
-        /*
-           EditRow sendiri sudah membatasi
-           menjadi maksimal 20 transaksi terakhir.
-
-           records tetap diberikan di sini supaya
-           adapter Airdrop eksplisit terhadap
-           source workspace.
-        */
-
         getRecords :
-            () => getAirdropData(),
+
+            () =>
+
+                getAirdropData(),
 
 
         /* =========================================
@@ -4282,6 +4239,7 @@ async function openEditRow(){
         */
 
         getIdField :
+
             record => {
 
                 return "id";
@@ -4290,6 +4248,7 @@ async function openEditRow(){
 
 
         getDateField :
+
             record => {
 
                 return "tanggal";
@@ -4302,17 +4261,24 @@ async function openEditRow(){
         ========================================= */
 
         getRecordLabel :
+
             record => {
 
                 const project =
+
                     String(
+
                         record?.project ??
+
                         ""
+
                     ).trim();
 
 
                 if(
+
                     project
+
                 ){
 
                     return project;
@@ -4321,14 +4287,20 @@ async function openEditRow(){
 
 
                 const nama =
+
                     String(
+
                         record?.nama ??
+
                         ""
+
                     ).trim();
 
 
                 if(
+
                     nama
+
                 ){
 
                     return nama;
@@ -4337,13 +4309,18 @@ async function openEditRow(){
 
 
                 const id =
+
                     String(
+
                         record?.id ??
+
                         ""
+
                     ).trim();
 
 
                 return id ||
+
                        "Transaksi Airdrop";
 
             },
@@ -4354,24 +4331,35 @@ async function openEditRow(){
         ========================================= */
 
         getRecordMeta :
+
             record => {
 
                 const tanggal =
+
                     String(
+
                         record?.tanggal ??
+
                         ""
+
                     ).trim();
 
 
                 const type =
+
                     formatOptionLabel(
+
                         record?.type
+
                     );
 
 
                 const status =
+
                     getStatusLabel(
+
                         record?.status
+
                     );
 
 
@@ -4379,40 +4367,54 @@ async function openEditRow(){
 
 
                 if(
+
                     tanggal
+
                 ){
 
                     parts.push(
+
                         tanggal
+
                     );
 
                 }
 
 
                 if(
+
                     type
+
                 ){
 
                     parts.push(
+
                         type
+
                     );
 
                 }
 
 
                 if(
+
                     status
+
                 ){
 
                     parts.push(
+
                         status
+
                     );
 
                 }
 
 
                 return parts.join(
+
                     " · "
+
                 );
 
             },
@@ -4423,14 +4425,17 @@ async function openEditRow(){
         ========================================= */
 
         listTitle :
+
             "Daftar Transaksi",
 
 
         searchPlaceholder :
+
             "Cari transaksi...",
 
 
         emptyText :
+
             "Tidak ada transaksi yang dapat diedit.",
 
 
@@ -4439,8 +4444,7 @@ async function openEditRow(){
         ========================================= */
 
         /*
-           Airdrop tetap mengikuti struktur
-           row yang sekarang :
+           Airdrop mengikuti struktur row :
 
            tanggal
            id
@@ -4458,25 +4462,16 @@ async function openEditRow(){
            Field lain :
                editable secara default.
 
-           Workspace dapat menambahkan
-           locked rule di sini.
+           Tidak ada field lain yang
+           dikunci khusus oleh Airdrop.
         */
 
         isFieldLocked :
+
             (
                 field,
                 record
             ) => {
-
-                /*
-                   Type pada Airdrop tidak dikunci
-                   untuk Edit Row.
-
-                   Status juga tidak dikunci.
-
-                   Karena Edit Row memang ditujukan
-                   untuk koreksi seluruh row.
-                */
 
                 return false;
 
@@ -4488,6 +4483,7 @@ async function openEditRow(){
         ========================================= */
 
         getFieldType :
+
             (
                 field,
                 value,
@@ -4495,14 +4491,20 @@ async function openEditRow(){
             ) => {
 
                 const normalized =
+
                     normalizeValue(
+
                         field
+
                     );
 
 
                 if(
+
                     normalized ===
+
                     "status"
+
                 ){
 
                     return "select";
@@ -4511,8 +4513,11 @@ async function openEditRow(){
 
 
                 if(
+
                     normalized ===
+
                     "type"
+
                 ){
 
                     return "select";
@@ -4521,8 +4526,24 @@ async function openEditRow(){
 
 
                 if(
+
                     normalized ===
+
+                    "nama"
+
+                ){
+
+                    return "select";
+
+                }
+
+
+                if(
+
+                    normalized ===
+
                     "$reward"
+
                 ){
 
                     return "number";
@@ -4531,10 +4552,15 @@ async function openEditRow(){
 
 
                 if(
+
                     normalized ===
+
                     "start" ||
+
                     normalized ===
+
                     "end"
+
                 ){
 
                     return "date";
@@ -4552,45 +4578,69 @@ async function openEditRow(){
         ========================================= */
 
         getFieldLabel :
+
             (
                 field,
                 record
             ) => {
 
                 switch(
+
                     field
+
                 ){
 
                     case "id":
+
                         return "ID";
 
+
                     case "tanggal":
+
                         return "Tanggal";
 
+
                     case "type":
+
                         return "Type";
 
+
                     case "nama":
+
                         return "Nama / Wallet";
 
+
                     case "project":
+
                         return "Project";
 
+
                     case "$reward":
+
                         return "$ Reward";
 
+
                     case "start":
+
                         return "Start";
 
+
                     case "end":
+
                         return "End";
 
+
                     case "status":
+
                         return "Status";
 
+
                     default:
+
                         return formatOptionLabel(
+
                             field
+
                         );
 
                 }
@@ -4603,144 +4653,231 @@ async function openEditRow(){
         ========================================= */
 
         getFieldConfig :
+
             (
                 field,
                 record
             ) => {
 
                 switch(
+
                     field
+
                 ){
+
+                    /* =================================
+                       TYPE
+                    ================================= */
 
                     case "type":
 
                         return {
 
                             type :
+
                                 "select",
 
+
                             options :
+
                                 getTypeOptions(),
 
+
                             placeholder :
+
                                 "Pilih type"
 
                         };
 
+
+                    /* =================================
+                       NAMA / WALLET
+                    ================================= */
 
                     case "nama":
 
                         return {
 
                             type :
-                                "text",
+
+                                "select",
+
+
+                            options :
+
+                                getWalletOptions(),
+
 
                             placeholder :
-                                "Masukkan nama / wallet"
+
+                                "Pilih wallet"
 
                         };
 
+
+                    /* =================================
+                       PROJECT
+                    ================================= */
 
                     case "project":
 
                         return {
 
                             type :
+
                                 "text",
 
+
                             placeholder :
+
                                 "Masukkan nama project"
 
                         };
 
+
+                    /* =================================
+                       REWARD
+                    ================================= */
 
                     case "$reward":
 
                         return {
 
                             type :
+
                                 "number",
 
+
                             min :
+
                                 0,
 
+
                             step :
+
                                 "any",
 
+
                             placeholder :
+
                                 "Masukkan nominal USD"
 
                         };
 
+
+                    /* =================================
+                       START
+                    ================================= */
 
                     case "start":
 
                         return {
 
                             type :
+
                                 "date"
 
                         };
 
+
+                    /* =================================
+                       END
+                    ================================= */
 
                     case "end":
 
                         return {
 
                             type :
+
                                 "date"
 
                         };
 
+
+                    /* =================================
+                       STATUS
+                    ================================= */
 
                     case "status":
 
                         return {
 
                             type :
+
                                 "select",
+
 
                             options : [
 
                                 {
+
                                     value :
+
                                         STATUS_ONGOING,
 
+
                                     label :
+
                                         "Ongoing"
+
                                 },
 
+
                                 {
+
                                     value :
+
                                         STATUS_ENDED,
 
+
                                     label :
+
                                         "Ended"
+
                                 },
 
+
                                 {
+
                                     value :
+
                                         STATUS_WIN,
 
+
                                     label :
+
                                         "Win"
+
                                 },
 
+
                                 {
+
                                     value :
+
                                         STATUS_NOT_WIN,
 
+
                                     label :
+
                                         "Not Win"
+
                                 }
 
                             ],
 
+
                             placeholder :
+
                                 "Pilih status"
 
                         };
 
+
+                    /* =================================
+                       DEFAULT
+                    ================================= */
 
                     default:
 
@@ -4756,53 +4893,79 @@ async function openEditRow(){
         ========================================= */
 
         /*
-           Karena API sudah mengembalikan object
-           row, kita tidak perlu mengetahui seluruh
-           header Sheet.
+           API sudah mengembalikan object row.
 
-           Untuk Airdrop, bila field ini memang
-           tersedia, tampilkan dengan urutan yang
-           sama dengan struktur transaksi Airdrop.
+           Tidak perlu membaca header Sheet.
+
+           Urutan hanya menggunakan field Airdrop
+           yang memang dikenal oleh workspace.
+
+           Field tambahan yang mungkin ada tetap
+           dipertahankan dan diletakkan setelah
+           field utama.
         */
 
         getFieldOrder :
+
             record => {
 
                 const preferred = [
 
                     "id",
+
                     "tanggal",
+
                     "type",
+
                     "nama",
+
                     "project",
+
                     "$reward",
+
                     "start",
+
                     "end",
+
                     "status"
 
                 ];
 
 
                 const existing =
+
                     Object.keys(
+
                         record || {}
+
                     );
 
 
                 return [
 
                     ...preferred.filter(
+
                         field =>
+
                             existing.includes(
+
                                 field
+
                             )
+
                     ),
 
+
                     ...existing.filter(
+
                         field =>
+
                             !preferred.includes(
+
                                 field
+
                             )
+
                     )
 
                 ];
@@ -4815,123 +4978,199 @@ async function openEditRow(){
         ========================================= */
 
         renderDetail :
+
             record => {
 
                 return {
 
                     title :
+
                         "Informasi Transaksi",
+
 
                     items : [
 
                         {
+
                             label :
+
                                 "ID",
 
+
                             value :
+
                                 String(
+
                                     record?.id ??
+
                                     "-"
+
                                 ),
 
+
                             locked :
+
                                 true
 
                         },
 
+
                         {
+
                             label :
+
                                 "Tanggal",
 
+
                             value :
+
                                 String(
+
                                     record?.tanggal ??
+
                                     "-"
+
                                 ),
 
+
                             locked :
+
                                 true
 
                         },
 
+
                         {
+
                             label :
+
                                 "Type",
 
+
                             value :
+
                                 formatOptionLabel(
+
                                     record?.type
+
                                 )
 
                         },
 
+
                         {
+
                             label :
+
                                 "Nama / Wallet",
 
+
                             value :
+
                                 String(
+
                                     record?.nama ??
+
                                     "-"
+
                                 )
 
                         },
 
+
                         {
+
                             label :
+
                                 "Project",
 
+
                             value :
+
                                 String(
+
                                     record?.project ??
+
                                     "-"
+
                                 )
 
                         },
 
+
                         {
+
                             label :
+
                                 "$ Reward",
 
+
                             value :
+
                                 String(
+
                                     record?.["$reward"] ??
+
                                     "-"
+
                                 )
 
                         },
 
+
                         {
+
                             label :
+
                                 "Start",
 
+
                             value :
+
                                 String(
+
                                     record?.start ??
+
                                     "-"
+
                                 )
 
                         },
 
+
                         {
+
                             label :
+
                                 "End",
 
+
                             value :
+
                                 String(
+
                                     record?.end ??
+
                                     "-"
+
                                 )
 
                         },
 
+
                         {
+
                             label :
+
                                 "Status",
 
+
                             value :
+
                                 getStatusLabel(
+
                                     record?.status
+
                                 )
 
                         }
@@ -4947,113 +5186,356 @@ async function openEditRow(){
            VALIDATE
         ========================================= */
 
+        /*
+           Penting :
+
+           editrow.js sekarang mengirim :
+
+               record
+               values
+               context
+
+           BUKAN DOM overlay.
+
+           Karena itu validasi tidak boleh
+           memanggil :
+
+               overlay.querySelector(...)
+
+           Semua nilai field sudah tersedia
+           melalui values.
+        */
+
         validate :
+
             (
                 record,
-                overlay,
+                values,
                 context
             ) => {
 
                 if(
+
                     !record
+
                 ){
 
-                    return false;
+                    return {
+
+                        valid :
+
+                            false,
+
+
+                        message :
+
+                            "Transaksi belum dipilih."
+
+                    };
 
                 }
 
 
                 const id =
+
                     String(
+
                         record?.id ??
+
                         ""
+
                     ).trim();
 
 
                 const tanggal =
+
                     String(
+
                         record?.tanggal ??
+
                         ""
+
                     ).trim();
 
 
                 if(
+
                     !id
+
                 ){
 
-                    console.error(
-                        "[Airdrop EditRow] ID kosong."
-                    );
+                    return {
 
-                    return false;
+                        valid :
+
+                            false,
+
+
+                        message :
+
+                            "ID transaksi kosong."
+
+                    };
 
                 }
 
 
                 if(
+
                     !tanggal
+
                 ){
 
-                    console.error(
-                        "[Airdrop EditRow] Tanggal kosong."
-                    );
+                    return {
 
-                    return false;
+                        valid :
+
+                            false,
+
+
+                        message :
+
+                            "Tanggal transaksi kosong."
+
+                    };
 
                 }
 
 
                 /*
-                   Rule tambahan workspace
-                   dapat ditambahkan di sini.
-
-                   Untuk sekarang tidak mengunci
-                   type/status/project/etc.
+                   Type harus menggunakan value
+                   canonical dari option Airdrop.
                 */
 
-                return true;
+                const type =
 
-            },
+                    String(
+
+                        values?.type ??
+
+                        record?.type ??
+
+                        ""
+
+                    ).trim();
 
 
-        /* =========================================
-           BUILD CHANGES
-        ========================================= */
+                if(
 
-        buildChanges :
-            (
-                record,
-                overlay
-            ) => {
+                    !type
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+
+                        message :
+
+                            "Type wajib dipilih."
+
+                    };
+
+                }
+
 
                 /*
-                   EditRow generic sudah membaca
-                   seluruh editable field dan
-                   membangun full row.
-
-                   Di sini kita hanya memastikan
-                   ID + tanggal tidak berubah.
+                   Nama / Wallet juga harus
+                   menggunakan value canonical
+                   dari option Airdrop.
                 */
 
-                const result =
-                    EditRow.buildRow
-                        ? null
-                        : null;
+                const nama =
+
+                    String(
+
+                        values?.nama ??
+
+                        record?.nama ??
+
+                        ""
+
+                    ).trim();
+
+
+                if(
+
+                    !nama
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+
+                        message :
+
+                            "Nama / Wallet wajib dipilih."
+
+                    };
+
+                }
 
 
                 /*
-                   Jangan membuat row baru
-                   berdasarkan daftar field manual.
-
-                   Generic EditRow yang menangani
-                   full-row preservation.
-
-                   Return null akan membuat
-                   EditRow menggunakan default
-                   builder.
+                   Project wajib ada.
                 */
 
-                return undefined;
+                const project =
+
+                    String(
+
+                        values?.project ??
+
+                        record?.project ??
+
+                        ""
+
+                    ).trim();
+
+
+                if(
+
+                    !project
+
+                ){
+
+                    return {
+
+                        valid :
+
+                            false,
+
+
+                        message :
+
+                            "Nama project wajib diisi."
+
+                    };
+
+                }
+
+
+                /*
+                   BANSOS :
+
+                   - Start kosong
+                   - End kosong
+                   - Status win
+                   - $reward wajib valid
+                */
+
+                if(
+
+                    isBansos(
+
+                        type
+
+                    )
+
+                ){
+
+                    const reward =
+
+                        values?.["$reward"];
+
+
+                    if(
+
+                        reward === "" ||
+
+                        reward === null ||
+
+                        reward === undefined
+
+                    ){
+
+                        return {
+
+                            valid :
+
+                                false,
+
+
+                            message :
+
+                                "$ Reward wajib diisi untuk Bansos."
+
+                        };
+
+                    }
+
+
+                    const numericReward =
+
+                        Number(
+
+                            reward
+
+                        );
+
+
+                    if(
+
+                        !Number.isFinite(
+
+                            numericReward
+
+                        )
+
+                        ||
+
+                        numericReward < 0
+
+                    ){
+
+                        return {
+
+                            valid :
+
+                                false,
+
+
+                            message :
+
+                                "$ Reward harus berupa angka USD."
+
+                        };
+
+                    }
+
+                }
+
+
+                /*
+                   CAMPAIGN :
+
+                   Start / End boleh digunakan.
+
+                   Tidak ada pemaksaan tambahan
+                   di sini agar tidak mengubah
+                   behavior existing.
+                */
+
+
+                return {
+
+                    valid :
+
+                        true,
+
+
+                    message :
+
+                        ""
+
+                };
 
             },
 
@@ -5063,40 +5545,59 @@ async function openEditRow(){
         ========================================= */
 
         onAdd :
+
             async (
+
                 record,
+
                 values,
+
                 changes
+
             ) => {
 
                 console.log(
+
                     "===== AIRDROP EDIT ROW STAGE ====="
+
                 );
 
 
                 console.log(
+
                     "Record:",
+
                     record
+
                 );
 
 
                 console.log(
+
                     "Values:",
+
                     values
+
                 );
 
 
                 console.log(
+
                     "Changes:",
+
                     changes
+
                 );
 
 
                 /*
                    Tidak ada Apps Script request.
 
-                   Semua staging ditangani
-                   oleh EditRow / UpdateData.
+                   EditRow generic menangani
+                   temporary staging.
+
+                   Full row dibangun berdasarkan
+                   row asli + perubahan field.
                 */
 
                 return true;
@@ -5109,62 +5610,91 @@ async function openEditRow(){
         ========================================= */
 
         getPendingLabel :
+
             item => {
 
                 const record =
+
                     item?.record ??
+
                     item;
 
 
                 const project =
+
                     String(
+
                         record?.project ??
+
                         ""
+
                     ).trim();
 
 
                 const tanggal =
+
                     String(
+
                         record?.tanggal ??
+
                         ""
+
                     ).trim();
 
 
                 const id =
+
                     String(
+
                         record?.id ??
+
                         ""
+
                     ).trim();
 
 
                 if(
+
                     project &&
+
                     tanggal
+
                 ){
 
                     return (
+
                         `${project} · ${tanggal}`
+
                     );
 
                 }
 
 
                 if(
+
                     id &&
+
                     tanggal
+
                 ){
 
                     return (
+
                         `${id} · ${tanggal}`
+
                     );
 
                 }
 
 
                 return (
+
                     project ||
+
                     id ||
+
                     "Data Airdrop"
+
                 );
 
             },
@@ -5175,46 +5705,52 @@ async function openEditRow(){
         ========================================= */
 
         addText :
+
             "Tambahkan",
 
 
         confirmText :
+
             "Konfirmasi",
 
 
         removeText :
+
             "Hapus",
 
 
         pendingTitle :
+
             "Sudah Ditambahkan",
 
 
         duplicateText :
+
             "Transaksi ini sudah ditambahkan.",
 
 
         confirmLoadingText :
+
             "Menyimpan...",
 
 
         fullscreen :
+
             true,
 
 
         allowBackdropClose :
+
             true,
 
 
         allowEscapeClose :
+
             true
 
     });
 
 }
-
-
-
 
 
 /* =====================================================
