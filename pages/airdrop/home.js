@@ -1643,11 +1643,10 @@ function renderEditInput(){
 
             () => {
 
-                console.log(
-
-                    "Airdrop Edit Input Reward"
-
-                );
+                Input.openEdit(
+    "airdrop",
+    "reward"
+);
 
             }
 
