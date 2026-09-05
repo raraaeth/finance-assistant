@@ -1878,32 +1878,20 @@ async function openEditRow(){
                 ================================= */
 
                 const tanggal =
+    record.Date ??
+    record.date ??
+    record.tanggal ??
+    "";
 
-                    String(
+if (!tanggal) {
 
-                        record?.tanggal ??
+    console.warn(
+        "[Financial EditRow] Tanggal kosong."
+    );
 
-                        ""
+    return false;
 
-                    ).trim();
-
-
-                if(
-
-                    !tanggal
-
-                ){
-
-                    console.error(
-
-                        "[Financial EditRow] Tanggal kosong."
-
-                    );
-
-                    return false;
-
-                }
-
+}
 
                 /* =================================
                    JENIS
