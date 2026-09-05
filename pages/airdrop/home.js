@@ -1667,28 +1667,30 @@ function renderEditInput(){
     ============================================= */
 
     if(
+if(
 
-        rowMenu
+    rowMenu
 
-    ){
+){
 
-        rowMenu.addEventListener(
+    rowMenu.addEventListener(
 
-            "click",
+        "click",
 
-            () => {
+        () => {
 
-                console.log(
+            Input.openEdit(
 
-                    "Airdrop Edit Input Row"
+                "airdrop",
+                "row"
 
-                );
+            );
 
-            }
+        }
 
-        );
+    );
 
-    }
+}
 
 }
 
