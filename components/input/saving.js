@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Saving
    File         : saving.js
-   Version      : 2.3.0
+   Version      : 2.3.1
 
    Description :
    Input Flow Configuration for Saving
@@ -79,7 +79,7 @@
    Note :
    Bank Tujuan hanya digunakan oleh :
 
-       jenis   = transfer
+       jenis    = transfer
        kategori = internal_transfer
 
    Principle :
@@ -189,7 +189,6 @@ function getBankOptions(){
                     bank &&
 
                     typeof bank ===
-
                         "object"
 
                 ){
@@ -199,17 +198,12 @@ function getBankOptions(){
                         String(
 
                             bank.value
-
                             ??
-
                             bank.nama
-
                             ??
-
                             ""
 
                         )
-
                         .trim();
 
 
@@ -218,32 +212,23 @@ function getBankOptions(){
                         String(
 
                             bank.label
-
                             ??
-
                             bank.nama
-
                             ??
-
                             bank.value
-
                             ??
-
                             ""
 
                         )
-
                         .trim();
 
 
                     return {
 
                         value :
-
                             value,
 
                         label :
-
                             label
 
                     };
@@ -260,22 +245,18 @@ function getBankOptions(){
                     String(
 
                         bank ??
-
                         ""
 
                     )
-
                     .trim();
 
 
                 return {
 
                     value :
-
                         value,
 
                     label :
-
                         value
 
                 };
@@ -312,11 +293,9 @@ const TRANSACTION_TYPES = [
     {
 
         value :
-
             "masuk",
 
         label :
-
             "💰 Masuk"
 
     },
@@ -324,11 +303,9 @@ const TRANSACTION_TYPES = [
     {
 
         value :
-
             "keluar",
 
         label :
-
             "💸 Keluar"
 
     },
@@ -336,15 +313,12 @@ const TRANSACTION_TYPES = [
     {
 
         value :
-
             "transfer",
 
         label :
-
             "🔄 Transfer",
 
         note :
-
             "Transfer digunakan untuk memindahkan dana antar bank atau wallet milik sendiri. Transfer ke rekening atau wallet milik orang lain gunakan Keluar → Transfer Out."
 
     }
@@ -363,11 +337,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "transfer_in",
 
             label :
-
                 "Transfer In"
 
         },
@@ -375,11 +347,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "deposit",
 
             label :
-
                 "Deposit"
 
         }
@@ -392,11 +362,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "tarik",
 
             label :
-
                 "Tarik"
 
         },
@@ -404,11 +372,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "transfer_out",
 
             label :
-
                 "Transfer Out"
 
         },
@@ -416,11 +382,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "topup",
 
             label :
-
                 "Topup"
 
         }
@@ -433,11 +397,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "internal_transfer",
 
             label :
-
                 "Internal Transfer"
 
         },
@@ -445,11 +407,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "withdraw",
 
             label :
-
                 "Withdraw"
 
         },
@@ -457,11 +417,9 @@ const CATEGORY = {
         {
 
             value :
-
                 "deposit",
 
             label :
-
                 "Deposit"
 
         }
@@ -526,19 +484,15 @@ export const Saving = {
         {
 
             id :
-
                 "jenis",
 
             label :
-
                 "Jenis Transaksi",
 
             type :
-
                 "select",
 
             options :
-
                 TRANSACTION_TYPES
 
         },
@@ -551,15 +505,12 @@ export const Saving = {
         {
 
             id :
-
                 "kategori",
 
             label :
-
                 "Kategori",
 
             type :
-
                 "select",
 
             options :
@@ -567,13 +518,9 @@ export const Saving = {
                 values =>
 
                     CATEGORY[
-
                         values.jenis
-
                     ]
-
                     ??
-
                     []
 
         },
@@ -596,7 +543,6 @@ export const Saving = {
         {
 
             id :
-
                 "bank",
 
             label :
@@ -604,7 +550,6 @@ export const Saving = {
                 values =>
 
                     values.jenis ===
-
                     "transfer"
 
                         ?
@@ -616,7 +561,6 @@ export const Saving = {
                     "Bank",
 
             type :
-
                 "select",
 
             options :
@@ -656,15 +600,12 @@ export const Saving = {
         {
 
             id :
-
                 "nama",
 
             label :
-
                 "Bank Tujuan",
 
             type :
-
                 "select",
 
             options :
@@ -695,19 +636,15 @@ export const Saving = {
         {
 
             id :
-
                 "nominal",
 
             label :
-
                 "Nominal",
 
             type :
-
                 "number",
 
             placeholder :
-
                 "Masukkan nominal"
 
         },
@@ -720,23 +657,18 @@ export const Saving = {
         {
 
             id :
-
                 "keterangan",
 
             label :
-
                 "Keterangan",
 
             type :
-
                 "text",
 
             placeholder :
-
                 "Keterangan transaksi",
 
             required :
-
                 false
 
         }
@@ -771,7 +703,6 @@ export const Saving = {
                 ===================================== */
 
                 workspace :
-
                     "saving",
 
 
@@ -791,6 +722,7 @@ export const Saving = {
                         return Array.isArray(
                             records
                         )
+
                             ?
 
                             records
@@ -809,7 +741,6 @@ export const Saving = {
                 getDateField :
 
                     () =>
-
                         "tanggal",
 
 
@@ -931,27 +862,21 @@ export const Saving = {
                 fieldMap : {
 
                     jenis :
-
                         "jenis",
 
                     kategori :
-
                         "kategori",
 
                     bank :
-
                         "bank",
 
                     nama :
-
                         "nama",
 
                     nominal :
-
                         "nominal",
 
                     keterangan :
-
                         "keterangan"
 
                 },
@@ -979,12 +904,11 @@ export const Saving = {
                             String(
 
                                 record?.jenis
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const kategori =
@@ -992,18 +916,16 @@ export const Saving = {
                             String(
 
                                 record?.kategori
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         if(
 
                             jenis &&
-
                             kategori
 
                         ){
@@ -1087,12 +1009,11 @@ export const Saving = {
                             String(
 
                                 record?.keterangan
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const parts = [];
@@ -1162,12 +1083,11 @@ export const Saving = {
                             String(
 
                                 record?.jenis
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const kategori =
@@ -1175,12 +1095,11 @@ export const Saving = {
                             String(
 
                                 record?.kategori
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const bank =
@@ -1188,12 +1107,11 @@ export const Saving = {
                             String(
 
                                 record?.bank
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const nama =
@@ -1201,12 +1119,11 @@ export const Saving = {
                             String(
 
                                 record?.nama
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const nominal =
@@ -1214,12 +1131,11 @@ export const Saving = {
                             String(
 
                                 record?.nominal
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const keterangan =
@@ -1227,12 +1143,11 @@ export const Saving = {
                             String(
 
                                 record?.keterangan
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         return {
@@ -1274,11 +1189,9 @@ export const Saving = {
                                     "",
 
                             "Nominal" :
-
                                 nominal,
 
                             "Keterangan" :
-
                                 keterangan
 
                         };
@@ -1303,12 +1216,11 @@ export const Saving = {
                             String(
 
                                 values?.jenis
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const kategori =
@@ -1316,12 +1228,11 @@ export const Saving = {
                             String(
 
                                 values?.kategori
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const bank =
@@ -1329,12 +1240,11 @@ export const Saving = {
                             String(
 
                                 values?.bank
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const nama =
@@ -1342,12 +1252,11 @@ export const Saving = {
                             String(
 
                                 values?.nama
-
                                 ??
-
                                 ""
 
-                            ).trim();
+                            )
+                            .trim();
 
 
                         const nominal =
@@ -1387,9 +1296,7 @@ export const Saving = {
                             CATEGORY[
                                 jenis
                             ]
-
                             ??
-
                             [];
 
 
@@ -1696,9 +1603,12 @@ function getSavingRecordDate(
 ){
 
     if(
+
         !record ||
+
         typeof record !==
             "object"
+
     ){
 
         return "";
@@ -1714,7 +1624,8 @@ function getSavingRecordDate(
         ??
         ""
 
-    ).trim();
+    )
+    .trim();
 
 }
 
@@ -1730,9 +1641,11 @@ function formatSavingLabel(
     const normalized =
 
         String(
+
             value
             ??
             ""
+
         )
         .trim();
 
@@ -1769,9 +1682,11 @@ function formatSavingCategory(
     const normalized =
 
         String(
+
             value
             ??
             ""
+
         )
         .trim();
 
@@ -1801,7 +1716,9 @@ function formatSavingCategory(
 
 
         if(
+
             option
+
         ){
 
             return option.label;
@@ -1825,6 +1742,7 @@ function formatSavingNominal(
 ){
 
     if(
+
         value ===
         undefined
 
@@ -1862,9 +1780,11 @@ function formatSavingNominal(
 
 
     if(
+
         !Number.isFinite(
             numeric
         )
+
     ){
 
         return String(
@@ -1937,14 +1857,14 @@ export function debugSavingInput(){
 
         data :
 
-            Array.isArray(data)
+            Array.isArray(
+                data
+            )
 
                 ?
 
             [
-
                 ...data
-
             ]
 
                 :
@@ -1954,13 +1874,10 @@ export function debugSavingInput(){
         banks :
 
             [
-
                 ...banks
-
             ],
 
         config :
-
             Saving
 
     };
