@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Saving
    File         : saving.js
-   Version      : 2.1.1
+   Version      : 2.2.0
 
    Description :
    Input Flow Configuration for Saving
@@ -24,18 +24,18 @@
    MASUK
    Jenis
    → Kategori
-   → Bank
+   → Nama Bank
    → Nominal
    → Keterangan
 
    KELUAR
    Jenis
    → Kategori
-   → Bank
+   → Nama Bank
    → Nominal
    → Keterangan
 
-   TRANSFER + INTERNAL_TRANSFER
+   TRANSFER INTERNAL
    Jenis
    → Kategori
    → Bank Asal
@@ -43,25 +43,18 @@
    → Nominal
    → Keterangan
 
-   TRANSFER + WITHDRAW
+   TRANSFER WITHDRAW / DEPOSIT
    Jenis
    → Kategori
-   → Bank
-   → Nominal
-   → Keterangan
-
-   TRANSFER + DEPOSIT
-   Jenis
-   → Kategori
-   → Bank
+   → Nama Bank
    → Nominal
    → Keterangan
 
    Note :
-   Bank Tujuan hanya digunakan untuk :
+   Bank Tujuan hanya digunakan oleh :
 
-       jenis     = transfer
-       kategori  = internal_transfer
+       jenis   = transfer
+       kategori = internal_transfer
 
    Principle :
    - Tidak ada source data bank hardcode.
@@ -81,6 +74,17 @@ import {
     getInputData
 
 } from "./data.js";
+
+
+/* =====================================================
+   IMPORT EDIT ROW
+===================================================== */
+
+import {
+
+    EditRow
+
+} from "./editrow.js";
 
 
 /* =====================================================
@@ -325,42 +329,7 @@ const TRANSACTION_TYPES = [
    CATEGORY
 ===================================================== */
 
-/*
-   Struktur kategori bergantung pada JENIS.
-
-   MASUK :
-
-       transfer_in
-       deposit
-
-   KELUAR :
-
-       tarik
-       transfer_out
-       topup
-
-   TRANSFER :
-
-       internal_transfer
-       withdraw
-       deposit
-
-   Catatan penting :
-
-       Hanya :
-
-           transfer
-           +
-           internal_transfer
-
-       yang menggunakan Bank Tujuan.
-*/
-
 const CATEGORY = {
-
-    /* =================================================
-       MASUK
-    ================================================= */
 
     masuk : [
 
@@ -390,10 +359,6 @@ const CATEGORY = {
 
     ],
 
-
-    /* =================================================
-       KELUAR
-    ================================================= */
 
     keluar : [
 
@@ -436,10 +401,6 @@ const CATEGORY = {
     ],
 
 
-    /* =================================================
-       TRANSFER
-    ================================================= */
-
     transfer : [
 
         {
@@ -479,6 +440,1031 @@ const CATEGORY = {
         }
 
     ]
+
+};
+
+
+/* =====================================================
+   EDIT ROW FIELD RULE
+===================================================== */
+
+/*
+   Struktur field Edit Row Saving :
+
+   MASUK
+   --------------------------------
+   jenis
+   kategori
+   bank
+   nominal
+   keterangan
+
+
+   KELUAR
+   --------------------------------
+   jenis
+   kategori
+   bank
+   nominal
+   keterangan
+
+
+   TRANSFER + INTERNAL_TRANSFER
+   --------------------------------
+   jenis
+   kategori
+   bank
+   nama
+   nominal
+   keterangan
+
+
+   TRANSFER + WITHDRAW / DEPOSIT
+   --------------------------------
+   jenis
+   kategori
+   bank
+   nominal
+   keterangan
+
+
+   Jadi :
+
+       nama
+
+   BUKAN field Bank Tujuan umum.
+
+   nama hanya digunakan sebagai
+   Bank Tujuan apabila :
+
+       jenis === "transfer"
+       &&
+       kategori === "internal_transfer"
+*/
+
+
+function isInternalTransfer(
+
+    values
+
+){
+
+    return (
+
+        values?.jenis ===
+
+            "transfer"
+
+        &&
+
+        values?.kategori ===
+
+            "internal_transfer"
+
+    );
+
+}
+
+
+/* =====================================================
+   EDIT ROW FIELD ORDER
+===================================================== */
+
+/*
+   Urutan field tetap mengikuti
+   struktur Input Saving.
+
+   Field "nama" hanya akan masuk
+   ketika internal_transfer.
+*/
+
+function getSavingEditFieldOrder(
+
+    values
+
+){
+
+    const fields = [
+
+        "jenis",
+
+        "kategori",
+
+        "bank"
+
+    ];
+
+
+    if(
+
+        isInternalTransfer(
+
+            values
+
+        )
+
+    ){
+
+        fields.push(
+
+            "nama"
+
+        );
+
+    }
+
+
+    fields.push(
+
+        "nominal",
+
+        "keterangan"
+
+    );
+
+
+    return fields;
+
+}
+
+
+/* =====================================================
+   EDIT ROW FIELD LABEL
+===================================================== */
+
+function getSavingEditFieldLabel(
+
+    field,
+
+    values
+
+){
+
+    switch(
+
+        field
+
+    ){
+
+        case "jenis":
+
+            return "Jenis Transaksi";
+
+
+        case "kategori":
+
+            return "Kategori";
+
+
+        case "bank":
+
+            return isInternalTransfer(
+
+                values
+
+            )
+
+                ?
+
+            "Bank Asal"
+
+                :
+
+            "Nama Bank";
+
+
+        case "nama":
+
+            return "Bank Tujuan";
+
+
+        case "nominal":
+
+            return "Nominal";
+
+
+        case "keterangan":
+
+            return "Keterangan";
+
+
+        default:
+
+            return field;
+
+    }
+
+}
+
+
+/* =====================================================
+   EDIT ROW FIELD TYPE
+===================================================== */
+
+function getSavingEditFieldType(
+
+    field
+
+){
+
+    switch(
+
+        field
+
+    ){
+
+        case "jenis":
+
+            return "select";
+
+
+        case "kategori":
+
+            return "select";
+
+
+        case "bank":
+
+            return "select";
+
+
+        case "nama":
+
+            return "select";
+
+
+        case "nominal":
+
+            return "number";
+
+
+        case "keterangan":
+
+            return "text";
+
+
+        default:
+
+            return "text";
+
+    }
+
+}
+
+
+/* =====================================================
+   EDIT ROW FIELD OPTIONS
+===================================================== */
+
+function getSavingEditFieldOptions(
+
+    field,
+
+    values
+
+){
+
+    switch(
+
+        field
+
+    ){
+
+        case "jenis":
+
+            return [
+
+                ...TRANSACTION_TYPES
+
+            ];
+
+
+        case "kategori":
+
+            return [
+
+                ...(
+
+                    CATEGORY[
+
+                        values?.jenis
+
+                    ]
+
+                    ??
+
+                    []
+
+                )
+
+            ];
+
+
+        case "bank":
+
+            return getBankOptions();
+
+
+        case "nama":
+
+            /*
+               Bank Tujuan hanya valid
+               untuk internal_transfer.
+            */
+
+            if(
+
+                !isInternalTransfer(
+
+                    values
+
+                )
+
+            ){
+
+                return [];
+
+            }
+
+
+            return getBankOptions();
+
+
+        default:
+
+            return [];
+
+    }
+
+}
+
+
+/* =====================================================
+   EDIT ROW FIELD VISIBILITY
+===================================================== */
+
+function isSavingEditFieldVisible(
+
+    field,
+
+    values
+
+){
+
+    /*
+       Bank selalu tersedia.
+
+       Label berubah :
+
+       masuk / keluar
+           → Nama Bank
+
+       transfer + internal_transfer
+           → Bank Asal
+    */
+
+    if(
+
+        field === "bank"
+
+    ){
+
+        return true;
+
+    }
+
+
+    /*
+       nama hanya muncul sebagai
+       Bank Tujuan untuk
+       internal_transfer.
+    */
+
+    if(
+
+        field === "nama"
+
+    ){
+
+        return isInternalTransfer(
+
+            values
+
+        );
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   EDIT ROW FIELD VALUE
+===================================================== */
+
+/*
+   Membaca nilai field dari record.
+
+   Tidak mengubah record.
+
+   Mapping langsung berdasarkan
+   field Saving.
+*/
+
+function getSavingEditFieldValue(
+
+    field,
+
+    record
+
+){
+
+    if(
+
+        !record
+
+        ||
+
+        typeof record !==
+
+            "object"
+
+    ){
+
+        return "";
+
+    }
+
+
+    /*
+       Field langsung.
+    */
+
+    if(
+
+        Object.prototype.hasOwnProperty.call(
+
+            record,
+
+            field
+
+        )
+
+    ){
+
+        return record[field];
+
+    }
+
+
+    /*
+       Fallback case-sensitive
+       untuk data yang mungkin
+       menggunakan huruf kapital.
+    */
+
+    const keys =
+
+        Object.keys(
+
+            record
+
+        );
+
+
+    const target =
+
+        field.toLowerCase();
+
+
+    const matchedKey =
+
+        keys.find(
+
+            key =>
+
+                String(
+
+                    key
+
+                )
+
+                .toLowerCase()
+
+                ===
+
+                target
+
+        );
+
+
+    if(
+
+        matchedKey !==
+
+            undefined
+
+    ){
+
+        return record[
+
+            matchedKey
+
+        ];
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =====================================================
+   SET EDIT ROW FIELD VALUE
+===================================================== */
+
+function setSavingEditFieldValue(
+
+    field,
+
+    value,
+
+    record
+
+){
+
+    if(
+
+        !record
+
+        ||
+
+        typeof record !==
+
+            "object"
+
+    ){
+
+        return;
+
+    }
+
+
+    /*
+       Gunakan key asli jika tersedia.
+    */
+
+    if(
+
+        Object.prototype.hasOwnProperty.call(
+
+            record,
+
+            field
+
+        )
+
+    ){
+
+        record[field] = value;
+
+        return;
+
+    }
+
+
+    /*
+       Fallback case-insensitive.
+    */
+
+    const keys =
+
+        Object.keys(
+
+            record
+
+        );
+
+
+    const target =
+
+        field.toLowerCase();
+
+
+    const matchedKey =
+
+        keys.find(
+
+            key =>
+
+                String(
+
+                    key
+
+                )
+
+                .toLowerCase()
+
+                ===
+
+                target
+
+        );
+
+
+    if(
+
+        matchedKey !==
+
+            undefined
+
+    ){
+
+        record[
+
+            matchedKey
+
+        ] = value;
+
+        return;
+
+    }
+
+
+    /*
+       Jika field belum ada,
+       gunakan nama field standar.
+    */
+
+    record[field] = value;
+
+}
+
+
+/* =====================================================
+   SAVING EDIT VALIDATION
+===================================================== */
+
+function validateSavingEdit(
+
+    record,
+
+    values
+
+){
+
+    if(
+
+        !record
+
+        ||
+
+        typeof record !==
+
+            "object"
+
+    ){
+
+        throw new Error(
+
+            "Data transaksi Saving tidak valid."
+
+        );
+
+    }
+
+
+    if(
+
+        !values
+
+        ||
+
+        typeof values !==
+
+            "object"
+
+    ){
+
+        throw new Error(
+
+            "Data edit Saving tidak valid."
+
+        );
+
+    }
+
+
+    if(
+
+        !values.jenis
+
+    ){
+
+        throw new Error(
+
+            "Jenis transaksi wajib dipilih."
+
+        );
+
+    }
+
+
+    if(
+
+        !values.kategori
+
+    ){
+
+        throw new Error(
+
+            "Kategori wajib dipilih."
+
+        );
+
+    }
+
+
+    if(
+
+        !values.bank
+
+    ){
+
+        throw new Error(
+
+            "Nama Bank wajib dipilih."
+
+        );
+
+    }
+
+
+    /*
+       Bank Tujuan WAJIB hanya
+       untuk internal_transfer.
+    */
+
+    if(
+
+        isInternalTransfer(
+
+            values
+
+        )
+
+        &&
+
+        !values.nama
+
+    ){
+
+        throw new Error(
+
+            "Bank Tujuan wajib dipilih untuk Internal Transfer."
+
+        );
+
+    }
+
+
+    /*
+       Untuk transaksi selain
+       internal_transfer, nama
+       tidak boleh menjadi
+       Bank Tujuan.
+
+       Kita kosongkan secara
+       konseptual di validation
+       agar tidak ikut dianggap
+       sebagai field edit.
+    */
+
+    return true;
+
+}
+
+
+/* =====================================================
+   SAVING EDIT ROW CONFIG
+===================================================== */
+
+const SAVING_EDIT_CONFIG = {
+
+    /*
+       Field yang boleh diedit.
+
+       ID dan Date/Tanggal tetap
+       ditangani oleh generic
+       EditRow sebagai locator
+       dan locked field.
+    */
+
+    editableFields : [
+
+        "jenis",
+
+        "kategori",
+
+        "bank",
+
+        "nama",
+
+        "nominal",
+
+        "keterangan"
+
+    ],
+
+
+    /*
+       Field yang harus tetap
+       terkunci.
+
+       ID + Date merupakan
+       locator Edit Row.
+    */
+
+    lockedFields : [
+
+        "id",
+
+        "date",
+
+        "Date",
+
+        "tanggal",
+
+        "Tanggal"
+
+    ],
+
+
+    strictFieldList :
+
+        true,
+
+
+    getFieldOrder(
+
+        values
+
+    ){
+
+        return getSavingEditFieldOrder(
+
+            values
+
+        );
+
+    },
+
+
+    getFieldLabel(
+
+        field,
+
+        values
+
+    ){
+
+        return getSavingEditFieldLabel(
+
+            field,
+
+            values
+
+        );
+
+    },
+
+
+    getFieldType(
+
+        field
+
+    ){
+
+        return getSavingEditFieldType(
+
+            field
+
+        );
+
+    },
+
+
+    getFieldOptions(
+
+        field,
+
+        values
+
+    ){
+
+        return getSavingEditFieldOptions(
+
+            field,
+
+            values
+
+        );
+
+    },
+
+
+    isFieldVisible(
+
+        field,
+
+        values
+
+    ){
+
+        return isSavingEditFieldVisible(
+
+            field,
+
+            values
+
+        );
+
+    },
+
+
+    getFieldValue(
+
+        field,
+
+        record
+
+    ){
+
+        return getSavingEditFieldValue(
+
+            field,
+
+            record
+
+        );
+
+    },
+
+
+    setFieldValue(
+
+        field,
+
+        value,
+
+        record
+
+    ){
+
+        setSavingEditFieldValue(
+
+            field,
+
+            value,
+
+            record
+
+        );
+
+    },
+
+
+    getSheetField(
+
+        field
+
+    ){
+
+        return field;
+
+    },
+
+
+    validate(
+
+        record,
+
+        values
+
+    ){
+
+        return validateSavingEdit(
+
+            record,
+
+            values
+
+        );
+
+    }
 
 };
 
@@ -593,21 +1579,16 @@ export const Saving = {
 
         /* =============================================
            3. BANK
-           
-           MASUK :
 
-               Bank
+           Untuk :
 
-           KELUAR :
+           masuk
+           keluar
+           transfer
 
-               Bank
+           Pada transfer :
 
-           TRANSFER :
-
-               Bank Asal
-
-           Pada transfer, field bank tetap
-           menjadi bank sumber.
+               bank = sumber
         ============================================= */
 
         {
@@ -648,40 +1629,15 @@ export const Saving = {
         /* =============================================
            4. BANK TUJUAN
 
-           HANYA untuk :
+           Hanya muncul untuk transfer.
 
-               jenis     = transfer
-               kategori  = internal_transfer
+           bank
+               =
+           bank asal
 
-           Contoh :
-
-               transfer
-               +
-               internal_transfer
-
-           → Bank Asal
-           → Bank Tujuan
-
-           Sedangkan :
-
-               transfer
-               +
-               withdraw
-
-           → tidak ada Bank Tujuan
-
-           dan :
-
-               transfer
-               +
-               deposit
-
-           → tidak ada Bank Tujuan
-
-           Masuk / Keluar :
-
-               tidak pernah mempunyai
-               Bank Tujuan.
+           nama
+               =
+           bank tujuan
         ============================================= */
 
         {
@@ -711,12 +1667,6 @@ export const Saving = {
                     values.jenis ===
 
                     "transfer"
-
-                    &&
-
-                    values.kategori ===
-
-                    "internal_transfer"
 
         },
 
@@ -778,9 +1728,144 @@ export const Saving = {
 
         }
 
-    ]
+    ],
+
+
+    /* =================================================
+       EDIT ROW
+    ================================================= */
+
+    editRow :
+
+        SAVING_EDIT_CONFIG
 
 };
+
+
+/* =====================================================
+   OPEN EDIT ROW
+===================================================== */
+
+/*
+   Dipanggil oleh Global Input Controller :
+
+       Financial.openEdit()
+       Saving.openEdit()
+       dst.
+
+   Normal Input tidak melewati
+   fungsi ini.
+*/
+
+async function openSavingEditRow(
+
+    context = {}
+
+){
+
+    const data =
+
+        Array.isArray(
+
+            context.data
+
+        )
+
+            ?
+
+        context.data
+
+            :
+
+        [];
+
+
+    console.log(
+
+        "=========================================="
+
+    );
+
+
+    console.log(
+
+        "===== SAVING EDIT INPUT ROW OPEN ====="
+
+    );
+
+
+    console.log(
+
+        "Saving Edit Row records:",
+
+        data
+
+    );
+
+
+    return EditRow.open({
+
+        workspace :
+
+            "saving",
+
+        mode :
+
+            "row",
+
+        data :
+
+            data,
+
+        state :
+
+            context.state,
+
+
+        /*
+           Konfigurasi field Saving.
+        */
+
+        ...SAVING_EDIT_CONFIG,
+
+
+        /*
+           Target Edit Row tetap
+           menggunakan ID + Date/Tanggal.
+
+           Generic EditRow yang menangani
+           pembacaan locator.
+        */
+
+        getRecords :
+
+            () =>
+
+                data
+
+    });
+
+}
+
+
+/* =====================================================
+   ATTACH EDIT API
+===================================================== */
+
+Saving.openEdit =
+
+    openSavingEditRow;
+
+
+/*
+   Alias untuk kompatibilitas
+   controller yang memanggil
+   .open()
+*/
+
+Saving.open =
+
+    openSavingEditRow;
 
 
 /* =====================================================
@@ -851,6 +1936,15 @@ export function debugSavingInput(){
         "Saving Config:",
 
         Saving
+
+    );
+
+
+    console.log(
+
+        "Saving Edit Config:",
+
+        SAVING_EDIT_CONFIG
 
     );
 
