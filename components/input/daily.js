@@ -3,7 +3,7 @@
    Component    : Global Input
    Workspace    : Payroll Daily
    File         : daily.js
-   Version      : 3.0.0
+   Version      : 3.0.1
 
    Description :
    Global Input Configuration
@@ -312,7 +312,19 @@ function getRules(){
 
 
 /* =====================================================
-   GET EDITABLE RECORDS
+   GET PAYROLL DAILY RECORDS
+=====================================================
+
+   Record langsung diambil dari data source
+   Payroll Daily.
+
+   PENTING :
+   Jangan menggunakan EditRow.getEditableRecords()
+   di sini.
+
+   EditRow.reset() akan membersihkan internal
+   editable-record state.
+
 ===================================================== */
 
 function getDailyRecords(){
@@ -3337,6 +3349,13 @@ async function openEditRow(){
 
     /* =================================================
        RECORD SOURCE
+    =================================================
+
+       Ambil langsung dari getDailyRecords().
+
+       Jangan menggunakan EditRow.getEditableRecords()
+       karena reset() membersihkan internal state.
+
     ================================================= */
 
     const records =
@@ -3393,42 +3412,16 @@ async function openEditRow(){
 
         /* =============================================
            RECORD SOURCE
+           
+           LANGSUNG KE DATA SOURCE.
+           
+           Tidak menggunakan :
+               EditRow.getEditableRecords()
         ============================================= */
 
         getRecords :
 
-            () => {
-
-                const currentRecords =
-
-                    typeof EditRow.getEditableRecords ===
-
-                        "function"
-
-                        ?
-
-                    EditRow.getEditableRecords()
-
-                        :
-
-                    getDailyRecords();
-
-
-                return Array.isArray(
-
-                    currentRecords
-
-                )
-
-                    ?
-
-                    currentRecords
-
-                    :
-
-                    [];
-
-            },
+            () => getDailyRecords(),
 
 
         /* =============================================
