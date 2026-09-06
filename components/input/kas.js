@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Kas
    File         : kas.js
-   Version      : 4.0.0
+   Version      : 4.0.1
 
    Description :
    Input Flow Configuration for Kas
@@ -78,6 +78,8 @@
      dan keterangan pada Input.
    - Normal Input tidak diubah.
    - Edit Input menggunakan Global EditRow.
+   - Record Edit Row langsung berasal dari
+     getInputRaw().
 ===================================================== */
 
 
@@ -293,6 +295,20 @@ function getKasData(){
 
 /* =====================================================
    GET EDITABLE RECORDS
+=====================================================
+
+   PENTING :
+
+   Record transaksi Kas untuk Edit Row berasal
+   langsung dari getInputRaw().
+
+   Jangan mengambil dari :
+
+       EditRow.getEditableRecords()
+
+   karena method tersebut membaca state internal
+   Global EditRow dan dapat kosong setelah reset().
+
 ===================================================== */
 
 function getKasRecords(){
@@ -1373,26 +1389,6 @@ export const Kas = {
 
 /* =====================================================
    EDIT INPUT
-=====================================================
-
-   Global EditRow Adapter.
-
-   Sheet Kas :
-
-       id
-       tanggal
-       jenis
-       kategori
-       nama
-       nominal
-       keterangan
-
-   Target :
-
-       ID + tanggal
-
-   ID + tanggal locked.
-
 ===================================================== */
 
 
@@ -2832,6 +2828,22 @@ async function openEditRow(){
 
     /* =================================================
        RECORD SOURCE
+    =================================================
+
+       PENTING :
+
+       Jangan gunakan :
+
+           EditRow.getEditableRecords()
+
+       di sini.
+
+       Setelah reset(), state internal EditRow
+       memang kosong.
+
+       Source transaksi harus langsung membaca
+       data Kas dari getInputRaw().
+
     ================================================= */
 
     const records =
@@ -2887,40 +2899,17 @@ async function openEditRow(){
 
         /* =============================================
            RECORD SOURCE
+        =============================================
+
+           Langsung ambil source terbaru.
+
         ============================================= */
 
         getRecords :
 
             () => {
 
-                const currentRecords =
-
-                    typeof EditRow.getEditableRecords ===
-
-                        "function"
-
-                        ?
-
-                    EditRow.getEditableRecords()
-
-                        :
-
-                    getKasRecords();
-
-
-                return Array.isArray(
-
-                    currentRecords
-
-                )
-
-                    ?
-
-                    currentRecords
-
-                    :
-
-                    [];
+                return getKasRecords();
 
             },
 
