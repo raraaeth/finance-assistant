@@ -3,7 +3,7 @@
    Component    : Global Input
    Module       : Saving
    File         : saving.js
-   Version      : 2.3.1
+   Version      : 2.3.2
 
    Description :
    Input Flow Configuration for Saving
@@ -81,6 +81,19 @@
 
        jenis    = transfer
        kategori = internal_transfer
+
+   Edit Row Visibility :
+
+   Field "nama" hanya ditampilkan jika :
+
+       jenis    = transfer
+       kategori = internal_transfer
+
+   Jika kondisi tidak terpenuhi :
+
+       nama tidak ikut ditampilkan
+       nama tidak ikut dibaca dari UI
+       nama tidak ikut dikirim sebagai perubahan
 
    Principle :
    - Tidak ada source data bank hardcode.
@@ -528,7 +541,7 @@ export const Saving = {
 
         /* =============================================
            3. BANK
-           
+
            Untuk :
 
            masuk
@@ -574,7 +587,7 @@ export const Saving = {
 
         /* =============================================
            4. BANK TUJUAN
-           
+
            HANYA untuk :
 
                jenis
@@ -586,6 +599,12 @@ export const Saving = {
                kategori
                    =
                internal_transfer
+
+           NORMAL INPUT :
+               showWhen
+
+           EDIT ROW :
+               visibleIf
 
            Untuk :
 
@@ -614,7 +633,35 @@ export const Saving = {
 
                     getBankOptions(),
 
+
+            /* =========================================
+               NORMAL INPUT
+            ========================================= */
+
             showWhen :
+
+                values =>
+
+                    values.jenis ===
+                    "transfer"
+
+                    &&
+
+                    values.kategori ===
+                    "internal_transfer",
+
+
+            /* =========================================
+               EDIT INPUT ROW
+               
+               EditRow menggunakan visibleIf.
+               
+               Kondisi dibuat sama dengan showWhen
+               agar perilaku Normal Input dan
+               Edit Row tetap konsisten.
+            ========================================= */
+
+            visibleIf :
 
                 values =>
 
@@ -889,6 +936,97 @@ export const Saving = {
                 steps :
 
                     Saving.steps,
+
+
+                /* =====================================
+                   PREPARE VALUES
+                   
+                   Field "nama" hanya boleh ikut
+                   dalam perubahan jika :
+
+                       jenis    = transfer
+                       kategori = internal_transfer
+
+                   Jika kondisi tidak terpenuhi,
+                   "nama" dihapus dari finalValues.
+
+                   Karena buildUpdatedRow() mempertahankan
+                   row asli terlebih dahulu, penghapusan
+                   ini berarti nilai nama asli tetap
+                   dipertahankan.
+
+                   Untuk record Saving normal :
+
+                       nama = ""
+
+                   maka hasil akhirnya tetap :
+
+                       nama = ""
+
+                   dan tidak dikirim sebagai perubahan
+                   dari Edit Row.
+                ===================================== */
+
+                prepareValues :
+
+                    values => {
+
+                        const prepared = {
+
+                            ...(values || {})
+
+                        };
+
+
+                        const jenis =
+
+                            String(
+
+                                prepared.jenis
+                                ??
+                                ""
+
+                            )
+                            .trim();
+
+
+                        const kategori =
+
+                            String(
+
+                                prepared.kategori
+                                ??
+                                ""
+
+                            )
+                            .trim();
+
+
+                        const needsDestinationBank =
+
+                            jenis ===
+                            "transfer"
+
+                            &&
+
+                            kategori ===
+                            "internal_transfer";
+
+
+                        if(
+
+                            !needsDestinationBank
+
+                        ){
+
+                            delete prepared.nama;
+
+                        }
+
+
+                        return prepared;
+
+                    },
 
 
                 /* =====================================
@@ -1398,7 +1536,7 @@ export const Saving = {
 
                         /* =================================
                            BANK TUJUAN
-                           
+
                            HANYA internal_transfer
                         ================================= */
 
