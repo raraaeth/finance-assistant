@@ -1149,6 +1149,29 @@ function isStepVisible(
         }
 
     }
+   
+   /*
+       showWhen
+    */
+
+   if(
+    step.showWhen !==
+    undefined
+){
+
+    if(
+        !evaluateCondition(
+            step.showWhen,
+            values,
+            record
+        )
+    ){
+
+        return false;
+
+    }
+
+}
 
 
     /*
