@@ -1702,11 +1702,21 @@ function getFieldConfig(
             ),
 
         label :
-            config.label ??
-            getFieldLabel(
-                field,
+           typeof config.label ===
+           "function"
+           ? callFunction(
+            config.label,
+            [
+                values,
                 record
-            ),
+            ],
+            undefined
+        )
+        : config.label ??
+          getFieldLabel(
+              field,
+              record
+          ),
 
         type,
 
