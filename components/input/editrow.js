@@ -1,83 +1,39 @@
 /* =====================================================
    Finance Assistant
-   Component    : Global Input
-   File         : editrow.js
-   Version      : 2.1.0
+   Component : Global Input
+   File      : editrow.js
+   Version   : 3.0.0
 
    Description :
    Generic Edit Input Row Engine
 
-   Responsibility :
-   - Menentukan maksimal 20 transaksi terkini
-   - Mengambil 20 baris paling bawah dari source data
-   - Menampilkan record terbaru terlebih dahulu
-   - Target record menggunakan ID + Tanggal
-   - ID dan Tanggal selalu locked
-   - Mengikuti definisi field/control dari workspace
-   - Mempertahankan canonical option.value
-   - Mendukung select / number / date / text / textarea /
-     checkbox / condition
-   - Mendukung dynamic options
-   - Mendukung conditional fields
-   - Mendukung perbedaan field UI dan field Sheet
-   - Temporary staging
-   - Multi-row editing
-   - Duplicate protection
+   UI / FLOW :
+   - Full screen overlay
+   - Direct record list
+   - Search
+   - Selected record detail
+   - Workspace edit fields
+   - Tambahkan
+   - Temporary pending
    - Batch confirmation
-   - Komunikasi update hanya saat Konfirmasi
 
-   Architecture :
+   Target :
+   - ID + Tanggal
 
-   Workspace
-       ↓
-   EditRow.open()
-       ↓
-   getRecords()
-       ↓
-   ambil 20 baris terakhir
-       ↓
-   Direct Record List
-       ↓
-   Search
-       ↓
-   selected row
-       ↓
-   detail
-       ↓
-   workspace steps
-       ↓
-   editable controls
-       ↓
-   Tambahkan
-       ↓
-   pending
-       ↓
-   Konfirmasi
-       ↓
-   Update.updateRow()
-       ↓
-   Apps Script
-       ↓
-   Google Sheet
+   Locked :
+   - ID
+   - Tanggal
+
+   Update :
+   - Update.updateRow()
 
    Principle :
    - Workspace agnostic
-   - Tidak hardcode struktur workspace
-   - Tidak hardcode field Airdrop
-   - Tidak hardcode field Financial
-   - Tidak hardcode field Kas
-   - Tidak hardcode field Payroll
-   - ID + Tanggal adalah target generic
-   - Control mengikuti steps workspace
-   - option.value adalah nilai authoritative
-   - option.label hanya untuk presentation
-   - Tidak melakukan update saat record dipilih
-   - Tidak melakukan update saat Tambahkan
-   - Apps Script hanya dipanggil saat Konfirmasi
-
-   Compatibility :
    - Tidak bergantung pada UpdateData
    - Tidak mengubah Reward Airdrop
+   - Tidak ada request saat record dipilih
+   - Tidak ada request saat Tambahkan
+   - Request hanya saat Konfirmasi
 ===================================================== */
 
 
@@ -99,7 +55,9 @@ import {
    CONSTANT
 ===================================================== */
 
-const MAX_RECORDS = 20;
+const MAX_RECORDS =
+    20;
+
 
 const OVERLAY_ID =
     "global-update-data-overlay";
@@ -109,28 +67,102 @@ const OVERLAY_ID =
    STATE
 ===================================================== */
 
-let currentOptions = {};
+let overlay =
+    null;
 
-let sourceRecords = [];
 
-let editableRecords = [];
+let initialized =
+    false;
 
-let pendingChanges = [];
 
-let selectedRecord = null;
+let currentOptions =
+    {};
 
-let busy = false;
 
-let overlay = null;
+let sourceRecords =
+    [];
 
-let searchQuery = "";
+
+let currentRecords =
+    [];
+
+
+let selectedRecord =
+    null;
+
+
+let pendingChanges =
+    [];
+
+
+let isBusy =
+    false;
 
 
 /* =====================================================
-   NORMALIZE
+   DEFAULTS
 ===================================================== */
 
-function normalizeText(value){
+const DEFAULTS = {
+
+    title :
+        "Edit Input Row",
+
+    subtitle :
+        "Ubah data yang sudah tersimpan",
+
+    listTitle :
+        "Transaksi Terbaru",
+
+    searchPlaceholder :
+        "Cari transaksi...",
+
+    emptyText :
+        "Tidak ada transaksi yang dapat diedit.",
+
+    addText :
+        "Tambahkan",
+
+    confirmText :
+        "Konfirmasi",
+
+    removeText :
+        "Hapus",
+
+    pendingTitle :
+        "Sudah Ditambahkan",
+
+    addedText :
+        "Perubahan berhasil disimpan.",
+
+    duplicateText :
+        "Transaksi ini sudah ditambahkan.",
+
+    confirmLoadingText :
+        "Menyimpan perubahan...",
+
+    closeOnEscape :
+        true,
+
+    allowBackdropClose :
+        true,
+
+    lockBody :
+        true,
+
+    strictFieldList :
+        false
+
+};
+
+
+/* =====================================================
+   SAFE TEXT
+===================================================== */
+
+function safeText(
+    value
+){
 
     if(
         value === null ||
@@ -141,15 +173,64 @@ function normalizeText(value){
 
     }
 
-    return String(value).trim();
+
+    if(
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean"
+    ){
+
+        return String(
+            value
+        );
+
+    }
+
+
+    try{
+
+        return JSON.stringify(
+            value
+        );
+
+    }
+    catch{
+
+        return String(
+            value
+        );
+
+    }
 
 }
 
 
-function normalizeKey(value){
+/* =====================================================
+   NORMALIZE TEXT
+===================================================== */
 
-    return normalizeText(value)
-        .toLowerCase();
+function normalizeText(
+    value
+){
+
+    return safeText(
+        value
+    ).trim();
+
+}
+
+
+/* =====================================================
+   NORMALIZE KEY
+===================================================== */
+
+function normalizeKey(
+    value
+){
+
+    return normalizeText(
+        value
+    ).toLowerCase();
 
 }
 
@@ -158,7 +239,9 @@ function normalizeKey(value){
    OBJECT
 ===================================================== */
 
-function isObject(value){
+function isObject(
+    value
+){
 
     return (
         value !== null &&
@@ -173,9 +256,13 @@ function isObject(value){
    SAFE ARRAY
 ===================================================== */
 
-function safeArray(value){
+function safeArray(
+    value
+){
 
-    return Array.isArray(value)
+    return Array.isArray(
+        value
+    )
         ? value
         : [];
 
@@ -200,9 +287,12 @@ function callFunction(
 
     }
 
+
     try{
 
-        return fn(...args);
+        return fn(
+            ...args
+        );
 
     }
     catch(error){
@@ -220,10 +310,101 @@ function callFunction(
 
 
 /* =====================================================
-   ID FIELD
+   GET OPTION
 ===================================================== */
 
-function getIdField(record){
+function getOption(
+    name
+){
+
+    if(
+        currentOptions &&
+        currentOptions[name] !== undefined
+    ){
+
+        return currentOptions[name];
+
+    }
+
+
+    return DEFAULTS[
+        name
+    ];
+
+}
+
+
+/* =====================================================
+   CREATE ELEMENT
+===================================================== */
+
+function createElement(
+    tag,
+    className = "",
+    text = ""
+){
+
+    const element =
+        document.createElement(
+            tag
+        );
+
+
+    if(
+        className
+    ){
+
+        element.className =
+            className;
+
+    }
+
+
+    if(
+        text !== ""
+    ){
+
+        element.textContent =
+            safeText(
+                text
+            );
+
+    }
+
+
+    return element;
+
+}
+
+
+/* =====================================================
+   IS ELEMENT
+===================================================== */
+
+function isElement(
+    value
+){
+
+    return (
+        typeof HTMLElement !== "undefined" &&
+        value instanceof HTMLElement
+    );
+
+}
+
+
+/* =====================================================
+   RECORD TARGET
+===================================================== */
+
+
+/* =====================================================
+   GET ID FIELD
+===================================================== */
+
+function getIdField(
+    record
+){
 
     if(
         typeof currentOptions.getIdField ===
@@ -233,17 +414,23 @@ function getIdField(record){
         const result =
             callFunction(
                 currentOptions.getIdField,
-                [record],
+                [
+                    record
+                ],
                 undefined
             );
 
-        if(result){
+
+        if(
+            result
+        ){
 
             return result;
 
         }
 
     }
+
 
     const candidates = [
         "id",
@@ -252,6 +439,7 @@ function getIdField(record){
         "key",
         "_id"
     ];
+
 
     for(
         const field of candidates
@@ -271,16 +459,45 @@ function getIdField(record){
 
     }
 
+
     return "id";
 
 }
 
 
 /* =====================================================
-   DATE FIELD
+   GET DATE FIELD
 ===================================================== */
 
-function getDateField(record){
+function getDateField(
+    record
+){
+
+    if(
+        typeof currentOptions.getDateField ===
+        "function"
+    ){
+
+        const result =
+            callFunction(
+                currentOptions.getDateField,
+                [
+                    record
+                ],
+                undefined
+            );
+
+
+        if(
+            result
+        ){
+
+            return result;
+
+        }
+
+    }
+
 
     if(
         !record ||
@@ -291,26 +508,24 @@ function getDateField(record){
 
     }
 
-    const keys =
-        Object.keys(record);
 
-    const candidates = [
+    const aliases = [
         "tanggal",
         "date"
     ];
 
+
     for(
-        const key of keys
+        const key of Object.keys(
+            record
+        )
     ){
 
-        const normalized =
-            String(key)
-                .trim()
-                .toLowerCase();
-
         if(
-            candidates.includes(
-                normalized
+            aliases.includes(
+                normalizeKey(
+                    key
+                )
             )
         ){
 
@@ -320,38 +535,53 @@ function getDateField(record){
 
     }
 
+
     return null;
 
 }
 
 
 /* =====================================================
-   RECORD ID
+   GET RECORD ID
 ===================================================== */
 
-function getRecordId(record){
+function getRecordId(
+    record
+){
 
     const field =
-        getIdField(record);
+        getIdField(
+            record
+        );
+
 
     return normalizeText(
-        record?.[field]
+        record?.[
+            field
+        ]
     );
 
 }
 
 
 /* =====================================================
-   RECORD DATE
+   GET RECORD DATE
 ===================================================== */
 
-function getRecordDate(record){
+function getRecordDate(
+    record
+){
 
     const field =
-        getDateField(record);
+        getDateField(
+            record
+        );
+
 
     return field
-        ? record?.[field] ?? ""
+        ? record?.[
+            field
+        ] ?? ""
         : "";
 
 }
@@ -361,7 +591,9 @@ function getRecordDate(record){
    TARGET KEY
 ===================================================== */
 
-function getTargetKey(record){
+function getTargetKey(
+    record
+){
 
     if(
         typeof currentOptions.getTargetKey ===
@@ -371,36 +603,49 @@ function getTargetKey(record){
         const result =
             callFunction(
                 currentOptions.getTargetKey,
-                [record],
+                [
+                    record
+                ],
                 undefined
             );
+
 
         if(
             result !== undefined &&
             result !== null
         ){
 
-            return normalizeText(result);
+            return normalizeText(
+                result
+            );
 
         }
 
     }
 
-    return [
 
-        getRecordId(record),
-
+    return (
+        getRecordId(
+            record
+        ) +
+        "|" +
         normalizeText(
-            getRecordDate(record)
+            getRecordDate(
+                record
+            )
         )
-
-    ].join("|");
+    );
 
 }
 
 
 /* =====================================================
-   SHEET FIELD
+   FIELD ADAPTER
+===================================================== */
+
+
+/* =====================================================
+   GET SHEET FIELD
 ===================================================== */
 
 function getSheetField(
@@ -423,7 +668,10 @@ function getSheetField(
                 undefined
             );
 
-        if(result){
+
+        if(
+            result
+        ){
 
             return result;
 
@@ -431,8 +679,10 @@ function getSheetField(
 
     }
 
+
     const map =
         currentOptions.fieldMap;
+
 
     if(
         map &&
@@ -444,13 +694,14 @@ function getSheetField(
 
     }
 
+
     return field;
 
 }
 
 
 /* =====================================================
-   FIELD VALUE
+   GET FIELD VALUE
 ===================================================== */
 
 function getFieldValue(
@@ -473,6 +724,7 @@ function getFieldValue(
                 undefined
             );
 
+
         if(
             result !== undefined
         ){
@@ -483,11 +735,6 @@ function getFieldValue(
 
     }
 
-    const sheetField =
-        getSheetField(
-            field,
-            record
-        );
 
     if(
         record &&
@@ -497,9 +744,19 @@ function getFieldValue(
         )
     ){
 
-        return record[field];
+        return record[
+            field
+        ];
 
     }
+
+
+    const sheetField =
+        getSheetField(
+            field,
+            record
+        );
+
 
     if(
         record &&
@@ -509,9 +766,12 @@ function getFieldValue(
         )
     ){
 
-        return record[sheetField];
+        return record[
+            sheetField
+        ];
 
     }
+
 
     return "";
 
@@ -535,7 +795,10 @@ function setFieldValue(
             record
         );
 
-    row[sheetField] =
+
+    row[
+        sheetField
+    ] =
         value;
 
 }
@@ -551,30 +814,43 @@ function isLockedField(
 ){
 
     const idField =
-        getIdField(record);
+        getIdField(
+            record
+        );
+
 
     const dateField =
-        getDateField(record);
+        getDateField(
+            record
+        );
+
 
     if(
         field === idField ||
-        field === "id" ||
-        field === "ID"
+        normalizeKey(
+            field
+        ) === "id"
     ){
 
         return true;
 
     }
+
 
     if(
         field === dateField ||
-        normalizeKey(field) === "tanggal" ||
-        normalizeKey(field) === "date"
+        normalizeKey(
+            field
+        ) === "tanggal" ||
+        normalizeKey(
+            field
+        ) === "date"
     ){
 
         return true;
 
     }
+
 
     if(
         typeof currentOptions.isFieldLocked ===
@@ -591,7 +867,10 @@ function isLockedField(
                 false
             );
 
-        if(result === true){
+
+        if(
+            result === true
+        ){
 
             return true;
 
@@ -599,12 +878,12 @@ function isLockedField(
 
     }
 
-    const lockedFields =
-        safeArray(
-            currentOptions.lockedFields
-        );
 
-    return lockedFields.includes(field);
+    return safeArray(
+        currentOptions.lockedFields
+    ).includes(
+        field
+    );
 
 }
 
@@ -629,6 +908,7 @@ function isEditableField(
 
     }
 
+
     if(
         typeof currentOptions.isFieldEditable ===
         "function"
@@ -644,6 +924,7 @@ function isEditableField(
                 undefined
             );
 
+
         if(
             result !== undefined
         ){
@@ -653,6 +934,7 @@ function isEditableField(
         }
 
     }
+
 
     if(
         Array.isArray(
@@ -666,6 +948,7 @@ function isEditableField(
 
     }
 
+
     return true;
 
 }
@@ -675,10 +958,13 @@ function isEditableField(
    STEPS
 ===================================================== */
 
-function getSteps(record){
+function getSteps(
+    record
+){
 
     let steps =
         currentOptions.steps;
+
 
     if(
         typeof steps === "function"
@@ -687,22 +973,29 @@ function getSteps(record){
         steps =
             callFunction(
                 steps,
-                [record],
+                [
+                    record
+                ],
                 []
             );
 
     }
 
-    return safeArray(steps);
+
+    return safeArray(
+        steps
+    );
 
 }
 
 
 /* =====================================================
-   STEP FIELD
+   STEP FIELD NAME
 ===================================================== */
 
-function getStepFieldName(step){
+function getStepFieldName(
+    step
+){
 
     if(
         !step ||
@@ -712,6 +1005,7 @@ function getStepFieldName(step){
         return null;
 
     }
+
 
     return (
         step.id ??
@@ -732,25 +1026,14 @@ function findStep(
     record
 ){
 
-    const steps =
-        getSteps(record);
-
-    for(
-        const step of steps
-    ){
-
-        if(
-            getStepFieldName(step) ===
-            field
-        ){
-
-            return step;
-
-        }
-
-    }
-
-    return null;
+    return getSteps(
+        record
+    ).find(
+        step =>
+            getStepFieldName(
+                step
+            ) === field
+    ) || null;
 
 }
 
@@ -773,6 +1056,7 @@ function evaluateCondition(
         return true;
 
     }
+
 
     if(
         typeof condition === "function"
@@ -799,20 +1083,27 @@ function evaluateCondition(
 
     }
 
+
     if(
-        isObject(condition)
+        isObject(
+            condition
+        )
     ){
 
         const field =
             condition.field ??
             condition.id;
 
+
         const actual =
-            values?.[field] ??
+            values?.[
+                field
+            ] ??
             getFieldValue(
                 field,
                 record
             );
+
 
         if(
             Object.prototype.hasOwnProperty.call(
@@ -821,10 +1112,15 @@ function evaluateCondition(
             )
         ){
 
-            return String(actual) ===
-                String(condition.equals);
+            return String(
+                actual
+            ) ===
+            String(
+                condition.equals
+            );
 
         }
+
 
         if(
             Object.prototype.hasOwnProperty.call(
@@ -833,10 +1129,15 @@ function evaluateCondition(
             )
         ){
 
-            return String(actual) !==
-                String(condition.notEquals);
+            return String(
+                actual
+            ) !==
+            String(
+                condition.notEquals
+            );
 
         }
+
 
         if(
             Array.isArray(
@@ -850,11 +1151,15 @@ function evaluateCondition(
 
         }
 
+
         return true;
 
     }
 
-    return Boolean(condition);
+
+    return Boolean(
+        condition
+    );
 
 }
 
@@ -869,63 +1174,42 @@ function isStepVisible(
     values = {}
 ){
 
-    if(!step){
-
-        return false;
-
-    }
-
     if(
-        step.showIf !== undefined &&
-        !evaluateCondition(
-            step.showIf,
-            values,
-            record
-        )
+        !step
     ){
 
         return false;
 
     }
 
-    if(
-        step.visibleIf !== undefined &&
-        !evaluateCondition(
-            step.visibleIf,
-            values,
-            record
-        )
+
+    const conditions = [
+        "showIf",
+        "visibleIf",
+        "showWhen",
+        "condition"
+    ];
+
+
+    for(
+        const key of conditions
     ){
 
-        return false;
+        if(
+            step[key] !== undefined &&
+            !evaluateCondition(
+                step[key],
+                values,
+                record
+            )
+        ){
+
+            return false;
+
+        }
 
     }
 
-    if(
-        step.showWhen !== undefined &&
-        !evaluateCondition(
-            step.showWhen,
-            values,
-            record
-        )
-    ){
-
-        return false;
-
-    }
-
-    if(
-        step.condition !== undefined &&
-        !evaluateCondition(
-            step.condition,
-            values,
-            record
-        )
-    ){
-
-        return false;
-
-    }
 
     if(
         step.hidden === true
@@ -934,6 +1218,7 @@ function isStepVisible(
         return false;
 
     }
+
 
     return true;
 
@@ -966,16 +1251,20 @@ function getFieldLabel(
                 undefined
             );
 
+
         if(
             result !== undefined &&
             result !== null
         ){
 
-            return String(result);
+            return safeText(
+                result
+            );
 
         }
 
     }
+
 
     const step =
         findStep(
@@ -983,9 +1272,24 @@ function getFieldLabel(
             record
         );
 
+
+    /*
+       IMPORTANT :
+
+       label boleh berupa function:
+
+       values =>
+           values.jenis === "transfer"
+               ? "Bank Tujuan"
+               : "Nama Bank"
+
+       Function HARUS dieksekusi.
+       Jangan pernah ditampilkan
+       sebagai source code.
+    */
+
     if(
-        typeof step?.label ===
-        "function"
+        typeof step?.label === "function"
     ){
 
         const result =
@@ -998,30 +1302,44 @@ function getFieldLabel(
                 undefined
             );
 
+
         if(
             result !== undefined &&
             result !== null
         ){
 
-            return String(result);
+            return safeText(
+                result
+            );
 
         }
 
     }
 
+
     if(
-        step?.label !== undefined
+        step?.label !== undefined &&
+        step?.label !== null
     ){
 
-        return String(
+        return safeText(
             step.label
         );
 
     }
 
-    return String(field)
-        .replace(/_/g, " ")
-        .replace(/\$/g, "$ ")
+
+    return String(
+        field
+    )
+        .replace(
+            /_/g,
+            " "
+        )
+        .replace(
+            /\$/g,
+            "$ "
+        )
         .replace(
             /\b\w/g,
             character =>
@@ -1062,7 +1380,10 @@ function getFieldType(
                 undefined
             );
 
-        if(result){
+
+        if(
+            result
+        ){
 
             return result;
 
@@ -1070,20 +1391,28 @@ function getFieldType(
 
     }
 
+
     const step =
         findStep(
             field,
             record
         );
 
-    if(step?.type){
+
+    if(
+        step?.type
+    ){
 
         return step.type;
 
     }
 
+
     const normalized =
-        normalizeKey(field);
+        normalizeKey(
+            field
+        );
+
 
     if(
         normalized === "tanggal" ||
@@ -1095,6 +1424,7 @@ function getFieldType(
 
     }
 
+
     if(
         typeof value === "number"
     ){
@@ -1102,6 +1432,7 @@ function getFieldType(
         return "number";
 
     }
+
 
     if(
         typeof value === "boolean"
@@ -1111,14 +1442,20 @@ function getFieldType(
 
     }
 
+
     if(
-        Array.isArray(value) ||
-        isObject(value)
+        Array.isArray(
+            value
+        ) ||
+        isObject(
+            value
+        )
     ){
 
         return "textarea";
 
     }
+
 
     return "text";
 
@@ -1129,10 +1466,14 @@ function getFieldType(
    OPTION NORMALIZATION
 ===================================================== */
 
-function normalizeOption(option){
+function normalizeOption(
+    option
+){
 
     if(
-        isObject(option)
+        isObject(
+            option
+        )
     ){
 
         return {
@@ -1153,21 +1494,27 @@ function normalizeOption(option){
                 "",
 
             disabled :
-                option.disabled === true
+                option.disabled === true ||
+                option.ariaDisabled === true
 
         };
 
     }
 
+
     return {
 
-        value : option,
+        value :
+            option,
 
-        label : option,
+        label :
+            option,
 
-        note : "",
+        note :
+            "",
 
-        disabled : false
+        disabled :
+            false
 
     };
 
@@ -1200,8 +1547,11 @@ function getFieldOptions(
                 undefined
             );
 
+
         if(
-            Array.isArray(result)
+            Array.isArray(
+                result
+            )
         ){
 
             return result.map(
@@ -1212,50 +1562,38 @@ function getFieldOptions(
 
     }
 
+
     const step =
         findStep(
             field,
             record
         );
 
+
     let options =
         step?.options;
+
 
     if(
         typeof options === "function"
     ){
 
-        try{
-
-            options =
-                options(
+        options =
+            callFunction(
+                options,
+                [
                     values,
                     record
-                );
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] options failed:",
-                error
+                ],
+                []
             );
 
-            options = [];
-
-        }
-
     }
 
-    if(
-        !Array.isArray(options)
-    ){
 
-        options = [];
-
-    }
-
-    return options.map(
+    return safeArray(
+        options
+    ).map(
         normalizeOption
     );
 
@@ -1272,7 +1610,9 @@ function getFieldConfig(
     values = {}
 ){
 
-    let config = {};
+    let config =
+        {};
+
 
     if(
         typeof currentOptions.getFieldConfig ===
@@ -1290,9 +1630,11 @@ function getFieldConfig(
                 undefined
             );
 
+
         if(
-            result &&
-            typeof result === "object"
+            isObject(
+                result
+            )
         ){
 
             config = {
@@ -1303,26 +1645,35 @@ function getFieldConfig(
 
     }
 
+
     const step =
         findStep(
             field,
             record
         );
 
-    if(step){
+
+    if(
+        step
+    ){
 
         config = {
+
             ...step,
+
             ...config
+
         };
 
     }
+
 
     const value =
         getFieldValue(
             field,
             record
         );
+
 
     const type =
         config.type ||
@@ -1332,37 +1683,32 @@ function getFieldConfig(
             record
         );
 
+
     let options =
         config.options;
+
 
     if(
         typeof options === "function"
     ){
 
-        try{
-
-            options =
-                options(
+        options =
+            callFunction(
+                options,
+                [
                     values,
                     record
-                );
-
-        }
-        catch(error){
-
-            console.warn(
-                "[EditRow] dynamic options failed:",
-                error
+                ],
+                []
             );
-
-            options = [];
-
-        }
 
     }
 
+
     if(
-        !Array.isArray(options) &&
+        !Array.isArray(
+            options
+        ) &&
         type === "select"
     ){
 
@@ -1375,8 +1721,10 @@ function getFieldConfig(
 
     }
 
+
     let label =
         config.label;
+
 
     if(
         typeof label === "function"
@@ -1394,6 +1742,7 @@ function getFieldConfig(
 
     }
 
+
     if(
         label === undefined ||
         label === null
@@ -1408,9 +1757,11 @@ function getFieldConfig(
 
     }
 
+
     return {
 
-        id : field,
+        id :
+            field,
 
         sheetField :
             config.sheetField ??
@@ -1419,7 +1770,10 @@ function getFieldConfig(
                 record
             ),
 
-        label,
+        label :
+            safeText(
+                label
+            ),
 
         type,
 
@@ -1446,14 +1800,15 @@ function getFieldConfig(
             config.step,
 
         options :
-            Array.isArray(options)
-                ? options.map(
-                    normalizeOption
-                )
-                : [],
+            safeArray(
+                options
+            ).map(
+                normalizeOption
+            ),
 
         rows :
-            config.rows || 3,
+            config.rows ||
+            3,
 
         showIf :
             config.showIf,
@@ -1468,7 +1823,11 @@ function getFieldConfig(
             config.condition,
 
         multiple :
-            config.multiple === true
+            config.multiple === true,
+
+        note :
+            config.note ??
+            ""
 
     };
 
@@ -1479,15 +1838,24 @@ function getFieldConfig(
    FIELD LIST
 ===================================================== */
 
-function getFieldList(record){
+function getFieldList(
+    record
+){
 
     if(
-        !isObject(record)
+        !isObject(
+            record
+        )
     ){
 
         return [];
 
     }
+
+
+    /*
+       Workspace explicit order.
+    */
 
     if(
         typeof currentOptions.getFieldOrder ===
@@ -1497,12 +1865,17 @@ function getFieldList(record){
         const result =
             callFunction(
                 currentOptions.getFieldOrder,
-                [record],
+                [
+                    record
+                ],
                 undefined
             );
 
+
         if(
-            Array.isArray(result)
+            Array.isArray(
+                result
+            )
         ){
 
             return result.filter(
@@ -1518,26 +1891,38 @@ function getFieldList(record){
 
     }
 
+
     const steps =
-        getSteps(record);
+        getSteps(
+            record
+        );
+
 
     if(
         steps.length
     ){
 
-        const fields = [];
+        const fields =
+            [];
+
 
         steps.forEach(
             step => {
 
                 const field =
-                    getStepFieldName(step);
+                    getStepFieldName(
+                        step
+                    );
 
-                if(!field){
+
+                if(
+                    !field
+                ){
 
                     return;
 
                 }
+
 
                 if(
                     isLockedField(
@@ -1550,6 +1935,7 @@ function getFieldList(record){
 
                 }
 
+
                 if(
                     !isEditableField(
                         field,
@@ -1561,74 +1947,96 @@ function getFieldList(record){
 
                 }
 
+
                 if(
-                    !fields.includes(field)
+                    !fields.includes(
+                        field
+                    )
                 ){
 
-                    fields.push(field);
+                    fields.push(
+                        field
+                    );
 
                 }
 
             }
         );
 
+
+        /*
+           Tambahkan field lain
+           bila strictFieldList false.
+        */
+
         if(
             currentOptions.strictFieldList !== true
         ){
 
-            Object.keys(record)
-                .forEach(
-                    field => {
+            Object.keys(
+                record
+            ).forEach(
+                field => {
 
-                        if(
-                            fields.includes(field)
-                        ){
+                    if(
+                        fields.includes(
+                            field
+                        )
+                    ){
 
-                            return;
-
-                        }
-
-                        if(
-                            isLockedField(
-                                field,
-                                record
-                            )
-                        ){
-
-                            return;
-
-                        }
-
-                        if(
-                            !isEditableField(
-                                field,
-                                record
-                            )
-                        ){
-
-                            return;
-
-                        }
-
-                        fields.push(field);
+                        return;
 
                     }
-                );
+
+
+                    if(
+                        isLockedField(
+                            field,
+                            record
+                        )
+                    ){
+
+                        return;
+
+                    }
+
+
+                    if(
+                        !isEditableField(
+                            field,
+                            record
+                        )
+                    ){
+
+                        return;
+
+                    }
+
+
+                    fields.push(
+                        field
+                    );
+
+                }
+            );
 
         }
+
 
         return fields;
 
     }
 
-    return Object.keys(record)
-        .filter(
-            field =>
-                isEditableField(
-                    field,
-                    record
-                )
-        );
+
+    return Object.keys(
+        record
+    ).filter(
+        field =>
+            isEditableField(
+                field,
+                record
+            )
+    );
 
 }
 
@@ -1642,25 +2050,27 @@ function getVisibleFields(
     values = {}
 ){
 
-    return getFieldList(record)
-        .filter(
-            field => {
+    return getFieldList(
+        record
+    ).filter(
+        field => {
 
-                const config =
-                    getFieldConfig(
-                        field,
-                        record,
-                        values
-                    );
-
-                return isStepVisible(
-                    config,
+            const config =
+                getFieldConfig(
+                    field,
                     record,
                     values
                 );
 
-            }
-        );
+
+            return isStepVisible(
+                config,
+                record,
+                values
+            );
+
+        }
+    );
 
 }
 
@@ -1678,9 +2088,12 @@ function serializeFieldValue(
         type === "checkbox"
     ){
 
-        return Boolean(value);
+        return Boolean(
+            value
+        );
 
     }
+
 
     if(
         value === null ||
@@ -1691,31 +2104,43 @@ function serializeFieldValue(
 
     }
 
+
     if(
-        isObject(value) ||
-        Array.isArray(value)
+        isObject(
+            value
+        ) ||
+        Array.isArray(
+            value
+        )
     ){
 
         try{
 
-            return JSON.stringify(value);
+            return JSON.stringify(
+                value
+            );
 
         }
         catch{
 
-            return String(value);
+            return String(
+                value
+            );
 
         }
 
     }
 
-    return String(value);
+
+    return String(
+        value
+    );
 
 }
 
 
 /* =====================================================
-   PARSE
+   PARSE FIELD VALUE
 ===================================================== */
 
 function parseFieldValue(
@@ -1734,13 +2159,17 @@ function parseFieldValue(
             record
         );
 
+
     if(
         type === "checkbox"
     ){
 
-        return Boolean(rawValue);
+        return Boolean(
+            rawValue
+        );
 
     }
+
 
     if(
         type === "number"
@@ -1756,23 +2185,36 @@ function parseFieldValue(
 
         }
 
-        const number =
-            Number(rawValue);
 
-        return Number.isNaN(number)
+        const number =
+            Number(
+                rawValue
+            );
+
+
+        return Number.isNaN(
+            number
+        )
             ? rawValue
             : number;
 
     }
 
+
     if(
-        isObject(originalValue) ||
-        Array.isArray(originalValue)
+        isObject(
+            originalValue
+        ) ||
+        Array.isArray(
+            originalValue
+        )
     ){
 
         try{
 
-            return JSON.parse(rawValue);
+            return JSON.parse(
+                rawValue
+            );
 
         }
         catch{
@@ -1783,21 +2225,28 @@ function parseFieldValue(
 
     }
 
+
     if(
         type === "select"
     ){
 
-        const options =
-            config.options || [];
-
         const match =
-            options.find(
+            safeArray(
+                config.options
+            ).find(
                 option =>
-                    String(option.value) ===
-                    String(rawValue)
+                    String(
+                        option.value
+                    ) ===
+                    String(
+                        rawValue
+                    )
             );
 
-        if(match){
+
+        if(
+            match
+        ){
 
             return match.value;
 
@@ -1805,115 +2254,136 @@ function parseFieldValue(
 
     }
 
+
     return rawValue;
 
 }
 
 
 /* =====================================================
-   NORMALIZE INCOMING VALUES
+   ESCAPE SELECTOR
 ===================================================== */
 
-function normalizeIncomingValues(
-    incoming,
-    record
+function escapeSelector(
+    value
 ){
 
-    if(!incoming){
+    const text =
+        String(
+            value
+        );
 
-        return {};
-
-    }
-
-    if(
-        isObject(incoming.values)
-    ){
-
-        return {
-            ...incoming.values
-        };
-
-    }
 
     if(
-        isObject(incoming.context) &&
-        isObject(incoming.context.values)
+        typeof CSS !== "undefined" &&
+        typeof CSS.escape === "function"
     ){
 
-        return {
-            ...incoming.context.values
-        };
-
-    }
-
-    if(
-        isObject(incoming) &&
-        typeof incoming.querySelector !==
-        "function"
-    ){
-
-        const result = {};
-
-        getFieldList(record)
-            .forEach(
-                field => {
-
-                    if(
-                        Object.prototype.hasOwnProperty.call(
-                            incoming,
-                            field
-                        )
-                    ){
-
-                        result[field] =
-                            incoming[field];
-
-                    }
-
-                }
-            );
-
-        if(
-            Object.keys(result).length
-        ){
-
-            return result;
-
-        }
-
-    }
-
-    if(
-        typeof incoming.querySelector ===
-        "function"
-    ){
-
-        return readValuesFromDOM(
-            record,
-            incoming
+        return CSS.escape(
+            text
         );
 
     }
 
-    return {};
+
+    return text.replace(
+        /["\\]/g,
+        "\\$&"
+    );
 
 }
 
 
 /* =====================================================
-   READ DOM VALUES
+   COLLECT FIELD VALUES
 ===================================================== */
 
-function readValuesFromDOM(
-    record,
-    root
+function collectFieldValues(){
+
+    const values =
+        {};
+
+
+    const fields =
+        overlay?.querySelectorAll(
+            "[data-update-field]"
+        ) ||
+        [];
+
+
+    fields.forEach(
+        element => {
+
+            const name =
+                element.name;
+
+
+            if(
+                !name
+            ){
+
+                return;
+
+            }
+
+
+            const original =
+                getFieldValue(
+                    name,
+                    selectedRecord
+                );
+
+
+            const config =
+                getFieldConfig(
+                    name,
+                    selectedRecord,
+                    values
+                );
+
+
+            const raw =
+                element.type === "checkbox"
+                    ? element.checked
+                    : element.value;
+
+
+            values[
+                name
+            ] =
+                parseFieldValue(
+                    name,
+                    raw,
+                    original,
+                    selectedRecord,
+                    config
+                );
+
+        }
+    );
+
+
+    return values;
+
+}
+
+
+/* =====================================================
+   READ VALUES FROM ROOT
+===================================================== */
+
+function readValuesFromRoot(
+    root,
+    record
 ){
 
-    const values = {};
+    const values =
+        {};
+
 
     if(
         !root ||
-        typeof root.querySelector !==
+        typeof root.querySelectorAll !==
         "function"
     ){
 
@@ -1921,85 +2391,64 @@ function readValuesFromDOM(
 
     }
 
-    getFieldList(record)
-        .forEach(
-            field => {
 
-                if(
-                    !isEditableField(
-                        field,
-                        record
-                    )
-                ){
+    root.querySelectorAll(
+        "[data-update-field], [name]"
+    ).forEach(
+        element => {
 
-                    return;
+            const name =
+                element.name;
 
-                }
 
-                let selector =
-                    field;
+            if(
+                !name ||
+                !isEditableField(
+                    name,
+                    record
+                )
+            ){
 
-                if(
-                    globalThis.CSS &&
-                    typeof CSS.escape ===
-                    "function"
-                ){
-
-                    selector =
-                        CSS.escape(field);
-
-                }
-                else{
-
-                    selector =
-                        String(field)
-                            .replace(
-                                /["\\]/g,
-                                "\\$&"
-                            );
-
-                }
-
-                const element =
-                    root.querySelector(
-                        `[name="${selector}"]`
-                    );
-
-                if(!element){
-
-                    return;
-
-                }
-
-                const originalValue =
-                    getFieldValue(
-                        field,
-                        record
-                    );
-
-                const config =
-                    getFieldConfig(
-                        field,
-                        record,
-                        values
-                    );
-
-                const rawValue =
-                    element.type === "checkbox"
-                        ? element.checked
-                        : element.value;
-
-                values[field] =
-                    parseFieldValue(
-                        field,
-                        rawValue,
-                        originalValue,
-                        record,
-                        config
-                    );
+                return;
 
             }
-        );
+
+
+            const original =
+                getFieldValue(
+                    name,
+                    record
+                );
+
+
+            const config =
+                getFieldConfig(
+                    name,
+                    record,
+                    values
+                );
+
+
+            const raw =
+                element.type === "checkbox"
+                    ? element.checked
+                    : element.value;
+
+
+            values[
+                name
+            ] =
+                parseFieldValue(
+                    name,
+                    raw,
+                    original,
+                    record,
+                    config
+                );
+
+        }
+    );
+
 
     return values;
 
@@ -2012,963 +2461,30 @@ function readValuesFromDOM(
 
 function buildUpdatedRow(
     record,
-    values
+    values = {}
 ){
 
     const row = {
         ...record
     };
 
-    const inputValues =
-        values || {};
 
-    Object.keys(inputValues)
-        .forEach(
-            field => {
+    Object.keys(
+        values
+    ).forEach(
+        field => {
 
-                if(
-                    isLockedField(
-                        field,
-                        record
-                    )
-                ){
-
-                    return;
-
-                }
-
-                if(
-                    !isEditableField(
-                        field,
-                        record
-                    )
-                ){
-
-                    return;
-
-                }
-
-                const config =
-                    getFieldConfig(
-                        field,
-                        record,
-                        inputValues
-                    );
-
-                const originalValue =
-                    getFieldValue(
-                        field,
-                        record
-                    );
-
-                const parsedValue =
-                    parseFieldValue(
-                        field,
-                        inputValues[field],
-                        originalValue,
-                        record,
-                        config
-                    );
-
-                setFieldValue(
-                    row,
-                    field,
-                    parsedValue,
-                    record
-                );
-
-            }
-        );
-
-    const idField =
-        getIdField(record);
-
-    const dateField =
-        getDateField(record);
-
-    row[idField] =
-        record[idField];
-
-    if(dateField){
-
-        row[dateField] =
-            record[dateField];
-
-    }
-
-    return row;
-
-}
-
-
-/* =====================================================
-   BUILD CHANGES
-===================================================== */
-
-function buildChanges(
-    record,
-    incoming
-){
-
-    const values =
-        normalizeIncomingValues(
-            incoming,
-            record
-        );
-
-    let finalValues = {
-        ...values
-    };
-
-    if(
-        typeof currentOptions.prepareValues ===
-        "function"
-    ){
-
-        const prepared =
-            callFunction(
-                currentOptions.prepareValues,
-                [
-                    finalValues,
-                    record
-                ],
-                undefined
-            );
-
-        if(
-            isObject(prepared)
-        ){
-
-            finalValues =
-                prepared;
-
-        }
-
-    }
-
-    const row =
-        buildUpdatedRow(
-            record,
-            finalValues
-        );
-
-    let finalRow =
-        row;
-
-    if(
-        typeof currentOptions.prepareRow ===
-        "function"
-    ){
-
-        const prepared =
-            callFunction(
-                currentOptions.prepareRow,
-                [
-                    row,
-                    record,
-                    finalValues
-                ],
-                undefined
-            );
-
-        if(
-            isObject(prepared)
-        ){
-
-            finalRow =
-                prepared;
-
-        }
-
-    }
-
-    const idField =
-        getIdField(record);
-
-    const dateField =
-        getDateField(record);
-
-    finalRow[idField] =
-        record[idField];
-
-    if(dateField){
-
-        finalRow[dateField] =
-            record[dateField];
-
-    }
-
-    return {
-
-        values :
-            finalValues,
-
-        row :
-            finalRow,
-
-        target : {
-
-            id :
-                getRecordId(record),
-
-            tanggal :
-                getRecordDate(record)
-
-        }
-
-    };
-
-}
-
-
-/* =====================================================
-   MESSAGE
-===================================================== */
-
-function showMessage(
-    message,
-    type = ""
-){
-
-    if(!overlay){
-
-        console.warn(
-            "[EditRow]",
-            message
-        );
-
-        return;
-
-    }
-
-    const result =
-        overlay.querySelector(
-            '[data-role="result"]'
-        );
-
-    if(!result){
-
-        return;
-
-    }
-
-    result.className =
-        "global-update-data-result";
-
-    if(type){
-
-        result.classList.add(type);
-
-    }
-
-    result.textContent =
-        message;
-
-    result.classList.remove(
-        "hidden"
-    );
-
-}
-
-
-/* =====================================================
-   HIDE MESSAGE
-===================================================== */
-
-function hideMessage(){
-
-    if(!overlay){
-
-        return;
-
-    }
-
-    const result =
-        overlay.querySelector(
-            '[data-role="result"]'
-        );
-
-    if(result){
-
-        result.className =
-            "global-update-data-result hidden";
-
-        result.textContent =
-            "";
-
-    }
-
-}
-
-
-/* =====================================================
-   VALIDATE
-===================================================== */
-
-function validateRecord(
-    record,
-    incoming
-){
-
-    if(!record){
-
-        return false;
-
-    }
-
-    const id =
-        getRecordId(record);
-
-    const tanggal =
-        normalizeText(
-            getRecordDate(record)
-        );
-
-    if(!id){
-
-        showMessage(
-            "ID transaksi tidak ditemukan.",
-            "error"
-        );
-
-        return false;
-
-    }
-
-    if(!tanggal){
-
-        showMessage(
-            "Tanggal transaksi tidak ditemukan.",
-            "error"
-        );
-
-        return false;
-
-    }
-
-    const values =
-        normalizeIncomingValues(
-            incoming,
-            record
-        );
-
-    if(
-        typeof currentOptions.validate ===
-        "function"
-    ){
-
-        try{
-
-            const result =
-                currentOptions.validate(
-                    record,
-                    values,
-                    {
-                        values,
-
-                        record,
-
-                        fields :
-                            getVisibleFields(
-                                record,
-                                values
-                            )
-
-                    }
-                );
-
-            if(result === false){
-
-                return false;
-
-            }
-
-        }
-        catch(error){
-
-            console.error(
-                "[EditRow] validate failed:",
-                error
-            );
-
-            showMessage(
-                error?.message ||
-                "Data tidak valid.",
-                "error"
-            );
-
-            return false;
-
-        }
-
-    }
-
-    const fields =
-        getVisibleFields(
-            record,
-            values
-        );
-
-    for(
-        const field of fields
-    ){
-
-        const config =
-            getFieldConfig(
-                field,
-                record,
-                values
-            );
-
-        if(
-            !config.required
-        ){
-
-            continue;
-
-        }
-
-        const value =
-            values[field] ??
-            getFieldValue(
-                field,
-                record
-            );
-
-        if(
-            value === "" ||
-            value === null ||
-            value === undefined
-        ){
-
-            showMessage(
-                `${config.label} wajib diisi.`,
-                "error"
-            );
-
-            return false;
-
-        }
-
-    }
-
-    return true;
-
-}
-
-
-/* =====================================================
-   VALIDATE BATCH
-===================================================== */
-
-async function validateBatch(
-    pending
-){
-
-    if(
-        typeof currentOptions.validateBatch ===
-        "function"
-    ){
-
-        const result =
-            await currentOptions.validateBatch(
-                pending
-            );
-
-        return result !== false;
-
-    }
-
-    return true;
-
-}
-
-
-/* =====================================================
-   DETAIL
-===================================================== */
-
-function renderDetail(
-    record
-){
-
-    if(
-        typeof currentOptions.renderDetail ===
-        "function"
-    ){
-
-        return currentOptions.renderDetail(
-            record
-        );
-
-    }
-
-    const card =
-        document.createElement("div");
-
-    card.className =
-        "global-update-data-detail-card";
-
-    const title =
-        document.createElement("h3");
-
-    title.className =
-        "global-update-data-detail-title";
-
-    title.textContent =
-        "Informasi Transaksi";
-
-    card.appendChild(title);
-
-    Object.keys(record)
-        .forEach(
-            field => {
-
-                const row =
-                    document.createElement(
-                        "div"
-                    );
-
-                row.className =
-                    "global-update-data-detail-row";
-
-                const label =
-                    document.createElement(
-                        "span"
-                    );
-
-                label.textContent =
-                    getFieldLabel(
-                        field,
-                        record
-                    );
-
-                const value =
-                    document.createElement(
-                        "strong"
-                    );
-
-                value.textContent =
-                    serializeFieldValue(
-                        record[field],
-                        getFieldType(
-                            field,
-                            record[field],
-                            record
-                        )
-                    );
-
-                row.appendChild(label);
-                row.appendChild(value);
-
-                card.appendChild(row);
-
-            }
-        );
-
-    return card;
-
-}
-
-
-/* =====================================================
-   CREATE FIELD ELEMENT
-===================================================== */
-
-function createFieldElement(
-    field,
-    record,
-    context = {}
-){
-
-    const values =
-        context?.values || {};
-
-    const config =
-        getFieldConfig(
-            field,
-            record,
-            values
-        );
-
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.className =
-        "global-update-data-field";
-
-
-    /* =================================================
-       SELECT
-    ================================================= */
-
-    if(
-        config.type === "select"
-    ){
-
-        const label =
-            document.createElement("label");
-
-        label.className =
-            "global-update-data-field-label";
-
-        label.textContent =
-            config.label;
-
-        wrapper.appendChild(label);
-
-        const select =
-            document.createElement("select");
-
-        select.name =
-            field;
-
-        select.className =
-            "global-update-data-field-input";
-
-        if(config.multiple){
-
-            select.multiple =
-                true;
-
-        }
-
-        const currentValue =
-            getFieldValue(
-                field,
-                record
-            );
-
-        let currentFound =
-            false;
-
-        config.options
-            .forEach(
-                option => {
-
-                    const optionElement =
-                        document.createElement(
-                            "option"
-                        );
-
-                    optionElement.value =
-                        option.value ??
-                        "";
-
-                    optionElement.textContent =
-                        option.label ??
-                        option.value ??
-                        "";
-
-                    optionElement.disabled =
-                        option.disabled === true;
-
-                    if(
-                        String(
-                            optionElement.value
-                        ) ===
-                        String(
-                            currentValue
-                        )
-                    ){
-
-                        optionElement.selected =
-                            true;
-
-                        currentFound =
-                            true;
-
-                    }
-
-                    select.appendChild(
-                        optionElement
-                    );
-
-                }
-            );
-
-        if(
-            currentValue !== "" &&
-            currentValue !== null &&
-            currentValue !== undefined &&
-            !currentFound &&
-            !config.multiple
-        ){
-
-            const fallback =
-                document.createElement(
-                    "option"
-                );
-
-            fallback.value =
-                currentValue;
-
-            fallback.textContent =
-                String(currentValue);
-
-            fallback.selected =
-                true;
-
-            select.insertBefore(
-                fallback,
-                select.firstChild
-            );
-
-        }
-
-        select.disabled =
-            config.disabled ||
-            config.readonly;
-
-        wrapper.appendChild(select);
-
-        return wrapper;
-
-    }
-
-
-    /* =================================================
-       CHECKBOX
-    ================================================= */
-
-    if(
-        config.type === "checkbox"
-    ){
-
-        const checkboxWrapper =
-            document.createElement("label");
-
-        checkboxWrapper.className =
-            "global-update-data-checkbox";
-
-        const checkbox =
-            document.createElement("input");
-
-        checkbox.type =
-            "checkbox";
-
-        checkbox.name =
-            field;
-
-        checkbox.checked =
-            Boolean(
-                getFieldValue(
+            if(
+                isLockedField(
                     field,
                     record
                 )
-            );
+            ){
 
-        checkbox.disabled =
-            config.disabled ||
-            config.readonly;
+                return;
 
-        checkboxWrapper.appendChild(
-            checkbox
-        );
+            }
 
-        const text =
-            document.createElement("span");
-
-        text.textContent =
-            config.label;
-
-        checkboxWrapper.appendChild(
-            text
-        );
-
-        wrapper.appendChild(
-            checkboxWrapper
-        );
-
-        return wrapper;
-
-    }
-
-
-    /* =================================================
-       TEXTAREA
-    ================================================= */
-
-    if(
-        config.type === "textarea"
-    ){
-
-        const label =
-            document.createElement("label");
-
-        label.className =
-            "global-update-data-field-label";
-
-        label.textContent =
-            config.label;
-
-        wrapper.appendChild(label);
-
-        const textarea =
-            document.createElement("textarea");
-
-        textarea.name =
-            field;
-
-        textarea.className =
-            "global-update-data-field-input";
-
-        textarea.rows =
-            config.rows;
-
-        textarea.placeholder =
-            config.placeholder;
-
-        textarea.disabled =
-            config.disabled;
-
-        textarea.readOnly =
-            config.readonly;
-
-        textarea.value =
-            serializeFieldValue(
-                getFieldValue(
-                    field,
-                    record
-                ),
-                config.type
-            );
-
-        wrapper.appendChild(
-            textarea
-        );
-
-        return wrapper;
-
-    }
-
-
-    /* =================================================
-       DEFAULT INPUT
-    ================================================= */
-
-    const label =
-        document.createElement("label");
-
-    label.className =
-        "global-update-data-field-label";
-
-    label.textContent =
-        config.label;
-
-    wrapper.appendChild(label);
-
-    const input =
-        document.createElement("input");
-
-    input.name =
-        field;
-
-    input.className =
-        "global-update-data-field-input";
-
-    input.type =
-        config.type === "number"
-            ? "number"
-            : config.type === "date"
-                ? "date"
-                : "text";
-
-    input.placeholder =
-        config.placeholder;
-
-    input.disabled =
-        config.disabled;
-
-    input.readOnly =
-        config.readonly;
-
-    if(
-        config.min !== undefined
-    ){
-
-        input.min =
-            config.min;
-
-    }
-
-    if(
-        config.max !== undefined
-    ){
-
-        input.max =
-            config.max;
-
-    }
-
-    if(
-        config.step !== undefined
-    ){
-
-        input.step =
-            config.step;
-
-    }
-
-    input.value =
-        serializeFieldValue(
-            getFieldValue(
-                field,
-                record
-            ),
-            config.type
-        );
-
-    wrapper.appendChild(input);
-
-    return wrapper;
-
-}
-
-
-/* =====================================================
-   RENDER FIELDS
-===================================================== */
-
-function renderFields(
-    record,
-    context = {}
-){
-
-    if(
-        typeof currentOptions.renderFields ===
-        "function"
-    ){
-
-        return currentOptions.renderFields(
-            record,
-            context
-        );
-
-    }
-
-    const root =
-        document.createElement("div");
-
-    root.className =
-        "global-update-data-fields-wrapper";
-
-    const values = {
-
-        ...(record || {}),
-
-        ...(context?.values || {})
-
-    };
-
-    const fields =
-        getVisibleFields(
-            record,
-            values
-        );
-
-    fields.forEach(
-        field => {
 
             if(
                 !isEditableField(
@@ -2981,21 +2497,462 @@ function renderFields(
 
             }
 
-            root.appendChild(
-                createFieldElement(
+
+            const config =
+                getFieldConfig(
                     field,
                     record,
-                    {
-                        ...context,
-                        values
-                    }
-                )
+                    values
+                );
+
+
+            const original =
+                getFieldValue(
+                    field,
+                    record
+                );
+
+
+            const parsed =
+                parseFieldValue(
+                    field,
+                    values[field],
+                    original,
+                    record,
+                    config
+                );
+
+
+            setFieldValue(
+                row,
+                field,
+                parsed,
+                record
             );
 
         }
     );
 
-    return root;
+
+    const idField =
+        getIdField(
+            record
+        );
+
+
+    const dateField =
+        getDateField(
+            record
+        );
+
+
+    /*
+       ID selalu dari record asli.
+    */
+
+    row[
+        idField
+    ] =
+        record[
+            idField
+        ];
+
+
+    /*
+       Tanggal selalu dari record asli.
+    */
+
+    if(
+        dateField
+    ){
+
+        row[
+            dateField
+        ] =
+            record[
+                dateField
+            ];
+
+    }
+
+
+    return row;
+
+}
+
+
+/* =====================================================
+   BUILD CHANGES
+===================================================== */
+
+async function buildChanges(
+    record,
+    incoming
+){
+
+    let values = {
+
+        ...(incoming || {})
+
+    };
+
+
+    /*
+       Workspace preprocessing.
+    */
+
+    if(
+        typeof currentOptions.prepareValues ===
+        "function"
+    ){
+
+        const prepared =
+            await callFunction(
+                currentOptions.prepareValues,
+                [
+                    values,
+                    record
+                ],
+                undefined
+            );
+
+
+        if(
+            isObject(
+                prepared
+            )
+        ){
+
+            values =
+                prepared;
+
+        }
+
+    }
+
+
+    /*
+       Workspace custom builder.
+
+       Returning undefined berarti
+       gunakan generic builder.
+    */
+
+    if(
+        typeof currentOptions.buildChanges ===
+        "function"
+    ){
+
+        const custom =
+            await callFunction(
+                currentOptions.buildChanges,
+                [
+                    record,
+                    values
+                ],
+                undefined
+            );
+
+
+        if(
+            custom !== undefined
+        ){
+
+            if(
+                isObject(
+                    custom
+                ) &&
+                custom.row
+            ){
+
+                const customRow = {
+                    ...custom.row
+                };
+
+
+                const idField =
+                    getIdField(
+                        record
+                    );
+
+
+                const dateField =
+                    getDateField(
+                        record
+                    );
+
+
+                customRow[
+                    idField
+                ] =
+                    record[
+                        idField
+                    ];
+
+
+                if(
+                    dateField
+                ){
+
+                    customRow[
+                        dateField
+                    ] =
+                        record[
+                            dateField
+                        ];
+
+                }
+
+
+                return {
+
+                    values :
+                        custom.values ??
+                        values,
+
+                    row :
+                        customRow,
+
+                    target :
+                        custom.target ??
+                        {
+
+                            id :
+                                getRecordId(
+                                    record
+                                ),
+
+                            tanggal :
+                                getRecordDate(
+                                    record
+                                )
+
+                        }
+
+                };
+
+            }
+
+
+            if(
+                isObject(
+                    custom
+                )
+            ){
+
+                return custom;
+
+            }
+
+
+            if(
+                custom === null ||
+                custom === false
+            ){
+
+                return custom;
+
+            }
+
+        }
+
+    }
+
+
+    /*
+       Generic full-row builder.
+    */
+
+    let row =
+        buildUpdatedRow(
+            record,
+            values
+        );
+
+
+    /*
+       Workspace postprocessing.
+    */
+
+    if(
+        typeof currentOptions.prepareRow ===
+        "function"
+    ){
+
+        const prepared =
+            await callFunction(
+                currentOptions.prepareRow,
+                [
+                    row,
+                    record,
+                    values
+                ],
+                undefined
+            );
+
+
+        if(
+            isObject(
+                prepared
+            )
+        ){
+
+            row =
+                prepared;
+
+        }
+
+    }
+
+
+    /*
+       ID + tanggal selalu authoritative.
+    */
+
+    const idField =
+        getIdField(
+            record
+        );
+
+
+    const dateField =
+        getDateField(
+            record
+        );
+
+
+    row[
+        idField
+    ] =
+        record[
+            idField
+        ];
+
+
+    if(
+        dateField
+    ){
+
+        row[
+            dateField
+        ] =
+            record[
+                dateField
+            ];
+
+    }
+
+
+    return {
+
+        values :
+            values,
+
+        row :
+            row,
+
+        target : {
+
+            id :
+                getRecordId(
+                    record
+                ),
+
+            tanggal :
+                getRecordDate(
+                    record
+                )
+
+        }
+
+    };
+
+}
+
+
+/* =====================================================
+   RECORD SOURCE
+===================================================== */
+
+function getSourceRecords(){
+
+    if(
+        typeof currentOptions.getRecords ===
+        "function"
+    ){
+
+        const records =
+            callFunction(
+                currentOptions.getRecords,
+                [],
+                []
+            );
+
+
+        return Array.isArray(
+            records
+        )
+            ? records
+            : [];
+
+    }
+
+
+    const records =
+        getInputRaw();
+
+
+    return Array.isArray(
+        records
+    )
+        ? records
+        : [];
+
+}
+
+
+/* =====================================================
+   LATEST RECORDS
+===================================================== */
+
+function getLatestRecords(
+    records
+){
+
+    return safeArray(
+        records
+    )
+        .slice(
+            -MAX_RECORDS
+        )
+        .reverse();
+
+}
+
+
+/* =====================================================
+   AVAILABLE RECORDS
+===================================================== */
+
+function getAvailableRecords(){
+
+    const pendingKeys =
+        new Set(
+            pendingChanges.map(
+                item =>
+                    item.key
+            )
+        );
+
+
+    return currentRecords.filter(
+        record =>
+            !pendingKeys.has(
+                getTargetKey(
+                    record
+                )
+            )
+    );
 
 }
 
@@ -3016,9 +2973,12 @@ function getRecordLabel(
         const result =
             callFunction(
                 currentOptions.getRecordLabel,
-                [record],
+                [
+                    record
+                ],
                 undefined
             );
+
 
         if(
             result !== undefined &&
@@ -3033,8 +2993,23 @@ function getRecordLabel(
 
     }
 
+
     return (
-        getRecordId(record) ||
+        normalizeText(
+            record?.project
+        ) ||
+        normalizeText(
+            record?.nama
+        ) ||
+        normalizeText(
+            record?.name
+        ) ||
+        normalizeText(
+            record?.title
+        ) ||
+        getRecordId(
+            record
+        ) ||
         "Transaksi"
     );
 
@@ -3057,9 +3032,12 @@ function getRecordMeta(
         const result =
             callFunction(
                 currentOptions.getRecordMeta,
-                [record],
+                [
+                    record
+                ],
                 undefined
             );
+
 
         if(
             result !== undefined &&
@@ -3074,8 +3052,11 @@ function getRecordMeta(
 
     }
 
+
     return normalizeText(
-        getRecordDate(record)
+        getRecordDate(
+            record
+        )
     );
 
 }
@@ -3094,36 +3075,33 @@ function getSearchText(
         "function"
     ){
 
-        const result =
+        return normalizeText(
             callFunction(
                 currentOptions.getSearchText,
-                [record],
-                undefined
-            );
-
-        if(
-            result !== undefined &&
-            result !== null
-        ){
-
-            return normalizeText(
-                result
-            ).toLowerCase();
-
-        }
+                [
+                    record
+                ],
+                ""
+            )
+        ).toLowerCase();
 
     }
 
+
     try{
 
-        return Object.values(record)
+        return Object.values(
+            record || {}
+        )
             .map(
                 value =>
                     normalizeText(
                         value
                     ).toLowerCase()
             )
-            .join(" ");
+            .join(
+                " "
+            );
 
     }
     catch{
@@ -3136,626 +3114,157 @@ function getSearchText(
 
 
 /* =====================================================
-   SEARCH MATCH
+   FILTER RECORDS
 ===================================================== */
 
-function matchesSearch(
-    record,
-    query
-){
+function getFilteredRecords(){
 
-    const normalized =
+    const search =
+        overlay?.querySelector(
+            '[data-role="record-search"]'
+        );
+
+
+    const query =
         normalizeText(
-            query
+            search?.value
         ).toLowerCase();
 
-    if(!normalized){
-
-        return true;
-
-    }
-
-    return getSearchText(
-        record
-    ).includes(
-        normalized
-    );
-
-}
-
-
-/* =====================================================
-   SOURCE RECORDS
-===================================================== */
-
-function getSourceRecords(){
-
-    if(
-        typeof currentOptions.getRecords ===
-        "function"
-    ){
-
-        const records =
-            callFunction(
-                currentOptions.getRecords,
-                [],
-                []
-            );
-
-        return Array.isArray(records)
-            ? records
-            : [];
-
-    }
 
     const records =
-        getInputRaw();
+        getAvailableRecords();
 
-    return Array.isArray(records)
-        ? records
-        : [];
-
-}
-
-
-/* =====================================================
-   LATEST RECORDS
-===================================================== */
-
-function getLatestRecords(
-    records
-){
 
     if(
-        !Array.isArray(records)
+        !query
     ){
 
-        return [];
+        return records;
 
     }
 
-    return records
-        .slice(-MAX_RECORDS)
-        .reverse();
 
-}
+    return records.filter(
+        record => {
 
-
-/* =====================================================
-   PENDING KEY
-===================================================== */
-
-function getPendingKey(item){
-
-    if(item?.key){
-
-        return normalizeText(
-            item.key
-        );
-
-    }
-
-    if(item?.record){
-
-        return getTargetKey(
-            item.record
-        );
-
-    }
-
-    return "";
-
-}
+            const label =
+                getRecordLabel(
+                    record
+                ).toLowerCase();
 
 
-/* =====================================================
-   IS PENDING
-===================================================== */
+            const meta =
+                getRecordMeta(
+                    record
+                ).toLowerCase();
 
-function isPending(record){
 
-    const key =
-        getTargetKey(record);
+            const id =
+                getRecordId(
+                    record
+                ).toLowerCase();
 
-    return pendingChanges.some(
-        item =>
-            getPendingKey(item) ===
-            key
+
+            const all =
+                getSearchText(
+                    record
+                );
+
+
+            return (
+                label.includes(
+                    query
+                ) ||
+                meta.includes(
+                    query
+                ) ||
+                id.includes(
+                    query
+                ) ||
+                all.includes(
+                    query
+                )
+            );
+
+        }
     );
 
 }
 
 
 /* =====================================================
-   ADD PENDING
+   RESULT
 ===================================================== */
 
-function addPending(
-    record,
-    incoming
+function showResult(
+    message,
+    type = ""
 ){
 
-    if(!record){
-
-        return {
-
-            success : false,
-
-            message :
-                "Transaksi tidak ditemukan."
-
-        };
-
-    }
-
-    if(
-        isPending(record)
-    ){
-
-        return {
-
-            success : false,
-
-            duplicate : true,
-
-            message :
-                currentOptions.duplicateText ||
-                "Transaksi ini sudah ditambahkan."
-
-        };
-
-    }
-
-    if(
-        !validateRecord(
-            record,
-            incoming
-        )
-    ){
-
-        return {
-
-            success : false,
-
-            message :
-                "Data tidak valid."
-
-        };
-
-    }
-
-    const changes =
-        buildChanges(
-            record,
-            incoming
+    const result =
+        overlay?.querySelector(
+            '[data-role="result"]'
         );
 
-    const item = {
-
-        key :
-            getTargetKey(record),
-
-        record,
-
-        changes,
-
-        addedAt :
-            Date.now()
-
-    };
-
-    pendingChanges.push(item);
-
-    return {
-
-        success : true,
-
-        item,
-
-        pending :
-            pendingChanges.slice(),
-
-        count :
-            pendingChanges.length
-
-    };
-
-}
-
-
-/* =====================================================
-   REMOVE PENDING
-===================================================== */
-
-function removePending(target){
-
-    const key =
-        typeof target === "string"
-            ? target
-            : getPendingKey(target);
-
-    const index =
-        pendingChanges.findIndex(
-            item =>
-                getPendingKey(item) ===
-                key
-        );
-
-    if(index === -1){
-
-        return false;
-
-    }
-
-    pendingChanges.splice(
-        index,
-        1
-    );
-
-    return true;
-
-}
-
-
-/* =====================================================
-   APPLY LOCAL UPDATE
-===================================================== */
-
-function applyLocalUpdate(item){
 
     if(
-        !item?.record ||
-        !item?.changes?.row
+        !result
     ){
 
         return;
 
     }
 
-    const key =
-        getTargetKey(
-            item.record
-        );
 
-    sourceRecords =
-        sourceRecords.map(
-            record =>
-                getTargetKey(record) === key
-                    ? {
-                        ...record,
-                        ...item.changes.row
-                    }
-                    : record
-        );
+    result.className =
+        "global-update-data-result";
 
-    editableRecords =
-        editableRecords.map(
-            record =>
-                getTargetKey(record) === key
-                    ? {
-                        ...record,
-                        ...item.changes.row
-                    }
-                    : record
-        );
 
     if(
-        selectedRecord &&
-        getTargetKey(
-            selectedRecord
-        ) === key
+        type
     ){
 
-        selectedRecord = {
-
-            ...selectedRecord,
-
-            ...item.changes.row
-
-        };
-
-    }
-
-}
-
-
-/* =====================================================
-   CONFIRM
-===================================================== */
-
-async function confirm(
-    pending
-){
-
-    if(busy){
-
-        return false;
-
-    }
-
-    if(
-        !Array.isArray(pending) ||
-        !pending.length
-    ){
-
-        return {
-
-            success : false,
-
-            remaining : [],
-
-            count : 0,
-
-            message :
-                "Belum ada data yang ditambahkan."
-
-        };
-
-    }
-
-    const valid =
-        await validateBatch(
-            pending
+        result.classList.add(
+            type
         );
 
-    if(valid === false){
-
-        return {
-
-            success : false,
-
-            remaining :
-                pending
-
-        };
-
     }
 
-    busy = true;
 
-    const remaining = [];
+    result.textContent =
+        safeText(
+            message
+        );
 
-    let successCount = 0;
 
-    try{
-
-        for(
-            const item of pending
-        ){
-
-            try{
-
-                const record =
-                    item.record;
-
-                const changes =
-                    item.changes;
-
-                const target = {
-
-                    id :
-                        getRecordId(record),
-
-                    tanggal :
-                        getRecordDate(record)
-
-                };
-
-                let result;
-
-                if(
-                    typeof currentOptions.update ===
-                    "function"
-                ){
-
-                    result =
-                        await currentOptions.update(
-                            {
-
-                                workspace :
-                                    currentOptions.workspace,
-
-                                target,
-
-                                row :
-                                    changes.row,
-
-                                record,
-
-                                changes
-
-                            }
-                        );
-
-                }
-                else{
-
-                    result =
-                        await Update.updateRow(
-                            currentOptions.workspace,
-                            target,
-                            changes.row
-                        );
-
-                }
-
-                if(
-                    result?.success === false ||
-                    result?.ok === false
-                ){
-
-                    throw new Error(
-                        result?.message ||
-                        result?.error ||
-                        "Update transaksi gagal."
-                    );
-
-                }
-
-                applyLocalUpdate(item);
-
-                successCount++;
-
-            }
-            catch(error){
-
-                console.error(
-                    "[EditRow] Update failed:",
-                    error
-                );
-
-                remaining.push(item);
-
-            }
-
-        }
-
-        if(
-            successCount ===
-            pending.length
-        ){
-
-            pendingChanges = [];
-
-            if(
-                typeof currentOptions.onConfirmed ===
-                "function"
-            ){
-
-                try{
-
-                    await currentOptions.onConfirmed(
-                        {
-
-                            success : true,
-
-                            count :
-                                successCount,
-
-                            pending
-
-                        }
-                    );
-
-                }
-                catch(error){
-
-                    console.warn(
-                        "[EditRow] onConfirmed failed:",
-                        error
-                    );
-
-                }
-
-            }
-
-            return {
-
-                success : true,
-
-                remaining : [],
-
-                count :
-                    successCount,
-
-                message :
-                    `${successCount} data berhasil diperbarui.`
-
-            };
-
-        }
-
-        pendingChanges =
-            remaining.slice();
-
-        if(
-            successCount > 0
-        ){
-
-            return {
-
-                success : false,
-
-                remaining,
-
-                count :
-                    successCount,
-
-                message :
-                    `${successCount} data berhasil diperbarui. ` +
-                    `${remaining.length} data gagal diperbarui.`
-
-            };
-
-        }
-
-        return {
-
-            success : false,
-
-            remaining,
-
-            count : 0,
-
-            message :
-                "Tidak ada data yang berhasil diperbarui."
-
-        };
-
-    }
-    finally{
-
-        busy = false;
-
-    }
+    result.classList.remove(
+        "hidden"
+    );
 
 }
 
 
 /* =====================================================
-   UI TEXT
+   HIDE RESULT
 ===================================================== */
 
-function uiText(
-    value,
-    fallback = ""
-){
+function hideResult(){
 
-    return normalizeText(
-        value
-    ) || fallback;
-
-}
+    const result =
+        overlay?.querySelector(
+            '[data-role="result"]'
+        );
 
 
-/* =====================================================
-   CREATE ELEMENT
-===================================================== */
+    if(
+        result
+    ){
 
-function uiCreateElement(
-    tag,
-    className = "",
-    text = ""
-){
-
-    const element =
-        document.createElement(tag);
-
-    if(className){
-
-        element.className =
-            className;
+        result.classList.add(
+            "hidden"
+        );
 
     }
-
-    if(text){
-
-        element.textContent =
-            text;
-
-    }
-
-    return element;
 
 }
 
@@ -3764,122 +3273,255 @@ function uiCreateElement(
    CREATE OVERLAY
 ===================================================== */
 
-function createEditOverlay(){
+function createOverlay(){
 
-    const old =
-        document.getElementById(
-            OVERLAY_ID
-        );
+    if(
+        overlay
+    ){
 
-    if(old){
-
-        old.remove();
+        return overlay;
 
     }
 
-    const root =
-        uiCreateElement(
+
+    overlay =
+        createElement(
             "div",
             "global-update-data-overlay"
         );
 
-    root.id =
+
+    overlay.id =
         OVERLAY_ID;
 
-    root.innerHTML = `
-        <div class="global-update-data-panel">
 
-            <div class="global-update-data-header">
+    overlay.innerHTML = `
 
-                <div>
+        <div
+            class="global-update-data-backdrop"
+            data-role="backdrop"
+        ></div>
+
+
+        <div
+            class="global-update-data-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="global-update-data-title"
+        >
+
+            <!-- HEADER -->
+
+            <div
+                class="global-update-data-header"
+            >
+
+                <div
+                    class="global-update-data-heading"
+                >
+
                     <h2
+                        id="global-update-data-title"
                         class="global-update-data-title"
-                        data-role="title">
+                        data-role="title"
+                    >
+                        Edit Input Row
                     </h2>
 
-                    <div
+
+                    <span
+                        id="global-update-data-subtitle"
                         class="global-update-data-subtitle"
-                        data-role="subtitle">
-                    </div>
+                        data-role="subtitle"
+                    >
+                        Ubah data yang sudah tersimpan
+                    </span>
+
                 </div>
+
 
                 <button
                     type="button"
                     class="global-update-data-close"
-                    data-action="close"
-                    aria-label="Tutup">
+                    data-role="close"
+                    aria-label="Tutup"
+                >
                     ×
                 </button>
 
             </div>
 
 
-            <div class="global-update-data-search-wrapper">
-
-                <input
-                    type="search"
-                    class="global-update-data-search"
-                    data-role="search"
-                    autocomplete="off">
-
-            </div>
-
+            <!-- CONTENT -->
 
             <div
-                class="global-update-data-list-wrapper"
-                data-role="list">
-            </div>
+                class="global-update-data-content"
+            >
+
+                <!-- RECORD LIST -->
+
+                <section
+                    class="global-update-data-record-section"
+                    data-role="record-section"
+                >
+
+                    <div
+                        class="global-update-data-record-header"
+                    >
+
+                        <h3
+                            class="global-update-data-record-title"
+                            data-role="record-title"
+                        >
+                            Transaksi Terbaru
+                        </h3>
+
+                    </div>
 
 
-            <div
-                class="global-update-data-selected"
-                data-role="selected">
-            </div>
+                    <div
+                        class="global-update-data-record-search-wrap"
+                    >
+
+                        <span
+                            class="global-update-data-record-search-icon"
+                            aria-hidden="true"
+                        >
+                            🔎
+                        </span>
 
 
-            <div
-                class="global-update-data-editor"
-                data-role="editor">
-            </div>
+                        <input
+                            type="search"
+                            class="global-update-data-record-search"
+                            data-role="record-search"
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
+
+                    </div>
 
 
-            <div
-                class="global-update-data-pending"
-                data-role="pending">
-            </div>
+                    <div
+                        class="global-update-data-record-list"
+                        data-role="record-list"
+                    ></div>
+
+                </section>
 
 
-            <div
-                class="global-update-data-bottom">
+                <!-- DETAIL -->
+
+                <section
+                    class="global-update-data-detail hidden"
+                    data-role="detail"
+                ></section>
+
+
+                <!-- FIELDS -->
+
+                <section
+                    class="global-update-data-fields hidden"
+                    data-role="fields"
+                ></section>
+
+
+                <!-- ACTION -->
+
+                <div
+                    class="global-update-data-action hidden"
+                    data-role="action"
+                >
+
+                    <button
+                        type="button"
+                        class="global-update-data-add"
+                        data-role="add"
+                        disabled
+                    >
+                        Tambahkan
+                    </button>
+
+                </div>
+
+
+                <!-- PENDING -->
+
+                <section
+                    class="global-update-data-pending hidden"
+                    data-role="pending"
+                >
+
+                    <div
+                        class="global-update-data-pending-header"
+                    >
+
+                        <h3
+                            data-role="pending-title"
+                        >
+                            Sudah Ditambahkan
+                        </h3>
+
+
+                        <span
+                            class="global-update-data-pending-count"
+                            data-role="pending-count"
+                        >
+                            0
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="global-update-data-pending-list"
+                        data-role="pending-list"
+                    ></div>
+
+                </section>
+
+
+                <!-- RESULT -->
 
                 <div
                     class="global-update-data-result hidden"
-                    data-role="result">
-                </div>
+                    data-role="result"
+                ></div>
+
+            </div>
+
+
+            <!-- CONFIRM -->
+
+            <div
+                class="global-update-data-confirm hidden"
+                data-role="confirm-container"
+            >
 
                 <button
                     type="button"
-                    class="global-update-data-confirm"
-                    data-action="confirm">
+                    data-role="confirm"
+                    disabled
+                >
+                    Konfirmasi
                 </button>
 
             </div>
 
         </div>
+
     `;
 
-    document.body.appendChild(root);
 
-root.classList.add("is-open");
-document.body.classList.add("input-open");
+    document.body.appendChild(
+        overlay
+    );
 
-overlay = root;
 
-    updateOverlayText();
+    bindEvents();
 
-    bindEditOverlayEvents();
 
-    return root;
+    return overlay;
 
 }
 
@@ -3890,78 +3532,140 @@ overlay = root;
 
 function updateOverlayText(){
 
-    if(!overlay){
+    if(
+        !overlay
+    ){
 
         return;
 
     }
+
 
     const title =
         overlay.querySelector(
             '[data-role="title"]'
         );
 
+
     const subtitle =
         overlay.querySelector(
             '[data-role="subtitle"]'
         );
 
+
+    const listTitle =
+        overlay.querySelector(
+            '[data-role="record-title"]'
+        );
+
+
     const search =
         overlay.querySelector(
-            '[data-role="search"]'
+            '[data-role="record-search"]'
         );
 
-    const confirmButton =
+
+    const pendingTitle =
         overlay.querySelector(
-            '[data-action="confirm"]'
+            '[data-role="pending-title"]'
         );
 
-    if(title){
+
+    const confirm =
+        overlay.querySelector(
+            '[data-role="confirm"]'
+        );
+
+
+    if(
+        title
+    ){
 
         title.textContent =
-            uiText(
-                currentOptions.title,
-                "Edit Input Row"
+            safeText(
+                getOption(
+                    "title"
+                )
             );
 
     }
 
-    if(subtitle){
+
+    if(
+        subtitle
+    ){
 
         subtitle.textContent =
-            uiText(
-                currentOptions.subtitle,
-                "Ubah transaksi yang sudah tersimpan"
+            safeText(
+                getOption(
+                    "subtitle"
+                )
             );
 
     }
 
-    if(search){
+
+    if(
+        listTitle
+    ){
+
+        listTitle.textContent =
+            safeText(
+                getOption(
+                    "listTitle"
+                )
+            );
+
+    }
+
+
+    if(
+        search
+    ){
 
         search.placeholder =
-            uiText(
-                currentOptions.searchPlaceholder,
-                "Cari transaksi..."
+            safeText(
+                getOption(
+                    "searchPlaceholder"
+                )
             );
 
     }
 
-    if(confirmButton){
 
-        confirmButton.textContent =
-            busy
-                ? uiText(
-                    currentOptions.confirmLoadingText,
-                    "Menyimpan perubahan..."
+    if(
+        pendingTitle
+    ){
+
+        pendingTitle.textContent =
+            safeText(
+                getOption(
+                    "pendingTitle"
                 )
-                : uiText(
-                    currentOptions.confirmText,
-                    "Konfirmasi"
-                );
+            );
 
-        confirmButton.disabled =
-            busy ||
+    }
+
+
+    if(
+        confirm
+    ){
+
+        confirm.disabled =
+            isBusy ||
             pendingChanges.length === 0;
+
+
+        confirm.textContent =
+            safeText(
+                isBusy
+                    ? getOption(
+                        "confirmLoadingText"
+                    )
+                    : getOption(
+                        "confirmText"
+                    )
+            );
 
     }
 
@@ -3969,222 +3673,366 @@ function updateOverlayText(){
 
 
 /* =====================================================
-   BIND OVERLAY EVENTS
+   BIND EVENTS
 ===================================================== */
 
-function bindEditOverlayEvents(){
+function bindEvents(){
 
-    if(!overlay){
+    if(
+        !overlay
+    ){
 
         return;
 
     }
+
+
+    const closeButton =
+        overlay.querySelector(
+            '[data-role="close"]'
+        );
+
+
+    const backdrop =
+        overlay.querySelector(
+            '[data-role="backdrop"]'
+        );
+
 
     const search =
         overlay.querySelector(
-            '[data-role="search"]'
+            '[data-role="record-search"]'
         );
 
-    if(search){
 
-        search.addEventListener(
-            "input",
-            event => {
-
-                searchQuery =
-                    event.target.value || "";
-
-                renderRecordList();
-
-            }
-        );
-
-    }
-
-    const close =
+    const addButton =
         overlay.querySelector(
-            '[data-action="close"]'
+            '[data-role="add"]'
         );
 
-    if(close){
-
-        close.addEventListener(
-            "click",
-            closeEditOverlay
-        );
-
-    }
 
     const confirmButton =
         overlay.querySelector(
-            '[data-action="confirm"]'
+            '[data-role="confirm"]'
         );
 
-    if(confirmButton){
 
-        confirmButton.addEventListener(
-            "click",
-            async () => {
+    closeButton?.addEventListener(
+        "click",
+        () => {
 
-                await handleConfirmUI();
+            EditRow.close();
+
+        }
+    );
+
+
+    backdrop?.addEventListener(
+        "click",
+        () => {
+
+            if(
+                getOption(
+                    "allowBackdropClose"
+                ) === false
+            ){
+
+                return;
 
             }
-        );
-
-    }
-
-}
 
 
-/* =====================================================
-   CLOSE OVERLAY
-===================================================== */
+            EditRow.close();
 
-function closeEditOverlay(){
-
-    if(!overlay){
-        return;
-    }
-
-    overlay.classList.remove("is-open");
-    document.body.classList.remove("input-open");
-
-    overlay.remove();
-
-    overlay = null;
-
-    selectedRecord = null;
-
-    searchQuery = "";
-
-}
+        }
+    );
 
 
-/* =====================================================
-   GET VISIBLE EDITABLE RECORDS
-===================================================== */
+    search?.addEventListener(
+        "input",
+        () => {
 
-function getVisibleEditableRecords(){
+            renderRecordList();
 
-    return editableRecords.filter(
-        record =>
-            !isPending(record) &&
-            matchesSearch(
-                record,
-                searchQuery
-            )
+        }
+    );
+
+
+    addButton?.addEventListener(
+        "click",
+        () => {
+
+            EditRow.add();
+
+        }
+    );
+
+
+    confirmButton?.addEventListener(
+        "click",
+        () => {
+
+            EditRow.confirm();
+
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        handleKeydown
     );
 
 }
 
 
 /* =====================================================
-   RENDER RECORD LIST
+   KEYBOARD
+===================================================== */
+
+function handleKeydown(
+    event
+){
+
+    if(
+        !overlay
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        !overlay.classList.contains(
+            "is-open"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        event.key === "Escape" &&
+        getOption(
+            "closeOnEscape"
+        ) !== false
+    ){
+
+        EditRow.close();
+
+    }
+
+}
+
+
+/* =====================================================
+   RECORD LIST
 ===================================================== */
 
 function renderRecordList(){
 
-    if(!overlay){
-
-        return;
-
-    }
-
-    const root =
-        overlay.querySelector(
-            '[data-role="list"]'
+    const list =
+        overlay?.querySelector(
+            '[data-role="record-list"]'
         );
 
-    if(!root){
+
+    if(
+        !list
+    ){
 
         return;
 
     }
 
-    root.innerHTML = "";
+
+    list.innerHTML =
+        "";
+
 
     const records =
-        getVisibleEditableRecords();
+        getFilteredRecords();
+
 
     if(
         !records.length
     ){
 
-        const empty =
-            uiCreateElement(
-                "div",
-                "global-update-data-empty",
-                uiText(
-                    currentOptions.emptyText,
-                    "Tidak ada transaksi yang dapat diedit."
-                )
+        const search =
+            normalizeText(
+                overlay?.querySelector(
+                    '[data-role="record-search"]'
+                )?.value
             );
 
-        root.appendChild(empty);
+
+        list.appendChild(
+            createElement(
+                "div",
+                "global-update-data-empty",
+                search
+                    ? "Data tidak ditemukan."
+                    : getOption(
+                        "emptyText"
+                    )
+            )
+        );
+
 
         return;
 
     }
 
+
     records.forEach(
         record => {
 
-            const card =
-                uiCreateElement(
-                    "button",
-                    "global-update-data-record",
-                    ""
+            const key =
+                getTargetKey(
+                    record
                 );
 
-            card.type =
+
+            const item =
+                createElement(
+                    "button",
+                    "global-update-data-record-item"
+                );
+
+
+            item.type =
                 "button";
 
-            card.dataset.key =
-                getTargetKey(record);
+
+            item.dataset.key =
+                key;
+
 
             if(
                 selectedRecord &&
                 getTargetKey(
                     selectedRecord
-                ) ===
-                getTargetKey(record)
+                ) === key
             ){
 
-                card.classList.add(
+                item.classList.add(
                     "selected"
+                );
+
+
+                item.setAttribute(
+                    "aria-current",
+                    "true"
                 );
 
             }
 
+
+            const content =
+                createElement(
+                    "div",
+                    "global-update-data-record-item-content"
+                );
+
+
             const title =
-                uiCreateElement(
-                    "div",
-                    "global-update-data-record-title",
-                    getRecordLabel(record)
+                createElement(
+                    "strong",
+                    "global-update-data-record-item-title",
+                    getRecordLabel(
+                        record
+                    )
                 );
 
-            const meta =
-                uiCreateElement(
-                    "div",
-                    "global-update-data-record-meta",
-                    getRecordMeta(record)
+
+            content.appendChild(
+                title
+            );
+
+
+            const metaText =
+                getRecordMeta(
+                    record
                 );
 
-            card.appendChild(title);
-            card.appendChild(meta);
 
-            card.addEventListener(
+            if(
+                metaText
+            ){
+
+                content.appendChild(
+                    createElement(
+                        "span",
+                        "global-update-data-record-item-meta",
+                        metaText
+                    )
+                );
+
+            }
+
+
+            const id =
+                getRecordId(
+                    record
+                );
+
+
+            if(
+                id
+            ){
+
+                content.appendChild(
+                    createElement(
+                        "span",
+                        "global-update-data-record-item-id",
+                        id
+                    )
+                );
+
+            }
+
+
+            item.appendChild(
+                content
+            );
+
+
+            item.appendChild(
+                createElement(
+                    "span",
+                    "global-update-data-record-item-arrow",
+                    "›"
+                )
+            );
+
+
+            item.addEventListener(
                 "click",
                 () => {
 
-                    selectRecordForEdit(
+                    if(
+                        isBusy
+                    ){
+
+                        return;
+
+                    }
+
+
+                    selectRecord(
                         record
                     );
 
                 }
             );
 
-            root.appendChild(card);
+
+            list.appendChild(
+                item
+            );
 
         }
     );
@@ -4196,18 +4044,49 @@ function renderRecordList(){
    SELECT RECORD
 ===================================================== */
 
-function selectRecordForEdit(
+function selectRecord(
     record
 ){
+
+    if(
+        !record ||
+        isBusy
+    ){
+
+        return false;
+
+    }
+
+
+    const key =
+        getTargetKey(
+            record
+        );
+
+
+    if(
+        pendingChanges.some(
+            item =>
+                item.key === key
+        )
+    ){
+
+        showResult(
+            getOption(
+                "duplicateText"
+            ),
+            "error"
+        );
+
+
+        return false;
+
+    }
+
 
     selectedRecord =
         record;
 
-    hideMessage();
-
-    renderRecordList();
-
-    renderSelectedEditor();
 
     if(
         typeof currentOptions.onSelect ===
@@ -4232,31 +4111,1751 @@ function selectRecordForEdit(
 
     }
 
+
+    hideResult();
+
+
+    renderRecordList();
+
+    renderDetail();
+
+    renderFields();
+
+    renderAction();
+
+
+    requestAnimationFrame(
+        () => {
+
+            const detail =
+                overlay?.querySelector(
+                    '[data-role="detail"]'
+                );
+
+
+            if(
+                detail &&
+                typeof detail.scrollIntoView ===
+                "function"
+            ){
+
+                detail.scrollIntoView({
+                    behavior :
+                        "smooth",
+
+                    block :
+                        "nearest"
+                });
+
+            }
+
+        }
+    );
+
+
+    return true;
+
 }
 
 
 /* =====================================================
-   INITIAL EDITOR VALUES
+   DETAIL
 ===================================================== */
 
-function getInitialEditorValues(
-    record
+function renderDetail(){
+
+    const container =
+        overlay?.querySelector(
+            '[data-role="detail"]'
+        );
+
+
+    if(
+        !container
+    ){
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    if(
+        !selectedRecord
+    ){
+
+        container.classList.add(
+            "hidden"
+        );
+
+
+        return;
+
+    }
+
+
+    container.classList.remove(
+        "hidden"
+    );
+
+
+    let result =
+        null;
+
+
+    if(
+        typeof currentOptions.renderDetail ===
+        "function"
+    ){
+
+        result =
+            callFunction(
+                currentOptions.renderDetail,
+                [
+                    selectedRecord
+                ],
+                null
+            );
+
+    }
+
+
+    if(
+        isElement(
+            result
+        )
+    ){
+
+        container.appendChild(
+            result
+        );
+
+
+        return;
+
+    }
+
+
+    if(
+        typeof result === "string"
+    ){
+
+        container.innerHTML =
+            result;
+
+
+        return;
+
+    }
+
+
+    if(
+        result &&
+        typeof result === "object"
+    ){
+
+        renderDetailDescriptor(
+            container,
+            result
+        );
+
+
+        return;
+
+    }
+
+
+    renderDefaultDetail(
+        container
+    );
+
+}
+
+
+/* =====================================================
+   DETAIL DESCRIPTOR
+===================================================== */
+
+function renderDetailDescriptor(
+    container,
+    descriptor
 ){
 
-    const values = {};
+    const card =
+        createElement(
+            "div",
+            "global-update-data-detail-card"
+        );
 
-    getFieldList(record)
-        .forEach(
+
+    card.appendChild(
+        createElement(
+            "h3",
+            "global-update-data-detail-title",
+            descriptor.title ||
+            "Informasi Transaksi"
+        )
+    );
+
+
+    safeArray(
+        descriptor.items
+    ).forEach(
+        item => {
+
+            if(
+                !item ||
+                typeof item !== "object"
+            ){
+
+                return;
+
+            }
+
+
+            addDetailRow(
+                card,
+                item.label,
+                item.value,
+                item.locked
+            );
+
+        }
+    );
+
+
+    container.appendChild(
+        card
+    );
+
+}
+
+
+/* =====================================================
+   DEFAULT DETAIL
+===================================================== */
+
+function renderDefaultDetail(
+    container
+){
+
+    const card =
+        createElement(
+            "div",
+            "global-update-data-detail-card"
+        );
+
+
+    card.appendChild(
+        createElement(
+            "h3",
+            "global-update-data-detail-title",
+            "Informasi Transaksi"
+        )
+    );
+
+
+    addDetailRow(
+        card,
+        "ID",
+        getRecordId(
+            selectedRecord
+        ),
+        true
+    );
+
+
+    addDetailRow(
+        card,
+        "Tanggal",
+        getRecordDate(
+            selectedRecord
+        ),
+        true
+    );
+
+
+    addDetailRow(
+        card,
+        "Data",
+        getRecordLabel(
+            selectedRecord
+        )
+    );
+
+
+    const meta =
+        getRecordMeta(
+            selectedRecord
+        );
+
+
+    if(
+        meta
+    ){
+
+        addDetailRow(
+            card,
+            "Info",
+            meta
+        );
+
+    }
+
+
+    container.appendChild(
+        card
+    );
+
+}
+
+
+/* =====================================================
+   DETAIL ROW
+===================================================== */
+
+function addDetailRow(
+    parent,
+    label,
+    value,
+    locked = false
+){
+
+    const row =
+        createElement(
+            "div",
+            "global-update-data-detail-row"
+        );
+
+
+    if(
+        locked
+    ){
+
+        row.classList.add(
+            "locked"
+        );
+
+    }
+
+
+    row.appendChild(
+        createElement(
+            "span",
+            "global-update-data-detail-label",
+            label
+        )
+    );
+
+
+    const valueWrap =
+        createElement(
+            "div",
+            "global-update-data-detail-value-wrap"
+        );
+
+
+    valueWrap.appendChild(
+        createElement(
+            "strong",
+            "global-update-data-detail-value",
+            value
+        )
+    );
+
+
+    if(
+        locked
+    ){
+
+        valueWrap.appendChild(
+            createElement(
+                "span",
+                "global-update-data-detail-lock",
+                "🔒"
+            )
+        );
+
+    }
+
+
+    row.appendChild(
+        valueWrap
+    );
+
+
+    parent.appendChild(
+        row
+    );
+
+}
+
+
+/* =====================================================
+   RENDER FIELDS
+===================================================== */
+
+function renderFields(){
+
+    const container =
+        overlay?.querySelector(
+            '[data-role="fields"]'
+        );
+
+
+    if(
+        !container
+    ){
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    if(
+        !selectedRecord
+    ){
+
+        container.classList.add(
+            "hidden"
+        );
+
+
+        return;
+
+    }
+
+
+    container.classList.remove(
+        "hidden"
+    );
+
+
+    /*
+       Workspace custom renderer.
+    */
+
+    if(
+        typeof currentOptions.renderFields ===
+        "function"
+    ){
+
+        let result =
+            null;
+
+
+        try{
+
+            result =
+                currentOptions.renderFields(
+                    selectedRecord,
+                    {
+
+                        root :
+                            container,
+
+                        getValue :
+                            field =>
+                                getFieldValue(
+                                    field,
+                                    selectedRecord
+                                ),
+
+                        setValue :
+                            (
+                                field,
+                                value
+                            ) =>
+                                setDOMFieldValue(
+                                    field,
+                                    value
+                                ),
+
+                        onChange :
+                            () => {
+
+                                updateConditionalFields();
+
+                                renderAction();
+
+                            }
+
+                    }
+                );
+
+        }
+        catch(error){
+
+            console.error(
+                "[EditRow] renderFields failed:",
+                error
+            );
+
+        }
+
+
+        if(
+            isElement(
+                result
+            )
+        ){
+
+            container.appendChild(
+                result
+            );
+
+        }
+        else if(
+            typeof result === "string"
+        ){
+
+            container.innerHTML =
+                result;
+
+        }
+        else if(
+            Array.isArray(
+                result
+            )
+        ){
+
+            renderFieldDescriptors(
+                container,
+                result
+            );
+
+        }
+        else if(
+            result &&
+            Array.isArray(
+                result.fields
+            )
+        ){
+
+            renderFieldDescriptors(
+                container,
+                result.fields
+            );
+
+        }
+
+    }
+    else{
+
+        /*
+           Generic renderer.
+        */
+
+        const values =
+            getInitialValues(
+                selectedRecord
+            );
+
+
+        const root =
+            createElement(
+                "div",
+                "global-update-data-fields-wrapper"
+            );
+
+
+        getFieldList(
+            selectedRecord
+        ).forEach(
             field => {
 
-                values[field] =
-                    getFieldValue(
+                const config =
+                    getFieldConfig(
                         field,
-                        record
+                        selectedRecord,
+                        values
                     );
+
+
+                root.appendChild(
+                    createFieldElement(
+                        field,
+                        selectedRecord,
+                        values,
+                        config
+                    )
+                );
 
             }
         );
+
+
+        container.appendChild(
+            root
+        );
+
+    }
+
+
+    bindFieldChanges();
+
+    updateConditionalFields();
+
+    renderAction();
+
+}
+
+
+/* =====================================================
+   FIELD DESCRIPTORS
+===================================================== */
+
+function renderFieldDescriptors(
+    container,
+    fields
+){
+
+    safeArray(
+        fields
+    ).forEach(
+        field => {
+
+            if(
+                !field ||
+                typeof field !== "object" ||
+                !field.id
+            ){
+
+                return;
+
+            }
+
+
+            const wrapper =
+                createElement(
+                    "div",
+                    "global-update-data-field"
+                );
+
+
+            wrapper.dataset.fieldId =
+                safeText(
+                    field.id
+                );
+
+
+            const label =
+                createElement(
+                    "label",
+                    "global-update-data-field-label",
+                    field.label ||
+                    field.id
+                );
+
+
+            wrapper.appendChild(
+                label
+            );
+
+
+            const type =
+                normalizeKey(
+                    field.type ||
+                    "text"
+                );
+
+
+            let control =
+                null;
+
+
+            if(
+                type === "select"
+            ){
+
+                control =
+                    renderSelectControl(
+                        field
+                    );
+
+            }
+            else if(
+                type === "number"
+            ){
+
+                control =
+                    renderNumberControl(
+                        field
+                    );
+
+            }
+            else if(
+                type === "textarea"
+            ){
+
+                control =
+                    renderTextareaControl(
+                        field
+                    );
+
+            }
+            else if(
+                type === "checkbox"
+            ){
+
+                control =
+                    renderCheckboxControl(
+                        field
+                    );
+
+            }
+            else{
+
+                control =
+                    renderTextControl(
+                        field
+                    );
+
+            }
+
+
+            if(
+                control
+            ){
+
+                wrapper.appendChild(
+                    control
+                );
+
+            }
+
+
+            if(
+                field.note
+            ){
+
+                wrapper.appendChild(
+                    createElement(
+                        "small",
+                        "global-update-data-field-note",
+                        field.note
+                    )
+                );
+
+            }
+
+
+            container.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   CREATE FIELD ELEMENT
+===================================================== */
+
+function createFieldElement(
+    field,
+    record,
+    values,
+    config
+){
+
+    const wrapper =
+        createElement(
+            "div",
+            "global-update-data-field"
+        );
+
+
+    wrapper.dataset.fieldId =
+        field;
+
+
+    const label =
+        createElement(
+            "label",
+            "global-update-data-field-label",
+            config.label
+        );
+
+
+    wrapper.appendChild(
+        label
+    );
+
+
+    let control =
+        null;
+
+
+    if(
+        config.type === "select"
+    ){
+
+        control =
+            createSelect(
+                field,
+                record,
+                config
+            );
+
+    }
+    else if(
+        config.type === "number"
+    ){
+
+        control =
+            createInput(
+                field,
+                record,
+                config,
+                "number"
+            );
+
+    }
+    else if(
+        config.type === "date"
+    ){
+
+        control =
+            createInput(
+                field,
+                record,
+                config,
+                "date"
+            );
+
+    }
+    else if(
+        config.type === "checkbox"
+    ){
+
+        wrapper.innerHTML =
+            "";
+
+
+        createCheckbox(
+            field,
+            record,
+            config,
+            wrapper
+        );
+
+    }
+    else if(
+        config.type === "textarea"
+    ){
+
+        control =
+            createTextarea(
+                field,
+                record,
+                config
+            );
+
+    }
+    else{
+
+        control =
+            createInput(
+                field,
+                record,
+                config,
+                "text"
+            );
+
+    }
+
+
+    if(
+        control &&
+        !wrapper.contains(
+            control
+        )
+    ){
+
+        wrapper.appendChild(
+            control
+        );
+
+    }
+
+
+    if(
+        config.note
+    ){
+
+        wrapper.appendChild(
+            createElement(
+                "small",
+                "global-update-data-field-note",
+                config.note
+            )
+        );
+
+    }
+
+
+    return wrapper;
+
+}
+
+
+/* =====================================================
+   BASE CONTROL
+===================================================== */
+
+function baseControl(
+    element,
+    field
+){
+
+    element.name =
+        field;
+
+
+    element.dataset.updateField =
+        "true";
+
+
+    element.className =
+        "global-update-data-field-control " +
+        "global-update-data-field-input";
+
+
+    return element;
+
+}
+
+
+/* =====================================================
+   CREATE SELECT
+===================================================== */
+
+function createSelect(
+    field,
+    record,
+    config
+){
+
+    const select =
+        baseControl(
+            document.createElement(
+                "select"
+            ),
+            field
+        );
+
+
+    if(
+        config.multiple
+    ){
+
+        select.multiple =
+            true;
+
+    }
+
+
+    if(
+        config.required
+    ){
+
+        select.required =
+            true;
+
+    }
+
+
+    const placeholder =
+        createElement(
+            "option",
+            "",
+            config.placeholder ||
+            "Pilih..."
+        );
+
+
+    placeholder.value =
+        "";
+
+
+    select.appendChild(
+        placeholder
+    );
+
+
+    const currentValue =
+        getFieldValue(
+            field,
+            record
+        );
+
+
+    let currentFound =
+        false;
+
+
+    config.options.forEach(
+        option => {
+
+            const optionElement =
+                createElement(
+                    "option",
+                    "",
+                    option.label ??
+                    option.value ??
+                    ""
+                );
+
+
+            optionElement.value =
+                safeText(
+                    option.value ??
+                    ""
+                );
+
+
+            optionElement.disabled =
+                option.disabled === true;
+
+
+            if(
+                String(
+                    optionElement.value
+                ) ===
+                String(
+                    currentValue
+                )
+            ){
+
+                optionElement.selected =
+                    true;
+
+
+                currentFound =
+                    true;
+
+            }
+
+
+            select.appendChild(
+                optionElement
+            );
+
+        }
+    );
+
+
+    /*
+       Canonical value lama tetap dipertahankan.
+    */
+
+    if(
+        currentValue !== "" &&
+        currentValue !== null &&
+        currentValue !== undefined &&
+        !currentFound &&
+        !config.multiple
+    ){
+
+        const fallback =
+            createElement(
+                "option",
+                "",
+                currentValue
+            );
+
+
+        fallback.value =
+            currentValue;
+
+
+        fallback.selected =
+            true;
+
+
+        select.insertBefore(
+            fallback,
+            select.firstChild
+        );
+
+    }
+
+
+    select.disabled =
+        config.disabled ||
+        config.readonly;
+
+
+    return select;
+
+}
+
+
+/* =====================================================
+   CREATE INPUT
+===================================================== */
+
+function createInput(
+    field,
+    record,
+    config,
+    type
+){
+
+    const input =
+        baseControl(
+            document.createElement(
+                "input"
+            ),
+            field
+        );
+
+
+    input.type =
+        type;
+
+
+    input.placeholder =
+        safeText(
+            config.placeholder
+        );
+
+
+    input.disabled =
+        config.disabled;
+
+
+    input.readOnly =
+        config.readonly;
+
+
+    if(
+        config.required
+    ){
+
+        input.required =
+            true;
+
+    }
+
+
+    if(
+        config.min !== undefined
+    ){
+
+        input.min =
+            config.min;
+
+    }
+
+
+    if(
+        config.max !== undefined
+    ){
+
+        input.max =
+            config.max;
+
+    }
+
+
+    if(
+        config.step !== undefined
+    ){
+
+        input.step =
+            config.step;
+
+    }
+
+
+    input.value =
+        serializeFieldValue(
+            getFieldValue(
+                field,
+                record
+            ),
+            type
+        );
+
+
+    return input;
+
+}
+
+
+/* =====================================================
+   CREATE TEXTAREA
+===================================================== */
+
+function createTextarea(
+    field,
+    record,
+    config
+){
+
+    const textarea =
+        baseControl(
+            document.createElement(
+                "textarea"
+            ),
+            field
+        );
+
+
+    textarea.rows =
+        config.rows;
+
+
+    textarea.placeholder =
+        safeText(
+            config.placeholder
+        );
+
+
+    textarea.disabled =
+        config.disabled;
+
+
+    textarea.readOnly =
+        config.readonly;
+
+
+    if(
+        config.required
+    ){
+
+        textarea.required =
+            true;
+
+    }
+
+
+    textarea.value =
+        serializeFieldValue(
+            getFieldValue(
+                field,
+                record
+            ),
+            "textarea"
+        );
+
+
+    return textarea;
+
+}
+
+
+/* =====================================================
+   CREATE CHECKBOX
+===================================================== */
+
+function createCheckbox(
+    field,
+    record,
+    config,
+    wrapper
+){
+
+    const checkboxWrapper =
+        createElement(
+            "label",
+            "global-update-data-checkbox"
+        );
+
+
+    const checkbox =
+        document.createElement(
+            "input"
+        );
+
+
+    checkbox.type =
+        "checkbox";
+
+
+    checkbox.name =
+        field;
+
+
+    checkbox.dataset.updateField =
+        "true";
+
+
+    checkbox.checked =
+        Boolean(
+            getFieldValue(
+                field,
+                record
+            )
+        );
+
+
+    checkbox.disabled =
+        config.disabled ||
+        config.readonly;
+
+
+    checkboxWrapper.appendChild(
+        checkbox
+    );
+
+
+    checkboxWrapper.appendChild(
+        createElement(
+            "span",
+            "",
+            config.label
+        )
+    );
+
+
+    wrapper.appendChild(
+        checkboxWrapper
+    );
+
+}
+
+
+/* =====================================================
+   DESCRIPTOR SELECT
+===================================================== */
+
+function renderSelectControl(
+    field
+){
+
+    const select =
+        document.createElement(
+            "select"
+        );
+
+
+    select.name =
+        field.id;
+
+
+    select.dataset.updateField =
+        "true";
+
+
+    select.className =
+        "global-update-data-field-control " +
+        "global-update-data-field-select";
+
+
+    if(
+        field.required
+    ){
+
+        select.required =
+            true;
+
+    }
+
+
+    const placeholder =
+        createElement(
+            "option",
+            "",
+            field.placeholder ||
+            "Pilih..."
+        );
+
+
+    placeholder.value =
+        "";
+
+
+    select.appendChild(
+        placeholder
+    );
+
+
+    addOptions(
+        select,
+        field.options,
+        field.value
+    );
+
+
+    return select;
+
+}
+
+
+/* =====================================================
+   DESCRIPTOR NUMBER
+===================================================== */
+
+function renderNumberControl(
+    field
+){
+
+    return renderTextLikeControl(
+        field,
+        "number"
+    );
+
+}
+
+
+/* =====================================================
+   DESCRIPTOR TEXT
+===================================================== */
+
+function renderTextControl(
+    field
+){
+
+    return renderTextLikeControl(
+        field,
+        "text"
+    );
+
+}
+
+
+/* =====================================================
+   DESCRIPTOR TEXT LIKE
+===================================================== */
+
+function renderTextLikeControl(
+    field,
+    type
+){
+
+    const input =
+        document.createElement(
+            "input"
+        );
+
+
+    input.type =
+        type;
+
+
+    input.name =
+        field.id;
+
+
+    input.dataset.updateField =
+        "true";
+
+
+    input.className =
+        "global-update-data-field-control " +
+        "global-update-data-field-input";
+
+
+    input.value =
+        field.value ??
+        "";
+
+
+    if(
+        field.placeholder
+    ){
+
+        input.placeholder =
+            field.placeholder;
+
+    }
+
+
+    if(
+        field.required
+    ){
+
+        input.required =
+            true;
+
+    }
+
+
+    if(
+        field.min !== undefined
+    ){
+
+        input.min =
+            field.min;
+
+    }
+
+
+    if(
+        field.max !== undefined
+    ){
+
+        input.max =
+            field.max;
+
+    }
+
+
+    if(
+        field.step !== undefined
+    ){
+
+        input.step =
+            field.step;
+
+    }
+
+
+    if(
+        field.disabled
+    ){
+
+        input.disabled =
+            true;
+
+    }
+
+
+    if(
+        field.readonly
+    ){
+
+        input.readOnly =
+            true;
+
+    }
+
+
+    return input;
+
+}
+
+
+/* =====================================================
+   DESCRIPTOR TEXTAREA
+===================================================== */
+
+function renderTextareaControl(
+    field
+){
+
+    const textarea =
+        document.createElement(
+            "textarea"
+        );
+
+
+    textarea.name =
+        field.id;
+
+
+    textarea.dataset.updateField =
+        "true";
+
+
+    textarea.className =
+        "global-update-data-field-control " +
+        "global-update-data-field-input";
+
+
+    textarea.rows =
+        field.rows ||
+        3;
+
+
+    textarea.value =
+        field.value ??
+        "";
+
+
+    if(
+        field.placeholder
+    ){
+
+        textarea.placeholder =
+            field.placeholder;
+
+    }
+
+
+    if(
+        field.required
+    ){
+
+        textarea.required =
+            true;
+
+    }
+
+
+    if(
+        field.disabled
+    ){
+
+        textarea.disabled =
+            true;
+
+    }
+
+
+    if(
+        field.readonly
+    ){
+
+        textarea.readOnly =
+            true;
+
+    }
+
+
+    return textarea;
+
+}
+
+
+/* =====================================================
+   DESCRIPTOR CHECKBOX
+===================================================== */
+
+function renderCheckboxControl(
+    field
+){
+
+    const input =
+        document.createElement(
+            "input"
+        );
+
+
+    input.type =
+        "checkbox";
+
+
+    input.name =
+        field.id;
+
+
+    input.dataset.updateField =
+        "true";
+
+
+    input.checked =
+        Boolean(
+            field.value
+        );
+
+
+    if(
+        field.disabled
+    ){
+
+        input.disabled =
+            true;
+
+    }
+
+
+    return input;
+
+}
+
+
+/* =====================================================
+   ADD OPTIONS
+===================================================== */
+
+function addOptions(
+    select,
+    options,
+    currentValue
+){
+
+    safeArray(
+        options
+    ).forEach(
+        option => {
+
+            const element =
+                createElement(
+                    "option",
+                    "",
+                    option.label ??
+                    option.value ??
+                    ""
+                );
+
+
+            element.value =
+                safeText(
+                    option.value ??
+                    ""
+                );
+
+
+            element.disabled =
+                option.disabled === true;
+
+
+            if(
+                String(
+                    element.value
+                ) ===
+                String(
+                    currentValue
+                )
+            ){
+
+                element.selected =
+                    true;
+
+            }
+
+
+            select.appendChild(
+                element
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   INITIAL VALUES
+===================================================== */
+
+function getInitialValues(
+    record
+){
+
+    const values =
+        {};
+
+
+    getFieldList(
+        record
+    ).forEach(
+        field => {
+
+            values[
+                field
+            ] =
+                getFieldValue(
+                    field,
+                    record
+                );
+
+        }
+    );
+
 
     return values;
 
@@ -4264,221 +5863,101 @@ function getInitialEditorValues(
 
 
 /* =====================================================
-   READ CURRENT FORM
+   SET DOM FIELD VALUE
 ===================================================== */
 
-function readCurrentFormValues(){
-
-    if(
-        !selectedRecord ||
-        !overlay
-    ){
-
-        return {};
-
-    }
-
-    const editor =
-        overlay.querySelector(
-            '[data-role="editor"]'
-        );
-
-    if(!editor){
-
-        return {};
-
-    }
-
-    return readValuesFromDOM(
-        selectedRecord,
-        editor
-    );
-
-}
-
-
-/* =====================================================
-   RENDER SELECTED EDITOR
-===================================================== */
-
-function renderSelectedEditor(){
-
-    if(!overlay){
-
-        return;
-
-    }
-
-    const selectedRoot =
-        overlay.querySelector(
-            '[data-role="selected"]'
-        );
-
-    const editorRoot =
-        overlay.querySelector(
-            '[data-role="editor"]'
-        );
-
-    if(!selectedRoot ||
-       !editorRoot
-    ){
-
-        return;
-
-    }
-
-    selectedRoot.innerHTML = "";
-
-    editorRoot.innerHTML = "";
-
-    if(!selectedRecord){
-
-        return;
-
-    }
-
-    const card =
-        uiCreateElement(
-            "div",
-            "global-update-data-selected-card"
-        );
-
-    const title =
-        uiCreateElement(
-            "div",
-            "global-update-data-selected-title",
-            getRecordLabel(
-                selectedRecord
-            )
-        );
-
-    const meta =
-        uiCreateElement(
-            "div",
-            "global-update-data-selected-meta",
-            getRecordMeta(
-                selectedRecord
-            )
-        );
-
-    card.appendChild(title);
-    card.appendChild(meta);
-
-    selectedRoot.appendChild(card);
-
-    renderEditorFieldsFromRecord();
-
-}
-
-
-/* =====================================================
-   RENDER EDITOR FIELDS
-===================================================== */
-
-function renderEditorFieldsFromRecord(
-    valuesOverride = null
+function setDOMFieldValue(
+    field,
+    value
 ){
 
+    const element =
+        overlay?.querySelector(
+            `[name="${escapeSelector(
+                field
+            )}"]`
+        );
+
+
     if(
-        !overlay ||
-        !selectedRecord
+        !element
     ){
 
         return;
 
     }
 
-    const editorRoot =
-        overlay.querySelector(
-            '[data-role="editor"]'
-        );
 
-    if(!editorRoot){
+    if(
+        element.type === "checkbox"
+    ){
 
-        return;
+        element.checked =
+            Boolean(
+                value
+            );
 
     }
+    else{
 
-    const existingValues =
-        valuesOverride ||
-        readCurrentFormValues();
+        element.value =
+            value ??
+            "";
 
-    const values = {
-
-        ...getInitialEditorValues(
-            selectedRecord
-        ),
-
-        ...existingValues
-
-    };
-
-    const fields =
-        renderFields(
-            selectedRecord,
-            {
-                values
-            }
-        );
-
-    editorRoot.innerHTML = "";
-
-    editorRoot.appendChild(
-        fields
-    );
-
-    bindEditorFieldEvents();
-
-    renderAddState();
+    }
 
 }
 
 
 /* =====================================================
-   BIND FIELD EVENTS
+   FIELD EVENTS
 ===================================================== */
 
-function bindEditorFieldEvents(){
+function bindFieldChanges(){
 
-    if(!overlay){
+    const fields =
+        overlay?.querySelectorAll(
+            "[data-update-field]"
+        ) ||
+        [];
 
-        return;
 
-    }
+    fields.forEach(
+        field => {
 
-    const editor =
-        overlay.querySelector(
-            '[data-role="editor"]'
-        );
+            if(
+                field.dataset.updateBound ===
+                "true"
+            ){
 
-    if(!editor){
+                return;
 
-        return;
+            }
 
-    }
 
-    const elements =
-        editor.querySelectorAll(
-            "input, select, textarea"
-        );
+            field.dataset.updateBound =
+                "true";
 
-    elements.forEach(
-        element => {
 
-            element.addEventListener(
+            field.addEventListener(
                 "input",
                 () => {
 
-                    rerenderEditorKeepingValues();
+                    updateConditionalFields();
+
+                    renderAction();
 
                 }
             );
 
-            element.addEventListener(
+
+            field.addEventListener(
                 "change",
                 () => {
 
-                    rerenderEditorKeepingValues();
+                    updateConditionalFields();
+
+                    renderAction();
 
                 }
             );
@@ -4490,143 +5969,484 @@ function bindEditorFieldEvents(){
 
 
 /* =====================================================
-   RERENDER EDITOR KEEPING VALUES
+   CONDITIONAL FIELDS
 ===================================================== */
 
-function rerenderEditorKeepingValues(){
+function updateConditionalFields(){
 
     if(
-        !selectedRecord
+        !selectedRecord ||
+        !overlay
     ){
 
         return;
 
     }
 
-    const values =
-        readCurrentFormValues();
 
-    renderEditorFieldsFromRecord(
-        values
+    const values =
+        collectFieldValues();
+
+
+    overlay.querySelectorAll(
+        "[data-field-id]"
+    ).forEach(
+        wrapper => {
+
+            const field =
+                wrapper.dataset.fieldId;
+
+
+            const config =
+                getFieldConfig(
+                    field,
+                    selectedRecord,
+                    values
+                );
+
+
+            const visible =
+                isStepVisible(
+                    config,
+                    selectedRecord,
+                    values
+                );
+
+
+            wrapper.classList.toggle(
+                "hidden",
+                !visible
+            );
+
+
+            if(
+                !visible
+            ){
+
+                const control =
+                    wrapper.querySelector(
+                        "[name]"
+                    );
+
+
+                if(
+                    control
+                ){
+
+                    if(
+                        control.type === "checkbox"
+                    ){
+
+                        control.checked =
+                            false;
+
+                    }
+                    else{
+
+                        control.value =
+                            "";
+
+                    }
+
+                }
+
+            }
+
+        }
     );
 
 }
 
 
 /* =====================================================
-   RENDER ADD STATE
+   ACTION
 ===================================================== */
 
-function renderAddState(){
+async function renderAction(){
 
-    if(!overlay){
-
-        return;
-
-    }
-
-    const editor =
-        overlay.querySelector(
-            '[data-role="editor"]'
+    const action =
+        overlay?.querySelector(
+            '[data-role="action"]'
         );
 
-    if(!editor){
 
-        return;
-
-    }
-
-    let button =
-        editor.querySelector(
-            '[data-action="add"]'
+    const button =
+        overlay?.querySelector(
+            '[data-role="add"]'
         );
 
-    if(!button){
-
-        button =
-            uiCreateElement(
-                "button",
-                "global-update-data-add",
-                uiText(
-                    currentOptions.addText,
-                    "Tambahkan"
-                )
-            );
-
-        button.type =
-            "button";
-
-        button.dataset.action =
-            "add";
-
-        editor.appendChild(
-            button
-        );
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                handleAddUI();
-
-            }
-        );
-
-    }
-
-    button.disabled =
-        !selectedRecord ||
-        busy ||
-        isPending(selectedRecord);
-
-    button.textContent =
-        isPending(selectedRecord)
-            ? "Sudah Ditambahkan"
-            : uiText(
-                currentOptions.addText,
-                "Tambahkan"
-            );
-
-}
-
-
-/* =====================================================
-   HANDLE ADD UI
-===================================================== */
-
-function handleAddUI(){
 
     if(
-        !selectedRecord ||
-        busy
+        !action ||
+        !button
     ){
 
         return;
 
     }
 
-    hideMessage();
 
-    const values =
-        readCurrentFormValues();
+    if(
+        !selectedRecord
+    ){
 
-    const result =
-        addPending(
-            selectedRecord,
-            values
+        action.classList.add(
+            "hidden"
         );
 
-    if(!result.success){
 
-        showMessage(
-            result.message ||
-            "Data tidak dapat ditambahkan.",
-            "error"
-        );
+        button.disabled =
+            true;
+
 
         return;
 
     }
+
+
+    action.classList.remove(
+        "hidden"
+    );
+
+
+    const validation =
+        await validateCurrent();
+
+
+    button.disabled =
+        isBusy ||
+        !validation.valid;
+
+
+    button.textContent =
+        safeText(
+            getOption(
+                "addText"
+            )
+        );
+
+}
+
+
+/* =====================================================
+   VALIDATE CURRENT
+===================================================== */
+
+async function validateCurrent(){
+
+    if(
+        !selectedRecord
+    ){
+
+        return {
+
+            valid :
+                false,
+
+            message :
+                "Data belum dipilih.",
+
+            values :
+                {}
+
+        };
+
+    }
+
+
+    const values =
+        collectFieldValues();
+
+
+    if(
+        typeof currentOptions.validate ===
+        "function"
+    ){
+
+        try{
+
+            const result =
+                await currentOptions.validate(
+                    selectedRecord,
+                    values,
+                    {
+
+                        values,
+
+                        record :
+                            selectedRecord,
+
+                        overlay,
+
+                        fields :
+                            getVisibleFields(
+                                selectedRecord,
+                                values
+                            )
+
+                    }
+                );
+
+
+            if(
+                result === true
+            ){
+
+                return {
+
+                    valid :
+                        true,
+
+                    values
+
+                };
+
+            }
+
+
+            if(
+                result === false
+            ){
+
+                return {
+
+                    valid :
+                        false,
+
+                    values,
+
+                    message :
+                        "Data belum lengkap atau tidak valid."
+
+                };
+
+            }
+
+
+            if(
+                result &&
+                typeof result === "object"
+            ){
+
+                return {
+
+                    valid :
+                        result.valid === true,
+
+                    values,
+
+                    message :
+                        result.message ||
+                        result.error ||
+                        ""
+
+                };
+
+            }
+
+        }
+        catch(error){
+
+            return {
+
+                valid :
+                    false,
+
+                values,
+
+                message :
+                    error?.message ||
+                    "Validasi gagal."
+
+            };
+
+        }
+
+    }
+
+
+    /*
+       Generic required validation.
+    */
+
+    for(
+        const field of getVisibleFields(
+            selectedRecord,
+            values
+        )
+    ){
+
+        const config =
+            getFieldConfig(
+                field,
+                selectedRecord,
+                values
+            );
+
+
+        if(
+            !config.required
+        ){
+
+            continue;
+
+        }
+
+
+        const value =
+            values[field] ??
+            getFieldValue(
+                field,
+                selectedRecord
+            );
+
+
+        if(
+            value === "" ||
+            value === null ||
+            value === undefined
+        ){
+
+            return {
+
+                valid :
+                    false,
+
+                values,
+
+                message :
+                    `${config.label} wajib diisi.`
+
+            };
+
+        }
+
+    }
+
+
+    return {
+
+        valid :
+            true,
+
+        values
+
+    };
+
+}
+
+
+/* =====================================================
+   ADD / STAGE
+===================================================== */
+
+async function addCurrent(){
+
+    if(
+        isBusy ||
+        !selectedRecord
+    ){
+
+        return false;
+
+    }
+
+
+    hideResult();
+
+
+    const validation =
+        await validateCurrent();
+
+
+    if(
+        !validation.valid
+    ){
+
+        showResult(
+            validation.message ||
+            "Data belum lengkap atau tidak valid.",
+            "error"
+        );
+
+
+        return false;
+
+    }
+
+
+    const key =
+        getTargetKey(
+            selectedRecord
+        );
+
+
+    if(
+        pendingChanges.some(
+            item =>
+                item.key === key
+        )
+    ){
+
+        showResult(
+            getOption(
+                "duplicateText"
+            ),
+            "error"
+        );
+
+
+        return false;
+
+    }
+
+
+    let changes;
+
+
+    try{
+
+        changes =
+            await buildChanges(
+                selectedRecord,
+                validation.values
+            );
+
+    }
+    catch(error){
+
+        showResult(
+            error?.message ||
+            "Data perubahan tidak dapat dibuat.",
+            "error"
+        );
+
+
+        return false;
+
+    }
+
+
+    if(
+        changes === null ||
+        changes === false
+    ){
+
+        showResult(
+            "Data perubahan tidak dapat dibuat.",
+            "error"
+        );
+
+
+        return false;
+
+    }
+
+
+    /*
+       onAdd hanya staging.
+       Tidak ada Update API di sini.
+    */
 
     if(
         typeof currentOptions.onAdd ===
@@ -4635,17 +6455,82 @@ function handleAddUI(){
 
         try{
 
-            currentOptions.onAdd(
+            await currentOptions.onAdd(
                 selectedRecord,
-                values,
-                result
+                validation.values,
+                changes,
+                {
+
+                    pending :
+                        pendingChanges.slice()
+
+                }
+            );
+
+        }
+        catch(error){
+
+            showResult(
+                error?.message ||
+                "Data gagal ditambahkan.",
+                "error"
+            );
+
+
+            return false;
+
+        }
+
+    }
+
+
+    const pendingItem = {
+
+        key,
+
+        record :
+            selectedRecord,
+
+        values :
+            validation.values,
+
+        changes,
+
+        label :
+            getRecordLabel(
+                selectedRecord
+            ),
+
+        meta :
+            getRecordMeta(
+                selectedRecord
+            )
+
+    };
+
+
+    pendingChanges.push(
+        pendingItem
+    );
+
+
+    if(
+        typeof currentOptions.onAdded ===
+        "function"
+    ){
+
+        try{
+
+            await currentOptions.onAdded(
+                pendingItem,
+                pendingChanges.slice()
             );
 
         }
         catch(error){
 
             console.warn(
-                "[EditRow] onAdd failed:",
+                "[EditRow] onAdded failed:",
                 error
             );
 
@@ -4653,331 +6538,857 @@ function handleAddUI(){
 
     }
 
-    selectedRecord = null;
+
+    /*
+       Setelah staging,
+       record kembali ke list.
+    */
+
+    selectedRecord =
+        null;
+
+
+    hideResult();
+
 
     renderRecordList();
 
-    renderSelectedEditor();
+    renderDetail();
 
-    renderPendingUI();
+    renderFields();
+
+    renderAction();
+
+    renderPending();
 
     updateOverlayText();
+
+
+    return true;
 
 }
 
 
 /* =====================================================
-   RENDER PENDING
+   REMOVE PENDING
 ===================================================== */
 
-function renderPendingUI(){
+async function removePending(
+    index
+){
 
-    if(!overlay){
+    if(
+        isBusy
+    ){
 
-        return;
+        return false;
 
     }
 
-    const root =
-        overlay.querySelector(
+
+    if(
+        index < 0 ||
+        index >= pendingChanges.length
+    ){
+
+        return false;
+
+    }
+
+
+    const item =
+        pendingChanges[
+            index
+        ];
+
+
+    if(
+        typeof currentOptions.onRemove ===
+        "function"
+    ){
+
+        try{
+
+            await currentOptions.onRemove(
+                item,
+                index,
+                pendingChanges.slice()
+            );
+
+        }
+        catch(error){
+
+            console.warn(
+                "[EditRow] onRemove failed:",
+                error
+            );
+
+        }
+
+    }
+
+
+    pendingChanges.splice(
+        index,
+        1
+    );
+
+
+    renderPending();
+
+    renderRecordList();
+
+    updateOverlayText();
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   PENDING
+===================================================== */
+
+function renderPending(){
+
+    const section =
+        overlay?.querySelector(
             '[data-role="pending"]'
         );
 
-    if(!root){
 
-        return;
+    const list =
+        overlay?.querySelector(
+            '[data-role="pending-list"]'
+        );
 
-    }
 
-    root.innerHTML = "";
+    const count =
+        overlay?.querySelector(
+            '[data-role="pending-count"]'
+        );
+
+
+    const confirmContainer =
+        overlay?.querySelector(
+            '[data-role="confirm-container"]'
+        );
+
+
+    const confirmButton =
+        overlay?.querySelector(
+            '[data-role="confirm"]'
+        );
+
 
     if(
-        !pendingChanges.length
+        !section ||
+        !list
     ){
 
         return;
 
     }
 
-    const title =
-        uiCreateElement(
-            "div",
-            "global-update-data-pending-title",
-            uiText(
-                currentOptions.pendingTitle,
-                "Sudah Ditambahkan"
-            )
+
+    list.innerHTML =
+        "";
+
+
+    if(
+        count
+    ){
+
+        count.textContent =
+            String(
+                pendingChanges.length
+            );
+
+    }
+
+
+    if(
+        !pendingChanges.length
+    ){
+
+        section.classList.add(
+            "hidden"
         );
 
-    root.appendChild(title);
 
-    const list =
-        uiCreateElement(
-            "div",
-            "global-update-data-pending-list"
+        confirmContainer?.classList.add(
+            "hidden"
         );
+
+
+        if(
+            confirmButton
+        ){
+
+            confirmButton.disabled =
+                true;
+
+
+            confirmButton.textContent =
+                getOption(
+                    "confirmText"
+                );
+
+        }
+
+
+        return;
+
+    }
+
+
+    section.classList.remove(
+        "hidden"
+    );
+
+
+    confirmContainer?.classList.remove(
+        "hidden"
+    );
+
 
     pendingChanges.forEach(
-        item => {
+        (
+            item,
+            index
+        ) => {
 
             const row =
-                uiCreateElement(
+                createElement(
                     "div",
                     "global-update-data-pending-item"
                 );
 
-            const text =
-                uiCreateElement(
+
+            const content =
+                createElement(
                     "div",
-                    "global-update-data-pending-item-text",
-                    typeof currentOptions.getPendingLabel ===
-                    "function"
-                        ? currentOptions.getPendingLabel(
-                            item
-                        )
-                        : getRecordLabel(
-                            item.record
-                        )
+                    "global-update-data-pending-item-content"
                 );
+
+
+            let label =
+                item.label ||
+                getRecordLabel(
+                    item.record
+                );
+
+
+            if(
+                typeof currentOptions.getPendingLabel ===
+                "function"
+            ){
+
+                label =
+                    callFunction(
+                        currentOptions.getPendingLabel,
+                        [
+                            item
+                        ],
+                        label
+                    );
+
+            }
+
+
+            content.appendChild(
+                createElement(
+                    "strong",
+                    "global-update-data-pending-item-title",
+                    label
+                )
+            );
+
 
             const meta =
-                uiCreateElement(
-                    "div",
-                    "global-update-data-pending-item-meta",
-                    getRecordMeta(
-                        item.record
+                item.meta ||
+                getRecordMeta(
+                    item.record
+                );
+
+
+            if(
+                meta
+            ){
+
+                content.appendChild(
+                    createElement(
+                        "span",
+                        "global-update-data-pending-item-meta",
+                        meta
                     )
                 );
 
+            }
+
+
             const remove =
-                uiCreateElement(
+                createElement(
                     "button",
-                    "global-update-data-pending-remove",
-                    uiText(
-                        currentOptions.removeText,
-                        "Hapus"
+                    "global-update-data-remove",
+                    getOption(
+                        "removeText"
                     )
                 );
+
 
             remove.type =
                 "button";
+
 
             remove.addEventListener(
                 "click",
                 () => {
 
-                    const removed =
-                        removePending(item);
-
-                    if(
-                        removed &&
-                        typeof currentOptions.onRemove ===
-                        "function"
-                    ){
-
-                        try{
-
-                            currentOptions.onRemove(
-                                item
-                            );
-
-                        }
-                        catch(error){
-
-                            console.warn(
-                                "[EditRow] onRemove failed:",
-                                error
-                            );
-
-                        }
-
-                    }
-
-                    renderPendingUI();
-
-                    renderRecordList();
-
-                    updateOverlayText();
+                    removePending(
+                        index
+                    );
 
                 }
             );
 
-            const info =
-                uiCreateElement(
-                    "div",
-                    "global-update-data-pending-item-info"
-                );
 
-            info.appendChild(text);
-            info.appendChild(meta);
+            row.appendChild(
+                content
+            );
 
-            row.appendChild(info);
-            row.appendChild(remove);
 
-            list.appendChild(row);
+            row.appendChild(
+                remove
+            );
+
+
+            list.appendChild(
+                row
+            );
 
         }
     );
 
-    root.appendChild(list);
+
+    if(
+        confirmButton
+    ){
+
+        confirmButton.disabled =
+            isBusy ||
+            pendingChanges.length === 0;
+
+
+        confirmButton.textContent =
+            isBusy
+                ? getOption(
+                    "confirmLoadingText"
+                )
+                : getOption(
+                    "confirmText"
+                );
+
+    }
 
 }
 
 
 /* =====================================================
-   HANDLE CONFIRM UI
+   NORMALIZE CONFIRM RESULT
 ===================================================== */
 
-async function handleConfirmUI(){
+function normalizeConfirmResult(
+    result,
+    fallbackPending
+){
 
     if(
-        busy ||
-        !pendingChanges.length
+        result === true
     ){
 
-        return;
+        return {
+
+            success :
+                true,
+
+            remaining :
+                [],
+
+            count :
+                fallbackPending.length
+
+        };
 
     }
 
-    hideMessage();
 
-    updateOverlayText();
+    if(
+        result === false
+    ){
+
+        return {
+
+            success :
+                false,
+
+            remaining :
+                fallbackPending.slice(),
+
+            count :
+                0
+
+        };
+
+    }
+
+
+    if(
+        result &&
+        typeof result === "object"
+    ){
+
+        return {
+
+            success :
+                result.success === true ||
+                result.ok === true,
+
+            remaining :
+                Array.isArray(
+                    result.remaining
+                )
+                    ? result.remaining
+                    : [],
+
+            count :
+                Number(
+                    result.count ||
+                    0
+                ),
+
+            message :
+                result.message ||
+                result.error ||
+                ""
+
+        };
+
+    }
+
+
+    return {
+
+        success :
+            false,
+
+        remaining :
+            fallbackPending.slice(),
+
+        count :
+            0
+
+    };
+
+}
+
+
+/* =====================================================
+   CONFIRM
+===================================================== */
+
+async function confirm(){
+
+    if(
+        isBusy ||
+        !pendingChanges.length
+    ){
+
+        return false;
+
+    }
+
+
+    /*
+       Batch validation.
+    */
+
+    if(
+        typeof currentOptions.validateBatch ===
+        "function"
+    ){
+
+        try{
+
+            const result =
+                await currentOptions.validateBatch(
+                    pendingChanges.slice()
+                );
+
+
+            if(
+                result === false ||
+                (
+                    result &&
+                    typeof result === "object" &&
+                    result.valid === false
+                )
+            ){
+
+                showResult(
+                    result?.message ||
+                    "Data belum dapat dikonfirmasi.",
+                    "error"
+                );
+
+
+                return false;
+
+            }
+
+        }
+        catch(error){
+
+            showResult(
+                error?.message ||
+                "Validasi gagal.",
+                "error"
+            );
+
+
+            return false;
+
+        }
+
+    }
+
+
+    isBusy =
+        true;
+
 
     const snapshot =
         pendingChanges.slice();
 
-    const result =
-        await confirm(
-            snapshot
-        );
 
-    if(
-        result?.success
-    ){
+    let result =
+        null;
+
+
+    try{
 
         /*
-           Record yang sukses sudah
-           diperbarui secara lokal.
+           Sama seperti UpdateData:
 
-           Sekarang keluarkan dari
-           editableRecords agar langsung
-           hilang dari daftar edit.
+           Jika workspace menyediakan
+           onConfirm(), engine menyerahkan
+           proses confirmation ke workspace.
+
+           Jika tidak ada,
+           gunakan Update.updateRow().
         */
 
-        const successfulKeys =
-            new Set(
-                snapshot
-                    .filter(
-                        item =>
-                            !result.remaining?.some(
-                                failed =>
-                                    getPendingKey(
-                                        failed
-                                    ) ===
-                                    getPendingKey(
-                                        item
-                                    )
-                            )
-                    )
-                    .map(
-                        item =>
-                            getPendingKey(item)
-                    )
-            );
-
-        editableRecords =
-            editableRecords.filter(
-                record =>
-                    !successfulKeys.has(
-                        getTargetKey(record)
-                    )
-            );
-
         if(
-            selectedRecord &&
-            successfulKeys.has(
-                getTargetKey(
-                    selectedRecord
-                )
-            )
+            typeof currentOptions.onConfirm ===
+            "function"
         ){
 
-            selectedRecord = null;
+            try{
+
+                result =
+                    await currentOptions.onConfirm(
+                        snapshot
+                    );
+
+            }
+            catch(error){
+
+                result = {
+
+                    success :
+                        false,
+
+                    remaining :
+                        snapshot,
+
+                    count :
+                        0,
+
+                    error
+
+                };
+
+            }
+
+        }
+        else{
+
+            const remaining =
+                [];
+
+
+            let successCount =
+                0;
+
+
+            for(
+                const item of snapshot
+            ){
+
+                try{
+
+                    let updateResult;
+
+
+                    if(
+                        typeof currentOptions.update ===
+                        "function"
+                    ){
+
+                        updateResult =
+                            await currentOptions.update({
+
+                                workspace :
+                                    currentOptions.workspace,
+
+                                target :
+                                    item.changes.target,
+
+                                row :
+                                    item.changes.row,
+
+                                record :
+                                    item.record,
+
+                                changes :
+                                    item.changes
+
+                            });
+
+                    }
+                    else{
+
+                        /*
+                           SATU-SATUNYA DEFAULT
+                           SERVER UPDATE POINT.
+                        */
+
+                        updateResult =
+                            await Update.updateRow(
+
+                                currentOptions.workspace,
+
+                                item.changes.target,
+
+                                item.changes.row
+
+                            );
+
+                    }
+
+
+                    if(
+                        updateResult?.success === false ||
+                        updateResult?.ok === false
+                    ){
+
+                        throw new Error(
+
+                            updateResult?.message ||
+                            updateResult?.error ||
+                            "Update transaksi gagal."
+
+                        );
+
+                    }
+
+
+                    successCount++;
+
+                }
+                catch(error){
+
+                    console.error(
+                        "[EditRow] Update failed:",
+                        error
+                    );
+
+
+                    remaining.push(
+                        item
+                    );
+
+                }
+
+            }
+
+
+            result = {
+
+                success :
+                    remaining.length === 0,
+
+                remaining,
+
+                count :
+                    successCount,
+
+                message :
+                    remaining.length === 0
+
+                        ? `${successCount} data berhasil diperbarui.`
+
+                        : `${successCount} data berhasil diperbarui. ` +
+                          `${remaining.length} data gagal diperbarui.`
+
+            };
 
         }
 
-    }
-    else if(
-        result?.remaining
-    ){
+
+        const normalized =
+            normalizeConfirmResult(
+                result,
+                snapshot
+            );
+
+
+        const remaining =
+            normalized.remaining;
+
 
         const failedKeys =
             new Set(
-                result.remaining.map(
+                remaining.map(
                     item =>
-                        getPendingKey(item)
+                        item.key
                 )
             );
 
-        /*
-           Record yang berhasil disimpan
-           dikeluarkan dari editable list.
-        */
 
         const successfulKeys =
             new Set(
+
                 snapshot
                     .map(
                         item =>
-                            getPendingKey(item)
+                            item.key
                     )
                     .filter(
                         key =>
-                            !failedKeys.has(key)
+                            !failedKeys.has(
+                                key
+                            )
                     )
+
             );
 
-        editableRecords =
-            editableRecords.filter(
+
+        /*
+           Yang gagal tetap pending.
+        */
+
+        pendingChanges =
+            remaining.slice();
+
+
+        /*
+           Yang berhasil langsung hilang
+           dari daftar Edit Row.
+        */
+
+        currentRecords =
+            currentRecords.filter(
                 record =>
                     !successfulKeys.has(
-                        getTargetKey(record)
+                        getTargetKey(
+                            record
+                        )
                     )
             );
 
+
+        selectedRecord =
+            null;
+
+
+        /*
+           Callback setelah confirmation.
+        */
+
         if(
-            selectedRecord &&
-            successfulKeys.has(
-                getTargetKey(
-                    selectedRecord
-                )
-            )
+            typeof currentOptions.onConfirmed ===
+            "function"
         ){
 
-            selectedRecord = null;
+            try{
+
+                await currentOptions.onConfirmed(
+                    normalized
+                );
+
+            }
+            catch(error){
+
+                console.warn(
+                    "[EditRow] onConfirmed failed:",
+                    error
+                );
+
+            }
 
         }
 
-    }
 
-    renderRecordList();
+        renderRecordList();
 
-    renderSelectedEditor();
+        renderDetail();
 
-    renderPendingUI();
+        renderFields();
 
-    updateOverlayText();
+        renderAction();
 
-    if(
-        result?.message
-    ){
+        renderPending();
 
-        showMessage(
-            result.message,
-            result.success
+        updateOverlayText();
+
+
+        showResult(
+
+            normalized.message ||
+
+            (
+                normalized.success
+
+                    ? getOption(
+                        "addedText"
+                    )
+
+                    : "Sebagian atau seluruh perubahan gagal disimpan."
+            ),
+
+            normalized.success
                 ? "success"
                 : "error"
+
         );
+
+
+        return normalized.success;
+
+    }
+    finally{
+
+        isBusy =
+            false;
+
+
+        renderPending();
+
+        renderAction();
+
+        updateOverlayText();
 
     }
 
@@ -4988,102 +7399,231 @@ async function handleConfirmUI(){
    OPEN
 ===================================================== */
 
-function open(options = {}){
+function open(
+    options = {}
+){
 
     currentOptions = {
 
-        workspace :
-            options.workspace ||
-            null,
-
-        title :
-            "Edit Input Row",
-
-        subtitle :
-            "Ubah transaksi yang sudah tersimpan",
-
-        listTitle :
-            "Transaksi Terbaru",
-
-        searchPlaceholder :
-            "Cari transaksi...",
-
-        emptyText :
-            "Tidak ada transaksi yang dapat diedit.",
-
-        addText :
-            "Tambahkan",
-
-        confirmText :
-            "Konfirmasi",
-
-        confirmLoadingText :
-            "Menyimpan perubahan...",
-
-        removeText :
-            "Hapus",
-
-        pendingTitle :
-            "Sudah Ditambahkan",
-
-        duplicateText :
-            "Transaksi ini sudah ditambahkan.",
-
-        strictFieldList :
-            false,
+        ...DEFAULTS,
 
         ...options
 
     };
 
+
+    /*
+       Source data.
+    */
+
     sourceRecords =
         getSourceRecords();
 
-    editableRecords =
+
+    /*
+       Maksimal 20 record terakhir.
+    */
+
+    currentRecords =
         getLatestRecords(
             sourceRecords
         );
 
-    pendingChanges = [];
 
-    selectedRecord = null;
+    /*
+       Reset session.
+    */
 
-    busy = false;
+    selectedRecord =
+        null;
 
-    searchQuery = "";
 
-    overlay =
-        createEditOverlay();
+    pendingChanges =
+        [];
 
-    renderRecordList();
 
-    renderSelectedEditor();
+    isBusy =
+        false;
 
-    renderPendingUI();
+
+    /*
+       Pastikan overlay tersedia.
+    */
+
+    createOverlay();
+
+
+    /*
+       Update text.
+    */
 
     updateOverlayText();
 
-    return {
+    hideResult();
 
-        close :
-            closeEditOverlay,
 
-        refresh :
-            () => {
+    /*
+       INI PENTING.
 
-                refresh();
+       CSS menggunakan:
 
-            },
+       .global-update-data-overlay.is-open
 
-        getPending :
-            () =>
-                pendingChanges.slice(),
+       Jadi class harus ditambahkan
+       ketika open().
+    */
 
-        getPendingCount :
-            () =>
-                pendingChanges.length
+    overlay.classList.add(
+        "is-open"
+    );
 
-    };
+
+    if(
+        getOption(
+            "lockBody"
+        ) !== false
+    ){
+
+        document.body.classList.add(
+            "input-open"
+        );
+
+    }
+
+
+    /*
+       Reset search.
+    */
+
+    const search =
+        overlay.querySelector(
+            '[data-role="record-search"]'
+        );
+
+
+    if(
+        search
+    ){
+
+        search.value =
+            "";
+
+    }
+
+
+    /*
+       Render UI sesuai urutan
+       updatedata.js.
+    */
+
+    renderRecordList();
+
+    renderDetail();
+
+    renderFields();
+
+    renderAction();
+
+    renderPending();
+
+
+    initialized =
+        true;
+
+
+    return EditRow;
+
+}
+
+
+/* =====================================================
+   CLOSE
+===================================================== */
+
+function close(){
+
+    if(
+        !overlay
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        typeof currentOptions.onClose ===
+        "function"
+    ){
+
+        try{
+
+            currentOptions.onClose();
+
+        }
+        catch(error){
+
+            console.warn(
+                "[EditRow] onClose failed:",
+                error
+            );
+
+        }
+
+    }
+
+
+    overlay.classList.remove(
+        "is-open"
+    );
+
+
+    if(
+        getOption(
+            "lockBody"
+        ) !== false
+    ){
+
+        document.body.classList.remove(
+            "input-open"
+        );
+
+    }
+
+
+    /*
+       Overlay sengaja tidak dihapus.
+
+       Ini mengikuti lifecycle
+       updatedata.js:
+
+       init() membuat overlay
+       satu kali,
+       open() hanya membuka.
+    */
+
+    selectedRecord =
+        null;
+
+
+    currentOptions =
+        {};
+
+
+    currentRecords =
+        [];
+
+
+    sourceRecords =
+        [];
+
+
+    pendingChanges =
+        [];
+
+
+    isBusy =
+        false;
 
 }
 
@@ -5097,40 +7637,75 @@ function refresh(){
     sourceRecords =
         getSourceRecords();
 
-    editableRecords =
+
+    currentRecords =
         getLatestRecords(
             sourceRecords
         );
 
-    selectedRecord = null;
 
-    searchQuery = "";
+    selectedRecord =
+        null;
 
-    if(overlay){
 
-        const search =
-            overlay.querySelector(
-                '[data-role="search"]'
-            );
+    const search =
+        overlay?.querySelector(
+            '[data-role="record-search"]'
+        );
 
-        if(search){
 
-            search.value =
-                "";
+    if(
+        search
+    ){
 
-        }
-
-        renderRecordList();
-
-        renderSelectedEditor();
-
-        renderPendingUI();
-
-        updateOverlayText();
+        search.value =
+            "";
 
     }
 
-    return editableRecords.slice();
+
+    renderRecordList();
+
+    renderDetail();
+
+    renderFields();
+
+    renderAction();
+
+    renderPending();
+
+    updateOverlayText();
+
+
+    return currentRecords.slice();
+
+}
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+function init(){
+
+    if(
+        initialized &&
+        overlay
+    ){
+
+        return EditRow;
+
+    }
+
+
+    createOverlay();
+
+
+    initialized =
+        true;
+
+
+    return EditRow;
 
 }
 
@@ -5139,7 +7714,7 @@ function refresh(){
    PUBLIC API
 ===================================================== */
 
-export const EditRow = {
+const EditRow = {
 
     /* =================================================
        CONSTANT
@@ -5149,17 +7724,63 @@ export const EditRow = {
 
 
     /* =================================================
-       OPEN
+       INIT
     ================================================= */
 
-    open,
+    init(){
+
+
+        return init();
+
+    },
 
 
     /* =================================================
-       GET SOURCE
+       OPEN
+    ================================================= */
+
+    open(
+        options = {}
+    ){
+
+
+        return open(
+            options
+        );
+
+    },
+
+
+    /* =================================================
+       CLOSE
+    ================================================= */
+
+    close(){
+
+
+        close();
+
+    },
+
+
+    /* =================================================
+       REFRESH
+    ================================================= */
+
+    refresh(){
+
+
+        return refresh();
+
+    },
+
+
+    /* =================================================
+       GET SOURCE RECORDS
     ================================================= */
 
     getRecords(){
+
 
         return sourceRecords.slice();
 
@@ -5167,21 +7788,23 @@ export const EditRow = {
 
 
     /* =================================================
-       GET EDITABLE
+       GET EDITABLE RECORDS
     ================================================= */
 
     getEditableRecords(){
 
-        return editableRecords.slice();
+
+        return currentRecords.slice();
 
     },
 
 
     /* =================================================
-       GET SELECTED
+       GET SELECTED RECORD
     ================================================= */
 
     getSelectedRecord(){
+
 
         return selectedRecord;
 
@@ -5194,6 +7817,7 @@ export const EditRow = {
 
     getPending(){
 
+
         return pendingChanges.slice();
 
     },
@@ -5205,6 +7829,7 @@ export const EditRow = {
 
     getPendingCount(){
 
+
         return pendingChanges.length;
 
     },
@@ -5214,9 +7839,14 @@ export const EditRow = {
        GET ID
     ================================================= */
 
-    getId(record){
+    getId(
+        record
+    ){
 
-        return getRecordId(record);
+
+        return getRecordId(
+            record
+        );
 
     },
 
@@ -5225,9 +7855,14 @@ export const EditRow = {
        GET DATE
     ================================================= */
 
-    getDate(record){
+    getDate(
+        record
+    ){
 
-        return getRecordDate(record);
+
+        return getRecordDate(
+            record
+        );
 
     },
 
@@ -5236,15 +7871,22 @@ export const EditRow = {
        GET TARGET
     ================================================= */
 
-    getTarget(record){
+    getTarget(
+        record
+    ){
+
 
         return {
 
             id :
-                getRecordId(record),
+                getRecordId(
+                    record
+                ),
 
             tanggal :
-                getRecordDate(record)
+                getRecordDate(
+                    record
+                )
 
         };
 
@@ -5255,9 +7897,14 @@ export const EditRow = {
        GET KEY
     ================================================= */
 
-    getKey(record){
+    getKey(
+        record
+    ){
 
-        return getTargetKey(record);
+
+        return getTargetKey(
+            record
+        );
 
     },
 
@@ -5270,6 +7917,7 @@ export const EditRow = {
         field,
         record
     ){
+
 
         return getSheetField(
             field,
@@ -5288,6 +7936,7 @@ export const EditRow = {
         record
     ){
 
+
         return getFieldValue(
             field,
             record
@@ -5297,10 +7946,13 @@ export const EditRow = {
 
 
     /* =================================================
-       GET FIELD LIST
+       GET FIELDS
     ================================================= */
 
-    getFields(record){
+    getFields(
+        record
+    ){
+
 
         return getFieldList(
             record
@@ -5317,6 +7969,7 @@ export const EditRow = {
         record,
         values = {}
     ){
+
 
         return getVisibleFields(
             record,
@@ -5336,6 +7989,7 @@ export const EditRow = {
         values = {}
     ){
 
+
         return getFieldConfig(
             field,
             record,
@@ -5346,7 +8000,7 @@ export const EditRow = {
 
 
     /* =================================================
-       GET OPTIONS
+       GET FIELD OPTIONS
     ================================================= */
 
     getFieldOptions(
@@ -5354,6 +8008,7 @@ export const EditRow = {
         record,
         values = {}
     ){
+
 
         return getFieldOptions(
             field,
@@ -5373,6 +8028,7 @@ export const EditRow = {
         record
     ){
 
+
         return findStep(
             field,
             record
@@ -5389,6 +8045,7 @@ export const EditRow = {
         field,
         record
     ){
+
 
         return isLockedField(
             field,
@@ -5407,6 +8064,7 @@ export const EditRow = {
         record
     ){
 
+
         return isEditableField(
             field,
             record
@@ -5424,6 +8082,7 @@ export const EditRow = {
         values
     ){
 
+
         return buildUpdatedRow(
             record,
             values
@@ -5436,12 +8095,13 @@ export const EditRow = {
        BUILD CHANGES
     ================================================= */
 
-    buildChanges(
+    async buildChanges(
         record,
         values
     ){
 
-        return buildChanges(
+
+        return await buildChanges(
             record,
             values
         );
@@ -5450,24 +8110,90 @@ export const EditRow = {
 
 
     /* =================================================
-       REFRESH
+       SELECT RECORD
     ================================================= */
 
-    refresh(){
+    selectRecord(
+        record
+    ){
+
+        selectRecord(
+            record
+        );
 
 
-        return refresh();
+        return this;
 
     },
 
 
     /* =================================================
-       CLOSE
+       ADD
     ================================================= */
 
-    close(){
+    async add(){
 
-        closeEditOverlay();
+
+        return await addCurrent();
+
+    },
+
+
+    /* =================================================
+       REMOVE
+    ================================================= */
+
+    async remove(
+        index
+    ){
+
+
+        return await removePending(
+            index
+        );
+
+    },
+
+
+    /* =================================================
+       CLEAR PENDING
+    ================================================= */
+
+    clearPending(){
+
+        if(
+            isBusy
+        ){
+
+            return this;
+
+        }
+
+
+        pendingChanges =
+            [];
+
+
+        renderPending();
+
+        renderRecordList();
+
+        updateOverlayText();
+
+
+        return this;
+
+    },
+
+
+    /* =================================================
+       CONFIRM
+    ================================================= */
+
+    async confirm(){
+
+
+        return await confirm();
 
     },
 
@@ -5478,21 +8204,38 @@ export const EditRow = {
 
     reset(){
 
-        closeEditOverlay();
+        close();
 
-        currentOptions = {};
 
-        sourceRecords = [];
+        initialized =
+            false;
 
-        editableRecords = [];
 
-        pendingChanges = [];
+        currentOptions =
+            {};
 
-        selectedRecord = null;
 
-        busy = false;
+        sourceRecords =
+            [];
 
-        searchQuery = "";
+
+        currentRecords =
+            [];
+
+
+        selectedRecord =
+            null;
+
+
+        pendingChanges =
+            [];
+
+
+        isBusy =
+            false;
+
+
+        return this;
 
     }
 
@@ -5500,7 +8243,12 @@ export const EditRow = {
 
 
 /* =====================================================
-   DEFAULT EXPORT
+   EXPORT
 ===================================================== */
+
+export {
+    EditRow
+};
+
 
 export default EditRow;
