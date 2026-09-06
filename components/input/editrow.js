@@ -1217,16 +1217,43 @@ function getFieldLabel(
 
 
     if(
-        step?.label !==
-        undefined
+    typeof step?.label ===
+    "function"
+){
+
+    const result =
+        callFunction(
+            step.label,
+            [
+                {},
+                record
+            ],
+            undefined
+        );
+
+
+    if(
+        result !== undefined &&
+        result !== null
     ){
 
         return String(
-            step.label
+            result
         );
 
     }
 
+}
+else if(
+    step?.label !==
+    undefined
+){
+
+    return String(
+        step.label
+    );
+
+}
 
     return String(
         field
