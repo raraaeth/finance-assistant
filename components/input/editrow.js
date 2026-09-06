@@ -3870,7 +3870,10 @@ function createEditOverlay(){
 
     document.body.appendChild(root);
 
-    overlay = root;
+root.classList.add("is-open");
+document.body.classList.add("input-open");
+
+overlay = root;
 
     updateOverlayText();
 
@@ -4040,10 +4043,11 @@ function bindEditOverlayEvents(){
 function closeEditOverlay(){
 
     if(!overlay){
-
         return;
-
     }
+
+    overlay.classList.remove("is-open");
+    document.body.classList.remove("input-open");
 
     overlay.remove();
 
