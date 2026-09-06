@@ -1217,7 +1217,7 @@ function renderEditInput(){
     card.innerHTML = `
 
         <div
-            id="workspace-edit-row-menu"
+            id="monthly-edit-row-menu"
             class="profile-menu-item">
 
             <div class="profile-menu-left">
@@ -1250,7 +1250,7 @@ function renderEditInput(){
 
     const rowMenu =
         document.getElementById(
-            "workspace-edit-row-menu"
+            "monthly-edit-row-menu"
         );
 
     if(rowMenu){
