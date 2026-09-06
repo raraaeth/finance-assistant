@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : UPDATE
    File        : update.js
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Global Google Apps Script UPDATE Engine
@@ -37,25 +37,6 @@
 
            ID + Project
 
-       Contoh :
-
-       Update.updateField(
-           "airdrop",
-
-           {
-               id :
-                   "AIRDROP-XXXX",
-
-               project :
-                   "Allox"
-           },
-
-           {
-               status :
-                   "ended"
-           }
-       );
-
 
    UPDATE ROW :
 
@@ -64,50 +45,46 @@
 
        Target :
 
-           ID + Tanggal
+           ID + Date / tanggal
 
-       Contoh :
+       Update Row sekarang menerima
+       beberapa variasi nama field tanggal:
 
-       Update.updateRow(
-           "airdrop",
+           tanggal
+           Tanggal
+           date
+           Date
+
+       Nilai tersebut akan dinormalisasi
+       menjadi:
+
+           target.tanggal
+
+       untuk kompatibilitas dengan
+       Apps Script update.gs.
+
+       Row asli tetap mempertahankan
+       nama field tanggal dari workspace.
+
+       Contoh Financial:
 
            {
                id :
-                   "AIRDROP-XXXX",
+                   "FIN-XXXX",
 
-               tanggal :
-                   "2026-09-04"
-           },
-
-           {
-               id :
-                   "AIRDROP-XXXX",
-
-               tanggal :
-                   "2026-09-04",
-
-               type :
-                   "campaign",
-
-               nama :
-                   "wallet",
-
-               project :
-                   "Allox",
-
-               start :
-                   "2026-08-01",
-
-               end :
-                   "2026-09-04",
-
-               status :
-                   "ended",
-
-               "$reward" :
-                   100
+               Date :
+                   "2026-09-05"
            }
-       );
+
+       akan diterima sebagai target:
+
+           {
+               id :
+                   "FIN-XXXX",
+
+               tanggal :
+                   "2026-09-05"
+           }
 
 
    Responsibility :
@@ -155,41 +132,54 @@ import {
    CONFIG
 ===================================================== */
 
-/*
-   Fallback endpoint Apps Script.
-
-   Endpoint utama tetap mengikuti
-   pola WRITE :
-
-       1. session.workspace.endpoint
-       2. moduleInfo.workspace.endpoint
-       3. moduleInfo.endpoint
-       4. DEFAULT_ENDPOINT
-*/
-
 const DEFAULT_ENDPOINT =
     "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
 
 
 /* =====================================================
-   STATE
+   DATE FIELD ALIASES
 ===================================================== */
 
 /*
-   Menyimpan request UPDATE yang sedang berjalan.
+   Workspace tidak dipaksa menggunakan
+   satu nama field tanggal tertentu.
 
-   Struktur :
+   Contoh:
 
-       signature
-           ↓
-       Promise
+       Airdrop :
+           tanggal
 
-   Jika request yang sama dipanggil
-   sebelum request pertama selesai,
-   request kedua tidak dibuat ulang.
+       Financial :
+           Date
 
-   Promise request pertama dikembalikan.
+       Workspace lain :
+           date
+           Tanggal
+
+   UPDATE ROW akan membaca semua
+   variasi tersebut.
+
+   Urutan prioritas mengikuti
+   field yang paling spesifik / umum
+   digunakan oleh sistem.
 */
+
+const DATE_FIELD_ALIASES = [
+
+    "tanggal",
+
+    "Tanggal",
+
+    "date",
+
+    "Date"
+
+];
+
+
+/* =====================================================
+   STATE
+===================================================== */
 
 const activeUpdates =
     new Map();
@@ -354,16 +344,6 @@ function getUpdateEndpoint(
     session
 ){
 
-    /*
-       Prioritas :
-
-       1. session.workspace.endpoint
-       2. moduleInfo.workspace.endpoint
-       3. moduleInfo.endpoint
-       4. DEFAULT_ENDPOINT
-    */
-
-
     const moduleInfo =
         loadModuleInfo();
 
@@ -408,16 +388,6 @@ function getUpdateEndpoint(
 /* =====================================================
    JSONP REQUEST
 ===================================================== */
-
-/*
-   UPDATE menggunakan gateway Apps Script
-   yang sama dengan WRITE dan READ.
-
-   Request dikirim menggunakan
-   URL parameter sehingga JSONP
-   digunakan agar kompatibel dengan
-   Apps Script endpoint.
-*/
 
 function jsonpRequest(
     url
@@ -815,16 +785,6 @@ function releaseActiveUpdate(
     promise
 ){
 
-    /*
-       Hanya hapus lock jika Promise
-       yang selesai masih merupakan
-       Promise yang terdaftar.
-
-       Ini mencegah request lain
-       menghapus lock milik request
-       yang berbeda.
-    */
-
     if(
         activeUpdates.get(
             signature
@@ -883,17 +843,6 @@ function validateWorkspace(
 /* =====================================================
    VALIDATE FIELD TARGET
 ===================================================== */
-
-/*
-   Target untuk updateField :
-
-       ID + Project
-
-   Dipertahankan seperti arsitektur
-   sebelumnya karena updateField()
-   sudah digunakan oleh automation
-   dan Edit Reward.
-*/
 
 function validateFieldTarget(
     target
@@ -981,20 +930,267 @@ function validateFieldTarget(
 
 
 /* =====================================================
+   GET DATE VALUE
+===================================================== */
+
+/*
+   Membaca tanggal dari object tanpa
+   memaksa workspace menggunakan
+   nama field tertentu.
+
+   Didukung:
+
+       tanggal
+       Tanggal
+       date
+       Date
+
+   Contoh:
+
+       record.Date
+
+   akan menghasilkan:
+
+       "2026-09-05"
+*/
+
+function getDateValue(
+    source
+){
+
+    if(
+        !source
+        ||
+        typeof source !==
+            "object"
+        ||
+        Array.isArray(
+            source
+        )
+    ){
+
+        return undefined;
+
+    }
+
+
+    for(
+        const field
+        of DATE_FIELD_ALIASES
+    ){
+
+        if(
+            Object.prototype.hasOwnProperty.call(
+                source,
+                field
+            )
+        ){
+
+            const value =
+                source[
+                    field
+                ];
+
+
+            if(
+                value !==
+                    undefined
+                &&
+                value !==
+                    null
+                &&
+                String(
+                    value
+                ).trim() !== ""
+            ){
+
+                return value;
+
+            }
+
+        }
+
+    }
+
+
+    return undefined;
+
+}
+
+
+/* =====================================================
+   GET DATE FIELD NAME
+===================================================== */
+
+function getDateFieldName(
+    source
+){
+
+    if(
+        !source
+        ||
+        typeof source !==
+            "object"
+        ||
+        Array.isArray(
+            source
+        )
+    ){
+
+        return null;
+
+    }
+
+
+    for(
+        const field
+        of DATE_FIELD_ALIASES
+    ){
+
+        if(
+            Object.prototype.hasOwnProperty.call(
+                source,
+                field
+            )
+        ){
+
+            const value =
+                source[
+                    field
+                ];
+
+
+            if(
+                value !==
+                    undefined
+                &&
+                value !==
+                    null
+                &&
+                String(
+                    value
+                ).trim() !== ""
+            ){
+
+                return field;
+
+            }
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   NORMALIZE DATE VALUE
+===================================================== */
+
+/*
+   Digunakan hanya untuk locator
+   dan perbandingan.
+
+   Tidak mengubah nilai Date
+   pada row asli.
+
+   Contoh:
+
+       Date :
+           "2026-09-05"
+
+   menjadi:
+
+       "2026-09-05"
+*/
+
+function normalizeDateValue(
+    value
+){
+
+    if(
+        value ===
+            undefined
+        ||
+        value ===
+            null
+    ){
+
+        return "";
+
+    }
+
+
+    return String(
+        value
+    ).trim();
+
+}
+
+
+/* =====================================================
    VALIDATE ROW TARGET
 ===================================================== */
 
 /*
-   Target untuk updateRow :
+   Target updateRow sekarang menerima:
 
-       ID + Tanggal
+       {
+           id :
+               "...",
 
-   Digunakan oleh Edit Input Row.
+           tanggal :
+               "2026-09-05"
+       }
 
-   Project TIDAK digunakan sebagai
-   locator karena project merupakan
-   salah satu field di dalam row yang
-   dapat berubah melalui overwrite row.
+   ATAU:
+
+       {
+           id :
+               "...",
+
+           Tanggal :
+               "2026-09-05"
+       }
+
+   ATAU:
+
+       {
+           id :
+               "...",
+
+           date :
+               "2026-09-05"
+       }
+
+   ATAU:
+
+       {
+           id :
+               "...",
+
+           Date :
+               "2026-09-05"
+       }
+
+
+   Setelah validasi seluruh variasi
+   tersebut dinormalisasi menjadi:
+
+       {
+           id :
+               "...",
+
+           tanggal :
+               "2026-09-05"
+       }
+
+
+   Dengan begitu Apps Script tetap
+   menerima kontrak target yang sama.
 */
 
 function validateRowTarget(
@@ -1043,26 +1239,44 @@ function validateRowTarget(
 
 
     /* =============================================
-       TANGGAL
+       DATE / TANGGAL
     ============================================= */
 
+    const rawDate =
+        getDateValue(
+            target
+        );
+
+
+    const normalizedDate =
+        normalizeDateValue(
+            rawDate
+        );
+
+
     if(
-        target.tanggal ===
-            undefined
-        ||
-        target.tanggal ===
-            null
-        ||
-        String(
-            target.tanggal
-        ).trim() === ""
+        !normalizedDate
     ){
 
         throw new Error(
-            "Update row target membutuhkan tanggal."
+            "Update row target membutuhkan tanggal/Date."
         );
 
     }
+
+
+    console.log(
+        "UPDATE ROW DATE TARGET:",
+        {
+            sourceField :
+                getDateFieldName(
+                    target
+                ),
+
+            value :
+                normalizedDate
+        }
+    );
 
 
     return {
@@ -1072,10 +1286,17 @@ function validateRowTarget(
                 target.id
             ).trim(),
 
+        /*
+           Canonical internal/server
+           locator tetap menggunakan
+           "tanggal".
+
+           Workspace boleh menggunakan
+           Date/date/Tanggal/tanggal.
+        */
+
         tanggal :
-            String(
-                target.tanggal
-            ).trim()
+            normalizedDate
 
     };
 
@@ -1176,20 +1397,48 @@ function validateFieldChanges(
 ===================================================== */
 
 /*
-   Validasi row penuh.
+   Validasi full row.
 
-   Karena updateRow menggunakan
-   target ID + Tanggal, maka row
-   yang dikirim wajib mempunyai:
+   Row sekarang dapat mempunyai
+   field tanggal:
 
-       row.id
-       row.tanggal
+       tanggal
+       Tanggal
+       date
+       Date
 
-   dan keduanya harus sama dengan
-   locator target.
+   Nama field asli TIDAK diubah.
 
-   Field lain tetap dipertahankan
-   sebagai bagian dari full row.
+   Contoh Financial:
+
+       {
+           id :
+               "FIN-XXXX",
+
+           Date :
+               "2026-09-05",
+
+           jenis :
+               "keluar",
+
+           type :
+               "tagihan"
+       }
+
+
+   Tetap dikirim dengan:
+
+       Date
+
+   tetapi kita tambahkan alias internal:
+
+       tanggal
+
+   jika memang belum ada.
+
+   Ini menjaga kompatibilitas dengan
+   update.gs versi yang masih melakukan
+   validasi row.tanggal.
 */
 
 function validateRow(
@@ -1260,36 +1509,38 @@ function validateRow(
 
 
     /* =============================================
-       ROW TANGGAL
+       ROW DATE / TANGGAL
     ============================================= */
 
+    const rawDate =
+        getDateValue(
+            row
+        );
+
+
+    const normalizedDate =
+        normalizeDateValue(
+            rawDate
+        );
+
+
     if(
-        row.tanggal ===
-            undefined
-        ||
-        row.tanggal ===
-            null
-        ||
-        String(
-            row.tanggal
-        ).trim() === ""
+        !normalizedDate
     ){
 
         throw new Error(
-            "Update row membutuhkan tanggal."
+            "Update row membutuhkan tanggal/Date."
         );
 
     }
 
 
     /* =============================================
-       TANGGAL MUST MATCH TARGET
+       DATE MUST MATCH TARGET
     ============================================= */
 
     if(
-        String(
-            row.tanggal
-        ).trim()
+        normalizedDate
         !==
         String(
             target.tanggal
@@ -1303,11 +1554,57 @@ function validateRow(
     }
 
 
-    return {
+    /* =============================================
+       PRESERVE ORIGINAL ROW
+    ============================================= */
+
+    const validRow = {
 
         ...row
 
     };
+
+
+    /*
+       Jika row menggunakan:
+
+           Date
+           date
+           Tanggal
+
+       tetapi belum mempunyai:
+
+           tanggal
+
+       tambahkan canonical alias.
+
+       Field asli tetap dipertahankan.
+
+       Jadi Financial:
+
+           Date
+
+       tidak diubah menjadi:
+
+           tanggal
+
+       secara paksa.
+    */
+
+    if(
+        !Object.prototype.hasOwnProperty.call(
+            validRow,
+            "tanggal"
+        )
+    ){
+
+        validRow.tanggal =
+            normalizedDate;
+
+    }
+
+
+    return validRow;
 
 }
 
@@ -1411,68 +1708,6 @@ function normalizeUpdateResponse(
    UPDATE FIELD
 ===================================================== */
 
-/*
-   Public API :
-
-       Update.updateField(
-           workspace,
-           target,
-           changes
-       )
-
-
-   Target :
-
-       ID + Project
-
-
-   Contoh :
-
-       Update.updateField(
-           "airdrop",
-
-           {
-               id :
-                   "AIR-MTKJTZ",
-
-               project :
-                   "Dimension"
-           },
-
-           {
-               status :
-                   "ended"
-           }
-       );
-
-
-   Server :
-
-       action=update
-
-       data :
-
-       {
-           mode :
-               "field",
-
-           target :
-               {
-                   id :
-                       "...",
-
-                   project :
-                       "..."
-               },
-
-           changes :
-               {
-                   status :
-                       "ended"
-               }
-       }
-*/
-
 async function updateField(
     workspace,
     target,
@@ -1523,91 +1758,6 @@ async function updateField(
    UPDATE ROW
 ===================================================== */
 
-/*
-   Public API :
-
-       Update.updateRow(
-           workspace,
-           target,
-           row
-       )
-
-
-   Target :
-
-       ID + Tanggal
-
-
-   Contoh :
-
-       Update.updateRow(
-           "airdrop",
-
-           {
-               id :
-                   "AIR-MTKJTZ",
-
-               tanggal :
-                   "2026-09-04"
-           },
-
-           {
-               id :
-                   "AIR-MTKJTZ",
-
-               tanggal :
-                   "2026-09-04",
-
-               type :
-                   "campaign",
-
-               nama :
-                   "main_wallet",
-
-               project :
-                   "Dimension",
-
-               start :
-                   "2026-08-01",
-
-               end :
-                   "2026-09-04",
-
-               status :
-                   "ended",
-
-               "$reward" :
-                   500
-           }
-       );
-
-
-   Server :
-
-       action=update
-
-       data :
-
-       {
-           mode :
-               "row",
-
-           target :
-               {
-                   id :
-                       "...",
-
-                   tanggal :
-                       "..."
-               },
-
-           row :
-               {
-                   ...
-               }
-       }
-*/
-
 async function updateRow(
     workspace,
     target,
@@ -1620,11 +1770,44 @@ async function updateRow(
         );
 
 
+    /*
+       Di sini target Financial
+       dengan Date sudah diterima.
+
+       Contoh:
+
+           {
+               id :
+                   "FIN-XXXX",
+
+               Date :
+                   "2026-09-05"
+           }
+
+       menjadi:
+
+           {
+               id :
+                   "FIN-XXXX",
+
+               tanggal :
+                   "2026-09-05"
+           }
+    */
+
     const validTarget =
         validateRowTarget(
             target
         );
 
+
+    /*
+       Row Financial dengan:
+
+           Date
+
+       juga diterima.
+    */
 
     const validRow =
         validateRow(
@@ -1658,21 +1841,6 @@ async function updateRow(
 /* =====================================================
    GENERIC UPDATE
 ===================================================== */
-
-/*
-   Internal generic UPDATE engine.
-
-   Public caller sebaiknya menggunakan :
-
-       updateField()
-
-   atau :
-
-       updateRow()
-
-   Jangan memanggil fungsi ini
-   langsung dari module.
-*/
 
 async function update(
     workspace,
@@ -1793,13 +1961,6 @@ async function update(
             }
         );
 
-
-        /*
-           Kembalikan Promise request
-           pertama.
-
-           Tidak membuat request kedua.
-        */
 
         return activeUpdate;
 
@@ -1994,11 +2155,6 @@ async function update(
 
             finally{
 
-                /*
-                   Lock dilepas setelah request
-                   benar-benar selesai.
-                */
-
                 releaseActiveUpdate(
                     signature,
                     requestPromise
@@ -2054,16 +2210,6 @@ function isUpdating(){
 ===================================================== */
 
 function resetUpdates(){
-
-    /*
-       Tidak membatalkan request yang
-       sedang berjalan.
-
-       Hanya membersihkan registry.
-
-       Normalnya fungsi ini tidak perlu
-       dipanggil oleh module.
-    */
 
     activeUpdates.clear();
 
