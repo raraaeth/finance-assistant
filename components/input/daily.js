@@ -3,7 +3,7 @@
    Component    : Global Input
    Workspace    : Payroll Daily
    File         : daily.js
-   Version      : 3.0.1
+   Version      : 3.1.0
 
    Description :
    Global Input Configuration
@@ -18,7 +18,8 @@
    - Target : ID + tanggal.
    - ID locked.
    - tanggal locked.
-   - status locked karena selalu "masuk".
+   - status TIDAK locked.
+   - status hanya memiliki opsi "masuk".
    - Nama menggunakan rule Payroll Daily.
    - Grade 1 mengikuti Nama.
    - Grade 2 mengikuti Nama + Grade 1.
@@ -312,18 +313,20 @@ function getRules(){
 
 
 /* =====================================================
-   GET PAYROLL DAILY RECORDS
+   GET DAILY RECORDS
 =====================================================
 
-   Record langsung diambil dari data source
-   Payroll Daily.
+   Sumber data Edit Input Payroll Daily.
 
    PENTING :
    Jangan menggunakan EditRow.getEditableRecords()
    di sini.
 
-   EditRow.reset() akan membersihkan internal
+   EditRow.reset() dapat mengosongkan internal
    editable-record state.
+
+   Karena itu record selalu dibaca langsung
+   dari getInputRaw().
 
 ===================================================== */
 
@@ -1053,12 +1056,6 @@ export const Daily = {
 
         /* =================================================
            GRADE 1
-
-           Ditampilkan hanya jika Nama
-           memiliki Grade 1.
-
-           Jika hanya satu pilihan,
-           hierarchy dapat mengisinya otomatis.
         ================================================= */
 
         {
@@ -1136,9 +1133,6 @@ export const Daily = {
 
         /* =================================================
            GRADE 2
-
-           Ditampilkan hanya jika kombinasi
-           Nama + Grade 1 mempunyai Grade 2.
         ================================================= */
 
         {
@@ -1218,12 +1212,6 @@ export const Daily = {
 
         /* =================================================
            QTY
-
-           WAJIB.
-
-           Rumus :
-
-               nominal × qty
         ================================================= */
 
         {
@@ -1322,14 +1310,18 @@ export const Daily = {
 
        ID
        tanggal
-       status
 
    Editable :
 
+       status
        nama
        grade_1
        grade_2
        qty
+
+   Catatan :
+   Status tetap hanya memiliki satu pilihan,
+   yaitu "masuk".
 
 ===================================================== */
 
@@ -1339,6 +1331,8 @@ export const Daily = {
 ===================================================== */
 
 const EDITABLE_FIELDS = [
+
+    "status",
 
     "nama",
 
@@ -1353,15 +1347,17 @@ const EDITABLE_FIELDS = [
 
 /* =====================================================
    LOCKED FIELDS
+=====================================================
+
+   HANYA ID DAN TANGGAL.
+
 ===================================================== */
 
 const LOCKED_FIELDS = [
 
     "id",
 
-    "tanggal",
-
-    "status"
+    "tanggal"
 
 ];
 
@@ -1536,6 +1532,7 @@ function getDailyEditFieldOptions(
                 value :
 
                     "masuk",
+
 
                 label :
 
@@ -1748,22 +1745,6 @@ function optionExists(
    Digunakan agar perubahan Nama / Grade
    tetap mengikuti hierarchy Payroll Daily.
 
-   Aturan :
-
-       Nama
-         ↓
-       Grade 1
-         ↓
-       Grade 2
-
-   Jika pilihan lama sudah tidak valid
-   terhadap Nama baru, nilai tersebut
-   dikosongkan.
-
-   Jika hanya ada satu pilihan,
-   hierarchy engine dapat mengisinya
-   otomatis.
-
 ===================================================== */
 
 function prepareDailyEditValues(
@@ -1857,9 +1838,7 @@ function prepareDailyEditValues(
 
     else if(
 
-        prepared.grade_1
-
-        &&
+        prepared.grade_1 &&
 
         !optionExists(
 
@@ -1938,9 +1917,7 @@ function prepareDailyEditValues(
 
     else if(
 
-        prepared.grade_2
-
-        &&
+        prepared.grade_2 &&
 
         !optionExists(
 
@@ -2361,11 +2338,7 @@ function renderDailyDetail(
 
                         record?.status
 
-                    ),
-
-                locked :
-
-                    true
+                    )
 
             },
 
@@ -2671,9 +2644,7 @@ function validateDailyEdit(
 
     if(
 
-        grade1Options.length > 0
-
-        &&
+        grade1Options.length > 0 &&
 
         !grade1
 
@@ -2693,9 +2664,7 @@ function validateDailyEdit(
 
     if(
 
-        grade1
-
-        &&
+        grade1 &&
 
         !optionExists(
 
@@ -2754,9 +2723,7 @@ function validateDailyEdit(
 
     if(
 
-        grade2Options.length > 0
-
-        &&
+        grade2Options.length > 0 &&
 
         !grade2
 
@@ -2776,9 +2743,7 @@ function validateDailyEdit(
 
     if(
 
-        grade2
-
-        &&
+        grade2 &&
 
         !optionExists(
 
@@ -2805,7 +2770,7 @@ function validateDailyEdit(
 
 
     /* =================================================
-       MATCHING RULE
+       RESOLVE
     ================================================= */
 
     const resolved =
@@ -2839,6 +2804,10 @@ function validateDailyEdit(
         });
 
 
+    /* =================================================
+       HIERARCHY COMPLETE
+    ================================================= */
+
     if(
 
         !isComplete(
@@ -2864,6 +2833,10 @@ function validateDailyEdit(
 
     }
 
+
+    /* =================================================
+       MATCHING RULE
+    ================================================= */
 
     const matchingRule =
 
@@ -2951,9 +2924,7 @@ function validateDailyEdit(
 
             qty
 
-        )
-
-        ||
+        ) ||
 
         qty < 1
 
@@ -3003,6 +2974,17 @@ function getDailyEditFieldConfig(
 
     /* =================================================
        STATUS
+=====================================================
+
+       STATUS TIDAK LOCKED.
+
+       Tetapi opsi hanya satu :
+
+           masuk
+
+       Jadi user tetap bisa membuka field,
+       namun tidak ada pilihan status lain.
+
     ================================================= */
 
     if(
@@ -3039,9 +3021,9 @@ function getDailyEditFieldConfig(
 
                 true,
 
-            disabled :
+            placeholder :
 
-                true
+                "Pilih status"
 
         };
 
@@ -3115,11 +3097,15 @@ function getDailyEditFieldConfig(
 
                 currentValues => {
 
-                    return getDailyGrade1Options(
+                    return (
 
-                        currentValues
+                        getDailyGrade1Options(
 
-                    ).length > 0;
+                            currentValues
+
+                        ).length > 0
+
+                    );
 
                 },
 
@@ -3191,11 +3177,15 @@ function getDailyEditFieldConfig(
 
                 currentValues => {
 
-                    return getDailyGrade2Options(
+                    return (
 
-                        currentValues
+                        getDailyGrade2Options(
 
-                    ).length > 0;
+                            currentValues
+
+                        ).length > 0
+
+                    );
 
                 },
 
@@ -3351,10 +3341,15 @@ async function openEditRow(){
        RECORD SOURCE
     =================================================
 
-       Ambil langsung dari getDailyRecords().
+       PENTING :
 
-       Jangan menggunakan EditRow.getEditableRecords()
-       karena reset() membersihkan internal state.
+       Jangan mengambil :
+
+           EditRow.getEditableRecords()
+
+       karena reset() dapat mengosongkan state tersebut.
+
+       Langsung gunakan getDailyRecords().
 
     ================================================= */
 
@@ -3412,16 +3407,36 @@ async function openEditRow(){
 
         /* =============================================
            RECORD SOURCE
-           
-           LANGSUNG KE DATA SOURCE.
-           
-           Tidak menggunakan :
-               EditRow.getEditableRecords()
+        =============================================
+
+           DIRECT SOURCE.
+
         ============================================= */
 
         getRecords :
 
-            () => getDailyRecords(),
+            () => {
+
+                const currentRecords =
+
+                    getDailyRecords();
+
+
+                return Array.isArray(
+
+                    currentRecords
+
+                )
+
+                    ?
+
+                    currentRecords
+
+                    :
+
+                    [];
+
+            },
 
 
         /* =============================================
@@ -3477,18 +3492,6 @@ async function openEditRow(){
 
         /* =============================================
            DATE FIELD
-        =============================================
-
-           Payroll Daily menggunakan :
-
-               tanggal
-
-           Bukan :
-
-               Date
-
-               date
-
         ============================================= */
 
         getDateField :
@@ -3754,6 +3757,15 @@ async function openEditRow(){
 
         /* =============================================
            FIELD LOCK CHECK
+        =============================================
+
+           HANYA :
+
+               ID
+               tanggal
+
+           yang locked.
+
         ============================================= */
 
         isFieldLocked :
@@ -3775,10 +3787,6 @@ async function openEditRow(){
                     );
 
 
-                /* -------------------------------------
-                   ID
-                ------------------------------------- */
-
                 if(
 
                     normalized ===
@@ -3791,10 +3799,6 @@ async function openEditRow(){
 
                 }
 
-
-                /* -------------------------------------
-                   TANGGAL
-                ------------------------------------- */
 
                 if(
 
@@ -3815,28 +3819,7 @@ async function openEditRow(){
                 }
 
 
-                /* -------------------------------------
-                   STATUS
-                ------------------------------------- */
-
-                if(
-
-                    normalized ===
-
-                        "status"
-
-                ){
-
-                    return true;
-
-                }
-
-
-                return !EDITABLE_FIELDS.includes(
-
-                    normalized
-
-                );
+                return false;
 
             },
 
