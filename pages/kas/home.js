@@ -552,7 +552,7 @@ function renderEditInput(){
     card.innerHTML = `
 
         <div
-            id="workspace-edit-row-menu"
+            id="kas-edit-row-menu"
             class="profile-menu-item">
 
             <div class="profile-menu-left">
@@ -585,7 +585,7 @@ function renderEditInput(){
 
     const rowMenu =
         document.getElementById(
-            "workspace-edit-row-menu"
+            "kas-edit-row-menu"
         );
 
     if(rowMenu){
