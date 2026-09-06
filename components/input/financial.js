@@ -36,8 +36,6 @@
    Edit Row :
    - Menggunakan Global EditRow Engine.
    - Target record berdasarkan ID + Date.
-   - Header ID Financial = id.
-   - Header tanggal Financial = Date.
    - ID dan Date dikunci.
    - Control mengikuti struktur Input Financial.
    - Select mempertahankan canonical value.
@@ -560,15 +558,6 @@ export const Financial = {
 
     /* =================================================
        PREFIX
-    =================================================
-
-       Digunakan oleh Global Input Controller
-       untuk membuat ID transaksi.
-
-       Contoh :
-
-           FIN-XXXXXXXX
-
     ================================================= */
 
     prefix :
@@ -813,6 +802,21 @@ export const Financial = {
    - urutan field
    - editable field
    - validation
+
+   CATATAN PENTING :
+
+   Sheet Financial menggunakan header:
+
+       id
+       Date
+
+   Bukan:
+
+       id
+       tanggal
+
+   Karena itu adapter Financial harus
+   langsung menggunakan "Date".
 */
 
 
@@ -947,12 +951,13 @@ async function openEditRow(){
         ========================================= */
 
         /*
-           Financial menggunakan header Sheet:
+           FINANCIAL MENGGUNAKAN :
 
                id
                Date
 
-           Jangan gunakan "tanggal" di sini.
+           ID sudah dipastikan menggunakan
+           huruf kecil "id".
         */
 
         getIdField :
@@ -1181,7 +1186,7 @@ async function openEditRow(){
             record => {
 
                 /*
-                   Financial Sheet memakai header Date.
+                   Financial menggunakan Date.
                 */
 
                 const tanggal =
@@ -1454,6 +1459,9 @@ async function openEditRow(){
 
                     case "date":
 
+                        return "Tanggal";
+
+
                     case "tanggal":
 
                         return "Tanggal";
@@ -1654,18 +1662,12 @@ async function openEditRow(){
             record => {
 
                 /*
-                   Header Sheet Financial:
+                   Field input Financial selalu
+                   ditampilkan dalam urutan yang
+                   sama dengan Normal Input.
 
-                       id
-                       Date
-                       jenis
-                       type
-                       nominal
-                       keterangan
-
-                   Date adalah nama header Sheet.
-                   Di UI tetap ditampilkan sebagai
-                   "Tanggal".
+                   Sheet Financial menggunakan
+                   "Date", bukan "tanggal".
                 */
 
                 return [
@@ -1903,24 +1905,34 @@ async function openEditRow(){
                 ================================= */
 
                 /*
-                   Financial menggunakan header
-                   Sheet "Date".
+                   Financial Sheet menggunakan
+                   header "Date".
 
-                   Jangan mengambil State.date
-                   karena ini adalah tanggal record
-                   yang sedang diedit.
+                   Jangan menggunakan State.date
+                   di sini.
+
+                   State.date adalah tanggal untuk
+                   Normal Input.
+
+                   Edit Row harus menggunakan
+                   tanggal yang memang tersimpan
+                   pada record Financial.
                 */
 
-                const tanggal =
+                const date =
 
-                    record?.Date ??
+                    String(
 
-                    "";
+                        record?.Date ??
+
+                        ""
+
+                    ).trim();
 
 
                 if(
 
-                    !tanggal
+                    !date
 
                 ){
 
@@ -2221,8 +2233,7 @@ async function openEditRow(){
 
 
                 /*
-                   Financial menggunakan
-                   header Sheet "Date".
+                   Financial menggunakan Date.
                 */
 
                 const tanggal =
