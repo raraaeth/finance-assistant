@@ -2,7 +2,7 @@
    Finance Assistant
    FILE : sw.js
    DESCRIPTION : Progressive Web App Service Worker
-   VERSION : 1.1.0
+   VERSION : 1.2.0
 
    Handles :
    - PWA application shell
@@ -16,29 +16,19 @@
 
    IMPORTANT :
 
-   PWA hanya berjalan pada :
+   PWA berjalan pada :
 
-       /finance-assistant/pages/
+       /pages/
 
-   Root landing page :
+   Root domain :
 
-       /finance-assistant/
+       https://financeassistant.web.id/
 
-   tidak menjadi bagian dari PWA cache.
+   Landing / application entry :
 
-   Landing assets juga tidak dicache :
+       /pages/index.html
 
-   - landing.css
-   - landing.js
-   - images/slide/*
-
-   GLOBAL JS :
-
-   Semua JavaScript global yang digunakan
-   oleh halaman PWA dimasukkan ke STATIC_ASSETS.
-
-   landing.js DIKECUALIKAN karena hanya
-   digunakan oleh landing page.
+   Landing assets tidak dicache oleh Service Worker.
 ===================================================== */
 
 
@@ -48,17 +38,33 @@
 
 const CACHE_NAME =
 
-    "finance-assistant-v11";
+    "finance-assistant-v12";
 
+
+/*
+   Custom domain sekarang langsung menjadi root.
+
+   Sebelumnya :
+
+       /finance-assistant
+
+   Sekarang :
+
+       /
+*/
 
 const BASE_PATH =
 
-    "/finance-assistant";
+    "";
 
+
+/*
+   Lokasi aplikasi PWA
+*/
 
 const APP_PATH =
 
-    BASE_PATH + "/pages";
+    "/pages";
 
 
 /* =====================================================
@@ -70,6 +76,8 @@ const STATIC_ASSETS = [
     /* ================================================
        APPLICATION ENTRY
     ================================================ */
+
+    APP_PATH + "/index.html",
 
     APP_PATH + "/",
 
@@ -414,7 +422,7 @@ self.addEventListener(
         /* --------------------------------------------
            Hanya handle aplikasi PWA
 
-           /finance-assistant/pages/
+           /pages/
         -------------------------------------------- */
 
         if(
@@ -706,7 +714,7 @@ async function networkFirst(
 
             "SW: Network gagal, mencoba cache..."
 
-        );
+    );
 
 
         const cached =
