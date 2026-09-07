@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Tentang Finance Assistant — visi, misi, dan cerita di balik pengembangan aplikasi."
+    >
+
+    <title>Tentang Finance Assistant</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+
+            --background: #f6f8fc;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+
+            --text: #172033;
+            --text-secondary: #5f6b7a;
+
+            --border: #e5e9f0;
+            --soft-blue: #eff6ff;
+
+            --radius: 20px;
+            --max-width: 900px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+
+            background: var(--background);
+            color: var(--text);
+
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        /* =========================================
+           HEADER
+        ========================================== */
+
+        .topbar {
+            width: 100%;
+
+            background: rgba(255, 255, 255, 0.96);
+
+            border-bottom: 1px solid var(--border);
+
+            position: sticky;
+            top: 0;
+
+            z-index: 20;
+
+            backdrop-filter: blur(10px);
+        }
+
+        .topbar-inner {
+            max-width: var(--max-width);
+
+            margin: 0 auto;
+
+            padding: 16px 24px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            color: var(--text);
+
+            text-decoration: none;
+
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: var(--soft-blue);
+
+            color: var(--primary);
+
+            border-radius: 10px;
+
+            font-size: 18px;
+        }
+
+        .back-link {
+            color: var(--primary);
+
+            font-size: 14px;
+            font-weight: 600;
+
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--primary-dark);
+        }
+
+        /* =========================================
+           MAIN
+        ========================================== */
+
+        main {
+            width: 100%;
+
+            padding: 46px 20px 70px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+
+            margin: 0 auto;
+        }
+
+        /* =========================================
+           HERO
+        ========================================== */
+
+        .hero {
+            text-align: center;
+
+            margin-bottom: 34px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 7px 13px;
+
+            margin-bottom: 14px;
+
+            background: var(--soft-blue);
+
+            color: var(--primary);
+
+            border-radius: 999px;
+
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+
+            font-size: 42px;
+            line-height: 1.15;
+
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            max-width: 680px;
+
+            margin: 0 auto;
+
+            color: var(--text-secondary);
+
+            font-size: 16px;
+        }
+
+        /* =========================================
+           CONTENT
+        ========================================== */
+
+        .section {
+            margin-bottom: 22px;
+
+            padding: 32px;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius);
+        }
+
+        .section h2 {
+            margin: 0 0 14px;
+
+            font-size: 24px;
+
+            line-height: 1.3;
+
+            letter-spacing: -0.3px;
+        }
+
+        .section h3 {
+            margin: 24px 0 8px;
+
+            font-size: 18px;
+
+            line-height: 1.4;
+        }
+
+        .section p {
+            margin: 0 0 15px;
+
+            color: var(--text);
+
+            font-size: 15px;
+        }
+
+        .section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* =========================================
+           VISION / MISSION
+        ========================================== */
+
+        .vision {
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #f4f8ff 100%
+                );
+        }
+
+        .mission-list {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 14px;
+
+            margin-top: 22px;
+        }
+
+        .mission-item {
+            padding: 18px;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: 15px;
+        }
+
+        .mission-number {
+            display: inline-flex;
+
+            width: 30px;
+            height: 30px;
+
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 10px;
+
+            background: var(--soft-blue);
+
+            color: var(--primary);
+
+            border-radius: 9px;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .mission-item strong {
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 15px;
+        }
+
+        .mission-item span {
+            display: block;
+
+            color: var(--text-secondary);
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+        /* =========================================
+           STORY
+        ========================================== */
+
+        .story-highlight {
+            margin-top: 20px;
+
+            padding: 20px;
+
+            background: var(--soft-blue);
+
+            border-radius: 16px;
+
+            color: #334155;
+
+            font-size: 15px;
+        }
+
+        .story-highlight strong {
+            color: var(--text);
+        }
+
+        /* =========================================
+           PRINCIPLES
+        ========================================== */
+
+        .principles {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 14px;
+
+            margin-top: 20px;
+        }
+
+        .principle {
+            padding: 18px;
+
+            background: var(--surface-soft);
+
+            border: 1px solid var(--border);
+
+            border-radius: 15px;
+        }
+
+        .principle-icon {
+            font-size: 23px;
+
+            margin-bottom: 8px;
+        }
+
+        .principle strong {
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 15px;
+        }
+
+        .principle span {
+            color: var(--text-secondary);
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+        /* =========================================
+           PROFILE
+        ========================================== */
+
+        .profile {
+            text-align: center;
+
+            padding: 36px 28px;
+        }
+
+        .profile-image {
+            width: 112px;
+            height: 112px;
+
+            display: block;
+
+            margin: 0 auto 18px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            border: 4px solid #ffffff;
+
+            box-shadow:
+                0 8px 28px rgba(23, 32, 51, 0.12);
+        }
+
+        .profile h2 {
+            margin: 0 0 5px;
+
+            font-size: 25px;
+        }
+
+        .profile-role {
+            margin: 0 0 18px;
+
+            color: var(--text-secondary);
+
+            font-size: 14px;
+        }
+
+        .profile-description {
+            max-width: 650px;
+
+            margin: 0 auto 22px;
+
+            color: var(--text-secondary);
+
+            font-size: 14px;
+        }
+
+        /* =========================================
+           SOCIAL LINKS
+        ========================================== */
+
+        .social-links {
+            display: flex;
+
+            flex-wrap: wrap;
+
+            justify-content: center;
+
+            gap: 10px;
+        }
+
+        .social-link {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            min-height: 42px;
+
+            padding: 9px 15px;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: 12px;
+
+            color: var(--text);
+
+            font-size: 13px;
+            font-weight: 600;
+
+            text-decoration: none;
+
+            transition:
+                border-color 0.2s ease,
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .social-link:hover {
+            border-color: #c8d4e8;
+
+            background: var(--soft-blue);
+
+            transform: translateY(-1px);
+        }
+
+        .social-label {
+            margin-right: 5px;
+
+            color: var(--text-secondary);
+        }
+
+        /* =========================================
+           FOOTER
+        ========================================== */
+
+        footer {
+            max-width: var(--max-width);
+
+            margin: 0 auto;
+
+            padding: 0 20px 35px;
+
+            text-align: center;
+
+            color: var(--text-secondary);
+
+            font-size: 13px;
+        }
+
+        /* =========================================
+           MOBILE
+        ========================================== */
+
+        @media (max-width: 700px) {
+
+            .topbar-inner {
+                padding: 14px 16px;
+            }
+
+            .brand {
+                font-size: 15px;
+            }
+
+            .brand-icon {
+                width: 31px;
+                height: 31px;
+
+                font-size: 16px;
+            }
+
+            .back-link {
+                font-size: 13px;
+            }
+
+            main {
+                padding: 32px 14px 45px;
+            }
+
+            .hero {
+                margin-bottom: 22px;
+            }
+
+            .hero-badge {
+                margin-bottom: 11px;
+
+                font-size: 12px;
+            }
+
+            .hero h1 {
+                font-size: 31px;
+
+                letter-spacing: -0.7px;
+            }
+
+            .hero p {
+                font-size: 14px;
+
+                line-height: 1.65;
+            }
+
+            .section {
+                padding: 24px 18px;
+
+                border-radius: 17px;
+            }
+
+            .section h2 {
+                font-size: 21px;
+            }
+
+            .section p {
+                font-size: 14px;
+            }
+
+            .mission-list {
+                grid-template-columns: 1fr;
+
+                gap: 10px;
+            }
+
+            .mission-item {
+                padding: 16px;
+            }
+
+            .principles {
+                grid-template-columns: 1fr;
+
+                gap: 10px;
+            }
+
+            .principle {
+                padding: 16px;
+            }
+
+            .profile {
+                padding: 28px 18px;
+            }
+
+            .profile-image {
+                width: 96px;
+                height: 96px;
+            }
+
+            .profile h2 {
+                font-size: 23px;
+            }
+
+            .social-links {
+                flex-direction: column;
+
+                width: 100%;
+            }
+
+            .social-link {
+                width: 100%;
+            }
+
+            footer {
+                padding: 0 16px 28px;
+
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <a
+                class="brand"
+                href="/"
+            >
+                <span class="brand-icon">₿</span>
+
+                <span>
+                    Finance Assistant
+                </span>
+            </a>
+
+            <a
+                class="back-link"
+                href="/"
+            >
+                Beranda
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================== -->
+
+    <main>
+
+        <div class="container">
+
+
+            <!-- =================================
+                 HERO
+            ================================== -->
+
+            <div class="hero">
+
+                <span class="hero-badge">
+                    Tentang Finance Assistant
+                </span>
+
+                <h1>
+                    Dibuat untuk menjadi
+                    lebih dekat dengan
+                    kebutuhan sehari-hari.
+                </h1>
+
+                <p>
+                    Finance Assistant berawal dari proses belajar,
+                    mencoba, dan mengembangkan berbagai ide sederhana
+                    hingga akhirnya berkembang menjadi sebuah aplikasi
+                    untuk membantu mengelola keuangan dengan cara yang
+                    lebih praktis.
+                </p>
+
+            </div>
+
+
+            <!-- =================================
+                 STORY
+            ================================== -->
+
+            <section class="section">
+
+                <h2>
+                    Cerita di Balik Aplikasi
+                </h2>
+
+                <p>
+                    Finance Assistant tidak dimulai sebagai sebuah
+                    proyek besar.
+                </p>
+
+                <p>
+                    Semuanya berawal dari proses belajar menggunakan
+                    GitHub, mencoba membuat halaman web, memahami
+                    bagaimana sebuah aplikasi bekerja, dan perlahan
+                    mencoba menghubungkan berbagai bagian yang
+                    sebelumnya terasa terpisah.
+                </p>
+
+                <p>
+                    Dari proses tersebut muncul sebuah pertanyaan
+                    sederhana:
+                    <strong>
+                        bagaimana jika hal-hal yang sedang dipelajari
+                        bisa sekaligus digunakan untuk menyelesaikan
+                        kebutuhan sehari-hari?
+                    </strong>
+                </p>
+
+                <p>
+                    Dari situlah ide Finance Assistant mulai berkembang.
+                    Berbagai kebutuhan pencatatan keuangan yang awalnya
+                    dibuat secara terpisah kemudian perlahan disatukan
+                    menjadi satu aplikasi.
+                </p>
+
+                <div class="story-highlight">
+
+                    <strong>
+                        Belajar → mencoba → menemukan masalah →
+                        mendapatkan ide → membuat solusi.
+                    </strong>
+
+                    <br><br>
+
+                    Finance Assistant adalah salah satu hasil dari
+                    proses tersebut.
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================
+                 VISION
+            ================================== -->
+
+            <section class="section vision">
+
+                <h2>
+                    Visi
+                </h2>
+
+                <p>
+                    Membangun aplikasi pengelolaan keuangan yang
+                    sederhana, fleksibel, dan mudah digunakan sehingga
+                    pencatatan keuangan tidak terasa rumit bagi
+                    penggunanya.
+                </p>
+
+                <p>
+                    Finance Assistant ingin menjadi alat bantu yang
+                    membuat pengguna lebih mudah memahami kondisi
+                    keuangannya sendiri melalui data yang mereka
+                    kelola.
+                </p>
+
+            </section>
+
+
+            <!-- =================================
+                 MISSION
+            ================================== -->
+
+            <section class="section">
+
+                <h2>
+                    Misi
+                </h2>
+
+                <p>
+                    Untuk mewujudkan visi tersebut, Finance Assistant
+                    dikembangkan dengan beberapa prinsip utama:
+                </p>
+
+                <div class="mission-list">
+
+                    <div class="mission-item">
+
+                        <span class="mission-number">
+                            01
+                        </span>
+
+                        <strong>
+                            Sederhana
+                        </strong>
+
+                        <span>
+                            Membuat pencatatan dan pengelolaan data
+                            terasa mudah dipahami tanpa proses yang
+                            tidak diperlukan.
+                        </span>
+
+                    </div>
+
+
+                    <div class="mission-item">
+
+                        <span class="mission-number">
+                            02
+                        </span>
+
+                        <strong>
+                            Terstruktur
+                        </strong>
+
+                        <span>
+                            Membantu mengubah data yang sebelumnya
+                            tersebar menjadi informasi yang lebih
+                            terorganisir.
+                        </span>
+
+                    </div>
+
+
+                    <div class="mission-item">
+
+                        <span class="mission-number">
+                            03
+                        </span>
+
+                        <strong>
+                            Fleksibel
+                        </strong>
+
+                        <span>
+                            Mengembangkan fitur berdasarkan kebutuhan
+                            nyata dan memungkinkan aplikasi terus
+                            berkembang.
+                        </span>
+
+                    </div>
+
+
+                    <div class="mission-item">
+
+                        <span class="mission-number">
+                            04
+                        </span>
+
+                        <strong>
+                            Terus Belajar
+                        </strong>
+
+                        <span>
+                            Menjadikan proses pengembangan sebagai
+                            bagian dari proses belajar dan eksplorasi
+                            teknologi.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================
+                 PRINCIPLES
+            ================================== -->
+
+            <section class="section">
+
+                <h2>
+                    Prinsip Pengembangan
+                </h2>
+
+                <p>
+                    Finance Assistant dibangun secara bertahap.
+                    Karena itu, aplikasi ini tidak hanya berfokus pada
+                    hasil akhir, tetapi juga pada proses belajar di
+                    balik setiap fitur.
+                </p>
+
+                <div class="principles">
+
+                    <div class="principle">
+
+                        <div class="principle-icon">
+                            💡
+                        </div>
+
+                        <strong>
+                            Berawal dari Ide
+                        </strong>
+
+                        <span>
+                            Masalah sederhana dapat menjadi awal dari
+                            sebuah ide aplikasi.
+                        </span>
+
+                    </div>
+
+
+                    <div class="principle">
+
+                        <div class="principle-icon">
+                            🛠️
+                        </div>
+
+                        <strong>
+                            Dibangun Bertahap
+                        </strong>
+
+                        <span>
+                            Fitur dikembangkan sedikit demi sedikit
+                            sesuai kebutuhan dan pembelajaran.
+                        </span>
+
+                    </div>
+
+
+                    <div class="principle">
+
+                        <div class="principle-icon">
+                            🚀
+                        </div>
+
+                        <strong>
+                            Terus Berkembang
+                        </strong>
+
+                        <span>
+                            Aplikasi akan terus diperbaiki seiring
+                            bertambahnya pengalaman dan kebutuhan.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================
+                 PROFILE
+            ================================== -->
+
+            <section class="section profile">
+
+                <img
+                    class="profile-image"
+                    src="https://avatars.githubusercontent.com/u/153375584?s=400&u=f31c38f6eb516ebb44805db0172641a48eea7872&v=4"
+                    alt="Raraa"
+                    loading="lazy"
+                >
+
+                <h2>
+                    Raraa
+                </h2>
+
+                <p class="profile-role">
+                    Creator & Developer of Finance Assistant
+                </p>
+
+                <p class="profile-description">
+                    Finance Assistant dikembangkan sebagai bagian dari
+                    proses belajar, eksplorasi, dan mencoba membangun
+                    sesuatu yang benar-benar dapat digunakan dalam
+                    kehidupan sehari-hari.
+                </p>
+
+
+                <div class="social-links">
+
+                    <a
+                        class="social-link"
+                        href="https://x.com/raraaeth"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span class="social-label">
+                            Twitter:
+                        </span>
+
+                        @raraaeth
+                    </a>
+
+
+                    <a
+                        class="social-link"
+                        href="mailto:ainurdragneel@gmail.com"
+                    >
+                        <span class="social-label">
+                            Email:
+                        </span>
+
+                        ainurdragneel@gmail.com
+                    </a>
+
+
+                    <a
+                        class="social-link"
+                        href="https://instagram.com/ainurirawan"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span class="social-label">
+                            Instagram:
+                        </span>
+
+                        @ainurirawan
+                    </a>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+    <footer>
+
+        © 2026 Finance Assistant.
+        Dibuat dan dikembangkan secara bertahap.
+
+    </footer>
+
+</body>
+</html>
