@@ -220,6 +220,16 @@ export default {
                         struktur data secara manual.
                     </p>
 
+                    <div class="doc-info-box">
+                        <strong>✍️ Catatan</strong>
+
+                        <p>
+                            Agar Finance Assistant App bisa membaca dan menulis data yang kamu input,
+                            kamu wajib mengizinkan auth verification google agar app bisa akses data
+                            di google drive dan spreadsheet mu.
+                        </p>
+                    </div>
+
                 </div>
 
             </section>
