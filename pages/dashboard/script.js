@@ -185,6 +185,7 @@ function createSectionTitle(
 
 }
 
+
 /* ==========================================
    RENDER
 ========================================== */
@@ -270,12 +271,12 @@ function render(){
             </p>
 
             <button
-    id="install-pwa"
-    class="install-button">
+                id="install-pwa"
+                class="install-button">
 
-    📲 Install Finance Assistant
+                📲 Install Finance Assistant
 
-</button>
+            </button>
 
         </section>
 
@@ -309,6 +310,7 @@ function render(){
 
 }
 
+
 /* ==========================================
    NAVIGATION
 ========================================== */
@@ -323,6 +325,7 @@ function openFinancial(){
 
 }
 
+
 function openSaving(){
 
     alert(
@@ -332,6 +335,7 @@ function openSaving(){
     );
 
 }
+
 
 function openPayroll(){
 
@@ -343,16 +347,49 @@ function openPayroll(){
 
 }
 
+
+/* ==========================================
+   OPEN APP
+========================================== */
+
 function openApp(){
+
+    /*
+       Belum login
+       atau onboarding belum selesai
+       → masuk onboarding
+    */
+
+    if(
+
+        !user
+
+        ||
+
+        !user.onboardingCompleted
+
+    ){
+
+        window.location.href =
+
+            "../onboarding/";
+
+        return;
+
+    }
+
+
+    /*
+       Sudah login
+       dan onboarding selesai
+       → masuk aplikasi utama
+    */
 
     window.location.href =
 
         "../index.html";
 
 }
-
-
-
 
 
 /* ==========================================
@@ -419,7 +456,6 @@ function bindModuleEvents(){
 
         );
 
-
 }
 
 
@@ -428,4 +464,3 @@ function bindModuleEvents(){
 ========================================== */
 
 render();
-
