@@ -30,7 +30,7 @@ export default {
       </div>
 
       <div class="doc-step">
-        <h2>1. ⚙️ Pengaturan — Tentukan cara Workspace bekerja</h2>
+        <h2>1. ⚙️ Setting — Tentukan cara Workspace bekerja</h2>
 
         <p>
           <strong>Pengaturan</strong> adalah langkah awal yang paling
