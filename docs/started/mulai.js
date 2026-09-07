@@ -26,11 +26,7 @@ export default {
                  HEADER
             ================================================== -->
 
-            <div class="doc-badge">
-                🚀 Mulai
-            </div>
-
-            <h1>Mulai menggunakan Finance Assistant</h1>
+       <h1>Mulai menggunakan Finance Assistant</h1>
 
             <p class="doc-lead">
                 Finance Assistant dirancang supaya kamu bisa langsung
