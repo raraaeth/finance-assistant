@@ -1,7 +1,20 @@
 /* =====================================================
    Finance Assistant
-   FILE : pwa.js
+   FILE        : pwa.js
    DESCRIPTION : PWA Service Worker + Install
+   VERSION     : 1.2.0
+
+   Struktur domain baru :
+
+       https://financeassistant.web.id/
+
+   Service Worker :
+
+       /sw.js
+
+   PWA Scope :
+
+       /pages/
 ===================================================== */
 
 
@@ -23,13 +36,13 @@ if (
 
             navigator.serviceWorker.register(
 
-                "/finance-assistant/sw.js",
+                "/sw.js",
 
                 {
 
                     scope :
 
-                        "/finance-assistant/pages/"
+                        "/pages/"
 
                 }
 
