@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Terms of Service Finance Assistant"
+    >
+
+    <title>Terms of Service — Finance Assistant</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+
+            --background: #f6f8fc;
+            --surface: #ffffff;
+
+            --text: #172033;
+            --text-secondary: #5f6b7a;
+
+            --border: #e5e9f0;
+            --soft-blue: #eff6ff;
+
+            --radius: 18px;
+            --max-width: 820px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+
+            background: var(--background);
+            color: var(--text);
+
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            line-height: 1.7;
+        }
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        .topbar {
+            width: 100%;
+
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar-inner {
+            max-width: var(--max-width);
+
+            margin: 0 auto;
+            padding: 18px 24px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            color: var(--text);
+
+            font-size: 17px;
+            font-weight: 700;
+
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: var(--soft-blue);
+            color: var(--primary);
+
+            border-radius: 10px;
+
+            font-size: 18px;
+        }
+
+        .back-link {
+            color: var(--primary);
+
+            font-size: 14px;
+            font-weight: 600;
+
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--primary-dark);
+        }
+
+        /* =========================================
+           MAIN
+        ========================================= */
+
+        main {
+            width: 100%;
+
+            padding: 40px 20px 60px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+
+            margin: 0 auto;
+        }
+
+        /* =========================================
+           HERO
+        ========================================= */
+
+        .hero {
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+
+            font-size: 36px;
+            line-height: 1.2;
+
+            letter-spacing: -0.7px;
+        }
+
+        .hero p {
+            margin: 0;
+
+            color: var(--text-secondary);
+
+            font-size: 15px;
+        }
+
+        /* =========================================
+           CONTENT CARD
+        ========================================= */
+
+        .terms-card {
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            padding: 38px;
+        }
+
+        .intro {
+            margin: 0 0 30px;
+
+            padding: 18px 20px;
+
+            background: var(--soft-blue);
+
+            border-radius: 14px;
+
+            color: #334155;
+
+            font-size: 15px;
+        }
+
+        section {
+            margin-top: 34px;
+        }
+
+        section:first-of-type {
+            margin-top: 0;
+        }
+
+        h2 {
+            margin: 0 0 12px;
+
+            font-size: 21px;
+            line-height: 1.35;
+
+            letter-spacing: -0.2px;
+        }
+
+        p {
+            margin: 0 0 14px;
+
+            font-size: 15px;
+        }
+
+        ul {
+            margin: 10px 0 16px;
+
+            padding-left: 22px;
+        }
+
+        li {
+            margin-bottom: 8px;
+
+            font-size: 15px;
+        }
+
+        strong {
+            font-weight: 650;
+        }
+
+        /* =========================================
+           INFO BOX
+        ========================================= */
+
+        .info-box {
+            margin-top: 18px;
+
+            padding: 18px 20px;
+
+            background: #fafbfe;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* =========================================
+           CONTACT
+        ========================================= */
+
+        .contact {
+            margin-top: 18px;
+
+            padding: 20px;
+
+            background: #fafbfe;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .contact a {
+            color: var(--primary);
+
+            font-weight: 600;
+
+            text-decoration: none;
+        }
+
+        .contact a:hover {
+            text-decoration: underline;
+        }
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        footer {
+            max-width: var(--max-width);
+
+            margin: 0 auto;
+
+            padding: 0 20px 35px;
+
+            color: var(--text-secondary);
+
+            text-align: center;
+
+            font-size: 13px;
+        }
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media (max-width: 640px) {
+
+            .topbar-inner {
+                padding: 15px 16px;
+            }
+
+            .brand {
+                font-size: 15px;
+            }
+
+            .brand-icon {
+                width: 31px;
+                height: 31px;
+
+                font-size: 16px;
+            }
+
+            .back-link {
+                font-size: 13px;
+            }
+
+            main {
+                padding: 28px 14px 40px;
+            }
+
+            .hero {
+                margin-bottom: 18px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+
+                letter-spacing: -0.5px;
+            }
+
+            .hero p {
+                font-size: 14px;
+            }
+
+            .terms-card {
+                padding: 24px 18px;
+
+                border-radius: 16px;
+            }
+
+            .intro {
+                padding: 15px 16px;
+
+                font-size: 14px;
+
+                border-radius: 12px;
+            }
+
+            section {
+                margin-top: 28px;
+            }
+
+            h2 {
+                font-size: 19px;
+            }
+
+            p,
+            li {
+                font-size: 14px;
+            }
+
+            ul {
+                padding-left: 20px;
+            }
+
+            .info-box,
+            .contact {
+                padding: 16px;
+            }
+
+            footer {
+                padding: 0 16px 28px;
+
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <header class="topbar">
+
+        <div class="topbar-inner">
+
+            <a
+                class="brand"
+                href="/"
+            >
+                <span class="brand-icon">₿</span>
+                <span>Finance Assistant</span>
+            </a>
+
+            <a
+                class="back-link"
+                href="/"
+            >
+                Beranda
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================
+         MAIN CONTENT
+    ========================================== -->
+
+    <main>
+
+        <div class="container">
+
+            <div class="hero">
+
+                <h1>
+                    Terms of Service
+                </h1>
+
+                <p>
+                    Syarat dan Ketentuan Penggunaan Finance Assistant
+                </p>
+
+            </div>
+
+
+            <article class="terms-card">
+
+                <div class="intro">
+
+                    Dengan menggunakan Finance Assistant, pengguna
+                    menyetujui Syarat dan Ketentuan ini. Ketentuan ini
+                    dibuat untuk menjelaskan penggunaan aplikasi secara
+                    sederhana dan transparan.
+
+                </div>
+
+
+                <!-- =================================
+                     1. ACCEPTANCE
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        1. Persetujuan Penggunaan
+                    </h2>
+
+                    <p>
+                        Dengan mengakses atau menggunakan Finance Assistant,
+                        pengguna dianggap telah membaca, memahami, dan
+                        menyetujui Syarat dan Ketentuan ini.
+                    </p>
+
+                    <p>
+                        Jika pengguna tidak menyetujui ketentuan ini,
+                        pengguna tidak diperbolehkan menggunakan layanan
+                        Finance Assistant.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     2. ABOUT SERVICE
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        2. Tentang Finance Assistant
+                    </h2>
+
+                    <p>
+                        Finance Assistant adalah aplikasi yang membantu
+                        pengguna mengelola informasi dan data keuangan
+                        pribadi melalui fitur yang tersedia di dalam
+                        aplikasi.
+                    </p>
+
+                    <p>
+                        Beberapa fungsi aplikasi menggunakan layanan
+                        Google Drive dan Google Sheets sebagai bagian dari
+                        penyimpanan dan pengelolaan data aplikasi.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     3. GOOGLE ACCOUNT
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        3. Akun dan Login
+                    </h2>
+
+                    <p>
+                        Finance Assistant menggunakan autentikasi melalui
+                        layanan Google untuk membantu pengguna masuk ke
+                        aplikasi.
+                    </p>
+
+                    <p>
+                        Pengguna bertanggung jawab untuk menjaga keamanan
+                        akun Google yang digunakan untuk mengakses Finance
+                        Assistant.
+                    </p>
+
+                    <p>
+                        Finance Assistant tidak meminta atau menyimpan
+                        password Google pengguna secara langsung.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     4. GOOGLE DRIVE ACCESS
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        4. Akses Google Drive dan Google Sheets
+                    </h2>
+
+                    <p>
+                        Untuk menjalankan fitur tertentu, Finance Assistant
+                        dapat meminta izin untuk mengakses Google Drive
+                        dan Google Sheets pengguna.
+                    </p>
+
+                    <p>
+                        Izin tersebut digunakan untuk membaca atau
+                        memperbarui file dan data yang diperlukan oleh
+                        aplikasi.
+                    </p>
+
+                    <div class="info-box">
+
+                        <p>
+                            <strong>
+                                Penting:
+                            </strong>
+                        </p>
+
+                        <p>
+                            Finance Assistant hanya menggunakan akses
+                            Google yang diperlukan untuk menjalankan
+                            fungsi aplikasi yang diminta pengguna.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================
+                     5. USER RESPONSIBILITY
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        5. Tanggung Jawab Pengguna
+                    </h2>
+
+                    <p>
+                        Pengguna bertanggung jawab atas penggunaan Finance
+                        Assistant dan data yang dimasukkan atau dikelola
+                        melalui aplikasi.
+                    </p>
+
+                    <p>
+                        Pengguna juga bertanggung jawab memastikan bahwa
+                        mereka memiliki hak atau izin yang sesuai terhadap
+                        file Google Drive atau Google Sheets yang digunakan
+                        bersama Finance Assistant.
+                    </p>
+
+                    <p>
+                        Pengguna tidak diperbolehkan menggunakan aplikasi
+                        untuk tujuan yang melanggar hukum atau merugikan
+                        pihak lain.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     6. DATA ACCURACY
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        6. Keakuratan Data
+                    </h2>
+
+                    <p>
+                        Finance Assistant menyediakan alat untuk membantu
+                        pengguna mengelola data keuangan.
+                    </p>
+
+                    <p>
+                        Pengguna tetap bertanggung jawab atas keakuratan
+                        data yang dimasukkan, diubah, atau disimpan melalui
+                        aplikasi.
+                    </p>
+
+                    <p>
+                        Finance Assistant bukan layanan penasihat
+                        keuangan, investasi, pajak, atau hukum.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     7. THIRD PARTY SERVICES
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        7. Layanan Pihak Ketiga
+                    </h2>
+
+                    <p>
+                        Finance Assistant menggunakan layanan pihak ketiga
+                        untuk fungsi tertentu, termasuk layanan
+                        autentikasi dan layanan Google.
+                    </p>
+
+                    <p>
+                        Penggunaan layanan pihak ketiga tersebut juga
+                        tunduk pada ketentuan dan kebijakan masing-masing
+                        penyedia layanan.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     8. AVAILABILITY
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        8. Ketersediaan Layanan
+                    </h2>
+
+                    <p>
+                        Finance Assistant diupayakan agar dapat digunakan
+                        dengan baik, namun tidak menjamin bahwa aplikasi
+                        akan selalu tersedia tanpa gangguan.
+                    </p>
+
+                    <p>
+                        Gangguan dapat terjadi karena pemeliharaan,
+                        perubahan layanan pihak ketiga, masalah jaringan,
+                        atau keadaan lain di luar kendali aplikasi.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     9. CHANGES
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        9. Perubahan Layanan
+                    </h2>
+
+                    <p>
+                        Finance Assistant dapat mengalami perubahan,
+                        termasuk penambahan, penghapusan, atau perubahan
+                        fitur.
+                    </p>
+
+                    <p>
+                        Perubahan tersebut dapat dilakukan untuk
+                        meningkatkan keamanan, stabilitas, atau fungsi
+                        aplikasi.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     10. CHANGES TO TERMS
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        10. Perubahan Syarat dan Ketentuan
+                    </h2>
+
+                    <p>
+                        Syarat dan Ketentuan ini dapat diperbarui dari
+                        waktu ke waktu apabila terdapat perubahan pada
+                        layanan atau kebutuhan operasional Finance
+                        Assistant.
+                    </p>
+
+                    <p>
+                        Versi terbaru akan dipublikasikan pada halaman ini.
+                    </p>
+
+                </section>
+
+
+                <!-- =================================
+                     11. CONTACT
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        11. Hubungi Kami
+                    </h2>
+
+                    <div class="contact">
+
+                        <p>
+                            Jika memiliki pertanyaan mengenai Syarat dan
+                            Ketentuan ini atau penggunaan Finance
+                            Assistant, silakan hubungi:
+                        </p>
+
+                        <p>
+                            <strong>
+                                Email:
+                            </strong>
+
+                            <a
+                                href="mailto:ainurdragneel@gmail.com"
+                            >
+                                ainurdragneel@gmail.com
+                            </a>
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================
+                     12. EFFECTIVE DATE
+                ================================== -->
+
+                <section>
+
+                    <h2>
+                        12. Tanggal Berlaku
+                    </h2>
+
+                    <p>
+                        Syarat dan Ketentuan ini berlaku mulai
+                        <strong>7 September 2026</strong>.
+                    </p>
+
+                </section>
+
+            </article>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================================
+         FOOTER
+    ========================================== -->
+
+    <footer>
+
+        © 2026 Finance Assistant.
+        All rights reserved.
+
+    </footer>
+
+</body>
+</html>
