@@ -19,6 +19,12 @@ if (footer) {
         aria-label="Tautan informasi"
       >
 
+       <a href="/">
+          Home
+        </a>
+
+        <span>*</span>
+        
         <a href="/privacy/">
           Privacy Policy
         </a>
