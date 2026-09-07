@@ -1170,3 +1170,101 @@ a {
     }
 
 }
+
+/* =====================================================
+   DOCUMENTATION FOOTER
+===================================================== */
+
+.docs-footer {
+
+  width: 100%;
+
+  margin-top: 70px;
+
+  padding: 32px 24px 42px;
+
+  text-align: center;
+
+  border-top: 1px solid #E5E7EB;
+
+}
+
+
+.docs-footer-links {
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+}
+
+
+.docs-footer-links a {
+
+  color: #94A3B8;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  transition:
+    color 0.2s ease;
+
+}
+
+
+.docs-footer-links a:hover {
+
+  color: #2563EB;
+
+}
+
+
+.docs-footer-links span {
+
+  color: #CBD5E1;
+
+  font-size: 14px;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .docs-footer {
+
+    margin-top: 50px;
+
+    padding:
+      28px 16px 36px;
+
+  }
+
+
+  .docs-footer-links {
+
+    line-height: 1.8;
+
+    gap: 6px;
+
+  }
+
+
+  .docs-footer-links a,
+  .docs-footer-links span {
+
+    font-size: 13px;
+
+  }
+
+}
