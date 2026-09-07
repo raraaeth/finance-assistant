@@ -24,6 +24,12 @@ if (footer) {
         </a>
 
         <span>*</span>
+
+        <a href="/pages/dashboard">
+          Dashboard
+        </a>
+
+        <span>*</span>
         
         <a href="/privacy/">
           Privacy Policy
