@@ -1071,3 +1071,102 @@ a {
   }
 
 }
+
+/* =====================================================
+   DOCUMENTATION
+   Info / Tips Box
+===================================================== */
+
+.doc-info-box {
+    margin: 28px 0;
+    padding: 20px 22px;
+
+    background: linear-gradient(
+        135deg,
+        #f8fbff 0%,
+        #eef5ff 100%
+    );
+
+    border: 1px solid #d7e5f8;
+    border-left: 5px solid #2f6fed;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 6px 18px rgba(30, 70, 120, 0.08);
+
+    box-sizing: border-box;
+}
+
+
+/* Judul Tips */
+
+.doc-info-box strong {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin: 0 0 8px;
+
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.4;
+
+    color: #172033;
+}
+
+
+/* Isi Tips */
+
+.doc-info-box p {
+    margin: 0;
+
+    font-size: 1rem;
+    line-height: 1.7;
+
+    color: #5f6878;
+}
+
+
+/* =====================================================
+   HOVER / INTERACTION
+===================================================== */
+
+.doc-info-box {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.doc-info-box:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 24px rgba(30, 70, 120, 0.12);
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .doc-info-box {
+        margin: 24px 0;
+        padding: 18px 18px;
+
+        border-radius: 14px;
+        border-left-width: 4px;
+    }
+
+    .doc-info-box strong {
+        font-size: 1rem;
+    }
+
+    .doc-info-box p {
+        font-size: 0.98rem;
+        line-height: 1.65;
+    }
+
+}
