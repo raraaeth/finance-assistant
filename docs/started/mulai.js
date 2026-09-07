@@ -7,15 +7,13 @@
    /docs/started/mulai.js
 
    Description :
-   Artikel dokumentasi tentang proses onboarding
-   awal Finance Assistant.
+   Dokumentasi proses onboarding awal Finance Assistant.
 
    Alur :
    1. Nama
    2. Mata Uang
    3. Tema
    4. Hubungkan Google
-   5. Workspace siap digunakan
 ===================================================== */
 
 export default {
@@ -60,7 +58,7 @@ export default {
 
 
             <!-- =================================================
-                 INTRO
+                 PENJELASAN
             ================================================== -->
 
             <h2>Hanya beberapa langkah</h2>
@@ -78,13 +76,9 @@ export default {
 
             <section class="doc-step">
 
-                <div class="doc-step-number">
-                    1
-                </div>
-
                 <div class="doc-step-content">
 
-                    <h2>👤 Masukkan nama</h2>
+                    <h2>1. 👤 Masukkan nama</h2>
 
                     <p>
                         Pertama, masukkan nama yang ingin kamu gunakan
@@ -99,6 +93,7 @@ export default {
 
                     <div class="doc-info-box">
                         <strong>💡 Tips</strong>
+
                         <p>
                             Gunakan nama yang paling nyaman untuk kamu
                             gunakan sehari-hari.
@@ -116,13 +111,9 @@ export default {
 
             <section class="doc-step">
 
-                <div class="doc-step-number">
-                    2
-                </div>
-
                 <div class="doc-step-content">
 
-                    <h2>💱 Pilih mata uang</h2>
+                    <h2>2. 💱 Pilih mata uang</h2>
 
                     <p>
                         Selanjutnya, pilih mata uang yang paling sering
@@ -137,10 +128,11 @@ export default {
 
                     <div class="doc-info-box">
                         <strong>💡 Tips</strong>
+
                         <p>
-                            Pilih mata uang yang paling sering kamu
-                            gunakan agar pencatatan dan tampilan
-                            keuangan lebih mudah dipahami.
+                            Pilih mata uang yang paling sering kamu gunakan
+                            agar pencatatan dan tampilan keuangan lebih mudah
+                            dipahami.
                         </p>
                     </div>
 
@@ -155,13 +147,9 @@ export default {
 
             <section class="doc-step">
 
-                <div class="doc-step-number">
-                    3
-                </div>
-
                 <div class="doc-step-content">
 
-                    <h2>🎨 Pilih tema</h2>
+                    <h2>3. 🎨 Pilih tema</h2>
 
                     <p>
                         Setelah itu, pilih tampilan yang paling nyaman
@@ -170,24 +158,30 @@ export default {
 
                     <p>
                         Finance Assistant menyediakan beberapa pilihan
-                        tampilan, seperti:
+                        tampilan:
                     </p>
 
                     <ul>
-                        <li>☀️ <strong>Terang</strong> — cocok digunakan
-                            pada siang hari.</li>
+                        <li>
+                            ☀️ <strong>Terang</strong> — cocok digunakan
+                            pada siang hari.
+                        </li>
 
-                        <li>🌙 <strong>Gelap</strong> — nyaman digunakan
-                            pada malam hari.</li>
+                        <li>
+                            🌙 <strong>Gelap</strong> — nyaman digunakan
+                            pada malam hari.
+                        </li>
 
-                        <li>⚙️ <strong>Ikuti Sistem</strong> — mengikuti
-                            pengaturan tampilan perangkat.</li>
+                        <li>
+                            ⚙️ <strong>Ikuti Sistem</strong> — mengikuti
+                            pengaturan tampilan perangkat.
+                        </li>
                     </ul>
 
                     <p>
                         Kamu tidak perlu khawatir jika berubah pikiran.
                         Pengaturan tampilan dapat disesuaikan kembali
-                        melalui menu pengaturan.
+                        melalui menu Pengaturan.
                     </p>
 
                 </div>
@@ -201,13 +195,9 @@ export default {
 
             <section class="doc-step">
 
-                <div class="doc-step-number">
-                    4
-                </div>
-
                 <div class="doc-step-content">
 
-                    <h2>🔐 Hubungkan akun Google</h2>
+                    <h2>4. 🔐 Hubungkan akun Google</h2>
 
                     <p>
                         Langkah terakhir adalah menghubungkan akun
@@ -221,6 +211,7 @@ export default {
 
                     <div class="doc-info-box">
                         <strong>☁️ Workspace pribadi</strong>
+
                         <p>
                             Setelah akun berhasil terhubung, Finance
                             Assistant akan menyiapkan folder dan
@@ -239,7 +230,7 @@ export default {
 
 
             <!-- =================================================
-                 SETELAH ONBOARDING
+                 WORKSPACE SIAP
             ================================================== -->
 
             <section class="doc-highlight">
