@@ -111,7 +111,7 @@ function redirectToDashboard(){
 
     const dashboardPath =
 
-        "/finance-assistant/pages/dashboard/";
+        "/pages/dashboard/";
 
 
     /*
@@ -2077,7 +2077,7 @@ export async function loginGoogle(){
 
                     +
 
-                    "/finance-assistant/pages/index.html",
+                    "/pages/index.html",
 
 
                 scopes :
@@ -3284,7 +3284,7 @@ export async function logout(){
 
         window.location.replace(
 
-            "/finance-assistant/pages/index.html"
+            "/pages/index.html"
 
         );
 
