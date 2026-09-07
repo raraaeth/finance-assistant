@@ -12,7 +12,7 @@
 
 const BASE =
 
-    "/finance-assistant/components/header/";
+    "/components/header/";
 
 
 /* =====================================================
