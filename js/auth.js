@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 9.2.0
+   Version     : 9.3.0
 
    Description :
    Supabase Authentication Engine
@@ -63,6 +63,15 @@
    2. Redirect ke Dashboard hanya dilakukan
       setelah proses Google Login berhasil
       dan onboarding sudah selesai
+
+   FINANCE MODULE :
+
+   1. Jika session sudah ada ketika
+      halaman direfresh / dibuka kembali,
+      Finance Module tetap diinisialisasi.
+   2. Ini memastikan Finance Core,
+      Account, dan workspace state dapat
+      dibaca kembali oleh module lain.
 ========================================== */
 
 
@@ -1305,7 +1314,6 @@ export async function refreshGoogleProviderToken(){
 
                 )
 
-
             );
 
 
@@ -1898,6 +1906,64 @@ async function init(){
                 console.warn(
 
                     "AUTH: Automatic Google token refresh gagal:",
+
+                    error?.message
+
+                );
+
+            }
+
+
+            /* ==================================
+               FINANCE MODULE RESTORE
+            ================================== */
+
+            /*
+               PENTING :
+
+               Existing session tidak selalu
+               menghasilkan event SIGNED_IN.
+
+               Karena itu Finance Module harus
+               tetap diinisialisasi di sini.
+
+               Ini memastikan :
+
+               Google Session
+                    ↓
+               Finance Module
+                    ↓
+               Finance Core
+                    ↓
+               Account
+                    ↓
+               Workspace
+            */
+
+            try{
+
+                console.log(
+
+                    "AUTH: Existing session → initialize Finance Module..."
+
+                );
+
+
+                await initializeFinanceModule();
+
+
+                console.log(
+
+                    "AUTH: Finance Module berhasil dipulihkan."
+
+                );
+
+
+            }catch(error){
+
+                console.warn(
+
+                    "AUTH: Finance Module restore gagal:",
 
                     error?.message
 
