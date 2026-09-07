@@ -58,23 +58,9 @@ const registerButton =
 
 function openApp(){
 
-    if(
-
-        user?.onboardingCompleted
-
-    ){
-
-        location.href =
-
-            "pages/dashboard/";
-
-        return;
-
-    }
-
     location.href =
 
-        "pages/onboarding/";
+        "pages/dashboard/";
 
 }
 
