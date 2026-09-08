@@ -52,42 +52,42 @@ export const ARTICLES = [
     id: "saving",
     title: "Tabungan",
     section: "FITUR",
-    path: "../module/saving.js"
+    path: "../fitur/savingdocs.js"
   },
 
   {
     id: "kas",
     title: "Kas Bersama",
     section: "FITUR",
-    path: "../module/kas.js"
+    path: "../fitur/kasdocs.js"
   },
 
   {
     id: "financial",
     title: "Financial",
     section: "FITUR",
-    path: "../module/financial.js"
+    path: "../fitur/financialdocs.js"
   },
 
   {
     id: "monthly",
     title: "Perhitungan Gaji Bulanan",
     section: "FITUR",
-    path: "../module/monthly.js"
+    path: "../fitur/monthlydocs.js"
   },
 
   {
     id: "daily",
     title: "Perhitungan Gaji Harian",
     section: "FITUR",
-    path: "../module/daily.js"
+    path: "../fitur/dailydocs.js"
   },
 
   {
     id: "airdrop",
     title: "Pengingat Airdrop",
     section: "FITUR",
-    path: "../module/airdrop.js"
+    path: "../fitur/airdropdocs.js"
   },
 
 
