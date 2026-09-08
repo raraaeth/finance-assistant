@@ -20,13 +20,25 @@ if (footer) {
       >
 
        <a href="/">
-          Home
+          Beranda
         </a>
 
         <span>*</span>
 
         <a href="/pages/dashboard">
           Dashboard
+        </a>
+
+        <span>*</span>
+
+        <a href="/pages/">
+          Home App
+        </a>
+
+        <span>*</span>
+        
+        <a href="/docs/">
+          User Guide
         </a>
 
         <span>*</span>
@@ -43,14 +55,6 @@ if (footer) {
         </a>
 
         <span>*</span>
-
-
-        <a href="/docs/">
-          User Guide
-        </a>
-
-        <span>*</span>
-
 
         <a href="/app/">
           About App
