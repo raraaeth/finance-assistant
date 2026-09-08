@@ -20,6 +20,8 @@ export default {
          INTRO
          ========================================= -->
 
+    <h2> Catat Tabungan Mandiri (Saving) </h2>
+    
     <p class="doc-lead">
       Saving membantu kamu mencatat dan memantau
       <strong>dana yang kamu simpan</strong> di berbagai
@@ -32,13 +34,6 @@ export default {
       serta mencatat setiap transaksi yang memengaruhi
       saldo penyimpananmu.
     </p>
-
-
-    <!-- =========================================
-         1. MELIHAT SAVING
-         ========================================= -->
-
-    <h2>👀 Melihat Saving</h2>
 
     <div class="doc-image-card">
       <img
