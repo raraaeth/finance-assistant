@@ -13,7 +13,7 @@ export default {
 
       <p>
         Dengan begitu, kamu tidak perlu khawatir ada uang yang
-        "kesalip" atau terlupakan. Setiap uang yang masuk dan keluar
+        "terselip" atau terlupakan. Setiap uang yang masuk dan keluar
         dapat dicatat dan ditelusuri kembali.
       </p>
 
