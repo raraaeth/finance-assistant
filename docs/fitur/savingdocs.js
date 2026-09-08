@@ -232,13 +232,7 @@ export default {
         <li>BCA</li>
         <li>SeaBank</li>
         <li>DANA</li>
-        <li>OVO</li>
-        <li>GoPay</li>
-        <li>ShopeePay</li>
-        <li>Wallet Crypto</li>
-        <li>Celengan</li>
-        <li>Koperasi</li>
-        <li>Dana Darurat</li>
+        <li>Dan lain sebagainya</li>
       </ul>
 
       <p>
