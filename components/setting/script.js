@@ -800,15 +800,54 @@ export const Setting = {
                SEND TO APPS SCRIPT
             ============================================= */
 
-            const result =
+            /* =============================================
+   SAVE
+   =============================================
 
-                await saveSetting(
+   Default:
+       Semua module tetap menggunakan
+       saveSetting() seperti sebelumnya.
 
+   Custom:
+       Module dapat menyediakan:
+
+       save(payload, context)
+
+       Financial menggunakan hook ini
+       untuk melakukan INSERT / REPLACE
+       berdasarkan kolom "rules".
+
+       Module lain tidak terpengaruh.
+============================================= */
+
+let result;
+
+if(
+    typeof currentConfig?.save ===
+    "function"
+){
+    result =
+        await currentConfig.save(
+            payload,
+            {
+                workspace :
                     currentWorkspace,
 
-                    payload
+                data :
+                    data,
 
-                );
+                persistentData :
+                    payload
+            }
+        );
+}
+else{
+    result =
+        await saveSetting(
+            currentWorkspace,
+            payload
+        );
+}
 
 
             console.log(
