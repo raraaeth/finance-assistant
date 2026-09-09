@@ -1,5 +1,3 @@
-Cek update.js
-Sepertinya emang belum ada
 /* =====================================================
 Finance Assistant
 Module      : UPDATE
