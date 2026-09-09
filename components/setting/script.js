@@ -122,10 +122,12 @@ import {
 
 
 import {
-
     saveSetting
-
 } from "../../js/write.js";
+
+import {
+    Update
+} from "../../js/update.js";
 
 
 import {
@@ -837,7 +839,10 @@ if(
                     data,
 
                 persistentData :
-                    payload
+                    payload,
+                   
+               Update :
+                    Update
             }
         );
 }
