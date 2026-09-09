@@ -2246,13 +2246,9 @@ export async function loginGoogle(){
 
                 scopes :
 
-                    "https://www.googleapis.com/auth/drive.file "
+                    "https://www.googleapis.com/auth/drive.file ",
 
-                    +
-
-                    "https://www.googleapis.com/auth/spreadsheets",
-
-
+                    
                 queryParams : {
 
                     access_type :
