@@ -122,12 +122,10 @@ import {
 
 
 import {
-    saveSetting
-} from "../../js/write.js";
 
-import {
-    Update
-} from "../../js/update.js";
+    saveSetting
+
+} from "../../js/write.js";
 
 
 import {
@@ -802,57 +800,15 @@ export const Setting = {
                SEND TO APPS SCRIPT
             ============================================= */
 
-            /* =============================================
-   SAVE
-   =============================================
+            const result =
 
-   Default:
-       Semua module tetap menggunakan
-       saveSetting() seperti sebelumnya.
+                await saveSetting(
 
-   Custom:
-       Module dapat menyediakan:
-
-       save(payload, context)
-
-       Financial menggunakan hook ini
-       untuk melakukan INSERT / REPLACE
-       berdasarkan kolom "rules".
-
-       Module lain tidak terpengaruh.
-============================================= */
-
-let result;
-
-if(
-    typeof currentConfig?.save ===
-    "function"
-){
-    result =
-        await currentConfig.save(
-            payload,
-            {
-                workspace :
                     currentWorkspace,
 
-                data :
-                    data,
+                    payload
 
-                persistentData :
-                    payload,
-                   
-               Update :
-                    Update
-            }
-        );
-}
-else{
-    result =
-        await saveSetting(
-            currentWorkspace,
-            payload
-        );
-}
+                );
 
 
             console.log(
