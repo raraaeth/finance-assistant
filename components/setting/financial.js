@@ -3,35 +3,42 @@
    Component    : Global Setting
    Module       : Financial
    File         : financial.js
-   Version      : 4.3.0
+   Version      : 5.0.0
 
    Description :
    Financial Setting
 
-   Behavior :
-   - Rule membaca state dari financial_activity
-   - Rule yang sudah dibuat tidak dapat dipilih lagi
-   - Activity yang sudah tersimpan tidak dapat dipilih lagi
-   - Activity yang belum tersimpan tetap dapat dipilih
-   - Rule Hutang / Tabungan mengikuti state rule
-   - Tidak menghapus rule yang sudah pernah dibuat
-   - Activity dapat diubah dengan memilih activity baru
-   - Tidak mengubah Normal Input
-   - Tidak mengubah Edit Input
+   RULE STATE :
 
-   Financial Activity Sheet :
+   financial_activity Sheet menjadi sumber utama
+   untuk menentukan Rule yang sudah dibuat.
 
-       id
-       rules
-       type
-       activity
+   Jika Rule sudah ada di Sheet :
+   - checkbox checked
+   - checkbox disabled
+
+   Jika Rule belum ada :
+   - checkbox tetap aktif
+   - user dapat membuat Rule tersebut
 
    Fixed Rule :
 
-       rule_pemasukan
-       rule_pengeluaran
-       rule_hutang
-       rule_tabungan
+   rule_pemasukan
+   rule_pengeluaran
+   rule_hutang
+   rule_tabungan
+
+   IMPORTANT :
+
+   financial_rules hanya digunakan sebagai
+   configuration/state frontend.
+
+   financial_rules TIDAK menjadi payload
+   result ke backend.
+
+   Activity tetap divalidasi ulang saat
+   normalize agar disabled frontend
+   bukan satu-satunya pengaman.
 ===================================================== */
 
 
@@ -49,259 +56,7 @@ import {
 
 
 /* =====================================================
-   ACTIVITY MASTER
-===================================================== */
-
-const ACTIVITY = {
-
-    /* =================================================
-       PEMASUKAN
-    ================================================= */
-
-    pemasukan : [
-
-        {
-            name :
-                "gaji",
-
-            label :
-                "Gaji"
-        },
-
-        {
-            name :
-                "penghasilan_lain",
-
-            label :
-                "Penghasilan Lain"
-        },
-
-        {
-            name :
-                "ceperan",
-
-            label :
-                "Ceperan"
-        },
-
-        {
-            name :
-                "pemberian",
-
-            label :
-                "Pemberian"
-        },
-
-        {
-            name :
-                "hutang_piutang",
-
-            label :
-                "Hutang / Piutang",
-
-            rule :
-                "hutang"
-        },
-
-        {
-            name :
-                "dana_darurat",
-
-            label :
-                "Dana Darurat",
-
-            rule :
-                "tabungan"
-        },
-
-        {
-            name :
-                "tabungan_kaleng",
-
-            label :
-                "Tabungan Kaleng",
-
-            rule :
-                "tabungan"
-        }
-
-    ],
-
-
-    /* =================================================
-       PENGELUARAN
-    ================================================= */
-
-    pengeluaran : [
-
-        {
-            name :
-                "belanja_harian",
-
-            label :
-                "Belanja Harian"
-        },
-
-        {
-            name :
-                "belanja_bulanan",
-
-            label :
-                "Belanja Bulanan"
-        },
-
-        {
-            name :
-                "kebutuhan_anak",
-
-            label :
-                "Kebutuhan Anak"
-        },
-
-        {
-            name :
-                "tagihan",
-
-            label :
-                "Tagihan"
-        },
-
-        {
-            name :
-                "belanja_online",
-
-            label :
-                "Belanja Online"
-        },
-
-        {
-            name :
-                "biaya_perbaikan",
-
-            label :
-                "Biaya Perbaikan"
-        },
-
-        {
-            name :
-                "makan_diluar",
-
-            label :
-                "Makan di Luar"
-        },
-
-        {
-            name :
-                "refreshing",
-
-            label :
-                "Refreshing"
-        },
-
-        {
-            name :
-                "biaya_tahunan",
-
-            label :
-                "Biaya Tahunan"
-        },
-
-        {
-            name :
-                "pengeluaran_lain",
-
-            label :
-                "Pengeluaran Lain"
-        },
-
-        {
-            name :
-                "beli_rokok",
-
-            label :
-                "Beli Rokok"
-        },
-
-        {
-            name :
-                "beli_bensin",
-
-            label :
-                "Beli Bensin"
-        },
-
-        {
-            name :
-                "beli_kopi",
-
-            label :
-                "Beli Kopi"
-        },
-
-        {
-            name :
-                "iuran",
-
-            label :
-                "Iuran"
-        },
-
-        {
-            name :
-                "cicilan",
-
-            label :
-                "Cicilan"
-        },
-
-        {
-            name :
-                "sedekah",
-
-            label :
-                "Sedekah"
-        },
-
-        {
-            name :
-                "hutang_piutang",
-
-            label :
-                "Hutang / Piutang",
-
-            rule :
-                "hutang"
-        },
-
-        {
-            name :
-                "dana_darurat",
-
-            label :
-                "Dana Darurat",
-
-            rule :
-                "tabungan"
-        },
-
-        {
-            name :
-                "tabungan_kaleng",
-
-            label :
-                "Tabungan Kaleng",
-
-            rule :
-                "tabungan"
-        }
-
-    ]
-
-};
-
-
-/* =====================================================
-   FINANCIAL RULE IDENTITY
+   FINANCIAL RULE CONSTANT
 ===================================================== */
 
 const FINANCIAL_RULES = {
@@ -314,8 +69,9 @@ const FINANCIAL_RULES = {
         label :
             "Rule Pemasukan",
 
-        required :
+        defaultValue :
             true
+
     },
 
     rule_pengeluaran : {
@@ -326,8 +82,9 @@ const FINANCIAL_RULES = {
         label :
             "Rule Pengeluaran",
 
-        required :
+        defaultValue :
             true
+
     },
 
     rule_hutang : {
@@ -338,8 +95,9 @@ const FINANCIAL_RULES = {
         label :
             "Rule Hutang",
 
-        required :
+        defaultValue :
             false
+
     },
 
     rule_tabungan : {
@@ -350,44 +108,52 @@ const FINANCIAL_RULES = {
         label :
             "Rule Tabungan",
 
-        required :
+        defaultValue :
             false
+
     }
 
 };
 
 
 /* =====================================================
-   INTERNAL STATE
+   FINANCIAL ACTIVITY SHEET
 ===================================================== */
 
-let financialActivityData = [];
+const FINANCIAL_ACTIVITY_SHEET_INDEX = 1;
 
-let existingRules = {
 
-    rule_pemasukan :
+/* =====================================================
+   RULE STATE
+
+   existingRuleState :
+   status Rule berdasarkan Sheet.
+
+   selectedRuleState :
+   status Rule yang sedang digunakan oleh
+   form saat ini.
+
+   Ini penting supaya Rule baru yang dicentang
+   langsung dapat mengaktifkan Activity terkait
+   tanpa harus menunggu Sheet berubah.
+===================================================== */
+
+let existingRuleState = {
+
+    gunakanRulePemasukan :
         false,
 
-    rule_pengeluaran :
+    gunakanRulePengeluaran :
         false,
 
-    rule_hutang :
+    gunakanRuleHutang :
         false,
 
-    rule_tabungan :
+    gunakanRuleTabungan :
         false
 
 };
 
-
-/*
-   State yang sedang dipilih pada UI.
-
-   Rule yang sudah ada di Sheet
-   selalu dianggap aktif.
-
-   Rule baru mengikuti checkbox UI.
-*/
 
 let selectedRuleState = {
 
@@ -407,80 +173,6 @@ let selectedRuleState = {
 
 
 /* =====================================================
-   NORMALIZE VALUE
-===================================================== */
-
-function normalizeValue(
-    value
-){
-
-    return String(
-        value ??
-        ""
-    )
-    .trim()
-    .toLowerCase();
-
-}
-
-
-/* =====================================================
-   GET COLUMN VALUE
-===================================================== */
-
-function getColumnValue(
-    row,
-    column
-){
-
-    if(
-        !row ||
-        typeof row !== "object"
-    ){
-
-        return "";
-
-    }
-
-
-    const target =
-        normalizeValue(
-            column
-        );
-
-
-    const key =
-        Object.keys(
-            row
-        )
-        .find(
-            currentKey =>
-                normalizeValue(
-                    currentKey
-                ) ===
-                target
-        );
-
-
-    if(
-        !key
-    ){
-
-        return "";
-
-    }
-
-
-    return String(
-        row[key] ??
-        ""
-    )
-    .trim();
-
-}
-
-
-/* =====================================================
    GET FINANCIAL WORKSPACE
 ===================================================== */
 
@@ -488,7 +180,6 @@ function getFinancialWorkspace(){
 
     const workspaces =
         getWorkspaceConfig();
-
 
     if(
         !workspaces ||
@@ -505,10 +196,7 @@ function getFinancialWorkspace(){
     const workspace =
         workspaces.financial;
 
-
-    if(
-        !workspace
-    ){
+    if(!workspace){
 
         throw new Error(
             'Workspace "financial" tidak ditemukan.'
@@ -531,11 +219,12 @@ function getFinancialWorkspace(){
 
 
     if(
-        workspace.sheets.length < 2
+        workspace.sheets.length <=
+        FINANCIAL_ACTIVITY_SHEET_INDEX
     ){
 
         throw new Error(
-            'Workspace "financial" tidak memiliki DATA sheet.'
+            'Workspace "financial" tidak memiliki Financial Activity sheet.'
         );
 
     }
@@ -561,10 +250,85 @@ function getFinancialSheets(){
         rawSheet :
             workspace.sheets[0],
 
-        dataSheet :
-            workspace.sheets[1]
+        activitySheet :
+            workspace.sheets[
+                FINANCIAL_ACTIVITY_SHEET_INDEX
+            ]
 
     };
+
+}
+
+
+/* =====================================================
+   NORMALIZE VALUE
+===================================================== */
+
+function normalizeValue(
+
+    value
+
+){
+
+    return String(
+        value ?? ""
+    )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+/* =====================================================
+   GET COLUMN VALUE
+===================================================== */
+
+function getColumnValue(
+
+    row,
+
+    column
+
+){
+
+    if(
+        !row ||
+        typeof row !== "object"
+    ){
+
+        return "";
+
+    }
+
+
+    const target =
+        normalizeValue(
+            column
+        );
+
+
+    const key =
+        Object.keys(row).find(
+
+            currentKey =>
+
+                normalizeValue(
+                    currentKey
+                ) === target
+
+        );
+
+
+    if(!key){
+
+        return "";
+
+    }
+
+
+    return normalizeValue(
+        row[key]
+    );
 
 }
 
@@ -581,8 +345,11 @@ async function readFinancialActivity(){
 
     const result =
         await API.load(
+
             sheets.rawSheet,
-            sheets.dataSheet
+
+            sheets.activitySheet
+
         );
 
 
@@ -598,65 +365,75 @@ async function readFinancialActivity(){
     }
 
 
-    const data =
+    if(
         Array.isArray(
             result.data
         )
-        ?
-        result.data
+    ){
 
-        :
+        return result.data;
 
+    }
+
+
+    if(
         Array.isArray(
             API.data
         )
-        ?
-        API.data
+    ){
 
-        :
+        return API.data;
 
-        [];
-
-
-    financialActivityData =
-        data;
+    }
 
 
-    return financialActivityData;
+    return [];
 
 }
 
 
 /* =====================================================
-   GET EXISTING RULES
+   READ EXISTING RULES
+=====================================================
+
+   Hanya membaca kolom :
+
+   rules
+
+   Tidak membaca id.
+
+   Karena identity Financial Rule adalah :
+
+   rule_pemasukan
+   rule_pengeluaran
+   rule_hutang
+   rule_tabungan
 ===================================================== */
 
-function detectExistingRules(
-    rows
-){
+async function readExistingFinancialRules(){
+
+    const rows =
+        await readFinancialActivity();
+
 
     const state = {
 
-        rule_pemasukan :
+        gunakanRulePemasukan :
             false,
 
-        rule_pengeluaran :
+        gunakanRulePengeluaran :
             false,
 
-        rule_hutang :
+        gunakanRuleHutang :
             false,
 
-        rule_tabungan :
+        gunakanRuleTabungan :
             false
 
     };
 
 
-    if(
-        !Array.isArray(
-            rows
-        )
-    ){
+    if(!Array.isArray(rows)){
 
         return state;
 
@@ -664,30 +441,61 @@ function detectExistingRules(
 
 
     rows.forEach(
+
         row => {
 
-            const rules =
-                normalizeValue(
-                    getColumnValue(
-                        row,
-                        "rules"
-                    )
+            const rule =
+                getColumnValue(
+                    row,
+                    "rules"
                 );
 
 
             if(
-                Object.prototype.hasOwnProperty.call(
-                    state,
-                    rules
-                )
+                rule ===
+                "rule_pemasukan"
             ){
 
-                state[rules] =
+                state.gunakanRulePemasukan =
+                    true;
+
+            }
+
+
+            if(
+                rule ===
+                "rule_pengeluaran"
+            ){
+
+                state.gunakanRulePengeluaran =
+                    true;
+
+            }
+
+
+            if(
+                rule ===
+                "rule_hutang"
+            ){
+
+                state.gunakanRuleHutang =
+                    true;
+
+            }
+
+
+            if(
+                rule ===
+                "rule_tabungan"
+            ){
+
+                state.gunakanRuleTabungan =
                     true;
 
             }
 
         }
+
     );
 
 
@@ -697,185 +505,120 @@ function detectExistingRules(
 
 
 /* =====================================================
-   GET EXISTING ACTIVITY
+   INITIALIZE RULE STATE
 ===================================================== */
 
-function getExistingActivities(
-    rule
-){
+async function initializeFinancialRuleState(){
 
-    const result =
-        new Set();
+    try{
+
+        existingRuleState =
+            await readExistingFinancialRules();
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Financial Rule Sheet Error:",
+            error
+        );
 
 
-    if(
-        !Array.isArray(
-            financialActivityData
-        )
-    ){
+        existingRuleState = {
 
-        return result;
+            gunakanRulePemasukan :
+                false,
+
+            gunakanRulePengeluaran :
+                false,
+
+            gunakanRuleHutang :
+                false,
+
+            gunakanRuleTabungan :
+                false
+
+        };
 
     }
 
 
-    financialActivityData.forEach(
-        row => {
+    /* =============================================
+       RULE YANG SUDAH ADA
+       SELALU AKTIF
+    ============================================= */
 
-            const rowRule =
-                normalizeValue(
-                    getColumnValue(
-                        row,
-                        "rules"
-                    )
-                );
+    selectedRuleState = {
 
+        gunakanRulePemasukan :
 
-            if(
-                rowRule !==
-                normalizeValue(
-                    rule
-                )
-            ){
-
-                return;
-
-            }
+            existingRuleState
+                .gunakanRulePemasukan === true
+                ? true
+                : true,
 
 
-            const activity =
-                getColumnValue(
-                    row,
-                    "activity"
-                );
+        gunakanRulePengeluaran :
+
+            existingRuleState
+                .gunakanRulePengeluaran === true
+                ? true
+                : true,
 
 
-            if(
-                !activity
-            ){
+        gunakanRuleHutang :
 
-                return;
-
-            }
+            existingRuleState
+                .gunakanRuleHutang === true,
 
 
-            activity
-                .split(",")
-                .map(
-                    item =>
-                        normalizeValue(
-                            item
-                        )
-                )
-                .filter(
-                    Boolean
-                )
-                .forEach(
-                    item =>
-                        result.add(
-                            item
-                        )
-                );
+        gunakanRuleTabungan :
 
-        }
-    );
+            existingRuleState
+                .gunakanRuleTabungan === true
+
+    };
 
 
-    return result;
+    return existingRuleState;
 
 }
 
 
 /* =====================================================
-   REFRESH FINANCIAL STATE
+   GET FINANCIAL RULE STATE
 ===================================================== */
 
-async function refreshFinancialState(){
+function getFinancialRuleState(){
 
-    try{
+    return {
 
-        const rows =
-            await readFinancialActivity();
+        gunakanRulePemasukan :
+            Boolean(
+                selectedRuleState
+                    .gunakanRulePemasukan
+            ),
 
+        gunakanRulePengeluaran :
+            Boolean(
+                selectedRuleState
+                    .gunakanRulePengeluaran
+            ),
 
-        existingRules =
-            detectExistingRules(
-                rows
-            );
+        gunakanRuleHutang :
+            Boolean(
+                selectedRuleState
+                    .gunakanRuleHutang
+            ),
 
+        gunakanRuleTabungan :
+            Boolean(
+                selectedRuleState
+                    .gunakanRuleTabungan
+            )
 
-        /*
-           Rule yang sudah ada tidak pernah
-           boleh kembali menjadi false.
-        */
-
-        selectedRuleState =
-            {
-
-                gunakanRulePemasukan :
-
-                    existingRules.rule_pemasukan
-                    ||
-                    selectedRuleState.gunakanRulePemasukan
-                    ||
-                    true,
-
-
-                gunakanRulePengeluaran :
-
-                    existingRules.rule_pengeluaran
-                    ||
-                    selectedRuleState.gunakanRulePengeluaran
-                    ||
-                    true,
-
-
-                gunakanRuleHutang :
-
-                    existingRules.rule_hutang
-                    ||
-                    selectedRuleState.gunakanRuleHutang,
-
-
-                gunakanRuleTabungan :
-
-                    existingRules.rule_tabungan
-                    ||
-                    selectedRuleState.gunakanRuleTabungan
-
-            };
-
-
-        return {
-
-            rows :
-                rows,
-
-            rules :
-                existingRules
-
-        };
-
-    }
-    catch(error){
-
-        console.error(
-            "[Financial] Gagal membaca Financial Activity:",
-            error
-        );
-
-
-        return {
-
-            rows :
-                financialActivityData,
-
-            rules :
-                existingRules
-
-        };
-
-    }
+    };
 
 }
 
@@ -885,10 +628,13 @@ async function refreshFinancialState(){
 ===================================================== */
 
 function createActivityFields(
+
     list
+
 ){
 
     return list.map(
+
         item => ({
 
             name :
@@ -907,9 +653,339 @@ function createActivityFields(
                 item.rule ?? ""
 
         })
+
     );
 
 }
+
+
+/* =====================================================
+   ACTIVITY MASTER
+===================================================== */
+
+const ACTIVITY = {
+
+
+    /* =================================================
+       PEMASUKAN
+    ================================================= */
+
+    pemasukan : [
+
+        {
+
+            name :
+                "gaji",
+
+            label :
+                "Gaji"
+
+        },
+
+
+        {
+
+            name :
+                "penghasilan_lain",
+
+            label :
+                "Penghasilan Lain"
+
+        },
+
+
+        {
+
+            name :
+                "ceperan",
+
+            label :
+                "Ceperan"
+
+        },
+
+
+        {
+
+            name :
+                "pemberian",
+
+            label :
+                "Pemberian"
+
+        },
+
+
+        {
+
+            name :
+                "hutang_piutang",
+
+            label :
+                "Hutang / Piutang",
+
+            rule :
+                "hutang"
+
+        },
+
+
+        {
+
+            name :
+                "dana_darurat",
+
+            label :
+                "Dana Darurat",
+
+            rule :
+                "tabungan"
+
+        },
+
+
+        {
+
+            name :
+                "tabungan_kaleng",
+
+            label :
+                "Tabungan Kaleng",
+
+            rule :
+                "tabungan"
+
+        }
+
+    ],
+
+
+    /* =================================================
+       PENGELUARAN
+    ================================================= */
+
+    pengeluaran : [
+
+        {
+
+            name :
+                "belanja_harian",
+
+            label :
+                "Belanja Harian"
+
+        },
+
+
+        {
+
+            name :
+                "belanja_bulanan",
+
+            label :
+                "Belanja Bulanan"
+
+        },
+
+
+        {
+
+            name :
+                "kebutuhan_anak",
+
+            label :
+                "Kebutuhan Anak"
+
+        },
+
+
+        {
+
+            name :
+                "tagihan",
+
+            label :
+                "Tagihan"
+
+        },
+
+
+        {
+
+            name :
+                "belanja_online",
+
+            label :
+                "Belanja Online"
+
+        },
+
+
+        {
+
+            name :
+                "biaya_perbaikan",
+
+            label :
+                "Biaya Perbaikan"
+
+        },
+
+
+        {
+
+            name :
+                "makan_diluar",
+
+            label :
+                "Makan di Luar"
+
+        },
+
+
+        {
+
+            name :
+                "refreshing",
+
+            label :
+                "Refreshing"
+
+        },
+
+
+        {
+
+            name :
+                "biaya_tahunan",
+
+            label :
+                "Biaya Tahunan"
+
+        },
+
+
+        {
+
+            name :
+                "pengeluaran_lain",
+
+            label :
+                "Pengeluaran Lain"
+
+        },
+
+
+        {
+
+            name :
+                "beli_rokok",
+
+            label :
+                "Beli Rokok"
+
+        },
+
+
+        {
+
+            name :
+                "beli_bensin",
+
+            label :
+                "Beli Bensin"
+
+        },
+
+
+        {
+
+            name :
+                "beli_kopi",
+
+            label :
+                "Beli Kopi"
+
+        },
+
+
+        {
+
+            name :
+                "iuran",
+
+            label :
+                "Iuran"
+
+        },
+
+
+        {
+
+            name :
+                "cicilan",
+
+            label :
+                "Cicilan"
+
+        },
+
+
+        {
+
+            name :
+                "sedekah",
+
+            label :
+                "Sedekah"
+
+        },
+
+
+        {
+
+            name :
+                "hutang_piutang",
+
+            label :
+                "Hutang / Piutang",
+
+            rule :
+                "hutang"
+
+        },
+
+
+        {
+
+            name :
+                "dana_darurat",
+
+            label :
+                "Dana Darurat",
+
+            rule :
+                "tabungan"
+
+        },
+
+
+        {
+
+            name :
+                "tabungan_kaleng",
+
+            label :
+                "Tabungan Kaleng",
+
+            rule :
+                "tabungan"
+
+        }
+
+    ]
+
+};
 
 
 /* =====================================================
@@ -917,10 +993,15 @@ function createActivityFields(
 ===================================================== */
 
 function normalizeActivity(
+
     data,
+
     fields,
+
     rules,
+
     direction
+
 ){
 
     const ruleState =
@@ -935,6 +1016,7 @@ function normalizeActivity(
     ============================================= */
 
     fields.forEach(
+
         field => {
 
             if(
@@ -955,9 +1037,15 @@ function normalizeActivity(
             ===================================== */
 
             if(
-                activityRule === "hutang"
+
+                activityRule ===
+                "hutang"
+
                 &&
-                ruleState.gunakanRuleHutang !== true
+
+                ruleState
+                    .gunakanRuleHutang !== true
+
             ){
 
                 return;
@@ -970,9 +1058,15 @@ function normalizeActivity(
             ===================================== */
 
             if(
-                activityRule === "tabungan"
+
+                activityRule ===
+                "tabungan"
+
                 &&
-                ruleState.gunakanRuleTabungan !== true
+
+                ruleState
+                    .gunakanRuleTabungan !== true
+
             ){
 
                 return;
@@ -985,6 +1079,7 @@ function normalizeActivity(
             );
 
         }
+
     );
 
 
@@ -1000,7 +1095,10 @@ function normalizeActivity(
     ============================================= */
 
     if(
-        direction === "pemasukan"
+
+        direction ===
+        "pemasukan"
+
     ){
 
         types.push(
@@ -1009,7 +1107,10 @@ function normalizeActivity(
 
 
         if(
-            ruleState.gunakanRuleHutang === true
+
+            ruleState
+                .gunakanRuleHutang === true
+
         ){
 
             types.push(
@@ -1020,7 +1121,10 @@ function normalizeActivity(
 
 
         if(
-            ruleState.gunakanRuleTabungan === true
+
+            ruleState
+                .gunakanRuleTabungan === true
+
         ){
 
             types.push(
@@ -1037,7 +1141,10 @@ function normalizeActivity(
     ============================================= */
 
     if(
-        direction === "pengeluaran"
+
+        direction ===
+        "pengeluaran"
+
     ){
 
         types.push(
@@ -1046,7 +1153,10 @@ function normalizeActivity(
 
 
         if(
-            ruleState.gunakanRuleHutang === true
+
+            ruleState
+                .gunakanRuleHutang === true
+
         ){
 
             types.push(
@@ -1057,7 +1167,10 @@ function normalizeActivity(
 
 
         if(
-            ruleState.gunakanRuleTabungan === true
+
+            ruleState
+                .gunakanRuleTabungan === true
+
         ){
 
             types.push(
@@ -1089,22 +1202,27 @@ function normalizeActivity(
 
     /* =============================================
        DISPLAY STATE
+
+       Hanya untuk UI.
     ============================================= */
 
     result.__display = {};
 
 
     fields.forEach(
+
         field => {
 
             result.__display[
                 field.name
             ] =
+
                 activity.includes(
                     field.name
                 );
 
         }
+
     );
 
 
@@ -1118,58 +1236,80 @@ function normalizeActivity(
 ===================================================== */
 
 function normalizeRule(
+
     data
+
 ){
 
-    const pemasukan =
-        existingRules.rule_pemasukan
-        ||
-        Boolean(
-            data.gunakanRulePemasukan
-        )
-        ||
-        true;
-
-
-    const pengeluaran =
-        existingRules.rule_pengeluaran
-        ||
-        Boolean(
-            data.gunakanRulePengeluaran
-        )
-        ||
-        true;
-
-
-    const hutang =
-        existingRules.rule_hutang
-        ||
-        Boolean(
-            data.gunakanRuleHutang
-        );
-
-
-    const tabungan =
-        existingRules.rule_tabungan
-        ||
-        Boolean(
-            data.gunakanRuleTabungan
-        );
-
+    /* =============================================
+       RULE YANG SUDAH ADA DI SHEET
+       TIDAK BOLEH DIMATIKAN
+    ============================================= */
 
     selectedRuleState = {
 
         gunakanRulePemasukan :
-            pemasukan,
+
+            existingRuleState
+                .gunakanRulePemasukan === true
+
+                ?
+
+                true
+
+                :
+
+                Boolean(
+                    data.gunakanRulePemasukan
+                ),
+
 
         gunakanRulePengeluaran :
-            pengeluaran,
+
+            existingRuleState
+                .gunakanRulePengeluaran === true
+
+                ?
+
+                true
+
+                :
+
+                Boolean(
+                    data.gunakanRulePengeluaran
+                ),
+
 
         gunakanRuleHutang :
-            hutang,
+
+            existingRuleState
+                .gunakanRuleHutang === true
+
+                ?
+
+                true
+
+                :
+
+                Boolean(
+                    data.gunakanRuleHutang
+                ),
+
 
         gunakanRuleTabungan :
-            tabungan
+
+            existingRuleState
+                .gunakanRuleTabungan === true
+
+                ?
+
+                true
+
+                :
+
+                Boolean(
+                    data.gunakanRuleTabungan
+                )
 
     };
 
@@ -1177,16 +1317,24 @@ function normalizeRule(
     return {
 
         gunakanRulePemasukan :
-            pemasukan,
+
+            selectedRuleState
+                .gunakanRulePemasukan,
 
         gunakanRulePengeluaran :
-            pengeluaran,
+
+            selectedRuleState
+                .gunakanRulePengeluaran,
 
         gunakanRuleHutang :
-            hutang,
+
+            selectedRuleState
+                .gunakanRuleHutang,
 
         gunakanRuleTabungan :
-            tabungan
+
+            selectedRuleState
+                .gunakanRuleTabungan
 
     };
 
@@ -1194,120 +1342,18 @@ function normalizeRule(
 
 
 /* =====================================================
-   GET FINANCIAL RULE STATE
+   FIND FIELD INPUT
 ===================================================== */
 
-function getFinancialRuleState(){
+function findRuleInput(
 
-    return {
-
-        gunakanRulePemasukan :
-
-            existingRules.rule_pemasukan
-            ||
-            selectedRuleState.gunakanRulePemasukan
-            ||
-            true,
-
-
-        gunakanRulePengeluaran :
-
-            existingRules.rule_pengeluaran
-            ||
-            selectedRuleState.gunakanRulePengeluaran
-            ||
-            true,
-
-
-        gunakanRuleHutang :
-
-            existingRules.rule_hutang
-            ||
-            selectedRuleState.gunakanRuleHutang,
-
-
-        gunakanRuleTabungan :
-
-            existingRules.rule_tabungan
-            ||
-            selectedRuleState.gunakanRuleTabungan
-
-    };
-
-}
-
-
-/* =====================================================
-   FIND ACTIVITY INPUT
-===================================================== */
-
-function findActivityInput(
     form,
+
     fieldName
+
 ){
 
-    if(
-        !form
-    ){
-
-        return null;
-
-    }
-
-
-    let input =
-        form.querySelector(
-            `input[name="${fieldName}"]`
-        );
-
-
-    if(
-        input
-    ){
-
-        return input;
-
-    }
-
-
-    const inputs =
-        form.querySelectorAll(
-            'input[type="checkbox"]'
-        );
-
-
-    for(
-        const currentInput of inputs
-    ){
-
-        if(
-            currentInput.value ===
-            fieldName
-        ){
-
-            return currentInput;
-
-        }
-
-    }
-
-
-    return null;
-
-}
-
-
-/* =====================================================
-   GET ACTIVITY FIELD WRAPPER
-===================================================== */
-
-function findActivityWrapper(
-    input
-){
-
-    if(
-        !input
-    ){
+    if(!form){
 
         return null;
 
@@ -1315,391 +1361,39 @@ function findActivityWrapper(
 
 
     return (
-        input.closest(
-            "[data-activity-rule]"
+
+        form.querySelector(
+            `[data-field="${fieldName}"] input[type="checkbox"]`
         )
+
         ||
-        input.parentElement
+
+        form.querySelector(
+            `input[name="${fieldName}"]`
+        )
+
+        ||
+
+        form.querySelector(
+            `#${fieldName}`
+        )
+
     );
 
 }
 
 
 /* =====================================================
-   APPLY EXISTING ACTIVITY STATE
+   APPLY RULE STATE TO FORM
 ===================================================== */
 
-/*
-   Activity yang sudah tersimpan di Sheet :
+function applyRuleStateToForm(
 
-       checked
-       disabled
-
-   Activity yang belum tersimpan :
-
-       unchecked
-       enabled
-
-   Ini berlaku per rule.
-*/
-
-function applyExistingActivityState(
-    form,
-    direction
-){
-
-    if(
-        !form
-    ){
-
-        return;
-
-    }
-
-
-    const rule =
-        direction === "pemasukan"
-
-            ?
-
-        "rule_pemasukan"
-
-            :
-
-        "rule_pengeluaran";
-
-
-    const existingActivities =
-        getExistingActivities(
-            rule
-        );
-
-
-    const fields =
-        direction === "pemasukan"
-
-            ?
-
-        ACTIVITY.pemasukan
-
-            :
-
-        ACTIVITY.pengeluaran;
-
-
-    fields.forEach(
-        item => {
-
-            const input =
-                findActivityInput(
-                    form,
-                    item.name
-                );
-
-
-            if(
-                !input
-            ){
-
-                return;
-
-            }
-
-
-            const wrapper =
-                findActivityWrapper(
-                    input
-                );
-
-
-            const activityName =
-                normalizeValue(
-                    item.name
-                );
-
-
-            const alreadyExists =
-                existingActivities.has(
-                    activityName
-                );
-
-
-            /*
-               Activity yang sudah ada
-               harus selalu checked.
-            */
-
-            if(
-                alreadyExists
-            ){
-
-                input.checked =
-                    true;
-
-                input.disabled =
-                    true;
-
-
-                if(
-                    wrapper
-                ){
-
-                    wrapper.classList.add(
-                        "disabled"
-                    );
-
-                    wrapper.classList.add(
-                        "activity-created"
-                    );
-
-                }
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   APPLY RULE DEPENDENCY
-===================================================== */
-
-function applyActivityRuleControl(
-    form,
-    ruleData
-){
-
-    if(
-        !form ||
-        !ruleData
-    ){
-
-        return;
-
-    }
-
-
-    const ruleHutang =
-        Boolean(
-            ruleData.gunakanRuleHutang
-        );
-
-
-    const ruleTabungan =
-        Boolean(
-            ruleData.gunakanRuleTabungan
-        );
-
-
-    /* =============================================
-       HUTANG
-    ============================================= */
-
-    const hutangFields =
-        form.querySelectorAll(
-            '[data-activity-rule="hutang"]'
-        );
-
-
-    hutangFields.forEach(
-        field => {
-
-            const input =
-                field.querySelector(
-                    'input[type="checkbox"]'
-                );
-
-
-            if(
-                !input
-            ){
-
-                return;
-
-            }
-
-
-            /*
-               Jangan mengaktifkan kembali
-               activity yang memang sudah
-               tersimpan.
-            */
-
-            const activityName =
-                normalizeValue(
-                    input.name ||
-                    input.value
-                );
-
-
-            const existingActivities =
-                getExistingActivities(
-                    form.dataset.direction ===
-                    "pengeluaran"
-
-                        ?
-
-                    "rule_pengeluaran"
-
-                        :
-
-                    "rule_pemasukan"
-                );
-
-
-            const alreadyExists =
-                existingActivities.has(
-                    activityName
-                );
-
-
-            if(
-                alreadyExists
-            ){
-
-                input.checked =
-                    true;
-
-                input.disabled =
-                    true;
-
-            }
-            else{
-
-                input.disabled =
-                    !ruleHutang;
-
-
-                if(
-                    !ruleHutang
-                ){
-
-                    input.checked =
-                        false;
-
-                }
-
-            }
-
-
-            field.classList.toggle(
-                "disabled",
-                input.disabled
-            );
-
-        }
-    );
-
-
-    /* =============================================
-       TABUNGAN
-    ============================================= */
-
-    const tabunganFields =
-        form.querySelectorAll(
-            '[data-activity-rule="tabungan"]'
-        );
-
-
-    tabunganFields.forEach(
-        field => {
-
-            const input =
-                field.querySelector(
-                    'input[type="checkbox"]'
-                );
-
-
-            if(
-                !input
-            ){
-
-                return;
-
-            }
-
-
-            const activityName =
-                normalizeValue(
-                    input.name ||
-                    input.value
-                );
-
-
-            const existingActivities =
-                getExistingActivities(
-                    form.dataset.direction ===
-                    "pengeluaran"
-
-                        ?
-
-                    "rule_pengeluaran"
-
-                        :
-
-                    "rule_pemasukan"
-                );
-
-
-            const alreadyExists =
-                existingActivities.has(
-                    activityName
-                );
-
-
-            if(
-                alreadyExists
-            ){
-
-                input.checked =
-                    true;
-
-                input.disabled =
-                    true;
-
-            }
-            else{
-
-                input.disabled =
-                    !ruleTabungan;
-
-
-                if(
-                    !ruleTabungan
-                ){
-
-                    input.checked =
-                        false;
-
-                }
-
-            }
-
-
-            field.classList.toggle(
-                "disabled",
-                input.disabled
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   APPLY RULE UI
-===================================================== */
-
-function applyRuleUI(
     form
+
 ){
 
-    if(
-        !form
-    ){
+    if(!form){
 
         return;
 
@@ -1708,53 +1402,35 @@ function applyRuleUI(
 
     Object.entries(
         FINANCIAL_RULES
-    )
-    .forEach(
-        (
-            [
-                rule,
-                config
-            ]
-        ) => {
+    ).forEach(
+
+        ([ruleKey, config]) => {
 
             const input =
-                form.querySelector(
-                    `input[name="${config.field}"]`
+                findRuleInput(
+                    form,
+                    config.field
                 );
 
 
-            if(
-                !input
-            ){
+            if(!input){
 
                 return;
 
             }
 
 
-            const wrapper =
-                input.closest(
-                    ".global-setting-field"
-                )
-                ||
-                input.parentElement;
-
-
             const exists =
-                existingRules[
-                    rule
+                existingRuleState[
+                    config.field
                 ] === true;
 
 
-            if(
-                exists
-            ){
+            /* =====================================
+               RULE SUDAH ADA
+            ===================================== */
 
-                /*
-                   Rule sudah dibuat.
-
-                   Tidak boleh diubah lagi.
-                */
+            if(exists){
 
                 input.checked =
                     true;
@@ -1762,66 +1438,97 @@ function applyRuleUI(
                 input.disabled =
                     true;
 
+                input.setAttribute(
+                    "data-rule-created",
+                    "true"
+                );
 
-                if(
-                    wrapper
-                ){
 
-                    wrapper.classList.add(
-                        "disabled"
+                const wrapper =
+                    input.closest(
+                        "[data-field]"
                     );
+
+
+                if(wrapper){
 
                     wrapper.classList.add(
                         "rule-created"
                     );
 
+                    wrapper.classList.add(
+                        "is-used"
+                    );
+
                 }
+
+                return;
+
+            }
+
+
+            /* =====================================
+               RULE BELUM ADA
+            ===================================== */
+
+            input.disabled =
+                false;
+
+
+            input.checked =
+                Boolean(
+                    selectedRuleState[
+                        config.field
+                    ]
+                );
+
+
+            input.removeAttribute(
+                "data-rule-created"
+            );
+
+
+            const wrapper =
+                input.closest(
+                    "[data-field]"
+                );
+
+
+            if(wrapper){
+
+                wrapper.classList.remove(
+                    "rule-created"
+                );
+
+                wrapper.classList.remove(
+                    "is-used"
+                );
 
             }
 
         }
+
     );
 
-}
 
+    /* =============================================
+       LISTENER RULE BARU
+    ============================================= */
 
-/* =====================================================
-   BIND RULE CHANGE
-===================================================== */
-
-function bindRuleChange(
-    form
-){
-
-    if(
-        !form
-    ){
-
-        return;
-
-    }
-
-
-    Object.entries(
+    Object.values(
         FINANCIAL_RULES
-    )
-    .forEach(
-        (
-            [
-                rule,
-                config
-            ]
-        ) => {
+    ).forEach(
+
+        config => {
 
             const input =
-                form.querySelector(
-                    `input[name="${config.field}"]`
+                findRuleInput(
+                    form,
+                    config.field
                 );
 
 
-            if(
-                !input
-            ){
+            if(!input){
 
                 return;
 
@@ -1829,7 +1536,8 @@ function bindRuleChange(
 
 
             if(
-                input.dataset.financialBound ===
+                input.dataset
+                    .financialRuleListener ===
                 "true"
             ){
 
@@ -1838,26 +1546,27 @@ function bindRuleChange(
             }
 
 
-            input.dataset.financialBound =
+            input.dataset
+                .financialRuleListener =
                 "true";
 
 
             input.addEventListener(
-                "change",
-                () => {
 
-                    /*
-                       Rule yang sudah ada
-                       tidak boleh diubah.
-                    */
+                "change",
+
+                function(){
 
                     if(
-                        existingRules[
-                            rule
+                        existingRuleState[
+                            config.field
                         ] === true
                     ){
 
                         input.checked =
+                            true;
+
+                        input.disabled =
                             true;
 
                         return;
@@ -1871,76 +1580,80 @@ function bindRuleChange(
                         input.checked === true;
 
 
-                    refreshActivityForms();
+                    refreshActivityRuleControls();
 
                 }
+
             );
 
         }
+
     );
 
 }
 
 
 /* =====================================================
-   REFRESH ACTIVITY FORMS
+   REFRESH ACTIVITY RULE CONTROLS
 ===================================================== */
 
-function refreshActivityForms(){
+function refreshActivityRuleControls(){
+
+    const pemasukanForm =
+        document.querySelector(
+            '[data-section="financial_activity_pemasukan"]'
+        );
+
+
+    const pengeluaranForm =
+        document.querySelector(
+            '[data-section="financial_activity_pengeluaran"]'
+        );
+
 
     const ruleState =
         getFinancialRuleState();
 
 
-    const forms =
-        document.querySelectorAll(
-            '[data-section^="financial_activity_"]'
+    if(pemasukanForm){
+
+        applyActivityRuleControl(
+            pemasukanForm,
+            ruleState
         );
 
-
-    forms.forEach(
-        form => {
-
-            const direction =
-                form.dataset.section ===
-                "financial_activity_pengeluaran"
-
-                    ?
-
-                "pengeluaran"
-
-                    :
-
-                "pemasukan";
+    }
 
 
-            applyActivityRuleControl(
-                form,
-                ruleState
-            );
+    if(pengeluaranForm){
 
+        applyActivityRuleControl(
+            pengeluaranForm,
+            ruleState
+        );
 
-            applyExistingActivityState(
-                form,
-                direction
-            );
-
-        }
-    );
+    }
 
 }
 
 
 /* =====================================================
-   REFRESH RULE FORM
+   ACTIVITY RULE CONTROL
 ===================================================== */
 
-function refreshRuleForm(
-    form
+function applyActivityRuleControl(
+
+    form,
+
+    ruleData
+
 ){
 
     if(
-        !form
+
+        !form ||
+        !ruleData
+
     ){
 
         return;
@@ -1948,27 +1661,122 @@ function refreshRuleForm(
     }
 
 
-    applyRuleUI(
-        form
+    /* =============================================
+       RULE STATUS
+    ============================================= */
+
+    const ruleHutang =
+
+        Boolean(
+            ruleData.gunakanRuleHutang
+        );
+
+
+    const ruleTabungan =
+
+        Boolean(
+            ruleData.gunakanRuleTabungan
+        );
+
+
+    /* =============================================
+       HUTANG
+    ============================================= */
+
+    const hutangFields =
+
+        form.querySelectorAll(
+            '[data-activity-rule="hutang"]'
+        );
+
+
+    hutangFields.forEach(
+
+        field => {
+
+            const input =
+                field.querySelector(
+                    'input[type="checkbox"]'
+                );
+
+
+            if(!input){
+
+                return;
+
+            }
+
+
+            input.disabled =
+                !ruleHutang;
+
+
+            if(!ruleHutang){
+
+                input.checked =
+                    false;
+
+            }
+
+
+            field.classList.toggle(
+                "disabled",
+                !ruleHutang
+            );
+
+        }
+
     );
 
 
-    bindRuleChange(
-        form
+    /* =============================================
+       TABUNGAN
+    ============================================= */
+
+    const tabunganFields =
+
+        form.querySelectorAll(
+            '[data-activity-rule="tabungan"]'
+        );
+
+
+    tabunganFields.forEach(
+
+        field => {
+
+            const input =
+                field.querySelector(
+                    'input[type="checkbox"]'
+                );
+
+
+            if(!input){
+
+                return;
+
+            }
+
+
+            input.disabled =
+                !ruleTabungan;
+
+
+            if(!ruleTabungan){
+
+                input.checked =
+                    false;
+
+            }
+
+
+            field.classList.toggle(
+                "disabled",
+                !ruleTabungan
+            );
+
+        }
+
     );
-
-}
-
-
-/* =====================================================
-   RULE STATE API
-===================================================== */
-
-async function getRuleState(){
-
-    await refreshFinancialState();
-
-    return getFinancialRuleState();
 
 }
 
@@ -1978,6 +1786,7 @@ async function getRuleState(){
 ===================================================== */
 
 export const FinancialSetting = {
+
 
     /* =================================================
        HEADER
@@ -1994,62 +1803,11 @@ export const FinancialSetting = {
 
 
     /* =================================================
-       RULE STATE
-    ================================================= */
-
-    ruleStateFields : {
-
-        rule_pemasukan : {
-
-            field :
-                "gunakanRulePemasukan",
-
-            label :
-                "Rule Pemasukan"
-
-        },
-
-        rule_pengeluaran : {
-
-            field :
-                "gunakanRulePengeluaran",
-
-            label :
-                "Rule Pengeluaran"
-
-        },
-
-        rule_hutang : {
-
-            field :
-                "gunakanRuleHutang",
-
-            label :
-                "Rule Hutang"
-
-        },
-
-        rule_tabungan : {
-
-            field :
-                "gunakanRuleTabungan",
-
-            label :
-                "Rule Tabungan"
-
-        }
-
-    },
-
-
-    getRuleState : getRuleState,
-
-
-    /* =================================================
        SECTIONS
     ================================================= */
 
     sections : [
+
 
         /* =============================================
            1. PENENTUAN RULE
@@ -2227,15 +1985,27 @@ export const FinancialSetting = {
                 normalizeRule,
 
 
+            /* =========================================
+               BACA SHEET SAAT SECTION DIBUKA
+            ========================================= */
+
             onRender :
 
-                function(
+                async function(
+
                     form
+
                 ){
 
-                    refreshRuleForm(
+                    await initializeFinancialRuleState();
+
+
+                    applyRuleStateToForm(
                         form
                     );
+
+
+                    refreshActivityRuleControls();
 
                 }
 
@@ -2300,14 +2070,21 @@ export const FinancialSetting = {
             normalize :
 
                 function(
+
                     data
+
                 ){
 
                     return normalizeActivity(
+
                         data,
+
                         this.fields,
+
                         "rule_pemasukan",
+
                         "pemasukan"
+
                     );
 
                 },
@@ -2316,60 +2093,18 @@ export const FinancialSetting = {
             onRender :
 
                 function(
+
                     form
+
                 ){
 
-                    /*
-                       Penanda direction supaya
-                       rule dependency bisa tahu
-                       apakah ini pemasukan.
-                    */
+                    applyActivityRuleControl(
 
-                    form.dataset.direction =
-                        "pemasukan";
+                        form,
 
-                    form.dataset.section =
-                        "financial_activity_pemasukan";
+                        getFinancialRuleState()
 
-
-                    const apply =
-                        () => {
-
-                            applyActivityRuleControl(
-                                form,
-                                getFinancialRuleState()
-                            );
-
-
-                            applyExistingActivityState(
-                                form,
-                                "pemasukan"
-                            );
-
-                        };
-
-
-                    /*
-                       Terapkan langsung jika
-                       data Sheet sudah tersedia.
-                    */
-
-                    apply();
-
-
-                    /*
-                       Baca ulang Sheet agar
-                       state selalu aktual.
-                    */
-
-                    refreshFinancialState()
-                        .then(
-                            () => {
-
-                                apply();
-
-                            }
-                        );
+                    );
 
                 }
 
@@ -2434,14 +2169,21 @@ export const FinancialSetting = {
             normalize :
 
                 function(
+
                     data
+
                 ){
 
                     return normalizeActivity(
+
                         data,
+
                         this.fields,
+
                         "rule_pengeluaran",
+
                         "pengeluaran"
+
                     );
 
                 },
@@ -2450,44 +2192,18 @@ export const FinancialSetting = {
             onRender :
 
                 function(
+
                     form
+
                 ){
 
-                    form.dataset.direction =
-                        "pengeluaran";
+                    applyActivityRuleControl(
 
-                    form.dataset.section =
-                        "financial_activity_pengeluaran";
+                        form,
 
+                        getFinancialRuleState()
 
-                    const apply =
-                        () => {
-
-                            applyActivityRuleControl(
-                                form,
-                                getFinancialRuleState()
-                            );
-
-
-                            applyExistingActivityState(
-                                form,
-                                "pengeluaran"
-                            );
-
-                        };
-
-
-                    apply();
-
-
-                    refreshFinancialState()
-                        .then(
-                            () => {
-
-                                apply();
-
-                            }
-                        );
+                    );
 
                 }
 
