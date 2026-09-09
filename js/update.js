@@ -1,2001 +1,2210 @@
+Cek update.js
+Sepertinya emang belum ada
 /* =====================================================
-   Finance Assistant
-   Module      : UPDATE
-   File        : update.js
-   Version     : 1.2.0
+Finance Assistant
+Module      : UPDATE
+File        : update.js
+Version     : 1.2.0
 
-   Description :
-   Global Google Apps Script UPDATE Engine
+Description :
+Global Google Apps Script UPDATE Engine
 
-   Flow :
+Flow :
 
-       MODULE
-           ↓
-       update.js
-           ↓
-       Apps Script
-           ↓
-       main.gs
-           ↓
-       update.gs
-           ↓
-       Google Sheets
+MODULE  
+       ↓  
+   update.js  
+       ↓  
+   Apps Script  
+       ↓  
+   main.gs  
+       ↓  
+   update.gs  
+       ↓  
+   Google Sheets
 
+Public :
 
-   Public :
+Update.updateField()  
+   Update.updateRow()
 
-       Update.updateField()
-       Update.updateRow()
+UPDATE FIELD :
 
+Digunakan untuk mengubah  
+   satu atau beberapa field tertentu.  
 
-   UPDATE FIELD :
+   Target :  
 
-       Digunakan untuk mengubah
-       satu atau beberapa field tertentu.
+       ID + Project
 
-       Target :
+UPDATE ROW :
 
-           ID + Project
+Digunakan untuk overwrite  
+   satu row secara penuh.  
 
+   Target :  
 
-   UPDATE ROW :
+       ID + Date / tanggal  
 
-       Digunakan untuk overwrite
-       satu row secara penuh.
+   Update Row sekarang menerima  
+   beberapa variasi nama field tanggal:  
 
-       Target :
+       tanggal  
+       Tanggal  
+       date  
+       Date  
 
-           ID + Date / tanggal
+   Nilai tersebut akan dinormalisasi  
+   menjadi:  
 
-       Update Row sekarang menerima
-       beberapa variasi nama field tanggal:
+       target.tanggal  
 
-           tanggal
-           Tanggal
-           date
-           Date
+   untuk kompatibilitas dengan  
+   Apps Script update.gs.  
 
-       Nilai tersebut akan dinormalisasi
-       menjadi:
+   Row asli tetap mempertahankan  
+   nama field tanggal dari workspace.  
 
-           target.tanggal
+   Contoh Financial:  
 
-       untuk kompatibilitas dengan
-       Apps Script update.gs.
+       {  
+           id :  
+               "FIN-XXXX",  
 
-       Row asli tetap mempertahankan
-       nama field tanggal dari workspace.
+           Date :  
+               "2026-09-05"  
+       }  
 
-       Contoh Financial:
+   akan diterima sebagai target:  
 
-           {
-               id :
-                   "FIN-XXXX",
+       {  
+           id :  
+               "FIN-XXXX",  
 
-               Date :
-                   "2026-09-05"
-           }
+           tanggal :  
+               "2026-09-05"  
+       }
 
-       akan diterima sebagai target:
+Responsibility :
 
-           {
-               id :
-                   "FIN-XXXX",
+- Mendapatkan Supabase session  
+   - Mendapatkan Finance Core  
+   - Mendapatkan Google Provider Token  
+   - Menentukan Apps Script endpoint  
+   - Membuat UPDATE request  
+   - Duplicate request protection  
+   - JSONP request  
+   - Update field  
+   - Update full row
 
-               tanggal :
-                   "2026-09-05"
-           }
+TIDAK MENANGANI :
 
+- Authentication  
+   - Login  
+   - Logout  
+   - READ Sheet  
+   - Processing  
+   - Calculation  
+   - Business Rules  
+   - UI
 
-   Responsibility :
-
-       - Mendapatkan Supabase session
-       - Mendapatkan Finance Core
-       - Mendapatkan Google Provider Token
-       - Menentukan Apps Script endpoint
-       - Membuat UPDATE request
-       - Duplicate request protection
-       - JSONP request
-       - Update field
-       - Update full row
-
-
-   TIDAK MENANGANI :
-
-       - Authentication
-       - Login
-       - Logout
-       - READ Sheet
-       - Processing
-       - Calculation
-       - Business Rules
-       - UI
 ===================================================== */
 
-
 /* =====================================================
-   IMPORT
+IMPORT
 ===================================================== */
 
 import {
-    loadSession,
-    getValidGoogleProviderToken
+loadSession,
+getValidGoogleProviderToken
 } from "./auth.js";
 
-
 import {
-    loadModuleInfo
+loadModuleInfo
 } from "./module.js";
 
-
 /* =====================================================
-   CONFIG
+CONFIG
 ===================================================== */
 
 const DEFAULT_ENDPOINT =
-    "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
-
+"https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
 
 /* =====================================================
-   DATE FIELD ALIASES
+DATE FIELD ALIASES
 ===================================================== */
+
+/*
+Workspace tidak dipaksa menggunakan
+satu nama field tanggal tertentu.
+
+Contoh:
+
+Airdrop :  
+       tanggal  
+
+   Financial :  
+       Date  
+
+   Workspace lain :  
+       date  
+       Tanggal
+
+UPDATE ROW akan membaca semua
+variasi tersebut.
+
+Urutan prioritas mengikuti
+field yang paling spesifik / umum
+digunakan oleh sistem.
+*/
 
 const DATE_FIELD_ALIASES = [
 
-    "tanggal",
+"tanggal",  
 
-    "Tanggal",
+"Tanggal",  
 
-    "date",
+"date",  
 
-    "Date"
+"Date"
 
 ];
 
-
 /* =====================================================
-   STATE
+STATE
 ===================================================== */
 
 const activeUpdates =
-    new Map();
-
+new Map();
 
 /* =====================================================
-   SESSION
+SESSION
 ===================================================== */
 
 async function getUpdateSession(){
 
-    console.log(
-        "UPDATE: Mengambil Supabase session..."
-    );
+console.log(  
+    "UPDATE: Mengambil Supabase session..."  
+);  
 
 
-    const session =
-        await loadSession();
+const session =  
+    await loadSession();  
 
 
-    if(
-        !session
-    ){
+if(  
+    !session  
+){  
 
-        throw new Error(
-            "Session tidak ditemukan. Silakan login."
-        );
+    throw new Error(  
+        "Session tidak ditemukan. Silakan login."  
+    );  
 
-    }
-
-
-    console.log(
-        "UPDATE: Session tersedia."
-    );
+}  
 
 
-    return session;
+console.log(  
+    "UPDATE: Session tersedia."  
+);  
+
+
+return session;
 
 }
 
-
 /* =====================================================
-   FINANCE CORE
+FINANCE CORE
 ===================================================== */
 
 function getUpdateFinanceCore(){
 
-    const moduleInfo =
-        loadModuleInfo();
+const moduleInfo =  
+    loadModuleInfo();  
 
 
-    console.log(
-        "UPDATE: Finance Module Info:",
-        moduleInfo
-    );
+console.log(  
+    "UPDATE: Finance Module Info:",  
+    moduleInfo  
+);  
 
 
-    if(
-        !moduleInfo
-    ){
+if(  
+    !moduleInfo  
+){  
 
-        throw new Error(
-            "Finance Module Info tidak ditemukan."
-        );
+    throw new Error(  
+        "Finance Module Info tidak ditemukan."  
+    );  
 
-    }
-
-
-    const financeCore =
-        moduleInfo.financeCore;
+}  
 
 
-    if(
-        !financeCore
-    ){
-
-        throw new Error(
-            "Finance Core tidak ditemukan."
-        );
-
-    }
+const financeCore =  
+    moduleInfo.financeCore;  
 
 
-    if(
-        !financeCore.id
-    ){
+if(  
+    !financeCore  
+){  
 
-        throw new Error(
-            "Finance Core Spreadsheet ID tidak ditemukan."
-        );
+    throw new Error(  
+        "Finance Core tidak ditemukan."  
+    );  
 
-    }
-
-
-    console.log(
-        "UPDATE: Finance Core:",
-        financeCore
-    );
+}  
 
 
-    return financeCore;
+if(  
+    !financeCore.id  
+){  
+
+    throw new Error(  
+        "Finance Core Spreadsheet ID tidak ditemukan."  
+    );  
+
+}  
+
+
+console.log(  
+    "UPDATE: Finance Core:",  
+    financeCore  
+);  
+
+
+return financeCore;
 
 }
 
-
 /* =====================================================
-   SPREADSHEET ID
+SPREADSHEET ID
 ===================================================== */
 
 function getUpdateSpreadsheetId(){
 
-    const financeCore =
-        getUpdateFinanceCore();
+const financeCore =  
+    getUpdateFinanceCore();  
 
 
-    return financeCore.id;
+return financeCore.id;
 
 }
 
-
 /* =====================================================
-   GOOGLE PROVIDER TOKEN
+GOOGLE PROVIDER TOKEN
 ===================================================== */
 
 async function getUpdateAccessToken(){
 
-    console.log(
-        "UPDATE: Meminta Google Provider Token..."
-    );
+console.log(  
+    "UPDATE: Meminta Google Provider Token..."  
+);  
 
 
-    const token =
-        await getValidGoogleProviderToken();
+const token =  
+    await getValidGoogleProviderToken();  
 
 
-    if(
-        !token
-    ){
+if(  
+    !token  
+){  
 
-        throw new Error(
-            "Google Provider Token tidak tersedia."
-        );
+    throw new Error(  
+        "Google Provider Token tidak tersedia."  
+    );  
 
-    }
-
-
-    console.log(
-        "UPDATE: Google Provider Token: AVAILABLE"
-    );
+}  
 
 
-    return token;
+console.log(  
+    "UPDATE: Google Provider Token: AVAILABLE"  
+);  
+
+
+return token;
 
 }
 
-
 /* =====================================================
-   ENDPOINT
+ENDPOINT
 ===================================================== */
 
 function getUpdateEndpoint(
-    session
+session
 ){
 
-    const moduleInfo =
-        loadModuleInfo();
+const moduleInfo =  
+    loadModuleInfo();  
 
 
-    const endpoint =
-        session
-        ?.workspace
-        ?.endpoint
+const endpoint =  
+    session  
+    ?.workspace  
+    ?.endpoint  
 
-        ||
+    ||  
 
-        moduleInfo
-        ?.workspace
-        ?.endpoint
+    moduleInfo  
+    ?.workspace  
+    ?.endpoint  
 
-        ||
+    ||  
 
-        moduleInfo
-        ?.endpoint
+    moduleInfo  
+    ?.endpoint  
 
-        ||
+    ||  
 
-        DEFAULT_ENDPOINT;
-
-
-    if(
-        !endpoint
-    ){
-
-        throw new Error(
-            "Apps Script endpoint tidak ditemukan."
-        );
-
-    }
+    DEFAULT_ENDPOINT;  
 
 
-    return endpoint;
+if(  
+    !endpoint  
+){  
+
+    throw new Error(  
+        "Apps Script endpoint tidak ditemukan."  
+    );  
+
+}  
+
+
+return endpoint;
 
 }
 
-
 /* =====================================================
-   JSONP REQUEST
+JSONP REQUEST
 ===================================================== */
 
 function jsonpRequest(
-    url
+url
 ){
 
-    return new Promise(
-        (
-            resolve,
-            reject
-        ) => {
+return new Promise(  
+    (  
+        resolve,  
+        reject  
+    ) => {  
 
-            const callbackName =
-                "__financeUpdateCallback_" +
-                Date.now() +
-                "_" +
-                Math.random()
-                    .toString(
-                        36
-                    )
-                    .substring(
-                        2
-                    );
+        const callbackName =  
+            "__financeUpdateCallback_" +  
+            Date.now() +  
+            "_" +  
+            Math.random()  
+                .toString(  
+                    36  
+                )  
+                .substring(  
+                    2  
+                );  
 
 
-            const script =
-                document.createElement(
-                    "script"
-                );
+        const script =  
+            document.createElement(  
+                "script"  
+            );  
 
 
-            let finished =
-                false;
+        let finished =  
+            false;  
 
 
-            /* =========================================
-               CLEANUP
-            ========================================= */
+        /* =========================================  
+           CLEANUP  
+        ========================================= */  
 
-            const cleanup =
-                () => {
+        const cleanup =  
+            () => {  
 
-                    try{
+                try{  
 
-                        delete window[
-                            callbackName
-                        ];
+                    delete window[  
+                        callbackName  
+                    ];  
 
-                    }
-                    catch(error){
+                }  
+                catch(error){  
 
-                        window[
-                            callbackName
-                        ] =
-                            undefined;
+                    window[  
+                        callbackName  
+                    ] =  
+                        undefined;  
 
-                    }
+                }  
 
 
-                    if(
-                        script.parentNode
-                    ){
+                if(  
+                    script.parentNode  
+                ){  
 
-                        script.parentNode.removeChild(
-                            script
-                        );
+                    script.parentNode.removeChild(  
+                        script  
+                    );  
 
-                    }
+                }  
 
-                };
+            };  
 
 
-            /* =========================================
-               CALLBACK
-            ========================================= */
+        /* =========================================  
+           CALLBACK  
+        ========================================= */  
 
-            window[
-                callbackName
-            ] =
-                result => {
+        window[  
+            callbackName  
+        ] =  
+            result => {  
 
-                    if(
-                        finished
-                    ){
+                if(  
+                    finished  
+                ){  
 
-                        return;
+                    return;  
 
-                    }
+                }  
 
 
-                    finished =
-                        true;
+                finished =  
+                    true;  
 
 
-                    clearTimeout(
-                        timeout
-                    );
+                clearTimeout(  
+                    timeout  
+                );  
 
 
-                    cleanup();
+                cleanup();  
 
 
-                    resolve(
-                        result
-                    );
+                resolve(  
+                    result  
+                );  
 
-                };
+            };  
 
 
-            /* =========================================
-               ERROR
-            ========================================= */
+        /* =========================================  
+           ERROR  
+        ========================================= */  
 
-            script.onerror =
-                () => {
+        script.onerror =  
+            () => {  
 
-                    if(
-                        finished
-                    ){
+                if(  
+                    finished  
+                ){  
 
-                        return;
+                    return;  
 
-                    }
+                }  
 
 
-                    finished =
-                        true;
+                finished =  
+                    true;  
 
 
-                    clearTimeout(
-                        timeout
-                    );
+                clearTimeout(  
+                    timeout  
+                );  
 
 
-                    cleanup();
+                cleanup();  
 
 
-                    reject(
-                        new Error(
-                            "Apps Script request gagal."
-                        )
-                    );
+                reject(  
+                    new Error(  
+                        "Apps Script request gagal."  
+                    )  
+                );  
 
-                };
+            };  
 
 
-            /* =========================================
-               CALLBACK PARAMETER
-            ========================================= */
+        /* =========================================  
+           CALLBACK PARAMETER  
+        ========================================= */  
 
-            const separator =
-                url.includes(
-                    "?"
-                )
-                    ?
-                    "&"
-                    :
-                    "?";
+        const separator =  
+            url.includes(  
+                "?"  
+            )  
+                ?  
+                "&"  
+                :  
+                "?";  
 
 
-            script.src =
-                url
-                +
-                separator
-                +
-                "callback="
-                +
-                encodeURIComponent(
-                    callbackName
-                );
+        script.src =  
+            url  
+            +  
+            separator  
+            +  
+            "callback="  
+            +  
+            encodeURIComponent(  
+                callbackName  
+            );  
 
 
-            /* =========================================
-               TIMEOUT
-            ========================================= */
+        /* =========================================  
+           TIMEOUT  
+        ========================================= */  
 
-            const timeout =
-                setTimeout(
-                    () => {
+        const timeout =  
+            setTimeout(  
+                () => {  
 
-                        if(
-                            finished
-                        ){
+                    if(  
+                        finished  
+                    ){  
 
-                            return;
+                        return;  
 
-                        }
+                    }  
 
 
-                        finished =
-                            true;
+                    finished =  
+                        true;  
 
 
-                        cleanup();
+                    cleanup();  
 
 
-                        reject(
-                            new Error(
-                                "Apps Script request timeout."
-                            )
-                        );
+                    reject(  
+                        new Error(  
+                            "Apps Script request timeout."  
+                        )  
+                    );  
 
-                    },
-                    30000
-                );
+                },  
+                30000  
+            );  
 
 
-            /* =========================================
-               APPEND SCRIPT
-            ========================================= */
+        /* =========================================  
+           APPEND SCRIPT  
+        ========================================= */  
 
-            document.head.appendChild(
-                script
-            );
+        document.head.appendChild(  
+            script  
+        );  
 
-        }
-    );
+    }  
+);
 
 }
 
-
 /* =====================================================
-   BUILD UPDATE URL
+BUILD UPDATE URL
 ===================================================== */
 
 function buildUpdateURL(
-    endpoint,
-    workspace,
-    spreadsheetId,
-    accessToken,
-    data
+endpoint,
+workspace,
+spreadsheetId,
+accessToken,
+data
 ){
 
-    const params =
-        new URLSearchParams();
+const params =  
+    new URLSearchParams();  
 
 
-    /* =============================================
-       ACTION
-    ============================================= */
+/* =============================================  
+   ACTION  
+============================================= */  
 
-    params.set(
-        "action",
-        "update"
-    );
-
-
-    /* =============================================
-       WORKSPACE
-    ============================================= */
-
-    params.set(
-        "workspace",
-        workspace
-    );
+params.set(  
+    "action",  
+    "update"  
+);  
 
 
-    /* =============================================
-       SPREADSHEET
-    ============================================= */
+/* =============================================  
+   WORKSPACE  
+============================================= */  
 
-    params.set(
-        "spreadsheetId",
-        spreadsheetId
-    );
-
-
-    /* =============================================
-       ACCESS TOKEN
-    ============================================= */
-
-    params.set(
-        "accessToken",
-        accessToken
-    );
+params.set(  
+    "workspace",  
+    workspace  
+);  
 
 
-    /* =============================================
-       DATA
-    ============================================= */
+/* =============================================  
+   SPREADSHEET  
+============================================= */  
 
-    params.set(
-        "data",
-        JSON.stringify(
-            data
-        )
-    );
+params.set(  
+    "spreadsheetId",  
+    spreadsheetId  
+);  
 
 
-    /* =============================================
-       URL
-    ============================================= */
+/* =============================================  
+   ACCESS TOKEN  
+============================================= */  
 
-    return (
-        endpoint
-        +
-        (
-            endpoint.includes(
-                "?"
-            )
-                ?
-                "&"
-                :
-                "?"
-        )
-        +
-        params.toString()
-    );
+params.set(  
+    "accessToken",  
+    accessToken  
+);  
+
+
+/* =============================================  
+   DATA  
+============================================= */  
+
+params.set(  
+    "data",  
+    JSON.stringify(  
+        data  
+    )  
+);  
+
+
+/* =============================================  
+   URL  
+============================================= */  
+
+return (  
+    endpoint  
+    +  
+    (  
+        endpoint.includes(  
+            "?"  
+        )  
+            ?  
+            "&"  
+            :  
+            "?"  
+    )  
+    +  
+    params.toString()  
+);
 
 }
 
-
 /* =====================================================
-   CREATE UPDATE SIGNATURE
+CREATE UPDATE SIGNATURE
 ===================================================== */
 
 function createUpdateSignature(
-    workspace,
-    data
+workspace,
+data
 ){
 
-    let serializedData;
+let serializedData;  
 
 
-    try{
+try{  
 
-        serializedData =
-            JSON.stringify(
-                data
-            );
+    serializedData =  
+        JSON.stringify(  
+            data  
+        );  
 
-    }
-    catch(error){
+}  
+catch(error){  
 
-        serializedData =
-            String(
-                data
-            );
+    serializedData =  
+        String(  
+            data  
+        );  
 
-    }
+}  
 
 
-    return [
+return [  
 
-        "update",
+    "update",  
 
-        workspace,
+    workspace,  
 
-        serializedData
+    serializedData  
 
-    ].join(
-        "|"
-    );
+].join(  
+    "|"  
+);
 
 }
 
-
 /* =====================================================
-   GET ACTIVE UPDATE
+GET ACTIVE UPDATE
 ===================================================== */
 
 function getActiveUpdate(
-    signature
+signature
 ){
 
-    return activeUpdates.get(
-        signature
-    );
+return activeUpdates.get(  
+    signature  
+);
 
 }
 
-
 /* =====================================================
-   REGISTER UPDATE
+REGISTER UPDATE
 ===================================================== */
 
 function registerActiveUpdate(
-    signature,
-    promise
+signature,
+promise
 ){
 
-    activeUpdates.set(
-        signature,
-        promise
-    );
+activeUpdates.set(  
+    signature,  
+    promise  
+);
 
 }
 
-
 /* =====================================================
-   RELEASE UPDATE
+RELEASE UPDATE
 ===================================================== */
 
 function releaseActiveUpdate(
-    signature,
-    promise
+signature,
+promise
 ){
 
-    if(
-        activeUpdates.get(
-            signature
-        )
-        ===
-        promise
-    ){
+if(  
+    activeUpdates.get(  
+        signature  
+    )  
+    ===  
+    promise  
+){  
 
-        activeUpdates.delete(
-            signature
-        );
-
-    }
+    activeUpdates.delete(  
+        signature  
+    );  
 
 }
 
+}
 
 /* =====================================================
-   VALIDATE WORKSPACE
+VALIDATE WORKSPACE
 ===================================================== */
 
 function validateWorkspace(
-    workspace
+workspace
 ){
 
-    if(
-        !workspace
-        ||
-        typeof workspace !==
-            "string"
-    ){
+if(  
+    !workspace  
+    ||  
+    typeof workspace !==  
+        "string"  
+){  
 
-        throw new Error(
-            "Workspace tidak ditemukan."
-        );
+    throw new Error(  
+        "Workspace tidak ditemukan."  
+    );  
 
-    }
-
-
-    if(
-        !workspace.trim()
-    ){
-
-        throw new Error(
-            "Workspace tidak valid."
-        );
-
-    }
+}  
 
 
-    return workspace.trim();
+if(  
+    !workspace.trim()  
+){  
+
+    throw new Error(  
+        "Workspace tidak valid."  
+    );  
+
+}  
+
+
+return workspace.trim();
 
 }
 
-
 /* =====================================================
-   VALIDATE FIELD TARGET
+VALIDATE FIELD TARGET
 ===================================================== */
 
 function validateFieldTarget(
-    target
+target
 ){
 
-    if(
-        !target
-        ||
-        typeof target !==
-            "object"
-        ||
-        Array.isArray(
-            target
-        )
-    ){
+if(  
+    !target  
+    ||  
+    typeof target !==  
+        "object"  
+    ||  
+    Array.isArray(  
+        target  
+    )  
+){  
 
-        throw new Error(
-            "Update target tidak valid."
-        );
+    throw new Error(  
+        "Update target tidak valid."  
+    );  
 
-    }
-
-
-    /* =============================================
-       ID
-    ============================================= */
-
-    if(
-        target.id ===
-            undefined
-        ||
-        target.id ===
-            null
-        ||
-        String(
-            target.id
-        ).trim() === ""
-    ){
-
-        throw new Error(
-            "Update target membutuhkan ID."
-        );
-
-    }
+}  
 
 
-    /* =============================================
-       PROJECT
-    ============================================= */
+/* =============================================  
+   ID  
+============================================= */  
 
-    if(
-        target.project ===
-            undefined
-        ||
-        target.project ===
-            null
-        ||
-        String(
-            target.project
-        ).trim() === ""
-    ){
+if(  
+    target.id ===  
+        undefined  
+    ||  
+    target.id ===  
+        null  
+    ||  
+    String(  
+        target.id  
+    ).trim() === ""  
+){  
 
-        throw new Error(
-            "Update target membutuhkan project."
-        );
+    throw new Error(  
+        "Update target membutuhkan ID."  
+    );  
 
-    }
+}  
 
 
-    return {
+/* =============================================  
+   PROJECT  
+============================================= */  
 
-        id :
-            String(
-                target.id
-            ).trim(),
+if(  
+    target.project ===  
+        undefined  
+    ||  
+    target.project ===  
+        null  
+    ||  
+    String(  
+        target.project  
+    ).trim() === ""  
+){  
 
-        project :
-            String(
-                target.project
-            ).trim()
+    throw new Error(  
+        "Update target membutuhkan project."  
+    );  
 
-    };
+}  
+
+
+return {  
+
+    id :  
+        String(  
+            target.id  
+        ).trim(),  
+
+    project :  
+        String(  
+            target.project  
+        ).trim()  
+
+};
 
 }
 
-
 /* =====================================================
-   GET DATE VALUE
+GET DATE VALUE
 ===================================================== */
 
+/*
+Membaca tanggal dari object tanpa
+memaksa workspace menggunakan
+nama field tertentu.
+
+Didukung:
+
+tanggal  
+   Tanggal  
+   date  
+   Date
+
+Contoh:
+
+record.Date
+
+akan menghasilkan:
+
+"2026-09-05"
+
+*/
+
 function getDateValue(
-    source
+source
 ){
 
-    if(
-        !source
-        ||
-        typeof source !==
-            "object"
-        ||
-        Array.isArray(
-            source
-        )
-    ){
+if(  
+    !source  
+    ||  
+    typeof source !==  
+        "object"  
+    ||  
+    Array.isArray(  
+        source  
+    )  
+){  
 
-        return undefined;
+    return undefined;  
 
-    }
-
-
-    for(
-        const field
-        of DATE_FIELD_ALIASES
-    ){
-
-        if(
-            Object.prototype.hasOwnProperty.call(
-                source,
-                field
-            )
-        ){
-
-            const value =
-                source[
-                    field
-                ];
+}  
 
 
-            if(
-                value !==
-                    undefined
-                &&
-                value !==
-                    null
-                &&
-                String(
-                    value
-                ).trim() !== ""
-            ){
+for(  
+    const field  
+    of DATE_FIELD_ALIASES  
+){  
 
-                return value;
+    if(  
+        Object.prototype.hasOwnProperty.call(  
+            source,  
+            field  
+        )  
+    ){  
 
-            }
-
-        }
-
-    }
+        const value =  
+            source[  
+                field  
+            ];  
 
 
-    return undefined;
+        if(  
+            value !==  
+                undefined  
+            &&  
+            value !==  
+                null  
+            &&  
+            String(  
+                value  
+            ).trim() !== ""  
+        ){  
+
+            return value;  
+
+        }  
+
+    }  
+
+}  
+
+
+return undefined;
 
 }
 
-
 /* =====================================================
-   GET DATE FIELD NAME
+GET DATE FIELD NAME
 ===================================================== */
 
 function getDateFieldName(
-    source
+source
 ){
 
-    if(
-        !source
-        ||
-        typeof source !==
-            "object"
-        ||
-        Array.isArray(
-            source
-        )
-    ){
+if(  
+    !source  
+    ||  
+    typeof source !==  
+        "object"  
+    ||  
+    Array.isArray(  
+        source  
+    )  
+){  
 
-        return null;
+    return null;  
 
-    }
-
-
-    for(
-        const field
-        of DATE_FIELD_ALIASES
-    ){
-
-        if(
-            Object.prototype.hasOwnProperty.call(
-                source,
-                field
-            )
-        ){
-
-            const value =
-                source[
-                    field
-                ];
+}  
 
 
-            if(
-                value !==
-                    undefined
-                &&
-                value !==
-                    null
-                &&
-                String(
-                    value
-                ).trim() !== ""
-            ){
+for(  
+    const field  
+    of DATE_FIELD_ALIASES  
+){  
 
-                return field;
+    if(  
+        Object.prototype.hasOwnProperty.call(  
+            source,  
+            field  
+        )  
+    ){  
 
-            }
-
-        }
-
-    }
+        const value =  
+            source[  
+                field  
+            ];  
 
 
-    return null;
+        if(  
+            value !==  
+                undefined  
+            &&  
+            value !==  
+                null  
+            &&  
+            String(  
+                value  
+            ).trim() !== ""  
+        ){  
+
+            return field;  
+
+        }  
+
+    }  
+
+}  
+
+
+return null;
 
 }
 
-
 /* =====================================================
-   NORMALIZE DATE VALUE
+NORMALIZE DATE VALUE
 ===================================================== */
+
+/*
+Digunakan hanya untuk locator
+dan perbandingan.
+
+Tidak mengubah nilai Date
+pada row asli.
+
+Contoh:
+
+Date :  
+       "2026-09-05"
+
+menjadi:
+
+"2026-09-05"
+
+*/
 
 function normalizeDateValue(
-    value
+value
 ){
 
-    if(
-        value ===
-            undefined
-        ||
-        value ===
-            null
-    ){
+if(  
+    value ===  
+        undefined  
+    ||  
+    value ===  
+        null  
+){  
 
-        return "";
+    return "";  
 
-    }
+}  
 
 
-    return String(
-        value
-    ).trim();
+return String(  
+    value  
+).trim();
 
 }
 
-
 /* =====================================================
-   VALIDATE ROW TARGET
+VALIDATE ROW TARGET
 ===================================================== */
 
+/*
+Target updateRow sekarang menerima:
+
+{  
+       id :  
+           "...",  
+
+       tanggal :  
+           "2026-09-05"  
+   }
+
+ATAU:
+
+{  
+       id :  
+           "...",  
+
+       Tanggal :  
+           "2026-09-05"  
+   }
+
+ATAU:
+
+{  
+       id :  
+           "...",  
+
+       date :  
+           "2026-09-05"  
+   }
+
+ATAU:
+
+{  
+       id :  
+           "...",  
+
+       Date :  
+           "2026-09-05"  
+   }
+
+Setelah validasi seluruh variasi
+tersebut dinormalisasi menjadi:
+
+{  
+       id :  
+           "...",  
+
+       tanggal :  
+           "2026-09-05"  
+   }
+
+Dengan begitu Apps Script tetap
+menerima kontrak target yang sama.
+*/
+
 function validateRowTarget(
-    target
+target
 ){
 
-    if(
-        !target
-        ||
-        typeof target !==
-            "object"
-        ||
-        Array.isArray(
-            target
-        )
-    ){
+if(  
+    !target  
+    ||  
+    typeof target !==  
+        "object"  
+    ||  
+    Array.isArray(  
+        target  
+    )  
+){  
 
-        throw new Error(
-            "Update row target tidak valid."
-        );
+    throw new Error(  
+        "Update row target tidak valid."  
+    );  
 
-    }
-
-
-    /* =============================================
-       ID
-    ============================================= */
-
-    if(
-        target.id ===
-            undefined
-        ||
-        target.id ===
-            null
-        ||
-        String(
-            target.id
-        ).trim() === ""
-    ){
-
-        throw new Error(
-            "Update row target membutuhkan ID."
-        );
-
-    }
+}  
 
 
-    /* =============================================
-       DATE / TANGGAL
-    ============================================= */
+/* =============================================  
+   ID  
+============================================= */  
 
-    const rawDate =
-        getDateValue(
-            target
-        );
+if(  
+    target.id ===  
+        undefined  
+    ||  
+    target.id ===  
+        null  
+    ||  
+    String(  
+        target.id  
+    ).trim() === ""  
+){  
 
+    throw new Error(  
+        "Update row target membutuhkan ID."  
+    );  
 
-    const normalizedDate =
-        normalizeDateValue(
-            rawDate
-        );
-
-
-    if(
-        !normalizedDate
-    ){
-
-        throw new Error(
-            "Update row target membutuhkan tanggal/Date."
-        );
-
-    }
+}  
 
 
-    console.log(
-        "UPDATE ROW DATE TARGET:",
-        {
-            sourceField :
-                getDateFieldName(
-                    target
-                ),
+/* =============================================  
+   DATE / TANGGAL  
+============================================= */  
 
-            value :
-                normalizedDate
-        }
-    );
+const rawDate =  
+    getDateValue(  
+        target  
+    );  
 
 
-    return {
+const normalizedDate =  
+    normalizeDateValue(  
+        rawDate  
+    );  
 
-        id :
-            String(
-                target.id
-            ).trim(),
 
-        tanggal :
-            normalizedDate
+if(  
+    !normalizedDate  
+){  
 
-    };
+    throw new Error(  
+        "Update row target membutuhkan tanggal/Date."  
+    );  
+
+}  
+
+
+console.log(  
+    "UPDATE ROW DATE TARGET:",  
+    {  
+        sourceField :  
+            getDateFieldName(  
+                target  
+            ),  
+
+        value :  
+            normalizedDate  
+    }  
+);  
+
+
+return {  
+
+    id :  
+        String(  
+            target.id  
+        ).trim(),  
+
+    /*  
+       Canonical internal/server  
+       locator tetap menggunakan  
+       "tanggal".  
+
+       Workspace boleh menggunakan  
+       Date/date/Tanggal/tanggal.  
+    */  
+
+    tanggal :  
+        normalizedDate  
+
+};
 
 }
 
-
 /* =====================================================
-   VALIDATE FIELD CHANGES
+VALIDATE FIELD CHANGES
 ===================================================== */
 
 function validateFieldChanges(
-    changes
+changes
 ){
 
-    if(
-        !changes
-        ||
-        typeof changes !==
-            "object"
-        ||
-        Array.isArray(
-            changes
-        )
-    ){
+if(  
+    !changes  
+    ||  
+    typeof changes !==  
+        "object"  
+    ||  
+    Array.isArray(  
+        changes  
+    )  
+){  
 
-        throw new Error(
-            "Update changes tidak valid."
-        );
+    throw new Error(  
+        "Update changes tidak valid."  
+    );  
 
-    }
-
-
-    const keys =
-        Object.keys(
-            changes
-        );
+}  
 
 
-    if(
-        keys.length ===
-            0
-    ){
-
-        throw new Error(
-            "Tidak ada field yang akan di-update."
-        );
-
-    }
+const keys =  
+    Object.keys(  
+        changes  
+    );  
 
 
-    if(
-        Object.prototype.hasOwnProperty.call(
-            changes,
-            "id"
-        )
-    ){
+if(  
+    keys.length ===  
+        0  
+){  
 
-        throw new Error(
-            "ID tidak boleh diubah menggunakan updateField()."
-        );
+    throw new Error(  
+        "Tidak ada field yang akan di-update."  
+    );  
 
-    }
+}  
 
 
-    if(
-        Object.prototype.hasOwnProperty.call(
-            changes,
-            "project"
-        )
-    ){
+/*  
+   ID dan project digunakan  
+   sebagai locator.  
 
-        throw new Error(
-            "Project tidak boleh diubah menggunakan updateField()."
-        );
+   Pada field update,  
+   keduanya tidak boleh diubah.  
+*/  
 
-    }
+if(  
+    Object.prototype.hasOwnProperty.call(  
+        changes,  
+        "id"  
+    )  
+){  
+
+    throw new Error(  
+        "ID tidak boleh diubah menggunakan updateField()."  
+    );  
+
+}  
 
 
-    return {
+if(  
+    Object.prototype.hasOwnProperty.call(  
+        changes,  
+        "project"  
+    )  
+){  
 
-        ...changes
+    throw new Error(  
+        "Project tidak boleh diubah menggunakan updateField()."  
+    );  
 
-    };
+}  
+
+
+return {  
+
+    ...changes  
+
+};
 
 }
 
-
 /* =====================================================
-   VALIDATE ROW
+VALIDATE ROW
 ===================================================== */
 
+/*
+Validasi full row.
+
+Row sekarang dapat mempunyai
+field tanggal:
+
+tanggal  
+   Tanggal  
+   date  
+   Date
+
+Nama field asli TIDAK diubah.
+
+Contoh Financial:
+
+{  
+       id :  
+           "FIN-XXXX",  
+
+       Date :  
+           "2026-09-05",  
+
+       jenis :  
+           "keluar",  
+
+       type :  
+           "tagihan"  
+   }
+
+Tetap dikirim dengan:
+
+Date
+
+tetapi kita tambahkan alias internal:
+
+tanggal
+
+jika memang belum ada.
+
+Ini menjaga kompatibilitas dengan
+update.gs versi yang masih melakukan
+validasi row.tanggal.
+*/
+
 function validateRow(
-    target,
-    row
+target,
+row
 ){
 
-    if(
-        !row
-        ||
-        typeof row !==
-            "object"
-        ||
-        Array.isArray(
-            row
-        )
-    ){
+if(  
+    !row  
+    ||  
+    typeof row !==  
+        "object"  
+    ||  
+    Array.isArray(  
+        row  
+    )  
+){  
 
-        throw new Error(
-            "Update row tidak valid."
-        );
+    throw new Error(  
+        "Update row tidak valid."  
+    );  
 
-    }
-
-
-    /* =============================================
-       ROW ID
-    ============================================= */
-
-    if(
-        row.id ===
-            undefined
-        ||
-        row.id ===
-            null
-        ||
-        String(
-            row.id
-        ).trim() === ""
-    ){
-
-        throw new Error(
-            "Update row membutuhkan ID."
-        );
-
-    }
+}  
 
 
-    /* =============================================
-       ID MUST MATCH TARGET
-    ============================================= */
+/* =============================================  
+   ROW ID  
+============================================= */  
 
-    if(
-        String(
-            row.id
-        ).trim()
-        !==
-        String(
-            target.id
-        ).trim()
-    ){
+if(  
+    row.id ===  
+        undefined  
+    ||  
+    row.id ===  
+        null  
+    ||  
+    String(  
+        row.id  
+    ).trim() === ""  
+){  
 
-        throw new Error(
-            "ID target dan ID row tidak sama."
-        );
+    throw new Error(  
+        "Update row membutuhkan ID."  
+    );  
 
-    }
-
-
-    /* =============================================
-       ROW DATE / TANGGAL
-    ============================================= */
-
-    const rawDate =
-        getDateValue(
-            row
-        );
+}  
 
 
-    const normalizedDate =
-        normalizeDateValue(
-            rawDate
-        );
+/* =============================================  
+   ID MUST MATCH TARGET  
+============================================= */  
+
+if(  
+    String(  
+        row.id  
+    ).trim()  
+    !==  
+    String(  
+        target.id  
+    ).trim()  
+){  
+
+    throw new Error(  
+        "ID target dan ID row tidak sama."  
+    );  
+
+}  
 
 
-    if(
-        !normalizedDate
-    ){
+/* =============================================  
+   ROW DATE / TANGGAL  
+============================================= */  
 
-        throw new Error(
-            "Update row membutuhkan tanggal/Date."
-        );
-
-    }
-
-
-    /* =============================================
-       DATE MUST MATCH TARGET
-    ============================================= */
-
-    if(
-        normalizedDate
-        !==
-        String(
-            target.tanggal
-        ).trim()
-    ){
-
-        throw new Error(
-            "Tanggal target dan tanggal row tidak sama."
-        );
-
-    }
+const rawDate =  
+    getDateValue(  
+        row  
+    );  
 
 
-    /* =============================================
-       PRESERVE ORIGINAL ROW
-    ============================================= */
-
-    const validRow = {
-
-        ...row
-
-    };
+const normalizedDate =  
+    normalizeDateValue(  
+        rawDate  
+    );  
 
 
-    if(
-        !Object.prototype.hasOwnProperty.call(
-            validRow,
-            "tanggal"
-        )
-    ){
+if(  
+    !normalizedDate  
+){  
 
-        validRow.tanggal =
-            normalizedDate;
+    throw new Error(  
+        "Update row membutuhkan tanggal/Date."  
+    );  
 
-    }
+}  
 
 
-    return validRow;
+/* =============================================  
+   DATE MUST MATCH TARGET  
+============================================= */  
+
+if(  
+    normalizedDate  
+    !==  
+    String(  
+        target.tanggal  
+    ).trim()  
+){  
+
+    throw new Error(  
+        "Tanggal target dan tanggal row tidak sama."  
+    );  
+
+}  
+
+
+/* =============================================  
+   PRESERVE ORIGINAL ROW  
+============================================= */  
+
+const validRow = {  
+
+    ...row  
+
+};  
+
+
+/*  
+   Jika row menggunakan:  
+
+       Date  
+       date  
+       Tanggal  
+
+   tetapi belum mempunyai:  
+
+       tanggal  
+
+   tambahkan canonical alias.  
+
+   Field asli tetap dipertahankan.  
+
+   Jadi Financial:  
+
+       Date  
+
+   tidak diubah menjadi:  
+
+       tanggal  
+
+   secara paksa.  
+*/  
+
+if(  
+    !Object.prototype.hasOwnProperty.call(  
+        validRow,  
+        "tanggal"  
+    )  
+){  
+
+    validRow.tanggal =  
+        normalizedDate;  
+
+}  
+
+
+return validRow;
 
 }
 
-
 /* =====================================================
-   NORMALIZE RESPONSE
+NORMALIZE RESPONSE
 ===================================================== */
 
 function normalizeUpdateResponse(
-    response
+response
 ){
 
-    if(
-        response ===
-            undefined
-        ||
-        response ===
-            null
-    ){
+if(  
+    response ===  
+        undefined  
+    ||  
+    response ===  
+        null  
+){  
 
-        return {
+    return {  
 
-            success :
-                false,
+        success :  
+            false,  
 
-            code :
-                "EMPTY_RESPONSE",
+        code :  
+            "EMPTY_RESPONSE",  
 
-            message :
-                "Apps Script mengembalikan response kosong."
+        message :  
+            "Apps Script mengembalikan response kosong."  
 
-        };
+    };  
 
-    }
-
-
-    if(
-        typeof response ===
-            "string"
-    ){
-
-        try{
-
-            return JSON.parse(
-                response
-            );
-
-        }
-        catch(error){
-
-            return {
-
-                success :
-                    false,
-
-                code :
-                    "INVALID_RESPONSE",
-
-                message :
-                    response
-
-            };
-
-        }
-
-    }
+}  
 
 
-    if(
-        typeof response !==
-            "object"
-    ){
+/*  
+   Jika response berupa JSON string,  
+   coba parse.  
+*/  
 
-        return {
+if(  
+    typeof response ===  
+        "string"  
+){  
 
-            success :
-                false,
+    try{  
 
-            code :
-                "INVALID_RESPONSE",
+        return JSON.parse(  
+            response  
+        );  
 
-            message :
-                "Format response tidak valid."
+    }  
+    catch(error){  
 
-        };
+        return {  
 
-    }
+            success :  
+                false,  
+
+            code :  
+                "INVALID_RESPONSE",  
+
+            message :  
+                response  
+
+        };  
+
+    }  
+
+}  
 
 
-    return response;
+if(  
+    typeof response !==  
+        "object"  
+){  
+
+    return {  
+
+        success :  
+            false,  
+
+        code :  
+            "INVALID_RESPONSE",  
+
+        message :  
+            "Format response tidak valid."  
+
+    };  
+
+}  
+
+
+return response;
 
 }
 
-
 /* =====================================================
-   UPDATE FIELD
+UPDATE FIELD
 ===================================================== */
 
 async function updateField(
-    workspace,
-    target,
-    changes
+workspace,
+target,
+changes
 ){
 
-    const validWorkspace =
-        validateWorkspace(
-            workspace
-        );
+const validWorkspace =  
+    validateWorkspace(  
+        workspace  
+    );  
 
 
-    const validTarget =
-        validateFieldTarget(
-            target
-        );
+const validTarget =  
+    validateFieldTarget(  
+        target  
+    );  
 
 
-    const validChanges =
-        validateFieldChanges(
-            changes
-        );
+const validChanges =  
+    validateFieldChanges(  
+        changes  
+    );  
 
 
-    const data = {
+const data = {  
 
-        mode :
-            "field",
+    mode :  
+        "field",  
 
-        target :
-            validTarget,
+    target :  
+        validTarget,  
 
-        changes :
-            validChanges
+    changes :  
+        validChanges  
 
-    };
+};  
 
 
-    return update(
-        validWorkspace,
-        data
-    );
+return update(  
+    validWorkspace,  
+    data  
+);
 
 }
 
-
 /* =====================================================
-   UPDATE ROW
+UPDATE ROW
 ===================================================== */
 
 async function updateRow(
-    workspace,
-    target,
-    row
+workspace,
+target,
+row
 ){
 
-    const validWorkspace =
-        validateWorkspace(
-            workspace
-        );
+const validWorkspace =  
+    validateWorkspace(  
+        workspace  
+    );  
 
 
-    const validTarget =
-        validateRowTarget(
-            target
-        );
+/*  
+   Di sini target Financial  
+   dengan Date sudah diterima.  
+
+   Contoh:  
+
+       {  
+           id :  
+               "FIN-XXXX",  
+
+           Date :  
+               "2026-09-05"  
+       }  
+
+   menjadi:  
+
+       {  
+           id :  
+               "FIN-XXXX",  
+
+           tanggal :  
+               "2026-09-05"  
+       }  
+*/  
+
+const validTarget =  
+    validateRowTarget(  
+        target  
+    );  
 
 
-    const validRow =
-        validateRow(
-            validTarget,
-            row
-        );
+/*  
+   Row Financial dengan:  
+
+       Date  
+
+   juga diterima.  
+*/  
+
+const validRow =  
+    validateRow(  
+        validTarget,  
+        row  
+    );  
 
 
-    const data = {
+const data = {  
 
-        mode :
-            "row",
+    mode :  
+        "row",  
 
-        target :
-            validTarget,
+    target :  
+        validTarget,  
 
-        row :
-            validRow
+    row :  
+        validRow  
 
-    };
+};  
 
 
-    return update(
-        validWorkspace,
-        data
-    );
+return update(  
+    validWorkspace,  
+    data  
+);
 
 }
 
-
 /* =====================================================
-   GENERIC UPDATE
+GENERIC UPDATE
 ===================================================== */
 
 async function update(
-    workspace,
-    data
+workspace,
+data
 ){
 
-    if(
-        !workspace
-    ){
+if(  
+    !workspace  
+){  
 
-        throw new Error(
-            "Workspace tidak ditemukan."
-        );
+    throw new Error(  
+        "Workspace tidak ditemukan."  
+    );  
 
-    }
+}  
 
 
-    if(
-        !data
-        ||
-        typeof data !==
-            "object"
-        ||
-        Array.isArray(
-            data
-        )
-    ){
+if(  
+    !data  
+    ||  
+    typeof data !==  
+        "object"  
+    ||  
+    Array.isArray(  
+        data  
+    )  
+){  
 
-        throw new Error(
-            "Update data tidak valid."
-        );
+    throw new Error(  
+        "Update data tidak valid."  
+    );  
 
-    }
+}  
 
 
-    if(
-        data.mode !==
-            "field"
-        &&
-        data.mode !==
-            "row"
-    ){
+if(  
+    data.mode !==  
+        "field"  
+    &&  
+    data.mode !==  
+        "row"  
+){  
 
-        throw new Error(
-            "Update mode harus field atau row."
-        );
+    throw new Error(  
+        "Update mode harus field atau row."  
+    );  
 
-    }
+}  
 
 
-    /* =============================================
-       TARGET
-    ============================================= */
+/* =============================================  
+   TARGET  
+============================================= */  
 
-    const target =
-        data.mode ===
-            "field"
+const target =  
+    data.mode ===  
+        "field"  
 
-            ?
+        ?  
 
-            validateFieldTarget(
-                data.target
-            )
+        validateFieldTarget(  
+            data.target  
+        )  
 
-            :
+        :  
 
-            validateRowTarget(
-                data.target
-            );
+        validateRowTarget(  
+            data.target  
+        );  
 
 
-    /* =============================================
-       NORMALIZE DATA
-    ============================================= */
+/* =============================================  
+   NORMALIZE DATA  
+============================================= */  
 
-    const requestData = {
+const requestData = {  
 
-        ...data,
+    ...data,  
 
-        target
+    target  
 
-    };
+};  
 
 
-    /* =============================================
-       SIGNATURE
-    ============================================= */
+/* =============================================  
+   SIGNATURE  
+============================================= */  
 
-    const signature =
-        createUpdateSignature(
-            workspace,
-            requestData
-        );
+const signature =  
+    createUpdateSignature(  
+        workspace,  
+        requestData  
+    );  
 
 
-    /* =============================================
-       DUPLICATE REQUEST
-    ============================================= */
+/* =============================================  
+   DUPLICATE REQUEST  
+============================================= */  
 
-    const activeUpdate =
-        getActiveUpdate(
-            signature
-        );
+const activeUpdate =  
+    getActiveUpdate(  
+        signature  
+    );  
 
 
-    if(
-        activeUpdate
-    ){
+if(  
+    activeUpdate  
+){  
 
-        console.warn(
-            "UPDATE: Duplicate request dicegah.",
-            {
-                workspace :
-                    workspace,
+    console.warn(  
+        "UPDATE: Duplicate request dicegah.",  
+        {  
+            workspace :  
+                workspace,  
 
-                mode :
-                    requestData.mode
-            }
-        );
+            mode :  
+                requestData.mode  
+        }  
+    );  
 
 
-        return activeUpdate;
+    return activeUpdate;  
 
-    }
+}  
 
 
-    /* =============================================
-       REQUEST PROMISE
-    ============================================= */
+/* =============================================  
+   REQUEST PROMISE  
+============================================= */  
 
-    const requestPromise =
-        (async () => {
+const requestPromise =  
+    (async () => {  
 
-            try{
+        try{  
 
-                /* =================================
-                   SESSION
-                ================================= */
+            /* =================================  
+               SESSION  
+            ================================= */  
 
-                const session =
-                    await getUpdateSession();
+            const session =  
+                await getUpdateSession();  
 
 
-                /* =================================
-                   FINANCE CORE
-                ================================= */
+            /* =================================  
+               FINANCE CORE  
+            ================================= */  
 
-                const spreadsheetId =
-                    getUpdateSpreadsheetId();
+            const spreadsheetId =  
+                getUpdateSpreadsheetId();  
 
 
-                /* =================================
-                   GOOGLE TOKEN
-                ================================= */
+            /* =================================  
+               GOOGLE TOKEN  
+            ================================= */  
 
-                const accessToken =
-                    await getUpdateAccessToken();
+            const accessToken =  
+                await getUpdateAccessToken();  
 
 
-                /* =================================
-                   ENDPOINT
-                ================================= */
+            /* =================================  
+               ENDPOINT  
+            ================================= */  
 
-                const endpoint =
-                    getUpdateEndpoint(
-                        session
-                    );
+            const endpoint =  
+                getUpdateEndpoint(  
+                    session  
+                );  
 
 
-                /* =================================
-                   BUILD URL
-                ================================= */
+            /* =================================  
+               BUILD URL  
+            ================================= */  
 
-                const url =
-                    buildUpdateURL(
-                        endpoint,
-                        workspace,
-                        spreadsheetId,
-                        accessToken,
-                        requestData
-                    );
+            const url =  
+                buildUpdateURL(  
+                    endpoint,  
+                    workspace,  
+                    spreadsheetId,  
+                    accessToken,  
+                    requestData  
+                );  
 
 
-                /* =================================
-                   DEBUG
-                ================================= */
+            /* =================================  
+               DEBUG  
+            ================================= */  
 
-                console.log(
-                    "=========================================="
-                );
+            console.log(  
+                "=========================================="  
+            );  
 
 
-                console.log(
-                    "===== UPDATE REQUEST ====="
-                );
+            console.log(  
+                "===== UPDATE REQUEST ====="  
+            );  
 
 
-                console.log(
-                    "Action:",
-                    "update"
-                );
+            console.log(  
+                "Action:",  
+                "update"  
+            );  
 
 
-                console.log(
-                    "Workspace:",
-                    workspace
-                );
+            console.log(  
+                "Workspace:",  
+                workspace  
+            );  
 
 
-                console.log(
-                    "Mode:",
-                    requestData.mode
-                );
+            console.log(  
+                "Mode:",  
+                requestData.mode  
+            );  
 
 
-                console.log(
-                    "Target:",
-                    requestData.target
-                );
+            console.log(  
+                "Target:",  
+                requestData.target  
+            );  
 
 
-                console.log(
-                    "Data:",
-                    requestData
-                );
+            console.log(  
+                "Data:",  
+                requestData  
+            );  
 
 
-                console.log(
-                    "Spreadsheet ID:",
-                    spreadsheetId
-                );
+            console.log(  
+                "Spreadsheet ID:",  
+                spreadsheetId  
+            );  
 
 
-                console.log(
-                    "Endpoint:",
-                    endpoint
-                );
+            console.log(  
+                "Endpoint:",  
+                endpoint  
+            );  
 
 
-                console.log(
-                    "=========================================="
-                );
+            console.log(  
+                "=========================================="  
+            );  
 
 
-                /* =================================
-                   REQUEST
-                ================================= */
+            /* =================================  
+               REQUEST  
+            ================================= */  
 
-                const result =
-                    await jsonpRequest(
-                        url
-                    );
+            const result =  
+                await jsonpRequest(  
+                    url  
+                );  
 
 
-                /* =================================
-                   NORMALIZE RESULT
-                ================================= */
+            /* =================================  
+               NORMALIZE RESULT  
+            ================================= */  
 
-                const normalized =
-                    normalizeUpdateResponse(
-                        result
-                    );
+            const normalized =  
+                normalizeUpdateResponse(  
+                    result  
+                );  
 
 
-                /* =================================
-                   DEBUG RESULT
-                ================================= */
+            /* =================================  
+               DEBUG RESULT  
+            ================================= */  
 
-                console.log(
-                    "===== UPDATE RESULT =====",
-                    normalized
-                );
+            console.log(  
+                "===== UPDATE RESULT =====",  
+                normalized  
+            );  
 
 
-                return normalized;
+            return normalized;  
 
-            }
+        }  
 
-            catch(error){
+        catch(error){  
 
-                console.error(
-                    "=========================================="
-                );
+            console.error(  
+                "=========================================="  
+            );  
 
 
-                console.error(
-                    "===== UPDATE FAILED ====="
-                );
+            console.error(  
+                "===== UPDATE FAILED ====="  
+            );  
 
 
-                console.error(
-                    "Update Error:",
-                    error
-                );
+            console.error(  
+                "Update Error:",  
+                error  
+            );  
 
 
-                console.error(
-                    "Update Error Message:",
-                    error?.message
-                );
+            console.error(  
+                "Update Error Message:",  
+                error?.message  
+            );  
 
 
-                console.error(
-                    "Update Error Stack:",
-                    error?.stack
-                );
+            console.error(  
+                "Update Error Stack:",  
+                error?.stack  
+            );  
 
 
-                throw error;
+            throw error;  
 
-            }
+        }  
 
-            finally{
+        finally{  
 
-                releaseActiveUpdate(
-                    signature,
-                    requestPromise
-                );
+            releaseActiveUpdate(  
+                signature,  
+                requestPromise  
+            );  
 
-            }
+        }  
 
-        })();
+    })();  
 
 
-    /* =============================================
-       REGISTER REQUEST
-    ============================================= */
+/* =============================================  
+   REGISTER REQUEST  
+============================================= */  
 
-    registerActiveUpdate(
-        signature,
-        requestPromise
-    );
+registerActiveUpdate(  
+    signature,  
+    requestPromise  
+);  
 
 
-    return requestPromise;
+return requestPromise;
 
 }
 
-
 /* =====================================================
-   GET ACTIVE UPDATE COUNT
+GET ACTIVE UPDATE COUNT
 ===================================================== */
 
 function getActiveUpdateCount(){
 
-    return activeUpdates.size;
+return activeUpdates.size;
 
 }
 
-
 /* =====================================================
-   IS UPDATING
+IS UPDATING
 ===================================================== */
 
 function isUpdating(){
 
-    return (
-        activeUpdates.size >
-        0
-    );
+return (  
+    activeUpdates.size >  
+    0  
+);
 
 }
 
-
 /* =====================================================
-   RESET ACTIVE UPDATES
+RESET ACTIVE UPDATES
 ===================================================== */
 
 function resetUpdates(){
 
-    activeUpdates.clear();
+activeUpdates.clear();
 
 }
 
-
 /* =====================================================
-   PUBLIC UPDATE OBJECT
+PUBLIC UPDATE OBJECT
 ===================================================== */
 
 export const Update = {
 
-    updateField,
+updateField,  
 
-    updateRow,
+updateRow,  
 
-    isUpdating,
+isUpdating,  
 
-    getActiveUpdateCount,
+getActiveUpdateCount,  
 
-    resetUpdates
+resetUpdates
 
 };
 
-
 /* =====================================================
-   DEFAULT EXPORT
+DEFAULT EXPORT
 ===================================================== */
 
 export default Update;
 
-
 /* =====================================================
-   END
+END
 ===================================================== */
