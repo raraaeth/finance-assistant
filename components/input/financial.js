@@ -426,6 +426,33 @@ function getAvailableTypes(){
    GET ACTIVITY BY TYPE
 ===================================================== */
 
+/*
+   Activity Financial mengikuti rule masing-masing.
+
+   KHUSUS :
+
+   masuk
+   keluar
+
+   tidak boleh menampilkan activity :
+
+       hutang_piutang
+       dana_darurat
+       tabungan_kaleng
+
+   Activity tersebut hanya tersedia pada :
+
+       hutang
+       bayar
+       nabung
+       tarik
+
+   Dengan begitu meskipun activity tersebut
+   ikut tersimpan pada rule_pemasukan /
+   rule_pengeluaran dari Setting, activity
+   tetap tidak muncul pada Input masuk / keluar.
+*/
+
 function getActivityByType(
 
     type
@@ -443,9 +470,22 @@ function getActivityByType(
     }
 
 
+    const normalizedType =
+
+        normalizeValue(
+
+            type
+
+        );
+
+
     const ruleName =
 
-        TYPE_RULE[type];
+        TYPE_RULE[
+
+            normalizedType
+
+        ];
 
 
     if(
@@ -479,7 +519,63 @@ function getActivityByType(
     }
 
 
-    return rule.activity.map(
+    let activities = [
+
+        ...rule.activity
+
+    ];
+
+
+    /* =============================================
+       BLOCK SPECIAL ACTIVITIES
+       FROM MASUK / KELUAR
+    ============================================= */
+
+    if(
+
+        normalizedType === "masuk" ||
+
+        normalizedType === "keluar"
+
+    ){
+
+        const blockedActivities = [
+
+            "hutang_piutang",
+
+            "dana_darurat",
+
+            "tabungan_kaleng"
+
+        ];
+
+
+        activities =
+
+            activities.filter(
+
+                activity =>
+
+                    !blockedActivities.includes(
+
+                        normalizeValue(
+
+                            activity
+
+                        )
+
+                    )
+
+            );
+
+    }
+
+
+    /* =============================================
+       BUILD OPTIONS
+    ============================================= */
+
+    return activities.map(
 
         activity => ({
 
@@ -501,6 +597,7 @@ function getActivityByType(
 
 }
 
+        
 
 /* =====================================================
    FORMAT ACTIVITY LABEL
