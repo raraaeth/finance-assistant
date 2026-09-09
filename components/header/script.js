@@ -25,13 +25,22 @@ const BANNERS = {
 
         "saving-banner.webp",
 
+    kas :
+
+        "kas-banner.webp",
+
     financial :
 
         "financial-banner.webp",
 
+    airdrop :
+
+        "airdrop-banner.webp",
+
     payroll :
 
         "payroll-banner.webp"
+   
 
 };
 
