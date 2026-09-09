@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : WRITE
    File        : write.js
-   Version     : 1.2.0
+   Version     : 1.3.0
 
    Description :
    Global Google Apps Script WRITE Engine
@@ -35,6 +35,19 @@
    Google Sheets
 
 
+   SETTING REPLACE
+       ↓
+   write.js
+       ↓
+   update.js
+       ↓
+   Apps Script
+       ↓
+   update.gs
+       ↓
+   Google Sheets
+
+
    Responsibility :
 
    - Mendapatkan Supabase session
@@ -45,6 +58,7 @@
    - Proteksi duplicate WRITE request
    - saveInput()
    - saveSetting()
+   - replaceSetting()
    - Expand automatic payroll rules
 
    TIDAK MENANGANI :
@@ -78,6 +92,23 @@ import {
     loadModuleInfo
 
 } from "./module.js";
+
+
+/*
+   UPDATE digunakan hanya untuk operasi
+   replace setting.
+
+   Tidak mengubah mekanisme Edit Input.
+
+   Edit Input tetap menggunakan Update.updateRow()
+   seperti sebelumnya.
+*/
+
+import {
+
+    Update
+
+} from "./update.js";
 
 
 /* =====================================================
@@ -1945,6 +1976,182 @@ export async function saveSetting(
 
 
 /* =====================================================
+   REPLACE SETTING
+===================================================== */
+
+/*
+   Dipakai oleh module yang memang membutuhkan
+   penggantian row berdasarkan identitas setting.
+
+   Contoh utama :
+
+       Financial
+
+   Identity :
+
+       rules
+
+   Contoh :
+
+       rule_pemasukan
+       rule_pengeluaran
+       rule_hutang
+       rule_tabungan
+
+
+   IMPORTANT :
+
+   Fungsi ini TIDAK menggunakan saveSetting().
+
+   saveSetting() tetap APPEND.
+
+   replaceSetting() meneruskan operasi ke
+   Update.updateSettingRow().
+
+   Dengan demikian workspace lain yang masih
+   menggunakan saveSetting() tidak terpengaruh.
+*/
+
+
+export async function replaceSetting(
+
+    workspace,
+
+    rules,
+
+    data
+
+){
+
+    /* =============================================
+       VALIDATION
+    ============================================= */
+
+    if(
+
+        !workspace
+
+    ){
+
+        throw new Error(
+
+            "Workspace tidak ditemukan."
+
+        );
+
+    }
+
+
+    if(
+
+        !rules
+
+    ){
+
+        throw new Error(
+
+            "Rules setting tidak ditemukan."
+
+        );
+
+    }
+
+
+    if(
+
+        !data ||
+
+        typeof data !==
+
+            "object"
+
+    ){
+
+        throw new Error(
+
+            "Setting replace data tidak valid."
+
+        );
+
+    }
+
+
+    /* =============================================
+       UPDATE ENGINE CHECK
+    ============================================= */
+
+    if(
+
+        !Update
+
+        ||
+
+        typeof Update.updateSettingRow !==
+
+            "function"
+
+    ){
+
+        throw new Error(
+
+            "Update.updateSettingRow() tidak tersedia."
+
+        );
+
+    }
+
+
+    /* =============================================
+       DEBUG
+    ============================================= */
+
+    console.log(
+
+        "WRITE: REPLACE SETTING",
+
+        {
+
+            workspace :
+
+                workspace,
+
+            rules :
+
+                rules,
+
+            data :
+
+                data
+
+        }
+
+    );
+
+
+    /* =============================================
+       REPLACE
+    ============================================= */
+
+    return Update.updateSettingRow(
+
+        workspace,
+
+        {
+
+            rules :
+
+                rules
+
+        },
+
+        data
+
+    );
+
+}
+
+
+/* =====================================================
    DEFAULT EXPORT
 ===================================================== */
 
@@ -1952,7 +2159,9 @@ export default {
 
     saveInput,
 
-    saveSetting
+    saveSetting,
+
+    replaceSetting
 
 };
 
