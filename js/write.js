@@ -1,1666 +1,1953 @@
 /* =====================================================
-   Finance Assistant
-   Module      : WRITE
-   File        : write.js
-   Version     : 1.4.0
+Finance Assistant
+Module      : WRITE
+File        : write.js
+Version     : 1.2.0
 
-   Description :
-   Global Google Apps Script WRITE Engine
+Description :
+Global Google Apps Script WRITE Engine
 
-   Flow :
-   INPUT
-       ↓
-   write.js
-       ↓
-   Apps Script
-       ↓
-   main.gs
-       ↓
-   input.gs
-       ↓
-   Google Sheets
+Flow :
 
-   SETTING
-       ↓
-   write.js
-       ↓
-   Apps Script
-       ↓
-   main.gs
-       ↓
-   setting.gs
-       ↓
-   Google Sheets
+INPUT
+↓
+write.js
+↓
+Apps Script
+↓
+main.gs
+↓
+input.gs
+↓
+Google Sheets
 
-   FINANCIAL SETTING
-       ↓
-   financial.js
-       ↓
-   saveFinancialSetting()
-       ↓
-   replaceSetting() / saveSetting()
-       ↓
-   Update.updateSettingRow()
-       ↓
-   Apps Script
-       ↓
-   Google Sheets
+SETTING
+↓
+write.js
+↓
+Apps Script
+↓
+main.gs
+↓
+setting.gs
+↓
+Google Sheets
 
-   Responsibility :
-   - Mendapatkan Supabase session
-   - Mendapatkan Finance Core
-   - Mendapatkan Google Provider Token
-   - Menentukan Apps Script endpoint
-   - Mengirim WRITE request
-   - Proteksi duplicate WRITE request
-   - saveInput()
-   - saveSetting()
-   - saveFinancialSetting()
-   - replaceSetting()
-   - Expand automatic payroll rules
+Responsibility :
 
-   TIDAK MENANGANI :
-   - Authentication
-   - Login
-   - Logout
-   - READ Sheet
-   - Processing
-   - Calculation
-   - Business Rules
-   - UI
+Mendapatkan Supabase session
+
+Mendapatkan Finance Core
+
+Mendapatkan Google Provider Token
+
+Menentukan Apps Script endpoint
+
+Mengirim WRITE request
+
+Proteksi duplicate WRITE request
+
+saveInput()
+
+saveSetting()
+
+Expand automatic payroll rules
+
+
+TIDAK MENANGANI :
+
+Authentication
+
+Login
+
+Logout
+
+READ Sheet
+
+Processing
+
+Calculation
+
+Business Rules
+
+UI
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT
+IMPORT
 ===================================================== */
 
 import {
-    loadSession,
-    getValidGoogleProviderToken
+
+loadSession,  
+
+getValidGoogleProviderToken
+
 } from "./auth.js";
 
-
 import {
-    loadModuleInfo
+
+loadModuleInfo
+
 } from "./module.js";
 
-
-import {
-    Update
-} from "./update.js";
-
-
 /* =====================================================
-   CONFIG
+CONFIG
 ===================================================== */
 
-const DEFAULT_ENDPOINT =
-    "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
+/*
+Fallback endpoint Apps Script.
 
+Endpoint utama dapat berasal dari
+moduleInfo / session workspace.
+
+Fallback digunakan jika endpoint
+belum tersedia di session.
+*/
+
+const DEFAULT_ENDPOINT =
+
+"https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
 
 /* =====================================================
-   SESSION
+SESSION
 ===================================================== */
 
 async function getWriteSession(){
 
-    console.log(
-        "WRITE: Mengambil Supabase session..."
-    );
+console.log(  
 
-    const session =
-        await loadSession();
+    "WRITE: Mengambil Supabase session..."  
 
-    if(
-        !session
-    ){
-        throw new Error(
-            "Session tidak ditemukan. Silakan login."
-        );
-    }
+);  
 
-    console.log(
-        "WRITE: Session tersedia."
-    );
 
-    return session;
+const session =  
+
+    await loadSession();  
+
+
+if(  
+
+    !session  
+
+){  
+
+    throw new Error(  
+
+        "Session tidak ditemukan. Silakan login."  
+
+    );  
+
+}  
+
+
+console.log(  
+
+    "WRITE: Session tersedia."  
+
+);  
+
+
+return session;
+
 }
 
-
 /* =====================================================
-   FINANCE CORE
+FINANCE CORE
 ===================================================== */
 
 function getWriteFinanceCore(){
 
-    const moduleInfo =
-        loadModuleInfo();
+const moduleInfo =  
 
-    console.log(
-        "WRITE: Finance Module Info:",
-        moduleInfo
-    );
+    loadModuleInfo();  
 
-    if(
-        !moduleInfo
-    ){
-        throw new Error(
-            "Finance Module Info tidak ditemukan."
-        );
-    }
 
-    const financeCore =
-        moduleInfo.financeCore;
+console.log(  
 
-    if(
-        !financeCore
-    ){
-        throw new Error(
-            "Finance Core tidak ditemukan."
-        );
-    }
+    "WRITE: Finance Module Info:",  
 
-    if(
-        !financeCore.id
-    ){
-        throw new Error(
-            "Finance Core Spreadsheet ID tidak ditemukan."
-        );
-    }
+    moduleInfo  
 
-    console.log(
-        "WRITE: Finance Core:",
-        financeCore
-    );
+);  
 
-    return financeCore;
+
+if(  
+
+    !moduleInfo  
+
+){  
+
+    throw new Error(  
+
+        "Finance Module Info tidak ditemukan."  
+
+    );  
+
+}  
+
+
+const financeCore =  
+
+    moduleInfo.financeCore;  
+
+
+if(  
+
+    !financeCore  
+
+){  
+
+    throw new Error(  
+
+        "Finance Core tidak ditemukan."  
+
+    );  
+
+}  
+
+
+if(  
+
+    !financeCore.id  
+
+){  
+
+    throw new Error(  
+
+        "Finance Core Spreadsheet ID tidak ditemukan."  
+
+    );  
+
+}  
+
+
+console.log(  
+
+    "WRITE: Finance Core:",  
+
+    financeCore  
+
+);  
+
+
+return financeCore;
+
 }
 
-
 /* =====================================================
-   SPREADSHEET ID
+SPREADSHEET ID
 ===================================================== */
 
 function getWriteSpreadsheetId(){
 
-    const financeCore =
-        getWriteFinanceCore();
+const financeCore =  
 
-    return financeCore.id;
+    getWriteFinanceCore();  
+
+
+return financeCore.id;
+
 }
 
-
 /* =====================================================
-   GOOGLE PROVIDER TOKEN
+GOOGLE PROVIDER TOKEN
 ===================================================== */
 
 async function getWriteAccessToken(){
 
-    console.log(
-        "WRITE: Meminta Google Provider Token..."
-    );
+console.log(  
 
-    const token =
-        await getValidGoogleProviderToken();
+    "WRITE: Meminta Google Provider Token..."  
 
-    if(
-        !token
-    ){
-        throw new Error(
-            "Google Provider Token tidak tersedia."
-        );
-    }
+);  
 
-    console.log(
-        "WRITE: Google Provider Token: AVAILABLE"
-    );
 
-    return token;
+const token =  
+
+    await getValidGoogleProviderToken();  
+
+
+if(  
+
+    !token  
+
+){  
+
+    throw new Error(  
+
+        "Google Provider Token tidak tersedia."  
+
+    );  
+
+}  
+
+
+console.log(  
+
+    "WRITE: Google Provider Token: AVAILABLE"  
+
+);  
+
+
+return token;
+
 }
 
-
 /* =====================================================
-   ENDPOINT
+ENDPOINT
 ===================================================== */
 
 function getWriteEndpoint(
-    session
+
+session
+
 ){
 
-    /*
-       Prioritas :
+/*  
+   Prioritas :  
 
-       1. session.workspace.endpoint
-       2. moduleInfo.workspace.endpoint
-       3. moduleInfo.endpoint
-       4. DEFAULT_ENDPOINT
-    */
+   1. session.workspace.endpoint  
+   2. moduleInfo endpoint  
+   3. DEFAULT_ENDPOINT  
+*/  
 
-    const moduleInfo =
-        loadModuleInfo();
 
-    const endpoint =
-        session
-        ?.workspace
-        ?.endpoint
+const moduleInfo =  
 
-        ||
+    loadModuleInfo();  
 
-        moduleInfo
-        ?.workspace
-        ?.endpoint
 
-        ||
+const endpoint =  
 
-        moduleInfo
-        ?.endpoint
+    session  
+    ?.workspace  
+    ?.endpoint  
 
-        ||
+    ||  
 
-        DEFAULT_ENDPOINT;
+    moduleInfo  
+    ?.workspace  
+    ?.endpoint  
 
-    if(
-        !endpoint
-    ){
-        throw new Error(
-            "Apps Script endpoint tidak ditemukan."
-        );
-    }
+    ||  
 
-    return endpoint;
+    moduleInfo  
+    ?.endpoint  
+
+    ||  
+
+    DEFAULT_ENDPOINT;  
+
+
+if(  
+
+    !endpoint  
+
+){  
+
+    throw new Error(  
+
+        "Apps Script endpoint tidak ditemukan."  
+
+    );  
+
+}  
+
+
+return endpoint;
+
 }
 
-
 /* =====================================================
-   JSONP REQUEST
+JSONP REQUEST
 ===================================================== */
 
+/*
+WRITE menggunakan gateway Apps Script
+yang sama seperti mekanisme lama.
+
+Karena request dikirim menggunakan
+URL parameter, JSONP digunakan agar
+tetap kompatibel dengan endpoint Apps Script.
+*/
+
 function jsonpRequest(
-    url
+
+url
+
 ){
 
-    return new Promise(
-        (
-            resolve,
-            reject
-        ) => {
+return new Promise(  
 
-            const callbackName =
-                "__financeWriteCallback_" +
-                Date.now() +
-                "_" +
-                Math.random()
-                    .toString(
-                        36
-                    )
-                    .substring(
-                        2
-                    );
+    (  
 
-            const script =
-                document.createElement(
-                    "script"
-                );
+        resolve,  
 
-            let finished =
-                false;
+        reject  
 
+    ) => {  
 
-            /* =========================================
-               CLEANUP
-            ========================================= */
+        const callbackName =  
 
-            const cleanup =
-                () => {
+            "__financeWriteCallback_" +  
 
-                    try{
+            Date.now() +  
 
-                        delete window[
-                            callbackName
-                        ];
+            "_" +  
 
-                    }
-                    catch(error){
+            Math.random()  
 
-                        window[
-                            callbackName
-                        ] =
-                            undefined;
+                .toString(  
 
-                    }
+                    36  
+
+                )  
+
+                .substring(  
+
+                    2  
+
+                );  
 
 
-                    if(
-                        script.parentNode
-                    ){
+        const script =  
 
-                        script.parentNode.removeChild(
-                            script
-                        );
+            document.createElement(  
 
-                    }
+                "script"  
 
-                };
+            );  
 
 
-            /* =========================================
-               CALLBACK
-            ========================================= */
+        let finished =  
 
-            window[
-                callbackName
-            ] =
-                result => {
-
-                    if(
-                        finished
-                    ){
-                        return;
-                    }
-
-                    finished =
-                        true;
-
-                    cleanup();
-
-                    resolve(
-                        result
-                    );
-
-                };
+            false;  
 
 
-            /* =========================================
-               ERROR
-            ========================================= */
+        /* =========================================  
+           CLEANUP  
+        ========================================= */  
 
-            script.onerror =
-                () => {
+        const cleanup =  
 
-                    if(
-                        finished
-                    ){
-                        return;
-                    }
+            () => {  
 
-                    finished =
-                        true;
+                try{  
 
-                    cleanup();
+                    delete window[  
 
-                    reject(
-                        new Error(
-                            "Apps Script request gagal."
-                        )
-                    );
+                        callbackName  
 
-                };
+                    ];  
 
+                }  
 
-            /* =========================================
-               CALLBACK PARAMETER
-            ========================================= */
+                catch(error){  
 
-            const separator =
-                url.includes(
-                    "?"
-                )
-                    ?
-                "&"
-                    :
-                "?";
+                    window[  
+
+                        callbackName  
+
+                    ] =  
+
+                        undefined;  
+
+                }  
 
 
-            script.src =
-                url
-                +
-                separator
-                +
-                "callback="
-                +
-                encodeURIComponent(
-                    callbackName
-                );
+                if(  
+
+                    script.parentNode  
+
+                ){  
+
+                    script.parentNode.removeChild(  
+
+                        script  
+
+                    );  
+
+                }  
+
+            };  
 
 
-            /* =========================================
-               TIMEOUT
-            ========================================= */
+        /* =========================================  
+           CALLBACK  
+        ========================================= */  
 
-            const timeout =
-                setTimeout(
-                    () => {
+        window[  
 
-                        if(
-                            finished
-                        ){
-                            return;
-                        }
+            callbackName  
 
-                        finished =
-                            true;
+        ] =  
 
-                        cleanup();
+            result => {  
 
-                        reject(
-                            new Error(
-                                "Apps Script request timeout."
-                            )
-                        );
+                if(  
 
-                    },
-                    30000
-                );
+                    finished  
+
+                ){  
+
+                    return;  
+
+                }  
 
 
-            /* =========================================
-               CLEAR TIMEOUT CALLBACK
-            ========================================= */
+                finished =  
 
-            const originalResolve =
-                window[
-                    callbackName
-                ];
-
-            window[
-                callbackName
-            ] =
-                result => {
-
-                    clearTimeout(
-                        timeout
-                    );
-
-                    originalResolve(
-                        result
-                    );
-
-                };
+                    true;  
 
 
-            /* =========================================
-               APPEND SCRIPT
-            ========================================= */
+                cleanup();  
 
-            document.head.appendChild(
-                script
-            );
 
-        }
-    );
+                resolve(  
+
+                    result  
+
+                );  
+
+            };  
+
+
+        /* =========================================  
+           ERROR  
+        ========================================= */  
+
+        script.onerror =  
+
+            () => {  
+
+                if(  
+
+                    finished  
+
+                ){  
+
+                    return;  
+
+                }  
+
+
+                finished =  
+
+                    true;  
+
+
+                cleanup();  
+
+
+                reject(  
+
+                    new Error(  
+
+                        "Apps Script request gagal."  
+
+                    )  
+
+                );  
+
+            };  
+
+
+        /* =========================================  
+           CALLBACK PARAMETER  
+        ========================================= */  
+
+        const separator =  
+
+            url.includes(  
+
+                "?"  
+
+            )  
+
+                ?  
+
+            "&"  
+
+                :  
+
+            "?";  
+
+
+        script.src =  
+
+            url  
+
+            +  
+
+            separator  
+
+            +  
+
+            "callback="  
+
+            +  
+
+            encodeURIComponent(  
+
+                callbackName  
+
+            );  
+
+
+        /* =========================================  
+           TIMEOUT  
+        ========================================= */  
+
+        const timeout =  
+
+            setTimeout(  
+
+                () => {  
+
+                    if(  
+
+                        finished  
+
+                    ){  
+
+                        return;  
+
+                    }  
+
+
+                    finished =  
+
+                        true;  
+
+
+                    cleanup();  
+
+
+                    reject(  
+
+                        new Error(  
+
+                            "Apps Script request timeout."  
+
+                        )  
+
+                    );  
+
+                },  
+
+                30000  
+
+            );  
+
+
+        /* =========================================  
+           CLEAR TIMEOUT CALLBACK  
+        ========================================= */  
+
+        const originalResolve =  
+
+            window[  
+
+                callbackName  
+
+            ];  
+
+
+        window[  
+
+            callbackName  
+
+        ] =  
+
+            result => {  
+
+                clearTimeout(  
+
+                    timeout  
+
+                );  
+
+
+                originalResolve(  
+
+                    result  
+
+                );  
+
+            };  
+
+
+        /* =========================================  
+           APPEND SCRIPT  
+        ========================================= */  
+
+        document.head.appendChild(  
+
+            script  
+
+        );  
+
+    }  
+
+);
+
 }
 
-
 /* =====================================================
-   BUILD WRITE URL
+BUILD WRITE URL
 ===================================================== */
 
 function buildWriteURL(
-    endpoint,
-    action,
-    workspace,
-    spreadsheetId,
-    accessToken,
-    data
+
+endpoint,  
+
+action,  
+
+workspace,  
+
+spreadsheetId,  
+
+accessToken,  
+
+data
+
 ){
 
-    const params =
-        new URLSearchParams();
+const params =  
+
+    new URLSearchParams();  
 
 
-    /* =============================================
-       ACTION
-    ============================================= */
+/* =============================================  
+   ACTION  
+============================================= */  
 
-    params.set(
-        "action",
-        action
-    );
+params.set(  
 
+    "action",  
 
-    /* =============================================
-       WORKSPACE
-    ============================================= */
+    action  
 
-    params.set(
-        "workspace",
-        workspace
-    );
+);  
 
 
-    /* =============================================
-       SPREADSHEET
-    ============================================= */
+/* =============================================  
+   WORKSPACE  
+============================================= */  
 
-    params.set(
-        "spreadsheetId",
-        spreadsheetId
-    );
+params.set(  
 
+    "workspace",  
 
-    /* =============================================
-       ACCESS TOKEN
-    ============================================= */
+    workspace  
 
-    params.set(
-        "accessToken",
-        accessToken
-    );
+);  
 
 
-    /* =============================================
-       DATA
-    ============================================= */
+/* =============================================  
+   SPREADSHEET  
+============================================= */  
 
-    params.set(
-        "data",
-        JSON.stringify(
-            data
-        )
-    );
+params.set(  
+
+    "spreadsheetId",  
+
+    spreadsheetId  
+
+);  
 
 
-    /* =============================================
-       URL
-    ============================================= */
+/* =============================================  
+   ACCESS TOKEN  
+============================================= */  
 
-    return (
-        endpoint
-        +
-        (
-            endpoint.includes(
-                "?"
-            )
-                ?
-            "&"
-                :
-            "?"
-        )
-        +
-        params.toString()
-    );
+params.set(  
+
+    "accessToken",  
+
+    accessToken  
+
+);  
+
+
+/* =============================================  
+   DATA  
+============================================= */  
+
+params.set(  
+
+    "data",  
+
+    JSON.stringify(  
+
+        data  
+
+    )  
+
+);  
+
+
+/* =============================================  
+   URL  
+============================================= */  
+
+return (  
+
+    endpoint  
+
+    +  
+
+    (  
+
+        endpoint.includes(  
+
+            "?"  
+
+        )  
+
+            ?  
+
+        "&"  
+
+            :  
+
+        "?"  
+
+    )  
+
+    +  
+
+    params.toString()  
+
+);
+
 }
 
-
 /* =====================================================
-   EXPAND AUTOMATIC SETTING RULES
+EXPAND AUTOMATIC SETTING RULES
 ===================================================== */
+
+/*
+Automatic rule dibuat oleh module setting.
+
+Contoh dari monthly.js:
+
+{  
+       section : "rule_periode",  
+
+       data : {  
+           type_rule : "rule_periode",  
+           nama : "periode_gaji",  
+           ...  
+           auto_rules : [  
+               {...},  
+               {...},  
+               {...},  
+               {...},  
+               {...}  
+           ]  
+       }  
+   }
+
+write.js tidak mengubah struktur rule utama.
+
+Yang dilakukan hanya:
+
+1. Simpan rule utama.  
+   2. Ambil data.auto_rules.  
+   3. Hapus auto_rules dari row utama.  
+   4. Tambahkan setiap automatic rule  
+      sebagai setting entry baru.
+
+Dengan demikian Apps Script menerima:
+
+rule_periode  
+   rule_masuk  
+   rule_masuk  
+   rule_masuk  
+   rule_masuk  
+   rule_masuk
+
+tanpa perlu membuat HTML tambahan.
+*/
 
 function expandAutomaticSettingRules(
-    data
+
+data
+
 ){
 
-    if(
-        !Array.isArray(
-            data
-        )
-    ){
-        return data;
-    }
+if(  
+
+    !Array.isArray(  
+
+        data  
+
+    )  
+
+){  
+
+    return data;  
+
+}  
 
 
-    const expanded = [];
+const expanded = [];  
 
 
-    data.forEach(
-        item => {
+data.forEach(  
 
-            /* =========================================
-               VALIDATE ITEM
-            ========================================= */
+    item => {  
 
-            if(
-                !item
-                ||
-                typeof item !==
-                    "object"
-            ){
+        /*  
+           Pastikan item merupakan object.  
+        */  
 
-                expanded.push(
-                    item
-                );
+        if(  
 
-                return;
-            }
+            !item  
 
+            ||  
 
-            /* =========================================
-               MAIN DATA
-            ========================================= */
+            typeof item !==  
 
-            const itemData =
-                item.data
-                &&
-                typeof item.data ===
-                    "object"
-                    ?
-                item.data
-                    :
-                null;
+                "object"  
+
+        ){  
+
+            expanded.push(  
+
+                item  
+
+            );  
+
+            return;  
+
+        }  
 
 
-            if(
-                !itemData
-            ){
+        /*  
+           Ambil data utama.  
 
-                expanded.push(
-                    item
-                );
+           Struktur normal:  
 
-                return;
-            }
+               item.data  
 
+           Tetapi fallback juga diberikan  
+           apabila suatu saat struktur berubah  
+           menjadi item langsung.  
+        */  
 
-            /* =========================================
-               AUTO RULES
-            ========================================= */
+        const itemData =  
 
-            const autoRules =
-                Array.isArray(
-                    itemData.auto_rules
-                )
-                    ?
-                itemData.auto_rules
-                    :
-                [];
+            item.data &&  
 
+            typeof item.data ===  
 
-            /* =========================================
-               MAIN DATA COPY
+                "object"  
 
-               auto_rules tidak dikirim
-               sebagai property row utama.
-            ========================================= */
+                ?  
 
-            const mainData = {
-                ...itemData
-            };
+            item.data  
 
-            delete mainData.auto_rules;
+                :  
+
+            null;  
 
 
-            /* =========================================
-               MAIN SETTING
-            ========================================= */
+        /*  
+           Tidak memiliki data object.  
+           Biarkan seperti semula.  
+        */  
 
-            expanded.push({
-                ...item,
+        if(  
 
-                data :
-                    mainData
-            });
+            !itemData  
 
+        ){  
 
-            /* =========================================
-               NO AUTO RULE
-            ========================================= */
+            expanded.push(  
 
-            if(
-                autoRules.length === 0
-            ){
-                return;
-            }
+                item  
 
+            );  
 
-            /* =========================================
-               AUTO RULE ENTRIES
-            ========================================= */
+            return;  
 
-            autoRules.forEach(
-                autoRule => {
-
-                    if(
-                        !autoRule
-                        ||
-                        typeof autoRule !==
-                            "object"
-                    ){
-                        return;
-                    }
+        }  
 
 
-                    const ruleSection =
-                        autoRule.type_rule
-                            ||
-                        "rule_masuk";
+        /*  
+           Ambil automatic rules.  
+        */  
+
+        const autoRules =  
+
+            Array.isArray(  
+
+                itemData.auto_rules  
+
+            )  
+
+                ?  
+
+            itemData.auto_rules  
+
+                :  
+
+            [];  
 
 
-                    expanded.push({
+        /*  
+           Buat salinan data utama.  
 
-                        section :
-                            ruleSection,
+           auto_rules tidak ikut dikirim  
+           sebagai property row utama.  
 
-                        data :
-                            {
-                                ...autoRule
-                            }
+           Ini penting agar row periode tetap  
+           mempunyai struktur kolom yang sama.  
+        */  
 
-                    });
+        const mainData = {  
 
-                }
-            );
+            ...itemData  
 
-        }
-    );
+        };  
 
 
-    return expanded;
+        delete mainData.auto_rules;  
+
+
+        /*  
+           Masukkan rule utama.  
+        */  
+
+        expanded.push({  
+
+            ...item,  
+
+            data :  
+
+                mainData  
+
+        });  
+
+
+        /*  
+           Tidak ada automatic rule.  
+        */  
+
+        if(  
+
+            autoRules.length === 0  
+
+        ){  
+
+            return;  
+
+        }  
+
+
+        /*  
+           Masukkan setiap automatic rule  
+           sebagai entry setting tersendiri.  
+        */  
+
+        autoRules.forEach(  
+
+            autoRule => {  
+
+                if(  
+
+                    !autoRule  
+
+                    ||  
+
+                    typeof autoRule !==  
+
+                        "object"  
+
+                ){  
+
+                    return;  
+
+                }  
+
+
+                /*  
+                   Automatic rule mempunyai  
+                   struktur data rule langsung.  
+
+                   Section diprioritaskan dari  
+                   type_rule agar tetap kompatibel  
+                   dengan Apps Script yang sekarang.  
+                */  
+
+                const ruleSection =  
+
+                    autoRule.type_rule  
+
+                        ||  
+
+                    "rule_masuk";  
+
+
+                expanded.push({  
+
+                    section :  
+
+                        ruleSection,  
+
+
+                    data :  
+
+                        {  
+
+                            ...autoRule  
+
+                        }  
+
+                });  
+
+            }  
+
+        );  
+
+    }  
+
+);  
+
+
+return expanded;
+
 }
 
-
 /* =====================================================
-   DOUBLE WRITE PROTECTION
+DOUBLE WRITE PROTECTION
 ===================================================== */
 
-const activeWrites =
-    new Map();
+/*
+Global protection untuk mencegah request WRITE
+yang sama dikirim lebih dari satu kali secara
+bersamaan.
 
+Prinsip :
+
+request pertama  
+        ↓  
+   masuk activeWrites  
+        ↓  
+   request kedua dengan signature sama  
+        ↓  
+   tidak membuat request baru  
+        ↓  
+   menggunakan Promise request pertama
+
+Lock menggunakan :
+
+action  
+   workspace  
+   data
+
+Dengan demikian :
+
+input + airdrop + data A  
+   setting + airdrop + data B
+
+tetap dianggap request yang berbeda.
+
+Proteksi ini berlaku untuk seluruh workspace
+dan seluruh action yang menggunakan write().
+*/
+
+const activeWrites =
+
+new Map();
 
 /* =====================================================
-   CREATE WRITE SIGNATURE
+CREATE WRITE SIGNATURE
 ===================================================== */
 
 function createWriteSignature(
-    action,
-    workspace,
-    data
+
+action,  
+
+workspace,  
+
+data
+
 ){
 
-    let serializedData = "";
+let serializedData = "";  
+
+try{  
+
+    serializedData =  
+
+        JSON.stringify(  
+
+            data  
+
+        );  
+
+}  
+
+catch(error){  
+
+    /*  
+       Jika data tidak dapat di-serialize,  
+       gunakan signature unik agar tidak  
+       memblokir request yang valid.  
+    */  
+
+    serializedData =  
+
+        String(  
+
+            data  
+
+        );  
+
+}  
 
 
-    try{
+return [  
 
-        serializedData =
-            JSON.stringify(
-                data
-            );
+    String(  
 
-    }
-    catch(error){
+        action  
 
-        serializedData =
-            String(
-                data
-            );
+    ),  
 
-    }
+    String(  
 
+        workspace  
 
-    return [
-        String(
-            action
-        ),
+    ),  
 
-        String(
-            workspace
-        ),
+    serializedData  
 
-        serializedData
+].join(  
 
-    ].join(
-        "::"
-    );
+    "::"  
+
+);
+
 }
 
-
 /* =====================================================
-   GET ACTIVE WRITE
+CHECK ACTIVE WRITE
 ===================================================== */
 
 function getActiveWrite(
-    signature
+
+signature
+
 ){
 
-    return activeWrites.get(
-        signature
-    );
+return activeWrites.get(  
+
+    signature  
+
+);
+
 }
 
-
 /* =====================================================
-   REGISTER ACTIVE WRITE
+REGISTER WRITE
 ===================================================== */
 
 function registerActiveWrite(
-    signature,
-    promise
+
+signature,  
+
+promise
+
 ){
 
-    activeWrites.set(
-        signature,
-        promise
-    );
+activeWrites.set(  
+
+    signature,  
+
+    promise  
+
+);
+
 }
 
-
 /* =====================================================
-   RELEASE ACTIVE WRITE
+RELEASE WRITE
 ===================================================== */
 
 function releaseActiveWrite(
-    signature,
-    promise
+
+signature,  
+
+promise
+
 ){
 
-    if(
-        activeWrites.get(
-            signature
-        )
-        ===
-        promise
-    ){
+/*  
+   Hanya hapus lock jika Promise yang selesai  
+   masih merupakan Promise yang terdaftar.  
 
-        activeWrites.delete(
-            signature
-        );
+   Ini mencegah request baru menghapus lock  
+   milik request lain.  
+*/  
 
-    }
+if(  
+
+    activeWrites.get(  
+
+        signature  
+
+    )  
+
+    ===  
+
+    promise  
+
+){  
+
+    activeWrites.delete(  
+
+        signature  
+
+    );  
+
 }
 
-
-/* =====================================================
-   WRITE
-===================================================== */
-
-async function write(
-    action,
-    workspace,
-    data
-){
-
-    /* =============================================
-       VALIDATION
-    ============================================= */
-
-    if(
-        !action
-    ){
-        throw new Error(
-            "Write action tidak ditemukan."
-        );
-    }
-
-
-    if(
-        !workspace
-    ){
-        throw new Error(
-            "Workspace tidak ditemukan."
-        );
-    }
-
-
-    if(
-        data === undefined
-        ||
-        data === null
-    ){
-        throw new Error(
-            "Write data tidak ditemukan."
-        );
-    }
-
-
-    /* =============================================
-       CREATE SIGNATURE
-    ============================================= */
-
-    const signature =
-        createWriteSignature(
-            action,
-            workspace,
-            data
-        );
-
-
-    /* =============================================
-       DUPLICATE REQUEST
-    ============================================= */
-
-    const activeWrite =
-        getActiveWrite(
-            signature
-        );
-
-
-    if(
-        activeWrite
-    ){
-
-        console.warn(
-            "WRITE: Duplicate request dicegah.",
-            {
-                action :
-                    action,
-
-                workspace :
-                    workspace
-            }
-        );
-
-        return activeWrite;
-    }
-
-
-    /* =============================================
-       REQUEST PROMISE
-    ============================================= */
-
-    const requestPromise =
-        (async () => {
-
-            try{
-
-                /* =================================
-                   SESSION
-                ================================= */
-
-                const session =
-                    await getWriteSession();
-
-
-                /* =================================
-                   FINANCE CORE
-                ================================= */
-
-                const spreadsheetId =
-                    getWriteSpreadsheetId();
-
-
-                /* =================================
-                   ACCESS TOKEN
-                ================================= */
-
-                const accessToken =
-                    await getWriteAccessToken();
-
-
-                /* =================================
-                   ENDPOINT
-                ================================= */
-
-                const endpoint =
-                    getWriteEndpoint(
-                        session
-                    );
-
-
-                /* =================================
-                   BUILD URL
-                ================================= */
-
-                const url =
-                    buildWriteURL(
-                        endpoint,
-                        action,
-                        workspace,
-                        spreadsheetId,
-                        accessToken,
-                        data
-                    );
-
-
-                /* =================================
-                   DEBUG
-                ================================= */
-
-                console.log(
-                    "=========================================="
-                );
-
-                console.log(
-                    "===== WRITE REQUEST ====="
-                );
-
-                console.log(
-                    "Action:",
-                    action
-                );
-
-                console.log(
-                    "Workspace:",
-                    workspace
-                );
-
-                console.log(
-                    "Spreadsheet:",
-                    spreadsheetId
-                );
-
-                console.log(
-                    "Endpoint:",
-                    endpoint
-                );
-
-                console.log(
-                    "Data:",
-                    data
-                );
-
-                console.log(
-                    "=========================================="
-                );
-
-
-                /* =================================
-                   REQUEST
-                ================================= */
-
-                const result =
-                    await jsonpRequest(
-                        url
-                    );
-
-
-                /* =================================
-                   DEBUG RESULT
-                ================================= */
-
-                console.log(
-                    "===== WRITE RESULT =====",
-                    result
-                );
-
-
-                return result;
-
-            }
-
-            finally{
-
-                releaseActiveWrite(
-                    signature,
-                    requestPromise
-                );
-
-            }
-
-        })();
-
-
-    /* =============================================
-       REGISTER
-    ============================================= */
-
-    registerActiveWrite(
-        signature,
-        requestPromise
-    );
-
-
-    return requestPromise;
 }
 
-
 /* =====================================================
-   SAVE INPUT
-===================================================== */
-
-export async function saveInput(
-    workspace,
-    data
-){
-
-    if(
-        !workspace
-    ){
-        throw new Error(
-            "Workspace tidak ditemukan."
-        );
-    }
-
-
-    if(
-        !data
-        ||
-        typeof data !==
-            "object"
-    ){
-        throw new Error(
-            "Input data tidak valid."
-        );
-    }
-
-
-    console.log(
-        "WRITE: SAVE INPUT",
-        {
-            workspace :
-                workspace,
-
-            data :
-                data
-        }
-    );
-
-
-    return write(
-        "input",
-        workspace,
-        data
-    );
-}
-
-
-/* =====================================================
-   SAVE SETTING
-===================================================== */
-
-export async function saveSetting(
-    workspace,
-    data
-){
-
-    if(
-        !workspace
-    ){
-        throw new Error(
-            "Workspace tidak ditemukan."
-        );
-    }
-
-
-    if(
-        !Array.isArray(
-            data
-        )
-    ){
-        throw new Error(
-            "Setting data harus berupa array."
-        );
-    }
-
-
-    /* =============================================
-       EXPAND AUTOMATIC RULES
-    ============================================= */
-
-    const expandedData =
-        expandAutomaticSettingRules(
-            data
-        );
-
-
-    console.log(
-        "WRITE: SETTING DATA ORIGINAL",
-        data
-    );
-
-
-    console.log(
-        "WRITE: SETTING DATA EXPANDED",
-        expandedData
-    );
-
-
-    console.log(
-        "WRITE: AUTO RULE COUNT",
-        expandedData.length -
-        data.length
-    );
-
-
-    /* =============================================
-       SAVE
-    ============================================= */
-
-    console.log(
-        "WRITE: SAVE SETTING",
-        {
-            workspace :
-                workspace,
-
-            data :
-                expandedData
-        }
-    );
-
-
-    return write(
-        "setting",
-        workspace,
-        expandedData
-    );
-}
-
-
-/* =====================================================
-   REPLACE SETTING
+WRITE
 ===================================================== */
 
 /*
-   Digunakan khusus untuk setting yang mempunyai
-   fixed identity berdasarkan field tertentu.
+Generic internal WRITE function.
 
-   Financial :
+Tidak dipanggil langsung oleh module.
 
-       rules
-       ↓
-       rule_pemasukan
-       rule_pengeluaran
-       rule_hutang
-       rule_tabungan
+Public interface :
 
-   Target TIDAK menggunakan:
-       id
-       tanggal
-       Date
-
-   Target menggunakan:
-       rules
-*/
-
-export async function replaceSetting(
-    workspace,
-    rules,
-    data
-){
-
-    if(
-        !workspace
-    ){
-        throw new Error(
-            "Workspace tidak ditemukan."
-        );
-    }
-
-
-    const targetRules =
-        String(
-            rules ??
-            ""
-        )
-        .trim();
-
-
-    if(
-        !targetRules
-    ){
-        throw new Error(
-            "Rules setting tidak ditemukan."
-        );
-    }
-
-
-    if(
-        !data
-        ||
-        typeof data !==
-            "object"
-        ||
-        Array.isArray(
-            data
-        )
-    ){
-        throw new Error(
-            "Setting replace data tidak valid."
-        );
-    }
-
-
-    if(
-        !Update
-        ||
-        typeof Update.updateSettingRow !==
-            "function"
-    ){
-
-        throw new Error(
-            "Update.updateSettingRow() tidak tersedia."
-        );
-
-    }
-
-
-    console.log(
-        "WRITE: REPLACE SETTING",
-        {
-            workspace :
-                workspace,
-
-            rules :
-                targetRules,
-
-            data :
-                data
-        }
-    );
-
-
-    return Update.updateSettingRow(
-        workspace,
-
-        {
-            rules :
-                targetRules
-        },
-
-        data
-    );
-}
-
-
-/* =====================================================
-   SAVE FINANCIAL SETTING
-===================================================== */
-
-/*
-   rows harus berupa:
-
-   [
-       {
-           section :
-               "financial_activity",
-
-           data : {
-               rules :
-                   "rule_pemasukan",
-
-               type :
-                   "masuk",
-
-               activity :
-                   "gaji"
-           }
-       }
-   ]
-
-   existingRules:
-
-   {
-       rule_pemasukan : true,
-       rule_pengeluaran : true,
-       rule_hutang : false,
-       rule_tabungan : false
-   }
-
-
-   LOGIC :
-
-   existing = true
-       ↓
-   replaceSetting()
-
-   existing = false
-       ↓
+saveInput()  
    saveSetting()
 
-
-   TIDAK ADA DELETE.
-
-   Rule yang sudah pernah dibuat tetap ada,
-   walaupun activity-nya menjadi kosong.
 */
 
-export async function saveFinancialSetting(
-    workspace,
-    existingRules,
-    rows
+async function write(
+
+action,  
+
+workspace,  
+
+data
+
 ){
 
-    if(
-        !workspace
-    ){
-        throw new Error(
-            "Workspace tidak ditemukan."
-        );
-    }
+/* =============================================  
+   VALIDATION  
+============================================= */  
 
+if(  
 
-    if(
-        !Array.isArray(
-            rows
-        )
-    ){
-        throw new Error(
-            "Financial Setting rows harus berupa array."
-        );
-    }
+    !action  
 
+){  
 
-    const state =
-        existingRules &&
-        typeof existingRules ===
-            "object"
-            ?
-        existingRules
-            :
-        {};
+    throw new Error(  
 
+        "Write action tidak ditemukan."  
 
-    /* =============================================
-       NORMALIZE + UNIQUE RULE
-    ============================================= */
+    );  
 
-    const uniqueRows =
-        new Map();
+}  
 
 
-    rows.forEach(
-        entry => {
+if(  
 
-            if(
-                !entry
-                ||
-                typeof entry !==
-                    "object"
-            ){
-                return;
-            }
+    !workspace  
 
+){  
 
-            const row =
-                entry.data;
+    throw new Error(  
 
+        "Workspace tidak ditemukan."  
 
-            if(
-                !row
-                ||
-                typeof row !==
-                    "object"
-            ){
-                return;
-            }
+    );  
 
+}  
 
-            const rules =
-                String(
-                    row.rules ??
-                    ""
-                )
-                .trim()
-                .toLowerCase();
 
+if(  
 
-            if(
-                !rules
-            ){
-                return;
-            }
+    data === undefined ||  
 
+    data === null  
 
-            /* =====================================
-               Hanya fixed Financial rules
-            ===================================== */
+){  
 
-            const allowed =
-                (
-                    rules ===
-                        "rule_pemasukan"
+    throw new Error(  
 
-                    ||
+        "Write data tidak ditemukan."  
 
-                    rules ===
-                        "rule_pengeluaran"
+    );  
 
-                    ||
+}  
 
-                    rules ===
-                        "rule_hutang"
 
-                    ||
+/* =============================================  
+   CREATE SIGNATURE  
+============================================= */  
 
-                    rules ===
-                        "rule_tabungan"
-                );
+const signature =  
 
+    createWriteSignature(  
 
-            if(
-                !allowed
-            ){
-                return;
-            }
+        action,  
 
+        workspace,  
 
-            uniqueRows.set(
-                rules,
-                {
-                    section :
-                        entry.section
-                        ||
-                        "financial_activity",
+        data  
 
-                    data :
-                        {
-                            ...row,
+    );  
 
-                            rules :
-                                rules
-                        }
-                }
-            );
 
-        }
-    );
+/* =============================================  
+   DUPLICATE REQUEST CHECK  
+============================================= */  
 
+const activeWrite =  
 
-    const results = [];
+    getActiveWrite(  
 
+        signature  
 
-    /* =============================================
-       PROCESS SEQUENTIALLY
+    );  
 
-       Jangan Promise.all.
 
-       Google Sheet WRITE harus berjalan
-       satu per satu agar tidak terjadi
-       race condition antar row.
-    ============================================= */
+if(  
 
-    for(
-        const [
-            rules,
-            entry
-        ]
-        of uniqueRows
-    ){
+    activeWrite  
 
-        const alreadyExists =
-            state[
-                rules
-            ] === true;
+){  
 
+    console.warn(  
 
-        /* =========================================
-           EXISTING RULE
-        ========================================= */
+        "WRITE: Duplicate request dicegah.",  
 
-        if(
-            alreadyExists
-        ){
+        {  
 
-            console.log(
-                "WRITE: Financial rule REPLACE",
-                rules
-            );
+            action :  
 
+                action,  
 
-            const result =
-                await replaceSetting(
-                    workspace,
-                    rules,
-                    entry.data
-                );
+            workspace :  
 
+                workspace  
 
-            results.push({
-                mode :
-                    "replace",
+        }  
 
-                rules :
-                    rules,
+    );  
 
-                result :
-                    result
-            });
 
+    /*  
+       Jangan membuat request kedua.  
 
-            continue;
-        }
+       Kembalikan Promise request pertama  
+       agar caller kedua tetap menerima  
+       hasil WRITE yang sama.  
+    */  
 
+    return activeWrite;  
 
-        /* =========================================
-           NEW RULE
-        ========================================= */
+}  
 
-        console.log(
-            "WRITE: Financial rule APPEND",
-            rules
-        );
 
+/* =============================================  
+   REQUEST PROMISE  
+============================================= */  
 
-        const result =
-            await saveSetting(
-                workspace,
-                [
-                    entry
-                ]
-            );
+const requestPromise =  
 
+    (async () => {  
 
-        results.push({
-            mode :
-                "append",
+        try{  
 
-            rules :
-                rules,
+            /* =================================  
+               SESSION  
+            ================================= */  
 
-            result :
-                result
-        });
+            const session =  
 
-    }
+                await getWriteSession();  
 
 
-    console.log(
-        "WRITE: FINANCIAL SETTING COMPLETE",
-        results
-    );
+            /* =================================  
+               FINANCE CORE  
+            ================================= */  
 
+            const spreadsheetId =  
 
-    return results;
+                getWriteSpreadsheetId();  
+
+
+            /* =================================  
+               ACCESS TOKEN  
+            ================================= */  
+
+            const accessToken =  
+
+                await getWriteAccessToken();  
+
+
+            /* =================================  
+               ENDPOINT  
+            ================================= */  
+
+            const endpoint =  
+
+                getWriteEndpoint(  
+
+                    session  
+
+                );  
+
+
+            /* =================================  
+               BUILD URL  
+            ================================= */  
+
+            const url =  
+
+                buildWriteURL(  
+
+                    endpoint,  
+
+                    action,  
+
+                    workspace,  
+
+                    spreadsheetId,  
+
+                    accessToken,  
+
+                    data  
+
+                );  
+
+
+            /* =================================  
+               DEBUG  
+            ================================= */  
+
+            console.log(  
+
+                "=========================================="  
+
+            );  
+
+
+            console.log(  
+
+                "===== WRITE REQUEST ====="  
+
+            );  
+
+
+            console.log(  
+
+                "Action:",  
+
+                action  
+
+            );  
+
+
+            console.log(  
+
+                "Workspace:",  
+
+                workspace  
+
+            );  
+
+
+            console.log(  
+
+                "Spreadsheet:",  
+
+                spreadsheetId  
+
+            );  
+
+
+            console.log(  
+
+                "Endpoint:",  
+
+                endpoint  
+
+            );  
+
+
+            console.log(  
+
+                "Data:",  
+
+                data  
+
+            );  
+
+
+            console.log(  
+
+                "=========================================="  
+
+            );  
+
+
+            /* =================================  
+               REQUEST  
+            ================================= */  
+
+            const result =  
+
+                await jsonpRequest(  
+
+                    url  
+
+                );  
+
+
+            /* =================================  
+               DEBUG RESULT  
+            ================================= */  
+
+            console.log(  
+
+                "===== WRITE RESULT =====",  
+
+                result  
+
+            );  
+
+
+            return result;  
+
+        }  
+
+        finally{  
+
+            /*  
+               Lock dilepas setelah request  
+               benar-benar selesai, baik sukses  
+               maupun error/timeout.  
+            */  
+
+            releaseActiveWrite(  
+
+                signature,  
+
+                requestPromise  
+
+            );  
+
+        }  
+
+    })();  
+
+
+/* =============================================  
+   REGISTER REQUEST  
+============================================= */  
+
+registerActiveWrite(  
+
+    signature,  
+
+    requestPromise  
+
+);  
+
+
+return requestPromise;
+
 }
 
+/* =====================================================
+SAVE INPUT
+===================================================== */
+
+/*
+Dipakai oleh Input Component.
+
+Flow :
+
+Input Component  
+          ↓  
+   saveInput()  
+          ↓  
+   write()  
+          ↓  
+   action=input  
+          ↓  
+   main.gs  
+          ↓  
+   input.gs
+
+*/
+
+export async function saveInput(
+
+workspace,  
+
+data
+
+){
+
+if(  
+
+    !workspace  
+
+){  
+
+    throw new Error(  
+
+        "Workspace tidak ditemukan."  
+
+    );  
+
+}  
+
+
+if(  
+
+    !data ||  
+
+    typeof data !==  
+
+        "object"  
+
+){  
+
+    throw new Error(  
+
+        "Input data tidak valid."  
+
+    );  
+
+}  
+
+
+console.log(  
+
+    "WRITE: SAVE INPUT",  
+
+    {  
+
+        workspace :  
+
+            workspace,  
+
+        data :  
+
+            data  
+
+    }  
+
+);  
+
+
+return write(  
+
+    "input",  
+
+    workspace,  
+
+    data  
+
+);
+
+}
 
 /* =====================================================
-   DEFAULT EXPORT
+SAVE SETTING
+===================================================== */
+
+/*
+Dipakai oleh Setting Component.
+
+Flow :
+
+Setting Component  
+          ↓  
+   saveSetting()  
+          ↓  
+   expandAutomaticSettingRules()  
+          ↓  
+   write()  
+          ↓  
+   action=setting  
+          ↓  
+   main.gs  
+          ↓  
+   setting.gs  
+          ↓  
+   Google Sheets
+
+Automatic rule payroll:
+
+rule_periode  
+       ↓  
+   auto_rules  
+       ↓  
+   rule_masuk  
+       ↓  
+   Google Sheets
+
+User tidak perlu mengetahui
+keberadaan rule_masuk.
+*/
+
+export async function saveSetting(
+
+workspace,  
+
+data
+
+){
+
+if(  
+
+    !workspace  
+
+){  
+
+    throw new Error(  
+
+        "Workspace tidak ditemukan."  
+
+    );  
+
+}  
+
+
+if(  
+
+    !Array.isArray(  
+
+        data  
+
+    )  
+
+){  
+
+    throw new Error(  
+
+        "Setting data harus berupa array."  
+
+    );  
+
+}  
+
+
+/* =============================================  
+   EXPAND AUTOMATIC RULES  
+============================================= */  
+
+const expandedData =  
+
+    expandAutomaticSettingRules(  
+
+        data  
+
+    );  
+
+
+/* =============================================  
+   DEBUG AUTOMATIC RULES  
+============================================= */  
+
+console.log(  
+
+    "WRITE: SETTING DATA ORIGINAL",  
+
+    data  
+
+);  
+
+
+console.log(  
+
+    "WRITE: SETTING DATA EXPANDED",  
+
+    expandedData  
+
+);  
+
+
+console.log(  
+
+    "WRITE: AUTO RULE COUNT",  
+
+    expandedData.length -  
+
+    data.length  
+
+);  
+
+
+/* =============================================  
+   SAVE SETTING  
+============================================= */  
+
+console.log(  
+
+    "WRITE: SAVE SETTING",  
+
+    {  
+
+        workspace :  
+
+            workspace,  
+
+        data :  
+
+            expandedData  
+
+    }  
+
+);  
+
+
+return write(  
+
+    "setting",  
+
+    workspace,  
+
+    expandedData  
+
+);
+
+}
+
+/* =====================================================
+DEFAULT EXPORT
 ===================================================== */
 
 export default {
 
-    saveInput,
+saveInput,  
 
-    saveSetting,
-
-    replaceSetting,
-
-    saveFinancialSetting
+saveSetting
 
 };
 
-
 /* =====================================================
-   END
+END
 ===================================================== */
