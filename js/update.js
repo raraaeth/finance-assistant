@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : UPDATE
    File        : update.js
-   Version     : 1.2.0
+   Version     : 1.3.0
 
    Description :
    Global Google Apps Script UPDATE Engine
@@ -26,6 +26,7 @@
 
        Update.updateField()
        Update.updateRow()
+       Update.updateSettingRow()
 
 
    UPDATE FIELD :
@@ -47,8 +48,8 @@
 
            ID + Date / tanggal
 
-       Update Row sekarang menerima
-       beberapa variasi nama field tanggal:
+       Update Row menerima beberapa
+       variasi nama field tanggal:
 
            tanggal
            Tanggal
@@ -66,25 +67,28 @@
        Row asli tetap mempertahankan
        nama field tanggal dari workspace.
 
+
+   UPDATE SETTING ROW :
+
+       Digunakan khusus untuk setting
+       yang mempunyai fixed identity.
+
+       Target :
+
+           rules
+
        Contoh Financial:
 
            {
-               id :
-                   "FIN-XXXX",
-
-               Date :
-                   "2026-09-05"
+               rules :
+                   "rule_pemasukan"
            }
 
-       akan diterima sebagai target:
+       Tidak menggunakan ID.
 
-           {
-               id :
-                   "FIN-XXXX",
-
-               tanggal :
-                   "2026-09-05"
-           }
+       Digunakan untuk mengganti row
+       konfigurasi Financial Setting
+       berdasarkan identity "rules".
 
 
    Responsibility :
@@ -98,6 +102,7 @@
        - JSONP request
        - Update field
        - Update full row
+       - Update setting row
 
 
    TIDAK MENANGANI :
@@ -139,30 +144,6 @@ const DEFAULT_ENDPOINT =
 /* =====================================================
    DATE FIELD ALIASES
 ===================================================== */
-
-/*
-   Workspace tidak dipaksa menggunakan
-   satu nama field tanggal tertentu.
-
-   Contoh:
-
-       Airdrop :
-           tanggal
-
-       Financial :
-           Date
-
-       Workspace lain :
-           date
-           Tanggal
-
-   UPDATE ROW akan membaca semua
-   variasi tersebut.
-
-   Urutan prioritas mengikuti
-   field yang paling spesifik / umum
-   digunakan oleh sistem.
-*/
 
 const DATE_FIELD_ALIASES = [
 
@@ -933,27 +914,6 @@ function validateFieldTarget(
    GET DATE VALUE
 ===================================================== */
 
-/*
-   Membaca tanggal dari object tanpa
-   memaksa workspace menggunakan
-   nama field tertentu.
-
-   Didukung:
-
-       tanggal
-       Tanggal
-       date
-       Date
-
-   Contoh:
-
-       record.Date
-
-   akan menghasilkan:
-
-       "2026-09-05"
-*/
-
 function getDateValue(
     source
 ){
@@ -1090,23 +1050,6 @@ function getDateFieldName(
    NORMALIZE DATE VALUE
 ===================================================== */
 
-/*
-   Digunakan hanya untuk locator
-   dan perbandingan.
-
-   Tidak mengubah nilai Date
-   pada row asli.
-
-   Contoh:
-
-       Date :
-           "2026-09-05"
-
-   menjadi:
-
-       "2026-09-05"
-*/
-
 function normalizeDateValue(
     value
 ){
@@ -1134,64 +1077,6 @@ function normalizeDateValue(
 /* =====================================================
    VALIDATE ROW TARGET
 ===================================================== */
-
-/*
-   Target updateRow sekarang menerima:
-
-       {
-           id :
-               "...",
-
-           tanggal :
-               "2026-09-05"
-       }
-
-   ATAU:
-
-       {
-           id :
-               "...",
-
-           Tanggal :
-               "2026-09-05"
-       }
-
-   ATAU:
-
-       {
-           id :
-               "...",
-
-           date :
-               "2026-09-05"
-       }
-
-   ATAU:
-
-       {
-           id :
-               "...",
-
-           Date :
-               "2026-09-05"
-       }
-
-
-   Setelah validasi seluruh variasi
-   tersebut dinormalisasi menjadi:
-
-       {
-           id :
-               "...",
-
-           tanggal :
-               "2026-09-05"
-       }
-
-
-   Dengan begitu Apps Script tetap
-   menerima kontrak target yang sama.
-*/
 
 function validateRowTarget(
     target
@@ -1286,17 +1171,151 @@ function validateRowTarget(
                 target.id
             ).trim(),
 
-        /*
-           Canonical internal/server
-           locator tetap menggunakan
-           "tanggal".
-
-           Workspace boleh menggunakan
-           Date/date/Tanggal/tanggal.
-        */
-
         tanggal :
             normalizedDate
+
+    };
+
+}
+
+
+/* =====================================================
+   VALIDATE SETTING TARGET
+===================================================== */
+
+/*
+   Setting mempunyai identity tetap:
+
+       rules
+
+   Contoh:
+
+       {
+           rules :
+               "rule_pemasukan"
+       }
+
+   Tidak membutuhkan ID.
+   Tidak membutuhkan tanggal.
+*/
+
+function validateSettingTarget(
+    target
+){
+
+    if(
+        !target
+        ||
+        typeof target !==
+            "object"
+        ||
+        Array.isArray(
+            target
+        )
+    ){
+
+        throw new Error(
+            "Update setting target tidak valid."
+        );
+
+    }
+
+
+    const rules =
+        String(
+            target.rules ??
+            ""
+        ).trim();
+
+
+    if(
+        !rules
+    ){
+
+        throw new Error(
+            "Update setting target membutuhkan rules."
+        );
+
+    }
+
+
+    return {
+
+        rules
+
+    };
+
+}
+
+
+/* =====================================================
+   VALIDATE SETTING ROW
+===================================================== */
+
+function validateSettingRow(
+    target,
+    row
+){
+
+    if(
+        !row
+        ||
+        typeof row !==
+            "object"
+        ||
+        Array.isArray(
+            row
+        )
+    ){
+
+        throw new Error(
+            "Update setting row tidak valid."
+        );
+
+    }
+
+
+    const rowRules =
+        String(
+            row.rules ??
+            ""
+        ).trim();
+
+
+    if(
+        !rowRules
+    ){
+
+        throw new Error(
+            "Update setting row membutuhkan rules."
+        );
+
+    }
+
+
+    /* =============================================
+       RULES MUST MATCH
+    ============================================= */
+
+    if(
+        rowRules
+        !==
+        target.rules
+    ){
+
+        throw new Error(
+            "Rules target dan rules row tidak sama."
+        );
+
+    }
+
+
+    return {
+
+        ...row,
+
+        rules :
+            rowRules
 
     };
 
@@ -1395,51 +1414,6 @@ function validateFieldChanges(
 /* =====================================================
    VALIDATE ROW
 ===================================================== */
-
-/*
-   Validasi full row.
-
-   Row sekarang dapat mempunyai
-   field tanggal:
-
-       tanggal
-       Tanggal
-       date
-       Date
-
-   Nama field asli TIDAK diubah.
-
-   Contoh Financial:
-
-       {
-           id :
-               "FIN-XXXX",
-
-           Date :
-               "2026-09-05",
-
-           jenis :
-               "keluar",
-
-           type :
-               "tagihan"
-       }
-
-
-   Tetap dikirim dengan:
-
-       Date
-
-   tetapi kita tambahkan alias internal:
-
-       tanggal
-
-   jika memang belum ada.
-
-   Ini menjaga kompatibilitas dengan
-   update.gs versi yang masih melakukan
-   validasi row.tanggal.
-*/
 
 function validateRow(
     target,
@@ -1579,16 +1553,6 @@ function validateRow(
        tambahkan canonical alias.
 
        Field asli tetap dipertahankan.
-
-       Jadi Financial:
-
-           Date
-
-       tidak diubah menjadi:
-
-           tanggal
-
-       secara paksa.
     */
 
     if(
@@ -1771,8 +1735,8 @@ async function updateRow(
 
 
     /*
-       Di sini target Financial
-       dengan Date sudah diterima.
+       Target Financial dengan Date
+       tetap diterima.
 
        Contoh:
 
@@ -1801,14 +1765,6 @@ async function updateRow(
         );
 
 
-    /*
-       Row Financial dengan:
-
-           Date
-
-       juga diterima.
-    */
-
     const validRow =
         validateRow(
             validTarget,
@@ -1831,6 +1787,120 @@ async function updateRow(
 
 
     return update(
+        validWorkspace,
+        data
+    );
+
+}
+
+
+/* =====================================================
+   UPDATE SETTING ROW
+===================================================== */
+
+/*
+   Khusus Financial Setting.
+
+   Locator:
+
+       rules
+
+   Contoh:
+
+       target :
+       {
+           rules :
+               "rule_pemasukan"
+       }
+
+       row :
+       {
+           rules :
+               "rule_pemasukan",
+
+           type :
+               "masuk",
+
+           activity :
+               "gaji,penghasilan_lain"
+       }
+
+
+   Tidak menggunakan:
+
+       ID
+       Project
+       Date
+*/
+
+async function updateSettingRow(
+    workspace,
+    target,
+    row
+){
+
+    const validWorkspace =
+        validateWorkspace(
+            workspace
+        );
+
+
+    /* =============================================
+       TARGET
+    ============================================= */
+
+    const validTarget =
+        validateSettingTarget(
+            target
+        );
+
+
+    /* =============================================
+       ROW
+    ============================================= */
+
+    const validRow =
+        validateSettingRow(
+            validTarget,
+            row
+        );
+
+
+    /* =============================================
+       REQUEST DATA
+    ============================================= */
+
+    const data = {
+
+        mode :
+            "setting",
+
+        target :
+            validTarget,
+
+        row :
+            validRow
+
+    };
+
+
+    console.log(
+        "UPDATE: SETTING ROW",
+        {
+            workspace :
+                validWorkspace,
+
+            target :
+                validTarget,
+
+            row :
+                validRow
+
+        }
+    );
+
+
+    return updateSetting(
         validWorkspace,
         data
     );
@@ -2181,6 +2251,374 @@ async function update(
 
 
 /* =====================================================
+   UPDATE SETTING REQUEST
+===================================================== */
+
+/*
+   Request engine khusus mode:
+
+       setting
+
+   Tidak menggunakan update()
+   agar validasi mode field/row
+   yang sudah digunakan Edit Input
+   tetap tidak berubah.
+
+   Request tetap menggunakan:
+
+       action=update
+
+   tetapi payload:
+
+       mode=setting
+
+   akan diproses oleh update.gs.
+*/
+
+async function updateSetting(
+    workspace,
+    data
+){
+
+    if(
+        !workspace
+    ){
+
+        throw new Error(
+            "Workspace tidak ditemukan."
+        );
+
+    }
+
+
+    if(
+        !data
+        ||
+        typeof data !==
+            "object"
+        ||
+        Array.isArray(
+            data
+        )
+    ){
+
+        throw new Error(
+            "Update setting data tidak valid."
+        );
+
+    }
+
+
+    if(
+        data.mode !==
+            "setting"
+    ){
+
+        throw new Error(
+            'Update setting mode harus "setting".'
+        );
+
+    }
+
+
+    /* =============================================
+       TARGET
+    ============================================= */
+
+    const target =
+        validateSettingTarget(
+            data.target
+        );
+
+
+    /* =============================================
+       ROW
+    ============================================= */
+
+    const row =
+        validateSettingRow(
+            target,
+            data.row
+        );
+
+
+    /* =============================================
+       NORMALIZE REQUEST
+    ============================================= */
+
+    const requestData = {
+
+        mode :
+            "setting",
+
+        target :
+
+            target,
+
+        row :
+
+            row
+
+    };
+
+
+    /* =============================================
+       SIGNATURE
+    ============================================= */
+
+    const signature =
+        createUpdateSignature(
+            workspace,
+            requestData
+        );
+
+
+    /* =============================================
+       DUPLICATE REQUEST
+    ============================================= */
+
+    const activeUpdate =
+        getActiveUpdate(
+            signature
+        );
+
+
+    if(
+        activeUpdate
+    ){
+
+        console.warn(
+            "UPDATE: Duplicate setting request dicegah.",
+            {
+                workspace :
+                    workspace,
+
+                rules :
+                    target.rules
+
+            }
+        );
+
+
+        return activeUpdate;
+
+    }
+
+
+    /* =============================================
+       REQUEST PROMISE
+    ============================================= */
+
+    const requestPromise =
+        (async () => {
+
+            try{
+
+                /* =================================
+                   SESSION
+                ================================= */
+
+                const session =
+                    await getUpdateSession();
+
+
+                /* =================================
+                   FINANCE CORE
+                ================================= */
+
+                const spreadsheetId =
+                    getUpdateSpreadsheetId();
+
+
+                /* =================================
+                   GOOGLE TOKEN
+                ================================= */
+
+                const accessToken =
+                    await getUpdateAccessToken();
+
+
+                /* =================================
+                   ENDPOINT
+                ================================= */
+
+                const endpoint =
+                    getUpdateEndpoint(
+                        session
+                    );
+
+
+                /* =================================
+                   BUILD URL
+                ================================= */
+
+                const url =
+                    buildUpdateURL(
+                        endpoint,
+                        workspace,
+                        spreadsheetId,
+                        accessToken,
+                        requestData
+                    );
+
+
+                /* =================================
+                   DEBUG
+                ================================= */
+
+                console.log(
+                    "=========================================="
+                );
+
+
+                console.log(
+                    "===== UPDATE SETTING REQUEST ====="
+                );
+
+
+                console.log(
+                    "Action:",
+                    "update"
+                );
+
+
+                console.log(
+                    "Workspace:",
+                    workspace
+                );
+
+
+                console.log(
+                    "Mode:",
+                    requestData.mode
+                );
+
+
+                console.log(
+                    "Target:",
+                    requestData.target
+                );
+
+
+                console.log(
+                    "Row:",
+                    requestData.row
+                );
+
+
+                console.log(
+                    "Spreadsheet ID:",
+                    spreadsheetId
+                );
+
+
+                console.log(
+                    "Endpoint:",
+                    endpoint
+                );
+
+
+                console.log(
+                    "=========================================="
+                );
+
+
+                /* =================================
+                   REQUEST
+                ================================= */
+
+                const result =
+                    await jsonpRequest(
+                        url
+                    );
+
+
+                /* =================================
+                   NORMALIZE RESULT
+                ================================= */
+
+                const normalized =
+                    normalizeUpdateResponse(
+                        result
+                    );
+
+
+                /* =================================
+                   DEBUG RESULT
+                ================================= */
+
+                console.log(
+                    "===== UPDATE SETTING RESULT =====",
+                    normalized
+                );
+
+
+                return normalized;
+
+            }
+
+            catch(error){
+
+                console.error(
+                    "=========================================="
+                );
+
+
+                console.error(
+                    "===== UPDATE SETTING FAILED ====="
+                );
+
+
+                console.error(
+                    "Update Setting Error:",
+                    error
+                );
+
+
+                console.error(
+                    "Update Setting Error Message:",
+                    error?.message
+                );
+
+
+                console.error(
+                    "Update Setting Error Stack:",
+                    error?.stack
+                );
+
+
+                throw error;
+
+            }
+
+            finally{
+
+                releaseActiveUpdate(
+                    signature,
+                    requestPromise
+                );
+
+            }
+
+        })();
+
+
+    /* =============================================
+       REGISTER REQUEST
+    ============================================= */
+
+    registerActiveUpdate(
+        signature,
+        requestPromise
+    );
+
+
+    return requestPromise;
+
+}
+
+
+/* =====================================================
    GET ACTIVE UPDATE COUNT
 ===================================================== */
 
@@ -2222,9 +2660,25 @@ function resetUpdates(){
 
 export const Update = {
 
+    /*
+       Existing Edit Input API
+    */
+
     updateField,
 
     updateRow,
+
+
+    /*
+       Financial Setting API
+    */
+
+    updateSettingRow,
+
+
+    /*
+       State API
+    */
 
     isUpdating,
 
