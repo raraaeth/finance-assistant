@@ -16,19 +16,19 @@
    - Rule Attendance
 
    Principle :
-   - Google Sheets / Payroll Engine = source of truth
-   - Rule Periode adalah master periode
-   - Active period diwariskan ke Rule Gaji / Tambah / Potong
-   - Lock rule dibaca dari Payroll Shared Engine
-   - DOM result bukan source of truth
-   - History rule lama tetap dipertahankan
-   - Rule Attendance bukan rule manual payroll
-   - Attendance rule dibuat otomatis oleh Payroll Engine
+   - Rule Periode adalah master periode.
+   - Active period berasal dari Payroll engine.
+   - Google Sheets adalah source of truth.
+   - DOM result bukan source of truth untuk lock.
+   - Rule baru mewarisi active period melalui Payroll.
+   - Rule lama tetap menjadi history.
+   - Rule Attendance otomatis dibuat oleh Payroll.
+   - Rule Periode UI dikelola Payroll.
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT PAYROLL ENGINE
+   IMPORT
 ===================================================== */
 
 import {
@@ -41,99 +41,62 @@ import {
 ===================================================== */
 
 const PAYROLL_MODE =
-    "payroll-monthly";
+    Payroll.WORKSPACE.monthly;
 
 
 /* =====================================================
-   MONTH OPTIONS
+   OPTION HELPERS
 ===================================================== */
 
 const MONTH_OPTIONS = [
-
     {
-        value :
-            "01",
-        label :
-            "Januari"
+        value : "01",
+        label : "Januari"
     },
-
     {
-        value :
-            "02",
-        label :
-            "Februari"
+        value : "02",
+        label : "Februari"
     },
-
     {
-        value :
-            "03",
-        label :
-            "Maret"
+        value : "03",
+        label : "Maret"
     },
-
     {
-        value :
-            "04",
-        label :
-            "April"
+        value : "04",
+        label : "April"
     },
-
     {
-        value :
-            "05",
-        label :
-            "Mei"
+        value : "05",
+        label : "Mei"
     },
-
     {
-        value :
-            "06",
-        label :
-            "Juni"
+        value : "06",
+        label : "Juni"
     },
-
     {
-        value :
-            "07",
-        label :
-            "Juli"
+        value : "07",
+        label : "Juli"
     },
-
     {
-        value :
-            "08",
-        label :
-            "Agustus"
+        value : "08",
+        label : "Agustus"
     },
-
     {
-        value :
-            "09",
-        label :
-            "September"
+        value : "09",
+        label : "September"
     },
-
     {
-        value :
-            "10",
-        label :
-            "Oktober"
+        value : "10",
+        label : "Oktober"
     },
-
     {
-        value :
-            "11",
-        label :
-            "November"
+        value : "11",
+        label : "November"
     },
-
     {
-        value :
-            "12",
-        label :
-            "Desember"
+        value : "12",
+        label : "Desember"
     }
-
 ];
 
 
@@ -144,34 +107,19 @@ const MONTH_OPTIONS = [
 const CURRENT_YEAR =
     new Date().getFullYear();
 
+
 const YEAR_OPTIONS =
     Array.from(
         {
-            length :
-                18
+            length : 18
         },
         (
             _,
             index
-        ) => {
-
-            const year =
-                CURRENT_YEAR -
-                2 +
-                index;
-
-            return {
-                value :
-                    String(
-                        year
-                    ),
-                label :
-                    String(
-                        year
-                    )
-            };
-
-        }
+        ) =>
+            CURRENT_YEAR -
+            2 +
+            index
     );
 
 
@@ -179,33 +127,23 @@ const YEAR_OPTIONS =
    MONTH YEAR OPTIONS
 ===================================================== */
 
-const MONTH_YEAR_OPTIONS = [];
-
-YEAR_OPTIONS.forEach(
-    year => {
-
-        MONTH_OPTIONS.forEach(
-            month => {
-
-                MONTH_YEAR_OPTIONS.push({
-
+const MONTH_YEAR_OPTIONS =
+    YEAR_OPTIONS.flatMap(
+        year =>
+            MONTH_OPTIONS.map(
+                month => ({
                     value :
-                        `${year.value}-${month.value}`,
+                        `${year}-${month.value}`,
 
                     label :
-                        `${month.label} ${year.label}`
-
-                });
-
-            }
-        );
-
-    }
-);
+                        `${month.label} ${year}`
+                })
+            )
+    );
 
 
 /* =====================================================
-   CREATE ISO DATE
+   DATE HELPERS
 ===================================================== */
 
 function createISODate(
@@ -213,65 +151,44 @@ function createISODate(
     month,
     day
 ){
-
     const y =
-        Number(
-            year
-        );
+        Number(year);
 
     const m =
-        Number(
-            month
-        );
+        Number(month);
 
     const d =
-        Number(
-            day
-        );
+        Number(day);
 
     if(
         !Number.isInteger(y) ||
         !Number.isInteger(m) ||
         !Number.isInteger(d)
     ){
-
         return "";
-
     }
-
-
-    if(
-        m < 1 ||
-        m > 12 ||
-        d < 1 ||
-        d > 31
-    ){
-
-        return "";
-
-    }
-
 
     const date =
         new Date(
-            Date.UTC(
-                y,
-                m - 1,
-                d
-            )
+            y,
+            m - 1,
+            d
         );
 
-
+    /*
+     * JavaScript akan overflow jika
+     * tanggal tidak valid.
+     *
+     * Contoh:
+     * 31 Februari → Maret.
+     */
     if(
-        date.getUTCFullYear() !== y ||
-        date.getUTCMonth() !== m - 1 ||
-        date.getUTCDate() !== d
+        date.getFullYear() !== y ||
+        date.getMonth() !== m - 1 ||
+        date.getDate() !== d
     ){
-
         return "";
-
     }
-
 
     return [
         String(y),
@@ -284,7 +201,6 @@ function createISODate(
             "0"
         )
     ].join("-");
-
 }
 
 
@@ -295,43 +211,42 @@ function createISODate(
 function parseMonthYear(
     value
 ){
-
-    const normalized =
+    const parts =
         String(
             value ??
             ""
-        ).trim();
-
-
-    const match =
-        normalized.match(
-            /^(\d{4})-(\d{2})$/
-        );
-
+        )
+        .split("-");
 
     if(
-        !match
+        parts.length !== 2
     ){
-
         return null;
-
     }
 
+    const year =
+        Number(
+            parts[0]
+        );
+
+    const month =
+        Number(
+            parts[1]
+        );
+
+    if(
+        !Number.isInteger(year) ||
+        !Number.isInteger(month) ||
+        month < 1 ||
+        month > 12
+    ){
+        return null;
+    }
 
     return {
-
-        year :
-            Number(
-                match[1]
-            ),
-
-        month :
-            Number(
-                match[2]
-            )
-
+        year,
+        month
     };
-
 }
 
 
@@ -343,165 +258,92 @@ function getNextMonth(
     year,
     month
 ){
-
     let nextYear =
-        Number(
-            year
-        );
+        Number(year);
 
     let nextMonth =
-        Number(
-            month
-        ) + 1;
-
+        Number(month) + 1;
 
     if(
-        nextMonth >
-        12
+        nextMonth > 12
     ){
-
-        nextMonth =
-            1;
-
-        nextYear +=
-            1;
-
+        nextMonth = 1;
+        nextYear++;
     }
 
-
     return {
-
         year :
             nextYear,
 
         month :
             nextMonth
-
     };
-
 }
 
 
 /* =====================================================
-   GET DAY NUMBER
+   DAY NUMBER
 ===================================================== */
 
 function getDayNumber(
     value
 ){
-
-    const normalized =
-        String(
-            value ??
-            ""
-        ).trim();
-
-
     if(
-        normalized === ""
+        value ===
+        null ||
+        value ===
+        undefined ||
+        value === ""
     ){
-
         return null;
-
     }
 
-
-    const number =
-        Number(
-            normalized
-        );
-
+    const day =
+        Number(value);
 
     if(
-        !Number.isInteger(
-            number
-        )
+        !Number.isInteger(day)
     ){
-
         return null;
-
     }
 
-
-    if(
-        number < 1 ||
-        number > 31
-    ){
-
-        return null;
-
-    }
-
-
-    return number;
-
+    return day;
 }
 
 
 /* =====================================================
-   GET ACTIVE PERIOD
+   NORMALIZE COMPARE
 ===================================================== */
 
-/*
-   Active period selalu dibaca dari Payroll Engine.
-
-   Payroll Engine:
-   - membaca Google Sheets
-   - menentukan active period
-   - mengelola newPeriodMode
-
-   monthly.js hanya menggunakan hasilnya.
-*/
-
-async function getActivePeriod(){
-
-    try{
-
-        return await Payroll
-            .getExistingPeriod(
-                PAYROLL_MODE
-            );
-
-    }
-    catch(
-        error
-    ){
-
-        console.error(
-            "Payroll Monthly: gagal membaca active period.",
-            error
-        );
-
-        return null;
-
-    }
-
+function normalizeCompareValue(
+    value
+){
+    return String(
+        value ??
+        ""
+    )
+    .trim()
+    .toLowerCase();
 }
 
 
 /* =====================================================
-   PREPARE RULE WITH ACTIVE PERIOD
+   PAYROLL RULE PREPARATION
 ===================================================== */
 
-/*
-   Semua Rule Gaji / Tambah / Potong
-   menggunakan active period dari Payroll Engine.
-
-   Ketika newPeriodMode aktif,
-   Payroll Engine sengaja tidak mewariskan
-   periode lama.
-*/
-
-function preparePayrollRule(
+async function preparePayrollRule(
     rule
 ){
+    if(
+        !rule
+    ){
+        return null;
+    }
 
-    return Payroll
-        .prepareRule(
-            PAYROLL_MODE,
-            rule
-        );
-
+    return Payroll.prepareRule(
+        PAYROLL_MODE,
+        rule
+    );
 }
 
 
@@ -523,43 +365,11 @@ export const MonthlySetting = {
 
 
     /* =================================================
-       SHARED RULE STATE
-    ================================================= */
-
-    /*
-       Global Setting Controller dapat mengambil
-       state dari Payroll Engine.
-
-       Source :
-       Google Sheets → Payroll Engine
-    */
-
-    getRuleState :
-        async function(
-            {
-                sectionId
-            } = {}
-        ){
-
-            return Payroll
-                .getRuleState({
-
-                    mode :
-                        PAYROLL_MODE,
-
-                    sectionId :
-                        sectionId ?? ""
-
-                });
-
-        },
-
-
-    /* =================================================
        SECTIONS
     ================================================= */
 
     sections : [
+
 
         /* =================================================
            RULE PERIODE
@@ -586,59 +396,57 @@ export const MonthlySetting = {
                 "Hapus",
 
             uniqueFields : [
-
                 "nilai_start",
-
                 "nilai_end",
-
                 "periode_start",
-
                 "periode_end"
-
             ],
 
             autoCloseForm :
                 true,
 
 
-            /*
-               Rule Periode adalah master.
-
-               UI note, lock, dan tombol
-               Tambah Periode ditangani oleh
-               Payroll.applyPeriodUI().
-            */
+            /* =============================================
+               RULE STATE
+            ============================================= */
 
             getRuleState :
                 async function(){
+                    /*
+                     * Payroll menjadi satu-satunya
+                     * sumber state periode.
+                     *
+                     * Payroll juga mengurus:
+                     * - existing period
+                     * - new period mode
+                     * - note
+                     * - tombol Tambah Periode
+                     * - lock period
+                     */
 
-                    return Payroll
-                        .getRuleState({
-
-                            mode :
-                                PAYROLL_MODE,
-
-                            sectionId :
-                                "rule_periode"
-
-                        });
-
+                    return Payroll.getRuleState(
+                        PAYROLL_MODE,
+                        "rule_periode"
+                    );
                 },
 
 
+            /* =============================================
+               FIELDS
+            ============================================= */
+
             fields : [
 
-                /* =========================================
-                   TANGGAL AWAL PERIODE PERHITUNGAN
-                ========================================= */
+                /* -----------------------------------------
+                   NILAI START DAY
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nilai_start_day",
 
                     label :
-                        "Tanggal Awal Periode Perhitungan\nTentukan tanggal awal periode perhitungan gaji",
+                        "Tanggal Mulai Perhitungan\nTentukan tanggal mulai periode perhitungan gaji",
 
                     type :
                         "number",
@@ -659,22 +467,20 @@ export const MonthlySetting = {
                         1,
 
                     note :
-                        "Masukkan tanggal saja. Contoh: 25."
-
+                        "Hanya masukkan tanggal. Bulan dan tahun mengikuti periode yang dipilih."
                 },
 
 
-                /* =========================================
-                   TANGGAL AKHIR PERIODE PERHITUNGAN
-                ========================================= */
+                /* -----------------------------------------
+                   NILAI END DAY
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nilai_end_day",
 
                     label :
-                        "Tanggal Akhir Periode Perhitungan\nTentukan tanggal akhir periode perhitungan gaji",
+                        "Tanggal Akhir Perhitungan\nTentukan tanggal akhir periode perhitungan gaji",
 
                     type :
                         "number",
@@ -695,22 +501,20 @@ export const MonthlySetting = {
                         1,
 
                     note :
-                        "Masukkan tanggal saja. Contoh: 24."
-
+                        "Tanggal akhir otomatis menggunakan satu bulan setelah bulan mulai."
                 },
 
 
-                /* =========================================
-                   BULAN / TAHUN AWAL MASA AKTIF
-                ========================================= */
+                /* -----------------------------------------
+                   PERIODE AKTIF START
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "periode_start_month",
 
                     label :
-                        "Masa Aktif Gaji\nTentukan bulan dan tahun mulai berlakunya rule payroll",
+                        "Masa Aktif Gaji\nTentukan bulan dan tahun mulai berlakunya payroll",
 
                     type :
                         "select",
@@ -725,22 +529,20 @@ export const MonthlySetting = {
                         MONTH_YEAR_OPTIONS,
 
                     note :
-                        "Pilih bulan dan tahun mulai masa aktif payroll."
-
+                        "Menentukan awal masa aktif seluruh rule Payroll Monthly."
                 },
 
 
-                /* =========================================
-                   BULAN / TAHUN AKHIR MASA AKTIF
-                ========================================= */
+                /* -----------------------------------------
+                   PERIODE AKTIF END
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "periode_end_month",
 
                     label :
-                        "Masa Aktif Gaji\nTentukan bulan dan tahun berakhirnya rule payroll",
+                        "Masa Aktif Berakhir\nTentukan bulan dan tahun berakhirnya payroll",
 
                     type :
                         "select",
@@ -755,8 +557,7 @@ export const MonthlySetting = {
                         MONTH_YEAR_OPTIONS,
 
                     note :
-                        "Pilih bulan dan tahun akhir masa aktif payroll."
-
+                        "Menentukan akhir masa aktif seluruh rule Payroll Monthly."
                 }
 
             ],
@@ -782,168 +583,210 @@ export const MonthlySetting = {
                         );
 
 
-                    if(
-                        startDay ===
-                        null
-                    ){
+                    /* -------------------------------------
+                       VALIDATE DAY
+                    ------------------------------------- */
 
+                    if(
+                        startDay === null ||
+                        startDay < 1 ||
+                        startDay > 31
+                    ){
                         alert(
-                            "Tanggal awal periode harus diisi antara 1–31."
+                            "Tanggal mulai perhitungan harus antara 1 sampai 31."
                         );
 
                         return null;
-
                     }
 
 
                     if(
-                        endDay ===
-                        null
+                        endDay === null ||
+                        endDay < 1 ||
+                        endDay > 31
                     ){
-
                         alert(
-                            "Tanggal akhir periode harus diisi antara 1–31."
+                            "Tanggal akhir perhitungan harus antara 1 sampai 31."
                         );
 
                         return null;
-
                     }
 
 
-                    const start =
+                    /* -------------------------------------
+                       PARSE ACTIVE MONTH
+                    ------------------------------------- */
+
+                    const activeStart =
                         parseMonthYear(
                             data.periode_start_month
                         );
 
-                    const end =
+                    const activeEnd =
                         parseMonthYear(
                             data.periode_end_month
                         );
 
 
                     if(
-                        !start
+                        !activeStart
                     ){
-
                         alert(
-                            "Bulan dan tahun awal masa aktif belum dipilih."
+                            "Masa aktif mulai belum dipilih."
                         );
 
                         return null;
-
                     }
 
 
                     if(
-                        !end
+                        !activeEnd
                     ){
-
                         alert(
-                            "Bulan dan tahun akhir masa aktif belum dipilih."
+                            "Masa aktif berakhir belum dipilih."
                         );
 
                         return null;
-
                     }
 
 
-                    /*
-                       Periode perhitungan:
+                    /* -------------------------------------
+                       VALIDATE ACTIVE PERIOD
+                    ------------------------------------- */
 
-                       nilai_start =
-                       start month + start day
+                    const activeStartValue =
+                        activeStart.year * 100 +
+                        activeStart.month;
 
-                       nilai_end =
-                       satu bulan setelah start month
-                       + end day
-                    */
+                    const activeEndValue =
+                        activeEnd.year * 100 +
+                        activeEnd.month;
 
-                    const next =
-                        getNextMonth(
-                            start.year,
-                            start.month
+
+                    if(
+                        activeEndValue <
+                        activeStartValue
+                    ){
+                        alert(
+                            "Masa aktif berakhir tidak boleh sebelum masa aktif dimulai."
                         );
 
+                        return null;
+                    }
 
-                    const nilaiStart =
+
+                    /* -------------------------------------
+                       CALCULATION START
+                    ------------------------------------- */
+
+                    const calculationStart =
                         createISODate(
-                            start.year,
-                            start.month,
+                            activeStart.year,
+                            activeStart.month,
                             startDay
                         );
 
 
-                    const nilaiEnd =
+                    if(
+                        !calculationStart
+                    ){
+                        alert(
+                            "Tanggal mulai perhitungan tidak valid untuk bulan yang dipilih."
+                        );
+
+                        return null;
+                    }
+
+
+                    /* -------------------------------------
+                       CALCULATION END
+                    ------------------------------------- */
+
+                    const nextMonth =
+                        getNextMonth(
+                            activeStart.year,
+                            activeStart.month
+                        );
+
+
+                    const calculationEnd =
                         createISODate(
-                            next.year,
-                            next.month,
+                            nextMonth.year,
+                            nextMonth.month,
                             endDay
                         );
 
 
                     if(
-                        !nilaiStart
+                        !calculationEnd
                     ){
-
                         alert(
-                            "Tanggal awal periode tidak valid untuk bulan yang dipilih."
+                            "Tanggal akhir perhitungan tidak valid untuk bulan berikutnya."
                         );
 
                         return null;
-
                     }
 
 
-                    if(
-                        !nilaiEnd
-                    ){
-
-                        alert(
-                            "Tanggal akhir periode tidak valid untuk bulan berikutnya."
-                        );
-
-                        return null;
-
-                    }
-
-
-                    /*
-                       Masa aktif:
-
-                       berlaku_start =
-                       start month + start day
-
-                       berlaku_end =
-                       end month + end day
-                    */
+                    /* -------------------------------------
+                       ACTIVE START
+                    ------------------------------------- */
 
                     const berlakuStart =
                         createISODate(
-                            start.year,
-                            start.month,
+                            activeStart.year,
+                            activeStart.month,
                             startDay
                         );
 
 
+                    if(
+                        !berlakuStart
+                    ){
+                        alert(
+                            "Tanggal awal masa aktif tidak valid."
+                        );
+
+                        return null;
+                    }
+
+
+                    /* -------------------------------------
+                       ACTIVE END
+                    ------------------------------------- */
+
                     const berlakuEnd =
                         createISODate(
-                            end.year,
-                            end.month,
+                            activeEnd.year,
+                            activeEnd.month,
                             endDay
                         );
 
 
                     if(
-                        !berlakuStart ||
                         !berlakuEnd
                     ){
-
                         alert(
-                            "Masa aktif tidak valid untuk bulan yang dipilih."
+                            "Tanggal akhir masa aktif tidak valid."
                         );
 
                         return null;
+                    }
 
+
+                    /* -------------------------------------
+                       FINAL VALIDATION
+                    ------------------------------------- */
+
+                    if(
+                        calculationEnd <
+                        calculationStart
+                    ){
+                        alert(
+                            "Tanggal akhir periode perhitungan tidak boleh sebelum tanggal awal."
+                        );
+
+                        return null;
                     }
 
 
@@ -951,18 +794,19 @@ export const MonthlySetting = {
                         berlakuEnd <
                         berlakuStart
                     ){
-
                         alert(
                             "Masa aktif akhir tidak boleh sebelum masa aktif awal."
                         );
 
                         return null;
-
                     }
 
 
-                    const rule = {
+                    /* -------------------------------------
+                       RULE PERIOD
+                    ------------------------------------- */
 
+                    return {
                         type_rule :
                             "rule_periode",
 
@@ -979,27 +823,17 @@ export const MonthlySetting = {
                             "",
 
                         nilai_start :
-                            nilaiStart,
+                            calculationStart,
 
                         nilai_end :
-                            nilaiEnd,
+                            calculationEnd,
 
                         berlaku_start :
                             berlakuStart,
 
                         berlaku_end :
                             berlakuEnd
-
                     };
-
-
-                    /*
-                       Payroll Engine akan melakukan
-                       validasi period final kembali
-                       ketika prepareSave().
-                    */
-
-                    return rule;
 
                 }
 
@@ -1031,46 +865,33 @@ export const MonthlySetting = {
                 "Hapus",
 
             uniqueFields : [
-
                 "nama"
-
             ],
 
             autoCloseForm :
                 true,
 
 
-            /*
-               Rule Gaji dikunci oleh Payroll Engine
-               apabila Rule Gaji untuk active period
-               sudah ada di Sheet.
-            */
+            /* =============================================
+               RULE STATE
+            ============================================= */
 
             getRuleState :
                 async function(){
-
-                    return Payroll
-                        .getRuleState({
-
-                            mode :
-                                PAYROLL_MODE,
-
-                            sectionId :
-                                "rule_gaji"
-
-                        });
-
+                    return Payroll.getRuleState(
+                        PAYROLL_MODE,
+                        "rule_gaji"
+                    );
                 },
 
 
+            /* =============================================
+               FIELDS
+            ============================================= */
+
             fields : [
 
-                /* =========================================
-                   NAMA GAJI
-                ========================================= */
-
                 {
-
                     name :
                         "nama",
 
@@ -1087,31 +908,21 @@ export const MonthlySetting = {
                         true,
 
                     options : [
-
                         {
-
                             value :
                                 "gaji",
 
                             label :
                                 "Gaji Pokok"
-
                         }
-
                     ],
 
                     note :
                         "Pilih jenis gaji yang akan digunakan."
-
                 },
 
 
-                /* =========================================
-                   NOMINAL
-                ========================================= */
-
                 {
-
                     name :
                         "nominal",
 
@@ -1135,14 +946,17 @@ export const MonthlySetting = {
 
                     note :
                         "Masukkan nominal gaji pokok untuk satu periode gaji."
-
                 }
 
             ],
 
 
+            /* =============================================
+               NORMALIZE
+            ============================================= */
+
             normalize :
-                function(
+                async function(
                     data
                 ){
 
@@ -1179,14 +993,6 @@ export const MonthlySetting = {
                     };
 
 
-                    /*
-                       Active period tidak diambil
-                       dari DOM.
-
-                       Payroll Engine yang akan
-                       memasang active period.
-                    */
-
                     return preparePayrollRule(
                         rule
                     );
@@ -1221,40 +1027,37 @@ export const MonthlySetting = {
                 "Hapus",
 
             uniqueFields : [
-
                 "nama"
-
             ],
 
             autoCloseForm :
                 true,
 
 
+            /* =============================================
+               RULE STATE
+            ============================================= */
+
             getRuleState :
                 async function(){
-
-                    return Payroll
-                        .getRuleState({
-
-                            mode :
-                                PAYROLL_MODE,
-
-                            sectionId :
-                                "rule_potong"
-
-                        });
-
+                    return Payroll.getRuleState(
+                        PAYROLL_MODE,
+                        "rule_potong"
+                    );
                 },
 
 
+            /* =============================================
+               FIELDS
+            ============================================= */
+
             fields : [
 
-                /* =========================================
-                   NAMA RULE
-                ========================================= */
+                /* -----------------------------------------
+                   NAMA
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nama",
 
@@ -1269,6 +1072,9 @@ export const MonthlySetting = {
 
                     required :
                         true,
+
+                    note :
+                        "Pilih jenis potongan yang ingin digunakan.",
 
                     options : [
 
@@ -1377,20 +1183,16 @@ export const MonthlySetting = {
                                 "Masukkan nominal potongan per hari."
                         }
 
-                    ],
-
-                    note :
-                        "Pilih jenis potongan yang ingin digunakan."
+                    ]
 
                 },
 
 
-                /* =========================================
+                /* -----------------------------------------
                    NOMINAL
-                ========================================= */
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nominal",
 
@@ -1414,16 +1216,14 @@ export const MonthlySetting = {
 
                     note :
                         "Masukkan nominal potongan sesuai rule yang dipilih."
-
                 },
 
 
-                /* =========================================
+                /* -----------------------------------------
                    NILAI START
-                ========================================= */
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nilai_start",
 
@@ -1451,28 +1251,24 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
-
                             "telat_1",
                             "telat_2",
                             "telat_3",
                             "telat_4"
-
                         ]
 
                     },
 
                     note :
                         "Khusus rule telat. Isi batas awal keterlambatan dalam menit."
-
                 },
 
 
-                /* =========================================
+                /* -----------------------------------------
                    NILAI END
-                ========================================= */
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nilai_end",
 
@@ -1500,80 +1296,52 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
-
                             "telat_1",
                             "telat_2",
                             "telat_3",
                             "telat_4"
-
                         ]
 
                     },
 
                     note :
                         "Khusus rule telat. Isi batas akhir keterlambatan dalam menit."
-
                 }
 
             ],
 
 
+            /* =============================================
+               NORMALIZE
+            ============================================= */
+
             normalize :
-                function(
+                async function(
                     data
                 ){
 
                     const nama =
-                        String(
-                            data.nama ??
-                            ""
-                        ).trim();
-
-
-                    if(
-                        !nama
-                    ){
-
-                        alert(
-                            "Rule Potong harus dipilih."
+                        normalizeCompareValue(
+                            data.nama
                         );
-
-                        return null;
-
-                    }
 
 
                     let kondisi =
-                        "";
+                        "periode";
 
                     let waktu =
-                        "";
+                        "gaji";
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        TELAT
-                    ===================================== */
+                    ------------------------------------- */
 
                     if(
-
-                        nama ===
-                            "telat_1"
-
-                        ||
-
-                        nama ===
-                            "telat_2"
-
-                        ||
-
-                        nama ===
-                            "telat_3"
-
-                        ||
-
-                        nama ===
-                            "telat_4"
-
+                        nama === "telat_1" ||
+                        nama === "telat_2" ||
+                        nama === "telat_3" ||
+                        nama === "telat_4"
                     ){
 
                         kondisi =
@@ -1584,68 +1352,44 @@ export const MonthlySetting = {
 
 
                         if(
-
                             data.nilai_start ===
+                                "" ||
+                            data.nilai_end ===
                                 ""
-
-                            &&
-
-                            data.nilai_end !==
-                                ""
-
                         ){
-
                             alert(
-                                "Nilai Start harus diisi jika Nilai End diisi."
+                                "Rule telat wajib memiliki Nilai Start dan Nilai End."
                             );
 
                             return null;
-
                         }
 
 
                         if(
-
-                            data.nilai_start !==
-                                ""
-
-                            &&
-
-                            data.nilai_end !==
-                                ""
-
-                            &&
-
                             Number(
                                 data.nilai_start
-                            )
-                            >
+                            ) >
                             Number(
                                 data.nilai_end
                             )
-
                         ){
-
                             alert(
                                 "Nilai Start tidak boleh lebih besar dari Nilai End."
                             );
 
                             return null;
-
                         }
 
                     }
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        IZIN TELAT
-                    ===================================== */
+                    ------------------------------------- */
 
                     else if(
-
                         nama ===
-                            "izin_telat"
-
+                        "izin_telat"
                     ){
 
                         kondisi =
@@ -1657,15 +1401,13 @@ export const MonthlySetting = {
                     }
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        IZIN PULANG
-                    ===================================== */
+                    ------------------------------------- */
 
                     else if(
-
                         nama ===
-                            "izin_pulang"
-
+                        "izin_pulang"
                     ){
 
                         kondisi =
@@ -1677,15 +1419,13 @@ export const MonthlySetting = {
                     }
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        ABSEN
-                    ===================================== */
+                    ------------------------------------- */
 
                     else if(
-
                         nama ===
-                            "absen"
-
+                        "absen"
                     ){
 
                         kondisi =
@@ -1697,20 +1437,9 @@ export const MonthlySetting = {
                     }
 
 
-                    /* =====================================
-                       POTONGAN PERIODE
-                    ===================================== */
-
-                    else{
-
-                        kondisi =
-                            "periode";
-
-                        waktu =
-                            "gaji";
-
-                    }
-
+                    /* -------------------------------------
+                       RULE
+                    ------------------------------------- */
 
                     const rule = {
 
@@ -1718,7 +1447,7 @@ export const MonthlySetting = {
                             "rule_potong",
 
                         nama :
-                            nama,
+                            data.nama,
 
                         kondisi :
                             kondisi,
@@ -1769,7 +1498,7 @@ export const MonthlySetting = {
                 "➕ Rule Tambah",
 
             description :
-                "Atur aturan penambahan gaji dan tunjangan.",
+                "Atur tunjangan, uang makan, transport, dan lembur.",
 
             addLabel :
                 "＋ Tambah Rule Tambah",
@@ -1781,40 +1510,37 @@ export const MonthlySetting = {
                 "Hapus",
 
             uniqueFields : [
-
                 "nama"
-
             ],
 
             autoCloseForm :
                 true,
 
 
+            /* =============================================
+               RULE STATE
+            ============================================= */
+
             getRuleState :
                 async function(){
-
-                    return Payroll
-                        .getRuleState({
-
-                            mode :
-                                PAYROLL_MODE,
-
-                            sectionId :
-                                "rule_tambah"
-
-                        });
-
+                    return Payroll.getRuleState(
+                        PAYROLL_MODE,
+                        "rule_tambah"
+                    );
                 },
 
 
+            /* =============================================
+               FIELDS
+            ============================================= */
+
             fields : [
 
-                /* =========================================
-                   NAMA RULE
-                ========================================= */
+                /* -----------------------------------------
+                   NAMA
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nama",
 
@@ -1830,142 +1556,120 @@ export const MonthlySetting = {
                     required :
                         true,
 
+                    note :
+                        "Pilih jenis tambahan yang ingin dibuat.",
+
                     options : [
 
                         {
-
                             value :
                                 "tunjangan",
 
                             label :
                                 "Tunjangan"
-
                         },
 
                         {
-
                             value :
                                 "uang_transport",
 
                             label :
                                 "Uang Transport"
-
                         },
 
                         {
-
                             value :
                                 "uang_makan",
 
                             label :
                                 "Uang Makan"
-
                         },
 
                         {
-
                             value :
                                 "lembur",
 
                             label :
-                                "Lembur"
+                                "Lembur Harian",
 
+                            note :
+                                "Masukkan nominal lembur per hari."
                         },
 
                         {
-
                             value :
                                 "lembur_jam_1",
 
                             label :
                                 "Lembur Jam 1"
-
                         },
 
                         {
-
                             value :
                                 "lembur_jam_2",
 
                             label :
                                 "Lembur Jam 2"
-
                         },
 
                         {
-
                             value :
                                 "lembur_jam_3",
 
                             label :
                                 "Lembur Jam 3"
-
                         },
 
                         {
-
                             value :
                                 "lembur_jam_4",
 
                             label :
                                 "Lembur Jam 4"
-
                         },
 
                         {
-
                             value :
                                 "lembur_jam_5",
 
                             label :
                                 "Lembur Jam 5"
-
                         },
 
                         {
-
                             value :
                                 "lembur_jam_6",
 
                             label :
                                 "Lembur Jam 6"
-
                         },
 
                         {
-
                             value :
                                 "lembur_jam_7",
 
                             label :
                                 "Lembur Jam 7"
-
                         },
 
                         {
-
                             value :
                                 "lembur_jam_8",
 
                             label :
                                 "Lembur Jam 8"
-
                         }
 
-                    ],
-
-                    note :
-                        "Pilih jenis rule tambahan yang ingin digunakan."
+                    ]
 
                 },
 
 
-                /* =========================================
+                /* -----------------------------------------
                    KONDISI UANG MAKAN
-                ========================================= */
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "kondisi",
 
@@ -1981,66 +1685,58 @@ export const MonthlySetting = {
                     required :
                         true,
 
-                    options : [
-
-                        {
-
-                            value :
-                                "masuk,lembur",
-
-                            label :
-                                "Masuk / Lembur"
-
-                        },
-
-                        {
-
-                            value :
-                                "periode",
-
-                            label :
-                                "Periode"
-
-                        }
-
-                    ],
-
                     dependsOn : {
 
                         field :
                             "nama",
 
-                        values : [
-
+                        value :
                             "uang_makan"
-
-                        ]
 
                     },
 
                     note :
-                        "Kondisi hanya digunakan untuk Uang Makan."
+                        "Masuk + Lembur dihitung harian. Periode dihitung bulanan.",
+
+                    options : [
+
+                        {
+                            value :
+                                "masuk,lembur",
+
+                            label :
+                                "Masuk + Lembur"
+                        },
+
+                        {
+                            value :
+                                "periode",
+
+                            label :
+                                "Periode"
+                        }
+
+                    ]
 
                 },
 
 
-                /* =========================================
+                /* -----------------------------------------
                    NOMINAL
-                ========================================= */
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nominal",
 
                     label :
-                        "Nominal",
+                        "Nominal Tambahan",
 
                     type :
                         "number",
 
                     placeholder :
-                        "Contoh: 25000",
+                        "Contoh: 8000",
 
                     required :
                         true,
@@ -2052,17 +1748,15 @@ export const MonthlySetting = {
                         1,
 
                     note :
-                        "Masukkan nominal rule."
-
+                        "Masukkan nominal tambahan sesuai rule yang dipilih."
                 },
 
 
-                /* =========================================
+                /* -----------------------------------------
                    NILAI START
-                ========================================= */
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nilai_start",
 
@@ -2090,7 +1784,6 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
-
                             "lembur_jam_1",
                             "lembur_jam_2",
                             "lembur_jam_3",
@@ -2099,23 +1792,20 @@ export const MonthlySetting = {
                             "lembur_jam_6",
                             "lembur_jam_7",
                             "lembur_jam_8"
-
                         ]
 
                     },
 
                     note :
-                        "Khusus rule lembur per jam."
-
+                        "Khusus Lembur Jam. Isi jam awal yang digunakan untuk rule ini."
                 },
 
 
-                /* =========================================
+                /* -----------------------------------------
                    NILAI END
-                ========================================= */
+                ----------------------------------------- */
 
                 {
-
                     name :
                         "nilai_end",
 
@@ -2126,7 +1816,7 @@ export const MonthlySetting = {
                         "number",
 
                     placeholder :
-                        "Contoh: 2",
+                        "Contoh: 8",
 
                     required :
                         false,
@@ -2143,7 +1833,6 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
-
                             "lembur_jam_1",
                             "lembur_jam_2",
                             "lembur_jam_3",
@@ -2152,42 +1841,30 @@ export const MonthlySetting = {
                             "lembur_jam_6",
                             "lembur_jam_7",
                             "lembur_jam_8"
-
                         ]
 
                     },
 
                     note :
-                        "Khusus rule lembur per jam."
-
+                        "Khusus Lembur Jam. Isi jam akhir jika rule mencakup beberapa jam."
                 }
 
             ],
 
 
+            /* =============================================
+               NORMALIZE
+            ============================================= */
+
             normalize :
-                function(
+                async function(
                     data
                 ){
 
                     const nama =
-                        String(
-                            data.nama ??
-                            ""
-                        ).trim();
-
-
-                    if(
-                        !nama
-                    ){
-
-                        alert(
-                            "Rule Tambah harus dipilih."
+                        normalizeCompareValue(
+                            data.nama
                         );
-
-                        return null;
-
-                    }
 
 
                     let kondisi =
@@ -2197,22 +1874,18 @@ export const MonthlySetting = {
                         "gaji";
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        UANG MAKAN
-                    ===================================== */
+                    ------------------------------------- */
 
                     if(
-
                         nama ===
-                            "uang_makan"
-
+                        "uang_makan"
                     ){
 
                         if(
-
                             data.kondisi ===
-                                "masuk,lembur"
-
+                            "masuk,lembur"
                         ){
 
                             kondisi =
@@ -2224,10 +1897,8 @@ export const MonthlySetting = {
                         }
 
                         else if(
-
                             data.kondisi ===
-                                "periode"
-
+                            "periode"
                         ){
 
                             kondisi =
@@ -2241,7 +1912,7 @@ export const MonthlySetting = {
                         else{
 
                             alert(
-                                "Kondisi Uang Makan harus dipilih."
+                                "Kondisi Uang Makan wajib dipilih."
                             );
 
                             return null;
@@ -2251,15 +1922,13 @@ export const MonthlySetting = {
                     }
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        LEMBUR HARIAN
-                    ===================================== */
+                    ------------------------------------- */
 
                     else if(
-
                         nama ===
-                            "lembur"
-
+                        "lembur"
                     ){
 
                         kondisi =
@@ -2271,16 +1940,27 @@ export const MonthlySetting = {
                     }
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        LEMBUR PER JAM
-                    ===================================== */
+                    ------------------------------------- */
 
                     else if(
-
-                        nama.startsWith(
-                            "lembur_jam_"
-                        )
-
+                        nama ===
+                            "lembur_jam_1" ||
+                        nama ===
+                            "lembur_jam_2" ||
+                        nama ===
+                            "lembur_jam_3" ||
+                        nama ===
+                            "lembur_jam_4" ||
+                        nama ===
+                            "lembur_jam_5" ||
+                        nama ===
+                            "lembur_jam_6" ||
+                        nama ===
+                            "lembur_jam_7" ||
+                        nama ===
+                            "lembur_jam_8"
                     ){
 
                         kondisi =
@@ -2291,15 +1971,10 @@ export const MonthlySetting = {
 
 
                         if(
-
                             data.nilai_start ===
-                                ""
-
-                            &&
-
+                                "" &&
                             data.nilai_end !==
                                 ""
-
                         ){
 
                             alert(
@@ -2307,30 +1982,20 @@ export const MonthlySetting = {
                             );
 
                             return null;
-
                         }
 
 
                         if(
-
                             data.nilai_start !==
-                                ""
-
-                            &&
-
+                                "" &&
                             data.nilai_end !==
-                                ""
-
-                            &&
-
+                                "" &&
                             Number(
                                 data.nilai_start
-                            )
-                            >
+                            ) >
                             Number(
                                 data.nilai_end
                             )
-
                         ){
 
                             alert(
@@ -2338,26 +2003,20 @@ export const MonthlySetting = {
                             );
 
                             return null;
-
                         }
 
                     }
 
 
-                    /* =====================================
+                    /* -------------------------------------
                        TUNJANGAN / TRANSPORT
-                    ===================================== */
+                    ------------------------------------- */
 
                     else if(
-
                         nama ===
-                            "tunjangan"
-
-                        ||
-
+                            "tunjangan" ||
                         nama ===
                             "uang_transport"
-
                     ){
 
                         kondisi =
@@ -2369,13 +2028,17 @@ export const MonthlySetting = {
                     }
 
 
+                    /* -------------------------------------
+                       RULE
+                    ------------------------------------- */
+
                     const rule = {
 
                         type_rule :
                             "rule_tambah",
 
                         nama :
-                            nama,
+                            data.nama,
 
                         kondisi :
                             kondisi,
@@ -2438,15 +2101,10 @@ export const MonthlySetting = {
                 "Hapus",
 
             uniqueFields : [
-
                 "aktifkanRuleLembur",
-
                 "aktifkanRuleIzin",
-
                 "gunakanRuleTelat",
-
                 "gunakanRuleShift"
-
             ],
 
             autoCloseForm :
@@ -2454,46 +2112,96 @@ export const MonthlySetting = {
 
 
             /*
-               Ini bukan rule payroll manual.
+             * Konfigurasi Attendance adalah data internal
+             * untuk Payroll engine.
+             *
+             * Bukan rule payroll biasa.
+             */
+            persist :
+                false,
 
-               Section ini hanya merupakan pilihan
-               fitur input Attendance.
 
-               Rule aktual:
-               - rule_masuk
-               - rule_lembur
-               - rule_izin
-               - rule_telat
-               - rule_shift
-
-               dibuat oleh Payroll Engine.
-            */
+            /* =============================================
+               RULE STATE
+            ============================================= */
 
             getRuleState :
                 async function(){
-
-                    return Payroll
-                        .getRuleState({
-
-                            mode :
-                                PAYROLL_MODE,
-
-                            sectionId :
-                                "monthly_rules"
-
-                        });
-
+                    return Payroll.getRuleState(
+                        PAYROLL_MODE,
+                        "monthly_rules"
+                    );
                 },
 
 
+            /* =============================================
+               RULE STATE FIELDS
+            ============================================= */
+
+            ruleStateFields : {
+
+                aktifkanRuleLembur : {
+
+                    field :
+                        "aktifkanRuleLembur",
+
+                    label :
+                        "Aktifkan Rule Lembur",
+
+                    replaceWithStatus :
+                        true
+
+                },
+
+                aktifkanRuleIzin : {
+
+                    field :
+                        "aktifkanRuleIzin",
+
+                    label :
+                        "Aktifkan Rule Izin",
+
+                    replaceWithStatus :
+                        true
+
+                },
+
+                gunakanRuleTelat : {
+
+                    field :
+                        "gunakanRuleTelat",
+
+                    label :
+                        "Gunakan Rule Telat",
+
+                    replaceWithStatus :
+                        true
+
+                },
+
+                gunakanRuleShift : {
+
+                    field :
+                        "gunakanRuleShift",
+
+                    label :
+                        "Gunakan Rule Shift",
+
+                    replaceWithStatus :
+                        true
+
+                }
+
+            },
+
+
+            /* =============================================
+               FIELDS
+            ============================================= */
+
             fields : [
 
-                /* =========================================
-                   LEMBUR
-                ========================================= */
-
                 {
-
                     name :
                         "aktifkanRuleLembur",
 
@@ -2510,17 +2218,11 @@ export const MonthlySetting = {
                         false,
 
                     note :
-                        "Aktifkan jika Payroll Monthly menggunakan lembur."
-
+                        "Aktifkan jika Payroll Monthly menggunakan perhitungan lembur."
                 },
 
 
-                /* =========================================
-                   IZIN
-                ========================================= */
-
                 {
-
                     name :
                         "aktifkanRuleIzin",
 
@@ -2537,17 +2239,11 @@ export const MonthlySetting = {
                         false,
 
                     note :
-                        "Aktifkan jika Payroll Monthly menggunakan izin pulang."
-
+                        "Aktifkan jika Payroll Monthly menggunakan perhitungan izin."
                 },
 
 
-                /* =========================================
-                   TELAT
-                ========================================= */
-
                 {
-
                     name :
                         "gunakanRuleTelat",
 
@@ -2564,17 +2260,11 @@ export const MonthlySetting = {
                         false,
 
                     note :
-                        "Aktifkan jika Payroll Monthly menggunakan perhitungan telat."
-
+                        "Aktifkan jika keterlambatan digunakan dalam perhitungan payroll."
                 },
 
 
-                /* =========================================
-                   SHIFT
-                ========================================= */
-
                 {
-
                     name :
                         "gunakanRuleShift",
 
@@ -2592,11 +2282,14 @@ export const MonthlySetting = {
 
                     note :
                         "Aktifkan jika Payroll Monthly menggunakan shift kerja."
-
                 }
 
             ],
 
+
+            /* =============================================
+               NORMALIZE
+            ============================================= */
 
             normalize :
                 function(
@@ -2634,52 +2327,93 @@ export const MonthlySetting = {
 
         }
 
-    ]
+    ],
+
+
+    /* =====================================================
+       PREPARE SAVE
+    ===================================================== */
+
+    prepareSave :
+        async function(
+            payload,
+            context
+        ){
+
+            const data =
+                Array.isArray(
+                    payload
+                )
+                    ?
+                payload.slice()
+                    :
+                [];
+
+
+            /*
+             * Cari konfigurasi Attendance.
+             *
+             * Section monthly_rules bersifat
+             * persist:false sehingga data ini tidak
+             * dikirim sebagai rule biasa.
+             *
+             * Tetapi datanya masih tersedia dari
+             * context.data sebelum filtering.
+             */
+
+            const allData =
+                Array.isArray(
+                    context?.data
+                )
+                    ?
+                context.data
+                    :
+                [];
+
+
+            const attendanceItem =
+                allData.find(
+                    item =>
+                        item?.section ===
+                        "monthly_rules"
+                );
+
+
+            const settings =
+                attendanceItem?.data ??
+                {};
+
+
+            /*
+             * Payroll.prepareSave() menangani:
+             *
+             * - Rule Periode baru
+             * - active period
+             * - inheritance active period
+             * - automatic Monthly Attendance rules
+             * - exit new period mode
+             */
+
+            const prepared =
+                await Payroll.prepareSave(
+                    PAYROLL_MODE,
+                    data,
+                    {
+                        settings :
+                            settings
+                    }
+                );
+
+
+            return prepared;
+
+        }
 
 };
 
 
 /* =====================================================
-   OPTIONAL PAYROLL HELPERS
+   DEFAULT EXPORT
 ===================================================== */
 
-/*
-   Export helper agar modul lain yang memang membutuhkan
-   state Payroll Monthly dapat menggunakan shared engine.
-
-   Tidak digunakan sebagai source state UI.
-*/
-
-export async function getMonthlyPayrollState(){
-
-    return Payroll.getState(
-        PAYROLL_MODE
-    );
-
-}
-
-
-export async function getMonthlyActivePeriod(){
-
-    return Payroll.getExistingPeriod(
-        PAYROLL_MODE
-    );
-
-}
-
-
-export async function getMonthlyRuleState(
-    sectionId
-){
-
-    return Payroll.getRuleState({
-
-        mode :
-            PAYROLL_MODE,
-
-        sectionId :
-            sectionId ?? ""
-
-    });
-
-}
+export default MonthlySetting;
