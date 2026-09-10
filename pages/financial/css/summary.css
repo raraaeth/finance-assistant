@@ -2148,3 +2148,131 @@ html.dark
     }
 
 }
+
+/* =====================================================
+   FINANCIAL ANALYSIS PAGINATION
+===================================================== */
+
+.financial-analysis-pagination {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 16px;
+
+    margin-top: 16px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid var(--border-color);
+
+}
+
+
+.financial-analysis-pagination-button {
+
+    min-height: 36px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border-color);
+
+    border-radius: 10px;
+
+    background: var(--surface);
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        opacity .2s ease,
+        transform .2s ease;
+
+}
+
+
+.financial-analysis-pagination-button:hover:not(:disabled) {
+
+    background: var(--surface-secondary);
+
+}
+
+
+.financial-analysis-pagination-button:active:not(:disabled) {
+
+    transform: scale(.97);
+
+}
+
+
+.financial-analysis-pagination-button:disabled {
+
+    opacity: .4;
+
+    cursor: not-allowed;
+
+}
+
+
+.financial-analysis-pagination-info {
+
+    min-width: 100px;
+
+    text-align: center;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+}
+
+
+.financial-analysis-pagination-info strong {
+
+    color: var(--text);
+
+    font-weight: 600;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .financial-analysis-pagination {
+
+        gap: 8px;
+
+    }
+
+
+    .financial-analysis-pagination-button {
+
+        padding: 0 10px;
+
+        font-size: 12px;
+
+    }
+
+
+    .financial-analysis-pagination-info {
+
+        min-width: 82px;
+
+        font-size: 12px;
+
+    }
+
+}
