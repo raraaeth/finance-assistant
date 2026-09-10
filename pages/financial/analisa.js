@@ -56,6 +56,8 @@ const MAX_PERIOD_MONTHS = 24;
 
 const DEFAULT_PERIOD_MONTHS = 1;
 
+const DETAIL_PAGE_SIZE = 5;
+
 
 /* =====================================================
    DOM ID
@@ -109,7 +111,9 @@ const state = {
 
     chartInstance : null,
 
-    initialized : false
+    initialized : false,
+
+    detailPage : 1
 
 };
 
@@ -162,6 +166,8 @@ export const Analisa = {
             DEFAULT_PERIOD_MONTHS;
 
         state.result = null;
+       
+        state.detailPage = 1;
 
 
         /*
@@ -261,6 +267,8 @@ export const Analisa = {
 
             );
 
+       state.detailPage = 1;
+
 
         if(
 
@@ -296,6 +304,8 @@ export const Analisa = {
 
             );
 
+       
+        state.detailPage = 1;
 
         if(
 
