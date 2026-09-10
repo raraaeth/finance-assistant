@@ -167,6 +167,8 @@ export const Analisa = {
 
         state.result = null;
 
+       state.detailPage = 1;
+
 
         /*
          * Bersihkan chart lama.
