@@ -2,10 +2,10 @@
    Finance Assistant
    Module      : Financial
    File        : analisa.js
-   Version     : 1.0.0
+   Version     : 1.1.0
 
    Description :
-   Financial Analysis Engine
+   Financial Analysis Engine + UI Controller
 
    Source :
        Process.data
@@ -27,6 +27,8 @@
         ├── Chart
         ├── Top 5
         └── Details
+        ↓
+   UI Rendering
 
    Principle :
    - Tidak membaca Google Sheets langsung.
@@ -56,6 +58,42 @@ const DEFAULT_PERIOD_MONTHS = 1;
 
 
 /* =====================================================
+   DOM ID
+===================================================== */
+
+const DOM = {
+
+    section :
+        "summary-financial-analysis",
+
+    card :
+        "summary-financial-analysis-card",
+
+    search :
+        "financial-analysis-search-input",
+
+    chart :
+        "financial-analysis-chart",
+
+    trending :
+        "financial-analysis-trending-list",
+
+    resultInfo :
+        "financial-analysis-result-info",
+
+    resultList :
+        "financial-analysis-result-list",
+
+    empty :
+        "financial-analysis-empty",
+
+    period :
+        "financial-analysis-period-select"
+
+};
+
+
+/* =====================================================
    ANALYSIS STATE
 ===================================================== */
 
@@ -67,7 +105,11 @@ const state = {
 
     months : DEFAULT_PERIOD_MONTHS,
 
-    result : null
+    result : null,
+
+    chartInstance : null,
+
+    initialized : false
 
 };
 
@@ -122,6 +164,37 @@ export const Analisa = {
         state.result = null;
 
 
+        /*
+         * Bersihkan chart lama.
+         */
+
+        destroyChart();
+
+
+        /*
+         * Siapkan UI.
+         */
+
+        setupUI();
+
+
+        /*
+         * Buka section Analisa.
+         */
+
+        showSection();
+
+
+        /*
+         * Render analisa pertama.
+         */
+
+        render();
+
+
+        state.initialized = true;
+
+
         return Analisa;
 
     },
@@ -154,6 +227,17 @@ export const Analisa = {
                 [];
 
 
+        if(
+
+            state.initialized
+
+        ){
+
+            render();
+
+        }
+
+
         return Analisa;
 
     },
@@ -178,6 +262,17 @@ export const Analisa = {
             );
 
 
+        if(
+
+            state.initialized
+
+        ){
+
+            render();
+
+        }
+
+
         return Analisa;
 
     },
@@ -200,6 +295,17 @@ export const Analisa = {
                 months
 
             );
+
+
+        if(
+
+            state.initialized
+
+        ){
+
+            render();
+
+        }
 
 
         return Analisa;
@@ -510,16 +616,24 @@ export const Analisa = {
                 normalizedTransactions.length,
 
 
-            summary : summary,
+            summary :
+
+                summary,
 
 
-            chart : chart,
+            chart :
+
+                chart,
 
 
-            top5 : topDays,
+            top5 :
+
+                topDays,
 
 
-            details : details
+            details :
+
+                details
 
         };
 
@@ -619,7 +733,1471 @@ export const Analisa = {
 
     }
 
+
 };
+
+
+/* =====================================================
+   UI SETUP
+===================================================== */
+
+function setupUI(){
+
+    const searchInput =
+
+        document.getElementById(
+
+            DOM.search
+
+        );
+
+
+    const periodSelect =
+
+        document.getElementById(
+
+            DOM.period
+
+        );
+
+
+    /*
+     * Hindari listener ganda.
+     */
+
+    if(
+
+        searchInput &&
+
+        searchInput.dataset.analisaReady !== "true"
+
+    ){
+
+        searchInput.addEventListener(
+
+            "input",
+
+            function(event){
+
+                state.keyword =
+
+                    normalizeSearchText(
+
+                        event.target.value
+
+                    );
+
+
+                render();
+
+            }
+
+        );
+
+
+        searchInput.dataset.analisaReady = "true";
+
+    }
+
+
+    /*
+     * Periode.
+     */
+
+    if(
+
+        periodSelect &&
+
+        periodSelect.dataset.analisaReady !== "true"
+
+    ){
+
+        populatePeriodSelect(
+
+            periodSelect
+
+        );
+
+
+        periodSelect.value =
+
+            String(
+
+                state.months
+
+            );
+
+
+        periodSelect.addEventListener(
+
+            "change",
+
+            function(event){
+
+                state.months =
+
+                    normalizePeriod(
+
+                        event.target.value
+
+                    );
+
+
+                render();
+
+            }
+
+        );
+
+
+        periodSelect.dataset.analisaReady = "true";
+
+    }
+
+    else if(
+
+        periodSelect
+
+    ){
+
+        periodSelect.value =
+
+            String(
+
+                state.months
+
+            );
+
+    }
+
+}
+
+
+/* =====================================================
+   SHOW SECTION
+===================================================== */
+
+function showSection(){
+
+    const section =
+
+        document.getElementById(
+
+            DOM.section
+
+        );
+
+
+    if(
+
+        !section
+
+    ){
+
+        return;
+
+    }
+
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function render(){
+
+    const section =
+
+        document.getElementById(
+
+            DOM.section
+
+        );
+
+
+    if(
+
+        !section
+
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Section selalu dibuka ketika
+     * Analisa dijalankan.
+     */
+
+    section.classList.remove(
+
+        "hidden"
+
+    );
+
+
+    /*
+     * Pastikan period select sinkron.
+     */
+
+    const periodSelect =
+
+        document.getElementById(
+
+            DOM.period
+
+        );
+
+
+    if(
+
+        periodSelect
+
+    ){
+
+        populatePeriodSelect(
+
+            periodSelect
+
+        );
+
+
+        periodSelect.value =
+
+            String(
+
+                state.months
+
+            );
+
+    }
+
+
+    /*
+     * Pastikan search sinkron.
+     */
+
+    const searchInput =
+
+        document.getElementById(
+
+            DOM.search
+
+        );
+
+
+    if(
+
+        searchInput &&
+
+        searchInput.value !==
+
+            state.keyword
+
+    ){
+
+        searchInput.value =
+
+            state.keyword;
+
+    }
+
+
+    /*
+     * Jalankan engine.
+     */
+
+    const result =
+
+        Analisa.analyze();
+
+
+    /*
+     * Render seluruh UI.
+     */
+
+    renderChart(
+
+        result
+
+    );
+
+
+    renderTrending(
+
+        result
+
+    );
+
+
+    renderDetails(
+
+        result
+
+    );
+
+}
+
+
+/* =====================================================
+   POPULATE PERIOD SELECT
+===================================================== */
+
+function populatePeriodSelect(
+
+    select
+
+){
+
+    if(
+
+        !select
+
+    ){
+
+        return;
+
+    }
+
+
+    const currentValue =
+
+        normalizePeriod(
+
+            select.value ||
+
+            state.months
+
+        );
+
+
+    const options =
+
+        buildPeriodOptions();
+
+
+    select.innerHTML =
+
+        options
+
+            .map(
+
+                option => `
+
+                    <option value="${option.value}">
+
+                        ${escapeHTML(option.label)}
+
+                    </option>
+
+                `
+
+            )
+
+            .join("");
+
+
+    select.value =
+
+        String(
+
+            state.months ||
+
+            currentValue
+
+        );
+
+}
+
+
+/* =====================================================
+   RENDER CHART
+===================================================== */
+
+function renderChart(
+
+    result
+
+){
+
+    const canvas =
+
+        document.getElementById(
+
+            DOM.chart
+
+        );
+
+
+    if(
+
+        !canvas
+
+    ){
+
+        return;
+
+    }
+
+
+    destroyChart();
+
+
+    const chartData =
+
+        result?.chart;
+
+
+    if(
+
+        !chartData ||
+
+        !chartData.labels.length
+
+    ){
+
+        clearCanvas(
+
+            canvas
+
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Chart.js tersedia secara global
+     * melalui index.html.
+     */
+
+    const ChartJS =
+
+        window.Chart;
+
+
+    if(
+
+        typeof ChartJS !==
+
+        "function"
+
+    ){
+
+        console.warn(
+
+            "[Analisa] Chart.js tidak tersedia."
+
+        );
+
+        return;
+
+    }
+
+
+    const context =
+
+        canvas.getContext(
+
+            "2d"
+
+        );
+
+
+    if(
+
+        !context
+
+    ){
+
+        return;
+
+    }
+
+
+    state.chartInstance =
+
+        new ChartJS(
+
+            context,
+
+            {
+
+                type :
+
+                    "line",
+
+
+                data : {
+
+                    labels :
+
+                        chartData.labels.map(
+
+                            formatChartLabel
+
+                        ),
+
+
+                    datasets : [
+
+                        {
+
+                            label :
+
+                                "Pemasukan",
+
+
+                            data :
+
+                                chartData.income,
+
+
+                            borderColor :
+
+                                "#2E7D32",
+
+
+                            backgroundColor :
+
+                                "rgba(46,125,50,0.08)",
+
+
+                            borderWidth :
+
+                                2,
+
+
+                            tension :
+
+                                0.3,
+
+
+                            fill :
+
+                                false,
+
+
+                            pointRadius :
+
+                                2,
+
+
+                            pointHoverRadius :
+
+                                4
+
+                        },
+
+
+                        {
+
+                            label :
+
+                                "Pengeluaran",
+
+
+                            data :
+
+                                chartData.expense,
+
+
+                            borderColor :
+
+                                "#D32F2F",
+
+
+                            backgroundColor :
+
+                                "rgba(211,47,47,0.08)",
+
+
+                            borderWidth :
+
+                                2,
+
+
+                            tension :
+
+                                0.3,
+
+
+                            fill :
+
+                                false,
+
+
+                            pointRadius :
+
+                                2,
+
+
+                            pointHoverRadius :
+
+                                4
+
+                        }
+
+                    ]
+
+                },
+
+
+                options : {
+
+                    responsive :
+
+                        true,
+
+
+                    maintainAspectRatio :
+
+                        false,
+
+
+                    interaction : {
+
+                        mode :
+
+                            "index",
+
+                        intersect :
+
+                            false
+
+                    },
+
+
+                    plugins : {
+
+                        legend : {
+
+                            display :
+
+                                true
+
+                        },
+
+
+                        tooltip : {
+
+                            callbacks : {
+
+                                label :
+
+                                    function(
+
+                                        context
+
+                                    ){
+
+                                        return (
+
+                                            context.dataset.label +
+
+                                            ": " +
+
+                                            formatRupiah(
+
+                                                context.parsed.y
+
+                                            )
+
+                                        );
+
+                                    }
+
+                            }
+
+                        }
+
+                    },
+
+
+                    scales : {
+
+                        x : {
+
+                            ticks : {
+
+                                maxTicksLimit :
+
+                                    8
+
+                            }
+
+                        },
+
+
+                        y : {
+
+                            beginAtZero :
+
+                                true,
+
+
+                            ticks : {
+
+                                callback :
+
+                                    function(
+
+                                        value
+
+                                    ){
+
+                                        return shortRupiah(
+
+                                            value
+
+                                        );
+
+                                    }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+/* =====================================================
+   DESTROY CHART
+===================================================== */
+
+function destroyChart(){
+
+    if(
+
+        state.chartInstance &&
+
+        typeof state.chartInstance.destroy ===
+
+            "function"
+
+    ){
+
+        state.chartInstance.destroy();
+
+    }
+
+
+    state.chartInstance = null;
+
+}
+
+
+/* =====================================================
+   CLEAR CANVAS
+===================================================== */
+
+function clearCanvas(
+
+    canvas
+
+){
+
+    if(
+
+        !canvas
+
+    ){
+
+        return;
+
+    }
+
+
+    const context =
+
+        canvas.getContext(
+
+            "2d"
+
+        );
+
+
+    if(
+
+        !context
+
+    ){
+
+        return;
+
+    }
+
+
+    context.clearRect(
+
+        0,
+
+        0,
+
+        canvas.width,
+
+        canvas.height
+
+    );
+
+}
+
+
+/* =====================================================
+   RENDER TRENDING
+===================================================== */
+
+function renderTrending(
+
+    result
+
+){
+
+    const container =
+
+        document.getElementById(
+
+            DOM.trending
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const top5 =
+
+        Array.isArray(
+
+            result?.top5
+
+        )
+
+            ?
+
+            result.top5
+
+            :
+
+            [];
+
+
+    container.innerHTML = "";
+
+
+    if(
+
+        !top5.length
+
+    ){
+
+        container.innerHTML = `
+
+            <div class="financial-analysis-empty">
+
+                Belum ada transaksi pada periode ini.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+
+        top5
+
+            .map(
+
+                item =>
+
+                    createTrendingItem(
+
+                        item
+
+                    )
+
+            )
+
+            .join("");
+
+}
+
+
+/* =====================================================
+   CREATE TRENDING ITEM
+===================================================== */
+
+function createTrendingItem(
+
+    item
+
+){
+
+    const categoryClass =
+
+        item.category === "income"
+
+            ?
+
+            "income"
+
+            :
+
+            item.category === "expense"
+
+                ?
+
+                "expense"
+
+                :
+
+                "mixed";
+
+
+    return `
+
+        <div class="financial-analysis-trending-item ${categoryClass}">
+
+
+            <div class="financial-analysis-trending-date">
+
+                ${formatDisplayDate(item.date)}
+
+            </div>
+
+
+            <div class="financial-analysis-trending-weekday">
+
+                ${escapeHTML(item.day)}
+
+            </div>
+
+
+            <div class="financial-analysis-trending-amount ${categoryClass}">
+
+                ${formatRupiah(item.total)}
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   RENDER DETAILS
+===================================================== */
+
+function renderDetails(
+
+    result
+
+){
+
+    const info =
+
+        document.getElementById(
+
+            DOM.resultInfo
+
+        );
+
+
+    const list =
+
+        document.getElementById(
+
+            DOM.resultList
+
+        );
+
+
+    const empty =
+
+        document.getElementById(
+
+            DOM.empty
+
+        );
+
+
+    const count =
+
+        Number(
+
+            result?.count
+
+        ) || 0;
+
+
+    /*
+     * Info.
+     */
+
+    if(
+
+        info
+
+    ){
+
+        info.innerHTML = `
+
+            <span>
+
+                ${count}
+
+                transaksi
+
+            </span>
+
+            <span>
+
+                ${formatPeriodText(result)}
+
+            </span>
+
+        `;
+
+    }
+
+
+    /*
+     * List.
+
+     */
+
+    if(
+
+        !list
+
+    ){
+
+        return;
+
+    }
+
+
+    list.innerHTML = "";
+
+
+    /*
+     * Empty.
+
+     */
+
+    if(
+
+        !count
+
+    ){
+
+        if(
+
+            empty
+
+        ){
+
+            empty.classList.remove(
+
+                "hidden"
+
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    if(
+
+        empty
+
+    ){
+
+        empty.classList.add(
+
+            "hidden"
+
+        );
+
+    }
+
+
+    list.innerHTML =
+
+        result.details
+
+            .map(
+
+                item =>
+
+                    createResultItem(
+
+                        item
+
+                    )
+
+            )
+
+            .join("");
+
+}
+
+
+/* =====================================================
+   CREATE RESULT ITEM
+===================================================== */
+
+function createResultItem(
+
+    item
+
+){
+
+    const amountClass =
+
+        item.category === "income"
+
+            ?
+
+            "income"
+
+            :
+
+            "expense";
+
+
+    const sign =
+
+        item.category === "income"
+
+            ?
+
+            "+"
+
+            :
+
+            "-";
+
+
+    return `
+
+        <div class="financial-analysis-result-item ${amountClass}">
+
+
+            <div class="financial-analysis-result-info-group">
+
+
+                <div class="financial-analysis-result-date">
+
+                    ${formatDisplayDate(item.date)}
+
+                    <span>
+
+                        ${escapeHTML(item.day)}
+
+                    </span>
+
+                </div>
+
+
+                <div class="financial-analysis-result-activity">
+
+                    ${escapeHTML(item.activity)}
+
+                </div>
+
+
+                <div class="financial-analysis-result-note">
+
+                    ${
+
+                        item.keterangan
+
+                            ?
+
+                            escapeHTML(
+
+                                item.keterangan
+
+                            )
+
+                            :
+
+                            "-"
+
+                    }
+
+                </div>
+
+
+            </div>
+
+
+            <div class="financial-analysis-result-amount ${amountClass}">
+
+                ${sign}
+
+                ${formatRupiah(item.nominal)}
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   FORMAT PERIOD TEXT
+===================================================== */
+
+function formatPeriodText(
+
+    result
+
+){
+
+    if(
+
+        !result?.period?.start ||
+
+        !result?.period?.end
+
+    ){
+
+        return "-";
+
+    }
+
+
+    return (
+
+        formatDisplayDate(
+
+            result.period.start
+
+        ) +
+
+        " - " +
+
+        formatDisplayDate(
+
+            result.period.end
+
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT CHART LABEL
+===================================================== */
+
+function formatChartLabel(
+
+    value
+
+){
+
+    const date =
+
+        normalizeDate(
+
+            value
+
+        );
+
+
+    if(
+
+        !date
+
+    ){
+
+        return value;
+
+    }
+
+
+    return (
+
+        String(
+
+            date.getDate()
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        ) +
+
+        "/" +
+
+        String(
+
+            date.getMonth() + 1
+
+        ).padStart(
+
+            2,
+
+            "0"
+
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT DISPLAY DATE
+===================================================== */
+
+function formatDisplayDate(
+
+    value
+
+){
+
+    const date =
+
+        normalizeDate(
+
+            value
+
+        );
+
+
+    if(
+
+        !date
+
+    ){
+
+        return "-";
+
+    }
+
+
+    return new Intl.DateTimeFormat(
+
+        "id-ID",
+
+        {
+
+            day :
+
+                "2-digit",
+
+            month :
+
+                "short",
+
+            year :
+
+                "numeric"
+
+        }
+
+    ).format(
+
+        date
+
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT RUPIAH
+===================================================== */
+
+function formatRupiah(
+
+    value
+
+){
+
+    try{
+
+        return rupiah(
+
+            value
+
+        );
+
+    }
+
+    catch(
+
+        error
+
+    ){
+
+        return (
+
+            "Rp " +
+
+            Number(
+
+                value || 0
+
+            ).toLocaleString(
+
+                "id-ID"
+
+            )
+
+        );
+
+    }
+
+}
 
 
 /* =====================================================
@@ -820,6 +2398,7 @@ function buildPeriodOptions(){
 
                 month,
 
+
             label :
 
                 `${month} Bulan`
@@ -848,7 +2427,7 @@ function buildPeriodOptions(){
  * 10 September 2026
  *
  * 1 bulan:
- * 11 Agustus 2026
+ * 10 Agustus 2026
  * sampai
  * 10 September 2026
  *
@@ -889,19 +2468,6 @@ function getPeriodRange(
 
     );
 
-
-    /*
-     * Geser satu hari supaya
-     * periode berbentuk inclusive.
-     *
-     * Contoh:
-     *
-     * 1 bulan dari 10 Sep:
-     * 10 Agu - 10 Sep
-     *
-     * Kita tidak menghilangkan
-     * hari batas.
-     */
 
     return {
 
@@ -1045,11 +2611,6 @@ function filterByKeyword(
         );
 
 
-    /*
-     * Tanpa keyword:
-     * tampilkan seluruh transaksi.
-     */
-
     if(
 
         !normalizedKeyword
@@ -1163,10 +2724,8 @@ function normalizeAnalysisTransaction(
 
 
     /*
-     * Hanya transaksi yang sudah
-     * berhasil diklasifikasikan
-     * sebagai income / expense
-     * yang masuk grafik.
+     * Hanya income / expense
+     * yang masuk analisa.
      */
 
     if(
@@ -1400,46 +2959,6 @@ function calculateSummary(
    BUILD DAILY CHART
 ===================================================== */
 
-/*
- * Hasil:
- *
- * labels :
- *
- * [
- *   "2026-08-10",
- *   "2026-08-11",
- *   ...
- * ]
- *
- * income :
- *
- * [
- *   0,
- *   50000,
- *   ...
- * ]
- *
- * expense :
- *
- * [
- *   20000,
- *   0,
- *   ...
- * ]
- *
- * days :
- *
- * [
- *   {
- *      date,
- *      day,
- *      income,
- *      expense,
- *      total
- *   }
- * ]
- */
-
 function buildDailyChart(
 
     transactions,
@@ -1454,14 +2973,6 @@ function buildDailyChart(
 
         new Map();
 
-
-    /*
-     * Buat semua hari terlebih dahulu.
-     *
-     * Dengan demikian hari tanpa
-     * transaksi tetap mempunyai
-     * nilai 0.
-     */
 
     let cursor =
 
@@ -1544,10 +3055,6 @@ function buildDailyChart(
 
     }
 
-
-    /*
-     * Masukkan transaksi.
-     */
 
     transactions.forEach(
 
@@ -1673,24 +3180,6 @@ function buildDailyChart(
 /* =====================================================
    BUILD TOP 5 DAYS
 ===================================================== */
-
-/*
- * Top 5 berdasarkan total nominal
- * transaksi yang cocok pada hari.
- *
- * Jika satu hari memiliki:
- *
- * income  = 500.000
- * expense = 200.000
- *
- * total = 700.000
- *
- * Hari tersebut akan dinilai
- * berdasarkan 700.000.
- *
- * Tetapi income/expense tetap
- * dipisahkan pada hasilnya.
- */
 
 function buildTopDays(
 
@@ -1882,13 +3371,6 @@ function getDominantCategory(
 /* =====================================================
    BUILD DETAILS
 ===================================================== */
-
-/*
- * Semua transaksi yang match.
- *
- * Urutan:
- * terbaru → terlama
- */
 
 function buildDetails(
 
@@ -2105,10 +3587,6 @@ function normalizeDate(
     }
 
 
-    /*
-     * Date object.
-     */
-
     if(
 
         value instanceof Date
@@ -2151,14 +3629,6 @@ function normalizeDate(
 
         ).trim();
 
-
-    /*
-     * YYYY-MM-DD
-     *
-     * Juga aman untuk ISO:
-     *
-     * 2026-09-10T00:00:00.000Z
-     */
 
     const isoMatch =
 
@@ -2234,10 +3704,6 @@ function normalizeDate(
 
     }
 
-
-    /*
-     * Fallback Date parser.
-     */
 
     const parsed =
 
@@ -2453,6 +3919,65 @@ function toNumber(
         :
 
         0;
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+
+    value
+
+){
+
+    return String(
+
+        value ?? ""
+
+    )
+
+        .replace(
+
+            /&/g,
+
+            "&amp;"
+
+        )
+
+        .replace(
+
+            /</g,
+
+            "&lt;"
+
+        )
+
+        .replace(
+
+            />/g,
+
+            "&gt;"
+
+        )
+
+        .replace(
+
+            /"/g,
+
+            "&quot;"
+
+        )
+
+        .replace(
+
+            /'/g,
+
+            "&#039;"
+
+        );
 
 }
 
