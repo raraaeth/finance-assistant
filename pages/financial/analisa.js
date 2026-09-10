@@ -56,8 +56,6 @@ const MAX_PERIOD_MONTHS = 24;
 
 const DEFAULT_PERIOD_MONTHS = 1;
 
-const DETAIL_PAGE_SIZE = 5;
-
 
 /* =====================================================
    DOM ID
@@ -111,9 +109,7 @@ const state = {
 
     chartInstance : null,
 
-    initialized : false,
-
-    detailPage : 1
+    initialized : false
 
 };
 
@@ -166,8 +162,6 @@ export const Analisa = {
             DEFAULT_PERIOD_MONTHS;
 
         state.result = null;
-
-       state.detailPage = 1;
 
 
         /*
@@ -267,8 +261,6 @@ export const Analisa = {
 
             );
 
-       state.detailPage = 1;
-
 
         if(
 
@@ -303,8 +295,6 @@ export const Analisa = {
                 months
 
             );
-
-       state.detailPage = 1;
 
 
         if(
@@ -1573,45 +1563,27 @@ function clearCanvas(
 
 
 /* =====================================================
-   RENDER DETAILS
+   RENDER TRENDING
 ===================================================== */
 
-function renderDetails(
+function renderTrending(
 
     result
 
 ){
 
-    const info =
+    const container =
 
         document.getElementById(
 
-            DOM.resultInfo
-
-        );
-
-
-    const list =
-
-        document.getElementById(
-
-            DOM.resultList
-
-        );
-
-
-    const empty =
-
-        document.getElementById(
-
-            DOM.empty
+            DOM.trending
 
         );
 
 
     if(
 
-        !list
+        !container
 
     ){
 
@@ -1620,219 +1592,56 @@ function renderDetails(
     }
 
 
-    const details =
+    const top5 =
 
         Array.isArray(
 
-            result?.details
+            result?.top5
 
         )
 
             ?
 
-            result.details
+            result.top5
 
             :
 
             [];
 
 
-    const total =
+    container.innerHTML = "";
 
-        details.length;
-
-
-    /*
-     * INFO TOTAL TRANSAKSI
-     */
 
     if(
 
-        info
+        !top5.length
 
     ){
 
-        info.innerHTML = `
+        container.innerHTML = `
 
-            <span>
+            <div class="financial-analysis-empty">
 
-                ${total}
+                Belum ada transaksi pada periode ini.
 
-                transaksi
-
-            </span>
-
-            <span>
-
-                ${formatPeriodText(result)}
-
-            </span>
+            </div>
 
         `;
-
-    }
-
-
-    /*
-     * BERSIHKAN LIST
-     */
-
-    list.innerHTML = "";
-
-
-    /*
-     * EMPTY
-     */
-
-    if(
-
-        !total
-
-    ){
-
-        if(
-
-            empty
-
-        ){
-
-            empty.classList.remove(
-
-                "hidden"
-
-            );
-
-        }
-
-
-        removePagination();
-
 
         return;
 
     }
 
 
-    /*
-     * ADA DATA
-     */
+    container.innerHTML =
 
-    if(
-
-        empty
-
-    ){
-
-        empty.classList.add(
-
-            "hidden"
-
-        );
-
-    }
-
-
-    /*
-     * TOTAL HALAMAN
-     */
-
-    const totalPages =
-
-        Math.ceil(
-
-            total /
-
-            DETAIL_PAGE_SIZE
-
-        );
-
-
-    /*
-     * AMANKAN HALAMAN AKTIF
-     */
-
-    if(
-
-        state.detailPage < 1
-
-    ){
-
-        state.detailPage = 1;
-
-    }
-
-
-    if(
-
-        state.detailPage >
-
-            totalPages
-
-    ){
-
-        state.detailPage =
-
-            totalPages;
-
-    }
-
-
-    /*
-     * INDEX DATA
-     */
-
-    const startIndex =
-
-        (
-
-            state.detailPage - 1
-
-        ) *
-
-        DETAIL_PAGE_SIZE;
-
-
-    const endIndex =
-
-        Math.min(
-
-            startIndex +
-
-                DETAIL_PAGE_SIZE,
-
-            total
-
-        );
-
-
-    /*
-     * DATA HALAMAN AKTIF
-     */
-
-    const pageItems =
-
-        details.slice(
-
-            startIndex,
-
-            endIndex
-
-        );
-
-
-    /*
-     * RENDER TRANSAKSI
-     */
-
-    list.innerHTML =
-
-        pageItems
+        top5
 
             .map(
 
                 item =>
 
-                    createResultItem(
+                    createTrendingItem(
 
                         item
 
@@ -1841,315 +1650,6 @@ function renderDetails(
             )
 
             .join("");
-
-
-    /*
-     * RENDER PAGINATION
-     */
-
-    renderPagination(
-
-        totalPages,
-
-        total
-
-    );
-
-}
-
-/* =====================================================
-   RENDER PAGINATION
-===================================================== */
-
-function renderPagination(
-
-    totalPages,
-
-    total
-
-){
-
-    /*
-     * Jika hanya satu halaman,
-     * tidak perlu pagination.
-     */
-
-    if(
-
-        totalPages <= 1
-
-    ){
-
-        removePagination();
-
-        return;
-
-    }
-
-
-    const list =
-
-        document.getElementById(
-
-            DOM.resultList
-
-        );
-
-
-    if(
-
-        !list
-
-    ){
-
-        return;
-
-    }
-
-
-    /*
-     * Cari pagination lama.
-     */
-
-    let pagination =
-
-        document.getElementById(
-
-            "financial-analysis-pagination"
-
-        );
-
-
-    /*
-     * Buat jika belum ada.
-     */
-
-    if(
-
-        !pagination
-
-    ){
-
-        pagination =
-
-            document.createElement(
-
-                "div"
-
-            );
-
-
-        pagination.id =
-
-            "financial-analysis-pagination";
-
-
-        pagination.className =
-
-            "financial-analysis-pagination";
-
-
-        list.parentNode.insertBefore(
-
-            pagination,
-
-            list.nextSibling
-
-        );
-
-    }
-
-
-    const previousDisabled =
-
-        state.detailPage <= 1;
-
-
-    const nextDisabled =
-
-        state.detailPage >= totalPages;
-
-
-    pagination.innerHTML = `
-
-        <button
-
-            type="button"
-
-            class="financial-analysis-pagination-button"
-
-            data-page-action="previous"
-
-            ${previousDisabled ? "disabled" : ""}>
-
-            ‹ Sebelumnya
-
-        </button>
-
-
-        <div class="financial-analysis-pagination-info">
-
-            Halaman
-
-            <strong>
-
-                ${state.detailPage}
-
-            </strong>
-
-            dari
-
-            <strong>
-
-                ${totalPages}
-
-            </strong>
-
-        </div>
-
-
-        <button
-
-            type="button"
-
-            class="financial-analysis-pagination-button"
-
-            data-page-action="next"
-
-            ${nextDisabled ? "disabled" : ""}>
-
-            Berikutnya ›
-
-        </button>
-
-    `;
-
-
-    /*
-     * Event delegation.
-     */
-
-    if(
-
-        pagination.dataset.ready !== "true"
-
-    ){
-
-        pagination.addEventListener(
-
-            "click",
-
-            function(event){
-
-                const button =
-
-                    event.target.closest(
-
-                        "[data-page-action]"
-
-                    );
-
-
-                if(
-
-                    !button ||
-
-                    button.disabled
-
-                ){
-
-                    return;
-
-                }
-
-
-                const action =
-
-                    button.dataset.pageAction;
-
-
-                if(
-
-                    action === "previous"
-
-                ){
-
-                    state.detailPage =
-
-                        Math.max(
-
-                            1,
-
-                            state.detailPage - 1
-
-                        );
-
-                }
-
-
-                else if(
-
-                    action === "next"
-
-                ){
-
-                    state.detailPage =
-
-                        Math.min(
-
-                            totalPages,
-
-                            state.detailPage + 1
-
-                        );
-
-                }
-
-
-                renderDetails(
-
-                    state.result
-
-                );
-
-            }
-
-        );
-
-
-        pagination.dataset.ready =
-
-            "true";
-
-    }
-
-}
-
-
-/* =====================================================
-   REMOVE PAGINATION
-===================================================== */
-
-function removePagination(){
-
-    const pagination =
-
-        document.getElementById(
-
-            "financial-analysis-pagination"
-
-        );
-
-
-    if(
-
-        pagination
-
-    ){
-
-        pagination.remove();
-
-    }
 
 }
 
@@ -2319,6 +1819,66 @@ function renderDetails(
 
      */
 
+    if(
+
+        !count
+
+    ){
+
+        if(
+
+            empty
+
+        ){
+
+            empty.classList.remove(
+
+                "hidden"
+
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    if(
+
+        empty
+
+    ){
+
+        empty.classList.add(
+
+            "hidden"
+
+        );
+
+    }
+
+
+    list.innerHTML =
+
+        result.details
+
+            .map(
+
+                item =>
+
+                    createResultItem(
+
+                        item
+
+                    )
+
+            )
+
+            .join("");
+
+}
 
 
 /* =====================================================
