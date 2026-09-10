@@ -3,7 +3,7 @@
    Page        : Financial
    Module      : Summary
    File        : summary.css
-   Version     : 1.1.0
+   Version     : 1.2.0
 
    Description :
    Financial Summary Styling
@@ -671,10 +671,10 @@
 
 
 /* =====================================================
-   FINANCIAL SUMMARY DETAIL
+   FINANCIAL ANALYSIS
 ===================================================== */
 
-#summary-financial-detail{
+#summary-financial-analysis{
 
     width:100%;
 
@@ -684,28 +684,20 @@
 
 
 /* =====================================================
-   DETAIL TITLE
+   ANALYSIS CARD
 ===================================================== */
 
-#summary-financial-detail
-.summary-financial-detail-title{
+#summary-financial-analysis-card{
 
-    margin-bottom:16px;
+    display:flex;
 
-}
-
-
-/* =====================================================
-   DETAIL CARD
-===================================================== */
-
-#summary-financial-detail-card{
+    flex-direction:column;
 
     width:100%;
 
-    box-sizing:border-box;
-
     padding:20px;
+
+    box-sizing:border-box;
 
     border-radius:20px;
 
@@ -715,22 +707,219 @@
 
 
 /* =====================================================
-   DETAIL FILTER
+   ANALYSIS SEARCH
 ===================================================== */
 
-.financial-detail-filter{
+.financial-analysis-search{
 
     display:flex;
 
     flex-direction:column;
 
+    gap:8px;
+
+    width:100%;
+
+    margin-bottom:18px;
+
+}
+
+
+/* =====================================================
+   SEARCH LABEL
+===================================================== */
+
+.financial-analysis-search label{
+
+    color:var(--text);
+
+    font-size:14px;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   SEARCH BOX
+===================================================== */
+
+.financial-analysis-search-box{
+
+    display:flex;
+
+    align-items:center;
+
     gap:10px;
 
     width:100%;
 
-    margin:0 0 20px;
+    min-height:46px;
 
-    padding:16px;
+    padding:0 14px;
+
+    box-sizing:border-box;
+
+    border:1px solid
+        var(
+            --border-color,
+            #dfe4ec
+        );
+
+    border-radius:14px;
+
+    background:
+        var(
+            --surface-secondary,
+            #f8fafc
+        );
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+/* =====================================================
+   SEARCH ICON
+===================================================== */
+
+.financial-analysis-search-box
+.material-symbols-rounded{
+
+    flex-shrink:0;
+
+    color:var(
+        --text-secondary,
+        #64748b
+    );
+
+    font-size:22px;
+
+}
+
+
+/* =====================================================
+   SEARCH INPUT
+===================================================== */
+
+#financial-analysis-search-input{
+
+    width:100%;
+
+    min-width:0;
+
+    height:44px;
+
+    padding:0;
+
+    border:0;
+
+    outline:none;
+
+    background:transparent;
+
+    color:var(--text);
+
+    font-size:14px;
+
+    font-weight:500;
+
+}
+
+
+#financial-analysis-search-input::placeholder{
+
+    color:
+        var(
+            --text-secondary,
+            #94a3b8
+        );
+
+    opacity:.8;
+
+}
+
+
+/* =====================================================
+   SEARCH FOCUS
+===================================================== */
+
+.financial-analysis-search-box:focus-within{
+
+    border-color:
+        var(
+            --primary,
+            #2563eb
+        );
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.10);
+
+}
+
+
+/* =====================================================
+   ANALYSIS CONTENT
+===================================================== */
+
+.financial-analysis-content{
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(
+            0,
+            1.7fr
+        )
+        minmax(
+            260px,
+            .9fr
+        );
+
+    gap:20px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   ANALYSIS SUBTITLE
+===================================================== */
+
+.financial-analysis-subtitle{
+
+    margin:0 0 12px;
+
+    color:var(--text);
+
+    font-size:15px;
+
+    line-height:1.3;
+
+    font-weight:800;
+
+}
+
+
+/* =====================================================
+   ANALYSIS CHART CONTAINER
+===================================================== */
+
+.financial-analysis-chart-container{
+
+    display:flex;
+
+    flex-direction:column;
+
+    min-width:0;
+
+    padding:18px;
 
     box-sizing:border-box;
 
@@ -752,210 +941,50 @@
 
 
 /* =====================================================
-   FILTER ITEM
+   ANALYSIS CHART WRAPPER
 ===================================================== */
 
-.financial-detail-filter-item{
+.financial-analysis-chart-wrapper{
 
-    display:grid;
-
-    grid-template-columns:
-        32px
-        78px
-        minmax(0,1fr);
-
-    align-items:center;
-
-    column-gap:8px;
-
-    min-width:0;
-
-}
-
-
-/* =====================================================
-   FILTER ICON
-===================================================== */
-
-.financial-detail-filter-item::before{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    width:32px;
-
-    height:42px;
-
-    color:var(--text);
-
-    font-size:21px;
-
-    line-height:1;
-
-}
-
-
-/* =====================================================
-   FILTER ICON : MONTH
-===================================================== */
-
-.financial-detail-filter-item:nth-child(1)::before{
-
-    content:"🗓️";
-
-}
-
-
-/* =====================================================
-   FILTER ICON : JENIS
-===================================================== */
-
-.financial-detail-filter-item:nth-child(2)::before{
-
-    content:"↕️";
-
-}
-
-
-/* =====================================================
-   FILTER ICON : CATEGORY
-===================================================== */
-
-.financial-detail-filter-item:nth-child(3)::before{
-
-    content:"🔺";
-
-}
-
-
-/* =====================================================
-   FILTER LABEL
-===================================================== */
-
-.financial-detail-filter-item label{
-
-    display:flex;
-
-    align-items:center;
-
-    min-width:0;
-
-    margin:0;
-
-    color:var(--text);
-
-    font-size:14px;
-
-    line-height:1.3;
-
-    font-weight:600;
-
-}
-
-
-/* =====================================================
-   FILTER SELECT
-===================================================== */
-
-.financial-detail-filter-item select{
+    position:relative;
 
     width:100%;
 
-    min-width:0;
+    height:300px;
 
-    height:42px;
-
-    padding:
-        0 34px 0 12px;
-
-    box-sizing:border-box;
-
-    border:1px solid
-        var(
-            --border-color,
-            #dfe4ec
-        );
-
-    border-radius:11px;
-
-    background:
-        var(
-            --surface,
-            #ffffff
-        );
-
-    color:var(--text);
-
-    font-size:14px;
-
-    font-weight:500;
-
-    outline:none;
-
-    appearance:auto;
+    min-height:300px;
 
 }
 
 
 /* =====================================================
-   FILTER SELECT : FOCUS
+   ANALYSIS CHART
 ===================================================== */
 
-.financial-detail-filter-item select:focus{
+#financial-analysis-chart{
 
-    border-color:
-        var(
-            --primary,
-            #2563eb
-        );
+    display:block;
 
-    box-shadow:
-        0 0 0 3px
-        rgba(37,99,235,.10);
+    width:100% !important;
+
+    height:100% !important;
 
 }
 
 
 /* =====================================================
-   DETAIL LIST
+   TRENDING
 ===================================================== */
 
-#summary-financial-detail-list{
+.financial-analysis-trending{
 
     display:flex;
 
     flex-direction:column;
 
-    gap:10px;
+    min-width:0;
 
-    width:100%;
-
-}
-
-
-/* =====================================================
-   DETAIL ITEM
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-item{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:16px;
-
-    width:100%;
-
-    min-height:76px;
-
-    padding:16px 18px;
+    padding:18px;
 
     box-sizing:border-box;
 
@@ -965,59 +994,91 @@
             #e5e7eb
         );
 
-    border-radius:16px;
+    border-radius:18px;
 
     background:
         var(
-            --surface,
-            #ffffff
+            --surface-secondary,
+            #f8fafc
         );
-
-    box-shadow:
-        0 4px 14px
-        rgba(0,0,0,.035);
 
 }
 
 
 /* =====================================================
-   DETAIL INFO
+   TRENDING LIST
 ===================================================== */
 
-#summary-financial-detail-list
-.summary-detail-info{
+.financial-analysis-trending-list{
 
     display:flex;
 
     flex-direction:column;
 
-    gap:5px;
+    gap:9px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   TRENDING ITEM
+===================================================== */
+
+.financial-analysis-trending-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    width:100%;
+
+    min-width:0;
+
+    padding:12px;
+
+    box-sizing:border-box;
+
+    border:1px solid
+        var(
+            --border-color,
+            #e5e7eb
+        );
+
+    border-radius:13px;
+
+    background:var(--surface);
+
+}
+
+
+/* =====================================================
+   TRENDING INFO
+===================================================== */
+
+.financial-analysis-trending-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
 
     min-width:0;
 
 }
 
 
-/* =====================================================
-   DETAIL KEYWORD
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-info strong{
-
-    display:block;
-
-    min-width:0;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
+.financial-analysis-trending-date{
 
     color:var(--text);
 
-    font-size:16px;
+    font-size:13px;
 
     line-height:1.3;
 
@@ -1026,16 +1087,11 @@
 }
 
 
-/* =====================================================
-   DETAIL COUNT
-===================================================== */
-
-#summary-financial-detail-list
-.summary-detail-info small{
+.financial-analysis-trending-weekday{
 
     color:var(--text-secondary);
 
-    font-size:12px;
+    font-size:11px;
 
     line-height:1.3;
 
@@ -1043,17 +1099,16 @@
 
 
 /* =====================================================
-   DETAIL AMOUNT
+   TRENDING AMOUNT
 ===================================================== */
 
-#summary-financial-detail-list
-.summary-detail-amount{
+.financial-analysis-trending-amount{
 
     flex-shrink:0;
 
     color:var(--text);
 
-    font-size:16px;
+    font-size:13px;
 
     line-height:1.3;
 
@@ -1067,11 +1122,233 @@
 
 
 /* =====================================================
-   DETAIL EMPTY
+   ANALYSIS RESULTS
 ===================================================== */
 
-#summary-financial-detail-list
-.summary-detail-empty{
+.financial-analysis-results{
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:100%;
+
+    margin-top:20px;
+
+}
+
+
+/* =====================================================
+   RESULT INFO
+===================================================== */
+
+.financial-analysis-result-info{
+
+    margin-bottom:10px;
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   RESULT LIST
+===================================================== */
+
+.financial-analysis-result-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:9px;
+
+    width:100%;
+
+}
+
+
+/* =====================================================
+   RESULT ITEM
+===================================================== */
+
+.financial-analysis-result-item{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:14px;
+
+    width:100%;
+
+    min-width:0;
+
+    padding:14px 16px;
+
+    box-sizing:border-box;
+
+    border:1px solid
+        var(
+            --border-color,
+            #e5e7eb
+        );
+
+    border-radius:15px;
+
+    background:var(--surface);
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+
+}
+
+
+/* =====================================================
+   RESULT ITEM : INFO
+===================================================== */
+
+.financial-analysis-result-info-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+    min-width:0;
+
+}
+
+
+/* =====================================================
+   RESULT DATE
+===================================================== */
+
+.financial-analysis-result-date{
+
+    color:var(--text-secondary);
+
+    font-size:11px;
+
+    line-height:1.3;
+
+}
+
+
+/* =====================================================
+   RESULT ACTIVITY
+===================================================== */
+
+.financial-analysis-result-activity{
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text);
+
+    font-size:14px;
+
+    line-height:1.35;
+
+    font-weight:700;
+
+}
+
+
+/* =====================================================
+   RESULT NOTE
+===================================================== */
+
+.financial-analysis-result-note{
+
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+    color:var(--text-secondary);
+
+    font-size:12px;
+
+    line-height:1.35;
+
+}
+
+
+/* =====================================================
+   RESULT AMOUNT
+===================================================== */
+
+.financial-analysis-result-amount{
+
+    flex-shrink:0;
+
+    font-size:14px;
+
+    line-height:1.3;
+
+    font-weight:800;
+
+    text-align:right;
+
+    white-space:nowrap;
+
+}
+
+
+/* =====================================================
+   RESULT INCOME
+===================================================== */
+
+.financial-analysis-result-item.income
+.financial-analysis-result-amount{
+
+    color:
+        var(
+            --success,
+            #16a34a
+        );
+
+}
+
+
+/* =====================================================
+   RESULT EXPENSE
+===================================================== */
+
+.financial-analysis-result-item.expense
+.financial-analysis-result-amount{
+
+    color:
+        var(
+            --danger,
+            #dc2626
+        );
+
+}
+
+
+/* =====================================================
+   ANALYSIS EMPTY
+===================================================== */
+
+.financial-analysis-empty{
 
     display:flex;
 
@@ -1103,28 +1380,30 @@
 
     font-size:13px;
 
+    line-height:1.4;
+
     text-align:center;
 
 }
 
 
 /* =====================================================
-   PAGINATION
+   ANALYSIS PERIOD
 ===================================================== */
 
-#summary-financial-detail-pagination{
+.financial-analysis-period{
 
     display:flex;
 
     align-items:center;
 
-    justify-content:space-between;
+    justify-content:flex-end;
 
-    gap:12px;
+    gap:10px;
 
     width:100%;
 
-    margin-top:16px;
+    margin-top:18px;
 
     padding-top:16px;
 
@@ -1138,198 +1417,44 @@
 
 
 /* =====================================================
-   PAGINATION BUTTON
+   PERIOD LABEL
 ===================================================== */
 
-#summary-financial-detail-pagination
-button{
-
-    min-width:82px;
-
-    min-height:40px;
-
-    padding:8px 14px;
-
-    border:1px solid
-        var(
-            --border-color,
-            #e5e7eb
-        );
-
-    border-radius:12px;
-
-    background:
-        var(
-            --surface,
-            #ffffff
-        );
-
-    color:
-        var(
-            --primary,
-            #2563eb
-        );
-
-    font-size:13px;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:
-        transform .15s ease,
-        background .2s ease,
-        opacity .2s ease;
-
-}
-
-
-#summary-financial-detail-pagination
-button:hover:not(:disabled){
-
-    background:
-        var(
-            --surface-secondary,
-            #f5f7fb
-        );
-
-}
-
-
-#summary-financial-detail-pagination
-button:active:not(:disabled){
-
-    transform:scale(.97);
-
-}
-
-
-#summary-financial-detail-pagination
-button:disabled{
-
-    opacity:.4;
-
-    cursor:not-allowed;
-
-}
-
-
-/* =====================================================
-   PAGINATION NUMBER
-===================================================== */
-
-#summary-financial-detail-pagination
-span{
+.financial-analysis-period label{
 
     color:var(--text-secondary);
 
     font-size:13px;
 
-    font-weight:700;
+    line-height:1.3;
 
-    white-space:nowrap;
+    font-weight:600;
 
 }
 
 
 /* =====================================================
-   GLOBAL FILTER SHEET
+   PERIOD SELECT
 ===================================================== */
 
-#summary-financial-detail-filter
-.filter-sheet{
+#financial-analysis-period-select{
 
-    border-radius:
-        24px 24px 0 0;
+    min-width:120px;
+
+    height:40px;
 
     padding:
-        22px 18px;
-
-}
-
-
-/* =====================================================
-   FILTER SHEET HEADER
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-sheet-header h3{
-
-    margin:0 0 6px;
-
-    color:var(--text);
-
-    font-size:20px;
-
-}
-
-
-#summary-financial-detail-filter
-.filter-sheet-header p{
-
-    margin:0;
-
-    color:var(--text-secondary);
-
-    font-size:13px;
-
-    line-height:1.5;
-
-}
-
-
-/* =====================================================
-   FILTER INPUT
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-input{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:7px;
-
-    margin-bottom:14px;
-
-}
-
-
-#summary-financial-detail-filter
-.filter-input label{
-
-    color:var(--text);
-
-    font-size:13px;
-
-    font-weight:600;
-
-}
-
-
-/* =====================================================
-   FILTER DATE INPUT
-===================================================== */
-
-#summary-financial-detail-filter
-.filter-input input{
-
-    width:100%;
-
-    min-height:46px;
-
-    padding:0 12px;
+        0 32px 0 12px;
 
     box-sizing:border-box;
 
     border:1px solid
         var(
             --border-color,
-            #d1d5db
+            #dfe4ec
         );
 
-    border-radius:12px;
+    border-radius:11px;
 
     background:
         var(
@@ -1339,7 +1464,32 @@ span{
 
     color:var(--text);
 
-    font-size:15px;
+    font-size:13px;
+
+    font-weight:600;
+
+    outline:none;
+
+    appearance:auto;
+
+}
+
+
+/* =====================================================
+   PERIOD SELECT : FOCUS
+===================================================== */
+
+#financial-analysis-period-select:focus{
+
+    border-color:
+        var(
+            --primary,
+            #2563eb
+        );
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37,99,235,.10);
 
 }
 
@@ -1349,9 +1499,9 @@ span{
 ===================================================== */
 
 html[data-theme="dark"]
-#summary-financial-detail-card,
+#summary-financial-analysis-card,
 html.dark
-#summary-financial-detail-card{
+#summary-financial-analysis-card{
 
     background:var(--surface);
 
@@ -1359,9 +1509,13 @@ html.dark
 
 
 html[data-theme="dark"]
-.financial-detail-filter,
+.financial-analysis-chart-container,
 html.dark
-.financial-detail-filter{
+.financial-analysis-chart-container,
+html[data-theme="dark"]
+.financial-analysis-trending,
+html.dark
+.financial-analysis-trending{
 
     background:
         rgba(255,255,255,.04);
@@ -1373,46 +1527,67 @@ html.dark
 
 
 html[data-theme="dark"]
-.financial-detail-filter-item select,
+.financial-analysis-search-box,
 html.dark
-.financial-detail-filter-item select{
+.financial-analysis-search-box{
 
     background:
-        rgba(255,255,255,.06);
+        rgba(255,255,255,.04);
 
     border-color:
-        rgba(255,255,255,.10);
-
-    color:var(--text);
+        rgba(255,255,255,.08);
 
 }
 
 
 html[data-theme="dark"]
-#summary-financial-detail-list
-.summary-detail-item,
+.financial-analysis-search-box:focus-within,
 html.dark
-#summary-financial-detail-list
-.summary-detail-item{
+.financial-analysis-search-box:focus-within{
+
+    border-color:
+        var(
+            --primary,
+            #60a5fa
+        );
+
+    box-shadow:
+        0 0 0 3px
+        rgba(96,165,250,.10);
+
+}
+
+
+html[data-theme="dark"]
+.financial-analysis-trending-item,
+html.dark
+.financial-analysis-trending-item{
 
     background:var(--surface);
 
     border-color:
         rgba(255,255,255,.08);
 
-    box-shadow:
-        0 4px 14px
-        rgba(0,0,0,.12);
+}
+
+
+html[data-theme="dark"]
+.financial-analysis-result-item,
+html.dark
+.financial-analysis-result-item{
+
+    background:var(--surface);
+
+    border-color:
+        rgba(255,255,255,.08);
 
 }
 
 
 html[data-theme="dark"]
-#summary-financial-detail-list
-.summary-detail-empty,
+.financial-analysis-empty,
 html.dark
-#summary-financial-detail-list
-.summary-detail-empty{
+.financial-analysis-empty{
 
     background:
         rgba(255,255,255,.03);
@@ -1424,22 +1599,17 @@ html.dark
 
 
 html[data-theme="dark"]
-#summary-financial-detail-pagination
-button,
+#financial-analysis-period-select,
 html.dark
-#summary-financial-detail-pagination
-button{
+#financial-analysis-period-select{
 
-    background:var(--surface);
+    background:
+        rgba(255,255,255,.06);
 
     border-color:
-        rgba(255,255,255,.08);
+        rgba(255,255,255,.10);
 
-    color:
-        var(
-            --primary,
-            #60a5fa
-        );
+    color:var(--text);
 
 }
 
@@ -1684,17 +1854,17 @@ button{
 
 
     /* ---------------------------------------------
-       DETAIL
+       FINANCIAL ANALYSIS
     --------------------------------------------- */
 
-    #summary-financial-detail{
+    #summary-financial-analysis{
 
         margin-top:28px;
 
     }
 
 
-    #summary-financial-detail-card{
+    #summary-financial-analysis-card{
 
         padding:16px;
 
@@ -1703,104 +1873,27 @@ button{
     }
 
 
-    .financial-detail-filter{
+    .financial-analysis-search{
 
-        gap:8px;
-
-        padding:14px;
-
-        margin-bottom:16px;
-
-        border-radius:16px;
+        margin-bottom:14px;
 
     }
 
 
-    .financial-detail-filter-item{
+    .financial-analysis-search-box{
 
-        grid-template-columns:
-            30px
-            62px
-            minmax(0,1fr);
+        min-height:44px;
 
-        column-gap:7px;
+        padding:0 12px;
 
-    }
-
-
-    .financial-detail-filter-item::before{
-
-        width:30px;
-
-        height:40px;
-
-        font-size:19px;
+        border-radius:13px;
 
     }
 
 
-    .financial-detail-filter-item label{
+    #financial-analysis-search-input{
 
-        font-size:13px;
-
-    }
-
-
-    .financial-detail-filter-item select{
-
-        height:40px;
-
-        padding:
-            0 28px 0 10px;
-
-        border-radius:10px;
-
-        font-size:13px;
-
-    }
-
-
-    /* ---------------------------------------------
-       DETAIL RESULT
-    --------------------------------------------- */
-
-    #summary-financial-detail-list{
-
-        gap:9px;
-
-    }
-
-
-    #summary-financial-detail-list
-    .summary-detail-item{
-
-        min-height:72px;
-
-        padding:14px;
-
-        border-radius:15px;
-
-    }
-
-
-    #summary-financial-detail-list
-    .summary-detail-info strong{
-
-        font-size:15px;
-
-    }
-
-
-    #summary-financial-detail-list
-    .summary-detail-info small{
-
-        font-size:12px;
-
-    }
-
-
-    #summary-financial-detail-list
-    .summary-detail-amount{
+        height:42px;
 
         font-size:14px;
 
@@ -1808,10 +1901,151 @@ button{
 
 
     /* ---------------------------------------------
-       PAGINATION
+       ANALYSIS CONTENT
     --------------------------------------------- */
 
-    #summary-financial-detail-pagination{
+    .financial-analysis-content{
+
+        grid-template-columns:
+
+            minmax(
+                0,
+                1fr
+            );
+
+        gap:12px;
+
+    }
+
+
+    .financial-analysis-chart-container,
+    .financial-analysis-trending{
+
+        padding:15px;
+
+        border-radius:16px;
+
+    }
+
+
+    .financial-analysis-chart-wrapper{
+
+        height:240px;
+
+        min-height:240px;
+
+    }
+
+
+    .financial-analysis-subtitle{
+
+        margin-bottom:10px;
+
+        font-size:14px;
+
+    }
+
+
+    /* ---------------------------------------------
+       TRENDING
+    --------------------------------------------- */
+
+    .financial-analysis-trending-list{
+
+        gap:8px;
+
+    }
+
+
+    .financial-analysis-trending-item{
+
+        padding:11px;
+
+        border-radius:12px;
+
+    }
+
+
+    .financial-analysis-trending-date{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-analysis-trending-weekday{
+
+        font-size:10px;
+
+    }
+
+
+    .financial-analysis-trending-amount{
+
+        font-size:12px;
+
+    }
+
+
+    /* ---------------------------------------------
+       ANALYSIS RESULT
+    --------------------------------------------- */
+
+    .financial-analysis-results{
+
+        margin-top:14px;
+
+    }
+
+
+    .financial-analysis-result-item{
+
+        gap:10px;
+
+        padding:13px;
+
+        border-radius:14px;
+
+    }
+
+
+    .financial-analysis-result-activity{
+
+        font-size:13px;
+
+    }
+
+
+    .financial-analysis-result-note{
+
+        font-size:11px;
+
+    }
+
+
+    .financial-analysis-result-date{
+
+        font-size:10px;
+
+    }
+
+
+    .financial-analysis-result-amount{
+
+        font-size:13px;
+
+    }
+
+
+    /* ---------------------------------------------
+       ANALYSIS PERIOD
+    --------------------------------------------- */
+
+    .financial-analysis-period{
+
+        justify-content:space-between;
+
+        gap:8px;
 
         margin-top:14px;
 
@@ -1820,23 +2054,23 @@ button{
     }
 
 
-    #summary-financial-detail-pagination
-    button{
-
-        min-width:76px;
-
-        min-height:38px;
-
-        padding:
-            7px 10px;
+    .financial-analysis-period label{
 
         font-size:12px;
 
     }
 
 
-    #summary-financial-detail-pagination
-    span{
+    #financial-analysis-period-select{
+
+        min-width:105px;
+
+        height:38px;
+
+        padding:
+            0 26px 0 10px;
+
+        border-radius:10px;
 
         font-size:12px;
 
@@ -1851,65 +2085,65 @@ button{
 
 @media (max-width:360px){
 
-    .financial-detail-filter-item{
-
-        grid-template-columns:
-            27px
-            56px
-            minmax(0,1fr);
-
-        column-gap:5px;
-
-    }
-
-
-    .financial-detail-filter-item::before{
-
-        width:27px;
-
-        font-size:18px;
-
-    }
-
-
-    .financial-detail-filter-item label{
-
-        font-size:12px;
-
-    }
-
-
-    .financial-detail-filter-item select{
-
-        font-size:12px;
-
-        padding-left:8px;
-
-    }
-
-
-    #summary-financial-detail-list
-    .summary-detail-item{
-
-        gap:10px;
+    #summary-financial-analysis-card{
 
         padding:13px;
 
     }
 
 
-    #summary-financial-detail-list
-    .summary-detail-info strong{
+    .financial-analysis-chart-container,
+    .financial-analysis-trending{
 
-        font-size:14px;
+        padding:13px;
 
     }
 
 
-    #summary-financial-detail-list
-    .summary-detail-amount{
+    .financial-analysis-chart-wrapper{
 
-        font-size:13px;
+        height:220px;
+
+        min-height:220px;
+
+    }
+
+
+    .financial-analysis-result-item{
+
+        gap:8px;
+
+        padding:12px;
+
+    }
+
+
+    .financial-analysis-result-activity{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-analysis-result-amount{
+
+        font-size:12px;
+
+    }
+
+
+    .financial-analysis-period label{
+
+        font-size:11px;
+
+    }
+
+
+    #financial-analysis-period-select{
+
+        min-width:96px;
+
+        font-size:11px;
 
     }
 
