@@ -1042,6 +1042,155 @@ function applyEndedRuleUIState(
 }
 
 
+/* =====================================================
+   APPLY REMINDER RULE UI STATE
+===================================================== */
+
+function applyReminderRuleUIState(
+
+    form,
+
+    sectionElement
+
+){
+
+    if(
+
+        !sectionElement
+
+    ){
+
+        return;
+
+    }
+
+
+    const wrapper =
+
+        sectionElement.querySelector(
+
+            '.global-setting-field[data-field="value"]'
+
+        );
+
+
+    if(
+
+        !wrapper
+
+    ){
+
+        return;
+
+    }
+
+
+    const input =
+
+        wrapper.querySelector(
+
+            'input[name="value"]'
+
+        );
+
+
+    if(
+
+        existingRules.reminder === true
+
+    ){
+
+        /*
+         * Reminder sudah pernah dibuat.
+         *
+         * Field tidak boleh digunakan lagi
+         * untuk membuat row Reminder kedua.
+         */
+
+        if(
+
+            input
+
+        ){
+
+            input.disabled =
+
+                true;
+
+        }
+
+
+        wrapper.classList.add(
+
+            "airdrop-rule-created"
+
+        );
+
+
+        /*
+         * Ganti field dengan status.
+         */
+
+        wrapper.innerHTML = "";
+
+
+        const note =
+
+            document.createElement(
+
+                "div"
+
+            );
+
+
+        note.className =
+
+            "global-setting-field-note";
+
+
+        note.textContent =
+
+            "✓ Rule Reminder sudah dibuat";
+
+
+        wrapper.appendChild(
+
+            note
+
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+     * Reminder belum ada.
+     *
+     * Field tetap dapat digunakan.
+     */
+
+    wrapper.classList.remove(
+
+        "airdrop-rule-created"
+
+    );
+
+
+    if(
+
+        input
+
+    ){
+
+        input.disabled =
+
+            false;
+
+    }
+
+}
 
 /* =====================================================
    CREATE OPTION FIELDS
