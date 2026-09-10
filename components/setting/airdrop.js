@@ -1464,47 +1464,93 @@ export const AirdropSetting = {
 
             normalize :
 
-                function(
+    function(
 
-                    data
+        data
 
-                ){
+    ){
 
-                    return {
+        /*
+         * Jika Reminder sudah pernah dibuat,
+         * jangan izinkan membuat row Reminder kedua.
+         */
 
-                        rules :
+        if(
 
-                            "reminder",
+            existingRules.reminder === true
 
-                        target :
+        ){
 
-                            "end",
+            return null;
 
-                        type :
+        }
 
-                            "campaign",
 
-                        value :
+        return {
 
-                            String(
+            rules :
 
-                                data.value ??
+                "reminder",
 
-                                ""
+            target :
 
-                            ),
+                "end",
 
-                        unit :
+            type :
 
-                            "day",
+                "campaign",
 
-                        active :
+            value :
 
-                            "TRUE"
+                String(
 
-                    };
+                    data.value ??
 
-                }
+                    ""
+
+                ),
+
+            unit :
+
+                "day",
+
+            active :
+
+                "TRUE"
+
+        };
+
+    },
+           onRender :
+
+    async function(
+
+        form,
+
+        sectionElement
+
+    ){
+
+        if(
+
+            !airdropStateLoaded
+
+        ){
+
+            await refreshAirdropState();
+
+        }
+
+
+        applyReminderRuleUIState(
+
+            form,
+
+            sectionElement
+
+        );
+
+    }
 
         },
 
