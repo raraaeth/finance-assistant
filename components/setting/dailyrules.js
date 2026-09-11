@@ -1613,9 +1613,20 @@ function prepareRule(
     rule
 ){
 
-    return inheritActivePeriod(
-        rule
-    );
+    if(
+        !rule
+        ||
+        typeof rule !== "object"
+    ){
+
+        return rule;
+
+    }
+
+
+    return {
+        ...rule
+    };
 
 }
 
@@ -3282,7 +3293,6 @@ function lockFixedRuleSection(
 /* =====================================================
    APPLY SELECT LOCK STATE
 ===================================================== */
-
 function applySelectLockState(
     selectElement,
     lockedValues = []
@@ -3298,30 +3308,71 @@ function applySelectLockState(
 
 
     const locked =
+
         lockedValues instanceof Set
 
-            ? lockedValues
+            ?
 
-            : new Set(
+        lockedValues
+
+            :
+
+        new Set(
+            Array.isArray(
                 lockedValues
-            );
+            )
+                ?
+            lockedValues
+                :
+            []
+        );
 
 
     [
         ...selectElement.options
     ]
         .forEach(
+
             option => {
 
-                option.disabled =
-                    locked.has(
-                        normalizeCompareValue(
-                            option.value
-                        )
+                const value =
+
+                    normalizeCompareValue(
+                        option.value
                     );
 
+
+                if(
+                    locked.has(
+                        value
+                    )
+                ){
+
+                    option.remove();
+
+                }
+
             }
+
         );
+
+
+    const currentValue =
+
+        normalizeCompareValue(
+            selectElement.value
+        );
+
+
+    if(
+        locked.has(
+            currentValue
+        )
+    ){
+
+        selectElement.value = "";
+
+    }
 
 }
 
