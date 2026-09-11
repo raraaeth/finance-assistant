@@ -1,8 +1,3 @@
-Ok sekarang tinggal daily yang belum
-Secara konsep hampir sama dgn monthly
-Lock periode rule
-Hilangkan input kalau udah dibuat untuk rule potong dan tambah
-Dan rule work, hanya pakai cek duplicate aja jika isian rownya sama dengan sheet yangnsudah ada
 /* =====================================================
 Finance Assistant
 Component    : Global Setting
