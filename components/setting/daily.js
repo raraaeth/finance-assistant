@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Daily
    File         : daily.js
-   Version      : 2.1.0
+   Version      : 2.2.0
 
    Description :
    Payroll Daily Setting Definition
@@ -24,25 +24,32 @@
    - Rule Tambah  : tambahan berdasarkan hari
    - Rule Potong  : potongan standar periode gaji
 
-   UI CHANGE :
-   - Rule Gaji tetap menggunakan ID rule_gaji
-   - Rule Gaji dibaca dari Rules Sheet
-   - Jika Rule Gaji sudah ada, periode dikunci
-   - Periode aktif ditampilkan sebagai note/result
-   - Tombol Tambah Periode membuka periode baru
-   - Rule lama tetap menjadi history
-   - Rule Work/Tambah/Potong tetap menggunakan
-     periode_start / periode_end / years
+   Architecture :
+   - DailyRules = source of truth untuk state/rule Daily
+   - daily.js   = UI / setting definition / normalize input
+
+   Daily schema :
+   Rule Gaji :
+       type_rule      = rule_gaji
+       nama           = gaji
+       periode_start
+       periode_end
+       years
+
+   Rule Work / Tambah / Potong :
+       periode_start
+       periode_end
+       years
 ===================================================== */
 
 
 /* =====================================================
-   IMPORT PAYROLL ENGINE
+   IMPORT DAILY RULE ENGINE
 ===================================================== */
 
 import {
-    Payroll
-} from "./payroll.js";
+    DailyRules
+} from "./dailyrules.js";
 
 
 /* =====================================================
@@ -51,11 +58,6 @@ import {
 
 const PAYROLL_MODE =
     "payroll-daily";
-
-
-/* =====================================================
-   DAILY HELPERS
-===================================================== */
 
 
 /* =====================================================
@@ -650,472 +652,32 @@ function getDayNumber(
 
 
 /* =====================================================
-   DAILY PERIOD STATE
-===================================================== */
-
-let DAILY_PERIOD_CONTEXT =
-    null;
-
-
-/*
-   true hanya ketika user menekan
-   "＋ Tambah Periode".
-
-   Ini khusus Daily.
-
-   Tidak menggunakan state
-   rule_periode milik Monthly.
-*/
-
-let DAILY_NEW_PERIOD_MODE =
-    false;
-
-
-/* =====================================================
-   NORMALIZE COMPARE VALUE
-===================================================== */
-
-function normalizeCompareValue(
-
-    value
-
-){
-
-    return String(
-
-        value ??
-
-        ""
-
-    )
-        .trim()
-        .toLowerCase();
-
-}
-
-
-/* =====================================================
-   GET DAILY RULES FROM SHEET
-===================================================== */
-
-async function getDailySheetRules(){
-
-    try{
-
-        await Payroll.ensureLoaded(
-            PAYROLL_MODE
-        );
-
-        const rules =
-            Payroll.getRules(
-                PAYROLL_MODE
-            );
-
-
-        return Array.isArray(
-            rules
-        )
-            ?
-        rules
-            :
-        [];
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "DAILY PAYROLL RULE LOAD ERROR:",
-
-            error
-
-        );
-
-
-        return [];
-
-    }
-
-}
-
-
-/* =====================================================
-   FIND LATEST DAILY RULE GAJI
+   DAILY RULE HELPERS
 ===================================================== */
 
 /*
-   Daily tetap memakai:
+   Semua state periode Daily sekarang
+   berasal dari DailyRules.
 
-       type_rule = rule_gaji
+   Tidak ada lagi:
 
-   Bukan:
+       DAILY_PERIOD_CONTEXT
 
-       rule_periode
+   Tidak ada lagi:
 
-   Rule terbaru ditentukan dari
-   periode_start paling akhir.
-
-   Jika tanggal sama, item terakhir
-   di Rules Sheet digunakan.
+       DAILY_NEW_PERIOD_MODE
 */
 
-async function getLatestDailyPeriodRule(){
 
-    const rules =
-        await getDailySheetRules();
+function getDailyActivePeriod(){
 
-
-    const periods =
-        rules.filter(
-
-            rule => {
-
-                return (
-
-                    normalizeCompareValue(
-                        rule?.type_rule
-                    ) ===
-                        "rule_gaji"
-
-                    &&
-
-                    rule?.periode_start
-
-                    &&
-
-                    rule?.periode_end
-
-                );
-
-            }
-
-        );
-
-
-    if(
-
-        periods.length === 0
-
-    ){
-
-        return null;
-
-    }
-
-
-    let latest =
-        periods[0];
-
-
-    for(
-
-        let index = 1;
-
-        index < periods.length;
-
-        index++
-
-    ){
-
-        const current =
-            periods[index];
-
-
-        const latestTime =
-            new Date(
-                latest.periode_start
-            ).getTime();
-
-
-        const currentTime =
-            new Date(
-                current.periode_start
-            ).getTime();
-
-
-        if(
-
-            currentTime >
-
-            latestTime
-
-        ){
-
-            latest =
-                current;
-
-        }
-
-        else if(
-
-            currentTime ===
-
-            latestTime
-
-        ){
-
-            latest =
-                current;
-
-        }
-
-    }
-
-
-    return latest;
+    return DailyRules.getActivePeriod();
 
 }
 
 
 /* =====================================================
-   SET DAILY PERIOD CONTEXT
-===================================================== */
-
-function setDailyPeriodContext(
-
-    rule
-
-){
-
-    if(
-
-        !rule
-
-    ){
-
-        return;
-
-    }
-
-
-    if(
-
-        normalizeCompareValue(
-            rule.type_rule
-        ) !==
-        "rule_gaji"
-
-    ){
-
-        return;
-
-    }
-
-
-    if(
-
-        !rule.periode_start
-
-        ||
-
-        !rule.periode_end
-
-    ){
-
-        return;
-
-    }
-
-
-    DAILY_PERIOD_CONTEXT = {
-
-        periode_start :
-            rule.periode_start,
-
-        periode_end :
-            rule.periode_end,
-
-        years :
-            rule.years ?? "",
-
-        nilai_start :
-            rule.nilai_start ?? "",
-
-        nilai_end :
-            rule.nilai_end ?? ""
-
-    };
-
-}
-
-
-/* =====================================================
-   GET LATEST PERIOD FROM UI RESULT
-===================================================== */
-
-function getLatestDailyPeriodContextFromUI(){
-
-    const sectionElement =
-
-        document.querySelector(
-
-            '.global-setting-section[data-section="rule_gaji"]'
-
-        );
-
-
-    if(
-
-        !sectionElement
-
-    ){
-
-        return null;
-
-    }
-
-
-    const result =
-
-        sectionElement.querySelector(
-
-            ".global-setting-result"
-
-        );
-
-
-    if(
-
-        !result
-
-    ){
-
-        return null;
-
-    }
-
-
-    const items = [
-
-        ...result.children
-
-    ];
-
-
-    for(
-
-        let index =
-
-            items.length - 1;
-
-        index >= 0;
-
-        index--
-
-    ){
-
-        const item =
-            items[index];
-
-
-        if(
-
-            !item.dataset.value
-
-        ){
-
-            continue;
-
-        }
-
-
-        try{
-
-            const data =
-
-                JSON.parse(
-
-                    item.dataset.value
-
-                );
-
-
-            if(
-
-                data
-
-                &&
-
-                normalizeCompareValue(
-                    data.type_rule
-                ) ===
-                    "rule_gaji"
-
-                &&
-
-                data.periode_start
-
-                &&
-
-                data.periode_end
-
-            ){
-
-                return {
-
-                    periode_start :
-                        data.periode_start,
-
-                    periode_end :
-                        data.periode_end,
-
-                    years :
-                        data.years ?? "",
-
-                    nilai_start :
-                        data.nilai_start ?? "",
-
-                    nilai_end :
-                        data.nilai_end ?? ""
-
-                };
-
-            }
-
-        }
-
-        catch(error){
-
-            console.warn(
-
-                "DAILY PERIOD CONTEXT PARSE ERROR:",
-
-                error
-
-            );
-
-        }
-
-    }
-
-
-    return null;
-
-}
-
-
-/* =====================================================
-   GET ACTIVE DAILY PERIOD CONTEXT
-===================================================== */
-
-function getDailyActivePeriodContext(){
-
-    return (
-
-        getLatestDailyPeriodContextFromUI()
-
-        ||
-
-        DAILY_PERIOD_CONTEXT
-
-    );
-
-}
-
-
-/* =====================================================
-   REQUIRE ACTIVE PERIOD
+   REQUIRE ACTIVE DAILY PERIOD
 ===================================================== */
 
 function requireDailyActivePeriod(
@@ -1126,7 +688,7 @@ function requireDailyActivePeriod(
 
     const periodContext =
 
-        getDailyActivePeriodContext();
+        getDailyActivePeriod();
 
 
     if(
@@ -1185,8 +747,24 @@ function formatDailyDate(
     }
 
 
+    const normalized =
+        String(value);
+
+
     const date =
-        new Date(value);
+        new Date(
+
+            normalized.length === 10
+
+                ?
+
+            `${normalized}T00:00:00`
+
+                :
+
+            normalized
+
+        );
 
 
     if(
@@ -1197,7 +775,7 @@ function formatDailyDate(
 
     ){
 
-        return String(value);
+        return normalized;
 
     }
 
@@ -1306,7 +884,9 @@ function renderDailyPeriodNote(
 
 
     removeDailyPeriodNote(
+
         sectionElement
+
     );
 
 
@@ -1712,6 +1292,11 @@ function applyDailyPeriodUI(
         );
 
 
+    const newPeriodMode =
+
+        DailyRules.isNewPeriodMode();
+
+
     /*
        BELUM ADA PERIODE
     */
@@ -1723,7 +1308,9 @@ function applyDailyPeriodUI(
     ){
 
         removeDailyPeriodNote(
+
             sectionElement
+
         );
 
 
@@ -1738,6 +1325,19 @@ function applyDailyPeriodUI(
 
             addButton.textContent =
                 "＋ Tambah Periode";
+
+        }
+
+
+        if(
+
+            form
+
+        ){
+
+            form.classList.remove(
+                "hidden"
+            );
 
         }
 
@@ -1753,12 +1353,14 @@ function applyDailyPeriodUI(
 
     if(
 
-        DAILY_NEW_PERIOD_MODE
+        newPeriodMode
 
     ){
 
         removeDailyPeriodNote(
+
             sectionElement
+
         );
 
 
@@ -1777,8 +1379,23 @@ function applyDailyPeriodUI(
         }
 
 
+        if(
+
+            form
+
+        ){
+
+            form.classList.remove(
+                "hidden"
+            );
+
+        }
+
+
         unlockDailyPeriodForm(
+
             sectionElement
+
         );
 
 
@@ -1800,9 +1417,6 @@ function applyDailyPeriodUI(
         form.classList.add(
             "hidden"
         );
-
-        form.innerHTML =
-            "";
 
     }
 
@@ -1832,7 +1446,9 @@ function applyDailyPeriodUI(
 
 
     lockDailyPeriodForm(
+
         sectionElement
+
     );
 
 }
@@ -1897,8 +1513,8 @@ function bindDailyNewPeriodButton(
 
     /*
        Capture phase dipakai supaya
-       mode periode baru aktif
-       sebelum controller membuka form.
+       mode periode baru aktif sebelum
+       controller generic membuka form.
     */
 
     addButton.addEventListener(
@@ -1939,16 +1555,33 @@ function bindDailyNewPeriodButton(
             }
 
 
-            DAILY_NEW_PERIOD_MODE =
-                true;
-
-
-            DAILY_PERIOD_CONTEXT =
-                null;
+            DailyRules.enterNewPeriodMode();
 
 
             removeDailyPeriodNote(
+
                 sectionElement
+
+            );
+
+
+            if(
+
+                form
+
+            ){
+
+                form.classList.remove(
+                    "hidden"
+                );
+
+            }
+
+
+            unlockDailyPeriodForm(
+
+                sectionElement
+
             );
 
         },
@@ -1956,6 +1589,115 @@ function bindDailyNewPeriodButton(
         true
 
     );
+
+}
+
+
+/* =====================================================
+   APPLY DAILY DEPENDENT SECTION STATE
+===================================================== */
+
+async function applyDailyDependentSectionState(
+
+    sectionElement,
+
+    sectionId
+
+){
+
+    if(
+
+        !sectionElement
+
+    ){
+
+        return;
+
+    }
+
+
+    await DailyRules.ensureLoaded();
+
+
+    const state =
+
+        DailyRules.getLockSummary();
+
+
+    if(
+
+        sectionId ===
+        "rule_tambah"
+
+    ){
+
+        const select =
+
+            sectionElement.querySelector(
+
+                "select[name=nama]"
+
+            );
+
+
+        if(
+
+            select
+
+        ){
+
+            DailyRules.applySelectLockState(
+
+                select,
+
+                state.tambahLocked
+
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    if(
+
+        sectionId ===
+        "rule_potong"
+
+    ){
+
+        const select =
+
+            sectionElement.querySelector(
+
+                "select[name=nama]"
+
+            );
+
+
+        if(
+
+            select
+
+        ){
+
+            DailyRules.applySelectLockState(
+
+                select,
+
+                state.potongLocked
+
+            );
+
+        }
+
+
+        return;
+
+    }
 
 }
 
@@ -2609,20 +2351,29 @@ export const DailySetting = {
                     };
 
 
-                    setDailyPeriodContext(
-
-                        normalizedRule
-
-                    );
-
-
                     /*
-                       Periode baru sudah berhasil
-                       dibuat di sisi form.
+                       Rule Gaji adalah pembentuk
+                       namespace periode baru.
+
+                       DailyRules menyimpan state
+                       sementara agar rule lain yang
+                       dinormalisasi setelahnya dapat
+                       langsung mewarisi periode baru.
                     */
 
-                    DAILY_NEW_PERIOD_MODE =
-                        false;
+                    if(
+
+                        DailyRules.isNewPeriodMode()
+
+                    ){
+
+                        DailyRules.markPeriodSaved(
+
+                            normalizedRule
+
+                        );
+
+                    }
 
 
                     return normalizedRule;
@@ -2642,24 +2393,17 @@ export const DailySetting = {
 
                 } = {}){
 
-                    const periodRule =
-
-                        await getLatestDailyPeriodRule();
+                    await DailyRules.ensureLoaded();
 
 
-                    if(
+                    const state =
 
-                        periodRule
+                        await DailyRules.getRuleState({
 
-                    ){
+                            sectionId :
+                                "rule_gaji"
 
-                        setDailyPeriodContext(
-
-                            periodRule
-
-                        );
-
-                    }
+                        });
 
 
                     bindDailyNewPeriodButton(
@@ -2673,7 +2417,7 @@ export const DailySetting = {
 
                         sectionElement,
 
-                        periodRule
+                        state.activePeriod
 
                     );
 
@@ -2682,29 +2426,31 @@ export const DailySetting = {
 
                         gaji :
                             Boolean(
-                                periodRule
+                                state.created
                             ),
 
                         created :
                             Boolean(
-                                periodRule
+                                state.created
                             ),
 
                         periodExists :
                             Boolean(
-                                periodRule
+                                state.periodExists
                             ),
 
                         lockPeriod :
                             Boolean(
-                                periodRule
+                                state.lockPeriod
                             ),
 
                         newPeriodMode :
-                            DAILY_NEW_PERIOD_MODE,
+                            Boolean(
+                                state.newPeriodMode
+                            ),
 
                         activePeriod :
-                            periodRule
+                            state.activePeriod
 
                     };
 
@@ -2725,9 +2471,17 @@ export const DailySetting = {
 
                 ){
 
+                    await DailyRules.ensureLoaded();
+
+
+                    const newPeriodMode =
+
+                        DailyRules.isNewPeriodMode();
+
+
                     if(
 
-                        DAILY_NEW_PERIOD_MODE
+                        newPeriodMode
 
                     ){
 
@@ -2752,7 +2506,7 @@ export const DailySetting = {
 
                     const periodRule =
 
-                        await getLatestDailyPeriodRule();
+                        DailyRules.getActivePeriod();
 
 
                     if(
@@ -2760,13 +2514,6 @@ export const DailySetting = {
                         periodRule
 
                     ){
-
-                        setDailyPeriodContext(
-
-                            periodRule
-
-                        );
-
 
                         applyDailyPeriodUI(
 
@@ -3014,7 +2761,7 @@ export const DailySetting = {
                     }
 
 
-                    return {
+                    const normalizedRule = {
 
                         type_rule :
 
@@ -3076,6 +2823,18 @@ export const DailySetting = {
                             periodContext.years ?? ""
 
                     };
+
+
+                    /*
+                       DailyRules tetap menjadi
+                       sumber state dan duplicate check.
+                    */
+
+                    return DailyRules.prepareRule(
+
+                        normalizedRule
+
+                    );
 
                 }
 
@@ -3596,7 +3355,7 @@ export const DailySetting = {
                     }
 
 
-                    return {
+                    const normalizedRule = {
 
                         type_rule :
 
@@ -3658,6 +3417,13 @@ export const DailySetting = {
                             periodContext.years ?? ""
 
                     };
+
+
+                    return DailyRules.prepareRule(
+
+                        normalizedRule
+
+                    );
 
                 }
 
@@ -3918,7 +3684,7 @@ export const DailySetting = {
                     }
 
 
-                    return {
+                    const normalizedRule = {
 
                         type_rule :
 
@@ -3981,6 +3747,13 @@ export const DailySetting = {
 
                     };
 
+
+                    return DailyRules.prepareRule(
+
+                        normalizedRule
+
+                    );
+
                 }
 
         }
@@ -3988,6 +3761,62 @@ export const DailySetting = {
     ]
 
 };
+
+
+/* =====================================================
+   OPTIONAL ENGINE HELPERS
+===================================================== */
+
+/*
+   Helper ini tidak dipakai oleh generic controller
+   secara langsung, tetapi tersedia melalui config
+   jika nanti Daily UI membutuhkan refresh state
+   setelah save.
+*/
+
+DailySetting.refreshRules =
+
+    async function(){
+
+        return DailyRules.reload();
+
+    };
+
+
+DailySetting.getActivePeriod =
+
+    function(){
+
+        return DailyRules.getActivePeriod();
+
+    };
+
+
+DailySetting.isNewPeriodMode =
+
+    function(){
+
+        return DailyRules.isNewPeriodMode();
+
+    };
+
+
+DailySetting.enterNewPeriodMode =
+
+    function(){
+
+        return DailyRules.enterNewPeriodMode();
+
+    };
+
+
+DailySetting.exitNewPeriodMode =
+
+    function(){
+
+        return DailyRules.exitNewPeriodMode();
+
+    };
 
 
 /* =====================================================
