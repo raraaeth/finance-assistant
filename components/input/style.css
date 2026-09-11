@@ -3971,3 +3971,183 @@ body.input-open {
     }
 
 }
+
+/* =====================================================
+   CONDITION FIELD
+===================================================== */
+
+.global-input-condition-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 28px;
+    margin-top: 18px;
+}
+
+/* =====================================================
+   MASTER TOGGLE
+===================================================== */
+
+.global-input-condition-master {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: fit-content;
+
+    margin-top: 4px;
+    margin-bottom: 18px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+    font-weight: 600;
+    color: #526362;
+}
+
+.global-input-condition-master input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 22px;
+    height: 22px;
+
+    margin: 0;
+
+    border: 2px solid #9aa5a4;
+    border-radius: 6px;
+
+    background: #fff;
+
+    display: grid;
+    place-content: center;
+
+    cursor: pointer;
+
+    flex-shrink: 0;
+}
+
+.global-input-condition-master input[type="checkbox"]::before {
+    content: "";
+
+    width: 10px;
+    height: 10px;
+
+    transform: scale(0);
+
+    transition: transform 0.12s ease;
+    
+    background: #fff;
+
+    clip-path: polygon(
+        14% 44%,
+        0 58%,
+        39% 100%,
+        100% 18%,
+        85% 5%,
+        38% 68%
+    );
+}
+
+.global-input-condition-master input[type="checkbox"]:checked {
+    background: #244b47;
+    border-color: #244b47;
+}
+
+.global-input-condition-master
+input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+/* =====================================================
+   CONDITION ITEMS
+===================================================== */
+
+.global-input-condition-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 44px;
+
+    padding: 4px 0;
+
+    cursor: pointer;
+
+    font-size: 16px;
+    font-weight: 600;
+    color: #657270;
+}
+
+.global-input-condition-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 22px;
+    height: 22px;
+
+    margin: 0;
+
+    border: 2px solid #9aa5a4;
+    border-radius: 5px;
+
+    background: #fff;
+
+    display: grid;
+    place-content: center;
+
+    cursor: pointer;
+
+    flex-shrink: 0;
+}
+
+.global-input-condition-item
+input[type="checkbox"]::before {
+    content: "";
+
+    width: 10px;
+    height: 10px;
+
+    transform: scale(0);
+
+    transition: transform 0.12s ease;
+
+    background: #fff;
+
+    clip-path: polygon(
+        14% 44%,
+        0 58%,
+        39% 100%,
+        100% 18%,
+        85% 5%,
+        38% 68%
+    );
+}
+
+.global-input-condition-item
+input[type="checkbox"]:checked {
+    background: #244b47;
+    border-color: #244b47;
+}
+
+.global-input-condition-item
+input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+/* =====================================================
+   DISABLED STATE
+===================================================== */
+
+.global-input-condition-list.is-disabled {
+    opacity: 0.45;
+}
+
+.global-input-condition-list.is-disabled
+.global-input-condition-item {
+    cursor: default;
+}
+
+.global-input-condition-list.is-disabled
+.global-input-condition-item input[type="checkbox"] {
+    cursor: default;
+}
