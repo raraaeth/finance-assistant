@@ -2654,8 +2654,9 @@ function renderCondition(
 
 
         masterText.textContent =
-
-            "Tambahkan Kondisi";
+    getFieldLabel(
+        field
+    );
 
 
         masterItem.appendChild(
@@ -2819,6 +2820,14 @@ function renderCondition(
             checkbox.dataset.condition =
 
                 value;
+           if(
+               masterToggle
+           ){
+
+             checkbox.disabled =
+              true;
+
+             }
 
 
             /* =========================================
@@ -2917,6 +2926,20 @@ function renderCondition(
                     !enabled
 
                 );
+               conditionList
+    .querySelectorAll(
+        'input[type="checkbox"]'
+    )
+    .forEach(
+
+        checkbox => {
+
+            checkbox.disabled =
+                !enabled;
+
+        }
+
+    );
 
 
                 /* =================================
