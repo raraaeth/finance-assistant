@@ -111,32 +111,37 @@ export function renderField(
 
 
     /* =================================================
-       LABEL
-    ================================================= */
+   LABEL
+===================================================== */
+
+if(
+    !(
+
+        field.type ===
+        "condition"
+
+        &&
+
+        field.masterToggle === true
+
+    )
+){
 
     const label =
-
         document.createElement(
-
             "label"
-
         );
-
 
     label.textContent =
-
         getFieldLabel(
-
             field
-
         );
 
-
     wrapper.appendChild(
-
         label
-
     );
+
+}
 
 
     /* =================================================
