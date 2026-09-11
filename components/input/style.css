@@ -4217,7 +4217,7 @@ input[type="checkbox"]:checked::before {
 .global-input-condition-item
 input[type="checkbox"]:disabled {
 
-    background: #e5ecea;
+    background: #918E8A;
 
     border-color: #aab7b5;
 
