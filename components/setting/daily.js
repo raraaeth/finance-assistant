@@ -1619,10 +1619,57 @@ async function applyDailyDependentSectionState(
     await DailyRules.ensureLoaded();
 
 
+    /*
+       Saat mode periode baru aktif,
+       semua option Tambah dan Potong
+       kembali tersedia.
+    */
+
+    if(
+
+        DailyRules.isNewPeriodMode()
+
+    ){
+
+        const select =
+
+            sectionElement.querySelector(
+
+                "select[name=nama]"
+
+            );
+
+
+        if(
+
+            select
+
+        ){
+
+            DailyRules.applySelectLockState(
+
+                select,
+
+                []
+
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
     const state =
 
         DailyRules.getLockSummary();
 
+
+    /* =================================================
+       RULE TAMBAH
+    ================================================= */
 
     if(
 
@@ -1650,7 +1697,7 @@ async function applyDailyDependentSectionState(
 
                 select,
 
-                state.tambahLocked
+                state.tambahLocked || []
 
             );
 
@@ -1661,6 +1708,10 @@ async function applyDailyDependentSectionState(
 
     }
 
+
+    /* =================================================
+       RULE POTONG
+    ================================================= */
 
     if(
 
@@ -1688,7 +1739,7 @@ async function applyDailyDependentSectionState(
 
                 select,
 
-                state.potongLocked
+                state.potongLocked || []
 
             );
 
@@ -1701,6 +1752,43 @@ async function applyDailyDependentSectionState(
 
 }
 
+
+/* =====================================================
+   REFRESH DAILY DEPENDENT SECTION
+===================================================== */
+
+async function refreshDailyDependentSection(
+
+    sectionElement,
+
+    sectionId
+
+){
+
+    if(
+
+        !sectionElement
+
+    ){
+
+        return;
+
+    }
+
+
+    await DailyRules.ensureLoaded();
+
+
+    await applyDailyDependentSectionState(
+
+        sectionElement,
+
+        sectionId
+
+    );
+
+}
+        
 
 /* =====================================================
    DAILY SETTING
