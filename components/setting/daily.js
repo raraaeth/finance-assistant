@@ -1378,20 +1378,6 @@ function applyDailyPeriodUI(
 
         }
 
-
-        if(
-
-            form
-
-        ){
-
-            form.classList.remove(
-                "hidden"
-            );
-
-        }
-
-
         unlockDailyPeriodForm(
 
             sectionElement
@@ -1457,141 +1443,90 @@ function applyDailyPeriodUI(
 /* =====================================================
    BIND DAILY NEW PERIOD BUTTON
 ===================================================== */
-
 function bindDailyNewPeriodButton(
-
     sectionElement
-
 ){
-
     if(
-
         !sectionElement
-
     ){
-
         return;
-
     }
-
 
     const addButton =
-
         sectionElement.querySelector(
-
             ".global-setting-add"
-
         );
 
-
     if(
-
         !addButton
-
     ){
-
         return;
-
     }
 
-
     if(
-
         addButton.dataset.dailyPeriodBound ===
         "true"
-
     ){
-
         return;
-
     }
-
 
     addButton.dataset.dailyPeriodBound =
         "true";
 
-
-    /*
-       Capture phase dipakai supaya
-       mode periode baru aktif sebelum
-       controller generic membuka form.
-    */
-
     addButton.addEventListener(
-
         "click",
-
         () => {
 
-            const form =
-
-                sectionElement.querySelector(
-
-                    ".global-setting-form"
-
-                );
-
+            const state =
+                DailyRules.getRuleState({
+                    sectionId :
+                        "rule_gaji"
+                });
 
             /*
-               Jika form sedang terbuka,
-               klik dianggap menutup form,
-               bukan membuat periode baru.
+               Jika periode sudah ada,
+               klik Tambah Periode berarti
+               user ingin membuat periode baru.
             */
-
             if(
-
-                form
-
+                state?.activePeriod
                 &&
-
-                !form.classList.contains(
-                    "hidden"
-                )
-
+                !state?.newPeriodMode
             ){
 
-                return;
+                DailyRules.enterNewPeriodMode();
 
-            }
+                /*
+                   Bersihkan tampilan periode lama.
+                   Jangan membuka form di sini.
 
-
-            DailyRules.enterNewPeriodMode();
-
-
-            removeDailyPeriodNote(
-
-                sectionElement
-
-            );
-
-
-            if(
-
-                form
-
-            ){
-
-                form.classList.remove(
-                    "hidden"
+                   Global Setting controller
+                   yang akan membuka form.
+                */
+                removeDailyPeriodNote(
+                    sectionElement
                 );
 
+                /*
+                   Unlock field periode yang
+                   sebelumnya dikunci.
+                */
+                unlockDailyPeriodForm(
+                    sectionElement
+                );
+
+                /*
+                   PENTING:
+                   jangan return untuk membatalkan
+                   event Global Setting.
+                */
             }
 
-
-            unlockDailyPeriodForm(
-
-                sectionElement
-
-            );
-
-        },
-
-        true
-
+        }
     );
-
 }
 
+                
 
 /* =====================================================
    APPLY DAILY DEPENDENT SECTION STATE
