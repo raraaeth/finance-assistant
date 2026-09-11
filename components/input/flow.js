@@ -1014,33 +1014,33 @@ function handleConditionChange(
 ============================================= */
 
 if(
-
-    !Array.isArray(
-
-        value
-
-    )
-
+    !Array.isArray(value)
     ||
-
-    value.length ===
-
-        0
-
+    value.length === 0
 ){
 
+    const conditionEnabled =
+        State.values[
+            `${getSteps()[conditionIndex]?.id}Enabled`
+        ] === true;
+
+
+    /* =============================================
+       MASTER OFF
+
+       Tidak ada kondisi yang dipilih.
+       Langsung dianggap valid.
+
+       Contoh :
+       ☐ Tambahkan Kondisi
+    ============================================= */
+
     if(
-
-        getSteps()[conditionIndex]?.allowEmpty ===
-
-        true
-
+        !conditionEnabled
     ){
 
         State.step =
-
             conditionIndex + 1;
-
 
         renderFlow();
 
@@ -1049,10 +1049,17 @@ if(
     }
 
 
+    /* =============================================
+       MASTER ON
+
+       Kondisi sudah diaktifkan,
+       tetapi belum ada yang dipilih.
+
+       Jadi belum boleh lanjut.
+    ============================================= */
+
     State.step =
-
         conditionIndex;
-
 
     return;
 
