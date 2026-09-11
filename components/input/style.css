@@ -3984,59 +3984,117 @@ body.input-open {
 }
 
 /* =====================================================
+   PAYROLL MONTHLY CONDITION
+===================================================== */
+
+.global-input-condition-list {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    column-gap: 24px;
+
+    row-gap: 14px;
+
+    width: 100%;
+
+    margin-top: 4px;
+
+}
+
+
+/* =====================================================
    MASTER TOGGLE
 ===================================================== */
 
 .global-input-condition-master {
+
     display: flex;
+
     align-items: center;
-    gap: 12px;
+
+    gap: 10px;
 
     width: fit-content;
 
-    margin-top: 4px;
-    margin-bottom: 18px;
+    margin: 4px 0 12px;
 
     cursor: pointer;
 
     font-size: 16px;
+
+    line-height: 1.4;
+
     font-weight: 600;
+
     color: #526362;
+
 }
 
-.global-input-condition-master input[type="checkbox"] {
+
+/* =====================================================
+   MASTER CHECKBOX
+===================================================== */
+
+.global-input-condition-master
+input[type="checkbox"] {
+
     appearance: none;
+
     -webkit-appearance: none;
 
-    width: 22px;
-    height: 22px;
+    width: 18px;
+
+    height: 18px;
+
+    min-width: 18px;
+
+    min-height: 18px;
 
     margin: 0;
 
-    border: 2px solid #9aa5a4;
-    border-radius: 6px;
+    padding: 0;
 
-    background: #fff;
+    box-sizing: border-box;
+
+    border: 2px solid #9aa5a4;
+
+    border-radius: 5px;
+
+    background: #ffffff;
 
     display: grid;
+
     place-content: center;
 
     cursor: pointer;
 
     flex-shrink: 0;
+
 }
 
-.global-input-condition-master input[type="checkbox"]::before {
+
+/* =====================================================
+   MASTER CHECKMARK
+===================================================== */
+
+.global-input-condition-master
+input[type="checkbox"]::before {
+
     content: "";
 
     width: 10px;
+
     height: 10px;
 
     transform: scale(0);
 
-    transition: transform 0.12s ease;
-    
-    background: #fff;
+    transition:
+        transform .12s ease;
+
+    background: #ffffff;
 
     clip-path: polygon(
         14% 44%,
@@ -4046,72 +4104,137 @@ body.input-open {
         85% 5%,
         38% 68%
     );
+
 }
 
-.global-input-condition-master input[type="checkbox"]:checked {
+
+.global-input-condition-master
+input[type="checkbox"]:checked {
+
     background: #244b47;
+
     border-color: #244b47;
+
 }
+
 
 .global-input-condition-master
 input[type="checkbox"]:checked::before {
+
     transform: scale(1);
+
 }
 
+
 /* =====================================================
-   CONDITION ITEMS
+   CONDITION ITEM
 ===================================================== */
 
 .global-input-condition-item {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
-    min-height: 44px;
+    width: 100%;
 
-    padding: 4px 0;
+    min-height: 40px;
+
+    margin: 0;
+
+    padding: 2px 0;
+
+    box-sizing: border-box;
 
     cursor: pointer;
 
     font-size: 16px;
+
+    line-height: 1.4;
+
     font-weight: 600;
+
     color: #657270;
+
 }
 
-.global-input-condition-item input[type="checkbox"] {
+
+.global-input-condition-item span {
+
+    order: 1;
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+/* =====================================================
+   CONDITION CHECKBOX
+===================================================== */
+
+.global-input-condition-item
+input[type="checkbox"] {
+
     appearance: none;
+
     -webkit-appearance: none;
 
-    width: 22px;
-    height: 22px;
+    order: 2;
 
-    margin: 0;
+    width: 18px;
+
+    height: 18px;
+
+    min-width: 18px;
+
+    min-height: 18px;
+
+    margin: 0 0 0 10px;
+
+    padding: 0;
+
+    box-sizing: border-box;
 
     border: 2px solid #9aa5a4;
+
     border-radius: 5px;
 
-    background: #fff;
+    background: #ffffff;
 
     display: grid;
+
     place-content: center;
 
     cursor: pointer;
 
     flex-shrink: 0;
+
 }
+
+
+/* =====================================================
+   CONDITION CHECKMARK
+===================================================== */
 
 .global-input-condition-item
 input[type="checkbox"]::before {
+
     content: "";
 
     width: 10px;
+
     height: 10px;
 
     transform: scale(0);
 
-    transition: transform 0.12s ease;
+    transition:
+        transform .12s ease;
 
-    background: #fff;
+    background: #ffffff;
 
     clip-path: polygon(
         14% 44%,
@@ -4121,33 +4244,105 @@ input[type="checkbox"]::before {
         85% 5%,
         38% 68%
     );
+
 }
+
 
 .global-input-condition-item
 input[type="checkbox"]:checked {
+
     background: #244b47;
+
     border-color: #244b47;
+
 }
+
 
 .global-input-condition-item
 input[type="checkbox"]:checked::before {
+
     transform: scale(1);
+
 }
+
 
 /* =====================================================
-   DISABLED STATE
+   CONDITION DISABLED
 ===================================================== */
 
-.global-input-condition-list.is-disabled {
-    opacity: 0.45;
+/*
+   Master belum dicentang.
+
+   Checkbox kondisi dibuat abu-abu
+   tetapi tetap terlihat sebagai pilihan
+   yang tersedia setelah master diaktifkan.
+*/
+
+.global-input-condition-list
+.global-input-condition-item
+input[type="checkbox"]:disabled {
+
+    background: #e5ecea;
+
+    border-color: #aab7b5;
+
+    cursor: default;
+
 }
 
-.global-input-condition-list.is-disabled
-.global-input-condition-item {
+
+/* =====================================================
+   CONDITION DISABLED ITEM
+===================================================== */
+
+.global-input-condition-list
+.global-input-condition-item:has(
+    input[type="checkbox"]:disabled
+) {
+
     cursor: default;
+
 }
 
-.global-input-condition-list.is-disabled
-.global-input-condition-item input[type="checkbox"] {
-    cursor: default;
+
+/* =====================================================
+   CONDITION ENABLED
+===================================================== */
+
+/*
+   Master sudah dicentang.
+
+   Checkbox kembali putih.
+*/
+
+.global-input-condition-list:not(
+    .global-input-condition-disabled
+)
+.global-input-condition-item
+input[type="checkbox"]:not(:disabled) {
+
+    background: #ffffff;
+
+    border-color: #9aa5a4;
+
+    cursor: pointer;
+
 }
+
+
+/* =====================================================
+   CONDITION NOTE
+===================================================== */
+
+.global-input-condition-list
++ .global-input-field-note {
+
+    margin-top: 12px;
+
+}
+    
+
+
+    
+
+
