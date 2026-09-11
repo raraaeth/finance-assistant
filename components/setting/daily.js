@@ -1515,15 +1515,12 @@ function bindDailyNewPeriodButton(
                     sectionElement
                 );
 
-                /*
-                   PENTING:
-                   jangan return untuk membatalkan
-                   event Global Setting.
-                */
-            }
-
         }
-    );
+
+    },
+    true
+);
+   
 }
 
                 
