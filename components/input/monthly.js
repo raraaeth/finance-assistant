@@ -1296,6 +1296,10 @@ export const Monthly = {
 
                 false,
 
+           masterToggle : true,
+           
+           allowEmpty : true,
+
             showWhen :
 
                 values =>
