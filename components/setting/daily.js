@@ -3507,9 +3507,82 @@ export const DailySetting = {
                     };
 
 
-                    return DailyRules.prepareRule(
+                       return DailyRules.prepareRule(
 
                         normalizedRule
+
+                    );
+
+                },
+
+
+            /* =============================================
+               RULE STATE
+            ============================================= */
+
+            getRuleState :
+
+                async function({
+
+                    sectionElement
+
+                } = {}){
+
+                    await DailyRules.ensureLoaded();
+
+
+                    await applyDailyDependentSectionState(
+
+                        sectionElement,
+
+                        "rule_tambah"
+
+                    );
+
+
+                    const state =
+
+                        DailyRules.getRuleTambahState();
+
+
+                    return {
+
+                        locked :
+
+                            state.names || [],
+
+                        lockedNames :
+
+                            state.names || [],
+
+                        newPeriodMode :
+
+                            DailyRules.isNewPeriodMode()
+
+                    };
+
+                },
+
+
+            /* =============================================
+               FORM RENDER
+            ============================================= */
+
+            onRender :
+
+                async function(
+
+                    form,
+
+                    sectionElement
+
+                ){
+
+                    await refreshDailyDependentSection(
+
+                        sectionElement,
+
+                        "rule_tambah"
 
                     );
 
@@ -3836,9 +3909,82 @@ export const DailySetting = {
                     };
 
 
-                    return DailyRules.prepareRule(
+                                        return DailyRules.prepareRule(
 
                         normalizedRule
+
+                    );
+
+                },
+
+
+            /* =============================================
+               RULE STATE
+            ============================================= */
+
+            getRuleState :
+
+                async function({
+
+                    sectionElement
+
+                } = {}){
+
+                    await DailyRules.ensureLoaded();
+
+
+                    await applyDailyDependentSectionState(
+
+                        sectionElement,
+
+                        "rule_potong"
+
+                    );
+
+
+                    const state =
+
+                        DailyRules.getRulePotongState();
+
+
+                    return {
+
+                        locked :
+
+                            state.names || [],
+
+                        lockedNames :
+
+                            state.names || [],
+
+                        newPeriodMode :
+
+                            DailyRules.isNewPeriodMode()
+
+                    };
+
+                },
+
+
+            /* =============================================
+               FORM RENDER
+            ============================================= */
+
+            onRender :
+
+                async function(
+
+                    form,
+
+                    sectionElement
+
+                ){
+
+                    await refreshDailyDependentSection(
+
+                        sectionElement,
+
+                        "rule_potong"
 
                     );
 
@@ -3849,7 +3995,6 @@ export const DailySetting = {
     ]
 
 };
-
 
 /* =====================================================
    OPTIONAL ENGINE HELPERS
