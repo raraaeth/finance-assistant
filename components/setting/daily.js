@@ -1443,6 +1443,7 @@ function applyDailyPeriodUI(
 /* =====================================================
    BIND DAILY NEW PERIOD BUTTON
 ===================================================== */
+
 function bindDailyNewPeriodButton(
     sectionElement
 ){
@@ -1473,57 +1474,38 @@ function bindDailyNewPeriodButton(
     addButton.dataset.dailyPeriodBound =
         "true";
 
+    /*
+       Aktifkan mode periode baru
+       SEBELUM Global Setting menjalankan
+       toggleForm().
+
+       Jangan membuka form secara manual di sini.
+
+       Setelah mode aktif:
+       - Global Setting melihat form masih hidden
+       - Global Setting menjalankan renderForm()
+       - onRender() Daily melihat newPeriodMode = true
+       - form baru dibiarkan terbuka
+    */
+
     addButton.addEventListener(
         "click",
         () => {
 
-            const state =
-                DailyRules.getRuleState({
-                    sectionId :
-                        "rule_gaji"
-                });
+            DailyRules.enterNewPeriodMode();
 
-            /*
-               Jika periode sudah ada,
-               klik Tambah Periode berarti
-               user ingin membuat periode baru.
-            */
-            if(
-                state?.activePeriod
-                &&
-                !state?.newPeriodMode
-            ){
+            removeDailyPeriodNote(
+                sectionElement
+            );
 
-                DailyRules.enterNewPeriodMode();
+            unlockDailyPeriodForm(
+                sectionElement
+            );
 
-                /*
-                   Bersihkan tampilan periode lama.
-                   Jangan membuka form di sini.
-
-                   Global Setting controller
-                   yang akan membuka form.
-                */
-                removeDailyPeriodNote(
-                    sectionElement
-                );
-
-                /*
-                   Unlock field periode yang
-                   sebelumnya dikunci.
-                */
-                unlockDailyPeriodForm(
-                    sectionElement
-                );
-
-        }
-
-    },
-    true
-);
-   
-}
-
-                
+        },
+        true
+    );
+}                               
 
 /* =====================================================
    APPLY DAILY DEPENDENT SECTION STATE
