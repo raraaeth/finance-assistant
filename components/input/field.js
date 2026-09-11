@@ -2586,6 +2586,95 @@ function renderCondition(
 
         "global-input-condition-list";
 
+       /* =============================================
+       MASTER TOGGLE
+
+       Hanya aktif jika field meminta
+       master toggle.
+
+       Contoh :
+
+       masterToggle : true
+    ============================================= */
+
+    let masterToggle = null;
+
+
+    if(
+
+        field.masterToggle === true
+
+    ){
+
+        const masterItem =
+
+            document.createElement(
+
+                "label"
+
+            );
+
+
+        masterItem.className =
+
+            "global-input-condition-master";
+
+
+        masterToggle =
+
+            document.createElement(
+
+                "input"
+
+            );
+
+
+        masterToggle.type =
+
+            "checkbox";
+
+
+        masterToggle.dataset.conditionMaster =
+
+            field.id;
+
+
+        const masterText =
+
+            document.createElement(
+
+                "span"
+
+            );
+
+
+        masterText.textContent =
+
+            "Tambahkan Kondisi";
+
+
+        masterItem.appendChild(
+
+            masterToggle
+
+        );
+
+
+        masterItem.appendChild(
+
+            masterText
+
+        );
+
+
+        wrapper.appendChild(
+
+            masterItem
+
+        );
+
+    }
+
 
     const options =
 
@@ -2607,6 +2696,27 @@ function renderCondition(
     ){
 
         return;
+
+    }
+
+       /* =============================================
+       MASTER STATE
+
+       Kondisi individual hanya aktif setelah
+       master toggle dinyalakan.
+    ============================================= */
+
+    if(
+
+        masterToggle
+
+    ){
+
+        conditionList.classList.add(
+
+            "global-input-condition-disabled"
+
+        );
 
     }
 
@@ -2773,6 +2883,103 @@ function renderCondition(
 
     );
 
+   
+    /* =============================================
+       MASTER TOGGLE CHANGE
+    ============================================= */
+
+    if(
+
+        masterToggle
+
+    ){
+
+        masterToggle.addEventListener(
+
+            "change",
+
+            () => {
+
+                const enabled =
+
+                    masterToggle.checked;
+
+
+                conditionList.classList.toggle(
+
+                    "global-input-condition-disabled",
+
+                    !enabled
+
+                );
+
+
+                /* =================================
+                   MASTER OFF
+
+                   Hapus semua kondisi yang
+                   sebelumnya dipilih.
+                ================================= */
+
+                if(
+
+                    !enabled
+
+                ){
+
+                    conditionList
+
+                        .querySelectorAll(
+
+                            'input[type="checkbox"]'
+
+                        )
+
+                        .forEach(
+
+                            checkbox => {
+
+                                checkbox.checked =
+
+                                    false;
+
+                            }
+
+                        );
+
+
+                    State.values[
+
+                        field.id
+
+                    ] = [];
+
+
+                    if(
+
+                        typeof onComplete ===
+
+                        "function"
+
+                    ){
+
+                        onComplete(
+
+                            field,
+
+                            []
+
+                        );
+
+                    }
+
+                }
+
+            }
+
+        );
+
+    }
 
     wrapper.appendChild(
 
