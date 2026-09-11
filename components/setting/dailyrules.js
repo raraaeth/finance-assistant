@@ -1397,6 +1397,59 @@ function getRulePotongState(){
 
 }
 
+/* =====================================================
+   RULE APPLY FIELD LOCK
+===================================================== */
+function applyFieldOptionsLock(
+    section,
+    fieldName,
+    masterOptions,
+    lockedNames = [],
+    newPeriodMode = false
+){
+    if(!section || !Array.isArray(section.fields)){
+        return;
+    }
+
+    const field = section.fields.find(
+        item => item?.name === fieldName
+    );
+
+    if(!field){
+        return;
+    }
+
+    const options = Array.isArray(masterOptions)
+        ? masterOptions
+        : [];
+
+    // Periode baru → semua option dibuka
+    if(newPeriodMode){
+        field.options = options.map(option => ({
+            ...option
+        }));
+
+        return;
+    }
+
+    const locked =
+        lockedNames instanceof Set
+            ? lockedNames
+            : new Set(lockedNames || []);
+
+    field.options = options
+        .filter(option => {
+            const value = normalizeCompareValue(
+                option?.value
+            );
+
+            return !locked.has(value);
+        })
+        .map(option => ({
+            ...option
+        }));
+}
+
 
 /* =====================================================
    RULE WORK STATE
@@ -3958,6 +4011,8 @@ export const DailyRules = {
     unlockSectionFields,
 
     lockFixedRuleSection,
+
+    applyFieldOptionsLock,
 
     applySelectLockState
 
