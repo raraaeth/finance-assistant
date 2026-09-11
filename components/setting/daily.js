@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Daily
    File         : daily.js
-   Version      : 2.0.2
+   Version      : 3.0.0
 
    Description :
    Payroll Daily Setting Definition
@@ -14,29 +14,45 @@
    - Rule Tambah
    - Rule Potong
 
-   Principle :
-   User only fills fields that are necessary.
-   Internal engine values are generated automatically.
+   Concept :
+   - Rule Gaji tetap menggunakan type_rule "rule_gaji"
+   - Rule Gaji menjadi sumber periode aktif Daily
+   - Rule Gaji dikunci setelah periode dibuat
+   - Periode lama tetap menjadi history
+   - Tambah Periode Baru membuka kembali Rule Gaji
+   - Rule Work / Tambah / Potong mewarisi
+     periode aktif Daily
+   - Rule lama tidak mengunci periode baru
+   - Duplicate rule dihitung berdasarkan
+     periode aktif, bukan seluruh history
 
-   Payroll Daily :
-   - Rule Gaji    : menentukan periode gaji
-   - Rule Work    : menentukan penghasilan berdasarkan pekerjaan
-   - Rule Tambah  : tambahan berdasarkan hari
-   - Rule Potong  : potongan standar periode gaji
+   IMPORTANT :
+   Struktur payload Daily tetap menggunakan :
 
-   UI CHANGE :
-   - Tanggal periode cukup angka tanggal
-   - Masa aktif cukup bulan + tahun
-   - Normalize menghasilkan tanggal lengkap
-   - Masa aktif Rule Gaji diwariskan ke seluruh rule
-   - Years dibuat otomatis dari tahun periode aktif
-   - Rule lama tetap menjadi history
+       periode_start
+       periode_end
+       years
+
+   Tidak diganti menjadi :
+
+       berlaku_start
+       berlaku_end
+
+   process.js tidak perlu diubah.
 ===================================================== */
 
 
 /* =====================================================
-   DAILY HELPERS
+   PAYROLL ENGINE
 ===================================================== */
+
+import {
+    Payroll
+} from "./payroll.js";
+
+
+const PAYROLL_MODE =
+    "payroll-daily";
 
 
 /* =====================================================
@@ -151,17 +167,14 @@ const MONTH_OPTIONS = [
 function createYearOptions(){
 
     const currentYear =
-
         new Date().getFullYear();
 
 
     const startYear =
-
         currentYear - 2;
 
 
     const endYear =
-
         currentYear + 15;
 
 
@@ -171,12 +184,10 @@ function createYearOptions(){
     for(
 
         let year =
-
             startYear;
 
         year <=
-
-        endYear;
+            endYear;
 
         year++
 
@@ -201,7 +212,6 @@ function createYearOptions(){
 
 
 const YEAR_OPTIONS =
-
     createYearOptions();
 
 
@@ -225,11 +235,9 @@ function createMonthYearOptions(){
                     options.push({
 
                         value :
-
                             `${year.value}-${month.value}`,
 
                         label :
-
                             `${month.label} ${year.label}`
 
                     });
@@ -249,7 +257,6 @@ function createMonthYearOptions(){
 
 
 const MONTH_YEAR_OPTIONS =
-
     createMonthYearOptions();
 
 
@@ -268,31 +275,34 @@ function createISODate(
 ){
 
     const yearNumber =
-
         Number(year);
 
 
     const monthNumber =
-
         Number(month);
 
 
     const dayNumber =
-
         Number(day);
 
 
     if(
 
-        !Number.isInteger(yearNumber)
+        !Number.isInteger(
+            yearNumber
+        )
 
         ||
 
-        !Number.isInteger(monthNumber)
+        !Number.isInteger(
+            monthNumber
+        )
 
         ||
 
-        !Number.isInteger(dayNumber)
+        !Number.isInteger(
+            dayNumber
+        )
 
     ){
 
@@ -331,10 +341,6 @@ function createISODate(
     }
 
 
-    /* =============================================
-       VALIDATE ACTUAL DAY IN MONTH
-    ============================================= */
-
     const lastDay =
 
         new Date(
@@ -351,7 +357,6 @@ function createISODate(
     if(
 
         dayNumber >
-
         lastDay
 
     ){
@@ -366,17 +371,10 @@ function createISODate(
         `${
 
             String(
-
                 yearNumber
-
-            )
-
-            .padStart(
-
+            ).padStart(
                 4,
-
                 "0"
-
             )
 
         }-` +
@@ -384,17 +382,10 @@ function createISODate(
         `${
 
             String(
-
                 monthNumber
-
-            )
-
-            .padStart(
-
+            ).padStart(
                 2,
-
                 "0"
-
             )
 
         }-` +
@@ -402,17 +393,10 @@ function createISODate(
         `${
 
             String(
-
                 dayNumber
-
-            )
-
-            .padStart(
-
+            ).padStart(
                 2,
-
                 "0"
-
             )
 
         }`
@@ -435,7 +419,6 @@ function parseMonthYear(
     if(
 
         typeof value !==
-
         "string"
 
     ){
@@ -448,16 +431,12 @@ function parseMonthYear(
     const match =
 
         value.match(
-
             /^(\d{4})-(\d{2})$/
-
         );
 
 
     if(
-
         !match
-
     ){
 
         return null;
@@ -466,20 +445,14 @@ function parseMonthYear(
 
 
     const year =
-
         Number(
-
             match[1]
-
         );
 
 
     const month =
-
         Number(
-
             match[2]
-
         );
 
 
@@ -501,11 +474,9 @@ function parseMonthYear(
     return {
 
         year :
-
             year,
 
         month :
-
             month
 
     };
@@ -516,22 +487,6 @@ function parseMonthYear(
 /* =====================================================
    CREATE YEARS
 ===================================================== */
-
-/*
-   Years dibuat otomatis dari tahun awal
-   masa aktif periode payroll.
-
-   Contoh :
-
-       periode_start = 2026-01-28
-       periode_end   = 2027-02-27
-
-   Maka :
-
-       years = "2026"
-
-   User tidak perlu mengisi years secara manual.
-*/
 
 function createYears(
 
@@ -546,13 +501,9 @@ function createYears(
         ||
 
         !Number.isInteger(
-
             Number(
-
                 startPeriod.year
-
             )
-
         )
 
     ){
@@ -563,9 +514,7 @@ function createYears(
 
 
     return String(
-
         startPeriod.year
-
     );
 
 }
@@ -584,21 +533,11 @@ function getNextMonth(
 ){
 
     let nextYear =
-
-        Number(
-
-            year
-
-        );
+        Number(year);
 
 
     let nextMonth =
-
-        Number(
-
-            month
-
-        ) + 1;
+        Number(month) + 1;
 
 
     if(
@@ -617,11 +556,9 @@ function getNextMonth(
     return {
 
         year :
-
             nextYear,
 
         month :
-
             nextMonth
 
     };
@@ -659,20 +596,13 @@ function getDayNumber(
 
 
     const number =
-
-        Number(
-
-            value
-
-        );
+        Number(value);
 
 
     if(
 
         !Number.isInteger(
-
             number
-
         )
 
     ){
@@ -703,65 +633,47 @@ function getDayNumber(
 
 
 /* =====================================================
-   DAILY ACTIVE PERIOD CONTEXT
+   DAILY PERIOD CONTEXT
 ===================================================== */
-
-/*
-   Menyimpan periode aktif terakhir yang berhasil
-   dibuat pada Payroll Daily.
-
-   Context ini digunakan oleh :
-
-   - Rule Work
-   - Rule Tambah
-   - Rule Potong
-
-   User cukup menentukan masa aktif satu kali
-   pada Rule Gaji.
-
-   Daily menggunakan field :
-
-       periode_start
-       periode_end
-       years
-
-   Contoh :
-
-       Rule Gaji
-
-       periode_start = 2026-01-28
-       periode_end   = 2027-02-27
-       years         = 2026
-
-   Maka seluruh rule berikutnya otomatis
-   menggunakan periode dan years tersebut.
-
-   Rule lama tetap menjadi history.
-*/
 
 let DAILY_PERIOD_CONTEXT = null;
 
 
 /* =====================================================
-   SET ACTIVE PERIOD CONTEXT
+   NORMALIZE VALUE
 ===================================================== */
 
-/*
-   Menyimpan periode dari Rule Gaji terakhir.
+function normalizeValue(
 
-   PENTING :
+    value
 
-   Daily menggunakan :
+){
 
-       periode_start
-       periode_end
-       years
+    if(
 
-   Bukan :
+        value === undefined
 
-       berlaku_start
-       berlaku_end
-*/
+        ||
+
+        value === null
+
+    ){
+
+        return "";
+
+    }
+
+
+    return String(
+        value
+    ).trim();
+
+}
+
+
+/* =====================================================
+   SET DAILY PERIOD CONTEXT
+===================================================== */
 
 function setDailyPeriodContext(
 
@@ -770,9 +682,7 @@ function setDailyPeriodContext(
 ){
 
     if(
-
         !rule
-
     ){
 
         return;
@@ -783,7 +693,6 @@ function setDailyPeriodContext(
     if(
 
         rule.type_rule !==
-
         "rule_gaji"
 
     ){
@@ -810,18 +719,19 @@ function setDailyPeriodContext(
 
     DAILY_PERIOD_CONTEXT = {
 
-        periode_start :
+        nilai_start :
+            rule.nilai_start ?? "",
 
+        nilai_end :
+            rule.nilai_end ?? "",
+
+        periode_start :
             rule.periode_start,
 
-
         periode_end :
-
             rule.periode_end,
 
-
         years :
-
             rule.years ?? ""
 
     };
@@ -830,24 +740,232 @@ function setDailyPeriodContext(
 
 
 /* =====================================================
-   GET LATEST PERIOD FROM UI RESULT
+   READ DAILY RULES FROM PAYROLL ENGINE
 ===================================================== */
 
-/*
-   Membaca Rule Gaji terakhir dari UI.
+async function getDailyRules(){
 
-   Ini diperlukan ketika history payroll
-   sudah dimuat kembali ke halaman.
+    try{
 
-   Rule baru akan menggunakan Rule Gaji
-   terakhir sebagai active period context.
+        await Payroll.ensureLoaded(
+            PAYROLL_MODE
+        );
 
-   Cari dari bawah karena Rule Gaji
-   paling bawah dianggap sebagai periode
-   terbaru.
-*/
+    }
 
-function getLatestDailyPeriodContext(){
+    catch(error){
+
+        console.warn(
+            "DAILY PAYROLL ENGINE LOAD ERROR:",
+            error
+        );
+
+    }
+
+
+    try{
+
+        const rules =
+            Payroll.getRules(
+                PAYROLL_MODE
+            );
+
+
+        if(
+            Array.isArray(rules)
+        ){
+
+            return rules;
+
+        }
+
+    }
+
+    catch(error){
+
+        console.warn(
+            "DAILY PAYROLL RULE READ ERROR:",
+            error
+        );
+
+    }
+
+
+    return [];
+
+}
+
+
+/* =====================================================
+   GET LATEST DAILY RULE GAJI
+===================================================== */
+
+function getLatestDailyPeriodFromRules(
+
+    rules
+
+){
+
+    if(
+        !Array.isArray(rules)
+    ){
+
+        return null;
+
+    }
+
+
+    const periods =
+
+        rules.filter(
+
+            rule =>
+
+                rule
+
+                &&
+
+                rule.type_rule ===
+                    "rule_gaji"
+
+                &&
+
+                rule.periode_start
+
+                &&
+
+                rule.periode_end
+
+        );
+
+
+    if(
+        periods.length === 0
+    ){
+
+        return null;
+
+    }
+
+
+    periods.sort(
+
+        (
+            first,
+            second
+        ) => {
+
+            const firstDate =
+                new Date(
+                    first.periode_start
+                ).getTime();
+
+
+            const secondDate =
+                new Date(
+                    second.periode_start
+                ).getTime();
+
+
+            if(
+                Number.isNaN(
+                    firstDate
+                )
+            ){
+
+                return -1;
+
+            }
+
+
+            if(
+                Number.isNaN(
+                    secondDate
+                )
+            ){
+
+                return 1;
+
+            }
+
+
+            return (
+                firstDate -
+                secondDate
+            );
+
+        }
+
+    );
+
+
+    const latest =
+        periods[
+            periods.length - 1
+        ];
+
+
+    return {
+
+        nilai_start :
+            latest.nilai_start ?? "",
+
+        nilai_end :
+            latest.nilai_end ?? "",
+
+        periode_start :
+            latest.periode_start,
+
+        periode_end :
+            latest.periode_end,
+
+        years :
+            latest.years ?? ""
+
+    };
+
+}
+
+
+/* =====================================================
+   GET ACTIVE DAILY PERIOD
+===================================================== */
+
+async function getDailyActivePeriod(){
+
+    const rules =
+        await getDailyRules();
+
+
+    const period =
+        getLatestDailyPeriodFromRules(
+            rules
+        );
+
+
+    if(
+        period
+    ){
+
+        DAILY_PERIOD_CONTEXT =
+            period;
+
+
+        return period;
+
+    }
+
+
+    return DAILY_PERIOD_CONTEXT;
+
+}
+
+
+/* =====================================================
+   GET ACTIVE PERIOD FROM UI RESULT
+===================================================== */
+
+function getLatestDailyPeriodFromUI(){
 
     const sectionElement =
 
@@ -859,149 +977,127 @@ function getLatestDailyPeriodContext(){
 
 
     if(
+        !sectionElement
+    ){
 
-        sectionElement
+        return null;
+
+    }
+
+
+    const result =
+
+        sectionElement.querySelector(
+
+            ".global-setting-result"
+
+        );
+
+
+    if(
+        !result
+    ){
+
+        return null;
+
+    }
+
+
+    const items = [
+
+        ...result.children
+
+    ];
+
+
+    for(
+
+        let index =
+            items.length - 1;
+
+        index >= 0;
+
+        index--
 
     ){
 
-        const result =
-
-            sectionElement.querySelector(
-
-                ".global-setting-result"
-
-            );
+        const item =
+            items[index];
 
 
         if(
-
-            result
-
+            !item.dataset.value
         ){
 
-            const items = [
+            continue;
 
-                ...result.children
-
-            ];
+        }
 
 
-            /* =========================================
-               SEARCH LATEST RULE GAJI
-            ========================================= */
+        try{
 
-            for(
+            const data =
 
-                let index =
+                JSON.parse(
+                    item.dataset.value
+                );
 
-                    items.length - 1;
 
-                index >= 0;
+            if(
 
-                index--
+                data
+
+                &&
+
+                data.type_rule ===
+                    "rule_gaji"
+
+                &&
+
+                data.periode_start
+
+                &&
+
+                data.periode_end
 
             ){
 
-                const item =
+                return {
 
-                    items[index];
+                    nilai_start :
+                        data.nilai_start ?? "",
 
+                    nilai_end :
+                        data.nilai_end ?? "",
 
-                if(
+                    periode_start :
+                        data.periode_start,
 
-                    !item.dataset.value
+                    periode_end :
+                        data.periode_end,
 
-                ){
+                    years :
+                        data.years ?? ""
 
-                    continue;
-
-                }
-
-
-                try{
-
-                    const data =
-
-                        JSON.parse(
-
-                            item.dataset.value
-
-                        );
-
-
-                    /* =================================
-                       VALID RULE GAJI
-                    ================================= */
-
-                    if(
-
-                        data
-
-                        &&
-
-                        data.type_rule ===
-
-                            "rule_gaji"
-
-                        &&
-
-                        data.periode_start
-
-                        &&
-
-                        data.periode_end
-
-                    ){
-
-                        return {
-
-                            periode_start :
-
-                                data.periode_start,
-
-
-                            periode_end :
-
-                                data.periode_end,
-
-
-                            years :
-
-                                data.years ?? ""
-
-                        };
-
-                    }
-
-                }
-
-                catch(error){
-
-                    console.warn(
-
-                        "DAILY PERIOD CONTEXT PARSE ERROR:",
-
-                        error
-
-                    );
-
-                }
+                };
 
             }
+
+        }
+
+        catch(error){
+
+            console.warn(
+                "DAILY PERIOD UI PARSE ERROR:",
+                error
+            );
 
         }
 
     }
 
 
-    /* =============================================
-       FALLBACK
-
-       Jika result belum masuk DOM,
-       gunakan context terakhir.
-    ============================================= */
-
-    return DAILY_PERIOD_CONTEXT;
+    return null;
 
 }
 
@@ -1010,9 +1106,39 @@ function getLatestDailyPeriodContext(){
    GET ACTIVE PERIOD CONTEXT
 ===================================================== */
 
-function getDailyActivePeriodContext(){
+async function getActivePeriodContext(){
 
-    return getLatestDailyPeriodContext();
+    const sheetPeriod =
+        await getDailyActivePeriod();
+
+
+    if(
+        sheetPeriod
+    ){
+
+        return sheetPeriod;
+
+    }
+
+
+    const uiPeriod =
+        getLatestDailyPeriodFromUI();
+
+
+    if(
+        uiPeriod
+    ){
+
+        DAILY_PERIOD_CONTEXT =
+            uiPeriod;
+
+
+        return uiPeriod;
+
+    }
+
+
+    return DAILY_PERIOD_CONTEXT;
 
 }
 
@@ -1021,26 +1147,14 @@ function getDailyActivePeriodContext(){
    REQUIRE ACTIVE PERIOD
 ===================================================== */
 
-/*
-   Semua rule selain Rule Gaji wajib memiliki
-   active period.
-
-   Rule Gaji menjadi sumber :
-
-       periode_start
-       periode_end
-       years
-*/
-
-function requireDailyActivePeriod(
+async function requireDailyActivePeriod(
 
     ruleName
 
 ){
 
     const periodContext =
-
-        getDailyActivePeriodContext();
+        await getActivePeriodContext();
 
 
     if(
@@ -1079,6 +1193,1181 @@ function requireDailyActivePeriod(
 
 
 /* =====================================================
+   PERIOD MATCH
+===================================================== */
+
+function sameDailyPeriod(
+
+    rule,
+
+    period
+
+){
+
+    if(
+
+        !rule
+
+        ||
+
+        !period
+
+    ){
+
+        return false;
+
+    }
+
+
+    return (
+
+        normalizeValue(
+            rule.periode_start
+        ) ===
+
+        normalizeValue(
+            period.periode_start
+        )
+
+        &&
+
+        normalizeValue(
+            rule.periode_end
+        ) ===
+
+        normalizeValue(
+            period.periode_end
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   GET RULES IN ACTIVE PERIOD
+===================================================== */
+
+async function getDailyCurrentPeriodRules(){
+
+    const rules =
+        await getDailyRules();
+
+
+    const period =
+        await getActivePeriodContext();
+
+
+    if(
+        !period
+    ){
+
+        return [];
+
+    }
+
+
+    return rules.filter(
+
+        rule =>
+            sameDailyPeriod(
+                rule,
+                period
+            )
+
+    );
+
+}
+
+
+/* =====================================================
+   DAILY EXACT DUPLICATE
+===================================================== */
+
+function sameValue(
+
+first,
+
+second
+
+){
+
+    return (
+
+        normalizeValue(first) ===
+        normalizeValue(second)
+
+    );
+
+}
+
+
+/* =====================================================
+   WORK DUPLICATE
+===================================================== */
+
+function isDailyWorkDuplicate(
+
+rule,
+
+existingRules
+
+){
+
+    return existingRules.some(
+
+        existing =>
+
+            existing.type_rule ===
+                "rule_work"
+
+            &&
+
+            sameValue(
+                existing.nama,
+                rule.nama
+            )
+
+            &&
+
+            sameValue(
+                existing.grade_1,
+                rule.grade_1
+            )
+
+            &&
+
+            sameValue(
+                existing.grade_2,
+                rule.grade_2
+            )
+
+            &&
+
+            sameValue(
+                existing.nominal,
+                rule.nominal
+            )
+
+            &&
+
+            sameValue(
+                existing.waktu,
+                rule.waktu
+            )
+
+    );
+
+}
+
+
+/* =====================================================
+   TAMBAH DUPLICATE
+===================================================== */
+
+function isDailyTambahDuplicate(
+
+rule,
+
+existingRules
+
+){
+
+    return existingRules.some(
+
+        existing =>
+
+            existing.type_rule ===
+                "rule_tambah"
+
+            &&
+
+            sameValue(
+                existing.nama,
+                rule.nama
+            )
+
+            &&
+
+            sameValue(
+                existing.waktu,
+                rule.waktu
+            )
+
+            &&
+
+            sameValue(
+                existing.nominal,
+                rule.nominal
+            )
+
+    );
+
+}
+
+
+/* =====================================================
+   POTONG DUPLICATE
+===================================================== */
+
+function isDailyPotongDuplicate(
+
+rule,
+
+existingRules
+
+){
+
+    return existingRules.some(
+
+        existing =>
+
+            existing.type_rule ===
+                "rule_potong"
+
+            &&
+
+            sameValue(
+                existing.nama,
+                rule.nama
+            )
+
+            &&
+
+            sameValue(
+                existing.nominal,
+                rule.nominal
+            )
+
+    );
+
+}
+
+
+/* =====================================================
+   CHECK DAILY DUPLICATE
+===================================================== */
+
+async function checkDailyDuplicate(
+
+rule
+
+){
+
+    const currentRules =
+        await getDailyCurrentPeriodRules();
+
+
+    if(
+
+        rule.type_rule ===
+        "rule_work"
+
+    ){
+
+        return isDailyWorkDuplicate(
+            rule,
+            currentRules
+        );
+
+    }
+
+
+    if(
+
+        rule.type_rule ===
+        "rule_tambah"
+
+    ){
+
+        return isDailyTambahDuplicate(
+            rule,
+            currentRules
+        );
+
+    }
+
+
+    if(
+
+        rule.type_rule ===
+        "rule_potong"
+
+    ){
+
+        return isDailyPotongDuplicate(
+            rule,
+            currentRules
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =====================================================
+   PERIOD DISPLAY
+===================================================== */
+
+function createDailyPeriodDisplay(
+
+period
+
+){
+
+    if(
+        !period
+    ){
+
+        return null;
+
+    }
+
+
+    return {
+
+        nilai_start :
+            period.nilai_start ?? "",
+
+        nilai_end :
+            period.nilai_end ?? "",
+
+        berlaku_start :
+            period.periode_start ?? "",
+
+        berlaku_end :
+            period.periode_end ?? ""
+
+    };
+
+}
+
+
+/* =====================================================
+   APPLY PERIOD NOTE
+===================================================== */
+
+function applyDailyPeriodNote(
+
+sectionElement,
+
+period
+
+){
+
+    if(
+        !sectionElement
+    ){
+
+        return;
+
+    }
+
+
+    let note =
+
+        sectionElement.querySelector(
+
+            ".payroll-period-note-wrapper"
+
+        );
+
+
+    if(
+        !period
+    ){
+
+        if(
+            note
+        ){
+
+            note.remove();
+
+        }
+
+        return;
+
+    }
+
+
+    const displayPeriod =
+        createDailyPeriodDisplay(
+            period
+        );
+
+
+    let periodNote;
+
+
+    try{
+
+        periodNote =
+            Payroll.buildPeriodNote(
+                displayPeriod
+            );
+
+    }
+
+    catch(error){
+
+        console.warn(
+            "DAILY PERIOD NOTE ERROR:",
+            error
+        );
+
+
+        return;
+
+    }
+
+
+    if(
+        !periodNote
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        !note
+    ){
+
+        note =
+            document.createElement(
+                "div"
+            );
+
+
+        note.className =
+            "payroll-period-note-wrapper";
+
+
+        const form =
+            sectionElement.querySelector(
+                ".global-setting-form"
+            );
+
+
+        if(
+            form
+        ){
+
+            form.parentNode.insertBefore(
+                note,
+                form
+            );
+
+        }
+
+        else{
+
+            sectionElement.appendChild(
+                note
+            );
+
+        }
+
+    }
+
+
+    note.innerHTML =
+        periodNote.html ?? "";
+
+}
+
+
+/* =====================================================
+   DAILY PERIOD UI
+===================================================== */
+
+function applyDailyPeriodUI(
+
+sectionElement,
+
+period,
+
+newPeriodMode = false
+
+){
+
+    if(
+        !sectionElement
+    ){
+
+        return;
+
+    }
+
+
+    const form =
+        sectionElement.querySelector(
+            ".global-setting-form"
+        );
+
+
+    const addButton =
+        sectionElement.querySelector(
+            ".global-setting-add"
+        );
+
+
+    /* =============================================
+       NEW PERIOD MODE
+    ============================================= */
+
+    if(
+        newPeriodMode
+    ){
+
+        applyDailyPeriodNote(
+            sectionElement,
+            null
+        );
+
+
+        if(
+            addButton
+        ){
+
+            addButton.style.display =
+                "";
+
+            addButton.textContent =
+                "＋ Tambah Periode";
+
+        }
+
+
+        if(
+            form
+        ){
+
+            form.classList.remove(
+                "hidden"
+            );
+
+
+            const controls =
+
+                form.querySelectorAll(
+
+                    "input, select, textarea, button"
+
+                );
+
+
+            controls.forEach(
+
+                control => {
+
+                    control.disabled =
+                        false;
+
+                }
+
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* =============================================
+       NO PERIOD
+    ============================================= */
+
+    if(
+        !period
+    ){
+
+        applyDailyPeriodNote(
+            sectionElement,
+            null
+        );
+
+
+        if(
+            form
+        ){
+
+            form.classList.remove(
+                "hidden"
+            );
+
+
+            const controls =
+
+                form.querySelectorAll(
+
+                    "input, select, textarea, button"
+
+                );
+
+
+            controls.forEach(
+
+                control => {
+
+                    control.disabled =
+                        false;
+
+                }
+
+            );
+
+        }
+
+
+        if(
+            addButton
+        ){
+
+            addButton.style.display =
+                "";
+
+            addButton.textContent =
+                "＋ Tambah Periode";
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* =============================================
+       EXISTING PERIOD
+    ============================================= */
+
+    applyDailyPeriodNote(
+        sectionElement,
+        period
+    );
+
+
+    if(
+        form
+    ){
+
+        form.classList.add(
+            "hidden"
+        );
+
+
+        const controls =
+
+            form.querySelectorAll(
+
+                "input, select, textarea, button"
+
+            );
+
+
+        controls.forEach(
+
+            control => {
+
+                control.disabled =
+                    true;
+
+            }
+
+        );
+
+    }
+
+
+    if(
+        addButton
+    ){
+
+        addButton.style.display =
+            "";
+
+        addButton.textContent =
+            "＋ Tambah Periode Baru";
+
+    }
+
+}
+
+
+/* =====================================================
+   BIND NEW PERIOD BUTTON
+===================================================== */
+
+function bindDailyNewPeriodButton(
+
+sectionElement
+
+){
+
+    if(
+
+        !sectionElement
+
+        ||
+
+        sectionElement
+            ._dailyPeriodButtonBound
+
+    ){
+
+        return;
+
+    }
+
+
+    const button =
+        sectionElement.querySelector(
+            ".global-setting-add"
+        );
+
+
+    if(
+        !button
+    ){
+
+        return;
+
+    }
+
+
+    sectionElement
+        ._dailyPeriodButtonBound =
+        true;
+
+
+    /*
+       Capture phase digunakan supaya
+       Daily menentukan newPeriodMode
+       sebelum controller generic
+       membuka form.
+    */
+
+    button.addEventListener(
+
+        "click",
+
+        event => {
+
+            const period =
+                getLatestDailyPeriodFromUI();
+
+
+            if(
+                !period
+            ){
+
+                return;
+
+            }
+
+
+            /*
+               Periode lama ada.
+
+               Klik tombol berarti user
+               memang ingin membuat periode baru.
+            */
+
+            try{
+
+                Payroll.enterNewPeriodMode(
+                    PAYROLL_MODE
+                );
+
+            }
+
+            catch(error){
+
+                console.warn(
+                    "DAILY NEW PERIOD MODE ERROR:",
+                    error
+                );
+
+            }
+
+
+            applyDailyPeriodUI(
+                sectionElement,
+                period,
+                true
+            );
+
+        },
+
+        true
+
+    );
+
+}
+
+
+/* =====================================================
+   OBSERVE DAILY PERIOD RESULT
+===================================================== */
+
+function bindDailyPeriodObserver(
+
+sectionElement
+
+){
+
+    if(
+
+        !sectionElement
+
+        ||
+
+        sectionElement
+            ._dailyPeriodObserver
+
+    ){
+
+        return;
+
+    }
+
+
+    const result =
+        sectionElement.querySelector(
+            ".global-setting-result"
+        );
+
+
+    if(
+        !result
+    ){
+
+        return;
+
+    }
+
+
+    const observer =
+
+        new MutationObserver(
+
+            async () => {
+
+                const period =
+                    getLatestDailyPeriodFromUI();
+
+
+                if(
+                    !period
+                ){
+
+                    return;
+
+                }
+
+
+                const newPeriodMode =
+
+                    (() => {
+
+                        try{
+
+                            return Payroll.isNewPeriodMode(
+                                PAYROLL_MODE
+                            );
+
+                        }
+
+                        catch(error){
+
+                            return false;
+
+                        }
+
+                    })();
+
+
+                /*
+                   Jika result baru sudah dibuat,
+                   periode baru selesai.
+                */
+
+                if(
+                    newPeriodMode
+                ){
+
+                    try{
+
+                        Payroll.exitNewPeriodMode(
+                            PAYROLL_MODE
+                        );
+
+                    }
+
+                    catch(error){
+
+                        console.warn(
+                            "DAILY EXIT NEW PERIOD MODE ERROR:",
+                            error
+                        );
+
+                    }
+
+                }
+
+
+                DAILY_PERIOD_CONTEXT =
+                    period;
+
+
+                applyDailyPeriodUI(
+                    sectionElement,
+                    period,
+                    false
+                );
+
+            }
+
+        );
+
+
+    observer.observe(
+
+        result,
+
+        {
+
+            childList :
+                true,
+
+            subtree :
+                true
+
+        }
+
+    );
+
+
+    sectionElement
+        ._dailyPeriodObserver =
+        observer;
+
+}
+
+
+/* =====================================================
+   DAILY RULE STATE
+===================================================== */
+
+async function getDailyRuleState(
+
+sectionId,
+
+sectionElement
+
+){
+
+    const rules =
+        await getDailyRules();
+
+
+    const period =
+        getLatestDailyPeriodFromRules(
+            rules
+        )
+        ??
+
+        getLatestDailyPeriodFromUI();
+
+
+    if(
+        period
+    ){
+
+        DAILY_PERIOD_CONTEXT =
+            period;
+
+    }
+
+
+    let newPeriodMode =
+        false;
+
+
+    try{
+
+        newPeriodMode =
+            Payroll.isNewPeriodMode(
+                PAYROLL_MODE
+            );
+
+    }
+
+    catch(error){
+
+        newPeriodMode =
+            false;
+
+    }
+
+
+    /* =============================================
+       RULE GAJI
+    ============================================= */
+
+    if(
+        sectionId ===
+        "rule_gaji"
+    ){
+
+        applyDailyPeriodUI(
+            sectionElement,
+            period,
+            newPeriodMode
+        );
+
+
+        bindDailyNewPeriodButton(
+            sectionElement
+        );
+
+
+        bindDailyPeriodObserver(
+            sectionElement
+        );
+
+
+        return {
+
+            gaji :
+                Boolean(period)
+                &&
+                !newPeriodMode,
+
+            created : {
+
+                gaji :
+                    Boolean(period)
+                    &&
+                    !newPeriodMode
+
+            },
+
+            periodExists :
+                Boolean(period),
+
+            lockPeriod :
+                Boolean(period)
+                &&
+                !newPeriodMode,
+
+            newPeriodMode :
+                newPeriodMode,
+
+            activePeriod :
+                period
+
+        };
+
+    }
+
+
+    /* =============================================
+       RULE WORK
+    ============================================= */
+
+    if(
+        sectionId ===
+        "rule_work"
+    ){
+
+        return {
+
+            activePeriod :
+                period,
+
+            newPeriodMode :
+                newPeriodMode,
+
+            work :
+                false
+
+        };
+
+    }
+
+
+    /* =============================================
+       RULE TAMBAH
+    ============================================= */
+
+    if(
+        sectionId ===
+        "rule_tambah"
+    ){
+
+        return {
+
+            activePeriod :
+                period,
+
+            newPeriodMode :
+                newPeriodMode,
+
+            tambah :
+                false
+
+        };
+
+    }
+
+
+    /* =============================================
+       RULE POTONG
+    ============================================= */
+
+    if(
+        sectionId ===
+        "rule_potong"
+    ){
+
+        return {
+
+            activePeriod :
+                period,
+
+            newPeriodMode :
+                newPeriodMode,
+
+            potong :
+                false
+
+        };
+
+    }
+
+
+    return {
+
+        activePeriod :
+            period,
+
+        newPeriodMode :
+            newPeriodMode
+
+    };
+
+}
+
+
+/* =====================================================
    DAILY SETTING
 ===================================================== */
 
@@ -1100,282 +2389,213 @@ export const DailySetting = {
 
 
     /* =================================================
-       SECTIONS
+       RULE GAJI
     ================================================= */
 
     sections : [
 
-
-        /* =================================================
-           RULE GAJI
-        ================================================= */
-
         {
 
             id :
-
                 "rule_gaji",
 
 
             title :
-
                 "📅 Periode Gaji",
 
 
             description :
-
                 "Tentukan periode perhitungan dan masa aktif payroll daily.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
-
                 "＋ Tambah Periode",
 
 
             formAddLabel :
-
                 "＋ Tambahkan",
 
 
             deleteLabel :
-
                 "Hapus",
 
 
-            /* =============================================
-               DUPLICATE
-            ============================================= */
-
-            uniqueFields : [
-
-                "nilai_start",
-
-                "nilai_end",
-
-                "periode_start",
-
-                "periode_end"
-
-            ],
-
-
-            /* =============================================
-               AUTO CLOSE
-            ============================================= */
-
             autoCloseForm :
-
                 true,
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            /*
+               Daily menggunakan state sendiri
+               karena payload periodenya tetap
+               rule_gaji + periode_start/end.
+            */
+
+            getRuleState :
+
+                async function({
+
+                    sectionElement
+
+                }){
+
+                    return getDailyRuleState(
+
+                        "rule_gaji",
+
+                        sectionElement
+
+                    );
+
+                },
+
 
             fields : [
-
-
-                /* =========================================
-                   TANGGAL MULAI PERIODE
-                ========================================= */
 
                 {
 
                     name :
-
                         "nilai_start_day",
 
 
                     label :
-
                         "Tanggal Mulai Periode",
 
 
                     type :
-
                         "number",
 
 
                     placeholder :
-
                         "Contoh: 28",
 
 
                     required :
-
                         true,
 
 
                     min :
-
                         1,
 
 
                     max :
-
                         31,
 
 
                     step :
-
                         1,
 
 
                     note :
-
                         "Isi angka tanggal dimulainya periode gaji. Contoh: 28."
 
                 },
 
 
-                /* =========================================
-                   TANGGAL AKHIR PERIODE
-                ========================================= */
-
                 {
 
                     name :
-
                         "nilai_end_day",
 
 
                     label :
-
                         "Tanggal Akhir Periode",
 
 
                     type :
-
                         "number",
 
 
                     placeholder :
-
                         "Contoh: 27",
 
 
                     required :
-
                         true,
 
 
                     min :
-
                         1,
 
 
                     max :
-
                         31,
 
 
                     step :
-
                         1,
 
 
                     note :
-
                         "Isi angka tanggal berakhirnya periode gaji. Contoh: 27."
 
                 },
 
 
-                /* =========================================
-                   BULAN + TAHUN AWAL
-                ========================================= */
-
                 {
 
                     name :
-
                         "periode_start_month",
 
 
                     label :
-
                         "Periode Aktif Dimulai",
 
 
                     type :
-
                         "select",
 
 
                     placeholder :
-
                         "Pilih bulan dan tahun",
 
 
                     required :
-
                         true,
 
 
                     note :
-
                         "Pilih bulan dan tahun awal berlakunya payroll daily.",
 
 
                     options :
-
                         MONTH_YEAR_OPTIONS
 
                 },
 
 
-                /* =========================================
-                   BULAN + TAHUN AKHIR
-                ========================================= */
-
                 {
 
                     name :
-
                         "periode_end_month",
 
 
                     label :
-
                         "Periode Aktif Diakhiri",
 
 
                     type :
-
                         "select",
 
 
                     placeholder :
-
                         "Pilih bulan dan tahun",
 
 
                     required :
-
                         true,
 
 
                     note :
-
                         "Pilih bulan dan tahun akhir berlakunya payroll daily.",
 
 
                     options :
-
                         MONTH_YEAR_OPTIONS
 
                 }
 
             ],
 
-
-            /* =============================================
-               NORMALIZE
-            ============================================= */
 
             normalize :
 
@@ -1386,37 +2606,23 @@ export const DailySetting = {
                 ){
 
                     const startDay =
-
                         getDayNumber(
-
                             data.nilai_start_day
-
                         );
 
 
                     const endDay =
-
                         getDayNumber(
-
                             data.nilai_end_day
-
                         );
 
 
-                    /* =====================================
-                       VALIDATE DAY
-                    ===================================== */
-
                     if(
-
                         startDay === null
-
                     ){
 
                         alert(
-
                             "Tanggal mulai periode harus berupa angka 1 sampai 31."
-
                         );
 
 
@@ -1426,15 +2632,11 @@ export const DailySetting = {
 
 
                     if(
-
                         endDay === null
-
                     ){
 
                         alert(
-
                             "Tanggal akhir periode harus berupa angka 1 sampai 31."
-
                         );
 
 
@@ -1442,30 +2644,19 @@ export const DailySetting = {
 
                     }
 
-
-                    /* =====================================
-                       PARSE ACTIVE START
-                    ===================================== */
 
                     const startPeriod =
-
                         parseMonthYear(
-
                             data.periode_start_month
-
                         );
 
 
                     if(
-
                         !startPeriod
-
                     ){
 
                         alert(
-
                             "Bulan dan tahun awal periode wajib dipilih."
-
                         );
 
 
@@ -1473,30 +2664,19 @@ export const DailySetting = {
 
                     }
 
-
-                    /* =====================================
-                       PARSE ACTIVE END
-                    ===================================== */
 
                     const endPeriod =
-
                         parseMonthYear(
-
                             data.periode_end_month
-
                         );
 
 
                     if(
-
                         !endPeriod
-
                     ){
 
                         alert(
-
                             "Bulan dan tahun akhir periode wajib dipilih."
-
                         );
 
 
@@ -1505,12 +2685,11 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
-                       PERIOD START
-                    ===================================== */
+                    /* =================================
+                       NILAI START
+                    ================================= */
 
                     const nilaiStart =
-
                         createISODate(
 
                             startPeriod.year,
@@ -1523,15 +2702,11 @@ export const DailySetting = {
 
 
                     if(
-
                         !nilaiStart
-
                     ){
 
                         alert(
-
                             "Tanggal mulai periode tidak valid untuk bulan dan tahun yang dipilih."
-
                         );
 
 
@@ -1540,22 +2715,11 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
-                       PERIOD END
-
-                       Bulan akhir periode perhitungan
-                       otomatis satu bulan setelah
-                       bulan mulai.
-
-                       Contoh :
-
-                       28 Januari 2026
-                       →
-                       27 Februari 2026
-                    ===================================== */
+                    /* =================================
+                       NILAI END
+                    ================================= */
 
                     const nextPeriod =
-
                         getNextMonth(
 
                             startPeriod.year,
@@ -1566,7 +2730,6 @@ export const DailySetting = {
 
 
                     const nilaiEnd =
-
                         createISODate(
 
                             nextPeriod.year,
@@ -1579,15 +2742,11 @@ export const DailySetting = {
 
 
                     if(
-
                         !nilaiEnd
-
                     ){
 
                         alert(
-
                             "Tanggal akhir periode tidak valid untuk bulan berikutnya."
-
                         );
 
 
@@ -1596,12 +2755,11 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
-                       ACTIVE PERIOD START
-                    ===================================== */
+                    /* =================================
+                       MASA AKTIF START
+                    ================================= */
 
                     const periodeStart =
-
                         createISODate(
 
                             startPeriod.year,
@@ -1614,15 +2772,11 @@ export const DailySetting = {
 
 
                     if(
-
                         !periodeStart
-
                     ){
 
                         alert(
-
                             "Tanggal awal masa aktif tidak valid."
-
                         );
 
 
@@ -1631,12 +2785,11 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
-                       ACTIVE PERIOD END
-                    ===================================== */
+                    /* =================================
+                       MASA AKTIF END
+                    ================================= */
 
                     const periodeEnd =
-
                         createISODate(
 
                             endPeriod.year,
@@ -1649,15 +2802,11 @@ export const DailySetting = {
 
 
                     if(
-
                         !periodeEnd
-
                     ){
 
                         alert(
-
                             "Tanggal akhir masa aktif tidak valid."
-
                         );
 
 
@@ -1666,32 +2815,26 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
+                    /* =================================
                        VALIDATE ACTIVE RANGE
-                    ===================================== */
+                    ================================= */
 
                     if(
 
                         new Date(
-
                             periodeStart
-
                         )
 
                         >
 
                         new Date(
-
                             periodeEnd
-
                         )
 
                     ){
 
                         alert(
-
                             "Periode aktif berakhir sebelum periode aktif dimulai."
-
                         );
 
 
@@ -1700,105 +2843,72 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
-                       CREATE YEARS
-
-                       Years otomatis mengikuti
-                       tahun awal masa aktif.
-                    ===================================== */
-
                     const years =
-
                         createYears(
-
                             startPeriod
-
                         );
 
 
-                    /* =====================================
-                       NORMALIZED RULE
-                    ===================================== */
+                    /* =================================
+                       DAILY RULE GAJI PAYLOAD
+
+                       TETAP SAMA DENGAN VERSI LAMA
+                    ================================= */
 
                     const normalizedRule = {
 
                         type_rule :
-
                             "rule_gaji",
 
 
                         nama :
-
                             "gaji",
 
 
                         grade_1 :
-
                             "",
 
 
                         grade_2 :
-
                             "",
 
 
                         kondisi :
-
                             "periode",
 
 
                         nominal :
-
                             "",
 
 
                         waktu :
-
                             "bulanan",
 
 
                         nilai_start :
-
                             nilaiStart,
 
 
                         nilai_end :
-
                             nilaiEnd,
 
 
                         periode_start :
-
                             periodeStart,
 
 
                         periode_end :
-
                             periodeEnd,
 
 
                         years :
-
                             years
 
                     };
 
 
-                    /* =====================================
-                       SET ACTIVE PERIOD CONTEXT
-
-                       Rule berikutnya otomatis
-                       menggunakan :
-
-                       periode_start
-                       periode_end
-                       years
-                    ===================================== */
-
                     setDailyPeriodContext(
-
                         normalizedRule
-
                     );
 
 
@@ -1816,227 +2926,169 @@ export const DailySetting = {
         {
 
             id :
-
                 "rule_work",
 
 
             title :
-
                 "🔧 Rule Work",
 
 
             description :
-
                 "Tentukan nominal penghasilan berdasarkan nama pekerjaan dan variasinya.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
-
                 "＋ Tambah Rule Work",
 
 
             formAddLabel :
-
                 "＋ Tambahkan",
 
 
             deleteLabel :
-
                 "Hapus",
 
 
-            /* =============================================
-               DUPLICATE
-            ============================================= */
-
-            uniqueFields : [
-
-                "nama",
-
-                "grade_1",
-
-                "grade_2"
-
-            ],
-
-
-            /* =============================================
-               AUTO CLOSE
-            ============================================= */
-
             autoCloseForm :
-
                 true,
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            getRuleState :
+
+                async function({
+
+                    sectionElement
+
+                }){
+
+                    return getDailyRuleState(
+
+                        "rule_work",
+
+                        sectionElement
+
+                    );
+
+                },
+
 
             fields : [
-
-
-                /* =========================================
-                   NAMA
-                ========================================= */
 
                 {
 
                     name :
-
                         "nama",
 
 
                     label :
-
                         "Nama Pekerjaan",
 
 
                     type :
-
                         "text",
 
 
                     placeholder :
-
                         "Contoh: Baju",
 
 
                     required :
-
                         true,
 
 
                     note :
-
                         "Nama pekerjaan wajib diisi. Contoh: rear, front, headrest."
 
                 },
 
 
-                /* =========================================
-                   GRADE 1
-                ========================================= */
-
                 {
 
                     name :
-
                         "grade_1",
 
 
                     label :
-
                         "Grade 1",
 
 
                     type :
-
                         "text",
 
 
                     placeholder :
-
                         "Contoh: atasan",
 
 
                     required :
-
                         false,
 
 
                     note :
-
                         "Opsional. Isi jika pekerjaan memiliki variasi pertama."
 
                 },
 
 
-                /* =========================================
-                   GRADE 2
-                ========================================= */
-
                 {
 
                     name :
-
                         "grade_2",
 
 
                     label :
-
                         "Grade 2",
 
 
                     type :
-
                         "text",
 
 
                     placeholder :
-
                         "Contoh: XL",
 
 
                     required :
-
                         false,
 
 
                     note :
-
                         "Opsional. Isi jika masih terdapat variasi pekerjaan berikutnya."
 
                 },
 
 
-                /* =========================================
-                   NOMINAL
-                ========================================= */
-
                 {
 
                     name :
-
                         "nominal",
 
 
                     label :
-
                         "Nominal per PCS",
 
 
                     type :
-
                         "number",
 
 
                     placeholder :
-
                         "Contoh: 405",
 
 
                     required :
-
                         true,
 
 
                     min :
-
                         0,
 
 
                     step :
-
                         1,
 
 
                     note :
-
                         "Masukkan nominal yang dibayarkan untuk setiap PCS."
 
                 }
@@ -2044,13 +3096,9 @@ export const DailySetting = {
             ],
 
 
-            /* =============================================
-               NORMALIZE
-            ============================================= */
-
             normalize :
 
-                function(
+                async function(
 
                     data
 
@@ -2058,7 +3106,7 @@ export const DailySetting = {
 
                     const periodContext =
 
-                        requireDailyActivePeriod(
+                        await requireDailyActivePeriod(
 
                             "Rule Work"
 
@@ -2066,9 +3114,7 @@ export const DailySetting = {
 
 
                     if(
-
                         !periodContext
-
                     ){
 
                         return null;
@@ -2076,68 +3122,75 @@ export const DailySetting = {
                     }
 
 
-                    return {
+                    const rule = {
 
                         type_rule :
-
                             "rule_work",
 
 
                         nama :
-
                             data.nama,
 
 
                         grade_1 :
-
                             data.grade_1 ?? "",
 
 
                         grade_2 :
-
                             data.grade_2 ?? "",
 
 
                         kondisi :
-
                             "pcs",
 
 
                         nominal :
-
                             data.nominal ?? "",
 
 
                         waktu :
-
                             "harian",
 
 
                         nilai_start :
-
                             "",
 
 
                         nilai_end :
-
                             "",
 
 
                         periode_start :
-
                             periodContext.periode_start,
 
 
                         periode_end :
-
                             periodContext.periode_end,
 
 
                         years :
-
                             periodContext.years ?? ""
 
                     };
+
+
+                    if(
+                        await checkDailyDuplicate(
+                            rule
+                        )
+                    ){
+
+                        alert(
+                            "Rule Work yang sama sudah dibuat pada periode gaji aktif."
+                        );
+
+
+                        return null;
+
+                    }
+
+
+                    return rule;
 
                 }
 
@@ -2151,116 +3204,89 @@ export const DailySetting = {
         {
 
             id :
-
                 "rule_tambah",
 
 
             title :
-
                 "➕ Rule Tambah",
 
 
             description :
-
                 "Atur tambahan penghasilan yang diberikan pada hari tertentu.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
-
                 "＋ Tambah Rule Tambah",
 
 
             formAddLabel :
-
                 "＋ Tambahkan",
 
 
             deleteLabel :
-
                 "Hapus",
 
 
-            /* =============================================
-               DUPLICATE
-            ============================================= */
-
-            uniqueFields : [
-
-                "nama",
-
-                "waktu"
-
-            ],
-
-
-            /* =============================================
-               AUTO CLOSE
-            ============================================= */
-
             autoCloseForm :
-
                 true,
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            getRuleState :
+
+                async function({
+
+                    sectionElement
+
+                }){
+
+                    return getDailyRuleState(
+
+                        "rule_tambah",
+
+                        sectionElement
+
+                    );
+
+                },
+
 
             fields : [
-
-
-                /* =========================================
-                   NAMA
-                ========================================= */
 
                 {
 
                     name :
-
                         "nama",
 
 
                     label :
-
                         "Nama Tambahan",
 
 
                     type :
-
                         "select",
 
 
                     placeholder :
-
                         "Pilih tambahan",
 
 
                     required :
-
                         true,
 
 
                     options : [
 
-
                         {
 
                             value :
-
                                 "uang_makan",
 
 
                             label :
-
                                 "Uang Makan",
 
 
                             note :
-
                                 "Tambahan uang makan berdasarkan hari yang dipilih."
 
                         },
@@ -2269,17 +3295,14 @@ export const DailySetting = {
                         {
 
                             value :
-
                                 "uang_transport",
 
 
                             label :
-
                                 "Uang Transport",
 
 
                             note :
-
                                 "Tambahan uang transport berdasarkan hari yang dipilih."
 
                         }
@@ -2289,280 +3312,205 @@ export const DailySetting = {
                 },
 
 
-                /* =========================================
-                   HARI SABTU
-                ========================================= */
-
                 {
 
                     name :
-
                         "hari_sabtu",
 
 
                     label :
-
                         "Sabtu",
 
 
                     type :
-
                         "checkbox",
 
 
                     required :
-
                         false,
 
 
                     resultValue :
-
                         "sabtu"
 
                 },
 
 
-                /* =========================================
-                   HARI MINGGU
-                ========================================= */
-
                 {
 
                     name :
-
                         "hari_minggu",
 
 
                     label :
-
                         "Minggu",
 
 
                     type :
-
                         "checkbox",
 
 
                     required :
-
                         false,
 
 
                     resultValue :
-
                         "minggu"
 
                 },
 
 
-                /* =========================================
-                   HARI SENIN
-                ========================================= */
-
                 {
 
                     name :
-
                         "hari_senin",
 
 
                     label :
-
                         "Senin",
 
 
                     type :
-
                         "checkbox",
 
 
                     required :
-
                         false,
 
 
                     resultValue :
-
                         "senin"
 
                 },
 
 
-                /* =========================================
-                   HARI SELASA
-                ========================================= */
-
                 {
 
                     name :
-
                         "hari_selasa",
 
 
                     label :
-
                         "Selasa",
 
 
                     type :
-
                         "checkbox",
 
 
                     required :
-
                         false,
 
 
                     resultValue :
-
                         "selasa"
 
                 },
 
 
-                /* =========================================
-                   HARI RABU
-                ========================================= */
-
                 {
 
                     name :
-
                         "hari_rabu",
 
 
                     label :
-
                         "Rabu",
 
 
                     type :
-
                         "checkbox",
 
 
                     required :
-
                         false,
 
 
                     resultValue :
-
                         "rabu"
 
                 },
 
 
-                /* =========================================
-                   HARI KAMIS
-                ========================================= */
-
                 {
 
                     name :
-
                         "hari_kamis",
 
 
                     label :
-
                         "Kamis",
 
 
                     type :
-
                         "checkbox",
 
 
                     required :
-
                         false,
 
 
                     resultValue :
-
                         "kamis"
 
                 },
 
 
-                /* =========================================
-                   HARI JUMAT
-                ========================================= */
-
                 {
 
                     name :
-
                         "hari_jumat",
 
 
                     label :
-
                         "Jumat",
 
 
                     type :
-
                         "checkbox",
 
 
                     required :
-
                         false,
 
 
                     resultValue :
-
                         "jumat"
 
                 },
 
 
-                /* =========================================
-                   NOMINAL
-                ========================================= */
-
                 {
 
                     name :
-
                         "nominal",
 
 
                     label :
-
                         "Nominal Tambahan",
 
 
                     type :
-
                         "number",
 
 
                     placeholder :
-
                         "Contoh: 10000",
 
 
                     required :
-
                         true,
 
 
                     min :
-
                         0,
 
 
                     step :
-
                         1,
 
 
                     note :
-
                         "Masukkan nominal tambahan yang diberikan pada hari yang dipilih."
 
                 }
@@ -2570,13 +3518,9 @@ export const DailySetting = {
             ],
 
 
-            /* =============================================
-               NORMALIZE
-            ============================================= */
-
             normalize :
 
-                function(
+                async function(
 
                     data
 
@@ -2585,129 +3529,89 @@ export const DailySetting = {
                     const days = [];
 
 
-                    /* =====================================
-                       DAY ORDER
-                    ===================================== */
-
                     if(
-
                         data.hari_senin
-
                     ){
 
                         days.push(
-
                             "senin"
-
                         );
 
                     }
 
 
                     if(
-
                         data.hari_selasa
-
                     ){
 
                         days.push(
-
                             "selasa"
-
                         );
 
                     }
 
 
                     if(
-
                         data.hari_rabu
-
                     ){
 
                         days.push(
-
                             "rabu"
-
                         );
 
                     }
 
 
                     if(
-
                         data.hari_kamis
-
                     ){
 
                         days.push(
-
                             "kamis"
-
                         );
 
                     }
 
 
                     if(
-
                         data.hari_jumat
-
                     ){
 
                         days.push(
-
                             "jumat"
-
                         );
 
                     }
 
 
                     if(
-
                         data.hari_sabtu
-
                     ){
 
                         days.push(
-
                             "sabtu"
-
                         );
 
                     }
 
 
                     if(
-
                         data.hari_minggu
-
                     ){
 
                         days.push(
-
                             "minggu"
-
                         );
 
                     }
 
 
-                    /* =====================================
-                       VALIDATE DAY
-                    ===================================== */
-
                     if(
-
                         days.length === 0
-
                     ){
 
                         alert(
-
                             "Pilih minimal satu hari untuk rule tambah."
-
                         );
 
 
@@ -2716,13 +3620,9 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
-                       ACTIVE PERIOD
-                    ===================================== */
-
                     const periodContext =
 
-                        requireDailyActivePeriod(
+                        await requireDailyActivePeriod(
 
                             "Rule Tambah"
 
@@ -2730,9 +3630,7 @@ export const DailySetting = {
 
 
                     if(
-
                         !periodContext
-
                     ){
 
                         return null;
@@ -2740,76 +3638,75 @@ export const DailySetting = {
                     }
 
 
-                    /* =====================================
-                       RETURN
-                    ===================================== */
-
-                    return {
+                    const rule = {
 
                         type_rule :
-
                             "rule_tambah",
 
 
                         nama :
-
                             data.nama,
 
 
                         grade_1 :
-
                             "",
 
 
                         grade_2 :
-
                             "",
 
 
                         kondisi :
-
                             "masuk",
 
 
                         nominal :
-
                             data.nominal ?? "",
 
 
                         waktu :
-
-                            days.join(
-
-                                ","
-
-                            ),
+                            days.join(","),
 
 
                         nilai_start :
-
                             "",
 
 
                         nilai_end :
-
                             "",
 
 
                         periode_start :
-
                             periodContext.periode_start,
 
 
                         periode_end :
-
                             periodContext.periode_end,
 
 
                         years :
-
                             periodContext.years ?? ""
 
                     };
+
+
+                    if(
+                        await checkDailyDuplicate(
+                            rule
+                        )
+                    ){
+
+                        alert(
+                            "Rule Tambah yang sama sudah dibuat pada periode gaji aktif."
+                        );
+
+
+                        return null;
+
+                    }
+
+
+                    return rule;
 
                 }
 
@@ -2823,114 +3720,89 @@ export const DailySetting = {
         {
 
             id :
-
                 "rule_potong",
 
 
             title :
-
                 "➖ Rule Potong",
 
 
             description :
-
                 "Atur potongan standar yang mengikuti periode gaji.",
 
 
-            /* =============================================
-               BUTTON
-            ============================================= */
-
             addLabel :
-
                 "＋ Tambah Rule Potong",
 
 
             formAddLabel :
-
                 "＋ Tambahkan",
 
 
             deleteLabel :
-
                 "Hapus",
 
 
-            /* =============================================
-               DUPLICATE
-            ============================================= */
-
-            uniqueFields : [
-
-                "nama"
-
-            ],
-
-
-            /* =============================================
-               AUTO CLOSE
-            ============================================= */
-
             autoCloseForm :
-
                 true,
 
 
-            /* =============================================
-               FIELDS
-            ============================================= */
+            getRuleState :
+
+                async function({
+
+                    sectionElement
+
+                }){
+
+                    return getDailyRuleState(
+
+                        "rule_potong",
+
+                        sectionElement
+
+                    );
+
+                },
+
 
             fields : [
-
-
-                /* =========================================
-                   NAMA
-                ========================================= */
 
                 {
 
                     name :
-
                         "nama",
 
 
                     label :
-
                         "Nama Rule Potong",
 
 
                     type :
-
                         "select",
 
 
                     placeholder :
-
                         "Pilih rule potong",
 
 
                     required :
-
                         true,
 
 
                     options : [
 
-
                         {
 
                             value :
-
                                 "bpjs",
 
 
                             label :
-
                                 "BPJS",
 
 
                             note :
-
                                 "Potongan BPJS tetap untuk setiap periode gaji."
 
                         },
@@ -2939,17 +3811,14 @@ export const DailySetting = {
                         {
 
                             value :
-
                                 "jamsostek",
 
 
                             label :
-
                                 "Jamsostek",
 
 
                             note :
-
                                 "Potongan Jamsostek untuk setiap periode gaji."
 
                         },
@@ -2958,17 +3827,14 @@ export const DailySetting = {
                         {
 
                             value :
-
                                 "tabungan",
 
 
                             label :
-
                                 "Tabungan",
 
 
                             note :
-
                                 "Potongan tabungan untuk setiap periode gaji."
 
                         },
@@ -2977,17 +3843,14 @@ export const DailySetting = {
                         {
 
                             value :
-
                                 "koperasi",
 
 
                             label :
-
                                 "Koperasi",
 
 
                             note :
-
                                 "Potongan koperasi untuk setiap periode gaji."
 
                         },
@@ -2996,17 +3859,14 @@ export const DailySetting = {
                         {
 
                             value :
-
                                 "lain-lain",
 
 
                             label :
-
                                 "Lain-lain",
 
 
                             note :
-
                                 "Potongan lain yang mengikuti periode gaji."
 
                         }
@@ -3016,49 +3876,37 @@ export const DailySetting = {
                 },
 
 
-                /* =========================================
-                   NOMINAL
-                ========================================= */
-
                 {
 
                     name :
-
                         "nominal",
 
 
                     label :
-
                         "Nominal Potongan",
 
 
                     type :
-
                         "number",
 
 
                     placeholder :
-
                         "Contoh: 50000",
 
 
                     required :
-
                         true,
 
 
                     min :
-
                         0,
 
 
                     step :
-
                         1,
 
 
                     note :
-
                         "Masukkan nominal potongan sesuai rule yang dipilih."
 
                 }
@@ -3066,13 +3914,9 @@ export const DailySetting = {
             ],
 
 
-            /* =============================================
-               NORMALIZE
-            ============================================= */
-
             normalize :
 
-                function(
+                async function(
 
                     data
 
@@ -3080,7 +3924,7 @@ export const DailySetting = {
 
                     const periodContext =
 
-                        requireDailyActivePeriod(
+                        await requireDailyActivePeriod(
 
                             "Rule Potong"
 
@@ -3088,9 +3932,7 @@ export const DailySetting = {
 
 
                     if(
-
                         !periodContext
-
                     ){
 
                         return null;
@@ -3098,68 +3940,75 @@ export const DailySetting = {
                     }
 
 
-                    return {
+                    const rule = {
 
                         type_rule :
-
                             "rule_potong",
 
 
                         nama :
-
                             data.nama,
 
 
                         grade_1 :
-
                             "",
 
 
                         grade_2 :
-
                             "",
 
 
                         kondisi :
-
                             "periode_gaji",
 
 
                         nominal :
-
                             data.nominal ?? "",
 
 
                         waktu :
-
                             "bulanan",
 
 
                         nilai_start :
-
                             "",
 
 
                         nilai_end :
-
                             "",
 
 
                         periode_start :
-
                             periodContext.periode_start,
 
 
                         periode_end :
-
                             periodContext.periode_end,
 
 
                         years :
-
                             periodContext.years ?? ""
 
                     };
+
+
+                    if(
+                        await checkDailyDuplicate(
+                            rule
+                        )
+                    ){
+
+                        alert(
+                            "Rule Potong yang sama sudah dibuat pada periode gaji aktif."
+                        );
+
+
+                        return null;
+
+                    }
+
+
+                    return rule;
 
                 }
 
