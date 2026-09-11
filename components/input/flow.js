@@ -998,37 +998,65 @@ function handleConditionChange(
 
 
     /* =============================================
-       CONDITION KOSONG
-       
-       Tidak complete.
-       
-       User masih berada pada condition.
-    ============================================= */
+   CONDITION KOSONG
+=============================================
+
+   Default :
+
+       Kondisi kosong tetap tidak complete.
+
+   Jika field mengaktifkan :
+
+       allowEmpty : true
+
+   maka kondisi kosong dianggap selesai
+   dan flow lanjut ke field berikutnya.
+============================================= */
+
+if(
+
+    !Array.isArray(
+
+        value
+
+    )
+
+    ||
+
+    value.length ===
+
+        0
+
+){
 
     if(
 
-        !Array.isArray(
+        getSteps()[conditionIndex]?.allowEmpty ===
 
-            value
-
-        )
-
-        ||
-
-        value.length ===
-
-            0
+        true
 
     ){
 
         State.step =
 
-            conditionIndex;
+            conditionIndex + 1;
 
+
+        renderFlow();
 
         return;
 
     }
+
+
+    State.step =
+
+        conditionIndex;
+
+
+    return;
+
+}
 
 
     /* =============================================
