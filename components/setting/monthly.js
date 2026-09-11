@@ -3,7 +3,7 @@
    Component    : Global Setting
    Module       : Payroll Monthly
    File         : monthly.js
-   Version      : 4.6.0
+   Version      : 4.7.0
 
    Description :
    Payroll Monthly Setting Definition
@@ -156,11 +156,6 @@ YEAR_OPTIONS.forEach(
 
 /* =====================================================
    RULE POTONG OPTIONS
-   Master list.
-   
-   Jangan dimutasi.
-   UI akan mengambil list ini lalu
-   menghilangkan option yang sudah dibuat.
 ===================================================== */
 
 const POTONG_OPTIONS = [
@@ -266,7 +261,6 @@ const POTONG_OPTIONS = [
 
 /* =====================================================
    RULE TAMBAH OPTIONS
-   Master list.
 ===================================================== */
 
 const TAMBAH_OPTIONS = [
@@ -372,9 +366,6 @@ const TAMBAH_OPTIONS = [
 
 /* =====================================================
    ATTENDANCE FEATURE DEFINITIONS
-
-   Setiap checkbox memiliki identitas
-   automatic rule yang dibuat Payroll Engine.
 ===================================================== */
 
 const ATTENDANCE_FEATURES = [
@@ -385,6 +376,9 @@ const ATTENDANCE_FEATURES = [
 
         label :
             "Rule Lembur",
+
+        note :
+            "Buat Rule Lembur otomatis untuk Payroll Monthly.",
 
         rules : [
             {
@@ -404,6 +398,9 @@ const ATTENDANCE_FEATURES = [
         label :
             "Rule Izin",
 
+        note :
+            "Buat Rule Izin Pulang otomatis.",
+
         rules : [
             {
                 type_rule :
@@ -421,6 +418,9 @@ const ATTENDANCE_FEATURES = [
 
         label :
             "Rule Telat",
+
+        note :
+            "Aktifkan perhitungan telat dan izin telat.",
 
         rules : [
             {
@@ -447,6 +447,9 @@ const ATTENDANCE_FEATURES = [
 
         label :
             "Rule Shift",
+
+        note :
+            "Aktifkan Rule Shift pada attendance.",
 
         rules : [
             {
@@ -552,15 +555,6 @@ function createISODate(
             m - 1,
             d
         );
-
-    /*
-     * Prevent JavaScript date rollover.
-     *
-     * Contoh :
-     * 31 Februari
-     * tidak boleh berubah menjadi
-     * 3 Maret.
-     */
 
     if(
         date.getFullYear() !== y
@@ -745,6 +739,51 @@ function isLemburJamRule(
 
 /* =====================================================
    HELPER :
+   FORMAT NOMINAL
+===================================================== */
+
+function formatNominal(
+    value
+){
+
+    const normalized =
+        normalizeValue(
+            value
+        );
+
+    if(
+        normalized === ""
+    ){
+        return "-";
+    }
+
+    const number =
+        Number(
+            normalized
+        );
+
+    if(
+        !Number.isFinite(
+            number
+        )
+    ){
+        return normalized;
+    }
+
+    return (
+        "Rp " +
+        new Intl.NumberFormat(
+            "id-ID"
+        ).format(
+            number
+        )
+    );
+
+}
+
+
+/* =====================================================
+   HELPER :
    GET MONTHLY ATTENDANCE SETTINGS
 ===================================================== */
 
@@ -881,16 +920,6 @@ function isAutomaticMonthlyRule(
 /* =====================================================
    HELPER :
    CLEAN PAYLOAD FOR NEW PERIOD
-
-   Hanya digunakan ketika memang sedang
-   membuat periode baru.
-
-   Automatic attendance lama dibuang dari
-   payload sementara supaya Payroll Engine
-   dapat membuat automatic rule untuk periode
-   baru.
-
-   Pada save normal, helper ini TIDAK dipakai.
 ===================================================== */
 
 function getManualPayrollPayload(
@@ -918,11 +947,6 @@ function getManualPayrollPayload(
                 item?.data ??
                 item;
 
-            /*
-             * Setting checkbox bukan
-             * payroll rule yang disimpan.
-             */
-
             if(
                 rule
                 &&
@@ -931,12 +955,6 @@ function getManualPayrollPayload(
             ){
                 return false;
             }
-
-            /*
-             * Automatic attendance lama
-             * hanya dikeluarkan ketika
-             * periode baru dibuat.
-             */
 
             if(
                 isAutomaticMonthlyRule(
@@ -1029,19 +1047,6 @@ function isAttendanceFeatureCreated(
     ){
         return false;
     }
-
-    /*
-     * Semua rule yang membentuk satu feature
-     * harus sudah ada.
-
-     * Contoh Rule Telat:
-     *
-     * rule_telat / telat
-     * rule_telat / izin_telat
-     *
-     * Keduanya harus ada agar status menjadi
-     * "Rule Telat sudah dibuat".
-     */
 
     return feature.rules.every(
         requiredRule => {
@@ -1138,12 +1143,6 @@ function applyAvailableSelectOptions(
             :
         [];
 
-    /*
-     * Periode baru:
-     *
-     * semua option kembali tersedia.
-     */
-
     if(
         newPeriodMode
     ){
@@ -1158,14 +1157,12 @@ function applyAvailableSelectOptions(
         return;
     }
 
-
     const locked =
         lockedNames instanceof Set
             ?
         lockedNames
             :
         new Set();
-
 
     field.options =
         options.filter(
@@ -1192,15 +1189,137 @@ function applyAvailableSelectOptions(
 
 /* =====================================================
    HELPER :
-   APPLY RULE GAJI UI
+   REMOVE GAJI SHEET RESULT
+===================================================== */
 
-   DOM hanya digunakan sebagai target render.
-   State tetap berasal dari Payroll.
+function removeGajiSheetResult(
+    sectionElement
+){
+
+    if(
+        !sectionElement
+    ){
+        return;
+    }
+
+    sectionElement
+        .querySelectorAll(
+            ".payroll-gaji-sheet-result"
+        )
+        .forEach(
+            element => {
+
+                element.remove();
+
+            }
+        );
+
+}
+
+
+/* =====================================================
+   HELPER :
+   RENDER GAJI SHEET RESULT
+===================================================== */
+
+function renderGajiSheetResult(
+    sectionElement,
+    rule
+){
+
+    if(
+        !sectionElement
+    ){
+        return;
+    }
+
+    removeGajiSheetResult(
+        sectionElement
+    );
+
+    if(
+        !rule
+    ){
+        return;
+    }
+
+    const result =
+        sectionElement.querySelector(
+            ".global-setting-result"
+        );
+
+    if(
+        !result
+    ){
+        return;
+    }
+
+    const item =
+        document.createElement(
+            "div"
+        );
+
+    /*
+     * PENTING :
+     *
+     * Jangan memakai class
+     * global-setting-result-item
+     * dan jangan memberi dataset.value.
+     *
+     * Ini hanya visual information dari
+     * Rules Sheet, bukan result baru
+     * yang dibuat user pada form.
+     */
+
+    item.className =
+        "payroll-gaji-sheet-result";
+
+
+    const title =
+        document.createElement(
+            "strong"
+        );
+
+    title.textContent =
+        "✓ Gaji Pokok sudah dibuat";
+
+
+    const nominal =
+        document.createElement(
+            "small"
+        );
+
+    nominal.textContent =
+        "Nominal Gaji Pokok: " +
+        formatNominal(
+            rule.nominal
+        );
+
+
+    item.appendChild(
+        title
+    );
+
+    item.appendChild(
+        nominal
+    );
+
+    result.prepend(
+        item
+    );
+
+}
+
+
+/* =====================================================
+   HELPER :
+   APPLY RULE GAJI UI
 ===================================================== */
 
 function applyRuleGajiUI(
     sectionElement,
-    locked
+    locked,
+    rule
 ){
 
     if(
@@ -1214,97 +1333,193 @@ function applyRuleGajiUI(
             ".global-setting-form"
         );
 
-    if(
-        !form
-    ){
-        return;
-    }
+    const addButton =
+        sectionElement.querySelector(
+            ".global-setting-add"
+        );
 
     if(
         locked
     ){
 
-        form.querySelectorAll(
-            "input, select, textarea"
-        ).forEach(
-            element => {
+        /*
+         * Karena hanya ada satu opsi
+         * Gaji Pokok, tidak ada alasan
+         * untuk menampilkan tombol tambah
+         * lagi ketika rule sudah ada.
+         */
 
-                element.disabled =
-                    true;
+        if(
+            addButton
+        ){
 
-            }
-        );
+            addButton.style.display =
+                "none";
+
+        }
 
 
-        form.querySelectorAll(
-            "button"
-        ).forEach(
-            button => {
+        if(
+            form
+        ){
 
-                if(
-                    button.classList.contains(
-                        "global-setting-form-add"
-                    )
-                ){
-                    button.disabled =
-                        true;
-                }
+            form.classList.add(
+                "hidden"
+            );
 
-            }
+            form.innerHTML =
+                "";
+
+        }
+
+
+        /*
+         * Jangan mengubah result menjadi
+         * data persistent baru.
+         *
+         * Ini hanya tampilan informasi
+         * berdasarkan Rules Sheet.
+         */
+
+        renderGajiSheetResult(
+            sectionElement,
+            rule
         );
 
     }
     else{
 
-        form.querySelectorAll(
-            "input, select, textarea"
-        ).forEach(
-            element => {
+        if(
+            addButton
+        ){
 
-                element.disabled =
-                    false;
+            addButton.style.display =
+                "";
 
-            }
+        }
+
+
+        removeGajiSheetResult(
+            sectionElement
         );
 
 
-        form.querySelectorAll(
-            "button"
-        ).forEach(
-            button => {
+        if(
+            form
+        ){
 
-                if(
-                    button.classList.contains(
-                        "global-setting-form-add"
-                    )
-                ){
-                    button.disabled =
-                        false;
-                }
-
-            }
-        );
-
-
-        /*
-         * Jika periode baru dibuka,
-         * status "sudah dibuat" dari periode
-         * lama tidak boleh tertinggal.
-         */
-
-        sectionElement
-            .querySelectorAll(
-                ".payroll-rule-created-note"
-            )
-            .forEach(
+            form.querySelectorAll(
+                "input, select, textarea"
+            ).forEach(
                 element => {
 
-                    element.remove();
+                    element.disabled =
+                        false;
 
                 }
             );
 
+
+            form.querySelectorAll(
+                "button"
+            ).forEach(
+                button => {
+
+                    if(
+                        button.classList.contains(
+                            "global-setting-form-add"
+                        )
+                    ){
+
+                        button.disabled =
+                            false;
+
+                    }
+
+                }
+            );
+
+        }
+
     }
+
+}
+
+
+/* =====================================================
+   HELPER :
+   REFRESH RULE GAJI STATE
+===================================================== */
+
+async function refreshRuleGajiState(
+    sectionElement
+){
+
+    if(
+        !sectionElement
+    ){
+        return;
+    }
+
+    const state =
+        await Payroll.getRuleState(
+            {
+                mode :
+                    PAYROLL_MODE,
+
+                sectionId :
+                    "rule_gaji"
+            }
+        );
+
+    const locked =
+        state?.gaji ===
+        true;
+
+
+    let rule =
+        null;
+
+
+    if(
+        locked
+    ){
+
+        const rules =
+            await Payroll.getCurrentPeriodRules(
+                PAYROLL_MODE
+            );
+
+
+        rule =
+            rules.find(
+                item => {
+
+                    return (
+                        normalizeCompareValue(
+                            item?.type_rule
+                        ) ===
+                            "rule_gaji"
+                        &&
+                        normalizeCompareValue(
+                            item?.nama
+                        ) ===
+                            "gaji"
+                    );
+
+                }
+            )
+            ??
+            null;
+
+    }
+
+
+    applyRuleGajiUI(
+        sectionElement,
+        locked,
+        rule
+    );
 
 }
 
@@ -1316,7 +1531,6 @@ function applyRuleGajiUI(
 
 function applyAttendanceUI(
     sectionElement,
-    section,
     featureStates,
     newPeriodMode
 ){
@@ -1327,44 +1541,31 @@ function applyAttendanceUI(
         return;
     }
 
+
+    const form =
+        sectionElement.querySelector(
+            ".global-setting-form"
+        );
+
     if(
-        !section
-        ||
-        !Array.isArray(
-            section.fields
-        )
+        !form
     ){
         return;
     }
 
 
-    const fields =
-        section.fields;
+    let allCreated =
+        true;
 
 
     ATTENDANCE_FEATURES.forEach(
         feature => {
 
-            const field =
-                fields.find(
-                    item =>
-                        item
-                        &&
-                        item.name ===
-                            feature.field
-                );
-
-            if(
-                !field
-            ){
-                return;
-            }
-
-
             const wrapper =
-                sectionElement.querySelector(
+                form.querySelector(
                     `.global-setting-field[data-field="${feature.field}"]`
                 );
+
 
             if(
                 !wrapper
@@ -1392,8 +1593,9 @@ function applyAttendanceUI(
 
 
             /*
-             * Jika sedang membuat periode baru,
-             * seluruh checkbox dibuka kembali.
+             * -------------------------------------------------
+             * NEW PERIOD
+             * -------------------------------------------------
              */
 
             if(
@@ -1410,6 +1612,14 @@ function applyAttendanceUI(
                     input.style.display =
                         "";
 
+                    /*
+                     * Default config tetap
+                     * aktif untuk periode baru.
+                     */
+
+                    input.checked =
+                        true;
+
                 }
 
 
@@ -1418,8 +1628,11 @@ function applyAttendanceUI(
                 ){
 
                     label.textContent =
-                        field.label ??
-                        feature.field;
+                        feature.label;
+
+                    label.classList.remove(
+                        "payroll-attendance-created-label"
+                    );
 
                 }
 
@@ -1432,8 +1645,7 @@ function applyAttendanceUI(
                         "";
 
                     note.textContent =
-                        field.note ??
-                        "";
+                        feature.note;
 
                 }
 
@@ -1451,10 +1663,21 @@ function applyAttendanceUI(
                     );
 
 
+                wrapper.classList.remove(
+                    "is-used"
+                );
+
+
                 return;
 
             }
 
+
+            /*
+             * -------------------------------------------------
+             * ACTIVE PERIOD
+             * -------------------------------------------------
+             */
 
             const created =
                 featureStates[
@@ -1462,8 +1685,18 @@ function applyAttendanceUI(
                 ] === true;
 
 
+            if(
+                !created
+            ){
+
+                allCreated =
+                    false;
+
+            }
+
+
             /*
-             * Rule sudah dibuat.
+             * RULE SUDAH DIBUAT
              */
 
             if(
@@ -1473,6 +1706,11 @@ function applyAttendanceUI(
                 if(
                     input
                 ){
+
+                    /*
+                     * Checkbox benar-benar
+                     * dihilangkan dari UI.
+                     */
 
                     input.checked =
                         false;
@@ -1510,6 +1748,11 @@ function applyAttendanceUI(
                 }
 
 
+                wrapper.classList.add(
+                    "is-used"
+                );
+
+
                 let status =
                     wrapper.querySelector(
                         ".payroll-attendance-created-note"
@@ -1542,7 +1785,7 @@ function applyAttendanceUI(
 
 
             /*
-             * Rule belum dibuat.
+             * RULE BELUM DIBUAT
              */
 
             else{
@@ -1557,6 +1800,15 @@ function applyAttendanceUI(
                     input.style.display =
                         "";
 
+                    /*
+                     * Default tetap aktif,
+                     * sehingga user bisa memilih
+                     * fitur untuk dibuat.
+                     */
+
+                    input.checked =
+                        true;
+
                 }
 
 
@@ -1565,8 +1817,7 @@ function applyAttendanceUI(
                 ){
 
                     label.textContent =
-                        field.label ??
-                        feature.field;
+                        feature.label;
 
                     label.classList.remove(
                         "payroll-attendance-created-label"
@@ -1583,10 +1834,14 @@ function applyAttendanceUI(
                         "";
 
                     note.textContent =
-                        field.note ??
-                        "";
+                        feature.note;
 
                 }
+
+
+                wrapper.classList.remove(
+                    "is-used"
+                );
 
 
                 wrapper
@@ -1606,17 +1861,44 @@ function applyAttendanceUI(
         }
     );
 
+
+    /*
+     * Jika semua automatic attendance
+     * sudah ada, tombol Simpan Rule
+     * tidak diperlukan lagi.
+     *
+     * Saat periode baru, tombol dibuka
+     * kembali oleh blok di atas.
+     */
+
+    const action =
+        form.querySelector(
+            ".global-setting-form-add"
+        );
+
+    if(
+        action
+    ){
+
+        action.style.display =
+            allCreated
+                ?
+            "none"
+                :
+            "";
+
+    }
+
 }
 
 
 /* =====================================================
    HELPER :
-   APPLY ATTENDANCE STATE
+   REFRESH ATTENDANCE STATE
 ===================================================== */
 
 async function refreshAttendanceState(
-    sectionElement,
-    section
+    sectionElement
 ){
 
     if(
@@ -1627,10 +1909,11 @@ async function refreshAttendanceState(
 
 
     /*
-     * Pastikan Payroll sudah membaca Rules Sheet.
+     * Payroll membaca Rules Sheet terlebih
+     * dahulu sebelum UI menentukan status.
      */
 
-    const state =
+    const periodState =
         await Payroll.getRuleState(
             {
                 mode :
@@ -1643,16 +1926,9 @@ async function refreshAttendanceState(
 
 
     const newPeriodMode =
-        state?.newPeriodMode ===
+        periodState?.newPeriodMode ===
         true;
 
-
-    /*
-     * Periode baru:
-     *
-     * jangan menggunakan rule periode lama
-     * untuk mengunci attendance.
-     */
 
     if(
         newPeriodMode
@@ -1660,7 +1936,6 @@ async function refreshAttendanceState(
 
         applyAttendanceUI(
             sectionElement,
-            section,
             {},
             true
         );
@@ -1684,7 +1959,6 @@ async function refreshAttendanceState(
 
     applyAttendanceUI(
         sectionElement,
-        section,
         featureStates,
         false
     );
@@ -1750,10 +2024,6 @@ export const MonthlySetting = {
             autoCloseForm :
                 true,
 
-
-            /* =============================================
-               FIELDS
-            ============================================= */
 
             fields : [
 
@@ -1870,10 +2140,6 @@ export const MonthlySetting = {
 
             ],
 
-
-            /* =============================================
-               NORMALIZE
-            ============================================= */
 
             normalize :
                 function(
@@ -2059,10 +2325,6 @@ export const MonthlySetting = {
                 },
 
 
-            /* =============================================
-               RULE STATE
-            ============================================= */
-
             getRuleState :
                 async function(
                     {
@@ -2187,10 +2449,6 @@ export const MonthlySetting = {
             ],
 
 
-            /* =============================================
-               NORMALIZE
-            ============================================= */
-
             normalize :
                 function(
                     data
@@ -2233,10 +2491,6 @@ export const MonthlySetting = {
                 },
 
 
-            /* =============================================
-               RULE STATE
-            ============================================= */
-
             getRuleState :
                 async function(
                     {
@@ -2251,30 +2505,41 @@ export const MonthlySetting = {
                     );
 
 
-                    const state =
-                        await Payroll.getRuleState(
-                            {
-                                mode :
-                                    PAYROLL_MODE,
-
-                                sectionId :
-                                    "rule_gaji"
-                            }
-                        );
-
-
-                    const locked =
-                        state?.gaji ===
-                        true;
-
-
-                    applyRuleGajiUI(
-                        sectionElement,
-                        locked
+                    await refreshRuleGajiState(
+                        sectionElement
                     );
 
 
-                    return state;
+                    return Payroll.getRuleState(
+                        {
+                            mode :
+                                PAYROLL_MODE,
+
+                            sectionId :
+                                "rule_gaji"
+                        }
+                    );
+
+                },
+
+
+            /*
+             * Form Rule Gaji dibuat ulang oleh
+             * Global Setting ketika tombol dibuka.
+             *
+             * Refresh lagi setelah render supaya
+             * state Sheet tetap berlaku.
+             */
+
+            onRender :
+                async function(
+                    form,
+                    sectionElement
+                ){
+
+                    await refreshRuleGajiState(
+                        sectionElement
+                    );
 
                 }
 
@@ -2312,10 +2577,6 @@ export const MonthlySetting = {
 
             fields : [
 
-                /* -----------------------------------------
-                   NAMA
-                ----------------------------------------- */
-
                 {
 
                     name :
@@ -2346,10 +2607,6 @@ export const MonthlySetting = {
                 },
 
 
-                /* -----------------------------------------
-                   NOMINAL
-                ----------------------------------------- */
-
                 {
 
                     name :
@@ -2377,10 +2634,6 @@ export const MonthlySetting = {
                         "Masukkan nominal potongan."
                 },
 
-
-                /* -----------------------------------------
-                   NILAI START
-                ----------------------------------------- */
 
                 {
 
@@ -2423,10 +2676,6 @@ export const MonthlySetting = {
                         "Isi batas awal keterlambatan dalam menit."
                 },
 
-
-                /* -----------------------------------------
-                   NILAI END
-                ----------------------------------------- */
 
                 {
 
@@ -2471,10 +2720,6 @@ export const MonthlySetting = {
 
             ],
 
-
-            /* =============================================
-               NORMALIZE
-            ============================================= */
 
             normalize :
                 function(
@@ -2626,10 +2871,6 @@ export const MonthlySetting = {
                 },
 
 
-            /* =============================================
-               RULE STATE
-            ============================================= */
-
             getRuleState :
                 async function(
                     {
@@ -2665,14 +2906,6 @@ export const MonthlySetting = {
                                 :
                             null;
 
-
-                    /*
-                     * Payroll engine tetap menjadi
-                     * sumber lock.
-                     *
-                     * Config options hanya dirender
-                     * ulang berdasarkan state tersebut.
-                     */
 
                     let names =
                         locked;
@@ -2786,10 +3019,6 @@ export const MonthlySetting = {
 
             fields : [
 
-                /* -----------------------------------------
-                   NAMA
-                ----------------------------------------- */
-
                 {
 
                     name :
@@ -2819,10 +3048,6 @@ export const MonthlySetting = {
 
                 },
 
-
-                /* -----------------------------------------
-                   KONDISI UANG MAKAN
-                ----------------------------------------- */
 
                 {
 
@@ -2881,10 +3106,6 @@ export const MonthlySetting = {
                 },
 
 
-                /* -----------------------------------------
-                   NOMINAL
-                ----------------------------------------- */
-
                 {
 
                     name :
@@ -2912,10 +3133,6 @@ export const MonthlySetting = {
                         "Masukkan nominal rule tambah."
                 },
 
-
-                /* -----------------------------------------
-                   NILAI START
-                ----------------------------------------- */
 
                 {
 
@@ -2962,10 +3179,6 @@ export const MonthlySetting = {
                         "Isi batas awal jam lembur."
                 },
 
-
-                /* -----------------------------------------
-                   NILAI END
-                ----------------------------------------- */
 
                 {
 
@@ -3014,10 +3227,6 @@ export const MonthlySetting = {
 
             ],
 
-
-            /* =============================================
-               NORMALIZE
-            ============================================= */
 
             normalize :
                 function(
@@ -3173,10 +3382,6 @@ export const MonthlySetting = {
                 },
 
 
-            /* =============================================
-               RULE STATE
-            ============================================= */
-
             getRuleState :
                 async function(
                     {
@@ -3315,13 +3520,6 @@ export const MonthlySetting = {
             deleteLabel :
                 "Hapus",
 
-            /*
-             * Setting ini hanya digunakan sebagai
-             * konfigurasi automatic attendance.
-             *
-             * Tidak menjadi result payroll rule.
-             */
-
             persist :
                 false,
 
@@ -3409,28 +3607,15 @@ export const MonthlySetting = {
             ],
 
 
-            /* =============================================
-               RULE STATE
-            ============================================= */
-
             getRuleState :
                 async function(
                     {
-                        section,
                         sectionElement
                     } = {}
                 ){
 
-                    /*
-                     * Tidak menggunakan checkbox sebagai
-                     * sumber state.
-                     *
-                     * Payroll / Rules Sheet menjadi source.
-                     */
-
                     await refreshAttendanceState(
-                        sectionElement,
-                        section
+                        sectionElement
                     );
 
 
@@ -3447,9 +3632,28 @@ export const MonthlySetting = {
                 },
 
 
-            /* =============================================
-               NORMALIZE
-            ============================================= */
+            /*
+             * INI PENTING.
+             *
+             * Global Setting merender ulang form
+             * ketika tombol Rule Attendance dibuka.
+             *
+             * Karena itu state dari Sheet harus
+             * diterapkan lagi setelah render.
+             */
+
+            onRender :
+                async function(
+                    form,
+                    sectionElement
+                ){
+
+                    await refreshAttendanceState(
+                        sectionElement
+                    );
+
+                },
+
 
             normalize :
                 function(
@@ -3496,12 +3700,6 @@ export const MonthlySetting = {
             context = {}
         ){
 
-            /*
-             * context.data tetap digunakan untuk membaca
-             * setting attendance karena monthly_rules
-             * mempunyai persist:false.
-             */
-
             const sourceData =
                 Array.isArray(
                     context.data
@@ -3512,10 +3710,6 @@ export const MonthlySetting = {
                 payload;
 
 
-            /*
-             * Ambil konfigurasi attendance.
-             */
-
             const settings =
                 getMonthlyAttendanceSettings(
                     sourceData
@@ -3523,16 +3717,7 @@ export const MonthlySetting = {
 
 
             /*
-             * -------------------------------------------------
-             * PENTING :
-             *
-             * Jangan menentukan periode baru hanya karena
-             * payload mempunyai rule_periode.
-             *
-             * History bisa tetap mempunyai rule_periode.
-             *
-             * Source of truth adalah Payroll state.
-             * -------------------------------------------------
+             * Source of truth tetap Payroll Engine.
              */
 
             const periodState =
@@ -3551,22 +3736,9 @@ export const MonthlySetting = {
                 periodState?.newPeriodMode ===
                 true
                 ||
-                periodState?.hasPeriod ===
-                false
-                ||
                 periodState?.periodExists ===
                 false;
 
-
-            /*
-             * Payload persistent dari controller.
-             *
-             * monthly_rules sudah difilter oleh controller
-             * karena persist:false.
-             *
-             * Automatic attendance lama tetap dipertahankan
-             * pada save normal.
-             */
 
             const persistentPayload =
                 Array.isArray(
@@ -3578,23 +3750,9 @@ export const MonthlySetting = {
                 [];
 
 
-            /*
-             * -------------------------------------------------
-             * CASE 1
-             *
-             * Membuat periode baru.
-             *
-             * Automatic attendance lama tidak dibawa sebagai
-             * rule periode baru.
-             *
-             * Payroll.prepareSave() akan:
-             *
-             * 1. menetapkan periode baru
-             * 2. mewariskan active period
-             * 3. membuat automatic attendance baru
-             * 4. mempertahankan proses Payroll Engine
-             * -------------------------------------------------
-             */
+            /* =============================================
+               NEW PERIOD
+            ============================================= */
 
             if(
                 creatingNewPeriod
@@ -3628,20 +3786,9 @@ export const MonthlySetting = {
             }
 
 
-            /*
-             * -------------------------------------------------
-             * CASE 2
-             *
-             * Save normal pada periode aktif.
-             *
-             * Jangan menjalankan automatic generator.
-             *
-             * Jangan membuang automatic attendance yang
-             * sudah tersimpan.
-             *
-             * Semua rule persistent tetap dipertahankan.
-             * -------------------------------------------------
-             */
+            /* =============================================
+               NORMAL SAVE
+            ============================================= */
 
             const output =
                 [];
@@ -3664,11 +3811,6 @@ export const MonthlySetting = {
                 }
 
 
-                /*
-                 * Rule periode aktif yang sudah ada
-                 * tidak perlu dibuat ulang.
-                 */
-
                 if(
                     isPeriodRule(
                         item
@@ -3683,13 +3825,6 @@ export const MonthlySetting = {
                 }
 
 
-                /*
-                 * Setting monthly tidak seharusnya
-                 * masuk ke payload persistent.
-                 *
-                 * Tetapi tetap dijaga sebagai proteksi.
-                 */
-
                 if(
                     rule.type ===
                     "payroll_monthly"
@@ -3697,14 +3832,6 @@ export const MonthlySetting = {
                     continue;
                 }
 
-
-                /*
-                 * Semua rule lain diwariskan active period
-                 * melalui Payroll.prepareRule().
-                 *
-                 * Automatic rule yang sudah ada juga
-                 * dipertahankan.
-                 */
 
                 const prepared =
                     Payroll.prepareRule(
