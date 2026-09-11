@@ -2917,6 +2917,9 @@ function renderCondition(
                 const enabled =
 
                     masterToggle.checked;
+               State.values[
+    `${field.id}Enabled`
+] = enabled;
 
 
                 conditionList.classList.toggle(
