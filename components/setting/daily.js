@@ -1619,52 +1619,14 @@ async function applyDailyDependentSectionState(
     await DailyRules.ensureLoaded();
 
 
-    /*
-       Saat mode periode baru aktif,
-       semua option Tambah dan Potong
-       kembali tersedia.
-    */
-
-    if(
-
-        DailyRules.isNewPeriodMode()
-
-    ){
-
-        const select =
-
-            sectionElement.querySelector(
-
-                "select[name=nama]"
-
-            );
-
-
-        if(
-
-            select
-
-        ){
-
-            DailyRules.applySelectLockState(
-
-                select,
-
-                []
-
-            );
-
-        }
-
-
-        return;
-
-    }
-
-
     const state =
 
         DailyRules.getLockSummary();
+
+
+    const newPeriodMode =
+
+        DailyRules.isNewPeriodMode();
 
 
     /* =================================================
@@ -1696,6 +1658,14 @@ async function applyDailyDependentSectionState(
             DailyRules.applySelectLockState(
 
                 select,
+
+                newPeriodMode
+
+                    ?
+
+                []
+
+                    :
 
                 state.tambahLocked || []
 
@@ -1739,6 +1709,14 @@ async function applyDailyDependentSectionState(
 
                 select,
 
+                newPeriodMode
+
+                    ?
+
+                []
+
+                    :
+
                 state.potongLocked || []
 
             );
@@ -1750,8 +1728,8 @@ async function applyDailyDependentSectionState(
 
     }
 
-}
-
+}            
+        
 
 /* =====================================================
    REFRESH DAILY DEPENDENT SECTION
