@@ -4232,7 +4232,7 @@ input[type="checkbox"]:disabled {
 
 .global-input-condition-list
 .global-input-condition-item:has(
-    input[type="checkbox"]:disabled
+    input[type="checkbox"]:enabled
 ) {
 
     cursor: default;
