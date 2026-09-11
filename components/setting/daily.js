@@ -3500,46 +3500,76 @@ export const DailySetting = {
 
             getRuleState :
 
-                async function({
+    async function({
 
-                    sectionElement
+        section,
 
-                } = {}){
+        sectionElement
 
-                    await DailyRules.ensureLoaded();
+    } = {}){
 
-
-                    await applyDailyDependentSectionState(
-
-                        sectionElement,
-
-                        "rule_tambah"
-
-                    );
+        await DailyRules.ensureLoaded();
 
 
-                    const state =
+        const state =
 
-                        DailyRules.getRuleTambahState();
+            DailyRules.getRuleTambahState();
 
 
-                    return {
+        DailyRules.applyAvailableSelectOptions(
 
-                        locked :
+            section,
 
-                            state.names || [],
+            "nama",
 
-                        lockedNames :
+            [
+                {
+                    value :
+                        "uang_makan",
 
-                            state.names || [],
+                    label :
+                        "Uang Makan",
 
-                        newPeriodMode :
-
-                            DailyRules.isNewPeriodMode()
-
-                    };
-
+                    note :
+                        "Tambahan uang makan berdasarkan hari yang dipilih."
                 },
+
+                {
+                    value :
+                        "uang_transport",
+
+                    label :
+                        "Uang Transport",
+
+                    note :
+                        "Tambahan uang transport berdasarkan hari yang dipilih."
+                }
+            ],
+
+            state.names || new Set(),
+
+            DailyRules.isNewPeriodMode()
+
+        );
+
+
+        return {
+
+            locked :
+
+                state.names || [],
+
+            lockedNames :
+
+                state.names || [],
+
+            newPeriodMode :
+
+                DailyRules.isNewPeriodMode()
+
+        };
+
+    },
 
 
             /* =============================================
@@ -3902,46 +3932,110 @@ export const DailySetting = {
 
             getRuleState :
 
-                async function({
+    async function({
 
-                    sectionElement
+        section,
 
-                } = {}){
+        sectionElement
 
-                    await DailyRules.ensureLoaded();
+    } = {}){
 
-
-                    await applyDailyDependentSectionState(
-
-                        sectionElement,
-
-                        "rule_potong"
-
-                    );
+        await DailyRules.ensureLoaded();
 
 
-                    const state =
+        const state =
 
-                        DailyRules.getRulePotongState();
+            DailyRules.getRulePotongState();
 
 
-                    return {
+        DailyRules.applyAvailableSelectOptions(
 
-                        locked :
+            section,
 
-                            state.names || [],
+            "nama",
 
-                        lockedNames :
+            [
+                {
+                    value :
+                        "bpjs",
 
-                            state.names || [],
+                    label :
+                        "BPJS",
 
-                        newPeriodMode :
-
-                            DailyRules.isNewPeriodMode()
-
-                    };
-
+                    note :
+                        "Potongan BPJS tetap untuk setiap periode gaji."
                 },
+
+                {
+                    value :
+                        "jamsostek",
+
+                    label :
+                        "Jamsostek",
+
+                    note :
+                        "Potongan Jamsostek untuk setiap periode gaji."
+                },
+
+                {
+                    value :
+                        "tabungan",
+
+                    label :
+                        "Tabungan",
+
+                    note :
+                        "Potongan tabungan untuk setiap periode gaji."
+                },
+
+                {
+                    value :
+                        "koperasi",
+
+                    label :
+                        "Koperasi",
+
+                    note :
+                        "Potongan koperasi untuk setiap periode gaji."
+                },
+
+                {
+                    value :
+                        "lain-lain",
+
+                    label :
+                        "Lain-lain",
+
+                    note :
+                        "Potongan lain yang mengikuti periode gaji."
+                }
+            ],
+
+            state.names || new Set(),
+
+            DailyRules.isNewPeriodMode()
+
+        );
+
+
+        return {
+
+            locked :
+
+                state.names || [],
+
+            lockedNames :
+
+                state.names || [],
+
+            newPeriodMode :
+
+                DailyRules.isNewPeriodMode()
+
+        };
+
+    },
+
 
 
             /* =============================================
