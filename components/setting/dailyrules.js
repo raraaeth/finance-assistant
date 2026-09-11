@@ -3113,6 +3113,74 @@ function markPeriodSaved(
 
 }
 
+/* =====================================================
+   APPLY AVAILABLE SELLECT
+===================================================== */
+function applyAvailableSelectOptions(
+    section,
+    fieldName,
+    masterOptions,
+    lockedNames,
+    newPeriodMode
+){
+    if(
+        !section ||
+        !Array.isArray(section.fields)
+    ){
+        return;
+    }
+
+    const field =
+        section.fields.find(
+            item => item?.name === fieldName
+        );
+
+    if(!field){
+        return;
+    }
+
+    const options =
+        Array.isArray(masterOptions)
+            ? masterOptions
+            : [];
+
+    /*
+       Periode baru:
+       semua option kembali tersedia.
+    */
+    if(newPeriodMode){
+        field.options =
+            options.map(
+                option => ({...option})
+            );
+
+        return;
+    }
+
+    const locked =
+        lockedNames instanceof Set
+            ? lockedNames
+            : new Set(
+                Array.isArray(lockedNames)
+                    ? lockedNames
+                    : []
+            );
+
+    field.options =
+        options
+            .filter(option => {
+                const value =
+                    normalizeCompareValue(
+                        option?.value
+                    );
+
+                return !locked.has(value);
+            })
+            .map(
+                option => ({...option})
+            );
+       }
+
 
 /* =====================================================
    APPLY PERIOD UI
@@ -4013,6 +4081,8 @@ export const DailyRules = {
     lockFixedRuleSection,
 
     applyFieldOptionsLock,
+
+    applyAvailableSelectOptions,
 
     applySelectLockState
 
