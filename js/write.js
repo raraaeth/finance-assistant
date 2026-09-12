@@ -2,7 +2,7 @@
 Finance Assistant
 Module      : WRITE
 File        : write.js
-Version     : 1.2.2
+Version     : 1.2.3
 
 Description :
 Global Google Apps Script WRITE Engine
@@ -380,16 +380,27 @@ Karena request dikirim menggunakan
 URL parameter, JSONP digunakan agar
 tetap kompatibel dengan endpoint Apps Script.
 
-VERSI 1.2.2 :
+VERSI 1.2.3 :
 
 Tidak mengubah mekanisme JSONP.
 
-Diagnostic hanya digunakan untuk
-mengetahui titik kegagalan request.
+Diagnostic digunakan untuk mengetahui :
 
-Tidak pernah menampilkan URL lengkap
-karena URL mengandung accessToken
-dan data WRITE.
+- browser
+- online status
+- service worker control
+- script creation
+- script append
+- script load
+- script error
+- timeout
+- callback
+- performance resource entry
+
+Tidak ada request tambahan.
+
+URL lengkap tidak pernah ditampilkan
+karena mengandung accessToken dan data.
 */
 
 function jsonpRequest(
@@ -454,10 +465,6 @@ function jsonpRequest(
                 false;
 
 
-            /* =========================================
-               TIMEOUT VARIABLE
-            ========================================= */
-
             let timeout =
 
                 null;
@@ -505,6 +512,142 @@ function jsonpRequest(
                             callbackName
 
                     };
+
+                };
+
+
+            /* =========================================
+               PERFORMANCE DIAGNOSTIC
+            ========================================= */
+
+            const getPerformanceInfo =
+
+                () => {
+
+                    try{
+
+                        if(
+
+                            !window.performance
+
+                            ||
+
+                            typeof window.performance
+                            .getEntriesByName !==
+                            "function"
+
+                        ){
+
+                            return {
+
+                                available :
+
+                                    false
+
+                            };
+
+                        }
+
+
+                        const entries =
+
+                            window.performance
+                            .getEntriesByName(
+
+                                requestURL
+
+                            );
+
+
+                        if(
+
+                            !entries.length
+
+                        ){
+
+                            return {
+
+                                available :
+
+                                    true,
+
+                                found :
+
+                                    false
+
+                            };
+
+                        }
+
+
+                        const entry =
+
+                            entries[
+                                entries.length - 1
+                            ];
+
+
+                        return {
+
+                            available :
+
+                                true,
+
+                            found :
+
+                                true,
+
+                            duration :
+
+                                entry.duration,
+
+                            startTime :
+
+                                entry.startTime,
+
+                            transferSize :
+
+                                entry.transferSize,
+
+                            encodedBodySize :
+
+                                entry.encodedBodySize,
+
+                            decodedBodySize :
+
+                                entry.decodedBodySize,
+
+                            initiatorType :
+
+                                entry.initiatorType,
+
+                            name :
+
+                                entry.name
+
+                        };
+
+                    }
+
+                    catch(error){
+
+                        return {
+
+                            available :
+
+                                false,
+
+                            error :
+
+                                String(
+
+                                    error
+
+                                )
+
+                        };
+
+                    }
 
                 };
 
@@ -625,7 +768,11 @@ function jsonpRequest(
 
                             result :
 
-                                result
+                                result,
+
+                            performance :
+
+                                getPerformanceInfo()
 
                         }
 
@@ -678,7 +825,11 @@ function jsonpRequest(
                                     .serviceWorker
                                     ?.controller
 
-                                )
+                                ),
+
+                            performance :
+
+                                getPerformanceInfo()
 
                         }
 
@@ -716,6 +867,11 @@ function jsonpRequest(
                         getDiagnostic();
 
 
+                    const performance =
+
+                        getPerformanceInfo();
+
+
                     console.error(
 
                         "WRITE JSONP: SCRIPT ERROR",
@@ -727,6 +883,10 @@ function jsonpRequest(
                             readyState :
 
                                 script.readyState,
+
+                            performance :
+
+                                performance,
 
                             error :
 
@@ -779,6 +939,39 @@ function jsonpRequest(
                                 :
 
                             "NOT CONTROLLED",
+
+                            "",
+
+                            "Performance:",
+
+                            performance.found
+
+                                ?
+
+                            "REQUEST TERCATAT"
+
+                                :
+
+                            "REQUEST TIDAK TERCATAT",
+
+                            "",
+
+                            "Transfer:",
+
+                            performance.transferSize !==
+                            undefined
+
+                                ?
+
+                            String(
+
+                                performance.transferSize
+
+                            ) + " bytes"
+
+                                :
+
+                            "N/A",
 
                             "",
 
@@ -964,11 +1157,24 @@ function jsonpRequest(
                             getDiagnostic();
 
 
+                        const performance =
+
+                            getPerformanceInfo();
+
+
                         console.error(
 
                             "WRITE JSONP: TIMEOUT",
 
-                            diagnostic
+                            {
+
+                                ...diagnostic,
+
+                                performance :
+
+                                    performance
+
+                            }
 
                         );
 
@@ -1015,6 +1221,39 @@ function jsonpRequest(
                                     :
 
                                 "NOT CONTROLLED",
+
+                                "",
+
+                                "Performance:",
+
+                                performance.found
+
+                                    ?
+
+                                "REQUEST TERCATAT"
+
+                                    :
+
+                                "REQUEST TIDAK TERCATAT",
+
+                                "",
+
+                                "Transfer:",
+
+                                performance.transferSize !==
+                                undefined
+
+                                    ?
+
+                                String(
+
+                                    performance.transferSize
+
+                                ) + " bytes"
+
+                                    :
+
+                                "N/A",
 
                                 "",
 
@@ -1156,7 +1395,21 @@ function jsonpRequest(
 
                                 diagnostic.online
 
-                            )
+                            ),
+
+                            "",
+
+                            "Service Worker:",
+
+                            diagnostic.serviceWorkerControlled
+
+                                ?
+
+                            "CONTROLLED"
+
+                                :
+
+                            "NOT CONTROLLED"
 
                         ].join(
 
