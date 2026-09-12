@@ -3,7 +3,7 @@
  * Finance Assistant
  * Module      : Dashboard
  * File        : script.js
- * Version     : 2.0.0
+ * Version     : 2.1.0
  *
  * Description :
  * Dashboard Learning Center
@@ -29,6 +29,11 @@ import {
 const HERO_IMAGE =
 
     "../../assets/images/hero/hero-dashboard.png";
+
+
+const DOCUMENTATION_URL =
+
+    "https://financeassistant.web.id/docs/";
 
 
 /* ==========================================
@@ -89,11 +94,9 @@ function createHero(){
 
                     Workspace milikmu sudah siap digunakan.
 
-                    Pelajari setiap modul terlebih dahulu
+                    Pelajari cara kerja Finance Assistant
 
-                    agar lebih memahami cara menggunakan
-
-                    Finance Assistant.
+                    sebelum mulai menggunakannya.
 
                 </p>
 
@@ -108,59 +111,6 @@ function createHero(){
             >
 
         </section>
-
-    `;
-
-}
-
-
-function createModuleCard({
-
-    id,
-
-    icon,
-
-    title,
-
-    description
-
-}){
-
-    return `
-
-        <article
-
-            id="${id}"
-
-            class="module-card"
-
-        >
-
-            <div class="module-content">
-
-                <h2>
-
-                    ${icon}
-
-                    ${title}
-
-                </h2>
-
-                <p>
-
-                    ${description}
-
-                </p>
-
-            </div>
-
-            <span class="module-arrow">
-
-                →
-
-            </span>
-
-        </article>
 
     `;
 
@@ -187,72 +137,67 @@ function createSectionTitle(
 
 
 /* ==========================================
-   RENDER
+   DOCUMENTATION CARD
 ========================================== */
 
-function render(){
+function createDocumentationCard(){
 
-    dashboard.innerHTML = `
+    return `
 
-        ${createHero()}
+        <section class="guide-card">
 
-        ${createSectionTitle(
+            <div class="guide-content">
 
-            "📚 Panduan Memulai"
+                <h3>
 
-        )}
+                    📖 Baca Panduan Terlebih Dahulu
 
-        <section class="modules">
+                </h3>
 
-            ${createModuleCard({
+                <p>
 
-                id : "financial",
+                    Sebelum mulai menggunakan Finance Assistant,
 
-                icon : "💰",
+                    sebaiknya baca panduan terlebih dahulu.
 
-                title : "Financial",
+                    Beberapa fitur berkaitan dengan setting dan
 
-                description :
+                    konfigurasi workspace yang penting untuk
 
-                    "Pelajari cara mengelola pemasukan, pengeluaran, dan laporan keuangan."
+                    dipahami agar aplikasi dapat digunakan
 
-            })}
+                    dengan benar.
 
-            ${createModuleCard({
+                </p>
 
-                id : "saving",
+                <a
 
-                icon : "🏦",
+                    href="${DOCUMENTATION_URL}"
 
-                title : "Saving",
+                    class="guide-button"
 
-                description :
+                >
 
-                    "Pelajari cara mengatur tabungan dan mencapai target keuangan."
+                    📖 Buka Dokumentasi
 
-            })}
+                </a>
 
-            ${createModuleCard({
-
-                id : "payroll",
-
-                icon : "💼",
-
-                title : "Payroll",
-
-                description :
-
-                    "Pelajari sistem absensi, payroll, dan penggajian."
-
-            })}
+            </div>
 
         </section>
 
-        ${createSectionTitle(
+    `;
 
-            "📲 Install Finance Assistant"
+}
 
-        )}
+
+/* ==========================================
+   INSTALL CARD
+========================================== */
+
+function createInstallCard(){
+
+    return `
 
         <section class="install-card">
 
@@ -266,13 +211,21 @@ function render(){
 
             <p>
 
-                Install Finance Assistant ke perangkatmu agar dapat diakses lebih cepat dan memberikan pengalaman terbaik.
+                Install Finance Assistant ke perangkatmu
+
+                agar dapat diakses lebih cepat dan
+
+                memberikan pengalaman terbaik.
 
             </p>
 
             <button
+
                 id="install-pwa"
-                class="install-button">
+
+                class="install-button"
+
+                type="button">
 
                 📲 Install Finance Assistant
 
@@ -280,31 +233,106 @@ function render(){
 
         </section>
 
+    `;
+
+}
+
+
+/* ==========================================
+   START CARD
+========================================== */
+
+function createStartCard(){
+
+    return `
+
+        <article
+
+            id="app"
+
+            class="module-card"
+
+        >
+
+            <div class="module-content">
+
+                <h2>
+
+                    🚀
+
+                    Mulai Finance Assistant
+
+                </h2>
+
+                <p>
+
+                    Masuk ke aplikasi Finance Assistant
+
+                    dan mulai mengelola keuanganmu.
+
+                </p>
+
+            </div>
+
+            <span class="module-arrow">
+
+                →
+
+            </span>
+
+        </article>
+
+    `;
+
+}
+
+
+/* ==========================================
+   RENDER
+========================================== */
+
+function render(){
+
+    dashboard.innerHTML = `
+
+        ${createHero()}
+
+
+        ${createSectionTitle(
+
+            "📚 Panduan"
+
+        )}
+
+
+        ${createDocumentationCard()}
+
+
+        ${createSectionTitle(
+
+            "📲 Install Finance Assistant"
+
+        )}
+
+
+        ${createInstallCard()}
+
+
         ${createSectionTitle(
 
             "🚀 Mulai"
 
         )}
 
+
         <section class="modules">
 
-            ${createModuleCard({
-
-                id : "app",
-
-                icon : "🚀",
-
-                title : "Mulai Finance Assistant",
-
-                description :
-
-                    "Masuk ke aplikasi Finance Assistant dan mulai mengelola keuanganmu."
-
-            })}
+            ${createStartCard()}
 
         </section>
 
     `;
+
 
     bindModuleEvents();
 
@@ -312,38 +340,14 @@ function render(){
 
 
 /* ==========================================
-   NAVIGATION
+   DOCUMENTATION
 ========================================== */
 
-function openFinancial(){
+function openDocumentation(){
 
-    alert(
+    window.location.href =
 
-        "Panduan Financial akan segera hadir."
-
-    );
-
-}
-
-
-function openSaving(){
-
-    alert(
-
-        "Panduan Saving akan segera hadir."
-
-    );
-
-}
-
-
-function openPayroll(){
-
-    alert(
-
-        "Panduan Payroll akan segera hadir."
-
-    );
+        DOCUMENTATION_URL;
 
 }
 
@@ -398,63 +402,30 @@ function openApp(){
 
 function bindModuleEvents(){
 
-    document
+    const appCard =
 
-        .querySelectorAll(
+        document.getElementById(
 
-            ".module-card"
-
-        )
-
-        .forEach(
-
-            card=>{
-
-                card.addEventListener(
-
-                    "click",
-
-                    ()=>{
-
-                        switch(
-
-                            card.id
-
-                        ){
-
-                            case "financial":
-
-                                openFinancial();
-
-                                break;
-
-                            case "saving":
-
-                                openSaving();
-
-                                break;
-
-                            case "payroll":
-
-                                openPayroll();
-
-                                break;
-
-                            case "app":
-
-                                openApp();
-
-                                break;
-
-                        }
-
-                    }
-
-                );
-
-            }
+            "app"
 
         );
+
+
+    if(
+
+        appCard
+
+    ){
+
+        appCard.addEventListener(
+
+            "click",
+
+            openApp
+
+        );
+
+    }
 
 }
 
