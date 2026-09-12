@@ -38,7 +38,7 @@
 
 const CACHE_NAME =
 
-    "finance-assistant-v12";
+    "finance-assistant-v13";
 
 
 /*
@@ -154,6 +154,10 @@ const STATIC_ASSETS = [
     BASE_PATH + "/components/header/assets/saving-banner.webp",
 
     BASE_PATH + "/components/header/assets/payroll-banner.webp",
+
+    BASE_PATH + "/components/header/assets/kas-banner.webp",
+
+    BASE_PATH + "/components/header/assets/airdrop-banner.webp",
 
 
     /* ================================================
