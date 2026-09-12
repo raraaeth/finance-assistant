@@ -2,7 +2,7 @@
 Finance Assistant
 Module      : WRITE
 File        : write.js
-Version     : 1.2.1
+Version     : 1.2.2
 
 Description :
 Global Google Apps Script WRITE Engine
@@ -80,15 +80,15 @@ IMPORT
 
 import {
 
-loadSession,
+    loadSession,
 
-getValidGoogleProviderToken
+    getValidGoogleProviderToken
 
 } from "./auth.js";
 
 import {
 
-loadModuleInfo
+    loadModuleInfo
 
 } from "./module.js";
 
@@ -109,7 +109,7 @@ belum tersedia di session.
 
 const DEFAULT_ENDPOINT =
 
-"https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
+    "https://script.google.com/macros/s/AKfycbxBiQSb1pioB0mDbkAqd6S3y4T5CTByn2-6kW7-T1l-5PdGYTBVDX4IXskxyu_QxokHDw/exec";
 
 
 /* =====================================================
@@ -380,15 +380,16 @@ Karena request dikirim menggunakan
 URL parameter, JSONP digunakan agar
 tetap kompatibel dengan endpoint Apps Script.
 
-CATATAN :
+VERSI 1.2.2 :
 
-Fungsi ini tetap menggunakan JSONP.
+Tidak mengubah mekanisme JSONP.
 
-Perubahan pada versi ini hanya menambahkan
-diagnostic untuk mengetahui titik kegagalan
-request pada browser tertentu.
+Diagnostic hanya digunakan untuk
+mengetahui titik kegagalan request.
 
-Tidak mengubah mekanisme request.
+Tidak pernah menampilkan URL lengkap
+karena URL mengandung accessToken
+dan data WRITE.
 */
 
 function jsonpRequest(
@@ -454,44 +455,65 @@ function jsonpRequest(
 
 
             /* =========================================
-               DIAGNOSTIC INFO
+               TIMEOUT VARIABLE
             ========================================= */
 
-            const diagnostic = {
+            let timeout =
 
-                documentURL :
+                null;
 
-                    window.location.href,
 
-                online :
+            /* =========================================
+               DIAGNOSTIC
+            ========================================= */
 
-                    navigator.onLine,
+            const getDiagnostic =
 
-                serviceWorkerSupported :
+                () => {
 
-                    "serviceWorker" in navigator,
+                    return {
 
-                serviceWorkerControlled :
+                        browser :
 
-                    Boolean(
+                            navigator.userAgent,
 
-                        navigator.serviceWorker
-                        ?.controller
+                        online :
 
-                    ),
+                            navigator.onLine,
 
-                callbackName :
+                        serviceWorkerSupported :
 
-                    callbackName
+                            "serviceWorker"
+                            in navigator,
 
-            };
+                        serviceWorkerControlled :
+
+                            Boolean(
+
+                                navigator
+                                .serviceWorker
+                                ?.controller
+
+                            ),
+
+                        documentURL :
+
+                            window.location.href,
+
+                        callbackName :
+
+                            callbackName
+
+                    };
+
+                };
 
 
             console.log(
 
                 "WRITE JSONP: REQUEST START",
 
-                diagnostic
+                getDiagnostic()
 
             );
 
@@ -503,6 +525,25 @@ function jsonpRequest(
             const cleanup =
 
                 () => {
+
+                    if(
+
+                        timeout
+
+                    ){
+
+                        clearTimeout(
+
+                            timeout
+
+                        );
+
+                        timeout =
+
+                            null;
+
+                    }
+
 
                     try{
 
@@ -572,13 +613,6 @@ function jsonpRequest(
                         true;
 
 
-                    clearTimeout(
-
-                        timeout
-
-                    );
-
-
                     console.log(
 
                         "WRITE JSONP: CALLBACK SUCCESS",
@@ -611,7 +645,7 @@ function jsonpRequest(
 
 
             /* =========================================
-               LOAD SUCCESS
+               SCRIPT LOAD
             ========================================= */
 
             script.onload =
@@ -654,7 +688,7 @@ function jsonpRequest(
 
 
             /* =========================================
-               ERROR
+               SCRIPT ERROR
             ========================================= */
 
             script.onerror =
@@ -677,11 +711,9 @@ function jsonpRequest(
                         true;
 
 
-                    clearTimeout(
+                    const diagnostic =
 
-                        timeout
-
-                    );
+                        getDiagnostic();
 
 
                     console.error(
@@ -690,36 +722,11 @@ function jsonpRequest(
 
                         {
 
-                            callbackName :
-
-                                callbackName,
+                            ...diagnostic,
 
                             readyState :
 
                                 script.readyState,
-
-                            online :
-
-                                navigator.onLine,
-
-                            serviceWorkerSupported :
-
-                                "serviceWorker"
-                                in navigator,
-
-                            serviceWorkerControlled :
-
-                                Boolean(
-
-                                    navigator
-                                    .serviceWorker
-                                    ?.controller
-
-                                ),
-
-                            documentURL :
-
-                                window.location.href,
 
                             error :
 
@@ -733,11 +740,64 @@ function jsonpRequest(
                     cleanup();
 
 
+                    const errorMessage =
+
+                        [
+
+                            "Apps Script request gagal.",
+
+                            "",
+
+                            "[JSONP_SCRIPT_ERROR]",
+
+                            "",
+
+                            "Browser:",
+
+                            diagnostic.browser,
+
+                            "",
+
+                            "Online:",
+
+                            String(
+
+                                diagnostic.online
+
+                            ),
+
+                            "",
+
+                            "Service Worker:",
+
+                            diagnostic.serviceWorkerControlled
+
+                                ?
+
+                            "CONTROLLED"
+
+                                :
+
+                            "NOT CONTROLLED",
+
+                            "",
+
+                            "Halaman:",
+
+                            diagnostic.documentURL
+
+                        ].join(
+
+                            "\n"
+
+                        );
+
+
                     reject(
 
                         new Error(
 
-                            "Apps Script request gagal."
+                            errorMessage
 
                         )
 
@@ -789,11 +849,34 @@ function jsonpRequest(
 
 
             /* =========================================
-               DIAGNOSTIC REQUEST
-               
-               Jangan tampilkan requestURL karena
-               URL mengandung accessToken dan data.
+               REQUEST DIAGNOSTIC
             ========================================= */
+
+            let parsedURL =
+
+                null;
+
+
+            try{
+
+                parsedURL =
+
+                    new URL(
+
+                        url
+
+                    );
+
+            }
+
+            catch(error){
+
+                parsedURL =
+
+                    null;
+
+            }
+
 
             console.log(
 
@@ -803,47 +886,27 @@ function jsonpRequest(
 
                     endpoint :
 
-                        (() => {
+                        parsedURL
 
-                            try{
+                            ?
 
-                                return new URL(
+                        parsedURL.origin
 
-                                    url
+                            :
 
-                                ).origin;
-
-                            }
-
-                            catch(error){
-
-                                return "INVALID_URL";
-
-                            }
-
-                        })(),
+                        "INVALID_URL",
 
                     path :
 
-                        (() => {
+                        parsedURL
 
-                            try{
+                            ?
 
-                                return new URL(
+                        parsedURL.pathname
 
-                                    url
+                            :
 
-                                ).pathname;
-
-                            }
-
-                            catch(error){
-
-                                return "INVALID_PATH";
-
-                            }
-
-                        })(),
+                        "INVALID_PATH",
 
                     hasAccessToken :
 
@@ -874,7 +937,7 @@ function jsonpRequest(
                TIMEOUT
             ========================================= */
 
-            const timeout =
+            timeout =
 
                 setTimeout(
 
@@ -896,40 +959,16 @@ function jsonpRequest(
                             true;
 
 
+                        const diagnostic =
+
+                            getDiagnostic();
+
+
                         console.error(
 
                             "WRITE JSONP: TIMEOUT",
 
-                            {
-
-                                callbackName :
-
-                                    callbackName,
-
-                                online :
-
-                                    navigator.onLine,
-
-                                serviceWorkerSupported :
-
-                                    "serviceWorker"
-                                    in navigator,
-
-                                serviceWorkerControlled :
-
-                                    Boolean(
-
-                                        navigator
-                                        .serviceWorker
-                                        ?.controller
-
-                                    ),
-
-                                documentURL :
-
-                                    window.location.href
-
-                            }
+                            diagnostic
 
                         );
 
@@ -937,11 +976,64 @@ function jsonpRequest(
                         cleanup();
 
 
+                        const errorMessage =
+
+                            [
+
+                                "Apps Script request timeout.",
+
+                                "",
+
+                                "[JSONP_TIMEOUT]",
+
+                                "",
+
+                                "Browser:",
+
+                                diagnostic.browser,
+
+                                "",
+
+                                "Online:",
+
+                                String(
+
+                                    diagnostic.online
+
+                                ),
+
+                                "",
+
+                                "Service Worker:",
+
+                                diagnostic.serviceWorkerControlled
+
+                                    ?
+
+                                "CONTROLLED"
+
+                                    :
+
+                                "NOT CONTROLLED",
+
+                                "",
+
+                                "Halaman:",
+
+                                diagnostic.documentURL
+
+                            ].join(
+
+                                "\n"
+
+                            );
+
+
                         reject(
 
                             new Error(
 
-                                "Apps Script request timeout."
+                                errorMessage
 
                             )
 
@@ -1013,11 +1105,9 @@ function jsonpRequest(
                     true;
 
 
-                clearTimeout(
+                const diagnostic =
 
-                    timeout
-
-                );
+                    getDiagnostic();
 
 
                 console.error(
@@ -1026,9 +1116,7 @@ function jsonpRequest(
 
                     {
 
-                        callbackName :
-
-                            callbackName,
+                        ...diagnostic,
 
                         error :
 
@@ -1044,7 +1132,39 @@ function jsonpRequest(
 
                 reject(
 
-                    error
+                    new Error(
+
+                        [
+
+                            "Apps Script request gagal.",
+
+                            "",
+
+                            "[JSONP_APPEND_ERROR]",
+
+                            "",
+
+                            "Browser:",
+
+                            diagnostic.browser,
+
+                            "",
+
+                            "Online:",
+
+                            String(
+
+                                diagnostic.online
+
+                            )
+
+                        ].join(
+
+                            "\n"
+
+                        )
+
+                    )
 
                 );
 
