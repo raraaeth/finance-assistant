@@ -262,6 +262,106 @@ body{
 
 }
 
+/*==================================
+  Guide Card
+==================================*/
+
+.guide-card{
+
+    padding:24px;
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius);
+
+    background:var(--surface);
+
+    box-shadow:
+
+        0 10px 30px
+
+        rgba(0,0,0,.05);
+
+}
+
+.guide-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.guide-content h3{
+
+    font-size:1.2rem;
+
+    line-height:1.5;
+
+    font-weight:700;
+
+}
+
+.guide-content p{
+
+    color:var(--secondary);
+
+    line-height:1.7;
+
+    font-size:.95rem;
+
+}
+
+.guide-button{
+
+    display:block;
+
+    width:100%;
+
+    margin-top:6px;
+
+    padding:16px;
+
+    border-radius:var(--radius);
+
+    background:var(--primary);
+
+    color:#ffffff;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    font-size:1rem;
+
+    font-weight:700;
+
+    transition:
+
+        transform .2s,
+
+        box-shadow .2s,
+
+        opacity .2s;
+
+}
+
+.guide-button:hover{
+
+    transform:translateY(-2px);
+
+    opacity:.95;
+
+    box-shadow:
+
+        0 8px 20px
+
+        rgba(37,99,235,.25);
+
+}
+
 
 /*==================================
   Install Card
