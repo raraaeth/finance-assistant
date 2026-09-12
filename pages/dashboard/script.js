@@ -286,6 +286,52 @@ function createStartCard(){
 
 }
 
+/* ==========================================
+   FOOTER
+========================================== */
+function createFooter(){
+    return `
+        <!-- ==========================================
+             PUBLIC LINKS
+        ========================================== -->
+
+        <footer>
+
+            <nav
+                aria-label="Tautan informasi">
+
+                <a
+                    href="/privacy/">
+                    Privacy Policy
+                </a>
+
+                <span>*</span>
+
+                <a
+                    href="/terms/">
+                    Terms of Service
+                </a>
+
+                <span>*</span>
+
+                <a
+                    href="/docs/">
+                    User Guide
+                </a>
+
+                <span>*</span>
+
+                <a
+                    href="/app/">
+                    About App
+                </a>
+
+            </nav>
+
+        </footer>
+    `;
+}
+
 
 /* ==========================================
    RENDER
@@ -330,6 +376,9 @@ function render(){
             ${createStartCard()}
 
         </section>
+
+         ${createFooter()}
+      
 
     `;
 
