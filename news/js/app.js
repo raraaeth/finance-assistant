@@ -68,7 +68,7 @@ function init(){
 
 function initRouter(){
 
-    document.addEventListener(
+    window.addEventListener(
         "news:route",
         onRoute
     );
@@ -288,9 +288,10 @@ function buildArticleCard(
         );
 
 
-    const image =
+    const imageHTML =
         article.image
             ? `
+
                 <div class="news-article-card-image">
 
                     <img
@@ -300,6 +301,7 @@ function buildArticleCard(
                     >
 
                 </div>
+
             `
             : "";
 
@@ -308,15 +310,19 @@ function buildArticleCard(
 
         <article class="news-article-card">
 
-            <a
-                href="${href}"
-                class="news-article-card-image-link"
-                aria-label="Baca ${escapeAttribute(article.title)}"
-            >
-
-                ${image}
-
-            </a>
+            ${
+                article.image
+                    ? `
+                        <a
+                            href="${href}"
+                            class="news-article-card-image-link"
+                            aria-label="Baca ${escapeAttribute(article.title)}"
+                        >
+                            ${imageHTML}
+                        </a>
+                    `
+                    : ""
+            }
 
 
             <div class="news-article-card-body">
@@ -728,9 +734,6 @@ function createExcerpt(
     }
 
 
-    /*
-     * Ubah HTML menjadi text.
-     */
     const temp =
         document.createElement(
             "div"
@@ -757,14 +760,6 @@ function createExcerpt(
     }
 
 
-    /*
-     * Ambil beberapa kalimat pertama.
-     *
-     * Target :
-     *  - sekitar 3 kalimat
-     *  - tidak memotong terlalu pendek
-     */
-
     const sentences =
         text.match(
             /[^.!?]+[.!?]+/g
@@ -785,6 +780,7 @@ function createExcerpt(
 
 
     let excerpt = "";
+
 
     for(
         const sentence of sentences
@@ -818,11 +814,6 @@ function createExcerpt(
     }
 
 
-    /*
-     * Jika hasil terlalu panjang,
-     * potong secara aman.
-     */
-
     if(
         excerpt.length > 300
     ){
@@ -835,11 +826,6 @@ function createExcerpt(
 
     }
 
-
-    /*
-     * Pastikan ada tanda ellipsis
-     * jika masih ada isi artikel setelah excerpt.
-     */
 
     if(
         excerpt.length <
