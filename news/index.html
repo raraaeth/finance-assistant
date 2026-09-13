@@ -10,27 +10,225 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        News & Update - Finance Assistant
-    </title>
+    <meta
+        name="theme-color"
+        content="#ffffff"
+    >
+
+    <title>News & Update - Finance Assistant</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="/assets/icons/icon-192.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./css/style.css"
+    >
 
 </head>
 
 
 <body>
 
-    <main>
+    <!-- =====================================================
+         NEWS HEADER
+    ====================================================== -->
 
-        <h1>
-            News & Update
-        </h1>
+    <header class="news-header">
 
-        <p>
-            Berita dan pembaruan Finance Assistant
-            akan ditampilkan di sini.
-        </p>
+        <div class="news-header-inner">
+
+            <!-- Hamburger -->
+
+            <button
+                type="button"
+                class="news-menu-button"
+                id="newsMenuButton"
+                aria-label="Buka navigasi"
+                aria-expanded="false"
+            >
+                ☰
+            </button>
+
+
+            <!-- Brand -->
+
+            <a
+                href="/news/"
+                class="news-brand"
+                aria-label="Finance Assistant News"
+            >
+
+                <img
+                    src="/assets/icons/icon-192.png"
+                    alt="Finance Assistant"
+                    class="news-brand-icon"
+                >
+
+                <span class="news-brand-title">
+                    Finance Assistant
+                </span>
+
+            </a>
+
+
+            <!-- News Home -->
+
+            <a
+                href="/news/"
+                class="news-home-button"
+                aria-label="Beranda News"
+                title="Beranda News"
+            >
+                📰
+            </a>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         NAVIGATION DRAWER
+    ====================================================== -->
+
+    <div
+        class="news-menu-overlay"
+        id="newsMenuOverlay"
+        aria-hidden="true"
+    ></div>
+
+
+    <aside
+        class="news-drawer"
+        id="newsDrawer"
+        aria-label="Navigasi Finance Assistant"
+    >
+
+        <div class="news-drawer-header">
+
+            <img
+                src="/assets/icons/icon-192.png"
+                alt="Finance Assistant"
+                class="news-drawer-icon"
+            >
+
+            <div>
+
+                <strong>
+                    Finance Assistant
+                </strong>
+
+                <span>
+                    Navigasi
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="news-drawer-nav">
+
+            <a
+                href="/pages/"
+                class="news-drawer-link"
+            >
+                <span>🏠</span>
+                <span>Home Page</span>
+            </a>
+
+
+            <a
+                href="/docs/"
+                class="news-drawer-link"
+            >
+                <span>📖</span>
+                <span>Panduan</span>
+            </a>
+
+
+            <a
+                href="/pages/dashboard/"
+                class="news-drawer-link"
+            >
+                <span>📊</span>
+                <span>Dashboard</span>
+            </a>
+
+
+            <a
+                href="/news/"
+                class="news-drawer-link active"
+            >
+                <span>📰</span>
+                <span>News & Update</span>
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main
+        class="news-main"
+        id="newsMain"
+    >
+
+        <div
+            class="news-content"
+            id="newsContent"
+        >
+
+            <!--
+                Content akan di-render oleh app.js.
+
+                Halaman News:
+                - Daftar artikel
+                - Short article
+                - 10 artikel per batch
+                - Tampilkan lebih banyak
+
+                Halaman artikel:
+                - Judul
+                - Tanggal
+                - Gambar
+                - Artikel lengkap
+                - Artikel sebelumnya
+                - Artikel selanjutnya
+            -->
+
+            <div class="news-loading">
+
+                <p>
+                    Memuat News & Update...
+                </p>
+
+            </div>
+
+        </div>
 
     </main>
+
+
+
+    <!-- =====================================================
+         APP
+    ====================================================== -->
+
+    <script
+        type="module"
+        src="./js/app.js"
+    ></script>
 
 </body>
 
