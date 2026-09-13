@@ -120,22 +120,76 @@ const DEFAULT_ARTICLE = "pengenalan";
 
 
 /* =========================================================
-   3. GET ARTICLE FROM URL
+   3. DOCS BASE PATH
+   ========================================================= */
+
+const DOCS_BASE_PATH = "/docs";
+
+
+/* =========================================================
+   4. GET ARTICLE FROM URL
    ========================================================= */
 
 function getArticleIdFromURL() {
 
-  const params = new URLSearchParams(
-    window.location.search
-  );
+  const pathname =
+    window.location.pathname
+      .replace(/\/+$/, "");
 
-  return params.get("doc") || DEFAULT_ARTICLE;
+
+  /* =========================================
+     URL utama:
+     /docs
+     ========================================= */
+
+  if (
+    pathname === DOCS_BASE_PATH ||
+    pathname === ""
+  ) {
+
+    return DEFAULT_ARTICLE;
+
+  }
+
+
+  /* =========================================
+     URL artikel:
+     /docs/mulai
+     ========================================= */
+
+  if (
+    pathname.startsWith(
+      `${DOCS_BASE_PATH}/`
+    )
+  ) {
+
+    const articleId =
+      pathname
+        .slice(
+          `${DOCS_BASE_PATH}/`.length
+        )
+        .split("/")[0];
+
+
+    return (
+      articleId ||
+      DEFAULT_ARTICLE
+    );
+
+  }
+
+
+  /* =========================================
+     Fallback
+     ========================================= */
+
+  return DEFAULT_ARTICLE;
 
 }
 
 
 /* =========================================================
-   4. FIND ARTICLE
+   5. FIND ARTICLE
    ========================================================= */
 
 export function getArticle(id) {
@@ -148,7 +202,27 @@ export function getArticle(id) {
 
 
 /* =========================================================
-   5. LOAD ARTICLE
+   6. BUILD ARTICLE URL
+   ========================================================= */
+
+function getArticleURL(articleId) {
+
+  if (
+    articleId === DEFAULT_ARTICLE
+  ) {
+
+    return `${DOCS_BASE_PATH}/`;
+
+  }
+
+
+  return `${DOCS_BASE_PATH}/${articleId}`;
+
+}
+
+
+/* =========================================================
+   7. LOAD ARTICLE
    ========================================================= */
 
 async function loadArticle(article) {
@@ -187,19 +261,25 @@ async function loadArticle(article) {
     }
 
 
-    /* Update document title */
+    /* =========================================
+       Update document title
+       ========================================= */
 
     document.title =
       `${data.title || article.title} — Finance Assistant`;
 
 
-    /* Render */
+    /* =========================================
+       Render
+       ========================================= */
 
     articleContainer.innerHTML =
       data.content || "";
 
 
-    /* Scroll ke atas */
+    /* =========================================
+       Scroll ke atas
+       ========================================= */
 
     window.scrollTo({
       top: 0,
@@ -225,7 +305,7 @@ async function loadArticle(article) {
           atau terjadi kesalahan saat memuat artikel.
         </p>
 
-        <a href="?doc=${DEFAULT_ARTICLE}">
+        <a href="${getArticleURL(DEFAULT_ARTICLE)}">
           Kembali ke Pengenalan
         </a>
 
@@ -238,7 +318,7 @@ async function loadArticle(article) {
 
 
 /* =========================================================
-   6. PREVIOUS / NEXT
+   8. PREVIOUS / NEXT
    ========================================================= */
 
 function renderArticleNavigation(articleId) {
@@ -278,7 +358,7 @@ function renderArticleNavigation(articleId) {
       previous
         ? `
           <a
-            href="?doc=${previous.id}"
+            href="${getArticleURL(previous.id)}"
             class="article-nav-button previous"
             data-doc="${previous.id}"
           >
@@ -303,7 +383,7 @@ function renderArticleNavigation(articleId) {
       next
         ? `
           <a
-            href="?doc=${next.id}"
+            href="${getArticleURL(next.id)}"
             class="article-nav-button next"
             data-doc="${next.id}"
           >
@@ -329,7 +409,7 @@ function renderArticleNavigation(articleId) {
 
 
 /* =========================================================
-   7. NAVIGATION CLICK
+   9. NAVIGATION CLICK
    Intercept link supaya tidak reload.
    ========================================================= */
 
@@ -365,7 +445,7 @@ function setupNavigationLinks() {
 
 
 /* =========================================================
-   8. NAVIGATE
+   10. NAVIGATE
    ========================================================= */
 
 export async function navigateTo(
@@ -377,7 +457,9 @@ export async function navigateTo(
     getArticle(articleId);
 
 
-  /* Fallback */
+  /* =========================================
+     Fallback
+     ========================================= */
 
   if (!article) {
 
@@ -390,19 +472,14 @@ export async function navigateTo(
   }
 
 
-  /* Update URL */
+  /* =========================================
+     Update URL
+     ========================================= */
 
   if (updateURL) {
 
     const url =
-      new URL(
-        window.location.href
-      );
-
-    url.searchParams.set(
-      "doc",
-      articleId
-    );
+      getArticleURL(articleId);
 
 
     window.history.pushState(
@@ -414,19 +491,25 @@ export async function navigateTo(
   }
 
 
-  /* Load */
+  /* =========================================
+     Load
+     ========================================= */
 
   await loadArticle(article);
 
 
-  /* Previous / Next */
+  /* =========================================
+     Previous / Next
+     ========================================= */
 
   renderArticleNavigation(
     articleId
   );
 
 
-  /* Active sidebar */
+  /* =========================================
+     Active sidebar
+     ========================================= */
 
   document.dispatchEvent(
     new CustomEvent(
@@ -443,7 +526,7 @@ export async function navigateTo(
 
 
 /* =========================================================
-   9. BROWSER BACK / FORWARD
+   11. BROWSER BACK / FORWARD
    ========================================================= */
 
 function setupHistoryNavigation() {
@@ -468,7 +551,61 @@ function setupHistoryNavigation() {
 
 
 /* =========================================================
-   10. INITIALIZE ROUTER
+   12. LEGACY URL SUPPORT
+   =========================================================
+   
+   URL lama:
+   /docs/?doc=mulai
+
+   Akan diarahkan menjadi:
+   /docs/mulai
+   ========================================================= */
+
+function handleLegacyURL() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  const legacyArticle =
+    params.get("doc");
+
+
+  if (!legacyArticle) {
+    return;
+  }
+
+
+  const article =
+    getArticle(
+      legacyArticle
+    );
+
+
+  if (!article) {
+    return;
+  }
+
+
+  const cleanURL =
+    getArticleURL(
+      article.id
+    );
+
+
+  window.history.replaceState(
+    {},
+    "",
+    cleanURL
+  );
+
+}
+
+
+/* =========================================================
+   13. INITIALIZE ROUTER
    ========================================================= */
 
 export function initRouter() {
@@ -476,6 +613,13 @@ export function initRouter() {
   setupNavigationLinks();
 
   setupHistoryNavigation();
+
+
+  /* =========================================
+     Convert URL lama jika masih digunakan
+     ========================================= */
+
+  handleLegacyURL();
 
 
   const articleId =
