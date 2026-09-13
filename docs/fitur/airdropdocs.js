@@ -2,7 +2,8 @@ export default {
     title: "Pengingat Airdrop",
 
     content: `
-
+    
+      <h2>Catat Airdrop dan Reward Yang Didapat</h2>
         <p class="doc-lead">
             Airdrop membantu kamu mencatat campaign, memantau statusnya,
             dan mencatat hasil reward yang didapat. Berbeda dari workspace
