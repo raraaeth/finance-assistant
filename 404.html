@@ -74,25 +74,25 @@
              */
 
             if (
-                path.startsWith("/news/") &&
-                path !== "/news/" &&
-                path !== "/news/index.html"
-            ) {
+    path.startsWith("/news/") &&
+    path !== "/news/" &&
+    path !== "/news/index.html"
+) {
 
-                sessionStorage.setItem(
-                    "finance-news-path",
-                    path
-                );
-
-
-                window.location.replace(
-                    "/news/"
-                );
+    const newsPath =
+        encodeURIComponent(
+            path
+        );
 
 
-                return;
+    window.location.replace(
+        `/news/?route=${newsPath}`
+    );
 
-            }
+
+    return;
+
+}
 
 
             /* =================================================
