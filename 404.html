@@ -2,26 +2,34 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Finance Assistant — Dokumentasi</title>
+    <title>Finance Assistant</title>
+
 
     <script>
+
         (function () {
 
             const path =
                 window.location.pathname;
+
+
+            /* =================================================
+               DOCUMENTATION CLEAN ROUTE
+            ================================================= */
 
             /*
              * GitHub Pages menampilkan 404.html
              * ketika URL clean route tidak memiliki
              * file/folder fisik.
              *
-             * Kita kembalikan halaman ke docs/index.html
-             * tetapi menyimpan pathname artikel di sessionStorage.
+             * Simpan pathname dokumentasi,
+             * kemudian kembali ke /docs/.
              */
 
             if (
@@ -35,24 +43,68 @@
                     path
                 );
 
+
                 window.location.replace(
                     "/docs/"
                 );
 
+
                 return;
+
             }
 
 
+            /* =================================================
+               NEWS CLEAN ROUTE
+            ================================================= */
+
             /*
-             * Jika bukan route dokumentasi,
-             * tampilkan halaman 404 biasa.
+             * News menggunakan satu index.html.
+             *
+             * Contoh:
+             *
+             * /news/artikel01
+             *
+             * Karena tidak ada folder/file fisik
+             * bernama artikel01, GitHub Pages akan
+             * masuk ke 404.html.
+             *
+             * Simpan pathname artikel,
+             * kemudian kembali ke /news/.
              */
+
+            if (
+                path.startsWith("/news/") &&
+                path !== "/news/" &&
+                path !== "/news/index.html"
+            ) {
+
+                sessionStorage.setItem(
+                    "finance-news-path",
+                    path
+                );
+
+
+                window.location.replace(
+                    "/news/"
+                );
+
+
+                return;
+
+            }
+
+
+            /* =================================================
+               DEFAULT 404
+            ================================================= */
 
             document.addEventListener(
                 "DOMContentLoaded",
                 function () {
 
                     document.body.innerHTML = `
+
                         <main style="
                             min-height:100vh;
                             display:flex;
@@ -77,6 +129,7 @@
                                     404
                                 </h1>
 
+
                                 <p style="
                                     margin:0 0 24px;
                                     color:#64748b;
@@ -85,6 +138,7 @@
                                     Halaman yang kamu cari
                                     tidak ditemukan.
                                 </p>
+
 
                                 <a
                                     href="/"
@@ -104,17 +158,21 @@
                             </div>
 
                         </main>
+
                     `;
 
                 }
             );
 
         })();
+
     </script>
 
 </head>
 
+
 <body>
 
 </body>
+
 </html>
