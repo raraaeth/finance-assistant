@@ -55,6 +55,8 @@ function init(){
 
     initEvent();
 
+    restoreNewsRoute();
+
     initRouter();
 
     router.init();
@@ -71,6 +73,58 @@ function initRouter(){
     window.addEventListener(
         "news:route",
         onRoute
+    );
+
+}
+
+
+/* =====================================================
+   RESTORE NEWS ROUTE
+===================================================== */
+
+function restoreNewsRoute(){
+
+    const savedPath =
+        sessionStorage.getItem(
+            "finance-news-path"
+        );
+
+
+    if(
+        !savedPath
+    ){
+        return;
+    }
+
+
+    /*
+     * Hapus terlebih dahulu agar
+     * tidak terbaca kembali pada
+     * kunjungan berikutnya.
+     */
+
+    sessionStorage.removeItem(
+        "finance-news-path"
+    );
+
+
+    /*
+     * Kembalikan URL ke clean route.
+     *
+     * Contoh:
+     *
+     * /news/
+     * ↓
+     * /news/artikel01
+     *
+     * replaceState tidak melakukan
+     * reload halaman.
+     */
+
+    window.history.replaceState(
+        {},
+        "",
+        savedPath
     );
 
 }
