@@ -9,14 +9,6 @@ export default {
 
   content: `
 
-    <div class="doc-image-card">
-      <img
-        src="/docs/images/akun.webp"
-        alt="Infografik Akun Finance Assistant"
-      >
-    </div>
-
-
     <h2>Kelola Akun dan Workspace</h2>
 
     <p>
@@ -27,7 +19,7 @@ export default {
     </p>
 
 
-    <h2>👤 Profil Akun</h2>
+    <h3>👤 Profil Akun</h3>
 
     <p>
       Informasi profil ditampilkan secara otomatis berdasarkan
@@ -47,8 +39,15 @@ export default {
 
     </div>
 
+    <div class="doc-image-card">
+      <img
+        src="/docs/images/akun.webp"
+        alt="Infografik Akun Finance Assistant"
+      >
+    </div>
 
-    <h2>🏢 Workspace</h2>
+
+    <h3>🏢 Workspace</h3>
 
     <p>
       Bagian <strong>Workspace</strong> digunakan untuk melihat
@@ -74,7 +73,7 @@ export default {
     </div>
 
 
-    <h2>➕ Add Workspace</h2>
+    <h3>➕ Add Workspace</h3>
 
     <p>
       Jika membutuhkan workspace baru untuk kebutuhan yang
@@ -88,7 +87,7 @@ export default {
     </p>
 
 
-    <h2>🎨 Pengaturan Themes</h2>
+    <h3>🎨 Pengaturan Themes</h3>
 
     <p>
       Finance Assistant menyediakan <strong>4 pilihan tema</strong>
@@ -152,7 +151,7 @@ export default {
     </div>
 
 
-    <h2>📰 News & Update</h2>
+    <h3>📰 News & Update</h3>
 
     <p>
       Menu <strong>News & Update</strong> berisi artikel terbaru
@@ -179,7 +178,7 @@ export default {
     </ul>
 
 
-    <h2>📖 Panduan</h2>
+    <h3>📖 Panduan</h3>
 
     <p>
       Menu <strong>Panduan</strong> digunakan untuk membuka
