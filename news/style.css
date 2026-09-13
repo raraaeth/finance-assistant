@@ -1,0 +1,577 @@
+/* =====================================================
+   FINANCE ASSISTANT
+   NEWS & UPDATE
+   File : /news/style.css
+===================================================== */
+
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+    color: #111827;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    line-height: 1.6;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+a {
+    font: inherit;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* =====================================================
+   NEWS HEADER
+===================================================== */
+
+.news-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    width: 100%;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.news-header-inner {
+    width: 100%;
+    max-width: 1200px;
+
+    min-height: 88px;
+
+    margin: 0 auto;
+    padding: 0 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+/* =====================================================
+   HAMBURGER
+===================================================== */
+
+.news-menu-button {
+    width: 48px;
+    height: 48px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 12px;
+
+    background: transparent;
+
+    color: #6b7280;
+
+    font-size: 31px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.news-menu-button:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.news-menu-button:active {
+    transform: scale(0.94);
+}
+
+
+/* =====================================================
+   BRAND
+===================================================== */
+
+.news-brand {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+}
+
+.news-brand-icon {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+}
+
+.news-brand-title {
+    overflow: hidden;
+
+    color: #111827;
+
+    font-size: 27px;
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+/* =====================================================
+   NEWS HOME BUTTON
+===================================================== */
+
+.news-home-button {
+    width: 48px;
+    height: 48px;
+
+    flex: 0 0 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    font-size: 27px;
+    line-height: 1;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.news-home-button:hover {
+    background: #f3f4f6;
+}
+
+.news-home-button:active {
+    transform: scale(0.94);
+}
+
+
+/* =====================================================
+   MENU OVERLAY
+===================================================== */
+
+.news-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+
+    background: rgba(17, 24, 39, 0.28);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+
+/*
+   Ketika menu dibuka, app.js dapat menambahkan:
+
+   body.news-menu-open
+*/
+
+body.news-menu-open {
+    overflow: hidden;
+}
+
+body.news-menu-open .news-menu-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* =====================================================
+   NAVIGATION DRAWER
+===================================================== */
+
+.news-drawer {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    z-index: 1100;
+
+    width: min(330px, 88vw);
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border-right: 1px solid #e5e7eb;
+
+    box-shadow:
+        12px 0 35px rgba(17, 24, 39, 0.10);
+
+    overflow-y: auto;
+
+    transform: translateX(-105%);
+
+    transition:
+        transform 0.28s ease;
+}
+
+
+/*
+   Drawer terbuka.
+*/
+
+body.news-menu-open .news-drawer {
+    transform: translateX(0);
+}
+
+
+/* =====================================================
+   DRAWER HEADER
+===================================================== */
+
+.news-drawer-header {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 8px 4px 22px;
+
+    margin-bottom: 12px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.news-drawer-icon {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 44px;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+}
+
+.news-drawer-header strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    line-height: 1.3;
+}
+
+.news-drawer-header span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   DRAWER NAVIGATION
+===================================================== */
+
+.news-drawer-nav {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.news-drawer-link {
+    min-height: 50px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 11px 13px;
+
+    border-radius: 11px;
+
+    color: #374151;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.news-drawer-link span:first-child {
+    width: 26px;
+
+    flex: 0 0 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+}
+
+.news-drawer-link:hover {
+    background: #f3f4f6;
+
+    color: #111827;
+}
+
+.news-drawer-link.active {
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.news-main {
+    width: 100%;
+
+    min-height: calc(100vh - 88px);
+}
+
+.news-content {
+    width: 100%;
+    max-width: 920px;
+
+    margin: 0 auto;
+
+    padding: 44px 28px 70px;
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.news-loading {
+    min-height: 240px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #6b7280;
+
+    text-align: center;
+}
+
+.news-loading p {
+    margin: 0;
+
+    font-size: 15px;
+}
+
+
+/* =====================================================
+   FOCUS / ACCESSIBILITY
+===================================================== */
+
+.news-menu-button:focus-visible,
+.news-home-button:focus-visible,
+.news-brand:focus-visible,
+.news-drawer-link:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.25);
+    outline-offset: 2px;
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+.news-drawer {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+}
+
+.news-drawer::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-drawer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.news-drawer::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+
+    border-radius: 10px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .news-header-inner {
+        min-height: 76px;
+
+        padding: 0 16px;
+
+        gap: 10px;
+    }
+
+
+    .news-menu-button {
+        width: 44px;
+        height: 44px;
+
+        font-size: 29px;
+    }
+
+
+    .news-brand {
+        gap: 10px;
+    }
+
+
+    .news-brand-icon {
+        width: 38px;
+        height: 38px;
+
+        flex-basis: 38px;
+
+        border-radius: 9px;
+    }
+
+
+    .news-brand-title {
+        font-size: 22px;
+    }
+
+
+    .news-home-button {
+        width: 44px;
+        height: 44px;
+
+        flex-basis: 44px;
+
+        font-size: 24px;
+    }
+
+
+    .news-content {
+        padding: 30px 18px 55px;
+    }
+
+
+    .news-main {
+        min-height: calc(100vh - 76px);
+    }
+
+}
+
+
+@media (max-width: 420px) {
+
+    .news-header-inner {
+        padding: 0 12px;
+    }
+
+
+    .news-brand-title {
+        font-size: 20px;
+    }
+
+
+    .news-brand-icon {
+        width: 36px;
+        height: 36px;
+
+        flex-basis: 36px;
+    }
+
+
+    .news-content {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+
+    .news-drawer {
+        width: min(310px, 88vw);
+
+        padding: 20px;
+    }
+
+}
+
+
+/* =====================================================
+   ARTICLE STYLES
+   -----------------------------------------------------
+   Style khusus halaman artikel akan ditambahkan
+   di bawah bagian ini.
+===================================================== */
