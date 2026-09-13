@@ -138,6 +138,37 @@ function getArticleIdFromURL() {
 
 
   /* =========================================
+     Route dari 404.html
+     ========================================= */
+
+  const storedPath =
+    sessionStorage.getItem(
+      "finance-doc-path"
+    );
+
+
+  if (storedPath) {
+
+    sessionStorage.removeItem(
+      "finance-doc-path"
+    );
+
+
+    const articleId =
+      storedPath
+        .replace(/^\/docs\/?/, "")
+        .split("/")[0];
+
+
+    return (
+      articleId ||
+      DEFAULT_ARTICLE
+    );
+
+  }
+
+
+  /* =========================================
      URL utama:
      /docs
      ========================================= */
