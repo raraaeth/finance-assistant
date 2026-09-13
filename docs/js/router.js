@@ -99,14 +99,14 @@ export const ARTICLES = [
     id: "akun",
     title: "Akun",
     section: "DATA & PRIVASI",
-    path: "../data-privasi/akun.js"
+    path: "../data/akun.js"
   },
 
   {
     id: "privacy",
     title: "Data & Privasi",
     section: "DATA & PRIVASI",
-    path: "../data-privasi/privacy.js"
+    path: "../data/privacy.js"
   }
 
 ];
