@@ -84,37 +84,49 @@ function initRouter(){
 
 function restoreNewsRoute(){
 
-    const savedPath =
-        sessionStorage.getItem(
-            "finance-news-path"
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const route =
+        params.get(
+            "route"
         );
 
 
     if(
-        !savedPath
+        !route
     ){
         return;
     }
 
 
     /*
-     * Hapus terlebih dahulu agar
-     * tidak terbaca kembali pada
-     * kunjungan berikutnya.
+     * Pastikan route memang
+     * merupakan route News.
      */
 
-    sessionStorage.removeItem(
-        "finance-news-path"
-    );
+    if(
+        !route.startsWith(
+            "/news/"
+        )
+    ){
+        return;
+    }
 
 
     /*
-     * Kembalikan URL ke clean route.
+     * Kembalikan URL menjadi
+     * clean URL.
      *
      * Contoh:
      *
-     * /news/
-     * ↓
+     * /news/?route=/news/artikel01
+     *
+     * menjadi:
+     *
      * /news/artikel01
      *
      * replaceState tidak melakukan
@@ -124,7 +136,7 @@ function restoreNewsRoute(){
     window.history.replaceState(
         {},
         "",
-        savedPath
+        route
     );
 
 }
