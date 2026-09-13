@@ -139,6 +139,8 @@ export default {
             <strong>End</strong>. Tanggal inilah yang digunakan sebagai
             dasar pengaturan periode campaign dan otomatisasi
             <strong>Ended</strong>.
+            Maka dari itu, type <strong>Campaign</strong> ini otomatis sudah dibuat
+            tanpa harus kamu memilih di konfigurasi setting.
         </p>
 
         <div class="doc-info-box">
