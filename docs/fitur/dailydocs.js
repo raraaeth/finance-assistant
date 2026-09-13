@@ -4,6 +4,8 @@ export default {
 
     <div class="doc-article">
 
+       <h2>Hitung Gaji Harianmu</h2>
+       
         <p class="doc-lead">
             Payroll Daily membantu menghitung penghasilan berdasarkan
             jumlah pekerjaan yang kamu selesaikan setiap hari.
