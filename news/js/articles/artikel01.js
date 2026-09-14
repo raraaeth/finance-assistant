@@ -8,11 +8,11 @@
    Description :
    Artikel News #01
 ===================================================== */
-
+// /news/js/articles/artikel01.js
 
 export default {
 
-    slug: "artikel01",
+    slug: "panduan-finance-assistant",
 
     title: "Panduan Finance Assistant Kini Selesai",
 
@@ -20,7 +20,20 @@ export default {
 
     image: "/news/images/artikel01.webp",
 
-    content: `
+    seo: {
+
+        title:
+            "Panduan Finance Assistant Kini Selesai | Finance Assistant",
+
+        description:
+            "Panduan lengkap Finance Assistant kini tersedia untuk membantu memahami fitur, workspace, pengelolaan data, serta cara menggunakan Finance Assistant.",
+
+        keywords:
+            "Finance Assistant, panduan Finance Assistant, aplikasi keuangan, pengelolaan keuangan, aplikasi keuangan pribadi, aplikasi keuangan bisnis"
+
+    },  
+
+   content: `
 
         <p>
             Finance Assistant kini memiliki panduan penggunaan
