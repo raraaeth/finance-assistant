@@ -3,7 +3,7 @@
    NEWS & UPDATE
 
    File    : /news/js/app.js
-   Version : 1.1.0
+   Version : 1.2.0
 
    Description :
    Entry point News & Update.
@@ -14,6 +14,8 @@
    - Renderer
    - Article listing
    - Article detail
+   - Article SEO
+   - Structured Data
    - Hamburger menu
    - Navigation drawer
 ===================================================== */
@@ -41,6 +43,33 @@ const State = {
     articleLimit: 10,
 
     articlesPerLoad: 10
+
+};
+
+
+/* =====================================================
+   SEO CONFIGURATION
+===================================================== */
+
+const SEO = {
+
+    siteName:
+        "Finance Assistant",
+
+    siteURL:
+        "https://financeassistant.web.id",
+
+    newsPath:
+        "/news/",
+
+    homeTitle:
+        "News & Update — Finance Assistant",
+
+    homeDescription:
+        "Berita, pembaruan, informasi, dan perkembangan terbaru seputar Finance Assistant.",
+
+    homeKeywords:
+        "Finance Assistant, berita Finance Assistant, update Finance Assistant, aplikasi keuangan, informasi Finance Assistant"
 
 };
 
@@ -217,8 +246,11 @@ function renderHome(){
         getSortedArticles();
 
 
-    document.title =
-        "News & Update — Finance Assistant";
+    /*
+     * SEO halaman utama News.
+     */
+
+    updateHomeSEO();
 
 
     if(
@@ -550,8 +582,14 @@ function renderArticle(
         ];
 
 
-    document.title =
-        `${article.title} — Finance Assistant`;
+    /*
+     * SEO artikel dibaca langsung
+     * dari object artikel.
+     */
+
+    updateArticleSEO(
+        article
+    );
 
 
     content.innerHTML =
@@ -700,8 +738,11 @@ function renderNotFound(){
     }
 
 
-    document.title =
-        "Artikel Tidak Ditemukan — Finance Assistant";
+    /*
+     * SEO halaman 404.
+     */
+
+    updateNotFoundSEO();
 
 
     content.innerHTML = `
@@ -781,6 +822,825 @@ function getArticleURL(
 ){
 
     return `/news/${encodeURIComponent(slug)}`;
+
+}
+
+
+/* =====================================================
+   SEO — HOME
+===================================================== */
+
+function updateHomeSEO(){
+
+    const url =
+        getSiteURL(
+            SEO.newsPath
+        );
+
+
+    updateBasicSEO({
+
+        title:
+            SEO.homeTitle,
+
+        description:
+            SEO.homeDescription,
+
+        keywords:
+            SEO.homeKeywords,
+
+        canonical:
+            url,
+
+        type:
+            "website",
+
+        image:
+            null
+
+    });
+
+
+    updateNewsStructuredData({
+
+        type:
+            "WebPage",
+
+        name:
+            SEO.homeTitle,
+
+        description:
+            SEO.homeDescription,
+
+        url:
+            url
+
+    });
+
+}
+
+
+/* =====================================================
+   SEO — ARTICLE
+===================================================== */
+
+function updateArticleSEO(
+    article
+){
+
+    const seo =
+        article.seo || {};
+
+
+    const title =
+        seo.title ||
+        `${article.title} — Finance Assistant`;
+
+
+    const description =
+        seo.description ||
+        createSEODescription(
+            article.content
+        );
+
+
+    const keywords =
+        seo.keywords ||
+        "";
+
+
+    const url =
+        getSiteURL(
+            getArticleURL(
+                article.slug
+            )
+        );
+
+
+    const image =
+        article.image
+            ? getSiteURL(
+                article.image
+            )
+            : "";
+
+
+    updateBasicSEO({
+
+        title:
+            title,
+
+        description:
+            description,
+
+        keywords:
+            keywords,
+
+        canonical:
+            url,
+
+        type:
+            "article",
+
+        image:
+            image
+
+    });
+
+
+    updateArticleStructuredData({
+
+        article:
+            article,
+
+        title:
+            title,
+
+        description:
+            description,
+
+        url:
+            url,
+
+        image:
+            image
+
+    });
+
+}
+
+
+/* =====================================================
+   SEO — NOT FOUND
+===================================================== */
+
+function updateNotFoundSEO(){
+
+    const title =
+        "Artikel Tidak Ditemukan — Finance Assistant";
+
+
+    const description =
+        "Artikel News & Update yang kamu cari tidak tersedia atau alamatnya sudah berubah.";
+
+
+    const url =
+        window.location.href;
+
+
+    updateBasicSEO({
+
+        title:
+            title,
+
+        description:
+            description,
+
+        keywords:
+            "",
+
+        canonical:
+            url,
+
+        type:
+            "website",
+
+        image:
+            null,
+
+        robots:
+            "noindex, nofollow"
+
+    });
+
+
+    removeStructuredData();
+
+}
+
+
+/* =====================================================
+   SEO — BASIC META
+===================================================== */
+
+function updateBasicSEO(
+    options
+){
+
+    const title =
+        options.title || "";
+
+
+    const description =
+        options.description || "";
+
+
+    const keywords =
+        options.keywords || "";
+
+
+    const canonical =
+        options.canonical || "";
+
+
+    const type =
+        options.type || "website";
+
+
+    const image =
+        options.image || "";
+
+
+    const robots =
+        options.robots ||
+        "index, follow";
+
+
+    document.title =
+        title;
+
+
+    setMeta(
+        "name",
+        "description",
+        description
+    );
+
+
+    setMeta(
+        "name",
+        "keywords",
+        keywords
+    );
+
+
+    setMeta(
+        "name",
+        "robots",
+        robots
+    );
+
+
+    setMeta(
+        "property",
+        "og:type",
+        type
+    );
+
+
+    setMeta(
+        "property",
+        "og:title",
+        title
+    );
+
+
+    setMeta(
+        "property",
+        "og:description",
+        description
+    );
+
+
+    setMeta(
+        "property",
+        "og:url",
+        canonical
+    );
+
+
+    setMeta(
+        "property",
+        "og:site_name",
+        SEO.siteName
+    );
+
+
+    if(
+        image
+    ){
+
+        setMeta(
+            "property",
+            "og:image",
+            image
+        );
+
+    }else{
+
+        removeMeta(
+            "property",
+            "og:image"
+        );
+
+    }
+
+
+    setMeta(
+        "name",
+        "twitter:card",
+        image
+            ? "summary_large_image"
+            : "summary"
+    );
+
+
+    setMeta(
+        "name",
+        "twitter:title",
+        title
+    );
+
+
+    setMeta(
+        "name",
+        "twitter:description",
+        description
+    );
+
+
+    if(
+        image
+    ){
+
+        setMeta(
+            "name",
+            "twitter:image",
+            image
+        );
+
+    }else{
+
+        removeMeta(
+            "name",
+            "twitter:image"
+        );
+
+    }
+
+
+    updateCanonical(
+        canonical
+    );
+
+
+    /*
+     * Khusus artikel.
+     */
+
+    if(
+        type === "article"
+    ){
+
+        setMeta(
+            "property",
+            "article:published_time",
+            getArticlePublishedTime()
+        );
+
+    }else{
+
+        removeMeta(
+            "property",
+            "article:published_time"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   META HELPER
+===================================================== */
+
+function setMeta(
+    attribute,
+    name,
+    content
+){
+
+    let element =
+        document.head.querySelector(
+            `meta[${attribute}="${name}"]`
+        );
+
+
+    if(
+        !element
+    ){
+
+        element =
+            document.createElement(
+                "meta"
+            );
+
+
+        element.setAttribute(
+            attribute,
+            name
+        );
+
+
+        document.head.appendChild(
+            element
+        );
+
+    }
+
+
+    element.setAttribute(
+        "content",
+        content || ""
+    );
+
+}
+
+
+/* =====================================================
+   REMOVE META
+===================================================== */
+
+function removeMeta(
+    attribute,
+    name
+){
+
+    const element =
+        document.head.querySelector(
+            `meta[${attribute}="${name}"]`
+        );
+
+
+    if(
+        element
+    ){
+
+        element.remove();
+
+    }
+
+}
+
+
+/* =====================================================
+   CANONICAL
+===================================================== */
+
+function updateCanonical(
+    url
+){
+
+    if(
+        !url
+    ){
+        return;
+    }
+
+
+    let link =
+        document.head.querySelector(
+            'link[rel="canonical"]'
+        );
+
+
+    if(
+        !link
+    ){
+
+        link =
+            document.createElement(
+                "link"
+            );
+
+
+        link.setAttribute(
+            "rel",
+            "canonical"
+        );
+
+
+        document.head.appendChild(
+            link
+        );
+
+    }
+
+
+    link.setAttribute(
+        "href",
+        url
+    );
+
+}
+
+
+/* =====================================================
+   ARTICLE PUBLISHED TIME
+===================================================== */
+
+function getArticlePublishedTime(){
+
+    return "";
+
+}
+
+
+/* =====================================================
+   SEO DESCRIPTION
+===================================================== */
+
+function createSEODescription(
+    html
+){
+
+    if(
+        !html
+    ){
+        return SEO.homeDescription;
+    }
+
+
+    const temp =
+        document.createElement(
+            "div"
+        );
+
+
+    temp.innerHTML =
+        html;
+
+
+    const text =
+        temp.textContent
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .trim();
+
+
+    if(
+        !text
+    ){
+        return SEO.homeDescription;
+    }
+
+
+    return truncateText(
+        text,
+        160
+    );
+
+}
+
+
+/* =====================================================
+   SITE URL
+===================================================== */
+
+function getSiteURL(
+path
+){
+
+    if(
+        !path
+    ){
+        return SEO.siteURL;
+    }
+
+
+    if(
+        path.startsWith(
+            "http://"
+        ) ||
+        path.startsWith(
+            "https://"
+        )
+    ){
+
+        return path;
+
+    }
+
+
+    return (
+        SEO.siteURL +
+        (
+            path.startsWith("/")
+                ? path
+                : `/${path}`
+        )
+    );
+
+}
+
+
+/* =====================================================
+   STRUCTURED DATA — WEBPAGE
+===================================================== */
+
+function updateNewsStructuredData(
+    data
+){
+
+    const json =
+        {
+
+            "@context":
+                "https://schema.org",
+
+            "@type":
+                data.type || "WebPage",
+
+            name:
+                data.name,
+
+            description:
+                data.description,
+
+            url:
+                data.url,
+
+            isPartOf:
+                {
+                    "@type":
+                        "WebSite",
+
+                    name:
+                        SEO.siteName,
+
+                    url:
+                        SEO.siteURL + "/"
+                }
+
+        };
+
+
+    setStructuredData(
+        json
+    );
+
+}
+
+
+/* =====================================================
+   STRUCTURED DATA — ARTICLE
+===================================================== */
+
+function updateArticleStructuredData(
+    data
+){
+
+    const article =
+        data.article;
+
+
+    const json =
+        {
+
+            "@context":
+                "https://schema.org",
+
+            "@type":
+                "Article",
+
+            headline:
+                article.title,
+
+            name:
+                data.title,
+
+            description:
+                data.description,
+
+            url:
+                data.url,
+
+            datePublished:
+                article.date,
+
+            dateModified:
+                article.date,
+
+            author:
+                {
+
+                    "@type":
+                        "Organization",
+
+                    name:
+                        SEO.siteName,
+
+                    url:
+                        SEO.siteURL + "/"
+
+                },
+
+            publisher:
+                {
+
+                    "@type":
+                        "Organization",
+
+                    name:
+                        SEO.siteName,
+
+                    url:
+                        SEO.siteURL + "/"
+
+                },
+
+            mainEntityOfPage:
+                {
+
+                    "@type":
+                        "WebPage",
+
+                    "@id":
+                        data.url
+
+                }
+
+        };
+
+
+    if(
+        data.image
+    ){
+
+        json.image =
+            [
+                data.image
+            ];
+
+    }
+
+
+    setStructuredData(
+        json
+    );
+
+}
+
+
+/* =====================================================
+   STRUCTURED DATA HELPER
+===================================================== */
+
+function setStructuredData(
+data
+){
+
+    removeStructuredData();
+
+
+    const script =
+        document.createElement(
+            "script"
+        );
+
+
+    script.type =
+        "application/ld+json";
+
+
+    script.id =
+        "newsStructuredData";
+
+
+    script.textContent =
+        JSON.stringify(
+            data
+        );
+
+
+    document.head.appendChild(
+        script
+    );
+
+}
+
+
+/* =====================================================
+   REMOVE STRUCTURED DATA
+===================================================== */
+
+function removeStructuredData(){
+
+    const existing =
+        document.getElementById(
+            "newsStructuredData"
+        );
+
+
+    if(
+        existing
+    ){
+
+        existing.remove();
+
+    }
 
 }
 
