@@ -408,24 +408,19 @@ function openDocumentation(){
 function openApp(){
 
     /*
-       Belum login
-       atau onboarding belum selesai
-       → masuk onboarding
+       Jika user sudah memiliki nama akun
+       ATAU onboarding sudah pernah selesai,
+       langsung masuk Homepage.
     */
 
     if(
-
-        !user
-
+        user?.displayName
         ||
-
-        !user.onboardingCompleted
-
+        user?.onboardingCompleted === true
     ){
 
         window.location.href =
-
-            "../onboarding/";
+            "../index.html";
 
         return;
 
@@ -433,14 +428,13 @@ function openApp(){
 
 
     /*
-       Sudah login
-       dan onboarding selesai
-       → masuk aplikasi utama
+       Tidak memiliki nama akun
+       dan belum pernah menyelesaikan onboarding
+       → masuk onboarding.
     */
 
     window.location.href =
-
-        "../index.html";
+        "../onboarding/";
 
 }
 
