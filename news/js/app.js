@@ -3,24 +3,30 @@
    NEWS & UPDATE
 
    File    : /news/js/app.js
-   Version : 1.2.0
+   Version : 1.2.1
 
    Description :
-   News Application Controller
+   Entry point News & Update.
 
    Handles :
-   - News home
-   - Article detail
-   - Routing
+   - Initialisasi News
+   - Router
+   - Renderer
    - Article listing
-   - Load more
-   - Prev / next article
+   - Article detail
+   - Hamburger menu
+   - Navigation drawer
    - Dynamic SEO
-   - Structured data
-   - Navigation menu
+   - Structured Data
+===================================================== */
+
+
+/* =====================================================
+   IMPORT
 ===================================================== */
 
 import router from "./router.js";
+
 import articles from "./articles.js";
 
 
@@ -47,17 +53,20 @@ const State = {
 
 const SEO = {
 
-    siteName: "Finance Assistant",
+    siteName:
+        "Finance Assistant",
 
-    siteURL: "https://financeassistant.web.id",
+    siteURL:
+        "https://financeassistant.web.id",
 
-    newsPath: "/news/",
+    newsPath:
+        "/news/",
 
     homeTitle:
         "News & Update — Finance Assistant",
 
     homeDescription:
-        "Berita, pembaruan, informasi, dan perkembangan terbaru seputar Finance Assistant.",
+        "Berita, pembaruan, informasi terbaru seputar Finance Assistant.",
 
     homeKeywords:
         "Finance Assistant, berita Finance Assistant, update Finance Assistant, aplikasi keuangan, informasi Finance Assistant"
@@ -69,7 +78,7 @@ const SEO = {
    INIT
 ===================================================== */
 
-function init() {
+function init(){
 
     initMenu();
 
@@ -85,51 +94,79 @@ function init() {
 
 
 /* =====================================================
-   RESTORE LEGACY ROUTE
+   ROUTER
 ===================================================== */
 
-function restoreNewsRoute() {
+function initRouter(){
 
-    const params =
-        new URLSearchParams(window.location.search);
-
-    const legacyRoute =
-        params.get("route");
-
-    if (!legacyRoute) {
-
-        return;
-
-    }
-
-    if (!legacyRoute.startsWith("/news")) {
-
-        return;
-
-    }
-
-    window.history.replaceState(
-        {},
-        "",
-        legacyRoute
+    window.addEventListener(
+        "news:route",
+        onRoute
     );
 
 }
 
 
 /* =====================================================
-   ROUTER
+   RESTORE NEWS ROUTE
 ===================================================== */
 
-function initRouter() {
+function restoreNewsRoute(){
 
-    window.addEventListener(
-        "news:route",
-        event => {
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
-            onRoute(event.detail);
 
-        }
+    const route =
+        params.get(
+            "route"
+        );
+
+
+    if(
+        !route
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Pastikan route memang
+     * merupakan route News.
+     */
+
+    if(
+        !route.startsWith(
+            "/news/"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Kembalikan URL menjadi
+     * clean URL.
+     *
+     * Contoh:
+     *
+     * /news/?route=/news/artikel01
+     *
+     * menjadi:
+     *
+     * /news/artikel01
+     */
+
+    window.history.replaceState(
+        {},
+        "",
+        route
     );
 
 }
@@ -139,18 +176,26 @@ function initRouter() {
    ROUTE HANDLER
 ===================================================== */
 
-function onRoute(route) {
+function onRoute(
+    event
+){
 
-    if (!route) {
+    const route =
+        event.detail;
 
-        renderNotFound();
+
+    if(
+        !route
+    ){
 
         return;
 
     }
 
 
-    if (route.type === "home") {
+    if(
+        route.type === "home"
+    ){
 
         renderHome();
 
@@ -159,9 +204,13 @@ function onRoute(route) {
     }
 
 
-    if (route.type === "article") {
+    if(
+        route.type === "article"
+    ){
 
-        renderArticle(route.slug);
+        renderArticle(
+            route.slug
+        );
 
         return;
 
@@ -174,19 +223,24 @@ function onRoute(route) {
 
 
 /* =====================================================
-   HOME
+   HOME RENDERER
 ===================================================== */
 
-function renderHome() {
+function renderHome(){
 
-    State.articleLimit = State.articlesPerLoad;
-
-
-    const container =
-        document.getElementById("newsContent");
+    State.articleLimit =
+        State.articlesPerLoad;
 
 
-    if (!container) {
+    const content =
+        document.getElementById(
+            "newsContent"
+        );
+
+
+    if(
+        !content
+    ){
 
         return;
 
@@ -197,11 +251,48 @@ function renderHome() {
         getSortedArticles();
 
 
+    /*
+     * SEO
+     */
+
     updateHomeSEO();
 
 
-    container.innerHTML =
-        buildHomeHTML(sortedArticles);
+    if(
+        !sortedArticles.length
+    ){
+
+        content.innerHTML = `
+
+            <section class="news-empty">
+
+                <h1 class="news-empty-title">
+
+                    Belum ada artikel
+
+                </h1>
+
+
+                <p class="news-empty-text">
+
+                    Belum ada News & Update
+                    yang tersedia.
+
+                </p>
+
+            </section>
+
+        `;
+
+        return;
+
+    }
+
+
+    content.innerHTML =
+        buildHomeHTML(
+            sortedArticles
+        );
 
 
     bindLoadMore();
@@ -213,65 +304,56 @@ function renderHome() {
    HOME HTML
 ===================================================== */
 
-function buildHomeHTML(articleList) {
+function buildHomeHTML(
+    sortedArticles
+){
 
     const visibleArticles =
-        articleList.slice(
+        sortedArticles.slice(
             0,
             State.articleLimit
         );
 
 
-    if (!articleList.length) {
-
-        return `
-            <section class="news-page">
-
-                <div class="news-page-header">
-
-                    <h1>News & Update</h1>
-
-                    <p>
-                        Belum ada berita atau pembaruan.
-                    </p>
-
-                </div>
-
-            </section>
-        `;
-
-    }
-
-
-    const cards =
-        visibleArticles
-            .map(article => buildArticleCard(article))
-            .join("");
-
-
     const hasMore =
-        State.articleLimit < articleList.length;
+        State.articleLimit <
+        sortedArticles.length;
+
+
+    const articleHTML =
+        visibleArticles
+            .map(
+                buildArticleCard
+            )
+            .join("");
 
 
     return `
 
-        <section class="news-page">
+        <section class="news-home">
 
-            <div class="news-page-header">
+            <div class="news-home-header">
 
-                <h1>News & Update</h1>
+                <h1 class="news-page-title">
 
-                <p>
-                    Berita, informasi, dan pembaruan
-                    terbaru seputar Finance Assistant.
+                    News & Update
+
+                </h1>
+
+
+                <p class="news-page-description">
+
+                    Berita, pembaruan, dan informasi terbaru
+                    seputar Finance Assistant.
+
                 </p>
 
             </div>
 
 
-            <div class="news-list">
+            <div class="news-article-list">
 
-                ${cards}
+                ${articleHTML}
 
             </div>
 
@@ -279,17 +361,20 @@ function buildHomeHTML(articleList) {
             ${
                 hasMore
                     ? `
+
                         <div class="news-load-more">
 
                             <button
                                 type="button"
                                 id="newsLoadMore"
-                                class="news-load-more-button"
                             >
-                                Muat Lebih Banyak
+
+                                Tampilkan lebih banyak
+
                             </button>
 
                         </div>
+
                     `
                     : ""
             }
@@ -305,20 +390,27 @@ function buildHomeHTML(articleList) {
    ARTICLE CARD
 ===================================================== */
 
-function buildArticleCard(article) {
-
-    const url =
-        getArticleURL(article.slug);
-
+function buildArticleCard(
+    article
+){
 
     const excerpt =
-        createExcerpt(article.content);
+        createExcerpt(
+            article.content
+        );
 
 
-    const image =
+    const href =
+        getArticleURL(
+            article.slug
+        );
+
+
+    const imageHTML =
         article.image
             ? `
-                <div class="news-card-image">
+
+                <div class="news-article-card-image">
 
                     <img
                         src="${escapeAttribute(article.image)}"
@@ -327,29 +419,48 @@ function buildArticleCard(article) {
                     >
 
                 </div>
+
             `
             : "";
 
 
     return `
 
-        <article class="news-card">
+        <article class="news-article-card">
 
-            ${image}
+            ${
+                article.image
+                    ? `
+
+                        <a
+                            href="${href}"
+                            class="news-article-card-image-link"
+                            aria-label="Baca ${escapeAttribute(article.title)}"
+                        >
+
+                            ${imageHTML}
+
+                        </a>
+
+                    `
+                    : ""
+            }
 
 
-            <div class="news-card-content">
+            <div class="news-article-card-body">
 
-                <div class="news-card-date">
+                <div class="news-article-card-date">
 
                     ${formatDate(article.date)}
 
                 </div>
 
 
-                <h2 class="news-card-title">
+                <h2 class="news-article-card-title">
 
-                    <a href="${escapeAttribute(url)}">
+                    <a
+                        href="${href}"
+                    >
 
                         ${escapeHTML(article.title)}
 
@@ -358,7 +469,7 @@ function buildArticleCard(article) {
                 </h2>
 
 
-                <p class="news-card-excerpt">
+                <p class="news-article-card-excerpt">
 
                     ${escapeHTML(excerpt)}
 
@@ -366,11 +477,11 @@ function buildArticleCard(article) {
 
 
                 <a
-                    href="${escapeAttribute(url)}"
-                    class="news-card-read-more"
+                    href="${href}"
+                    class="news-article-card-more"
                 >
 
-                    Baca Selengkapnya
+                    Baca selengkapnya →
 
                 </a>
 
@@ -387,13 +498,17 @@ function buildArticleCard(article) {
    LOAD MORE
 ===================================================== */
 
-function bindLoadMore() {
+function bindLoadMore(){
 
     const button =
-        document.getElementById("newsLoadMore");
+        document.getElementById(
+            "newsLoadMore"
+        );
 
 
-    if (!button) {
+    if(
+        !button
+    ){
 
         return;
 
@@ -402,44 +517,89 @@ function bindLoadMore() {
 
     button.addEventListener(
         "click",
-        () => {
-
-            State.articleLimit +=
-                State.articlesPerLoad;
-
-
-            renderHome();
-
-        }
+        onLoadMore
     );
 
 }
 
 
 /* =====================================================
-   ARTICLE DETAIL
+   LOAD MORE ACTION
 ===================================================== */
 
-function renderArticle(slug) {
+function onLoadMore(){
 
-    const container =
-        document.getElementById("newsContent");
+    const sortedArticles =
+        getSortedArticles();
 
 
-    if (!container) {
+    State.articleLimit +=
+        State.articlesPerLoad;
+
+
+    const content =
+        document.getElementById(
+            "newsContent"
+        );
+
+
+    if(
+        !content
+    ){
 
         return;
 
     }
 
 
-    const article =
-        articles.find(
-            item => item.slug === slug
+    content.innerHTML =
+        buildHomeHTML(
+            sortedArticles
         );
 
 
-    if (!article) {
+    bindLoadMore();
+
+}
+
+
+/* =====================================================
+   ARTICLE DETAIL RENDERER
+===================================================== */
+
+function renderArticle(
+    slug
+){
+
+    const content =
+        document.getElementById(
+            "newsContent"
+        );
+
+
+    if(
+        !content
+    ){
+
+        return;
+
+    }
+
+
+    const sortedArticles =
+        getSortedArticles();
+
+
+    const index =
+        sortedArticles.findIndex(
+            article =>
+                article.slug === slug
+        );
+
+
+    if(
+        index === -1
+    ){
 
         renderNotFound();
 
@@ -448,33 +608,125 @@ function renderArticle(slug) {
     }
 
 
-    updateArticleSEO(article);
-
-
-    const sortedArticles =
-        getSortedArticles();
-
-
-    const currentIndex =
-        sortedArticles.findIndex(
-            item => item.slug === article.slug
-        );
+    const article =
+        sortedArticles[index];
 
 
     const previousArticle =
-        currentIndex > 0
-            ? sortedArticles[currentIndex - 1]
-            : null;
+        sortedArticles[
+            index - 1
+        ];
 
 
     const nextArticle =
-        currentIndex <
-        sortedArticles.length - 1
-            ? sortedArticles[currentIndex + 1]
-            : null;
+        sortedArticles[
+            index + 1
+        ];
 
 
-    container.innerHTML = `
+    /*
+     * SEO
+     */
+
+    updateArticleSEO(
+        article
+    );
+
+
+    content.innerHTML =
+        buildArticleHTML(
+            article,
+            previousArticle,
+            nextArticle
+        );
+
+
+    window.scrollTo(
+        {
+            top: 0,
+            behavior: "instant"
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ARTICLE HTML
+===================================================== */
+
+function buildArticleHTML(
+    article,
+    previousArticle,
+    nextArticle
+){
+
+    const imageHTML =
+        article.image
+            ? `
+
+                <div class="news-article-cover">
+
+                    <img
+                        src="${escapeAttribute(article.image)}"
+                        alt="${escapeAttribute(article.title)}"
+                    >
+
+                </div>
+
+            `
+            : "";
+
+
+    const previousHTML =
+        previousArticle
+            ? `
+
+                <a
+                    href="${getArticleURL(previousArticle.slug)}"
+                >
+
+                    ← Artikel Sebelumnya
+
+                </a>
+
+            `
+            : `
+
+                <span class="is-disabled">
+
+                    ← Artikel Sebelumnya
+
+                </span>
+
+            `;
+
+
+    const nextHTML =
+        nextArticle
+            ? `
+
+                <a
+                    href="${getArticleURL(nextArticle.slug)}"
+                >
+
+                    Artikel Berikutnya →
+
+                </a>
+
+            `
+            : `
+
+                <span class="is-disabled">
+
+                    Artikel Berikutnya →
+
+                </span>
+
+            `;
+
+
+    return `
 
         <article class="news-article">
 
@@ -496,25 +748,12 @@ function renderArticle(slug) {
             </header>
 
 
-            ${
-                article.image
-                    ? `
-                        <div class="news-article-image">
-
-                            <img
-                                src="${escapeAttribute(article.image)}"
-                                alt="${escapeAttribute(article.title)}"
-                            >
-
-                        </div>
-                    `
-                    : ""
-            }
+            ${imageHTML}
 
 
             <div class="news-article-content">
 
-                ${article.content}
+                ${article.content || ""}
 
             </div>
 
@@ -524,64 +763,9 @@ function renderArticle(slug) {
                 aria-label="Navigasi artikel"
             >
 
-                ${
-                    previousArticle
-                        ? `
-                            <a
-                                href="${escapeAttribute(
-                                    getArticleURL(
-                                        previousArticle.slug
-                                    )
-                                )}"
-                                class="news-article-nav previous"
-                            >
+                ${previousHTML}
 
-                                <span class="news-article-nav-label">
-                                    Artikel Sebelumnya
-                                </span>
-
-                                <span class="news-article-nav-title">
-                                    ${escapeHTML(
-                                        previousArticle.title
-                                    )}
-                                </span>
-
-                            </a>
-                        `
-                        : `
-                            <span></span>
-                        `
-                }
-
-
-                ${
-                    nextArticle
-                        ? `
-                            <a
-                                href="${escapeAttribute(
-                                    getArticleURL(
-                                        nextArticle.slug
-                                    )
-                                )}"
-                                class="news-article-nav next"
-                            >
-
-                                <span class="news-article-nav-label">
-                                    Artikel Berikutnya
-                                </span>
-
-                                <span class="news-article-nav-title">
-                                    ${escapeHTML(
-                                        nextArticle.title
-                                    )}
-                                </span>
-
-                            </a>
-                        `
-                        : `
-                            <span></span>
-                        `
-                }
+                ${nextHTML}
 
             </nav>
 
@@ -596,41 +780,57 @@ function renderArticle(slug) {
    NOT FOUND
 ===================================================== */
 
-function renderNotFound() {
+function renderNotFound(){
 
-    const container =
-        document.getElementById("newsContent");
+    const content =
+        document.getElementById(
+            "newsContent"
+        );
 
 
-    if (!container) {
+    if(
+        !content
+    ){
 
         return;
 
     }
 
 
+    /*
+     * SEO
+     */
+
     updateNotFoundSEO();
 
 
-    container.innerHTML = `
+    content.innerHTML = `
 
-        <section class="news-page news-not-found">
+        <section class="news-empty">
 
-            <div class="news-page-header">
+            <h1 class="news-empty-title">
 
-                <h1>404</h1>
+                Artikel tidak ditemukan
 
-                <p>
-                    Artikel yang kamu cari tidak ditemukan.
-                </p>
+            </h1>
 
+
+            <p class="news-empty-text">
+
+                Artikel yang kamu cari tidak tersedia
+                atau alamatnya sudah berubah.
+
+            </p>
+
+
+            <div style="margin-top: 22px;">
 
                 <a
                     href="/news/"
-                    class="news-back-home"
+                    class="news-highlight-link"
                 >
 
-                    Kembali ke News & Update
+                    ← Kembali ke News & Update
 
                 </a>
 
@@ -644,18 +844,41 @@ function renderNotFound() {
 
 
 /* =====================================================
-   SORT ARTICLES
+   ARTICLE DATA
 ===================================================== */
 
-function getSortedArticles() {
+function getSortedArticles(){
 
-    return [...articles].sort(
-        (a, b) => {
+    return [
 
-            return new Date(b.date) -
-                   new Date(a.date);
+        ...articles
+
+    ].sort(
+
+        (
+            a,
+            b
+        ) => {
+
+            const dateA =
+                new Date(
+                    a.date || 0
+                );
+
+
+            const dateB =
+                new Date(
+                    b.date || 0
+                );
+
+
+            return (
+                dateB -
+                dateA
+            );
 
         }
+
     );
 
 }
@@ -665,7 +888,9 @@ function getSortedArticles() {
    ARTICLE URL
 ===================================================== */
 
-function getArticleURL(slug) {
+function getArticleURL(
+    slug
+){
 
     return `/news/${encodeURIComponent(slug)}`;
 
@@ -673,42 +898,321 @@ function getArticleURL(slug) {
 
 
 /* =====================================================
-   SITE URL
+   CREATE EXCERPT
 ===================================================== */
 
-function getSiteURL(path = "/") {
+function createExcerpt(
+    html
+){
 
-    if (!path) {
+    if(
+        !html
+    ){
 
-        return SEO.siteURL;
+        return "";
+
+    }
+
+
+    const temp =
+        document.createElement(
+            "div"
+        );
+
+
+    temp.innerHTML =
+        html;
+
+
+    const text =
+        temp.textContent
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .trim();
+
+
+    if(
+        !text
+    ){
+
+        return "";
 
     }
 
 
-    if (path.startsWith("http")) {
+    const sentences =
+        text.match(
+            /[^.!?]+[.!?]+/g
+        );
 
-        return path;
+
+    if(
+        !sentences ||
+        sentences.length === 0
+    ){
+
+        return truncateText(
+            text,
+            220
+        );
 
     }
+
+
+    let excerpt = "";
+
+
+    for(
+        const sentence of sentences
+    ){
+
+        const candidate =
+            `${excerpt} ${sentence.trim()}`
+                .trim();
+
+
+        if(
+            candidate.length > 280 &&
+            excerpt
+        ){
+
+            break;
+
+        }
+
+
+        excerpt =
+            candidate;
+
+
+        if(
+            countSentences(
+                excerpt
+            ) >= 3
+        ){
+
+            break;
+
+        }
+
+    }
+
+
+    if(
+        excerpt.length > 300
+    ){
+
+        excerpt =
+            truncateText(
+                excerpt,
+                300
+            );
+
+    }
+
+
+    if(
+        excerpt.length <
+        text.length
+    ){
+
+        excerpt =
+            excerpt.replace(
+                /[.!?]+$/,
+                ""
+            ) +
+            "…";
+
+    }
+
+
+    return excerpt;
+
+}
+
+
+/* =====================================================
+   COUNT SENTENCES
+===================================================== */
+
+function countSentences(
+    text
+){
+
+    const matches =
+        text.match(
+            /[.!?]+/g
+        );
+
+
+    return matches
+        ? matches.length
+        : 0;
+
+}
+
+
+/* =====================================================
+   TRUNCATE TEXT
+===================================================== */
+
+function truncateText(
+    text,
+    maxLength
+){
+
+    if(
+        text.length <=
+        maxLength
+    ){
+
+        return text;
+
+    }
+
+
+    const shortened =
+        text
+            .slice(
+                0,
+                maxLength
+            )
+            .replace(
+                /\s+\S*$/,
+                ""
+            );
 
 
     return (
-        SEO.siteURL.replace(/\/$/, "") +
-        "/" +
-        path.replace(/^\//, "")
+        shortened.trim() +
+        "…"
     );
 
 }
 
 
 /* =====================================================
+   FORMAT DATE
+===================================================== */
+
+function formatDate(
+    date
+){
+
+    if(
+        !date
+    ){
+
+        return "";
+
+    }
+
+
+    const parsed =
+        new Date(
+            `${date}T00:00:00`
+        );
+
+
+    if(
+        Number.isNaN(
+            parsed.getTime()
+        )
+    ){
+
+        return date;
+
+    }
+
+
+    return parsed.toLocaleDateString(
+        "id-ID",
+        {
+
+            day:
+                "numeric",
+
+            month:
+                "long",
+
+            year:
+                "numeric"
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+    value
+){
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   ESCAPE ATTRIBUTE
+===================================================== */
+
+function escapeAttribute(
+    value
+){
+
+    return escapeHTML(
+        value
+    );
+
+}
+
+
+/* =====================================================
+   =====================================================
+   SEO
+   =====================================================
+===================================================== */
+
+
+/* =====================================================
    HOME SEO
 ===================================================== */
 
-function updateHomeSEO() {
+function updateHomeSEO(){
 
     const url =
-        getSiteURL(SEO.newsPath);
+        getSiteURL(
+            SEO.newsPath
+        );
 
 
     updateBasicSEO({
@@ -729,7 +1233,10 @@ function updateHomeSEO() {
             "website",
 
         image:
-            ""
+            "",
+
+        robots:
+            "index, follow"
 
     });
 
@@ -746,7 +1253,6 @@ function updateHomeSEO() {
             SEO.homeDescription,
 
         url:
-
             url
 
     });
@@ -758,21 +1264,43 @@ function updateHomeSEO() {
    ARTICLE SEO
 ===================================================== */
 
-function updateArticleSEO(article) {
+function updateArticleSEO(
+    article
+){
 
     const seo =
         article.seo || {};
 
+
+    /*
+     * SEO title dari artikel.
+     *
+     * Jika belum tersedia,
+     * gunakan fallback.
+     */
 
     const title =
         seo.title ||
         `${article.title} — Finance Assistant`;
 
 
+    /*
+     * SEO description dari artikel.
+     *
+     * Jika belum tersedia,
+     * gunakan excerpt artikel.
+     */
+
     const description =
         seo.description ||
-        createSEODescription(article.content);
+        createSEODescription(
+            article.content
+        );
 
+
+    /*
+     * Keywords bersifat opsional.
+     */
 
     const keywords =
         seo.keywords ||
@@ -781,13 +1309,17 @@ function updateArticleSEO(article) {
 
     const url =
         getSiteURL(
-            getArticleURL(article.slug)
+            getArticleURL(
+                article.slug
+            )
         );
 
 
     const image =
         article.image
-            ? getSiteURL(article.image)
+            ? getSiteURL(
+                article.image
+            )
             : "";
 
 
@@ -812,18 +1344,30 @@ function updateArticleSEO(article) {
             image,
 
         publishedTime:
-            article.date || ""
+            article.date || "",
+
+        robots:
+            "index, follow"
 
     });
 
 
     updateArticleStructuredData({
 
-        article,
-        title,
-        description,
-        url,
-        image
+        article:
+            article,
+
+        title:
+            title,
+
+        description:
+            description,
+
+        url:
+            url,
+
+        image:
+            image
 
     });
 
@@ -834,20 +1378,23 @@ function updateArticleSEO(article) {
    404 SEO
 ===================================================== */
 
-function updateNotFoundSEO() {
+function updateNotFoundSEO(){
 
     const currentPath =
-        window.location.pathname || "/news/";
+        window.location.pathname ||
+        "/news/";
 
 
     const url =
-        getSiteURL(currentPath);
+        getSiteURL(
+            currentPath
+        );
 
 
     updateBasicSEO({
 
         title:
-            "404 — News & Update | Finance Assistant",
+            "Artikel Tidak Ditemukan — Finance Assistant",
 
         description:
             "Halaman News & Update yang kamu cari tidak ditemukan.",
@@ -870,7 +1417,59 @@ function updateNotFoundSEO() {
     });
 
 
-    updateStructuredData(null);
+    updateStructuredData(
+        null
+    );
+
+}
+
+
+/* =====================================================
+   GET SITE URL
+===================================================== */
+
+function getSiteURL(
+    path = "/"
+){
+
+    if(
+        !path
+    ){
+
+        return SEO.siteURL;
+
+    }
+
+
+    if(
+        path.startsWith(
+            "http://"
+        ) ||
+        path.startsWith(
+            "https://"
+        )
+    ){
+
+        return path;
+
+    }
+
+
+    return (
+
+        SEO.siteURL.replace(
+            /\/$/,
+            ""
+        ) +
+
+        "/" +
+
+        path.replace(
+            /^\//,
+            ""
+        )
+
+    );
 
 }
 
@@ -879,32 +1478,50 @@ function updateNotFoundSEO() {
    BASIC SEO
 ===================================================== */
 
-function updateBasicSEO(options = {}) {
+function updateBasicSEO(
+    options = {}
+){
 
     const {
 
-        title = SEO.homeTitle,
+        title =
+            SEO.homeTitle,
 
-        description = SEO.homeDescription,
+        description =
+            SEO.homeDescription,
 
-        keywords = "",
+        keywords =
+            "",
 
-        canonical = SEO.siteURL,
+        canonical =
+            SEO.siteURL,
 
-        type = "website",
+        type =
+            "website",
 
-        image = "",
+        image =
+            "",
 
-        publishedTime = "",
+        publishedTime =
+            "",
 
-        robots = "index, follow"
+        robots =
+            "index, follow"
 
     } = options;
 
 
+    /*
+     * TITLE
+     */
+
     document.title =
         title;
 
+
+    /*
+     * BASIC META
+     */
 
     setMeta(
         "name",
@@ -927,9 +1544,9 @@ function updateBasicSEO(options = {}) {
     );
 
 
-    /* -------------------------------------------------
-       Open Graph
-    ------------------------------------------------- */
+    /*
+     * OPEN GRAPH
+     */
 
     setMeta(
         "property",
@@ -973,7 +1590,9 @@ function updateBasicSEO(options = {}) {
     );
 
 
-    if (image) {
+    if(
+        image
+    ){
 
         setMeta(
             "property",
@@ -988,7 +1607,7 @@ function updateBasicSEO(options = {}) {
             title
         );
 
-    } else {
+    }else{
 
         removeMeta(
             "property",
@@ -1004,14 +1623,14 @@ function updateBasicSEO(options = {}) {
     }
 
 
-    /* -------------------------------------------------
-       Article Open Graph
-    ------------------------------------------------- */
+    /*
+     * ARTICLE META
+     */
 
-    if (
+    if(
         type === "article" &&
         publishedTime
-    ) {
+    ){
 
         setMeta(
             "property",
@@ -1019,13 +1638,14 @@ function updateBasicSEO(options = {}) {
             publishedTime
         );
 
+
         setMeta(
             "property",
             "article:modified_time",
             publishedTime
         );
 
-    } else {
+    }else{
 
         removeMeta(
             "property",
@@ -1041,9 +1661,9 @@ function updateBasicSEO(options = {}) {
     }
 
 
-    /* -------------------------------------------------
-       Twitter
-    ------------------------------------------------- */
+    /*
+     * TWITTER
+     */
 
     setMeta(
         "name",
@@ -1075,7 +1695,9 @@ function updateBasicSEO(options = {}) {
     );
 
 
-    if (image) {
+    if(
+        image
+    ){
 
         setMeta(
             "name",
@@ -1090,7 +1712,7 @@ function updateBasicSEO(options = {}) {
             title
         );
 
-    } else {
+    }else{
 
         removeMeta(
             "name",
@@ -1106,11 +1728,13 @@ function updateBasicSEO(options = {}) {
     }
 
 
-    /* -------------------------------------------------
-       Canonical
-    ------------------------------------------------- */
+    /*
+     * CANONICAL
+     */
 
-    setCanonical(canonical);
+    setCanonical(
+        canonical
+    );
 
 }
 
@@ -1119,9 +1743,15 @@ function updateBasicSEO(options = {}) {
    SET META
 ===================================================== */
 
-function setMeta(attribute, key, content) {
+function setMeta(
+    attribute,
+    key,
+    content
+){
 
-    if (!content) {
+    if(
+        !content
+    ){
 
         return;
 
@@ -1134,10 +1764,14 @@ function setMeta(attribute, key, content) {
         );
 
 
-    if (!meta) {
+    if(
+        !meta
+    ){
 
         meta =
-            document.createElement("meta");
+            document.createElement(
+                "meta"
+            );
 
 
         meta.setAttribute(
@@ -1146,7 +1780,9 @@ function setMeta(attribute, key, content) {
         );
 
 
-        document.head.appendChild(meta);
+        document.head.appendChild(
+            meta
+        );
 
     }
 
@@ -1163,7 +1799,10 @@ function setMeta(attribute, key, content) {
    REMOVE META
 ===================================================== */
 
-function removeMeta(attribute, key) {
+function removeMeta(
+    attribute,
+    key
+){
 
     const meta =
         document.head.querySelector(
@@ -1171,7 +1810,9 @@ function removeMeta(attribute, key) {
         );
 
 
-    if (meta) {
+    if(
+        meta
+    ){
 
         meta.remove();
 
@@ -1184,7 +1825,9 @@ function removeMeta(attribute, key) {
    CANONICAL
 ===================================================== */
 
-function setCanonical(url) {
+function setCanonical(
+    url
+){
 
     let canonical =
         document.head.querySelector(
@@ -1192,10 +1835,14 @@ function setCanonical(url) {
         );
 
 
-    if (!canonical) {
+    if(
+        !canonical
+    ){
 
         canonical =
-            document.createElement("link");
+            document.createElement(
+                "link"
+            );
 
 
         canonical.setAttribute(
@@ -1223,7 +1870,9 @@ function setCanonical(url) {
    STRUCTURED DATA
 ===================================================== */
 
-function updateStructuredData(data) {
+function updateStructuredData(
+    data
+){
 
     const existing =
         document.getElementById(
@@ -1231,14 +1880,18 @@ function updateStructuredData(data) {
         );
 
 
-    if (existing) {
+    if(
+        existing
+    ){
 
         existing.remove();
 
     }
 
 
-    if (!data) {
+    if(
+        !data
+    ){
 
         return;
 
@@ -1246,7 +1899,9 @@ function updateStructuredData(data) {
 
 
     const script =
-        document.createElement("script");
+        document.createElement(
+            "script"
+        );
 
 
     script.id =
@@ -1310,7 +1965,9 @@ function updateStructuredData(data) {
    ARTICLE STRUCTURED DATA
 ===================================================== */
 
-function updateArticleStructuredData(options) {
+function updateArticleStructuredData(
+    options
+){
 
     const {
 
@@ -1333,7 +1990,9 @@ function updateArticleStructuredData(options) {
         );
 
 
-    if (existing) {
+    if(
+        existing
+    ){
 
         existing.remove();
 
@@ -1341,7 +2000,9 @@ function updateArticleStructuredData(options) {
 
 
     const script =
-        document.createElement("script");
+        document.createElement(
+            "script"
+        );
 
 
     script.id =
@@ -1423,7 +2084,9 @@ function updateArticleStructuredData(options) {
     };
 
 
-    if (image) {
+    if(
+        image
+    ){
 
         structuredData.image = [
             image
@@ -1446,78 +2109,22 @@ function updateArticleStructuredData(options) {
 
 
 /* =====================================================
-   CREATE EXCERPT
-===================================================== */
-
-function createExcerpt(content) {
-
-    if (!content) {
-
-        return "";
-
-    }
-
-
-    const temporary =
-        document.createElement("div");
-
-
-    temporary.innerHTML =
-        content;
-
-
-    const text =
-        temporary.textContent
-            .replace(/\s+/g, " ")
-            .trim();
-
-
-    if (!text) {
-
-        return "";
-
-    }
-
-
-    const sentences =
-        text
-            .split(/(?<=[.!?])\s+/)
-            .filter(Boolean);
-
-
-    let excerpt =
-        sentences
-            .slice(0, 3)
-            .join(" ");
-
-
-    if (excerpt.length > 300) {
-
-        excerpt =
-            excerpt.substring(
-                0,
-                297
-            ).trim() + "...";
-
-    }
-
-
-    return excerpt;
-
-}
-
-
-/* =====================================================
    SEO DESCRIPTION
 ===================================================== */
 
-function createSEODescription(content) {
+function createSEODescription(
+    content
+){
 
     const excerpt =
-        createExcerpt(content);
+        createExcerpt(
+            content
+        );
 
 
-    if (excerpt) {
+    if(
+        excerpt
+    ){
 
         return excerpt;
 
@@ -1530,146 +2137,73 @@ function createSEODescription(content) {
 
 
 /* =====================================================
-   FORMAT DATE
-===================================================== */
-
-function formatDate(date) {
-
-    if (!date) {
-
-        return "";
-
-    }
-
-
-    const parsedDate =
-        new Date(date);
-
-
-    if (Number.isNaN(
-        parsedDate.getTime()
-    )) {
-
-        return date;
-
-    }
-
-
-    return parsedDate.toLocaleDateString(
-        "id-ID",
-        {
-
-            day:
-                "numeric",
-
-            month:
-                "long",
-
-            year:
-                "numeric"
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(value) {
-
-    if (value === null ||
-        value === undefined) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* =====================================================
-   ESCAPE ATTRIBUTE
-===================================================== */
-
-function escapeAttribute(value) {
-
-    return escapeHTML(value);
-
-}
-
-
-/* =====================================================
    MENU
 ===================================================== */
 
-function initMenu() {
+function initMenu(){
 
-    const menuButton =
-        document.getElementById("menuButton");
+    const button =
+        document.getElementById(
+            "newsMenuButton"
+        );
 
-    const drawer =
-        document.getElementById("sideDrawer");
 
     const overlay =
-        document.getElementById("drawerOverlay");
+        document.getElementById(
+            "newsMenuOverlay"
+        );
 
 
-    if (!menuButton ||
-        !drawer) {
+    const drawer =
+        document.getElementById(
+            "newsDrawer"
+        );
+
+
+    if(
+        !button ||
+        !overlay ||
+        !drawer
+    ){
 
         return;
 
     }
 
 
-    menuButton.addEventListener(
+    button.addEventListener(
         "click",
-        () => {
-
-            toggleMenu();
-
-        }
+        toggleMenu
     );
 
 
-    if (overlay) {
+    overlay.addEventListener(
+        "click",
+        closeMenu
+    );
 
-        overlay.addEventListener(
-            "click",
-            () => {
 
-                closeMenu();
-
-            }
-        );
-
-    }
+    drawer.addEventListener(
+        "click",
+        onDrawerClick
+    );
 
 }
 
 
 /* =====================================================
-   MENU TOGGLE
+   TOGGLE MENU
 ===================================================== */
 
-function toggleMenu() {
+function toggleMenu(){
 
-    if (State.menuOpen) {
+    if(
+        State.menuOpen
+    ){
 
         closeMenu();
 
-    } else {
+    }else{
 
         openMenu();
 
@@ -1682,42 +2216,51 @@ function toggleMenu() {
    OPEN MENU
 ===================================================== */
 
-function openMenu() {
+function openMenu(){
 
-    const drawer =
-        document.getElementById("sideDrawer");
-
-    const overlay =
-        document.getElementById("drawerOverlay");
+    State.menuOpen =
+        true;
 
 
-    if (!drawer) {
-
-        return;
-
-    }
-
-
-    State.menuOpen = true;
-
-
-    drawer.classList.add(
-        "open"
+    document.body.classList.add(
+        "news-menu-open"
     );
 
 
-    if (overlay) {
+    const button =
+        document.getElementById(
+            "newsMenuButton"
+        );
 
-        overlay.classList.add(
-            "open"
+
+    const overlay =
+        document.getElementById(
+            "newsMenuOverlay"
+        );
+
+
+    if(
+        button
+    ){
+
+        button.setAttribute(
+            "aria-expanded",
+            "true"
         );
 
     }
 
 
-    document.body.classList.add(
-        "drawer-open"
-    );
+    if(
+        overlay
+    ){
+
+        overlay.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+    }
 
 }
 
@@ -1726,106 +2269,126 @@ function openMenu() {
    CLOSE MENU
 ===================================================== */
 
-function closeMenu() {
+function closeMenu(){
 
-    const drawer =
-        document.getElementById("sideDrawer");
-
-    const overlay =
-        document.getElementById("drawerOverlay");
-
-
-    State.menuOpen = false;
-
-
-    if (drawer) {
-
-        drawer.classList.remove(
-            "open"
-        );
-
-    }
-
-
-    if (overlay) {
-
-        overlay.classList.remove(
-            "open"
-        );
-
-    }
+    State.menuOpen =
+        false;
 
 
     document.body.classList.remove(
-        "drawer-open"
+        "news-menu-open"
     );
+
+
+    const button =
+        document.getElementById(
+            "newsMenuButton"
+        );
+
+
+    const overlay =
+        document.getElementById(
+            "newsMenuOverlay"
+        );
+
+
+    if(
+        button
+    ){
+
+        button.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+    }
+
+
+    if(
+        overlay
+    ){
+
+        overlay.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+    }
 
 }
 
 
 /* =====================================================
-   GLOBAL EVENTS
+   DRAWER CLICK
 ===================================================== */
 
-function initEvent() {
+function onDrawerClick(
+    event
+){
 
-    if (State.eventsBound) {
+    const link =
+        event.target.closest(
+            "a"
+        );
+
+
+    if(
+        !link
+    ){
 
         return;
 
     }
 
 
-    State.eventsBound = true;
+    closeMenu();
+
+}
+
+
+/* =====================================================
+   EVENT
+===================================================== */
+
+function initEvent(){
+
+    if(
+        State.eventsBound
+    ){
+
+        return;
+
+    }
 
 
     document.addEventListener(
-        "click",
-        event => {
-
-            const link =
-                event.target.closest(
-                    "a[href]"
-                );
-
-
-            if (!link) {
-
-                return;
-
-            }
-
-
-            const href =
-                link.getAttribute("href");
-
-
-            if (!href) {
-
-                return;
-
-            }
-
-
-            if (
-                href.startsWith("/news/") &&
-                !href.includes("#")
-            ) {
-
-                event.preventDefault();
-
-
-                closeMenu();
-
-
-                router.navigate(
-                    href
-                );
-
-            }
-
-        }
+        "keydown",
+        onKeyDown
     );
+
+
+    State.eventsBound =
+        true;
+
+}
+
+
+/* =====================================================
+   KEYBOARD
+===================================================== */
+
+function onKeyDown(
+    event
+){
+
+    if(
+        event.key === "Escape" &&
+        State.menuOpen
+    ){
+
+        closeMenu();
+
+    }
 
 }
 
@@ -1834,4 +2397,21 @@ function initEvent() {
    START
 ===================================================== */
 
-init();
+if(
+    document.readyState ===
+    "loading"
+){
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        init,
+        {
+            once: true
+        }
+    );
+
+}else{
+
+    init();
+
+}
