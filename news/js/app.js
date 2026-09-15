@@ -29,6 +29,11 @@ import router from "./router.js";
 
 import articles from "./articles.js";
 
+import {
+    buildShareHTML,
+    bindShareButton
+} from "./share.js";
+
 
 /* =====================================================
    STATE
@@ -639,6 +644,10 @@ function renderArticle(
             previousArticle,
             nextArticle
         );
+   
+   bindShareButton(
+    article
+);
 
 
     window.scrollTo(
@@ -756,7 +765,8 @@ function buildArticleHTML(
                 ${article.content || ""}
 
             </div>
-
+            
+           ${buildShareHTML()}
 
             <nav
                 class="news-article-navigation"
