@@ -1453,3 +1453,199 @@ max-width:420px
     }
 
 }
+
+/* =====================================================
+   SITE FOOTER
+===================================================== */
+
+.site-footer {
+    width: 100%;
+
+    padding:
+        0 20px
+        36px;
+
+    background: #ffffff;
+
+    text-align: center;
+}
+
+
+.site-footer-divider {
+    width: 100%;
+    max-width: 760px;
+
+    height: 2px;
+
+    margin:
+        0 auto
+        38px;
+
+    background: #d9dde3;
+
+    border-radius: 2px;
+}
+
+
+.site-footer-content {
+    width: 100%;
+    max-width: 760px;
+
+    margin: 0 auto;
+}
+
+
+/* =====================================================
+   BRAND
+===================================================== */
+
+.site-footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-bottom: 28px;
+}
+
+
+.site-footer-brand strong {
+    color: #202124;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    line-height: 1.4;
+}
+
+
+.site-footer-brand span {
+    margin-top: 3px;
+
+    color: #80868b;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+.site-footer-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 14px;
+
+    margin-bottom: 34px;
+}
+
+
+.site-footer-nav a {
+    color: #5f6368;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    line-height: 1.5;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.site-footer-nav a:hover {
+    color: #2867c7;
+}
+
+
+.site-footer-nav a:active {
+    transform: scale(0.98);
+}
+
+
+/* =====================================================
+   BOTTOM
+===================================================== */
+
+.site-footer-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 7px;
+
+    padding-top: 25px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+
+.site-footer-bottom p {
+    margin: 0;
+
+    color: #9aa0a6;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+
+.site-footer-bottom a {
+    color: #80868b;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    line-height: 1.5;
+
+    transition:
+        color 0.2s ease;
+}
+
+
+.site-footer-bottom a:hover {
+    color: #2867c7;
+}
+
+
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
+
+.site-footer a:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: 3px;
+
+    border-radius: 3px;
+}
+
+
+/* =====================================================
+   LARGER SCREEN
+===================================================== */
+
+@media (min-width: 640px) {
+
+    .site-footer {
+        padding:
+            0 24px
+            45px;
+    }
+
+
+    .site-footer-divider {
+        margin-bottom: 42px;
+    }
+
+
+    .site-footer-nav {
+        gap: 15px;
+    }
+
+}
