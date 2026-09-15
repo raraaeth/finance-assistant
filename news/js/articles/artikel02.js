@@ -196,7 +196,7 @@ export default {
         </h2>
 
         <p>
-            Finance Assistant pada dasarnya saya buat dari
+            <a href="/">Finance Assistant</a> pada dasarnya saya buat dari
             kebutuhan tersebut.
         </p>
 
