@@ -215,7 +215,7 @@ export default {
 
         <p>
             Karena itu, pengguna tetap memiliki peran utama dalam
-            data mereka sendiri. Finance Assistant membantu
+            data mereka sendiri. <a href="/">Finance Assistant</a> membantu
             menyediakan struktur, tampilan, dan mekanisme
             pengelolaan data, sementara penyimpanan data berada
             pada ruang Google yang digunakan oleh pengguna.
