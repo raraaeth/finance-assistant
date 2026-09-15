@@ -3,7 +3,7 @@
    CONTACT & FEEDBACK
 
    File    : /contact/style.css
-   Version : 1.0.0
+   Version : 1.1.0
 ===================================================== */
 
 
@@ -82,13 +82,72 @@ textarea {
     min-height: 60px;
 
     margin: 0 auto;
-    padding: 0 18px;
+    padding: 0 14px;
 
     display: flex;
     align-items: center;
-    justify-content: space-between;
 }
 
+
+/* =====================================================
+   HAMBURGER
+===================================================== */
+
+.contact-menu-button {
+    width: 42px;
+    height: 42px;
+
+    margin-right: 5px;
+
+    padding: 9px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    flex: 0 0 auto;
+}
+
+
+.contact-menu-button span {
+    display: block;
+
+    width: 21px;
+    height: 2px;
+
+    border-radius: 2px;
+
+    background: #3c4043;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.contact-menu-button:hover {
+    background: #f3f4f6;
+}
+
+
+.contact-menu-button:active {
+    transform: scale(0.95);
+}
+
+
+/* =====================================================
+   BRAND
+===================================================== */
 
 .contact-brand {
     display: inline-flex;
@@ -98,16 +157,13 @@ textarea {
 
     min-width: 0;
 
-    font-size: 15px;
-    font-weight: 600;
-
-    color: #202124;
+    flex: 1;
 }
 
 
 .contact-brand img {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
 
     flex: 0 0 auto;
 
@@ -117,17 +173,44 @@ textarea {
 }
 
 
-.contact-brand span {
+.contact-brand-text {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.contact-brand-text strong {
     overflow: hidden;
+
+    color: #202124;
+
+    font-size: 15px;
+    font-weight: 650;
+
+    line-height: 1.3;
 
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 
+.contact-brand-text span {
+    color: #80868b;
+
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+
+/* =====================================================
+   NEWS ICON
+===================================================== */
+
 .contact-news-link {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
 
     display: flex;
     align-items: center;
@@ -136,6 +219,8 @@ textarea {
     border-radius: 10px;
 
     font-size: 19px;
+
+    flex: 0 0 auto;
 
     transition:
         background 0.2s ease,
@@ -150,6 +235,236 @@ textarea {
 
 .contact-news-link:active {
     transform: scale(0.94);
+}
+
+
+/* =====================================================
+   NAVIGATION OVERLAY
+===================================================== */
+
+.contact-menu-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 199;
+
+    background: rgba(32, 33, 36, 0.32);
+
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+}
+
+
+.contact-menu-overlay[hidden] {
+    display: none;
+}
+
+
+/* =====================================================
+   NAVIGATION DRAWER
+===================================================== */
+
+.contact-drawer {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    z-index: 200;
+
+    width: min(82vw, 390px);
+
+    padding: 20px 18px;
+
+    background: #ffffff;
+
+    box-shadow:
+        6px 0 24px rgba(0, 0, 0, 0.10);
+
+    overflow-y: auto;
+
+    transform: translateX(-105%);
+
+    transition:
+        transform 0.25s ease;
+}
+
+
+.contact-drawer.open {
+    transform: translateX(0);
+}
+
+
+.contact-drawer-header {
+    min-height: 72px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+
+.contact-drawer-brand {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+}
+
+
+.contact-drawer-brand img {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 11px;
+
+    object-fit: cover;
+
+    flex: 0 0 auto;
+}
+
+
+.contact-drawer-brand div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.contact-drawer-brand strong {
+    color: #202124;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    line-height: 1.3;
+}
+
+
+.contact-drawer-brand span {
+    color: #80868b;
+
+    font-size: 14px;
+
+    line-height: 1.4;
+}
+
+
+.contact-drawer-close {
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: #5f6368;
+
+    font-size: 30px;
+    font-weight: 300;
+
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+.contact-drawer-close:hover {
+    background: #f3f4f6;
+}
+
+
+.contact-drawer-divider {
+    height: 1px;
+
+    margin:
+        17px 0
+        20px;
+
+    background: #e5e7eb;
+}
+
+
+/* =====================================================
+   NAVIGATION LINKS
+===================================================== */
+
+.contact-navigation {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+
+.contact-navigation-link {
+    min-height: 64px;
+
+    padding: 10px 18px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    border-radius: 16px;
+
+    color: #3c4043;
+
+    font-size: 16px;
+    font-weight: 550;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+.contact-navigation-link:hover {
+    background: #f5f7fa;
+}
+
+
+.contact-navigation-link:active {
+    transform: scale(0.985);
+}
+
+
+.contact-navigation-link.active {
+    background: #eef5ff;
+
+    color: #2867c7;
+
+    font-weight: 650;
+}
+
+
+.contact-navigation-icon {
+    width: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+
+    line-height: 1;
+
+    flex: 0 0 auto;
 }
 
 
@@ -224,7 +539,7 @@ textarea {
 .contact-info-box,
 .contact-privacy-box {
     margin-top: 28px;
-    padding: 18px 18px;
+    padding: 18px;
 
     border-radius: 14px;
 
@@ -393,17 +708,11 @@ textarea {
    FOCUS
 ===================================================== */
 
-.feedback-field input:not([readonly]):focus,
 .feedback-field textarea:focus {
     border-color: #1a73e8;
 
     box-shadow:
         0 0 0 3px rgba(26, 115, 232, 0.10);
-}
-
-
-.feedback-field textarea:focus {
-    background: #ffffff;
 }
 
 
@@ -456,7 +765,7 @@ textarea {
 
 
 /* =====================================================
-   SUBMIT BUTTON
+   SUBMIT
 ===================================================== */
 
 .feedback-submit {
@@ -544,7 +853,10 @@ textarea {
    ACCESSIBILITY
 ===================================================== */
 
+.contact-menu-button:focus-visible,
+.contact-drawer-close:focus-visible,
 .contact-news-link:focus-visible,
+.contact-navigation-link:focus-visible,
 .feedback-field input:focus-visible,
 .feedback-field textarea:focus-visible,
 .feedback-submit:focus-visible {
