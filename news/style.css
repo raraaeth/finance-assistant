@@ -1164,3 +1164,158 @@ body.news-menu-open .news-drawer {
         max-width: 48%;
     }
 }
+
+/* =====================================================
+   NEWS ARTICLE SHARE
+===================================================== */
+
+.news-article-share {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    margin-top: 34px;
+
+    margin-bottom: 26px;
+
+}
+
+
+.news-article-share-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 44px;
+
+    padding: 0 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    color: inherit;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+
+}
+
+
+.news-article-share-button:hover {
+
+    background: rgba(255, 255, 255, 0.09);
+
+    border-color: rgba(255, 255, 255, 0.2);
+
+}
+
+
+.news-article-share-button:active {
+
+    transform: scale(0.97);
+
+}
+
+
+.news-article-share-button:focus-visible {
+
+    outline: 2px solid currentColor;
+
+    outline-offset: 3px;
+
+}
+
+
+.news-article-share-icon {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 18px;
+
+    height: 18px;
+
+    font-size: 18px;
+
+    line-height: 1;
+
+}
+
+
+.news-article-share-text {
+
+    display: inline-block;
+
+    white-space: nowrap;
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+
+    .news-article-share {
+
+        margin-top: 30px;
+
+        margin-bottom: 24px;
+
+    }
+
+
+    .news-article-share-button {
+
+        min-height: 42px;
+
+        padding: 0 18px;
+
+        border-radius: 11px;
+
+        font-size: 13px;
+
+    }
+
+
+    .news-article-share-icon {
+
+        width: 17px;
+
+        height: 17px;
+
+        font-size: 17px;
+
+    }
+
+}
