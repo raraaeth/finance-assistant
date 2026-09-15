@@ -3,15 +3,13 @@
    CONTACT & FEEDBACK
 
    File    : /contact/js/app.js
-   Version : 1.0.0
-
-   Description :
-   Contact & Feedback Controller
+   Version : 1.1.0
 
    Handles :
    - User identity
    - Feedback form
    - Web3Forms submission
+   - Navigation drawer
    - Success / error state
    - Authentication check
 ===================================================== */
@@ -26,26 +24,15 @@ import { loadUser } from "../../js/storage.js";
 
 const CONFIG = {
 
-    /*
-     * Web3Forms Access Key
-     *
-     * Jangan tampilkan key ini di UI.
-     */
     WEB3FORMS_ACCESS_KEY:
         "9e887887-c3ed-45fc-b065-206a18e0d2e4",
 
-    /*
-     * Email tujuan
-     *
-     * Digunakan sebagai informasi internal.
-     * Web3Forms tetap menentukan destination
-     * berdasarkan konfigurasi Access Key.
-     */
     DESTINATION_EMAIL:
         "ainurdragneel@gmail.com",
 
     SUBJECT:
         "Feedback Finance Assistant"
+
 };
 
 
@@ -61,7 +48,10 @@ const State = {
 
     submitting: false,
 
-    initialized: false
+    initialized: false,
+
+    menuOpen: false
+
 };
 
 
@@ -85,7 +75,16 @@ const DOM = {
 
     loading: null,
 
-    page: null
+    page: null,
+
+    menuButton: null,
+
+    menuOverlay: null,
+
+    drawer: null,
+
+    drawerClose: null
+
 };
 
 
@@ -100,6 +99,8 @@ async function init(){
     cacheDOM();
 
     State.initialized = true;
+
+    initMenu();
 
     setLoading(true);
 
@@ -128,6 +129,7 @@ async function init(){
         setLoading(false);
 
     }
+
 }
 
 
@@ -138,28 +140,278 @@ async function init(){
 function cacheDOM(){
 
     DOM.form =
-        document.getElementById("feedbackForm");
+        document.getElementById(
+            "feedbackForm"
+        );
 
     DOM.name =
-        document.getElementById("feedbackName");
+        document.getElementById(
+            "feedbackName"
+        );
 
     DOM.email =
-        document.getElementById("feedbackEmail");
+        document.getElementById(
+            "feedbackEmail"
+        );
 
     DOM.message =
-        document.getElementById("feedbackMessage");
+        document.getElementById(
+            "feedbackMessage"
+        );
 
     DOM.submit =
-        document.getElementById("feedbackSubmit");
+        document.getElementById(
+            "feedbackSubmit"
+        );
 
     DOM.status =
-        document.getElementById("feedbackStatus");
+        document.getElementById(
+            "feedbackStatus"
+        );
 
     DOM.loading =
-        document.getElementById("feedbackLoading");
+        document.getElementById(
+            "feedbackLoading"
+        );
 
     DOM.page =
-        document.getElementById("contactPage");
+        document.getElementById(
+            "contactPage"
+        );
+
+
+    /* Navigation */
+
+    DOM.menuButton =
+        document.getElementById(
+            "contactMenuButton"
+        );
+
+    DOM.menuOverlay =
+        document.getElementById(
+            "contactMenuOverlay"
+        );
+
+    DOM.drawer =
+        document.getElementById(
+            "contactDrawer"
+        );
+
+    DOM.drawerClose =
+        document.getElementById(
+            "contactDrawerClose"
+        );
+
+}
+
+
+/* =====================================================
+   NAVIGATION MENU
+===================================================== */
+
+function initMenu(){
+
+    if(
+        !DOM.menuButton ||
+        !DOM.drawer
+    ){
+
+        return;
+
+    }
+
+
+    DOM.menuButton.addEventListener(
+        "click",
+        toggleMenu
+    );
+
+
+    DOM.drawerClose?.addEventListener(
+        "click",
+        closeMenu
+    );
+
+
+    DOM.menuOverlay?.addEventListener(
+        "click",
+        closeMenu
+    );
+
+
+    /*
+     * Tutup drawer ketika memilih
+     * salah satu navigasi.
+     */
+
+    const links =
+        DOM.drawer.querySelectorAll(
+            ".contact-navigation-link"
+        );
+
+
+    links.forEach(link => {
+
+        link.addEventListener(
+            "click",
+            closeMenu
+        );
+
+    });
+
+
+    /*
+     * ESC untuk menutup drawer.
+     */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if(
+                event.key === "Escape" &&
+                State.menuOpen
+            ){
+
+                closeMenu();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   TOGGLE MENU
+===================================================== */
+
+function toggleMenu(){
+
+    if(State.menuOpen){
+
+        closeMenu();
+
+    } else {
+
+        openMenu();
+
+    }
+
+}
+
+
+/* =====================================================
+   OPEN MENU
+===================================================== */
+
+function openMenu(){
+
+    if(!DOM.drawer){
+
+        return;
+
+    }
+
+
+    State.menuOpen =
+        true;
+
+
+    DOM.drawer.classList.add(
+        "open"
+    );
+
+
+    if(DOM.menuOverlay){
+
+        DOM.menuOverlay.hidden =
+            false;
+
+    }
+
+
+    if(DOM.menuButton){
+
+        DOM.menuButton.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+        DOM.menuButton.setAttribute(
+            "aria-label",
+            "Tutup navigasi"
+        );
+
+    }
+
+
+    DOM.drawer.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+}
+
+
+/* =====================================================
+   CLOSE MENU
+===================================================== */
+
+function closeMenu(){
+
+    if(!DOM.drawer){
+
+        return;
+
+    }
+
+
+    State.menuOpen =
+        false;
+
+
+    DOM.drawer.classList.remove(
+        "open"
+    );
+
+
+    if(DOM.menuOverlay){
+
+        DOM.menuOverlay.hidden =
+            true;
+
+    }
+
+
+    if(DOM.menuButton){
+
+        DOM.menuButton.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+        DOM.menuButton.setAttribute(
+            "aria-label",
+            "Buka navigasi"
+        );
+
+    }
+
+
+    DOM.drawer.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.style.overflow =
+        "";
 
 }
 
@@ -170,20 +422,13 @@ function cacheDOM(){
 
 async function loadIdentity(){
 
-    /*
-     * Account data
-     *
-     * Berisi data profile Finance Assistant:
-     * - displayName
-     * - email
-     * - currency
-     * - theme
-     */
     let account = null;
+
 
     try {
 
-        account = loadUser();
+        account =
+            loadUser();
 
     } catch(error){
 
@@ -194,16 +439,14 @@ async function loadIdentity(){
 
     }
 
-    /*
-     * Supabase / Google session
-     *
-     * Digunakan sebagai fallback identity.
-     */
+
     let authUser = null;
+
 
     try {
 
-        authUser = await getUser();
+        authUser =
+            await getUser();
 
     } catch(error){
 
@@ -215,15 +458,17 @@ async function loadIdentity(){
     }
 
 
-    State.account = account || null;
-    State.user = authUser || null;
+    State.account =
+        account || null;
+
+    State.user =
+        authUser || null;
 
 
-    /*
-     * Pastikan user sudah login.
-     */
-
-    if(!State.user && !State.account){
+    if(
+        !State.user &&
+        !State.account
+    ){
 
         throw new Error(
             "User belum login."
@@ -251,13 +496,21 @@ function getDisplayName(){
 
 
     return (
+
         account.displayName ||
+
         metadata.full_name ||
+
         metadata.name ||
+
         metadata.display_name ||
+
         user.email ||
+
         account.email ||
+
         "User"
+
     );
 
 }
@@ -277,9 +530,13 @@ function getEmail(){
 
 
     return (
+
         account.email ||
+
         user.email ||
+
         ""
+
     );
 
 }
@@ -323,7 +580,7 @@ function renderIdentity(){
 
 
 /* =====================================================
-   EVENTS
+   FORM EVENTS
 ===================================================== */
 
 function bindEvents(){
@@ -367,10 +624,6 @@ async function handleSubmit(event){
         DOM.message?.value?.trim() || "";
 
 
-    /*
-     * Validasi feedback
-     */
-
     if(!message){
 
         showStatus(
@@ -384,10 +637,6 @@ async function handleSubmit(event){
 
     }
 
-
-    /*
-     * Pastikan identitas tersedia.
-     */
 
     const name =
         getDisplayName();
@@ -408,7 +657,9 @@ async function handleSubmit(event){
     }
 
 
-    State.submitting = true;
+    State.submitting =
+        true;
+
 
     setSubmitting(true);
 
@@ -427,13 +678,6 @@ async function handleSubmit(event){
 
         });
 
-
-        /*
-         * Bersihkan hanya isi feedback.
-         *
-         * Name dan Email tetap karena
-         * berasal dari Account / Session.
-         */
 
         if(DOM.message){
 
@@ -466,7 +710,8 @@ async function handleSubmit(event){
 
     } finally {
 
-        State.submitting = false;
+        State.submitting =
+            false;
 
         setSubmitting(false);
 
@@ -489,14 +734,9 @@ async function sendFeedback({
 
 }){
 
-
     const formData =
         new FormData();
 
-
-    /*
-     * Web3Forms
-     */
 
     formData.append(
         "access_key",
@@ -504,19 +744,11 @@ async function sendFeedback({
     );
 
 
-    /*
-     * Subject email
-     */
-
     formData.append(
         "subject",
         CONFIG.SUBJECT
     );
 
-
-    /*
-     * Nama user
-     */
 
     formData.append(
         "name",
@@ -524,16 +756,11 @@ async function sendFeedback({
     );
 
 
-    /*
-     * Email user
-     *
-     * Digunakan juga sebagai reply-to.
-     */
-
     formData.append(
         "email",
         email
     );
+
 
     formData.append(
         "replyto",
@@ -541,34 +768,17 @@ async function sendFeedback({
     );
 
 
-    /*
-     * Feedback
-     */
-
     formData.append(
         "message",
         message
     );
 
 
-    /*
-     * Tambahan informasi agar email
-     * mudah dikenali.
-     */
-
     formData.append(
         "from_name",
         "Finance Assistant"
     );
 
-
-    /*
-     * Honeypot.
-     *
-     * Field ini sengaja kosong.
-     * Bot yang mengisinya dapat ditolak
-     * oleh Web3Forms.
-     */
 
     formData.append(
         "botcheck",
@@ -637,12 +847,19 @@ async function sendFeedback({
    SUBMITTING STATE
 ===================================================== */
 
-function setSubmitting(isSubmitting){
+function setSubmitting(
+    isSubmitting
+){
 
     if(DOM.submit){
 
         DOM.submit.disabled =
             isSubmitting;
+
+        DOM.submit.textContent =
+            isSubmitting
+                ? "Mengirim..."
+                : "Kirim Feedback";
 
     }
 
@@ -654,16 +871,6 @@ function setSubmitting(isSubmitting){
 
     }
 
-
-    if(DOM.submit){
-
-        DOM.submit.textContent =
-            isSubmitting
-                ? "Mengirim..."
-                : "Kirim Feedback";
-
-    }
-
 }
 
 
@@ -671,7 +878,9 @@ function setSubmitting(isSubmitting){
    LOADING
 ===================================================== */
 
-function setLoading(isLoading){
+function setLoading(
+    isLoading
+){
 
     if(DOM.loading){
 
@@ -713,6 +922,7 @@ function showStatus(
 
     DOM.status.className =
         `feedback-status ${type}`;
+
 
     DOM.status.hidden =
         false;
