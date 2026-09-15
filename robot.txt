@@ -1,0 +1,10 @@
+# =====================================================
+# Finance Assistant
+# Robots.txt
+# =====================================================
+
+User-agent: *
+
+Allow: /
+
+Sitemap: https://financeassistant.web.id/sitemap.xml
