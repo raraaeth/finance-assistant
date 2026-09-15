@@ -355,7 +355,7 @@ function createFooter(){
                         © 2026 Finance Assistant. All rights reserved.
                     </p>
 
-                    <a href="/term/">
+                    <a href="/terms/">
                         Terms of Services
                     </a>
 
