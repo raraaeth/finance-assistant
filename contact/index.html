@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Hubungi Finance Assistant dan kirimkan feedback, saran, atau laporan untuk membantu pengembangan aplikasi."
+    >
+
+    <meta
+        name="theme-color"
+        content="#ffffff"
+    >
+
+    <title>Contact & Feedback — Finance Assistant</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="/assets/icons/icon-192.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- =================================================
+         HEADER
+    ================================================== -->
+
+    <header class="contact-header">
+
+        <div class="contact-header-inner">
+
+            <a
+                href="/"
+                class="contact-brand"
+                aria-label="Finance Assistant"
+            >
+
+                <img
+                    src="/assets/icons/icon-192.png"
+                    alt="Finance Assistant"
+                >
+
+                <span>
+                    Finance Assistant
+                </span>
+
+            </a>
+
+
+            <a
+                href="/news/"
+                class="contact-news-link"
+                aria-label="News & Update"
+                title="News & Update"
+            >
+                📰
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         MAIN
+    ================================================== -->
+
+    <main
+        id="contactPage"
+        class="contact-page"
+    >
+
+        <section class="contact-intro">
+
+            <h1>
+                Contact & Feedback
+            </h1>
+
+
+            <p class="contact-lead">
+
+                Punya saran, menemukan masalah, atau ingin
+                memberikan masukan tentang Finance Assistant?
+
+                <strong>
+                    Kami ingin mendengarnya.
+                </strong>
+
+            </p>
+
+
+            <p>
+
+                Finance Assistant terus dikembangkan agar
+                semakin mudah digunakan dan semakin membantu
+                dalam mengelola keuangan pribadi.
+
+                Feedback dari pengguna membantu kami memahami
+                apa yang sudah berjalan dengan baik dan apa
+                yang masih perlu diperbaiki.
+
+            </p>
+
+
+            <p>
+
+                Kamu bisa menggunakan halaman ini untuk
+                menyampaikan <strong>saran fitur</strong>,
+                <strong>masukan tentang tampilan</strong>,
+                <strong>laporan masalah</strong>, atau
+                sekadar berbagi pengalaman menggunakan
+                Finance Assistant.
+
+            </p>
+
+
+            <div class="contact-info-box">
+
+                <strong>
+                    💬 Sampaikan apa adanya
+                </strong>
+
+                <p>
+
+                    Tidak perlu membuat feedback yang formal.
+                    Tulis saja apa yang ingin kamu sampaikan.
+                    Setiap masukan akan menjadi bagian dari
+                    proses pengembangan Finance Assistant.
+
+                </p>
+
+            </div>
+
+
+            <div class="contact-privacy-box">
+
+                <strong>
+                    🔐 Data pengirim
+                </strong>
+
+                <p>
+
+                    Nama dan email akan diambil otomatis dari
+                    akun Finance Assistant yang sedang login.
+                    Kamu tidak perlu mengetikkannya kembali.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEEDBACK FORM
+        ================================================== -->
+
+        <section class="contact-form-section">
+
+            <div
+                id="feedbackLoading"
+                class="feedback-loading"
+                hidden
+            >
+                Memuat data akun...
+            </div>
+
+
+            <form
+                id="feedbackForm"
+                class="feedback-form"
+                novalidate
+            >
+
+                <div class="feedback-form-header">
+
+                    <h2>
+                        Kirim Feedback
+                    </h2>
+
+                    <p>
+                        Ceritakan apa yang ingin kamu sampaikan.
+                    </p>
+
+                </div>
+
+
+                <!-- NAME -->
+
+                <div class="feedback-field">
+
+                    <label
+                        for="feedbackName"
+                    >
+                        Nama
+                    </label>
+
+                    <input
+                        type="text"
+                        id="feedbackName"
+                        name="name"
+                        autocomplete="name"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="feedback-field">
+
+                    <label
+                        for="feedbackEmail"
+                    >
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="feedbackEmail"
+                        name="email"
+                        autocomplete="email"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- MESSAGE -->
+
+                <div class="feedback-field">
+
+                    <label
+                        for="feedbackMessage"
+                    >
+                        Feedback
+                    </label>
+
+                    <textarea
+                        id="feedbackMessage"
+                        name="message"
+                        rows="7"
+                        placeholder="Tulis feedback, saran, atau masalah yang ingin kamu sampaikan..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div
+                    id="feedbackStatus"
+                    class="feedback-status"
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                ></div>
+
+
+                <!-- SUBMIT -->
+
+                <button
+                    type="submit"
+                    id="feedbackSubmit"
+                    class="feedback-submit"
+                >
+                    Kirim Feedback
+                </button>
+
+
+                <p class="feedback-note">
+
+                    Dengan mengirim feedback, informasi
+                    yang kamu masukkan akan dikirim kepada
+                    pengelola Finance Assistant untuk keperluan
+                    pengembangan dan perbaikan aplikasi.
+
+                </p>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================================
+         SCRIPT
+    ================================================== -->
+
+    <script
+        type="module"
+        src="./js/app.js"
+    ></script>
+
+</body>
+
+</html>
