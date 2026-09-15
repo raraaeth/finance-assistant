@@ -46,8 +46,29 @@
 
         <div class="contact-header-inner">
 
+
+            <!-- HAMBURGER -->
+
+            <button
+                id="contactMenuButton"
+                class="contact-menu-button"
+                type="button"
+                aria-label="Buka navigasi"
+                aria-controls="contactDrawer"
+                aria-expanded="false"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+
+            <!-- BRAND -->
+
             <a
-                href="/"
+                href="/contact/"
                 class="contact-brand"
                 aria-label="Finance Assistant"
             >
@@ -57,12 +78,22 @@
                     alt="Finance Assistant"
                 >
 
-                <span>
-                    Finance Assistant
-                </span>
+                <div class="contact-brand-text">
+
+                    <strong>
+                        Finance Assistant
+                    </strong>
+
+                    <span>
+                        Contact & Feedback
+                    </span>
+
+                </div>
 
             </a>
 
+
+            <!-- NEWS -->
 
             <a
                 href="/news/"
@@ -76,6 +107,167 @@
         </div>
 
     </header>
+
+
+    <!-- =================================================
+         NAVIGATION OVERLAY
+    ================================================== -->
+
+    <div
+        id="contactMenuOverlay"
+        class="contact-menu-overlay"
+        hidden
+    ></div>
+
+
+    <!-- =================================================
+         NAVIGATION DRAWER
+    ================================================== -->
+
+    <aside
+        id="contactDrawer"
+        class="contact-drawer"
+        aria-label="Navigasi utama"
+        aria-hidden="true"
+    >
+
+        <div class="contact-drawer-header">
+
+
+            <div class="contact-drawer-brand">
+
+                <img
+                    src="/assets/icons/icon-192.png"
+                    alt="Finance Assistant"
+                >
+
+                <div>
+
+                    <strong>
+                        Finance Assistant
+                    </strong>
+
+                    <span>
+                        Navigasi
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="contactDrawerClose"
+                class="contact-drawer-close"
+                type="button"
+                aria-label="Tutup navigasi"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="contact-drawer-divider"></div>
+
+
+        <nav class="contact-navigation">
+
+
+            <!-- HOME -->
+
+            <a
+                href="/"
+                class="contact-navigation-link"
+            >
+
+                <span class="contact-navigation-icon">
+                    🏠
+                </span>
+
+                <span>
+                    Home Page
+                </span>
+
+            </a>
+
+
+            <!-- DOCS -->
+
+            <a
+                href="/docs/"
+                class="contact-navigation-link"
+            >
+
+                <span class="contact-navigation-icon">
+                    📖
+                </span>
+
+                <span>
+                    Panduan
+                </span>
+
+            </a>
+
+
+            <!-- DASHBOARD -->
+
+            <a
+                href="/dashboard/"
+                class="contact-navigation-link"
+            >
+
+                <span class="contact-navigation-icon">
+                    📊
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <!-- NEWS -->
+
+            <a
+                href="/news/"
+                class="contact-navigation-link"
+            >
+
+                <span class="contact-navigation-icon">
+                    📰
+                </span>
+
+                <span>
+                    News & Update
+                </span>
+
+            </a>
+
+
+            <!-- CONTACT -->
+
+            <a
+                href="/contact/"
+                class="contact-navigation-link active"
+                aria-current="page"
+            >
+
+                <span class="contact-navigation-icon">
+                    💬
+                </span>
+
+                <span>
+                    Contact & Feedback
+                </span>
+
+            </a>
+
+
+        </nav>
+
+    </aside>
 
 
     <!-- =================================================
@@ -202,13 +394,9 @@
                 </div>
 
 
-                <!-- NAME -->
-
                 <div class="feedback-field">
 
-                    <label
-                        for="feedbackName"
-                    >
+                    <label for="feedbackName">
                         Nama
                     </label>
 
@@ -223,13 +411,9 @@
                 </div>
 
 
-                <!-- EMAIL -->
-
                 <div class="feedback-field">
 
-                    <label
-                        for="feedbackEmail"
-                    >
+                    <label for="feedbackEmail">
                         Email
                     </label>
 
@@ -244,13 +428,9 @@
                 </div>
 
 
-                <!-- MESSAGE -->
-
                 <div class="feedback-field">
 
-                    <label
-                        for="feedbackMessage"
-                    >
+                    <label for="feedbackMessage">
                         Feedback
                     </label>
 
@@ -265,8 +445,6 @@
                 </div>
 
 
-                <!-- STATUS -->
-
                 <div
                     id="feedbackStatus"
                     class="feedback-status"
@@ -275,8 +453,6 @@
                     hidden
                 ></div>
 
-
-                <!-- SUBMIT -->
 
                 <button
                     type="submit"
