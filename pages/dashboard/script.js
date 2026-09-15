@@ -289,48 +289,86 @@ function createStartCard(){
 /* ==========================================
    FOOTER
 ========================================== */
+
 function createFooter(){
+
     return `
-        <!-- ==========================================
-             PUBLIC LINKS
-        ========================================== -->
 
-        <footer>
+        <footer class="site-footer">
 
-            <nav
-                aria-label="Tautan informasi">
+            <div class="site-footer-divider"></div>
 
-                <a
-                    href="/privacy/">
-                    Privacy Policy
-                </a>
 
-                <span>*</span>
+            <div class="site-footer-content">
 
-                <a
-                    href="/terms/">
-                    Terms of Service
-                </a>
 
-                <span>*</span>
+                <!-- BRAND -->
 
-                <a
-                    href="/docs/">
-                    User Guide
-                </a>
+                <div class="site-footer-brand">
 
-                <span>*</span>
+                    <strong>
+                        Finance Assistant
+                    </strong>
 
-                <a
-                    href="/app/">
-                    About App
-                </a>
+                    <span>
+                        Create with Love ❤️
+                    </span>
 
-            </nav>
+                </div>
+
+
+                <!-- NAVIGATION -->
+
+                <nav
+                    class="site-footer-nav"
+                    aria-label="Footer Navigation"
+                >
+
+                    <a href="/app/">
+                        About App
+                    </a>
+
+                    <a href="/docs/">
+                        User Guide
+                    </a>
+
+                    <a href="/news/">
+                        News and Update
+                    </a>
+
+                    <a href="/contact/">
+                        Contact dan Feedback
+                    </a>
+
+                    <a href="/privacy/">
+                        Privacy Policy
+                    </a>
+
+                </nav>
+
+
+                <!-- COPYRIGHT -->
+
+                <div class="site-footer-bottom">
+
+                    <p>
+                        © 2026 Finance Assistant. All rights reserved.
+                    </p>
+
+                    <a href="/term/">
+                        Terms of Services
+                    </a>
+
+                </div>
+
+
+            </div>
 
         </footer>
+
     `;
-}
+
+}                
 
 
 /* ==========================================
