@@ -21,7 +21,7 @@ import artikel01
     from "./articles/artikel01.js";
 import artikel02
     from "./articles/artikel02.js";
-import artikel02
+import artikel03
     from "./articles/artikel03.js";
 
 
