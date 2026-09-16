@@ -277,6 +277,12 @@ await API.load(
         renderReminder();
 
        /* =============================================
+        INPUT & PENGATURAN GUIDE
+       ============================================= */
+
+        renderInputSettingGuide();
+
+       /* =============================================
            INPUT
         ============================================= */
 
@@ -1338,6 +1344,73 @@ function escapeHTML(
             "&#039;"
 
         );
+
+}
+
+/* =====================================================
+   RENDER INPUT & PENGATURAN GUIDE
+===================================================== */
+
+function renderInputSettingGuide(){
+
+    const inputSection =
+        document.getElementById(
+            "input"
+        );
+
+    if(
+        !inputSection
+    ){
+
+        return;
+
+    }
+
+    /* Hindari render ganda */
+
+    if(
+        document.getElementById(
+            "input-setting-guide"
+        )
+    ){
+
+        return;
+
+    }
+
+    inputSection.insertAdjacentHTML(
+        "beforebegin",
+        `
+        <section
+            id="input-setting-guide"
+            class="section">
+
+            <div class="section-header">
+
+                <span class="section-badge">
+                    ✍️ Input & Pengaturan
+                </span>
+
+            </div>
+
+            <p class="input-setting-guide-text">
+
+                Untuk mempelajari cara menggunakan
+                Input dan Pengaturan pada workspace ini,
+                silakan baca
+                <a
+                    href="/docs/"
+                    class="input-setting-guide-link">
+
+                    panduan Finance Assistant
+
+                </a>.
+
+            </p>
+
+        </section>
+        `
+    );
 
 }
 
