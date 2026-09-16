@@ -35,6 +35,10 @@ const DOCUMENTATION_URL =
 
     "https://financeassistant.web.id/docs/";
 
+const APK_URL =
+
+    "../../assets/download/app-release.apk";
+
 
 /* ==========================================
    STATE
@@ -190,9 +194,55 @@ function createDocumentationCard(){
 
 }
 
+/* ==========================================
+   APK DOWNLOAD CARD
+========================================== */
+
+function createApkCard(){
+
+    return `
+
+        <section class="install-card">
+
+            <h3>
+
+                Download Finance Assistant
+
+            </h3>
+
+            <p>
+
+                Gunakan aplikasi Android Finance Assistant
+
+                langsung dari perangkatmu untuk pengalaman
+
+                yang lebih praktis.
+
+            </p>
+
+            <a
+
+                href="${APK_URL}"
+
+                class="install-button"
+
+                download
+
+            >
+
+                📱 Download APK
+
+            </a>
+
+        </section>
+
+    `;
+
+}
+
 
 /* ==========================================
-   INSTALL CARD
+   PWA INSTALL CARD
 ========================================== */
 
 function createInstallCard(){
@@ -203,19 +253,17 @@ function createInstallCard(){
 
             <h3>
 
-                Semua sudah siap.
-
-                Tinggal satu langkah lagi.
+                Install Finance Assistant
 
             </h3>
 
             <p>
 
-                Install Finance Assistant ke perangkatmu
+                Tambahkan Finance Assistant ke homescreen
 
-                agar dapat diakses lebih cepat dan
+                perangkatmu agar dapat diakses lebih cepat
 
-                memberikan pengalaman terbaik.
+                seperti aplikasi.
 
             </p>
 
@@ -227,7 +275,7 @@ function createInstallCard(){
 
                 type="button">
 
-                📲 Install Finance Assistant
+                📲 Tambahkan ke Homescreen
 
             </button>
 
@@ -236,7 +284,6 @@ function createInstallCard(){
     `;
 
 }
-
 
 /* ==========================================
    START CARD
@@ -394,12 +441,15 @@ function render(){
 
         ${createSectionTitle(
 
-            "📲 Install Finance Assistant"
+    "📱 Install Finance Assistant"
 
-        )}
+)}
 
 
-        ${createInstallCard()}
+${createApkCard()}
+
+
+${createInstallCard()}
 
 
         ${createSectionTitle(
