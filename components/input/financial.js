@@ -297,6 +297,7 @@ function getRules(){
 }
 
 
+
 /* =====================================================
    GET RULE
 ===================================================== */
@@ -307,15 +308,157 @@ function getRule(
 
 ){
 
-    return getRules().find(
+    const normalizedRuleName =
 
-        rule =>
-
-            rule.rules ===
+        normalizeValue(
 
             ruleName
 
+        );
+
+
+    const matchedRules =
+
+        getRules().filter(
+
+            rule =>
+
+                normalizeValue(
+
+                    rule.rules
+
+                ) ===
+
+                normalizedRuleName
+
+        );
+
+
+    if(
+
+        !matchedRules.length
+
+    ){
+
+        return null;
+
+    }
+
+
+    const types = [];
+
+    const activities = [];
+
+
+    matchedRules.forEach(
+
+        rule => {
+
+            /* =====================================
+               TYPE
+            ===================================== */
+
+            if(
+
+                Array.isArray(
+
+                    rule.type
+
+                )
+
+            ){
+
+                rule.type.forEach(
+
+                    type => {
+
+                        if(
+
+                            !types.includes(
+
+                                type
+
+                            )
+
+                        ){
+
+                            types.push(
+
+                                type
+
+                            );
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+
+            /* =====================================
+               ACTIVITY
+            ===================================== */
+
+            if(
+
+                Array.isArray(
+
+                    rule.activity
+
+                )
+
+            ){
+
+                rule.activity.forEach(
+
+                    activity => {
+
+                        if(
+
+                            !activities.includes(
+
+                                activity
+
+                            )
+
+                        ){
+
+                            activities.push(
+
+                                activity
+
+                            );
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+        }
+
     );
+
+
+    return {
+
+        rules :
+
+            normalizedRuleName,
+
+        type :
+
+            types,
+
+        activity :
+
+            activities
+
+    };
 
 }
 
