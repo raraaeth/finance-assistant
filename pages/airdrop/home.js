@@ -295,6 +295,13 @@ await API.load(
 
         renderSetting();
 
+       /* =============================================
+           HIDE INPUT / EDIT / SETTING HEADERS
+        ============================================= */
+
+        hideInputSettingHeaders();
+
+
 
         /* =============================================
            PROFILE
@@ -1815,5 +1822,75 @@ function renderSetting(){
         );
 
     }
+
+}
+
+/* =====================================================
+   HIDE INPUT / EDIT / SETTING SECTION HEADERS
+===================================================== */
+
+function hideInputSettingHeaders(){
+
+    const sections = [
+
+        "input",
+
+        "edit-input",
+
+        "setting"
+
+    ];
+
+
+    sections.forEach(
+
+        id => {
+
+            const section =
+
+                document.getElementById(
+
+                    id
+
+                );
+
+
+            if(
+
+                !section
+
+            ){
+
+                return;
+
+            }
+
+
+            const header =
+
+                section.querySelector(
+
+                    ".section-header"
+
+                );
+
+
+            if(
+
+                header
+
+            ){
+
+                header.classList.add(
+
+                    "hidden"
+
+                );
+
+            }
+
+        }
+
+    );
 
 }
