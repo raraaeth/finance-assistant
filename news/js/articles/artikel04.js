@@ -284,7 +284,7 @@ export default {
         href="/assets/download/app-release.apk"
         download
     >
-        Download Aplikasi Android Finance Assistant
+        📲 Download Aplikasi Android Finance Assistant
     </a>
 </p>
 
