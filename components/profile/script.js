@@ -68,6 +68,13 @@ import {
 } from "../../js/addworkspace.js";
 
 
+import {
+
+    openWorkspacePicker,
+    showWorkspaceMessage
+
+} from "./createworkspace.js";
+
 /* =====================================================
    STATE
 ===================================================== */
@@ -1524,13 +1531,17 @@ async function onCreateWorkspace(){
         getAvailableWorkspace();
 
 
+    /* =========================================
+       SEMUA WORKSPACE SUDAH DIBUAT
+    ========================================= */
+
     if(
 
         !available.length
 
     ){
 
-        alert(
+        showWorkspaceMessage(
 
             "Semua Workspace sudah dibuat."
 
@@ -1541,221 +1552,130 @@ async function onCreateWorkspace(){
     }
 
 
-    const options =
+    /* =========================================
+       OPEN WORKSPACE PICKER
+    ========================================= */
 
-        available
+    openWorkspacePicker(
 
-            .map(
+        available,
 
-                (
+        async module => {
 
-                    module,
+            const button =
 
-                    index
+                document.querySelector(
 
-                ) =>
+                    ".workspace-create"
 
-                    `${index + 1}. ${module.title}`
-
-            )
-
-            .join(
-
-                "\n"
-
-            );
+                );
 
 
-    const selected =
+            try{
 
-        prompt(
+                if(
 
-            `Pilih Workspace yang ingin dibuat:\n\n${options}`
+                    button
+
+                ){
+
+                    button.disabled =
+
+                        true;
+
+
+                    button.textContent =
+
+                        "Membuat Workspace...";
+
+                }
+
+
+                console.log(
+
+                    "===== PROFILE CREATE WORKSPACE ====="
+
+                );
+
+
+                console.log(
+
+                    "Workspace:",
+
+                    module
+
+                );
+
+
+                const result =
+
+                    await createWorkspace(
+
+                        module.id
+
+                    );
+
+
+                console.log(
+
+                    "Create Workspace Result:",
+
+                    result
+
+                );
+
+
+                location.reload();
+
+
+            }catch(error){
+
+                console.error(
+
+                    "Create Workspace Error:",
+
+                    error
+
+                );
+
+
+                if(
+
+                    button
+
+                ){
+
+                    button.disabled =
+
+                        false;
+
+
+                    button.textContent =
+
+                        "➕ Create Workspace";
+
+                }
+
+
+                showWorkspaceMessage(
+
+                    error?.message
+
+                    ||
+
+                    "Gagal membuat Workspace."
+
+                );
+
+            }
+
+        }
 
     );
 
-
-    if(
-
-        !selected
-
-    ){
-
-        return;
-
-    }
-
-
-    const index =
-
-        Number(
-
-            selected
-
-        )
-
-        -
-
-        1;
-
-
-    const module =
-
-        available[index];
-
-
-    if(
-
-        !module
-
-    ){
-
-        alert(
-
-            "Pilihan Workspace tidak valid."
-
-        );
-
-        return;
-
-    }
-
-
-    const confirmed =
-
-        confirm(
-
-            `Buat Workspace "${module.title}"?`
-
-        );
-
-
-    if(
-
-        !confirmed
-
-    ){
-
-        return;
-
-    }
-
-
-    const button =
-
-        document.querySelector(
-
-            ".workspace-create"
-
-        );
-
-
-    try{
-
-        if(
-
-            button
-
-        ){
-
-            button.disabled =
-
-                true;
-
-
-            button.textContent =
-
-                "Membuat Workspace...";
-
-        }
-
-
-        console.log(
-
-            "===== PROFILE CREATE WORKSPACE ====="
-
-        );
-
-
-        console.log(
-
-            "Workspace:",
-
-            module
-
-        );
-
-
-        const result =
-
-            await createWorkspace(
-
-                module.id
-
-            );
-
-
-        console.log(
-
-            "Create Workspace Result:",
-
-            result
-
-        );
-
-
-        alert(
-
-            `"${module.title}" berhasil dibuat.`
-
-        );
-
-
-        location.reload();
-
-    }catch(error){
-
-        console.error(
-
-            "Create Workspace Error:",
-
-            error
-
-        );
-
-
-        alert(
-
-            error?.message
-
-            ||
-
-            "Gagal membuat Workspace."
-
-        );
-
-
-        if(
-
-            button
-
-        ){
-
-            button.disabled =
-
-                false;
-
-
-            button.textContent =
-
-                "➕ Create Workspace";
-
-        }
-
-    }
-
 }
 
+      
 
 /* =====================================================
    CHANGE WORKSPACE
