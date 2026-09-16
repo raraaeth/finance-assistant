@@ -314,7 +314,7 @@ function createStartCard(){
 
                 <p>
 
-                    Masuk ke aplikasi Finance Assistant
+                    Daftar/Masuk ke aplikasi Finance Assistant
 
                     dan mulai mengelola keuanganmu.
 
