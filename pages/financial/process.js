@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Financial
    File        : process.js
-   Version     : 1.1.1
+   Version     : 1.1.2
 
    Description :
    Financial Processing Engine
@@ -388,15 +388,25 @@ function normalizeTransaction(
     /* =============================================
        CASHFLOW CATEGORY
 
-       Ditentukan dari rule_pemasukan /
-       rule_pengeluaran.
+       Actual cashflow ditentukan langsung
+       dari jenis transaksi.
+
+       masuk  → income
+       keluar → expense
+       hutang → income
+       bayar  → expense
+       nabung → expense
+       tarik  → income
+
+       Rule hanya digunakan untuk menentukan
+       fungsi tambahan seperti Debt dan Saving.
     ============================================= */
 
     const category =
 
         getCashflowCategory(
 
-            matchedRules
+            jenis
 
         );
 
@@ -594,32 +604,17 @@ function findRules(
 
 function getCashflowCategory(
 
-    matchedRules
+    jenis
 
 ){
 
-    const incomeRule =
-
-        matchedRules.find(
-
-            rule =>
-
-                normalizeText(
-
-                    rule?.rules
-
-                )
-
-                ===
-
-                "rule_pemasukan"
-
-        );
-
+    /* =============================================
+       PEMASUKAN ACTUAL
+    ============================================= */
 
     if(
 
-        incomeRule
+        jenis === "masuk"
 
     ){
 
@@ -628,28 +623,57 @@ function getCashflowCategory(
     }
 
 
-    const expenseRule =
+    if(
 
-        matchedRules.find(
+        jenis === "hutang"
 
-            rule =>
+    ){
 
-                normalizeText(
+        return "income";
 
-                    rule?.rules
-
-                )
-
-                ===
-
-                "rule_pengeluaran"
-
-        );
+    }
 
 
     if(
 
-        expenseRule
+        jenis === "tarik"
+
+    ){
+
+        return "income";
+
+    }
+
+
+    /* =============================================
+       PENGELUARAN ACTUAL
+    ============================================= */
+
+    if(
+
+        jenis === "keluar"
+
+    ){
+
+        return "expense";
+
+    }
+
+
+    if(
+
+        jenis === "bayar"
+
+    ){
+
+        return "expense";
+
+    }
+
+
+    if(
+
+        jenis === "nabung"
 
     ){
 
