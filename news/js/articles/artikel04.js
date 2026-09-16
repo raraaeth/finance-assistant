@@ -174,7 +174,7 @@ export default {
 
         <p>
             Dengan aplikasi Android ini, pengguna bisa langsung membuka
-            Finance Assistant dari aplikasi yang sudah terpasang di HP.
+            <a href="/">Finance Assistant</a> dari aplikasi yang sudah terpasang di HP.
         </p>
 
         <p>
