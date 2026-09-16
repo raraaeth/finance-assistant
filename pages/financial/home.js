@@ -231,7 +231,12 @@ console.log(
 
         renderSummary();
 
+        /* =============================================
+           INPUT & PENGATURAN GUIDE
+         ============================================= */
 
+          renderInputSettingGuide();
+       
         /* =========================================
            INPUT
         ========================================= */
@@ -246,6 +251,11 @@ console.log(
         ========================================= */
 
         renderSetting();
+       /* =============================================
+        HIDE INPUT / EDIT / SETTING SECTION HEADERS
+        ============================================= */
+       
+         hideInputSettingHeaders();
 
     }
 
@@ -1128,6 +1138,73 @@ function formatHighestExpense(
 }
 
 /* =====================================================
+   RENDER INPUT & PENGATURAN GUIDE
+===================================================== */
+
+function renderInputSettingGuide(){
+
+    const inputSection =
+        document.getElementById(
+            "input"
+        );
+
+    if(
+        !inputSection
+    ){
+
+        return;
+
+    }
+
+    /* Hindari render ganda */
+
+    if(
+        document.getElementById(
+            "input-setting-guide"
+        )
+    ){
+
+        return;
+
+    }
+
+    inputSection.insertAdjacentHTML(
+        "beforebegin",
+        `
+        <section
+            id="input-setting-guide"
+            class="section">
+
+            <div class="section-header">
+
+                <span class="section-badge">
+                    ✍️ Input & Pengaturan
+                </span>
+
+            </div>
+
+            <p class="input-setting-guide-text">
+
+                Untuk mempelajari cara menggunakan
+                Input dan Pengaturan pada workspace ini,
+                silakan baca
+                <a
+                    href="/docs/"
+                    class="input-setting-guide-link">
+
+                    panduan Finance Assistant
+
+                </a>.
+
+            </p>
+
+        </section>
+        `
+    );
+
+}
+
+/* =====================================================
    INPUT
 ===================================================== */
 
@@ -1438,6 +1515,54 @@ function renderSetting(){
         );
 
     }
+
+}
+
+/* =====================================================
+   HIDE INPUT / EDIT / SETTING SECTION HEADERS
+===================================================== */
+
+function hideInputSettingHeaders(){
+
+    const sections = [
+        "input",
+        "edit-input",
+        "setting"
+    ];
+
+    sections.forEach(
+        id => {
+
+            const section =
+                document.getElementById(
+                    id
+                );
+
+            if(
+                !section
+            ){
+
+                return;
+
+            }
+
+            const header =
+                section.querySelector(
+                    ".section-header"
+                );
+
+            if(
+                header
+            ){
+
+                header.classList.add(
+                    "hidden"
+                );
+
+            }
+
+        }
+    );
 
 }
 
