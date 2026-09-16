@@ -24,7 +24,7 @@
 const SHARE_CONFIG = {
 
     buttonText:
-        "↗️ Bagikan Artikel 📲",
+        "Bagikan Artikel 📲",
 
     copiedText:
         "Link berhasil disalin",
