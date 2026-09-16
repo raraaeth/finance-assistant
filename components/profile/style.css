@@ -1134,3 +1134,678 @@
     transform:scale(.98);
 
 }
+
+/* =====================================================
+   CREATE WORKSPACE OVERLAY
+===================================================== */
+
+.create-workspace-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:center;
+
+    padding:0;
+
+    background:rgba(0,0,0,.55);
+
+    backdrop-filter:blur(4px);
+
+    -webkit-backdrop-filter:blur(4px);
+
+}
+
+
+/* =====================================================
+   CREATE WORKSPACE SHEET
+===================================================== */
+
+.create-workspace-sheet{
+
+    width:100%;
+
+    max-width:560px;
+
+    max-height:88vh;
+
+    overflow-y:auto;
+
+    padding:
+        12px
+        20px
+        24px;
+
+    background:var(--background);
+
+    border-radius:
+        24px
+        24px
+        0
+        0;
+
+    box-shadow:
+        0 -8px 30px rgba(0,0,0,.18);
+
+    animation:
+        createWorkspaceSheetIn
+        .22s
+        ease-out;
+
+}
+
+
+/* =====================================================
+   HANDLE
+===================================================== */
+
+.create-workspace-handle{
+
+    width:42px;
+
+    height:4px;
+
+    margin:
+        0 auto 22px;
+
+    background:var(--border);
+
+    border-radius:10px;
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.create-workspace-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+}
+
+
+.create-workspace-header h2{
+
+    margin:0;
+
+    color:var(--text);
+
+    font-size:1.25rem;
+
+    font-weight:700;
+
+    line-height:1.4;
+
+}
+
+
+.create-workspace-close{
+
+    width:38px;
+
+    height:38px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex:none;
+
+    border:0;
+
+    border-radius:50%;
+
+    background:var(--surface);
+
+    color:var(--secondary);
+
+    font-size:1.5rem;
+
+    line-height:1;
+
+    cursor:pointer;
+
+}
+
+
+.create-workspace-close:active{
+
+    transform:scale(.96);
+
+}
+
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
+
+.create-workspace-description{
+
+    margin:
+        8px
+        0
+        20px;
+
+    color:var(--secondary);
+
+    font-size:.9rem;
+
+    line-height:1.6;
+
+}
+
+
+/* =====================================================
+   WORKSPACE LIST
+===================================================== */
+
+.create-workspace-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+
+/* =====================================================
+   WORKSPACE OPTION
+===================================================== */
+
+.create-workspace-option{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    padding:
+        14px
+        12px;
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    background:var(--surface);
+
+    color:var(--text);
+
+    text-align:left;
+
+    cursor:pointer;
+
+    transition:
+        background .18s,
+        border-color .18s,
+        transform .18s;
+
+}
+
+
+.create-workspace-option:hover{
+
+    border-color:var(--primary);
+
+}
+
+
+.create-workspace-option:active{
+
+    transform:scale(.985);
+
+}
+
+
+/* =====================================================
+   OPTION LEFT
+===================================================== */
+
+.create-workspace-option-left{
+
+    min-width:0;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+
+.create-workspace-option-icon{
+
+    width:48px;
+
+    height:48px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex:none;
+
+    border-radius:14px;
+
+    background:var(--background);
+
+    font-size:1.55rem;
+
+}
+
+
+.create-workspace-option-info{
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+}
+
+
+.create-workspace-option-info strong{
+
+    overflow:hidden;
+
+    color:var(--text);
+
+    font-size:.98rem;
+
+    font-weight:650;
+
+    line-height:1.4;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+.create-workspace-option-info small{
+
+    color:var(--secondary);
+
+    font-size:.78rem;
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   OPTION ARROW
+===================================================== */
+
+.create-workspace-option-arrow{
+
+    flex:none;
+
+    color:var(--secondary);
+
+    font-size:1.6rem;
+
+    line-height:1;
+
+}
+
+
+/* =====================================================
+   CANCEL
+===================================================== */
+
+.create-workspace-cancel{
+
+    width:100%;
+
+    min-height:50px;
+
+    margin-top:18px;
+
+    border:0;
+
+    border-radius:14px;
+
+    background:var(--surface);
+
+    color:var(--secondary);
+
+    font-size:.92rem;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+}
+
+
+.create-workspace-cancel:active{
+
+    transform:scale(.985);
+
+}
+
+
+/* =====================================================
+   CONFIRM SHEET
+===================================================== */
+
+.create-workspace-confirm-sheet{
+
+    text-align:center;
+
+    padding-top:18px;
+
+}
+
+
+.create-workspace-confirm-icon{
+
+    width:64px;
+
+    height:64px;
+
+    margin:
+        0
+        auto
+        18px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:18px;
+
+    background:var(--surface);
+
+    font-size:2rem;
+
+}
+
+
+.create-workspace-confirm-title{
+
+    margin:
+        0
+        0
+        8px;
+
+    color:var(--text);
+
+    font-size:1.2rem;
+
+    font-weight:700;
+
+    line-height:1.4;
+
+}
+
+
+.create-workspace-confirm-text{
+
+    margin:
+        0
+        auto;
+
+    max-width:360px;
+
+    color:var(--secondary);
+
+    font-size:.9rem;
+
+    line-height:1.65;
+
+}
+
+
+.create-workspace-confirm-text strong{
+
+    color:var(--text);
+
+    font-weight:650;
+
+}
+
+
+/* =====================================================
+   CONFIRM ACTIONS
+===================================================== */
+
+.create-workspace-actions{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:10px;
+
+    margin-top:24px;
+
+}
+
+
+.create-workspace-action{
+
+    min-height:50px;
+
+    border:0;
+
+    border-radius:14px;
+
+    font-size:.92rem;
+
+    font-weight:650;
+
+    cursor:pointer;
+
+}
+
+
+.create-workspace-action.secondary{
+
+    background:var(--surface);
+
+    color:var(--secondary);
+
+}
+
+
+.create-workspace-action.primary{
+
+    background:var(--primary);
+
+    color:#fff;
+
+}
+
+
+.create-workspace-action:active{
+
+    transform:scale(.985);
+
+}
+
+
+.create-workspace-action:disabled{
+
+    opacity:.65;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.create-workspace-message-sheet{
+
+    text-align:center;
+
+    padding-top:18px;
+
+}
+
+
+.create-workspace-message-icon{
+
+    width:58px;
+
+    height:58px;
+
+    margin:
+        0
+        auto
+        18px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:var(--surface);
+
+    font-size:1.65rem;
+
+}
+
+
+.create-workspace-message-button{
+
+    width:100%;
+
+    min-height:50px;
+
+    margin-top:24px;
+
+    border:0;
+
+    border-radius:14px;
+
+    background:var(--primary);
+
+    color:#fff;
+
+    font-size:.92rem;
+
+    font-weight:650;
+
+    cursor:pointer;
+
+}
+
+
+.create-workspace-message-button:active{
+
+    transform:scale(.985);
+
+}
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes createWorkspaceSheetIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(24px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
+
+.create-workspace-option:focus-visible,
+.create-workspace-close:focus-visible,
+.create-workspace-cancel:focus-visible,
+.create-workspace-action:focus-visible,
+.create-workspace-message-button:focus-visible{
+
+    outline:
+        2px solid
+        var(--primary);
+
+    outline-offset:3px;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (min-width:640px){
+
+    .create-workspace-overlay{
+
+        align-items:center;
+
+        padding:20px;
+
+    }
+
+
+    .create-workspace-sheet{
+
+        border-radius:24px;
+
+        box-shadow:
+            0 20px 60px rgba(0,0,0,.22);
+
+    }
+
+}
