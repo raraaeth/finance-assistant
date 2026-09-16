@@ -35,6 +35,7 @@ const DOCUMENTATION_URL =
 
     "https://financeassistant.web.id/docs/";
 
+
 const APK_URL =
 
     "../../assets/download/app-release.apk";
@@ -194,6 +195,7 @@ function createDocumentationCard(){
 
 }
 
+
 /* ==========================================
    APK DOWNLOAD CARD
 ========================================== */
@@ -220,19 +222,17 @@ function createApkCard(){
 
             </p>
 
-            <a
+            <button
 
-                href="${APK_URL}"
+                id="download-apk"
 
                 class="install-button"
 
-                download
-
-            >
+                type="button">
 
                 📱 Download APK
 
-            </a>
+            </button>
 
         </section>
 
@@ -285,6 +285,7 @@ function createInstallCard(){
 
 }
 
+
 /* ==========================================
    START CARD
 ========================================== */
@@ -332,6 +333,7 @@ function createStartCard(){
     `;
 
 }
+
 
 /* ==========================================
    FOOTER
@@ -415,7 +417,7 @@ function createFooter(){
 
     `;
 
-}                
+}
 
 
 /* ==========================================
@@ -441,15 +443,15 @@ function render(){
 
         ${createSectionTitle(
 
-    "📱 Install Finance Assistant"
+            "📱 Install Finance Assistant"
 
-)}
-
-
-${createApkCard()}
+        )}
 
 
-${createInstallCard()}
+        ${createApkCard()}
+
+
+        ${createInstallCard()}
 
 
         ${createSectionTitle(
@@ -465,8 +467,8 @@ ${createInstallCard()}
 
         </section>
 
-         ${createFooter()}
-      
+
+        ${createFooter()}
 
     `;
 
@@ -490,6 +492,46 @@ function openDocumentation(){
 
 
 /* ==========================================
+   DOWNLOAD APK
+========================================== */
+
+function downloadAPK(){
+
+    const link =
+
+        document.createElement(
+
+            "a"
+
+        );
+
+
+    link.href =
+
+        APK_URL;
+
+
+    link.download =
+
+        "app-release.apk";
+
+
+    document.body.appendChild(
+
+        link
+
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+}
+
+
+/* ==========================================
    OPEN APP
 ========================================== */
 
@@ -502,12 +544,17 @@ function openApp(){
     */
 
     if(
+
         user?.displayName
+
         ||
+
         user?.onboardingCompleted === true
+
     ){
 
         window.location.href =
+
             "../index.html";
 
         return;
@@ -522,6 +569,7 @@ function openApp(){
     */
 
     window.location.href =
+
         "../onboarding/";
 
 }
@@ -553,6 +601,32 @@ function bindModuleEvents(){
             "click",
 
             openApp
+
+        );
+
+    }
+
+
+    const apkButton =
+
+        document.getElementById(
+
+            "download-apk"
+
+        );
+
+
+    if(
+
+        apkButton
+
+    ){
+
+        apkButton.addEventListener(
+
+            "click",
+
+            downloadAPK
 
         );
 
