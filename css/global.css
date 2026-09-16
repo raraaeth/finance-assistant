@@ -491,3 +491,44 @@ body{
 }
 
 
+/*==================================
+  Input & Setting Guide
+==================================*/
+
+#input-setting-guide{
+
+    margin-bottom:8px;
+
+}
+
+
+.input-setting-guide-text{
+
+    margin:0;
+
+    color:var(--secondary);
+
+    font-size:.92rem;
+
+    line-height:1.7;
+
+}
+
+
+.input-setting-guide-link{
+
+    color:var(--primary);
+
+    font-weight:600;
+
+    text-decoration:none;
+
+}
+
+
+.input-setting-guide-link:hover{
+
+    text-decoration:underline;
+
+}
+
