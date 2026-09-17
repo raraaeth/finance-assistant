@@ -3,10 +3,17 @@
    Page        : Payroll Monthly
    Module      : Summary
    File        : summary.js
-   Version     : 3.0.0
+   Version     : 3.1.0
 
    Description :
    Payroll Summary / Salary History
+
+   Changes :
+   - Current Period menggunakan Process.calculation
+   - Lembur Harian dipisahkan dari Lembur Jam
+   - Lembur Jam menggunakan seluruh component lembur_jam
+   - Dirumahkan ditampilkan sebagai potongan jika rule tersedia
+   - History calculation tetap tersedia
 ===================================================== */
 
 
@@ -493,20 +500,32 @@ function renderCurrentPeriod(){
         Summary.currentPeriod;
 
 
+    /*
+       CURRENT PERIOD HARUS MENGGUNAKAN
+       HASIL DARI CALCULATION ENGINE.
+
+       Jangan menghitung ulang payroll
+       menggunakan calculatePayroll().
+    */
+
     const result =
 
-        calculatePayroll(
-
-            period.start,
-
-            period.end
-
-        );
+        Process.calculation ?? {};
 
 
     const attendance =
 
         result.attendance ?? [];
+
+
+    const earnings =
+
+        result.earnings ?? [];
+
+
+    const deductions =
+
+        result.deductions ?? [];
 
 
     const countStatus =
@@ -613,6 +632,223 @@ function renderCurrentPeriod(){
                 ),
 
             0
+
+        );
+
+
+    /*
+       PENAMBAHAN
+    */
+
+    const uangMakan =
+
+        getCalculationComponent(
+
+            earnings,
+
+            "uang_makan"
+
+        );
+
+
+    const transport =
+
+        getCalculationComponent(
+
+            earnings,
+
+            "uang_transport"
+
+        );
+
+
+    const tunjangan =
+
+        getCalculationComponent(
+
+            earnings,
+
+            "tunjangan"
+
+        );
+
+
+    /*
+       LEMBUR HARIAN
+    */
+
+    const lemburHarian =
+
+        getCalculationComponent(
+
+            earnings,
+
+            "lembur"
+
+        );
+
+
+    /*
+       LEMBUR JAM
+
+       Semua component yang namanya
+       lembur_jam_* dijumlahkan.
+
+       Jadi kalau ada:
+
+       lembur_jam_1
+       lembur_jam_2
+       lembur_jam_3
+
+       semuanya tetap masuk.
+    */
+
+    const lemburJam =
+
+        getCalculationComponentByPrefix(
+
+            earnings,
+
+            "lembur_jam"
+
+        );
+
+
+    /*
+       POTONGAN
+    */
+
+    const bpjs =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "BPJS"
+
+        );
+
+
+    const tabungan =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "tabungan"
+
+        );
+
+
+    const jamsostek =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "Jamsostek"
+
+        );
+
+
+    const koperasi =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "koperasi"
+
+        );
+
+
+    const lainLain =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "lain-lain"
+
+        );
+
+
+    /*
+       TELAT
+
+       Calculation menghasilkan component:
+
+       telat_1
+       telat_2
+       telat_3
+       telat_4
+
+       Jadi semuanya dijumlahkan.
+    */
+
+    const potonganTelat =
+
+        getCalculationComponentByPrefix(
+
+            deductions,
+
+            "telat_"
+
+        );
+
+
+    const potonganIzinTelat =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "izin_telat"
+
+        );
+
+
+    const potonganIzinPulang =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "izin_pulang"
+
+        );
+
+
+    const potonganAbsen =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "absen"
+
+        );
+
+
+    /*
+       DIRUMAHKAN
+
+       Kalau rule tidak ada:
+
+       component tidak ada
+       nominal = 0
+
+       Jadi attendance dirumahkan
+       tidak otomatis menjadi potongan.
+    */
+
+    const potonganDirumahkan =
+
+        getCalculationComponent(
+
+            deductions,
+
+            "dirumahkan"
 
         );
 
@@ -733,7 +969,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.earnings.uangMakan
+                        uangMakan
 
                     )
 
@@ -759,7 +995,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.earnings.transport
+                        transport
 
                     )
 
@@ -785,7 +1021,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.earnings.tunjangan
+                        tunjangan
 
                     )
 
@@ -796,42 +1032,106 @@ function renderCurrentPeriod(){
         </div>
 
 
-        <div class="payroll-row">
+        ${
+            lemburHarian > 0
 
-            <span>
+                ?
 
-                Lembur
+            `
 
-                ${
+            <div class="payroll-row">
 
-                    lemburHours
+                <span>
 
-                        ? `${lemburHours} jam`
+                    Lembur Harian
 
-                        : ""
+                    ${
 
-                }
+                        countStatus("lembur")
 
-            </span>
+                            ? `${countStatus("lembur")} hari`
+
+                            : ""
+
+                    }
+
+                </span>
 
 
-            <strong>
+                <strong>
 
-                ${
+                    ${
 
-                    formatRupiah(
+                        formatRupiah(
 
-                        result.earnings.lemburJam1 +
+                            lemburHarian
 
-                        result.earnings.lemburJam2
+                        )
 
-                    )
+                    }
 
-                }
+                </strong>
 
-            </strong>
+            </div>
 
-        </div>
+            `
+
+                :
+
+            ""
+
+        }
+
+
+        ${
+            lemburJam > 0
+
+                ?
+
+            `
+
+            <div class="payroll-row">
+
+                <span>
+
+                    Lembur Jam
+
+                    ${
+
+                        lemburHours
+
+                            ? `${lemburHours} jam`
+
+                            : ""
+
+                    }
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        formatRupiah(
+
+                            lemburJam
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+                :
+
+            ""
+
+        }
 
 
         <div class="payroll-divider"></div>
@@ -859,7 +1159,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.deductions.bpjs
+                        bpjs
 
                     )
 
@@ -885,7 +1185,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.deductions.tabungan
+                        tabungan
 
                     )
 
@@ -911,7 +1211,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.deductions.jamsostek
+                        jamsostek
 
                     )
 
@@ -937,7 +1237,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.deductions.koperasi
+                        koperasi
 
                     )
 
@@ -963,7 +1263,7 @@ function renderCurrentPeriod(){
 
                     formatRupiah(
 
-                        result.deductions.lainLain
+                        lainLain
 
                     )
 
@@ -975,7 +1275,6 @@ function renderCurrentPeriod(){
 
 
         ${
-
             countLate > 0
 
                 ?
@@ -997,7 +1296,7 @@ function renderCurrentPeriod(){
 
                         formatRupiah(
 
-                            result.deductions.potonganTelat
+                            potonganTelat
 
                         )
 
@@ -1017,7 +1316,6 @@ function renderCurrentPeriod(){
 
 
         ${
-
             countIzinTelat > 0
 
                 ?
@@ -1039,7 +1337,7 @@ function renderCurrentPeriod(){
 
                         formatRupiah(
 
-                            result.deductions.potonganIzinTelat
+                            potonganIzinTelat
 
                         )
 
@@ -1059,7 +1357,6 @@ function renderCurrentPeriod(){
 
 
         ${
-
             countIzinPulang > 0
 
                 ?
@@ -1081,7 +1378,7 @@ function renderCurrentPeriod(){
 
                         formatRupiah(
 
-                            result.deductions.potonganIzinPulang
+                            potonganIzinPulang
 
                         )
 
@@ -1101,7 +1398,6 @@ function renderCurrentPeriod(){
 
 
         ${
-
             countStatus("absen") > 0
 
                 ?
@@ -1123,7 +1419,49 @@ function renderCurrentPeriod(){
 
                         formatRupiah(
 
-                            result.deductions.potonganAbsen
+                            potonganAbsen
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+            `
+
+                :
+
+            ""
+
+        }
+
+
+        ${
+            countStatus("dirumahkan") > 0 &&
+            potonganDirumahkan > 0
+
+                ?
+
+            `
+
+            <div class="payroll-row">
+
+                <span>
+
+                    Pot. Dirumahkan ${countStatus("dirumahkan")}x
+
+                </span>
+
+
+                <strong>
+
+                    -${
+
+                        formatRupiah(
+
+                            potonganDirumahkan
 
                         )
 
@@ -1396,6 +1734,17 @@ function openDetailOverlay(){
         ).length;
 
 
+    const countDirumahkan =
+
+        attendance.filter(
+
+            item =>
+
+                item.status === "dirumahkan"
+
+        ).length;
+
+
     const rows = [];
 
 
@@ -1415,7 +1764,8 @@ function openDetailOverlay(){
 
     );
 
-   rows.push(
+
+    rows.push(
 
         `
 
@@ -1428,6 +1778,7 @@ function openDetailOverlay(){
         `
 
     );
+
 
     if(
 
@@ -1512,11 +1863,72 @@ function openDetailOverlay(){
     }
 
 
+    /*
+       LEMBUR HARIAN
+    */
+
+    if(
+
+        data.earnings.lemburHarian
+
+    ){
+
+        rows.push(
+
+            overlayRow(
+
+                `Lembur Harian ${
+
+                    data.earnings.lemburHarianJumlah
+
+                        ? `${data.earnings.lemburHarianJumlah} hari`
+
+                        : ""
+
+                }`,
+
+                formatRupiah(
+
+                    data.earnings.lemburHarian
+
+                )
+
+            )
+
+        );
+
+    }
+
+
+    /*
+       LEMBUR JAM
+    */
+
     const lemburTotal =
 
-        data.earnings.lemburJam1 +
+        data.earnings.lemburJamTotal ??
 
-        data.earnings.lemburJam2;
+        (
+
+            Number(
+
+                data.earnings.lemburJam1 ||
+
+                0
+
+            )
+
+            +
+
+            Number(
+
+                data.earnings.lemburJam2 ||
+
+                0
+
+            )
+
+        );
 
 
     if(
@@ -1529,7 +1941,7 @@ function openDetailOverlay(){
 
             overlayRow(
 
-                `Lembur ${
+                `Lembur Jam ${
 
                     lemburHours
 
@@ -1557,11 +1969,12 @@ function openDetailOverlay(){
         `
 
         <div class="global-overlay-divider"></div>
+
         <div class="global-overlay-subtitle">
 
-        Potongan
+            Potongan
 
-    </div>
+        </div>
 
         `
 
@@ -1777,6 +2190,43 @@ function openDetailOverlay(){
                     formatRupiah(
 
                         data.deductions.potonganAbsen
+
+                    )
+
+                }`
+
+            )
+
+        );
+
+    }
+
+
+    if(
+
+        countDirumahkan > 0 &&
+
+        Number(
+
+            data.deductions.potonganDirumahkan ||
+
+            0
+
+        ) > 0
+
+    ){
+
+        rows.push(
+
+            overlayRow(
+
+                `Pot. Dirumahkan ${countDirumahkan}x`,
+
+                `-${
+
+                    formatRupiah(
+
+                        data.deductions.potonganDirumahkan
 
                     )
 
@@ -2021,6 +2471,7 @@ function registerEvents(){
 
 /* =====================================================
    CALCULATE PAYROLL
+   HISTORY
 ===================================================== */
 
 function calculatePayroll(
@@ -2117,6 +2568,12 @@ function calculatePayroll(
 
     let uangMakan = 0;
 
+    let lemburHarian = 0;
+
+    let lemburHarianJumlah = 0;
+
+    let lemburJamTotal = 0;
+
     let lemburJam1 = 0;
 
     let lemburJam2 = 0;
@@ -2144,6 +2601,8 @@ function calculatePayroll(
     let potonganIzinPulang = 0;
 
     let potonganAbsen = 0;
+
+    let potonganDirumahkan = 0;
 
 
     const uangMakanRule =
@@ -2188,6 +2647,118 @@ function calculatePayroll(
         makanNominal;
 
 
+    /*
+       LEMBUR HARIAN
+
+       Hanya status:
+
+       lembur
+
+       yang dihitung.
+    */
+
+    const lemburHarianRule =
+
+        allRules.find(
+
+            rule =>
+
+                rule.type_rule ===
+
+                "rule_tambah"
+
+                &&
+
+                rule.nama ===
+
+                "lembur"
+
+                &&
+
+                rule.kondisi ===
+
+                "lembur_harian"
+
+                &&
+
+                rule.waktu ===
+
+                "harian"
+
+        );
+
+
+    lemburHarianJumlah =
+
+        rows.filter(
+
+            item =>
+
+                item.status ===
+
+                "lembur"
+
+        ).length;
+
+
+    lemburHarian =
+
+        lemburHarianJumlah *
+
+        Number(
+
+            lemburHarianRule?.nominal || 0
+
+        );
+
+
+    /*
+       LEMBUR JAM
+
+       Dihitung per hari.
+
+       Jam 1 hari berikutnya
+       kembali menjadi jam 1.
+
+       Ini penting agar:
+
+       Hari A = 3 jam
+       Hari B = 2 jam
+
+       tidak dianggap:
+
+       5 jam dalam satu rangkaian.
+    */
+
+    const overtimeRules =
+
+        allRules.filter(
+
+            rule =>
+
+                rule.type_rule ===
+
+                "rule_tambah"
+
+                &&
+
+                rule.waktu ===
+
+                "jam"
+
+                &&
+
+                rule.nama
+
+                ?.startsWith(
+
+                    "lembur_jam"
+
+                )
+
+        );
+
+
     rows.forEach(
 
         item => {
@@ -2209,7 +2780,9 @@ function calculatePayroll(
 
             if(
 
-                hours <= 0
+                hours <= 0 ||
+
+                overtimeRules.length === 0
 
             ){
 
@@ -2218,63 +2791,122 @@ function calculatePayroll(
             }
 
 
-            if(
+            const applicableRules =
 
-                hours === 1
+                overtimeRules.filter(
+
+                    rule => {
+
+                        const conditions =
+
+                            String(
+
+                                rule.kondisi ??
+
+                                ""
+
+                            )
+
+                            .split(",")
+
+                            .map(
+
+                                value =>
+
+                                    value.trim()
+
+                            );
+
+
+                        return (
+
+                            conditions.includes(
+
+                                item.status
+
+                            )
+
+                        );
+
+                    }
+
+                );
+
+
+            for(
+
+                let hour = 1;
+
+                hour <= hours;
+
+                hour++
 
             ){
 
                 const rule =
 
-                    allRules.find(
+                    findOvertimeHourRule(
 
-                        r =>
+                        applicableRules,
 
-                            r.nama ===
-
-                            "lembur_jam_1"
+                        hour
 
                     );
 
 
-                lemburJam1 +=
+                if(
+
+                    !rule
+
+                ){
+
+                    continue;
+
+                }
+
+
+                const nominal =
 
                     Number(
 
-                        rule?.nominal || 0
-
-                    );
-
-            }
-
-            else if(
-
-                hours >= 2
-
-            ){
-
-                const rule =
-
-                    allRules.find(
-
-                        r =>
-
-                            r.nama ===
-
-                            "lembur_jam_2"
+                        rule.nominal || 0
 
                     );
 
 
-                lemburJam2 +=
+                lemburJamTotal +=
 
-                    hours *
+                    nominal;
 
-                    Number(
 
-                        rule?.nominal || 0
+                if(
 
-                    );
+                    rule.nama ===
+
+                    "lembur_jam_1"
+
+                ){
+
+                    lemburJam1 +=
+
+                        nominal;
+
+                }
+
+
+                if(
+
+                    rule.nama ===
+
+                    "lembur_jam_2"
+
+                ){
+
+                    lemburJam2 +=
+
+                        nominal;
+
+                }
 
             }
 
@@ -2382,6 +3014,10 @@ function calculatePayroll(
         );
 
 
+    /*
+       TELAT
+    */
+
     rows.forEach(
 
         item => {
@@ -2488,6 +3124,10 @@ function calculatePayroll(
     );
 
 
+    /*
+       IZIN TELAT
+    */
+
     const izinTelatRule =
 
         allRules.find(
@@ -2536,6 +3176,10 @@ function calculatePayroll(
 
     );
 
+
+    /*
+       IZIN PULANG
+    */
 
     const izinPulangRule =
 
@@ -2586,26 +3230,33 @@ function calculatePayroll(
     );
 
 
+    /*
+       ABSEN
+    */
+
     const absenRule =
 
-    allRules.find(
+        allRules.find(
 
-        rule =>
+            rule =>
 
-            rule.type_rule ===
+                rule.type_rule ===
+
                 "rule_potong"
 
-            &&
+                &&
 
-            rule.kondisi ===
+                rule.kondisi ===
+
                 "absen"
 
-            &&
+                &&
 
-            rule.waktu ===
+                rule.waktu ===
+
                 "harian"
 
-    );
+        );
 
 
     const absenCount =
@@ -2632,13 +3283,69 @@ function calculatePayroll(
         );
 
 
+    /*
+       DIRUMAHKAN
+
+       Hanya dipotong jika rule
+       memang ada.
+    */
+
+    const dirumahkanRule =
+
+        allRules.find(
+
+            rule =>
+
+                rule.type_rule ===
+
+                "rule_potong"
+
+                &&
+
+                rule.kondisi ===
+
+                "dirumahkan"
+
+                &&
+
+                rule.waktu ===
+
+                "harian"
+
+        );
+
+
+    const dirumahkanCount =
+
+        rows.filter(
+
+            item =>
+
+                item.status ===
+
+                "dirumahkan"
+
+        ).length;
+
+
+    potonganDirumahkan =
+
+        dirumahkanCount *
+
+        Number(
+
+            dirumahkanRule?.nominal || 0
+
+        );
+
+
     const totalEarnings =
 
         uangMakan +
 
-        lemburJam1 +
+        lemburHarian +
 
-        lemburJam2 +
+        lemburJamTotal +
 
         tunjangan +
 
@@ -2663,7 +3370,9 @@ function calculatePayroll(
 
         potonganIzinPulang +
 
-        potonganAbsen;
+        potonganAbsen +
+
+        potonganDirumahkan;
 
 
     const grossSalary =
@@ -2700,6 +3409,12 @@ function calculatePayroll(
 
             uangMakan,
 
+            lemburHarian,
+
+            lemburHarianJumlah,
+
+            lemburJamTotal,
+
             lemburJam1,
 
             lemburJam2,
@@ -2728,7 +3443,9 @@ function calculatePayroll(
 
             potonganIzinPulang,
 
-            potonganAbsen
+            potonganAbsen,
+
+            potonganDirumahkan
 
         },
 
@@ -2741,6 +3458,318 @@ function calculatePayroll(
         netSalary
 
     };
+
+}
+
+
+/* =====================================================
+   HELPER : CALCULATION COMPONENT
+===================================================== */
+
+function getCalculationComponent(
+
+    items,
+
+    name
+
+){
+
+    const item =
+
+        (
+
+            items ?? []
+
+        ).find(
+
+            row =>
+
+                row?.nama ===
+
+                name
+
+        );
+
+
+    return Number(
+
+        item?.total || 0
+
+    );
+
+}
+
+
+/* =====================================================
+   HELPER : CALCULATION COMPONENT PREFIX
+===================================================== */
+
+function getCalculationComponentByPrefix(
+
+    items,
+
+    prefix
+
+){
+
+    return (
+
+        items ?? []
+
+    )
+
+    .filter(
+
+        row =>
+
+            typeof row?.nama ===
+
+            "string"
+
+            &&
+
+            row.nama.startsWith(
+
+                prefix
+
+            )
+
+    )
+
+    .reduce(
+
+        (
+
+            total,
+
+            row
+
+        ) =>
+
+            total +
+
+            Number(
+
+                row?.total || 0
+
+            ),
+
+        0
+
+    );
+
+}
+
+
+/* =====================================================
+   HELPER : OVERTIME RULE
+===================================================== */
+
+function findOvertimeHourRule(
+
+    rules,
+
+    hour
+
+){
+
+    if(
+
+        !rules ||
+
+        rules.length === 0
+
+    ){
+
+        return null;
+
+    }
+
+
+    /*
+       PRIORITAS 1
+
+       Cari rule yang secara eksplisit
+       mencakup jam tersebut.
+    */
+
+    const explicitRules =
+
+        rules.filter(
+
+            rule => {
+
+                const start =
+
+                    Number(
+
+                        rule.nilai_start || 0
+
+                    );
+
+
+                const endValue =
+
+                    Number(
+
+                        rule.nilai_end || 0
+
+                    );
+
+
+                if(
+
+                    start <= 0
+
+                ){
+
+                    return false;
+
+                }
+
+
+                if(
+
+                    endValue > 0
+
+                ){
+
+                    return (
+
+                        hour >= start &&
+
+                        hour <= endValue
+
+                    );
+
+                }
+
+
+                return hour >= start;
+
+            }
+
+        );
+
+
+    if(
+
+        explicitRules.length > 0
+
+    ){
+
+        explicitRules.sort(
+
+            (
+
+                a,
+
+                b
+
+            ) =>
+
+                Number(
+
+                    b.nilai_start || 0
+
+                )
+
+                -
+
+                Number(
+
+                    a.nilai_start || 0
+
+                )
+
+        );
+
+
+        return explicitRules[0];
+
+    }
+
+
+    /*
+       PRIORITAS 2
+
+       Tidak ada rule eksplisit.
+
+       Gunakan rule terakhir yang
+       start-nya sudah dilewati.
+
+       Contoh:
+
+       Rule 1:
+       1 - 1
+
+       Rule 2:
+       2 - 8
+
+       Jam 9:
+
+       tidak ada rule eksplisit
+
+       maka Rule 2 tetap digunakan.
+    */
+
+    const fallbackRules =
+
+        rules.filter(
+
+            rule =>
+
+                Number(
+
+                    rule.nilai_start || 0
+
+                ) > 0
+
+                &&
+
+                Number(
+
+                    rule.nilai_start || 0
+
+                ) <= hour
+
+        );
+
+
+    fallbackRules.sort(
+
+        (
+
+            a,
+
+            b
+
+        ) =>
+
+            Number(
+
+                b.nilai_start || 0
+
+            )
+
+            -
+
+            Number(
+
+                a.nilai_start || 0
+
+            )
+
+    );
+
+
+    return (
+
+        fallbackRules[0] ??
+
+        null
+
+    );
 
 }
 
