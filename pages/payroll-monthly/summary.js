@@ -151,129 +151,110 @@ function hideNonPayrollSections(){
 
 function processPayrollSummary(){
 
-    const today =
+    /*
+       Period Engine menjadi sumber
+       periode payroll.
 
-        new Date();
+       Period.current
+       = periode yang sedang berjalan
+
+       Period.data
+       = periode gaji penuh terakhir
+    */
+
+    const currentPeriod =
+
+        Period.current;
 
 
-    let currentStart;
+    const lastPeriod =
 
-    let currentEnd;
+        Period.data;
 
 
     if(
 
-        today.getDate() >= 26
+        !currentPeriod?.start ||
+
+        !currentPeriod?.end
 
     ){
 
-        currentStart =
-
-            new Date(
-
-                today.getFullYear(),
-
-                today.getMonth(),
-
-                26
-
-            );
-
-
-        currentEnd =
-
-            new Date(
-
-                today.getFullYear(),
-
-                today.getMonth() + 1,
-
-                25
-
-            );
+        return;
 
     }
 
-    else {
 
-        currentStart =
-
-            new Date(
-
-                today.getFullYear(),
-
-                today.getMonth() - 1,
-
-                26
-
-            );
-
-
-        currentEnd =
-
-            new Date(
-
-                today.getFullYear(),
-
-                today.getMonth(),
-
-                25
-
-            );
-
-    }
-
+    /*
+       PERIODE BERJALAN
+    */
 
     Summary.currentPeriod = {
 
         start :
 
-            currentStart,
+            new Date(
+
+                currentPeriod.start
+
+            ),
 
         end :
 
-            currentEnd
+            new Date(
+
+                currentPeriod.end
+
+            )
 
     };
 
 
-    const lastStart =
+    /*
+       PERIODE GAJI TERAKHIR
+    */
 
-        new Date(
+    if(
 
-            currentStart.getFullYear(),
+        lastPeriod?.start &&
 
-            currentStart.getMonth() - 1,
+        lastPeriod?.end
 
-            26
+    ){
 
-        );
+        Summary.selectedPeriod = {
 
+            start :
 
-    const lastEnd =
+                new Date(
 
-        new Date(
+                    lastPeriod.start
 
-            currentStart.getFullYear(),
+                ),
 
-            currentStart.getMonth(),
+            end :
 
-            25
+                new Date(
 
-        );
+                    lastPeriod.end
 
+                )
 
-    Summary.selectedPeriod = {
+        };
 
-        start :
+    }
 
-            lastStart,
+    else {
 
-        end :
+        Summary.selectedPeriod = {
 
-            lastEnd
+            start : null,
 
-    };
+            end : null
+
+        };
+
+    }
 
 
     Summary.periodOffset =
@@ -287,7 +268,6 @@ function processPayrollSummary(){
     renderCurrentPeriod();
 
 }
-
 
 /* =====================================================
    RENDER SUMMARY
