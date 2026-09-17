@@ -96,9 +96,22 @@ Calculation.init = function(){
 
 function processCalculation(){
 
+    /*
+       PERUBAHAN:
+       Gunakan Period.current karena
+       Calculation digunakan untuk
+       estimasi payroll periode berjalan.
+
+       Period.current
+       = periode payroll yang sedang berjalan.
+
+       Period.data
+       = periode payroll penuh terakhir.
+    */
+
     const period =
 
-        Period.data;
+        Period.current;
 
 
     const attendance =
@@ -829,32 +842,58 @@ function processPotong(
                 return;
 
             }
-           /* =====================================
+
+
+            /* =====================================
                DIRUMAHKAN
             ===================================== */
-           
 
-           if(
-    rule.kondisi === "dirumahkan"
-    &&
-    rule.waktu === "harian"
-){
-    const jumlah =
-        countStatus(
-            attendance,
-            "dirumahkan"
-        );
+            if(
 
-    if(jumlah > 0){
-        addComponent(
-            result,
-            rule,
-            jumlah
-        );
-    }
+                rule.kondisi ===
 
-    return;
-}
+                    "dirumahkan"
+
+                &&
+
+                rule.waktu ===
+
+                    "harian"
+
+            ){
+
+                const jumlah =
+
+                    countStatus(
+
+                        attendance,
+
+                        "dirumahkan"
+
+                    );
+
+
+                if(
+
+                    jumlah > 0
+
+                ){
+
+                    addComponent(
+
+                        result,
+
+                        rule,
+
+                        jumlah
+
+                    );
+
+                }
+
+                return;
+
+            }
 
 
             /* =====================================
