@@ -81,6 +81,8 @@ export const Attendance = {
 
         lemburHours : 0,
 
+        dirumahkan : 0,
+
         absen : 0
 
     }
@@ -841,6 +843,8 @@ function processSummary(){
         lembur : 0,
 
         lemburHours : 0,
+
+        dirumahkan : 0,
 
         absen : 0
 
