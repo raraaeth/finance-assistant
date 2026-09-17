@@ -432,8 +432,6 @@ function handleRange(
     refresh();
 
 
-    
-
 }
 
 
@@ -589,12 +587,13 @@ Statistics.renderSummary = function(){
 
     const shortMotivation =
 
-    Insight.getShortMotivation();
+        Insight.getShortMotivation();
 
 
     const longMotivation =
 
-    Insight.getMotivation();
+        Insight.getMotivation();
+
 
     /* =============================================
        BUILD SUMMARY
@@ -677,11 +676,12 @@ Statistics.renderSummary = function(){
 
                     break;
 
+
                 case "dirumahkan":
 
                     summary.dirumahkan++;
 
-                    break;  
+                    break;
 
 
                 case "absen":
@@ -974,25 +974,26 @@ Statistics.renderSummary = function(){
 
         },
 
-       {
 
-    key :
+        {
 
-        "dirumahkan",
+            key :
 
-    label :
+                "dirumahkan",
 
-        "🏠 Dirumahkan",
+            label :
 
-    value :
+                "🏠 Dirumahkan",
 
-        formatCount(
+            value :
 
-            summary.dirumahkan
+                formatCount(
 
-        )
+                    summary.dirumahkan
 
-},
+                )
+
+        },
 
 
         {
@@ -1051,20 +1052,20 @@ Statistics.renderSummary = function(){
 
         <div class="statistics-insight-content">
 
-    <div class="statistics-short-motivation">
+            <div class="statistics-short-motivation">
 
-        ${shortMotivation.text}
+                ${shortMotivation.text}
 
-    </div>
+            </div>
 
 
-    <div class="statistics-long-motivation">
+            <div class="statistics-long-motivation">
 
-        ${longMotivation}
+                ${longMotivation}
 
-    </div>
+            </div>
 
-</div>
+        </div>
 
 
         <div class="statistics-summary-grid">
@@ -1164,6 +1165,8 @@ Statistics.renderChart = function(){
 
         liburNasional : 0,
 
+        dirumahkan : 0,
+
         absen : 0
 
     };
@@ -1216,6 +1219,13 @@ Statistics.renderChart = function(){
                     break;
 
 
+                case "dirumahkan":
+
+                    summary.dirumahkan++;
+
+                    break;
+
+
                 case "absen":
 
                     summary.absen++;
@@ -1247,6 +1257,8 @@ Statistics.renderChart = function(){
 
             "Libur Nasional",
 
+            "Dirumahkan",
+
             "Absen"
 
         ],
@@ -1271,6 +1283,8 @@ Statistics.renderChart = function(){
 
                     summary.liburNasional,
 
+                    summary.dirumahkan,
+
                     summary.absen
 
                 ],
@@ -1286,6 +1300,8 @@ Statistics.renderChart = function(){
                     "#8B5CF6",
 
                     "#EF4444",
+
+                    "#6366F1",
 
                     "#F59E0B"
 
@@ -1922,6 +1938,10 @@ function getStatusLabel(
 
             "Libur Nasional",
 
+        dirumahkan :
+
+            "Dirumahkan",
+
         absen :
 
             "Absen"
@@ -1975,6 +1995,10 @@ function getStatusIcon(
         libur_nasional :
 
             "🔴",
+
+        dirumahkan :
+
+            "🏠",
 
         absen :
 
