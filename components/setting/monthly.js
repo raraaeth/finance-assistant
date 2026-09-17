@@ -9,6 +9,7 @@
    Payroll Monthly Setting Definition
 
    Modules :
+
    - Rule Periode
    - Rule Gaji
    - Rule Potong
@@ -16,6 +17,7 @@
    - Rule Attendance
 
    Principle :
+
    - Google Sheets / Payroll Engine menjadi sumber state.
    - Tidak menggunakan DOM sebagai sumber lock.
    - Rule Periode menjadi fondasi active period.
@@ -23,8 +25,6 @@
    - History rule lama tidak dihapus.
    - Monthly tidak menggunakan Rule Work.
    - Attendance automatic rule ditangani Payroll Engine.
-   - Status dirumahkan merupakan status attendance.
-   - Rule Potong dirumahkan bersifat opsional.
 ===================================================== */
 
 
@@ -50,54 +50,103 @@ const PAYROLL_MODE =
 ===================================================== */
 
 const MONTH_OPTIONS = [
+
     {
-        value : "01",
-        label : "Januari"
+        value :
+            "01",
+
+        label :
+            "Januari"
     },
+
     {
-        value : "02",
-        label : "Februari"
+        value :
+            "02",
+
+        label :
+            "Februari"
     },
+
     {
-        value : "03",
-        label : "Maret"
+        value :
+            "03",
+
+        label :
+            "Maret"
     },
+
     {
-        value : "04",
-        label : "April"
+        value :
+            "04",
+
+        label :
+            "April"
     },
+
     {
-        value : "05",
-        label : "Mei"
+        value :
+            "05",
+
+        label :
+            "Mei"
     },
+
     {
-        value : "06",
-        label : "Juni"
+        value :
+            "06",
+
+        label :
+            "Juni"
     },
+
     {
-        value : "07",
-        label : "Juli"
+        value :
+            "07",
+
+        label :
+            "Juli"
     },
+
     {
-        value : "08",
-        label : "Agustus"
+        value :
+            "08",
+
+        label :
+            "Agustus"
     },
+
     {
-        value : "09",
-        label : "September"
+        value :
+            "09",
+
+        label :
+            "September"
     },
+
     {
-        value : "10",
-        label : "Oktober"
+        value :
+            "10",
+
+        label :
+            "Oktober"
     },
+
     {
-        value : "11",
-        label : "November"
+        value :
+            "11",
+
+        label :
+            "November"
     },
+
     {
-        value : "12",
-        label : "Desember"
+        value :
+            "12",
+
+        label :
+            "Desember"
     }
+
 ];
 
 
@@ -115,15 +164,17 @@ for(
     year <= CURRENT_YEAR + 15;
     year++
 ){
-    YEAR_OPTIONS.push(
-        {
-            value :
-                String(year),
 
-            label :
-                String(year)
-        }
-    );
+    YEAR_OPTIONS.push({
+
+        value :
+            String(year),
+
+        label :
+            String(year)
+
+    });
+
 }
 
 
@@ -139,15 +190,15 @@ YEAR_OPTIONS.forEach(
         MONTH_OPTIONS.forEach(
             month => {
 
-                MONTH_YEAR_OPTIONS.push(
-                    {
-                        value :
-                            `${year.value}-${month.value}`,
+                MONTH_YEAR_OPTIONS.push({
 
-                        label :
-                            `${month.label} ${year.label}`
-                    }
-                );
+                    value :
+                        `${year.value}-${month.value}`,
+
+                    label :
+                        `${month.label} ${year.label}`
+
+                });
 
             }
         );
@@ -258,10 +309,10 @@ const POTONG_OPTIONS = [
             "Absen"
     },
 
-    /* =================================================
+    /* =============================================
        BARU :
-       RULE POTONG DIRUMAHKAN
-    ================================================= */
+       DIRUMAHKAN
+    ============================================= */
 
     {
         value :
@@ -396,6 +447,7 @@ const ATTENDANCE_FEATURES = [
             "Buat Rule Lembur otomatis untuk Payroll Monthly.",
 
         rules : [
+
             {
                 type_rule :
                     "rule_lembur",
@@ -403,6 +455,7 @@ const ATTENDANCE_FEATURES = [
                 nama :
                     "lembur_jam"
             }
+
         ]
     },
 
@@ -417,6 +470,7 @@ const ATTENDANCE_FEATURES = [
             "Buat Rule Izin Pulang otomatis.",
 
         rules : [
+
             {
                 type_rule :
                     "rule_izin",
@@ -424,6 +478,7 @@ const ATTENDANCE_FEATURES = [
                 nama :
                     "izin_pulang"
             }
+
         ]
     },
 
@@ -438,6 +493,7 @@ const ATTENDANCE_FEATURES = [
             "Aktifkan perhitungan telat dan izin telat.",
 
         rules : [
+
             {
                 type_rule :
                     "rule_telat",
@@ -453,6 +509,7 @@ const ATTENDANCE_FEATURES = [
                 nama :
                     "izin_telat"
             }
+
         ]
     },
 
@@ -467,6 +524,7 @@ const ATTENDANCE_FEATURES = [
             "Aktifkan Rule Shift pada attendance.",
 
         rules : [
+
             {
                 type_rule :
                     "rule_shift",
@@ -474,6 +532,7 @@ const ATTENDANCE_FEATURES = [
                 nama :
                     "shift"
             }
+
         ]
     }
 
@@ -496,7 +555,9 @@ function normalizeValue(
         value ===
         undefined
     ){
+
         return "";
+
     }
 
     return String(
@@ -549,7 +610,9 @@ function createISODate(
         ||
         !Number.isInteger(d)
     ){
+
         return "";
+
     }
 
     if(
@@ -561,7 +624,9 @@ function createISODate(
         ||
         d > 31
     ){
+
         return "";
+
     }
 
     const date =
@@ -578,13 +643,21 @@ function createISODate(
         ||
         date.getDate() !== d
     ){
+
         return "";
+
     }
 
     return [
+
         String(y),
-        String(m).padStart(2, "0"),
-        String(d).padStart(2, "0")
+
+        String(m)
+            .padStart(2, "0"),
+
+        String(d)
+            .padStart(2, "0")
+
     ].join("-");
 
 }
@@ -612,7 +685,9 @@ function parseMonthYear(
     if(
         !match
     ){
+
         return null;
+
     }
 
     const year =
@@ -630,12 +705,17 @@ function parseMonthYear(
         ||
         month > 12
     ){
+
         return null;
+
     }
 
     return {
+
         year,
+
         month
+
     };
 
 }
@@ -654,20 +734,26 @@ function getNextMonth(
     if(
         month === 12
     ){
+
         return {
+
             year :
                 year + 1,
 
             month :
                 1
+
         };
+
     }
 
     return {
+
         year,
 
         month :
             month + 1
+
     };
 
 }
@@ -688,9 +774,12 @@ function getDayNumber(
         );
 
     if(
-        normalized === ""
+        normalized ===
+        ""
     ){
+
         return NaN;
+
     }
 
     const number =
@@ -703,7 +792,9 @@ function getDayNumber(
             number
         )
     ){
+
         return NaN;
+
     }
 
     return Math.trunc(
@@ -723,10 +814,12 @@ function isTelatRule(
 ){
 
     return [
+
         "telat_1",
         "telat_2",
         "telat_3",
         "telat_4"
+
     ].includes(
         nama
     );
@@ -767,9 +860,12 @@ function formatNominal(
         );
 
     if(
-        normalized === ""
+        normalized ===
+        ""
     ){
+
         return "-";
+
     }
 
     const number =
@@ -782,7 +878,9 @@ function formatNominal(
             number
         )
     ){
+
         return normalized;
+
     }
 
     return (
@@ -811,7 +909,9 @@ function getMonthlyAttendanceSettings(
             data
         )
     ){
+
         return {};
+
     }
 
     const item =
@@ -835,7 +935,9 @@ function getMonthlyAttendanceSettings(
     if(
         !item
     ){
+
         return {};
+
     }
 
     const rule =
@@ -911,7 +1013,9 @@ function isAutomaticMonthlyRule(
     if(
         !rule
     ){
+
         return false;
+
     }
 
     const typeRule =
@@ -920,11 +1024,13 @@ function isAutomaticMonthlyRule(
         );
 
     return [
+
         "rule_masuk",
         "rule_lembur",
         "rule_izin",
         "rule_telat",
         "rule_shift"
+
     ].includes(
         typeRule
     );
@@ -946,7 +1052,9 @@ function getManualPayrollPayload(
             data
         )
     ){
+
         return [];
+
     }
 
     return data.filter(
@@ -955,7 +1063,9 @@ function getManualPayrollPayload(
             if(
                 !item
             ){
+
                 return false;
+
             }
 
             const rule =
@@ -968,7 +1078,9 @@ function getManualPayrollPayload(
                 rule.type ===
                     "payroll_monthly"
             ){
+
                 return false;
+
             }
 
             if(
@@ -976,7 +1088,9 @@ function getManualPayrollPayload(
                     item
                 )
             ){
+
                 return false;
+
             }
 
             return true;
@@ -1003,7 +1117,9 @@ function getCurrentPeriodRuleList(
             rules
         )
     ){
+
         return [];
+
     }
 
     const targetType =
@@ -1022,19 +1138,25 @@ function getCurrentPeriodRuleList(
             if(
                 !rule
             ){
+
                 return false;
+
             }
 
             return (
+
                 normalizeCompareValue(
                     rule.type_rule
                 ) ===
                     targetType
+
                 &&
+
                 normalizeCompareValue(
                     rule.nama
                 ) ===
                     targetName
+
             );
 
         }
@@ -1060,19 +1182,23 @@ function isAttendanceFeatureCreated(
             feature.rules
         )
     ){
+
         return false;
+
     }
 
     return feature.rules.every(
         requiredRule => {
 
             return (
+
                 getCurrentPeriodRuleList(
                     rules,
                     requiredRule.type_rule,
                     requiredRule.nama
                 ).length >
                 0
+
             );
 
         }
@@ -1131,7 +1257,9 @@ function applyAvailableSelectOptions(
             section.fields
         )
     ){
+
         return;
+
     }
 
     const field =
@@ -1146,7 +1274,9 @@ function applyAvailableSelectOptions(
     if(
         !field
     ){
+
         return;
+
     }
 
     const options =
@@ -1170,6 +1300,7 @@ function applyAvailableSelectOptions(
             );
 
         return;
+
     }
 
     const locked =
@@ -1180,24 +1311,26 @@ function applyAvailableSelectOptions(
         new Set();
 
     field.options =
-        options.filter(
-            option => {
+        options
+            .filter(
+                option => {
 
-                const value =
-                    normalizeCompareValue(
-                        option?.value
+                    const value =
+                        normalizeCompareValue(
+                            option?.value
+                        );
+
+                    return !locked.has(
+                        value
                     );
 
-                return !locked.has(
-                    value
-                );
-
-            }
-        ).map(
-            option => ({
-                ...option
-            })
-        );
+                }
+            )
+            .map(
+                option => ({
+                    ...option
+                })
+            );
 
 }
 
@@ -1214,7 +1347,9 @@ function removeGajiSheetResult(
     if(
         !sectionElement
     ){
+
         return;
+
     }
 
     sectionElement
@@ -1245,7 +1380,9 @@ function renderGajiSheetResult(
     if(
         !sectionElement
     ){
+
         return;
+
     }
 
     removeGajiSheetResult(
@@ -1255,7 +1392,9 @@ function renderGajiSheetResult(
     if(
         !rule
     ){
+
         return;
+
     }
 
     const result =
@@ -1266,13 +1405,27 @@ function renderGajiSheetResult(
     if(
         !result
     ){
+
         return;
+
     }
 
     const item =
         document.createElement(
             "div"
         );
+
+    /*
+     * PENTING :
+     *
+     * Jangan memakai class
+     * global-setting-result-item
+     * dan jangan memberi dataset.value.
+     *
+     * Ini hanya visual information dari
+     * Rules Sheet, bukan result baru
+     * yang dibuat user pada form.
+     */
 
     item.className =
         "payroll-gaji-sheet-result";
@@ -1328,7 +1481,9 @@ function applyRuleGajiUI(
     if(
         !sectionElement
     ){
+
         return;
+
     }
 
     const form =
@@ -1344,6 +1499,13 @@ function applyRuleGajiUI(
     if(
         locked
     ){
+
+        /*
+         * Karena hanya ada satu opsi
+         * Gaji Pokok, tidak ada alasan
+         * untuk menampilkan tombol tambah
+         * lagi ketika rule sudah ada.
+         */
 
         if(
             addButton
@@ -1368,6 +1530,14 @@ function applyRuleGajiUI(
 
         }
 
+
+        /*
+         * Jangan mengubah result menjadi
+         * data persistent baru.
+         *
+         * Ini hanya tampilan informasi
+         * berdasarkan Rules Sheet.
+         */
 
         renderGajiSheetResult(
             sectionElement,
@@ -1446,7 +1616,9 @@ async function refreshRuleGajiState(
     if(
         !sectionElement
     ){
+
         return;
+
     }
 
     const state =
@@ -1484,15 +1656,19 @@ async function refreshRuleGajiState(
                 item => {
 
                     return (
+
                         normalizeCompareValue(
                             item?.type_rule
                         ) ===
                             "rule_gaji"
+
                         &&
+
                         normalizeCompareValue(
                             item?.nama
                         ) ===
                             "gaji"
+
                     );
 
                 }
@@ -1526,7 +1702,9 @@ function applyAttendanceUI(
     if(
         !sectionElement
     ){
+
         return;
+
     }
 
 
@@ -1538,7 +1716,9 @@ function applyAttendanceUI(
     if(
         !form
     ){
+
         return;
+
     }
 
 
@@ -1558,7 +1738,9 @@ function applyAttendanceUI(
             if(
                 !wrapper
             ){
+
                 return;
+
             }
 
 
@@ -1580,9 +1762,11 @@ function applyAttendanceUI(
                 );
 
 
-            /* =============================================
-               NEW PERIOD
-            ============================================= */
+            /*
+             * -------------------------------------------------
+             * NEW PERIOD
+             * -------------------------------------------------
+             */
 
             if(
                 newPeriodMode
@@ -1597,6 +1781,11 @@ function applyAttendanceUI(
 
                     input.style.display =
                         "";
+
+                    /*
+                     * Default config tetap
+                     * aktif untuk periode baru.
+                     */
 
                     input.checked =
                         true;
@@ -1654,14 +1843,17 @@ function applyAttendanceUI(
             }
 
 
-            /* =============================================
-               ACTIVE PERIOD
-            ============================================= */
+            /*
+             * -------------------------------------------------
+             * ACTIVE PERIOD
+             * -------------------------------------------------
+             */
 
             const created =
                 featureStates[
                     feature.field
-                ] === true;
+                ] ===
+                true;
 
 
             if(
@@ -1674,9 +1866,9 @@ function applyAttendanceUI(
             }
 
 
-            /* =============================================
-               RULE SUDAH DIBUAT
-            ============================================= */
+            /*
+             * RULE SUDAH DIBUAT
+             */
 
             if(
                 created
@@ -1685,6 +1877,11 @@ function applyAttendanceUI(
                 if(
                     input
                 ){
+
+                    /*
+                     * Checkbox benar-benar
+                     * dihilangkan dari UI.
+                     */
 
                     input.checked =
                         false;
@@ -1758,9 +1955,9 @@ function applyAttendanceUI(
             }
 
 
-            /* =============================================
-               RULE BELUM DIBUAT
-            ============================================= */
+            /*
+             * RULE BELUM DIBUAT
+             */
 
             else{
 
@@ -1773,6 +1970,12 @@ function applyAttendanceUI(
 
                     input.style.display =
                         "";
+
+                    /*
+                     * Default tetap aktif,
+                     * sehingga user bisa memilih
+                     * fitur untuk dibuat.
+                     */
 
                     input.checked =
                         true;
@@ -1830,10 +2033,20 @@ function applyAttendanceUI(
     );
 
 
+    /*
+     * Jika semua automatic attendance
+     * sudah ada, tombol Simpan Rule
+     * tidak diperlukan lagi.
+     *
+     * Saat periode baru, tombol dibuka
+     * kembali oleh blok di atas.
+     */
+
     const action =
         form.querySelector(
             ".global-setting-form-add"
         );
+
 
     if(
         action
@@ -1863,9 +2076,16 @@ async function refreshAttendanceState(
     if(
         !sectionElement
     ){
+
         return;
+
     }
 
+
+    /*
+     * Payroll membaca Rules Sheet terlebih
+     * dahulu sebelum UI menentukan status.
+     */
 
     const periodState =
         await Payroll.getRuleState(
@@ -1943,7 +2163,6 @@ export const MonthlySetting = {
 
     sections : [
 
-
         /* =================================================
            RULE PERIODE
         ================================================= */
@@ -2009,6 +2228,7 @@ export const MonthlySetting = {
 
                     note :
                         "Masukkan tanggal awal periode perhitungan gaji."
+
                 },
 
 
@@ -2040,6 +2260,7 @@ export const MonthlySetting = {
 
                     note :
                         "Tanggal akhir otomatis berada satu bulan setelah bulan mulai."
+
                 },
 
 
@@ -2065,6 +2286,7 @@ export const MonthlySetting = {
 
                     note :
                         "Tentukan bulan dan tahun mulai berlakunya payroll."
+
                 },
 
 
@@ -2090,6 +2312,7 @@ export const MonthlySetting = {
 
                     note :
                         "Tentukan bulan dan tahun berakhirnya payroll."
+
                 }
 
             ],
@@ -2105,10 +2328,12 @@ export const MonthlySetting = {
                             data.nilai_start_day
                         );
 
+
                     const endDay =
                         getDayNumber(
                             data.nilai_end_day
                         );
+
 
                     if(
                         !Number.isInteger(
@@ -2125,6 +2350,7 @@ export const MonthlySetting = {
                         );
 
                         return null;
+
                     }
 
 
@@ -2143,6 +2369,7 @@ export const MonthlySetting = {
                         );
 
                         return null;
+
                     }
 
 
@@ -2150,6 +2377,7 @@ export const MonthlySetting = {
                         parseMonthYear(
                             data.periode_start_month
                         );
+
 
                     const activeEnd =
                         parseMonthYear(
@@ -2168,6 +2396,7 @@ export const MonthlySetting = {
                         );
 
                         return null;
+
                     }
 
 
@@ -2225,6 +2454,7 @@ export const MonthlySetting = {
                         );
 
                         return null;
+
                     }
 
 
@@ -2242,6 +2472,7 @@ export const MonthlySetting = {
                         );
 
                         return null;
+
                     }
 
 
@@ -2360,6 +2591,7 @@ export const MonthlySetting = {
                         true,
 
                     options : [
+
                         {
 
                             value :
@@ -2369,7 +2601,9 @@ export const MonthlySetting = {
                                 "Gaji Pokok"
 
                         }
+
                     ]
+
                 },
 
 
@@ -2398,6 +2632,7 @@ export const MonthlySetting = {
 
                     note :
                         "Masukkan nominal gaji pokok untuk satu periode gaji."
+
                 }
 
             ],
@@ -2476,6 +2711,14 @@ export const MonthlySetting = {
 
                 },
 
+
+            /*
+             * Form Rule Gaji dibuat ulang oleh
+             * Global Setting ketika tombol dibuka.
+             *
+             * Refresh lagi setelah render supaya
+             * state Sheet tetap berlaku.
+             */
 
             onRender :
                 async function(
@@ -2578,6 +2821,7 @@ export const MonthlySetting = {
 
                     note :
                         "Masukkan nominal potongan."
+
                 },
 
 
@@ -2610,16 +2854,19 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
+
                             "telat_1",
                             "telat_2",
                             "telat_3",
                             "telat_4"
+
                         ]
 
                     },
 
                     note :
                         "Isi batas awal keterlambatan dalam menit."
+
                 },
 
 
@@ -2652,16 +2899,19 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
+
                             "telat_1",
                             "telat_2",
                             "telat_3",
                             "telat_4"
+
                         ]
 
                     },
 
                     note :
                         "Isi batas akhir keterlambatan dalam menit."
+
                 }
 
             ],
@@ -2677,8 +2927,10 @@ export const MonthlySetting = {
                             data.nama
                         );
 
+
                     let kondisi =
                         "periode";
+
 
                     let waktu =
                         "gaji";
@@ -2702,6 +2954,7 @@ export const MonthlySetting = {
                                 data.nilai_start
                             );
 
+
                         const end =
                             getDayNumber(
                                 data.nilai_end
@@ -2723,6 +2976,7 @@ export const MonthlySetting = {
                             );
 
                             return null;
+
                         }
 
 
@@ -2736,6 +2990,7 @@ export const MonthlySetting = {
                             );
 
                             return null;
+
                         }
 
                     }
@@ -2777,18 +3032,14 @@ export const MonthlySetting = {
                     }
 
                     /*
-                     * DIRUMAHKAN
+                     * =========================================
+                     * BARU :
+                     * RULE POTONG DIRUMAHKAN
                      *
-                     * Rule ini bersifat opsional.
-                     *
-                     * Jika user memilih Dirumahkan,
-                     * rule disimpan ke Sheet.
-                     *
-                     * Jika user tidak memilihnya,
-                     * tidak ada rule dirumahkan.
-                     *
-                     * Status attendance dirumahkan
-                     * tetap dapat digunakan.
+                     * Tidak dibuat otomatis.
+                     * Hanya digunakan jika user memilih
+                     * Dirumahkan pada Rule Potong.
+                     * =========================================
                      */
 
                     else if(
@@ -2900,6 +3151,7 @@ export const MonthlySetting = {
                         names =
                             new Set();
 
+
                         rules.forEach(
                             rule => {
 
@@ -2909,17 +3161,22 @@ export const MonthlySetting = {
                                     ) !==
                                     "rule_potong"
                                 ){
+
                                     return;
+
                                 }
+
 
                                 const nama =
                                     normalizeCompareValue(
                                         rule?.nama
                                     );
 
+
                                 if(
                                     nama
                                 ){
+
                                     names.add(
                                         nama
                                     );
@@ -2943,6 +3200,15 @@ export const MonthlySetting = {
                             }
                         );
 
+
+                    /*
+                     * INI MEKANISME LOCK YANG SUDAH ADA.
+                     *
+                     * Rule yang sudah ada di Sheet
+                     * dibuang dari options.
+                     *
+                     * Jangan dihapus.
+                     */
 
                     applyAvailableSelectOptions(
                         section,
@@ -3106,6 +3372,7 @@ export const MonthlySetting = {
 
                     note :
                         "Masukkan nominal rule tambah."
+
                 },
 
 
@@ -3138,6 +3405,7 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
+
                             "lembur_jam_1",
                             "lembur_jam_2",
                             "lembur_jam_3",
@@ -3146,12 +3414,14 @@ export const MonthlySetting = {
                             "lembur_jam_6",
                             "lembur_jam_7",
                             "lembur_jam_8"
+
                         ]
 
                     },
 
                     note :
                         "Isi batas awal jam lembur."
+
                 },
 
 
@@ -3184,6 +3454,7 @@ export const MonthlySetting = {
                             "nama",
 
                         values : [
+
                             "lembur_jam_1",
                             "lembur_jam_2",
                             "lembur_jam_3",
@@ -3192,12 +3463,14 @@ export const MonthlySetting = {
                             "lembur_jam_6",
                             "lembur_jam_7",
                             "lembur_jam_8"
+
                         ]
 
                     },
 
                     note :
                         "Isi batas akhir jam lembur."
+
                 }
 
             ],
@@ -3213,8 +3486,10 @@ export const MonthlySetting = {
                             data.nama
                         );
 
+
                     let kondisi =
                         "periode";
+
 
                     let waktu =
                         "gaji";
@@ -3278,6 +3553,7 @@ export const MonthlySetting = {
                                 data.nilai_start
                             );
 
+
                         const end =
                             getDayNumber(
                                 data.nilai_end
@@ -3299,6 +3575,7 @@ export const MonthlySetting = {
                             );
 
                             return null;
+
                         }
 
 
@@ -3312,6 +3589,7 @@ export const MonthlySetting = {
                             );
 
                             return null;
+
                         }
 
                     }
@@ -3412,6 +3690,7 @@ export const MonthlySetting = {
                         names =
                             new Set();
 
+
                         rules.forEach(
                             rule => {
 
@@ -3421,17 +3700,22 @@ export const MonthlySetting = {
                                     ) !==
                                     "rule_tambah"
                                 ){
+
                                     return;
+
                                 }
+
 
                                 const nama =
                                     normalizeCompareValue(
                                         rule?.nama
                                     );
 
+
                                 if(
                                     nama
                                 ){
+
                                     names.add(
                                         nama
                                     );
@@ -3521,6 +3805,7 @@ export const MonthlySetting = {
 
                     note :
                         "Buat Rule Lembur otomatis untuk Payroll Monthly."
+
                 },
 
 
@@ -3540,6 +3825,7 @@ export const MonthlySetting = {
 
                     note :
                         "Buat Rule Izin Pulang otomatis."
+
                 },
 
 
@@ -3559,6 +3845,7 @@ export const MonthlySetting = {
 
                     note :
                         "Aktifkan perhitungan telat dan izin telat."
+
                 },
 
 
@@ -3578,6 +3865,7 @@ export const MonthlySetting = {
 
                     note :
                         "Aktifkan Rule Shift pada attendance."
+
                 }
 
             ],
@@ -3607,6 +3895,16 @@ export const MonthlySetting = {
 
                 },
 
+
+            /*
+             * INI PENTING.
+             *
+             * Global Setting merender ulang form
+             * ketika tombol Rule Attendance dibuka.
+             *
+             * Karena itu state dari Sheet harus
+             * diterapkan lagi setelah render.
+             */
 
             onRender :
                 async function(
@@ -3773,7 +4071,9 @@ export const MonthlySetting = {
                 if(
                     !rule
                 ){
+
                     continue;
+
                 }
 
 
@@ -3788,6 +4088,7 @@ export const MonthlySetting = {
                     );
 
                     continue;
+
                 }
 
 
@@ -3795,7 +4096,9 @@ export const MonthlySetting = {
                     rule.type ===
                     "payroll_monthly"
                 ){
+
                     continue;
+
                 }
 
 
@@ -3812,16 +4115,14 @@ export const MonthlySetting = {
                     item.data
                 ){
 
-                    output.push(
-                        {
+                    output.push({
 
-                            ...item,
+                        ...item,
 
-                            data :
-                                prepared
+                        data :
+                            prepared
 
-                        }
-                    );
+                    });
 
                 }
                 else{
