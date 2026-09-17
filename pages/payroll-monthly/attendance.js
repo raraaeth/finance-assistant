@@ -902,6 +902,12 @@ function processSummary(){
 
                     break;
 
+                  case "dirumahkan":
+                  
+                    summary.dirumahkan++;
+                  
+                    break;
+
 
                 case "absen":
 
