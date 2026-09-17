@@ -974,6 +974,26 @@ Statistics.renderSummary = function(){
 
         },
 
+       {
+
+    key :
+
+        "dirumahkan",
+
+    label :
+
+        "🏠 Dirumahkan",
+
+    value :
+
+        formatCount(
+
+            summary.dirumahkan
+
+        )
+
+},
+
 
         {
 
