@@ -3,17 +3,10 @@
    Page        : Payroll Monthly
    Module      : Summary
    File        : summary.js
-   Version     : 3.1.0
+   Version     : 3.2.0
 
    Description :
    Payroll Summary / Salary History
-
-   Changes :
-   - Current Period menggunakan Process.calculation
-   - Lembur Harian dipisahkan dari Lembur Jam
-   - Lembur Jam menggunakan seluruh component lembur_jam
-   - Dirumahkan ditampilkan sebagai potongan jika rule tersedia
-   - History calculation tetap tersedia
 ===================================================== */
 
 
@@ -26,6 +19,7 @@ import {
     Process
 
 } from "./process.js";
+
 
 import {
 
@@ -157,17 +151,6 @@ function hideNonPayrollSections(){
 
 function processPayrollSummary(){
 
-    /*
-       Period Engine menjadi sumber
-       periode payroll.
-
-       Period.current
-       = periode yang sedang berjalan
-
-       Period.data
-       = periode gaji penuh terakhir
-    */
-
     const currentPeriod =
 
         Period.current;
@@ -191,10 +174,6 @@ function processPayrollSummary(){
     }
 
 
-    /*
-       PERIODE BERJALAN
-    */
-
     Summary.currentPeriod = {
 
         start :
@@ -215,10 +194,6 @@ function processPayrollSummary(){
 
     };
 
-
-    /*
-       PERIODE GAJI TERAKHIR
-    */
 
     if(
 
@@ -270,10 +245,10 @@ function processPayrollSummary(){
 
     renderSummary();
 
-
     renderCurrentPeriod();
 
 }
+
 
 /* =====================================================
    RENDER SUMMARY
@@ -486,355 +461,119 @@ function renderCurrentPeriod(){
         Summary.currentPeriod;
 
 
-    /*
-       CURRENT PERIOD HARUS MENGGUNAKAN
-       HASIL DARI CALCULATION ENGINE.
-
-       Jangan menghitung ulang payroll
-       menggunakan calculatePayroll().
-    */
-
     const result =
 
-        Process.calculation ?? {};
+        calculatePayroll(
+
+            period.start,
+
+            period.end
+
+        );
 
 
-    const attendance =
+    const earningRows =
 
-        result.attendance ?? [];
-
-
-    const earnings =
-
-        result.earnings ?? [];
+        result.earnings.components ?? [];
 
 
-    const deductions =
+    const deductionRows =
 
-        result.deductions ?? [];
+        result.deductions.components ?? [];
 
 
-    const countStatus =
+    const renderComponentRows =
 
-        status =>
+        (components, deduction = false) =>
 
-            attendance.filter(
+            components
+
+            .filter(
 
                 item =>
 
-                    item.status === status
+                    Number(
 
-            ).length;
+                        item.total || 0
+
+                    ) !== 0
+
+            )
+
+            .map(
+
+                item => `
+
+                    <div class="payroll-row">
+
+                        <span>
+
+                            ${item.label}
+
+                        </span>
 
 
-    const countLate =
+                        <strong>
 
-        attendance.filter(
+                            ${
+
+                                deduction
+
+                                    ? `-${formatRupiah(item.total)}`
+
+                                    : formatRupiah(item.total)
+
+                            }
+
+                        </strong>
+
+                    </div>
+
+                `
+
+            )
+
+            .join("");
+
+
+    const earningHTML =
+
+        renderComponentRows(
+
+            earningRows
+
+        );
+
+
+    const deductionHTML =
+
+        renderComponentRows(
+
+            deductionRows,
+
+            true
+
+        );
+
+
+    const hasEarnings =
+
+        earningRows.some(
 
             item =>
 
-                Number(
+                Number(item.total || 0) !== 0
 
-                    item.lateMinutes ??
-
-                    item.telat ??
-
-                    0
-
-                ) > 0
-
-        ).length;
+        );
 
 
-    const countIzinTelat =
+    const hasDeductions =
 
-        attendance.filter(
+        deductionRows.some(
 
             item =>
 
-                Number(
-
-                    item.izinTelatHours ??
-
-                    item.izin_telat ??
-
-                    0
-
-                ) > 0
-
-        ).length;
-
-
-    const countIzinPulang =
-
-        attendance.filter(
-
-            item =>
-
-                Number(
-
-                    item.izinPulangHours ??
-
-                    item.izin_pulang ??
-
-                    0
-
-                ) > 0
-
-        ).length;
-
-
-    const uangMakanDays =
-
-        attendance.filter(
-
-            item =>
-
-                item.status === "masuk" ||
-
-                item.status === "lembur"
-
-        ).length;
-
-
-    const lemburHours =
-
-        attendance.reduce(
-
-            (total, item) =>
-
-                total +
-
-                Number(
-
-                    item.overtimeHours ??
-
-                    item.lembur_jam ??
-
-                    item.lemburJam ??
-
-                    0
-
-                ),
-
-            0
-
-        );
-
-
-    /*
-       PENAMBAHAN
-    */
-
-    const uangMakan =
-
-        getCalculationComponent(
-
-            earnings,
-
-            "uang_makan"
-
-        );
-
-
-    const transport =
-
-        getCalculationComponent(
-
-            earnings,
-
-            "uang_transport"
-
-        );
-
-
-    const tunjangan =
-
-        getCalculationComponent(
-
-            earnings,
-
-            "tunjangan"
-
-        );
-
-
-    /*
-       LEMBUR HARIAN
-    */
-
-    const lemburHarian =
-
-        getCalculationComponent(
-
-            earnings,
-
-            "lembur"
-
-        );
-
-
-    /*
-       LEMBUR JAM
-
-       Semua component yang namanya
-       lembur_jam_* dijumlahkan.
-
-       Jadi kalau ada:
-
-       lembur_jam_1
-       lembur_jam_2
-       lembur_jam_3
-
-       semuanya tetap masuk.
-    */
-
-    const lemburJam =
-
-        getCalculationComponentByPrefix(
-
-            earnings,
-
-            "lembur_jam"
-
-        );
-
-
-    /*
-       POTONGAN
-    */
-
-    const bpjs =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "BPJS"
-
-        );
-
-
-    const tabungan =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "tabungan"
-
-        );
-
-
-    const jamsostek =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "Jamsostek"
-
-        );
-
-
-    const koperasi =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "koperasi"
-
-        );
-
-
-    const lainLain =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "lain-lain"
-
-        );
-
-
-    /*
-       TELAT
-
-       Calculation menghasilkan component:
-
-       telat_1
-       telat_2
-       telat_3
-       telat_4
-
-       Jadi semuanya dijumlahkan.
-    */
-
-    const potonganTelat =
-
-        getCalculationComponentByPrefix(
-
-            deductions,
-
-            "telat_"
-
-        );
-
-
-    const potonganIzinTelat =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "izin_telat"
-
-        );
-
-
-    const potonganIzinPulang =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "izin_pulang"
-
-        );
-
-
-    const potonganAbsen =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "absen"
-
-        );
-
-
-    /*
-       DIRUMAHKAN
-
-       Kalau rule tidak ada:
-
-       component tidak ada
-       nominal = 0
-
-       Jadi attendance dirumahkan
-       tidak otomatis menjadi potongan.
-    */
-
-    const potonganDirumahkan =
-
-        getCalculationComponent(
-
-            deductions,
-
-            "dirumahkan"
+                Number(item.total || 0) !== 0
 
         );
 
@@ -897,571 +636,96 @@ function renderCurrentPeriod(){
         <div class="payroll-divider"></div>
 
 
-        <div class="payroll-row">
-
-            <span>
-
-                Gaji Pokok
-
-            </span>
-
-
-            <strong>
-
-                ${
-
-                    formatRupiah(
-
-                        result.gajiPokok
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <div class="payroll-subtitle">
-
-            Penambahan
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                Uang Makan
-
-                ${
-
-                    uangMakanDays
-
-                        ? `${uangMakanDays} hari`
-
-                        : ""
-
-                }
-
-            </span>
-
-
-            <strong>
-
-                ${
-
-                    formatRupiah(
-
-                        uangMakan
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                Uang Transport
-
-            </span>
-
-
-            <strong>
-
-                ${
-
-                    formatRupiah(
-
-                        transport
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                Tunjangan
-
-            </span>
-
-
-            <strong>
-
-                ${
-
-                    formatRupiah(
-
-                        tunjangan
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
         ${
-            lemburHarian > 0
 
-                ?
+            Number(result.gajiPokok || 0) !== 0
 
-            `
+                ? `
 
-            <div class="payroll-row">
+                    <div class="payroll-row">
 
-                <span>
+                        <span>
 
-                    Lembur Harian
+                            Gaji Pokok
 
-                    ${
+                        </span>
 
-                        countStatus("lembur")
+                        <strong>
 
-                            ? `${countStatus("lembur")} hari`
+                            ${
 
-                            : ""
+                                formatRupiah(
 
-                    }
+                                    result.gajiPokok
 
-                </span>
+                                )
 
+                            }
 
-                <strong>
+                        </strong>
 
-                    ${
+                    </div>
 
-                        formatRupiah(
+                `
 
-                            lemburHarian
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            `
-
-                :
-
-            ""
+                : ""
 
         }
 
 
         ${
-            lemburJam > 0
 
-                ?
+            hasEarnings
 
-            `
+                ? `
 
-            <div class="payroll-row">
+                    <div class="payroll-subtitle">
 
-                <span>
+                        Penambahan
 
-                    Lembur Jam
+                    </div>
 
-                    ${
+                    ${earningHTML}
 
-                        lemburHours
+                `
 
-                            ? `${lemburHours} jam`
-
-                            : ""
-
-                    }
-
-                </span>
-
-
-                <strong>
-
-                    ${
-
-                        formatRupiah(
-
-                            lemburJam
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            `
-
-                :
-
-            ""
-
-        }
-
-
-        <div class="payroll-divider"></div>
-
-
-        <div class="payroll-subtitle">
-
-            Potongan
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                BPJS
-
-            </span>
-
-
-            <strong>
-
-                -${
-
-                    formatRupiah(
-
-                        bpjs
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                Tabungan
-
-            </span>
-
-
-            <strong>
-
-                -${
-
-                    formatRupiah(
-
-                        tabungan
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                Jamsostek
-
-            </span>
-
-
-            <strong>
-
-                -${
-
-                    formatRupiah(
-
-                        jamsostek
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                Koperasi
-
-            </span>
-
-
-            <strong>
-
-                -${
-
-                    formatRupiah(
-
-                        koperasi
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        <div class="payroll-row">
-
-            <span>
-
-                Lain-lain
-
-            </span>
-
-
-            <strong>
-
-                -${
-
-                    formatRupiah(
-
-                        lainLain
-
-                    )
-
-                }
-
-            </strong>
-
-        </div>
-
-
-        ${
-            countLate > 0
-
-                ?
-
-            `
-
-            <div class="payroll-row">
-
-                <span>
-
-                    Pot. Telat ${countLate}x
-
-                </span>
-
-
-                <strong>
-
-                    -${
-
-                        formatRupiah(
-
-                            potonganTelat
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            `
-
-                :
-
-            ""
+                : ""
 
         }
 
 
         ${
-            countIzinTelat > 0
 
-                ?
+            hasEarnings && hasDeductions
 
-            `
+                ? `<div class="payroll-divider"></div>`
 
-            <div class="payroll-row">
+                : hasDeductions
 
-                <span>
+                    ? `<div class="payroll-divider"></div>`
 
-                    Pot. Izin Telat ${countIzinTelat}x
-
-                </span>
-
-
-                <strong>
-
-                    -${
-
-                        formatRupiah(
-
-                            potonganIzinTelat
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            `
-
-                :
-
-            ""
+                    : ""
 
         }
 
 
         ${
-            countIzinPulang > 0
 
-                ?
+            hasDeductions
 
-            `
+                ? `
 
-            <div class="payroll-row">
+                    <div class="payroll-subtitle">
 
-                <span>
+                        Potongan
 
-                    Pot. Izin Pulang ${countIzinPulang}x
+                    </div>
 
-                </span>
+                    ${deductionHTML}
 
+                `
 
-                <strong>
-
-                    -${
-
-                        formatRupiah(
-
-                            potonganIzinPulang
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            `
-
-                :
-
-            ""
-
-        }
-
-
-        ${
-            countStatus("absen") > 0
-
-                ?
-
-            `
-
-            <div class="payroll-row">
-
-                <span>
-
-                    Pot. Absen ${countStatus("absen")}x
-
-                </span>
-
-
-                <strong>
-
-                    -${
-
-                        formatRupiah(
-
-                            potonganAbsen
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            `
-
-                :
-
-            ""
-
-        }
-
-
-        ${
-            countStatus("dirumahkan") > 0 &&
-            potonganDirumahkan > 0
-
-                ?
-
-            `
-
-            <div class="payroll-row">
-
-                <span>
-
-                    Pot. Dirumahkan ${countStatus("dirumahkan")}x
-
-                </span>
-
-
-                <strong>
-
-                    -${
-
-                        formatRupiah(
-
-                            potonganDirumahkan
-
-                        )
-
-                    }
-
-                </strong>
-
-            </div>
-
-            `
-
-                :
-
-            ""
+                : ""
 
         }
 
@@ -1609,166 +873,12 @@ function openDetailOverlay(){
     }
 
 
-    const attendance =
-
-        data.attendance ?? [];
-
-
-    const uangMakanDays =
-
-        attendance.filter(
-
-            item =>
-
-                item.status === "masuk" ||
-
-                item.status === "lembur"
-
-        ).length;
-
-
-    const lemburHours =
-
-        attendance.reduce(
-
-            (total, item) =>
-
-                total +
-
-                Number(
-
-                    item.overtimeHours ??
-
-                    item.lembur_jam ??
-
-                    item.lemburJam ??
-
-                    0
-
-                ),
-
-            0
-
-        );
-
-
-    const countLate =
-
-        attendance.filter(
-
-            item =>
-
-                Number(
-
-                    item.lateMinutes ??
-
-                    item.telat ??
-
-                    0
-
-                ) > 0
-
-        ).length;
-
-
-    const countIzinTelat =
-
-        attendance.filter(
-
-            item =>
-
-                Number(
-
-                    item.izinTelatHours ??
-
-                    item.izin_telat ??
-
-                    0
-
-                ) > 0
-
-        ).length;
-
-
-    const countIzinPulang =
-
-        attendance.filter(
-
-            item =>
-
-                Number(
-
-                    item.izinPulangHours ??
-
-                    item.izin_pulang ??
-
-                    0
-
-                ) > 0
-
-        ).length;
-
-
-    const countAbsen =
-
-        attendance.filter(
-
-            item =>
-
-                item.status === "absen"
-
-        ).length;
-
-
-    const countDirumahkan =
-
-        attendance.filter(
-
-            item =>
-
-                item.status === "dirumahkan"
-
-        ).length;
-
-
     const rows = [];
 
 
-    rows.push(
-
-        overlayRow(
-
-            "Gaji Pokok",
-
-            formatRupiah(
-
-                data.gajiPokok
-
-            )
-
-        )
-
-    );
-
-
-    rows.push(
-
-        `
-
-        <div class="global-overlay-subtitle">
-
-            Penambahan
-
-        </div>
-
-        `
-
-    );
-
-
     if(
 
-        data.earnings.uangMakan
+        Number(data.gajiPokok || 0) !== 0
 
     ){
 
@@ -1776,19 +886,11 @@ function openDetailOverlay(){
 
             overlayRow(
 
-                `Uang Makan ${
-
-                    uangMakanDays
-
-                        ? `${uangMakanDays} hari`
-
-                        : ""
-
-                }`,
+                "Gaji Pokok",
 
                 formatRupiah(
 
-                    data.earnings.uangMakan
+                    data.gajiPokok
 
                 )
 
@@ -1799,331 +901,69 @@ function openDetailOverlay(){
     }
 
 
+    const earnings =
+
+        data.earnings?.components ?? [];
+
+
+    const deductions =
+
+        data.deductions?.components ?? [];
+
+
     if(
 
-        data.earnings.transport
+        earnings.length > 0
 
     ){
 
         rows.push(
 
-            overlayRow(
+            `
 
-                "Uang Transport",
+            <div class="global-overlay-subtitle">
 
-                formatRupiah(
+                Penambahan
 
-                    data.earnings.transport
+            </div>
 
-                )
-
-            )
-
-        );
-
-    }
-
-
-    if(
-
-        data.earnings.tunjangan
-
-    ){
-
-        rows.push(
-
-            overlayRow(
-
-                "Tunjangan",
-
-                formatRupiah(
-
-                    data.earnings.tunjangan
-
-                )
-
-            )
-
-        );
-
-    }
-
-
-    /*
-       LEMBUR HARIAN
-    */
-
-    if(
-
-        data.earnings.lemburHarian
-
-    ){
-
-        rows.push(
-
-            overlayRow(
-
-                `Lembur Harian ${
-
-                    data.earnings.lemburHarianJumlah
-
-                        ? `${data.earnings.lemburHarianJumlah} hari`
-
-                        : ""
-
-                }`,
-
-                formatRupiah(
-
-                    data.earnings.lemburHarian
-
-                )
-
-            )
-
-        );
-
-    }
-
-
-    /*
-       LEMBUR JAM
-    */
-
-    const lemburTotal =
-
-        data.earnings.lemburJamTotal ??
-
-        (
-
-            Number(
-
-                data.earnings.lemburJam1 ||
-
-                0
-
-            )
-
-            +
-
-            Number(
-
-                data.earnings.lemburJam2 ||
-
-                0
-
-            )
+            `
 
         );
 
 
-    if(
+        earnings.forEach(
 
-        lemburTotal
+            item => {
 
-    ){
+                if(
 
-        rows.push(
+                    Number(item.total || 0) === 0
 
-            overlayRow(
+                ){
 
-                `Lembur Jam ${
+                    return;
 
-                    lemburHours
+                }
 
-                        ? `${lemburHours} jam`
 
-                        : ""
+                rows.push(
 
-                }`,
+                    overlayRow(
 
-                formatRupiah(
+                        item.label,
 
-                    lemburTotal
+                        formatRupiah(
 
-                )
+                            item.total
 
-            )
-
-        );
-
-    }
-
-
-    rows.push(
-
-        `
-
-        <div class="global-overlay-divider"></div>
-
-        <div class="global-overlay-subtitle">
-
-            Potongan
-
-        </div>
-
-        `
-
-    );
-
-
-    rows.push(
-
-        overlayRow(
-
-            "BPJS",
-
-            `-${
-
-                formatRupiah(
-
-                    data.deductions.bpjs
-
-                )
-
-            }`
-
-        )
-
-    );
-
-
-    rows.push(
-
-        overlayRow(
-
-            "Tabungan",
-
-            `-${
-
-                formatRupiah(
-
-                    data.deductions.tabungan
-
-                )
-
-            }`
-
-        )
-
-    );
-
-
-    rows.push(
-
-        overlayRow(
-
-            "Jamsostek",
-
-            `-${
-
-                formatRupiah(
-
-                    data.deductions.jamsostek
-
-                )
-
-            }`
-
-        )
-
-    );
-
-
-    rows.push(
-
-        overlayRow(
-
-            "Koperasi",
-
-            `-${
-
-                formatRupiah(
-
-                    data.deductions.koperasi
-
-                )
-
-            }`
-
-        )
-
-    );
-
-
-    rows.push(
-
-        overlayRow(
-
-            "Lain-lain",
-
-            `-${
-
-                formatRupiah(
-
-                    data.deductions.lainLain
-
-                )
-
-            }`
-
-        )
-
-    );
-
-
-    if(
-
-        countLate > 0
-
-    ){
-
-        rows.push(
-
-            overlayRow(
-
-                `Pot. Telat ${countLate}x`,
-
-                `-${
-
-                    formatRupiah(
-
-                        data.deductions.potonganTelat
+                        )
 
                     )
 
-                }`
+                );
 
-            )
-
-        );
-
-    }
-
-
-    if(
-
-        countIzinTelat > 0
-
-    ){
-
-        rows.push(
-
-            overlayRow(
-
-                `Pot. Izin Telat ${countIzinTelat}x`,
-
-                `-${
-
-                    formatRupiah(
-
-                        data.deductions.potonganIzinTelat
-
-                    )
-
-                }`
-
-            )
+            }
 
         );
 
@@ -2132,93 +972,55 @@ function openDetailOverlay(){
 
     if(
 
-        countIzinPulang > 0
+        deductions.length > 0
 
     ){
 
         rows.push(
 
-            overlayRow(
+            `
 
-                `Pot. Izin Pulang ${countIzinPulang}x`,
+            <div class="global-overlay-divider"></div>
 
-                `-${
+            <div class="global-overlay-subtitle">
 
-                    formatRupiah(
+                Potongan
 
-                        data.deductions.potonganIzinPulang
+            </div>
 
-                    )
-
-                }`
-
-            )
+            `
 
         );
 
-    }
+
+        deductions.forEach(
+
+            item => {
+
+                if(
+
+                    Number(item.total || 0) === 0
+
+                ){
+
+                    return;
+
+                }
 
 
-    if(
+                rows.push(
 
-        countAbsen > 0
+                    overlayRow(
 
-    ){
+                        item.label,
 
-        rows.push(
-
-            overlayRow(
-
-                `Pot. Absen ${countAbsen}x`,
-
-                `-${
-
-                    formatRupiah(
-
-                        data.deductions.potonganAbsen
-
-                    )
-
-                }`
-
-            )
-
-        );
-
-    }
-
-
-    if(
-
-        countDirumahkan > 0 &&
-
-        Number(
-
-            data.deductions.potonganDirumahkan ||
-
-            0
-
-        ) > 0
-
-    ){
-
-        rows.push(
-
-            overlayRow(
-
-                `Pot. Dirumahkan ${countDirumahkan}x`,
-
-                `-${
-
-                    formatRupiah(
-
-                        data.deductions.potonganDirumahkan
+                        `-${formatRupiah(item.total)}`
 
                     )
 
-                }`
+                );
 
-            )
+            }
 
         );
 
@@ -2457,7 +1259,6 @@ function registerEvents(){
 
 /* =====================================================
    CALCULATE PAYROLL
-   HISTORY
 ===================================================== */
 
 function calculatePayroll(
@@ -2477,9 +1278,11 @@ function calculatePayroll(
 
     const rules =
 
-        Process.rules ??
+        flattenRules(
 
-        {};
+            Process.rules ?? {}
+
+        );
 
 
     const rows =
@@ -2521,24 +1324,23 @@ function calculatePayroll(
         );
 
 
-    const allRules =
-
-        flattenRules(
-
-            rules
-
-        );
-
-
     const gajiRule =
 
-        allRules.find(
+        rules.find(
 
             rule =>
 
-                rule.nama ===
+                rule.type_rule === "rule_gaji" &&
 
-                "gaji"
+                rule.nama === "gaji"
+
+        ) ||
+
+        rules.find(
+
+            rule =>
+
+                rule.nama === "gaji"
 
         );
 
@@ -2552,197 +1354,195 @@ function calculatePayroll(
         );
 
 
-    let uangMakan = 0;
+    const earnings = {
 
-    let lemburHarian = 0;
+        components : []
 
-    let lemburHarianJumlah = 0;
-
-    let lemburJamTotal = 0;
-
-    let lemburJam1 = 0;
-
-    let lemburJam2 = 0;
-
-    let tunjangan = 0;
-
-    let transport = 0;
+    };
 
 
-    let bpjs = 0;
+    const deductions = {
 
-    let tabungan = 0;
+        components : []
 
-    let jamsostek = 0;
-
-    let koperasi = 0;
-
-    let lainLain = 0;
+    };
 
 
-    let potonganTelat = 0;
+    /* =============================================
+       TAMBAHAN PERIODE / HARIAN
+    ============================================= */
 
-    let potonganIzinTelat = 0;
+    rules
 
-    let potonganIzinPulang = 0;
-
-    let potonganAbsen = 0;
-
-    let potonganDirumahkan = 0;
-
-
-    const uangMakanRule =
-
-        allRules.find(
+        .filter(
 
             rule =>
 
-                rule.nama ===
+                rule.type_rule === "rule_tambah"
 
-                "uang_makan"
+        )
+
+        .forEach(
+
+            rule => {
+
+                if(
+
+                    rule.kondisi === "periode" &&
+
+                    rule.waktu === "gaji"
+
+                ){
+
+                    addPayrollComponent(
+
+                        earnings.components,
+
+                        rule,
+
+                        1,
+
+                        createEarningLabel(
+
+                            rule,
+
+                            1
+
+                        )
+
+                    );
+
+                    return;
+
+                }
+
+
+                if(
+
+                    rule.waktu === "harian"
+
+                ){
+
+                    let jumlah = 0;
+
+
+                    if(
+
+                        rule.kondisi === "lembur_harian"
+
+                    ){
+
+                        jumlah =
+
+                            countStatus(
+
+                                rows,
+
+                                "lembur"
+
+                            );
+
+                    }
+
+                    else {
+
+                        const kondisi =
+
+                            String(
+
+                                rule.kondisi || ""
+
+                            )
+
+                            .split(",")
+
+                            .map(
+
+                                value =>
+
+                                    value.trim()
+
+                            );
+
+
+                        jumlah =
+
+                            rows.filter(
+
+                                item =>
+
+                                    kondisi.includes(
+
+                                        item.status
+
+                                    )
+
+                            ).length;
+
+                    }
+
+
+                    addPayrollComponent(
+
+                        earnings.components,
+
+                        rule,
+
+                        jumlah,
+
+                        createEarningLabel(
+
+                            rule,
+
+                            jumlah
+
+                        )
+
+                    );
+
+                }
+
+            }
 
         );
 
 
-    const makanNominal =
+    /* =============================================
+       LEMBUR PER JAM
 
-        Number(
-
-            uangMakanRule?.nominal || 0
-
-        );
-
-
-    const makanCount =
-
-        rows.filter(
-
-            item =>
-
-                item.status === "masuk" ||
-
-                item.status === "lembur"
-
-        ).length;
-
-
-    uangMakan =
-
-        makanCount *
-
-        makanNominal;
-
-
-    /*
-       LEMBUR HARIAN
-
-       Hanya status:
-
-       lembur
-
-       yang dihitung.
-    */
-
-    const lemburHarianRule =
-
-        allRules.find(
-
-            rule =>
-
-                rule.type_rule ===
-
-                "rule_tambah"
-
-                &&
-
-                rule.nama ===
-
-                "lembur"
-
-                &&
-
-                rule.kondisi ===
-
-                "lembur_harian"
-
-                &&
-
-                rule.waktu ===
-
-                "harian"
-
-        );
-
-
-    lemburHarianJumlah =
-
-        rows.filter(
-
-            item =>
-
-                item.status ===
-
-                "lembur"
-
-        ).length;
-
-
-    lemburHarian =
-
-        lemburHarianJumlah *
-
-        Number(
-
-            lemburHarianRule?.nominal || 0
-
-        );
-
-
-    /*
-       LEMBUR JAM
-
-       Dihitung per hari.
-
-       Jam 1 hari berikutnya
-       kembali menjadi jam 1.
-
-       Ini penting agar:
-
-       Hari A = 3 jam
-       Hari B = 2 jam
-
-       tidak dianggap:
-
-       5 jam dalam satu rangkaian.
-    */
+       Setiap hari dimulai kembali dari jam 1.
+       Component dikumpulkan berdasarkan tier
+       rule lembur_jam_1, lembur_jam_2, dst.
+    ============================================= */
 
     const overtimeRules =
 
-        allRules.filter(
+        rules
+
+        .filter(
 
             rule =>
 
-                rule.type_rule ===
+                rule.type_rule === "rule_tambah" &&
 
-                "rule_tambah"
+                rule.waktu === "jam" &&
 
-                &&
+                String(
 
-                rule.waktu ===
+                    rule.nama || ""
 
-                "jam"
-
-                &&
-
-                rule.nama
-
-                ?.startsWith(
+                ).startsWith(
 
                     "lembur_jam"
 
                 )
 
         );
+
+
+    const overtimeCounts =
+
+        new Map();
 
 
     rows.forEach(
@@ -2766,57 +1566,13 @@ function calculatePayroll(
 
             if(
 
-                hours <= 0 ||
-
-                overtimeRules.length === 0
+                hours <= 0
 
             ){
 
                 return;
 
             }
-
-
-            const applicableRules =
-
-                overtimeRules.filter(
-
-                    rule => {
-
-                        const conditions =
-
-                            String(
-
-                                rule.kondisi ??
-
-                                ""
-
-                            )
-
-                            .split(",")
-
-                            .map(
-
-                                value =>
-
-                                    value.trim()
-
-                            );
-
-
-                        return (
-
-                            conditions.includes(
-
-                                item.status
-
-                            )
-
-                        );
-
-                    }
-
-                );
 
 
             for(
@@ -2833,9 +1589,11 @@ function calculatePayroll(
 
                     findOvertimeHourRule(
 
-                        applicableRules,
+                        overtimeRules,
 
-                        hour
+                        hour,
+
+                        item.status
 
                     );
 
@@ -2851,514 +1609,340 @@ function calculatePayroll(
                 }
 
 
-                const nominal =
+                const current =
 
-                    Number(
+                    overtimeCounts.get(
 
-                        rule.nominal || 0
+                        rule.nama
+
+                    ) ?? {
+
+                        rule,
+
+                        count : 0
+
+                    };
+
+
+                current.count++;
+
+
+                overtimeCounts.set(
+
+                    rule.nama,
+
+                    current
+
+                );
+
+            }
+
+        }
+
+    );
+
+
+    overtimeRules
+
+        .forEach(
+
+            rule => {
+
+                const entry =
+
+                    overtimeCounts.get(
+
+                        rule.nama
 
                     );
 
 
-                lemburJamTotal +=
-
-                    nominal;
-
-
                 if(
 
-                    rule.nama ===
-
-                    "lembur_jam_1"
+                    !entry
 
                 ){
 
-                    lemburJam1 +=
-
-                        nominal;
+                    return;
 
                 }
 
 
-                if(
+                addPayrollComponent(
 
-                    rule.nama ===
+                    earnings.components,
 
-                    "lembur_jam_2"
+                    rule,
 
-                ){
+                    entry.count,
 
-                    lemburJam2 +=
+                    createEarningLabel(
 
-                        nominal;
+                        rule,
 
-                }
+                        entry.count
 
-            }
-
-        }
-
-    );
-
-
-    const tunjanganRule =
-
-        allRules.find(
-
-            rule =>
-
-                rule.nama ===
-
-                "tunjangan"
-
-        );
-
-
-    tunjangan =
-
-        Number(
-
-            tunjanganRule?.nominal || 0
-
-        );
-
-
-    const transportRule =
-
-        allRules.find(
-
-            rule =>
-
-                rule.nama ===
-
-                "uang_transport"
-
-        );
-
-
-    transport =
-
-        Number(
-
-            transportRule?.nominal || 0
-
-        );
-
-
-    bpjs =
-
-        getRuleNominal(
-
-            allRules,
-
-            "BPJS"
-
-        );
-
-
-    tabungan =
-
-        getRuleNominal(
-
-            allRules,
-
-            "tabungan"
-
-        );
-
-
-    jamsostek =
-
-        getRuleNominal(
-
-            allRules,
-
-            "Jamsostek"
-
-        );
-
-
-    koperasi =
-
-        getRuleNominal(
-
-            allRules,
-
-            "koperasi"
-
-        );
-
-
-    lainLain =
-
-        getRuleNominal(
-
-            allRules,
-
-            "lain-lain"
-
-        );
-
-
-    /*
-       TELAT
-    */
-
-    rows.forEach(
-
-        item => {
-
-            const minutes =
-
-                Number(
-
-                    item.lateMinutes ??
-
-                    item.telat ??
-
-                    0
+                    )
 
                 );
 
-
-            if(
-
-                minutes <= 0
-
-            ){
-
-                return;
-
             }
 
-
-            const rule =
-
-                allRules.find(
-
-                    r => {
-
-                        if(
-
-                            r.type_rule !==
-
-                            "rule_potong"
-
-                        ){
-
-                            return false;
-
-                        }
+        );
 
 
-                        if(
+    /* =============================================
+       POTONGAN
+    ============================================= */
 
-                            r.kondisi !==
+    rules
 
-                            "telat"
+        .filter(
 
-                        ){
+            rule =>
 
-                            return false;
+                rule.type_rule === "rule_potong"
 
-                        }
+        )
 
+        .forEach(
 
-                        const min =
+            rule => {
 
-                            Number(
-
-                                r.nilai_start || 0
-
-                            );
-
-
-                        const max =
-
-                            Number(
-
-                                r.nilai_end ||
-
-                                Infinity
-
-                            );
+                let jumlah = 0;
 
 
-                        return (
+                /* =================================
+                   POTONGAN PERIODE
+                ================================= */
 
-                            minutes >= min &&
+                if(
 
-                            minutes <= max
+                    rule.kondisi === "periode" &&
+
+                    rule.waktu === "gaji"
+
+                ){
+
+                    jumlah = 1;
+
+                }
+
+
+                /* =================================
+                   POTONGAN TELAT
+
+                   Setiap rule telat dihitung
+                   sendiri berdasarkan range.
+                ================================= */
+
+                else if(
+
+                    rule.kondisi === "telat" &&
+
+                    rule.waktu === "menit"
+
+                ){
+
+                    jumlah =
+
+                        rows.filter(
+
+                            item => {
+
+                                const minutes =
+
+                                    Number(
+
+                                        item.lateMinutes ??
+
+                                        item.telat ??
+
+                                        0
+
+                                    );
+
+
+                                if(
+
+                                    minutes <= 0
+
+                                ){
+
+                                    return false;
+
+                                }
+
+
+                                const min =
+
+                                    Number(
+
+                                        rule.nilai_start || 0
+
+                                    );
+
+
+                                const max =
+
+                                    Number(
+
+                                        rule.nilai_end ||
+
+                                        Infinity
+
+                                    );
+
+
+                                return (
+
+                                    minutes >= min &&
+
+                                    minutes <= max
+
+                                );
+
+                            }
+
+                        ).length;
+
+                }
+
+
+                /* =================================
+                   IZIN TELAT
+                ================================= */
+
+                else if(
+
+                    rule.kondisi === "izin_telat"
+
+                ){
+
+                    jumlah =
+
+                        sumAttendanceValue(
+
+                            rows,
+
+                            "izinTelatHours",
+
+                            "izin_telat"
 
                         );
 
-                    }
+                }
+
+
+                /* =================================
+                   IZIN PULANG
+                ================================= */
+
+                else if(
+
+                    rule.kondisi === "izin_pulang"
+
+                ){
+
+                    jumlah =
+
+                        sumAttendanceValue(
+
+                            rows,
+
+                            "izinPulangHours",
+
+                            "izin_pulang"
+
+                        );
+
+                }
+
+
+                /* =================================
+                   POTONGAN HARIAN
+
+                   Contoh:
+                   absen
+                   dirumahkan
+                ================================= */
+
+                else if(
+
+                    rule.waktu === "harian" &&
+
+                    rule.kondisi
+
+                ){
+
+                    jumlah =
+
+                        countStatus(
+
+                            rows,
+
+                            rule.kondisi
+
+                        );
+
+                }
+
+
+                addPayrollComponent(
+
+                    deductions.components,
+
+                    rule,
+
+                    jumlah,
+
+                    createDeductionLabel(
+
+                        rule,
+
+                        jumlah
+
+                    )
 
                 );
 
-
-            potonganTelat +=
-
-                Number(
-
-                    rule?.nominal || 0
-
-                );
-
-        }
-
-    );
-
-
-    /*
-       IZIN TELAT
-    */
-
-    const izinTelatRule =
-
-        allRules.find(
-
-            rule =>
-
-                rule.nama ===
-
-                "izin_telat" &&
-
-                rule.type_rule ===
-
-                "rule_potong"
+            }
 
         );
 
 
-    rows.forEach(
-
-        item => {
-
-            const hours =
-
-                Number(
-
-                    item.izinTelatHours ??
-
-                    item.izin_telat ??
-
-                    0
-
-                );
-
-
-            potonganIzinTelat +=
-
-                hours *
-
-                Number(
-
-                    izinTelatRule?.nominal || 0
-
-                );
-
-        }
-
-    );
-
-
-    /*
-       IZIN PULANG
-    */
-
-    const izinPulangRule =
-
-        allRules.find(
-
-            rule =>
-
-                rule.nama ===
-
-                "izin_pulang" &&
-
-                rule.type_rule ===
-
-                "rule_potong"
-
-        );
-
-
-    rows.forEach(
-
-        item => {
-
-            const hours =
-
-                Number(
-
-                    item.izinPulangHours ??
-
-                    item.izin_pulang ??
-
-                    0
-
-                );
-
-
-            potonganIzinPulang +=
-
-                hours *
-
-                Number(
-
-                    izinPulangRule?.nominal || 0
-
-                );
-
-        }
-
-    );
-
-
-    /*
-       ABSEN
-    */
-
-    const absenRule =
-
-        allRules.find(
-
-            rule =>
-
-                rule.type_rule ===
-
-                "rule_potong"
-
-                &&
-
-                rule.kondisi ===
-
-                "absen"
-
-                &&
-
-                rule.waktu ===
-
-                "harian"
-
-        );
-
-
-    const absenCount =
-
-        rows.filter(
-
-            item =>
-
-                item.status ===
-
-                "absen"
-
-        ).length;
-
-
-    potonganAbsen =
-
-        absenCount *
-
-        Number(
-
-            absenRule?.nominal || 0
-
-        );
-
-
-    /*
-       DIRUMAHKAN
-
-       Hanya dipotong jika rule
-       memang ada.
-    */
-
-    const dirumahkanRule =
-
-        allRules.find(
-
-            rule =>
-
-                rule.type_rule ===
-
-                "rule_potong"
-
-                &&
-
-                rule.kondisi ===
-
-                "dirumahkan"
-
-                &&
-
-                rule.waktu ===
-
-                "harian"
-
-        );
-
-
-    const dirumahkanCount =
-
-        rows.filter(
-
-            item =>
-
-                item.status ===
-
-                "dirumahkan"
-
-        ).length;
-
-
-    potonganDirumahkan =
-
-        dirumahkanCount *
-
-        Number(
-
-            dirumahkanRule?.nominal || 0
-
-        );
-
+    /* =============================================
+       TOTAL
+    ============================================= */
 
     const totalEarnings =
 
-        uangMakan +
+        earnings.components.reduce(
 
-        lemburHarian +
+            (total, item) =>
 
-        lemburJamTotal +
+                total +
 
-        tunjangan +
+                Number(item.total || 0),
 
-        transport;
+            0
+
+        );
 
 
     const totalDeductions =
 
-        bpjs +
+        deductions.components.reduce(
 
-        tabungan +
+            (total, item) =>
 
-        jamsostek +
+                total +
 
-        koperasi +
+                Number(item.total || 0),
 
-        lainLain +
+            0
 
-        potonganTelat +
-
-        potonganIzinTelat +
-
-        potonganIzinPulang +
-
-        potonganAbsen +
-
-        potonganDirumahkan;
+        );
 
 
     const grossSalary =
@@ -3391,49 +1975,9 @@ function calculatePayroll(
 
         gajiPokok,
 
-        earnings : {
+        earnings,
 
-            uangMakan,
-
-            lemburHarian,
-
-            lemburHarianJumlah,
-
-            lemburJamTotal,
-
-            lemburJam1,
-
-            lemburJam2,
-
-            tunjangan,
-
-            transport
-
-        },
-
-        deductions : {
-
-            bpjs,
-
-            tabungan,
-
-            jamsostek,
-
-            koperasi,
-
-            lainLain,
-
-            potonganTelat,
-
-            potonganIzinTelat,
-
-            potonganIzinPulang,
-
-            potonganAbsen,
-
-            potonganDirumahkan
-
-        },
+        deductions,
 
         totalEarnings,
 
@@ -3449,37 +1993,369 @@ function calculatePayroll(
 
 
 /* =====================================================
-   HELPER : CALCULATION COMPONENT
+   PAYROLL COMPONENT
 ===================================================== */
 
-function getCalculationComponent(
+function addPayrollComponent(
 
-    items,
+    target,
 
-    name
+    rule,
+
+    count,
+
+    label
 
 ){
 
-    const item =
+    const jumlah =
 
-        (
+        Number(count || 0);
 
-            items ?? []
 
-        ).find(
+    const nominal =
 
-            row =>
+        Number(rule?.nominal || 0);
 
-                row?.nama ===
 
-                name
+    target.push({
+
+        rule,
+
+        nama :
+
+            rule?.nama ?? "",
+
+        label,
+
+        count :
+
+            jumlah,
+
+        nominal,
+
+        total :
+
+            jumlah *
+
+            nominal
+
+    });
+
+}
+
+
+/* =====================================================
+   CREATE EARNING LABEL
+===================================================== */
+
+function createEarningLabel(
+
+    rule,
+
+    count
+
+){
+
+    const nama =
+
+        String(
+
+            rule?.nama || ""
 
         );
 
 
-    return Number(
+    const jumlah =
 
-        item?.total || 0
+        Number(
+
+            count || 0
+
+        );
+
+
+    /* =============================================
+       UANG MAKAN
+    ============================================= */
+
+    if(
+
+        nama === "uang_makan"
+
+    ){
+
+        return (
+
+            `Uang Makan ${jumlah} hari`
+
+        );
+
+    }
+
+
+    /* =============================================
+       LEMBUR HARIAN
+    ============================================= */
+
+    if(
+
+        nama === "lembur"
+
+    ){
+
+        return (
+
+            `Lembur Harian x${jumlah}`
+
+        );
+
+    }
+
+
+    /* =============================================
+       LEMBUR JAM
+    ============================================= */
+
+    if(
+
+        nama.startsWith(
+
+            "lembur_jam_"
+
+        )
+
+    ){
+
+        const tier =
+
+            nama.replace(
+
+                "lembur_jam_",
+
+                ""
+
+            );
+
+
+        return (
+
+            `Lembur Jam ${tier} x${jumlah}`
+
+        );
+
+    }
+
+
+    /* =============================================
+       TRANSPORT
+    ============================================= */
+
+    if(
+
+        nama === "uang_transport"
+
+    ){
+
+        return "Uang Transport";
+
+    }
+
+
+    /* =============================================
+       TUNJANGAN
+    ============================================= */
+
+    if(
+
+        nama === "tunjangan"
+
+    ){
+
+        return "Tunjangan";
+
+    }
+
+
+    return nama;
+
+}
+
+
+/* =====================================================
+   CREATE DEDUCTION LABEL
+===================================================== */
+
+function createDeductionLabel(
+
+    rule,
+
+    count
+
+){
+
+    const nama =
+
+        String(
+
+            rule?.nama || ""
+
+        );
+
+
+    const jumlah =
+
+        Number(
+
+            count || 0
+
+        );
+
+
+    /* =============================================
+       TELAT
+    ============================================= */
+
+    if(
+
+        nama.startsWith(
+
+            "telat_"
+
+        )
+
+    ){
+
+        const tier =
+
+            nama.replace(
+
+                "telat_",
+
+                ""
+
+            );
+
+
+        return (
+
+            `Pot. Telat ${tier} x${jumlah}`
+
+        );
+
+    }
+
+
+    /* =============================================
+       IZIN TELAT
+    ============================================= */
+
+    if(
+
+        nama === "izin_telat"
+
+    ){
+
+        return (
+
+            `Pot. Izin Telat x${jumlah}`
+
+        );
+
+    }
+
+
+    /* =============================================
+       IZIN PULANG
+    ============================================= */
+
+    if(
+
+        nama === "izin_pulang"
+
+    ){
+
+        return (
+
+            `Pot. Izin Pulang x${jumlah}`
+
+        );
+
+    }
+
+
+    /* =============================================
+       ABSEN
+    ============================================= */
+
+    if(
+
+        nama === "absen"
+
+    ){
+
+        return (
+
+            `Pot. Absen x${jumlah}`
+
+        );
+
+    }
+
+
+    /* =============================================
+       DIRUMAHKAN
+    ============================================= */
+
+    if(
+
+        nama === "dirumahkan"
+
+    ){
+
+        return (
+
+            `Pot. Dirumahkan ${jumlah}x`
+
+        );
+
+    }
+
+
+    /* =============================================
+       POTONGAN PERIODE
+    ============================================= */
+
+    const labels = {
+
+        BPJS :
+
+            "BPJS",
+
+        tabungan :
+
+            "Tabungan",
+
+        Jamsostek :
+
+            "Jamsostek",
+
+        koperasi :
+
+            "Koperasi",
+
+        "lain-lain" :
+
+            "Lain-lain"
+
+    };
+
+
+    return (
+
+        labels[nama] ??
+
+        nama
 
     );
 
@@ -3487,56 +2363,57 @@ function getCalculationComponent(
 
 
 /* =====================================================
-   HELPER : CALCULATION COMPONENT PREFIX
+   COUNT STATUS
 ===================================================== */
 
-function getCalculationComponentByPrefix(
+function countStatus(
 
-    items,
+    rows,
 
-    prefix
+    status
 
 ){
 
-    return (
+    return rows.filter(
 
-        items ?? []
+        item =>
 
-    )
+            item.status ===
 
-    .filter(
+            status
 
-        row =>
+    ).length;
 
-            typeof row?.nama ===
+}
 
-            "string"
 
-            &&
+/* =====================================================
+   SUM ATTENDANCE VALUE
+===================================================== */
 
-            row.nama.startsWith(
+function sumAttendanceValue(
 
-                prefix
+    rows,
 
-            )
+    primary,
 
-    )
+    fallback
 
-    .reduce(
+){
 
-        (
+    return rows.reduce(
 
-            total,
-
-            row
-
-        ) =>
+        (total, item) =>
 
             total +
 
             Number(
 
-                row?.total || 0
+                item[primary] ??
+
+                item[fallback] ??
+
+                0
 
             ),
 
@@ -3548,44 +2425,92 @@ function getCalculationComponentByPrefix(
 
 
 /* =====================================================
-   HELPER : OVERTIME RULE
+   FIND OVERTIME HOUR RULE
 ===================================================== */
 
 function findOvertimeHourRule(
 
     rules,
 
-    hour
+    hour,
+
+    status
 
 ){
 
-    if(
+    const applicable =
 
-        !rules ||
+        rules
 
-        rules.length === 0
-
-    ){
-
-        return null;
-
-    }
-
-
-    /*
-       PRIORITAS 1
-
-       Cari rule yang secara eksplisit
-       mencakup jam tersebut.
-    */
-
-    const explicitRules =
-
-        rules.filter(
+        .filter(
 
             rule => {
 
-                const start =
+                const kondisi =
+
+                    String(
+
+                        rule.kondisi || ""
+
+                    )
+
+                    .split(",")
+
+                    .map(
+
+                        value =>
+
+                            value.trim()
+
+                    );
+
+
+                return (
+
+                    !kondisi.length ||
+
+                    kondisi.includes(
+
+                        status
+
+                    )
+
+                );
+
+            }
+
+        )
+
+        .sort(
+
+            (a, b) =>
+
+                Number(
+
+                    a.nilai_start || 0
+
+                ) -
+
+                Number(
+
+                    b.nilai_start || 0
+
+                )
+
+        );
+
+
+    /* =============================================
+       CARI RANGE YANG TEPAT
+    ============================================= */
+
+    const exact =
+
+        applicable.find(
+
+            rule => {
+
+                const min =
 
                     Number(
 
@@ -3594,44 +2519,24 @@ function findOvertimeHourRule(
                     );
 
 
-                const endValue =
+                const max =
 
                     Number(
 
-                        rule.nilai_end || 0
+                        rule.nilai_end ||
+
+                        Infinity
 
                     );
 
 
-                if(
+                return (
 
-                    start <= 0
+                    hour >= min &&
 
-                ){
+                    hour <= max
 
-                    return false;
-
-                }
-
-
-                if(
-
-                    endValue > 0
-
-                ){
-
-                    return (
-
-                        hour >= start &&
-
-                        hour <= endValue
-
-                    );
-
-                }
-
-
-                return hour >= start;
+                );
 
             }
 
@@ -3640,68 +2545,36 @@ function findOvertimeHourRule(
 
     if(
 
-        explicitRules.length > 0
+        exact
 
     ){
 
-        explicitRules.sort(
-
-            (
-
-                a,
-
-                b
-
-            ) =>
-
-                Number(
-
-                    b.nilai_start || 0
-
-                )
-
-                -
-
-                Number(
-
-                    a.nilai_start || 0
-
-                )
-
-        );
-
-
-        return explicitRules[0];
+        return exact;
 
     }
 
 
-    /*
-       PRIORITAS 2
+    /* =============================================
+       FALLBACK
 
-       Tidak ada rule eksplisit.
-
-       Gunakan rule terakhir yang
-       start-nya sudah dilewati.
+       Kalau tidak ada rule range yang
+       langsung mencakup jam tersebut,
+       gunakan tier terakhir yang sudah
+       dimulai.
 
        Contoh:
 
-       Rule 1:
-       1 - 1
+       Jam 1 = 1-1
+       Jam 2 = 2-8
 
-       Rule 2:
-       2 - 8
+       Jam 3 -> Jam 2
+    ============================================= */
 
-       Jam 9:
+    const fallback =
 
-       tidak ada rule eksplisit
+        applicable
 
-       maka Rule 2 tetap digunakan.
-    */
-
-    const fallbackRules =
-
-        rules.filter(
+        .filter(
 
             rule =>
 
@@ -3709,49 +2582,16 @@ function findOvertimeHourRule(
 
                     rule.nilai_start || 0
 
-                ) > 0
-
-                &&
-
-                Number(
-
-                    rule.nilai_start || 0
-
                 ) <= hour
 
-        );
+        )
 
-
-    fallbackRules.sort(
-
-        (
-
-            a,
-
-            b
-
-        ) =>
-
-            Number(
-
-                b.nilai_start || 0
-
-            )
-
-            -
-
-            Number(
-
-                a.nilai_start || 0
-
-            )
-
-    );
+        .pop();
 
 
     return (
 
-        fallbackRules[0] ??
+        fallback ??
 
         null
 
