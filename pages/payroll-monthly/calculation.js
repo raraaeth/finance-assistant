@@ -829,6 +829,32 @@ function processPotong(
                 return;
 
             }
+           /* =====================================
+               DIRUMAHKAN
+            ===================================== */
+           
+
+           if(
+    rule.kondisi === "dirumahkan"
+    &&
+    rule.waktu === "harian"
+){
+    const jumlah =
+        countStatus(
+            attendance,
+            "dirumahkan"
+        );
+
+    if(jumlah > 0){
+        addComponent(
+            result,
+            rule,
+            jumlah
+        );
+    }
+
+    return;
+}
 
 
             /* =====================================
