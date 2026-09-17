@@ -1943,7 +1943,9 @@ function createAutomaticRuleMasuk(
 
         "libur",
 
-        "absen"
+        "absen",
+
+        "dirumahkan"
 
     ];
 
