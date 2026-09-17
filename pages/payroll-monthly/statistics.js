@@ -624,6 +624,8 @@ Statistics.renderSummary = function(){
 
         lemburHours : 0,
 
+        dirumahkan : 0,
+
         absen : 0
 
     };
@@ -674,6 +676,12 @@ Statistics.renderSummary = function(){
                     summary.lembur++;
 
                     break;
+
+                case "dirumahkan":
+
+                    summary.dirumahkan++;
+
+                    break;  
 
 
                 case "absen":
