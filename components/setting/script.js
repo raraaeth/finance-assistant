@@ -2063,11 +2063,7 @@ function applyRuleStateUI(
 
 
 
-/* =====================================================
-   TOGGLE FORM
-===================================================== */
-
-function toggleForm(
+async function toggleForm(
 
     section,
 
@@ -2128,6 +2124,24 @@ function toggleForm(
 
 
     /* =============================================
+       REFRESH RULE STATE
+       
+       Cek ulang:
+       1. Rule yang sudah ada di Sheet
+       2. Rule yang sudah ditambahkan di UI
+          tetapi belum Confirm
+    ============================================= */
+
+    await applyPersistentRuleState(
+
+        section,
+
+        sectionElement
+
+    );
+
+
+    /* =============================================
        OPEN
     ============================================= */
 
@@ -2140,8 +2154,6 @@ function toggleForm(
     );
 
 }
-
-
 
 /* =====================================================
    RENDER FORM
