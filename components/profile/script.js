@@ -2100,6 +2100,27 @@ function onClick(
 
 ){
 
+   const nameSaveButton =
+
+    event.target.closest(
+
+        "#profile-name-save"
+
+    );
+
+
+if(
+
+    nameSaveButton
+
+){
+
+    onSaveName();
+
+    return;
+
+}
+
     const registerButton =
 
         event.target.closest(
