@@ -6,7 +6,7 @@
    Version     : 1.0.0
 
    Description :
-   Premium Green / Teal Theme Override
+   Green Theme Override
 ===================================================== */
 
 
@@ -16,29 +16,27 @@
 
 html[data-theme="green"]{
 
-    color-scheme:light;
+    color-scheme:dark;
 
-    --primary:#159A8C;
+    --primary:#63C48A;
 
-    --background:#EEF8F6;
+    --background:#071A12;
 
-    --card:#FFFFFF;
+    --card:#0E241A;
 
-    --text:#183A36;
+    --text:#ECFDF5;
 
-    --text-secondary:#6B8580;
+    --text-secondary:#9BB7AA;
 
-    --border:#CFE5E1;
+    --border:#234536;
 
     --shadow:
-        0 8px 24px
-        rgba(21,154,140,.10);
+        0 2px 10px
+        rgba(0,0,0,.35);
 
-    --surface:#F7FCFB;
+    --surface:#10291E;
 
-    --text-primary:#183A36;
-
-    --primary-soft:#DDF3EF;
+    --text-primary:#ECFDF5;
 
 }
 
@@ -49,12 +47,7 @@ html[data-theme="green"]{
 
 html[data-theme="green"] body{
 
-    background:
-        linear-gradient(
-            180deg,
-            #EEF8F6 0%,
-            #E8F5F2 100%
-        );
+    background:var(--background);
 
     color:var(--text);
 
@@ -73,9 +66,9 @@ html[data-theme="green"] .card{
 
     box-shadow:
 
-        0 8px 24px
+        0 4px 16px
 
-        rgba(21,154,140,.10);
+        rgba(0,0,0,.28);
 
 }
 
@@ -116,7 +109,7 @@ html[data-theme="green"] input,
 html[data-theme="green"] select,
 html[data-theme="green"] textarea{
 
-    background:#FFFFFF;
+    background:#163126;
 
     color:var(--text);
 
@@ -126,7 +119,7 @@ html[data-theme="green"] textarea{
 
 html[data-theme="green"] input::placeholder{
 
-    color:#8AA7A2;
+    color:#6F8B7F;
 
 }
 
@@ -137,9 +130,9 @@ html[data-theme="green"] input::placeholder{
 
 html[data-theme="green"] .button-outline{
 
-    background:#F5FBFA;
+    background:#163126;
 
-    color:var(--primary);
+    color:var(--text);
 
     border-color:var(--border);
 
@@ -152,7 +145,7 @@ html[data-theme="green"] .button-outline{
 
 html[data-theme="green"] .filter-select{
 
-    background:#FFFFFF;
+    background:#163126;
 
     color:var(--text);
 
@@ -160,7 +153,7 @@ html[data-theme="green"] .filter-select{
 
 html[data-theme="green"] .filter-input{
 
-    background:#FFFFFF;
+    background:#163126;
 
     color:var(--text);
 
@@ -168,13 +161,13 @@ html[data-theme="green"] .filter-input{
 
 html[data-theme="green"] .filter-period{
 
-    background:#F5FBFA;
+    background:#163126;
 
 }
 
 html[data-theme="green"] .filter-period:hover{
 
-    background:#E3F4F0;
+    background:#1D4030;
 
 }
 
@@ -186,11 +179,11 @@ html[data-theme="green"] .filter-period-text{
 
 html[data-theme="green"] .filter-chip{
 
-    background:#F5FBFA;
+    background:#163126;
 
-    color:#5E7772;
+    color:#D7EEE3;
 
-    border-color:var(--border);
+    border-color:#285342;
 
 }
 
@@ -200,7 +193,7 @@ html[data-theme="green"] .filter-chip.active{
 
     border-color:var(--primary);
 
-    color:#FFFFFF;
+    color:#062015;
 
 }
 
@@ -211,7 +204,7 @@ html[data-theme="green"] .filter-chip.active{
 
 html[data-theme="green"] .filter-sheet{
 
-    background:#FFFFFF;
+    background:#071A12;
 
     color:var(--text);
 
@@ -219,7 +212,7 @@ html[data-theme="green"] .filter-sheet{
 
 html[data-theme="green"] .filter-sheet-header{
 
-    border-color:var(--border);
+    border-color:#234536;
 
 }
 
@@ -231,39 +224,39 @@ html[data-theme="green"] .filter-sheet-header p{
 
 html[data-theme="green"] .filter-sheet-handle{
 
-    background:#A8C9C3;
+    background:#3B6652;
 
 }
 
 html[data-theme="green"] .filter-input label{
 
-    color:#526E68;
+    color:#D7EEE3;
 
 }
 
 html[data-theme="green"] .filter-input input{
 
-    background:#F7FCFB;
+    background:#163126;
 
     color:var(--text);
 
-    border-color:var(--border);
+    border-color:#234536;
 
 }
 
 html[data-theme="green"] .filter-sheet-footer{
 
-    background:#FFFFFF;
+    background:#071A12;
 
-    border-color:var(--border);
+    border-color:#234536;
 
 }
 
 html[data-theme="green"] #filter-cancel{
 
-    background:#EDF6F4;
+    background:#163126;
 
-    color:#5E7772;
+    color:#D7EEE3;
 
 }
 
@@ -274,9 +267,9 @@ html[data-theme="green"] #filter-cancel{
 
 html[data-theme="green"] .section-badge{
 
-    background:#DDF3EF;
+    background:#163126;
 
-    color:#16796F;
+    color:#D7EEE3;
 
 }
 
@@ -317,7 +310,7 @@ html[data-theme="green"] .statistics-pagination button{
 
 html[data-theme="green"] .statistics-pagination button:disabled{
 
-    color:#91AAA5;
+    color:#6F8B7F;
 
 }
 
@@ -364,7 +357,7 @@ html[data-theme="green"] .transaction-amount{
 
 html[data-theme="green"] .summary-item{
 
-    background:#F5FBFA;
+    background:#163126;
 
 }
 
@@ -388,62 +381,7 @@ html[data-theme="green"] .distribution-percent{
 
 html[data-theme="green"] .distribution-bar{
 
-    background:#DCEEEA;
-
-}
-
-html[data-theme="green"] .distribution-fill{
-
-    background:
-
-        linear-gradient(
-
-            90deg,
-
-            #159A8C,
-
-            #43B9A9
-
-        );
-
-}
-
-
-/* =====================================================
-   SUMMARY — DEBT PAGINATION
-===================================================== */
-
-html[data-theme="green"] .debt-page-button{
-
-    background:#DCEEEA;
-
-    color:#155E57;
-
-    border:1px solid #BFDCD6;
-
-}
-
-html[data-theme="green"] .debt-page-button:hover{
-
-    background:#CBE6E0;
-
-}
-
-html[data-theme="green"] .debt-page-button:disabled{
-
-    background:#E8F2F0;
-
-    color:#9AAFA9;
-
-    border-color:#D5E6E2;
-
-    opacity:1;
-
-}
-
-html[data-theme="green"] .debt-page-info{
-
-    color:#66817B;
+    background:#234536;
 
 }
 
@@ -460,7 +398,7 @@ html[data-theme="green"] #profile-component{
 
 html[data-theme="green"] .profile-card{
 
-    background:#FFFFFF;
+    background:#0E241A;
 
     color:var(--text);
 
@@ -468,21 +406,21 @@ html[data-theme="green"] .profile-card{
 
         0 8px 24px
 
-        rgba(21,154,140,.10);
+        rgba(0,0,0,.30);
 
 }
 
 html[data-theme="green"] .profile-menu-item{
 
-    background:#FFFFFF;
+    background:#0E241A;
 
     color:var(--text);
 
     box-shadow:
 
-        0 6px 18px
+        0 4px 16px
 
-        rgba(21,154,140,.08);
+        rgba(0,0,0,.25);
 
 }
 
@@ -500,19 +438,19 @@ html[data-theme="green"] .profile-menu-description{
 
 html[data-theme="green"] .profile-menu-arrow{
 
-    color:#8AA7A2;
+    color:#668276;
 
 }
 
 html[data-theme="green"] .profile-avatar{
 
-    border-color:#DCEEEA;
+    border-color:#234536;
 
 }
 
 html[data-theme="green"] .profile-greeting{
 
-    background:#DDF3EF;
+    background:#173B2A;
 
 }
 
@@ -535,7 +473,7 @@ html[data-theme="green"] .profile-description{
 
 html[data-theme="green"] .workspace-item{
 
-    background:#FFFFFF;
+    background:#0E241A;
 
     border-color:var(--border);
 
@@ -551,7 +489,7 @@ html[data-theme="green"] .workspace-item:hover{
 
 html[data-theme="green"] .workspace-icon{
 
-    background:#DDF3EF;
+    background:#173B2A;
 
 }
 
@@ -577,7 +515,7 @@ html[data-theme="green"] .workspace-create{
 
 html[data-theme="green"] .workspace-create:hover{
 
-    background:#F0FAF8;
+    background:#0D2B1E;
 
 }
 
@@ -588,7 +526,7 @@ html[data-theme="green"] .workspace-create:hover{
 
 html[data-theme="green"] .profile-menu-icon{
 
-    background:#DDF3EF;
+    background:#173B2A;
 
 }
 
@@ -599,39 +537,39 @@ html[data-theme="green"] .profile-menu-icon{
 
 html[data-theme="green"] #bottom-navigation{
 
-    background:#FFFFFF;
+    background:#091E16;
 
-    border-top-color:#D5E7E3;
+    border-top-color:#234536;
 
     box-shadow:
 
         0 -8px 24px
 
-        rgba(21,154,140,.08);
+        rgba(0,0,0,.38);
 
 }
 
 html[data-theme="green"] .nav-icon{
 
-    color:#91AAA5;
+    color:#668276;
 
 }
 
 html[data-theme="green"] .nav-label{
 
-    color:#91AAA5;
+    color:#668276;
 
 }
 
 html[data-theme="green"] .nav-item.active{
 
-    background:#E2F3F0;
+    background:#0E241A;
 
 }
 
 html[data-theme="green"] .nav-item:hover .nav-icon{
 
-    background:#DDF3EF;
+    background:#163126;
 
     color:var(--primary);
 
@@ -660,7 +598,7 @@ html[data-theme="green"] #header-banner{
 
         0 8px 24px
 
-        rgba(21,154,140,.12);
+        rgba(0,0,0,.30);
 
 }
 
@@ -671,7 +609,7 @@ html[data-theme="green"] #header-banner{
 
 html[data-theme="green"] .empty{
 
-    color:#8AA7A2;
+    color:#668276;
 
 }
 
@@ -682,7 +620,7 @@ html[data-theme="green"] .empty{
 
 html[data-theme="green"]{
 
-    scrollbar-color:#8FC9BF #EEF8F6;
+    scrollbar-color:#3B6652 #071A12;
 
 }
 
@@ -694,13 +632,13 @@ html[data-theme="green"] ::-webkit-scrollbar{
 
 html[data-theme="green"] ::-webkit-scrollbar-track{
 
-    background:#EEF8F6;
+    background:#071A12;
 
 }
 
 html[data-theme="green"] ::-webkit-scrollbar-thumb{
 
-    background:#8FC9BF;
+    background:#3B6652;
 
     border-radius:999px;
 
@@ -708,7 +646,7 @@ html[data-theme="green"] ::-webkit-scrollbar-thumb{
 
 html[data-theme="green"] ::-webkit-scrollbar-thumb:hover{
 
-    background:#5FB3A6;
+    background:#4D8068;
 
 }
 
@@ -717,43 +655,59 @@ html[data-theme="green"] ::-webkit-scrollbar-thumb:hover{
    STATISTICS PAGINATION — GREEN
 ===================================================== */
 
-html[data-theme="green"] .statistics-pagination button{
+.statistics-pagination button{
 
-    background:#DCEEEA !important;
+    background:#234536;
 
-    color:#155E57 !important;
+    color:#ECFDF5;
 
-    border:1px solid #BFDCD6 !important;
-
-    box-shadow:none !important;
+    border:1px solid #35644E;
 
 }
 
 
 /* =====================================================
-   PAGINATION HOVER
+   DISABLED
 ===================================================== */
 
-html[data-theme="green"] .statistics-pagination button:hover{
+.statistics-pagination button:disabled{
 
-    background:#CBE6E0 !important;
+    background:#142C21;
 
-    color:#124F49 !important;
+    color:#8AA99B;
+
+    border-color:#234536;
+
+    opacity:1;
 
 }
 
 
 /* =====================================================
-   PAGINATION DISABLED
+   STATISTICS PAGINATION — GREEN THEME
+   Override page pagination
 ===================================================== */
 
-html[data-theme="green"] .statistics-pagination button:disabled{
+.statistics-pagination button{
 
-    background:#E8F2F0 !important;
+    background:#234536 !important;
 
-    color:#9AAFA9 !important;
+    color:#ECFDF5 !important;
 
-    border-color:#D5E6E2 !important;
+    border:1px solid #35644E !important;
+
+}
+
+
+/* DISABLED */
+
+.statistics-pagination button:disabled{
+
+    background:#142C21 !important;
+
+    color:#8AA99B !important;
+
+    border-color:#234536 !important;
 
     opacity:1 !important;
 
@@ -761,11 +715,150 @@ html[data-theme="green"] .statistics-pagination button:disabled{
 
 
 /* =====================================================
-   PAGINATION INFO
+   SUMMARY — DEBT PAGINATION
 ===================================================== */
 
-html[data-theme="green"] .statistics-pagination span{
+.debt-page-button{
 
-    color:#66817B !important;
+    background:#234536;
+
+    color:#ECFDF5;
+
+    border:1px solid #35644E;
+
+}
+
+
+.debt-page-button:hover{
+
+    background:#35644E;
+
+}
+
+
+.debt-page-button:disabled{
+
+    background:#163126;
+
+    color:#8AA99B;
+
+    border-color:#2B4F3E;
+
+    opacity:1;
+
+}
+
+
+.debt-page-info{
+
+    color:#C8DFD4;
+
+}
+
+
+/* =====================================================
+   PAYROLL MONTHLY — HOME
+===================================================== */
+
+
+/* =====================================================
+   PREVIOUS PAYROLL
+===================================================== */
+
+html[data-theme="green"] .home-payroll-title{
+
+    color:var(--text);
+
+}
+
+
+html[data-theme="green"] .home-payroll-period{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="green"] .home-payroll-salary{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   PREVIOUS ATTENDANCE
+===================================================== */
+
+html[data-theme="green"] .home-attendance-item{
+
+    background:#163126;
+
+}
+
+
+html[data-theme="green"] .home-attendance-item span{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="green"] .home-attendance-item strong{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   CURRENT ATTENDANCE
+===================================================== */
+
+html[data-theme="green"] .attendance-period{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="green"] .attendance-item{
+
+    background:#163126;
+
+}
+
+
+html[data-theme="green"] .attendance-item span{
+
+    color:var(--text-secondary);
+
+}
+
+
+html[data-theme="green"] .attendance-item strong{
+
+    color:var(--text);
+
+}
+
+
+/* =====================================================
+   FINANCIAL HOME
+   HIGHEST EXPENSE — GREEN
+===================================================== */
+
+html[data-theme="green"]
+.financial-home-highest-date{
+
+    color:var(--text) !important;
+
+}
+
+
+html[data-theme="green"]
+.financial-home-highest-value{
+
+    color:var(--text) !important;
 
 }
