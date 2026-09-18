@@ -585,19 +585,56 @@ function renderLogin(){
             </p>
 
 
-            <button
+            <div class="profile-login-option">
 
-                id="profile-login-button"
+                <p class="profile-login-note">
 
-                class="profile-login-button"
+                    Belum pernah login?
 
-                type="button"
+                </p>
 
-            >
 
-                Masuk dengan Google
+                <button
 
-            </button>
+                    id="profile-register-button"
+
+                    class="profile-login-button"
+
+                    type="button"
+
+                >
+
+                    Daftar dengan Google
+
+                </button>
+
+            </div>
+
+
+            <div class="profile-login-option">
+
+                <p class="profile-login-note">
+
+                    Sudah pernah login sebelumnya?
+
+                </p>
+
+
+                <button
+
+                    id="profile-login-button"
+
+                    class="profile-login-button"
+
+                    type="button"
+
+                >
+
+                    Login dengan Google
+
+                </button>
+
+            </div>
 
         </div>
 
@@ -2054,6 +2091,30 @@ function onClick(
     event
 
 ){
+
+    const registerButton =
+
+        event.target.closest(
+
+            "#profile-register-button"
+
+        );
+
+
+    if(
+
+        registerButton
+
+    ){
+
+        window.location.href =
+
+            "/pages/onboarding";
+
+        return;
+
+    }
+
 
     const loginButton =
 
