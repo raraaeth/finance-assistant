@@ -36,6 +36,8 @@ import {
 
     loadUser,
 
+    saveUser,
+
     loadTheme,
 
     saveTheme
@@ -710,6 +712,313 @@ async function onGoogleLogin(){
         button.textContent =
 
             "Masuk dengan Google";
+
+    }
+
+}
+
+/* =====================================================
+   SAVE NAME
+===================================================== */
+
+async function onSaveName(){
+
+    const input =
+
+        document.getElementById(
+
+            "profile-name-input"
+
+        );
+
+
+    const button =
+
+        document.getElementById(
+
+            "profile-name-save"
+
+        );
+
+
+    if(
+
+        !input ||
+
+        !button
+
+    ){
+
+        return;
+
+    }
+
+
+    const newName =
+
+        input.value.trim();
+
+
+    /* =========================================
+       VALIDATION
+    ========================================= */
+
+    if(
+
+        !newName
+
+    ){
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    const currentName =
+
+        State.user?.displayName
+
+        ||
+
+        "";
+
+
+    /* =========================================
+       NO CHANGE
+    ========================================= */
+
+    if(
+
+        newName ===
+
+        currentName
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =========================================
+       LOADING
+    ========================================= */
+
+    button.disabled =
+
+        true;
+
+
+    button.textContent =
+
+        "Menyimpan...";
+
+
+    input.disabled =
+
+        true;
+
+
+    try{
+
+        console.log(
+
+            "===== PROFILE UPDATE NAME ====="
+
+        );
+
+
+        console.log(
+
+            "Nama lama:",
+
+            currentName
+
+        );
+
+
+        console.log(
+
+            "Nama baru:",
+
+            newName
+
+        );
+
+
+        /* =====================================
+           UPDATE FINANCE CORE ACCOUNT
+        ===================================== */
+
+        const result =
+
+            await updateAccountDisplayName(
+
+                newName
+
+            );
+
+
+        console.log(
+
+            "Update Account Result:",
+
+            result
+
+        );
+
+
+        if(
+
+            !result
+
+            ||
+
+            !result.success
+
+        ){
+
+            throw new Error(
+
+                "Nama gagal diperbarui."
+
+            );
+
+        }
+
+
+        /* =====================================
+           UPDATE LOCAL STATE
+        ===================================== */
+
+        State.user = {
+
+    ...(State.user || {}),
+
+    displayName :
+
+        result.displayName
+
+        ||
+
+        newName
+
+};
+
+
+saveUser(
+
+    State.user
+
+);
+
+
+        /* =====================================
+           SAVE LOCAL USER
+        ===================================== */
+
+        /*
+           Kita sengaja belum menggunakan
+           saveUser() di sini.
+
+           Karena saat ini Profile hanya perlu
+           memperbarui State.user untuk UI.
+
+           Jika nanti local account cache memang
+           perlu disinkronkan, kita bisa tambahkan
+           secara terpisah.
+        */
+
+
+        /* =====================================
+           RENDER PROFILE
+        ===================================== */
+
+        renderUserCard();
+
+        renderNameSetting();
+
+
+        console.log(
+
+            "Nama Profile berhasil diperbarui."
+
+        );
+
+
+    }catch(error){
+
+        console.error(
+
+            "Profile Update Name Error:",
+
+            error
+
+        );
+
+
+        alert(
+
+            error?.message
+
+            ||
+
+            "Gagal memperbarui nama."
+
+        );
+
+
+    }finally{
+
+        const currentInput =
+
+            document.getElementById(
+
+                "profile-name-input"
+
+            );
+
+
+        const currentButton =
+
+            document.getElementById(
+
+                "profile-name-save"
+
+            );
+
+
+        if(
+
+            currentInput
+
+        ){
+
+            currentInput.disabled =
+
+                false;
+
+        }
+
+
+        if(
+
+            currentButton
+
+        ){
+
+            currentButton.disabled =
+
+                false;
+
+
+            currentButton.textContent =
+
+                "Simpan Nama";
+
+        }
 
     }
 
