@@ -2645,11 +2645,22 @@ function initTheme(){
 
 function onLogout(){
 
+    openLogoutModal();
+
+}
+
+
+/* =====================================================
+   OPEN LOGOUT MODAL
+===================================================== */
+
+function openLogoutModal(){
+
     if(
 
-        !confirm(
+        document.getElementById(
 
-            "Yakin ingin keluar?"
+            "profile-logout-modal"
 
         )
 
@@ -2660,10 +2671,252 @@ function onLogout(){
     }
 
 
-    logout();
+    const modal =
+
+        document.createElement(
+
+            "div"
+
+        );
+
+
+    modal.id =
+
+        "profile-logout-modal";
+
+
+    modal.className =
+
+        "profile-logout-modal";
+
+
+    modal.innerHTML =
+
+    `
+
+        <div
+
+            class="profile-logout-backdrop"
+
+            data-logout-close
+
+        ></div>
+
+
+        <div
+
+            class="profile-logout-sheet"
+
+            role="dialog"
+
+            aria-modal="true"
+
+            aria-labelledby="profile-logout-title"
+
+        >
+
+            <div class="profile-logout-icon">
+
+                🚪
+
+            </div>
+
+
+            <h2
+
+                id="profile-logout-title"
+
+                class="profile-logout-title"
+
+            >
+
+                Keluar dari Akun?
+
+            </h2>
+
+
+            <p class="profile-logout-description">
+
+                Apakah kamu yakin ingin keluar
+
+                dari akun Finance Assistant?
+
+            </p>
+
+
+            <div class="profile-logout-actions">
+
+                <button
+
+                    type="button"
+
+                    class="profile-logout-cancel"
+
+                    data-logout-close
+
+                >
+
+                    Batal
+
+                </button>
+
+
+                <button
+
+                    type="button"
+
+                    class="profile-logout-confirm"
+
+                    id="profile-logout-confirm"
+
+                >
+
+                    Keluar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+
+        modal
+
+    );
+
+
+    requestAnimationFrame(
+
+        () => {
+
+            modal.classList.add(
+
+                "show"
+
+            );
+
+        }
+
+    );
 
 }
 
+
+/* =====================================================
+   CLOSE LOGOUT MODAL
+===================================================== */
+
+function closeLogoutModal(){
+
+    const modal =
+
+        document.getElementById(
+
+            "profile-logout-modal"
+
+        );
+
+
+    if(
+
+        !modal
+
+    ){
+
+        return;
+
+    }
+
+
+    modal.classList.remove(
+
+        "show"
+
+    );
+
+
+    setTimeout(
+
+        () => {
+
+            modal.remove();
+
+        },
+
+        220
+
+    );
+
+}
+
+
+/* =====================================================
+   CONFIRM LOGOUT
+===================================================== */
+
+async function confirmLogout(){
+
+    const button =
+
+        document.getElementById(
+
+            "profile-logout-confirm"
+
+        );
+
+
+    if(
+
+        !button
+
+    ){
+
+        return;
+
+    }
+
+
+    button.disabled =
+
+        true;
+
+
+    button.textContent =
+
+        "Keluar...";
+
+
+    try{
+
+        await logout();
+
+    }catch(error){
+
+        console.error(
+
+            "Profile Logout Error:",
+
+            error
+
+        );
+
+
+        button.disabled =
+
+            false;
+
+
+        button.textContent =
+
+            "Keluar";
+
+    }
+
+}
 
 /* =====================================================
    HTML ESCAPE
