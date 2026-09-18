@@ -1809,3 +1809,17 @@
     }
 
 }
+.profile-delete-account {
+    text-align: center;
+    margin-top: 12px;
+}
+
+.profile-delete-account a {
+    color: #8fa0b8;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.profile-delete-account a:hover {
+    text-decoration: underline;
+}
