@@ -33,7 +33,7 @@ const onboardingData = {
 
     currency    : "IDR",
 
-    theme       : "system"
+    theme       : "light"
 
 };
 
@@ -105,6 +105,7 @@ function render(){
     steps[currentStep]();
 
 }
+
 
 //==================================
 // Component
@@ -195,6 +196,7 @@ function createDescription(text){
     `;
 
 }
+
 
 function createInput({
 
@@ -322,6 +324,7 @@ function createOption({
 
 }
 
+
 //==================================
 // Screen
 //==================================
@@ -368,6 +371,7 @@ function renderWelcome(){
     bindWelcomeEvent();
 
 }
+
 
 function renderDisplayName(){
 
@@ -424,6 +428,7 @@ function renderDisplayName(){
 
 }
 
+
 function renderCurrency(){
 
     onboarding.innerHTML = `
@@ -447,29 +452,29 @@ function renderCurrency(){
 
             ${createOption({
 
-    icon : "🇮🇩",
+                icon : "🇮🇩",
 
-    title : "Indonesian Rupiah (IDR)",
+                title : "Indonesian Rupiah (IDR)",
 
-    value : "IDR",
+                value : "IDR",
 
-    selected :
-        onboardingData.currency === "IDR"
+                selected :
+                    onboardingData.currency === "IDR"
 
-})}
+            })}
 
-${createOption({
+            ${createOption({
 
-    icon : "🇺🇸",
+                icon : "🇺🇸",
 
-    title : "US Dollar (USD)",
+                title : "US Dollar (USD)",
 
-    value : "USD",
+                value : "USD",
 
-    selected :
-        onboardingData.currency === "USD"
+                selected :
+                    onboardingData.currency === "USD"
 
-})}
+            })}
 
         </section>
 
@@ -490,6 +495,7 @@ ${createOption({
     bindCurrencyEvent();
 
 }
+
 
 function renderTheme(){
 
@@ -519,7 +525,7 @@ function renderTheme(){
                 title : "Terang",
 
                 description :
-                    "Cocok digunakan pada siang hari.",
+                    "Tampilan terang dan bersih.",
 
                 value : "light",
 
@@ -535,7 +541,7 @@ function renderTheme(){
                 title : "Gelap",
 
                 description :
-                    "Nyaman digunakan pada malam hari.",
+                    "Tampilan gelap dan nyaman di malam hari.",
 
                 value : "dark",
 
@@ -546,17 +552,33 @@ function renderTheme(){
 
             ${createOption({
 
-                icon : "⚙️",
+                icon : "🌿",
 
-                title : "Ikuti Sistem",
+                title : "Green",
 
                 description :
-                    "Mengikuti pengaturan perangkat.",
+                    "Tampilan dengan nuansa hijau.",
 
-                value : "system",
+                value : "green",
 
                 selected :
-                    onboardingData.theme === "system"
+                    onboardingData.theme === "green"
+
+            })}
+
+            ${createOption({
+
+                icon : "🌸",
+
+                title : "Pink",
+
+                description :
+                    "Tampilan dengan nuansa pink.",
+
+                value : "pink",
+
+                selected :
+                    onboardingData.theme === "pink"
 
             })}
 
@@ -578,7 +600,9 @@ function renderTheme(){
 
     bindThemeEvent();
 
-                    }
+}
+
+
 function renderGoogleLogin(){
 
     onboarding.innerHTML = `
@@ -658,6 +682,7 @@ function bindWelcomeEvent(){
 
 }
 
+
 function bindDisplayNameEvent(){
 
     const input =
@@ -713,6 +738,7 @@ function bindDisplayNameEvent(){
     );
 
 }
+
 
 function bindCurrencyEvent(){
 
@@ -770,6 +796,7 @@ function bindCurrencyEvent(){
 
 }
 
+
 function bindThemeEvent(){
 
     const options =
@@ -780,9 +807,9 @@ function bindThemeEvent(){
 
     const button =
 
-    document.getElementById(
-        "btnNext"
-    );
+        document.getElementById(
+            "btnNext"
+        );
 
 
     options.forEach(option => {
@@ -818,34 +845,35 @@ function bindThemeEvent(){
 
     button.addEventListener(
 
-    "click",
+        "click",
 
-    nextStep
+        nextStep
 
-);
+    );
 
 }
+
 
 function bindGoogleLogin(){
 
     document
-    .getElementById("btnGoogle")
-    .addEventListener(
-        "click",
-        () => {
+        .getElementById("btnGoogle")
+        .addEventListener(
+            "click",
+            () => {
 
-            saveUser({
+                saveUser({
 
-                ...onboardingData,
+                    ...onboardingData,
 
-                onboardingCompleted: true
+                    onboardingCompleted: true
 
-            });
+                });
 
-            loginGoogle();
+                loginGoogle();
 
-        }
-    );
+            }
+        );
 
 }
 
@@ -870,6 +898,7 @@ function finishOnboarding(){
 
 }
 
+
 //==================================
 // Init
 //==================================
@@ -877,5 +906,3 @@ function finishOnboarding(){
 window.finishOnboarding = finishOnboarding;
 
 render();
-
-
