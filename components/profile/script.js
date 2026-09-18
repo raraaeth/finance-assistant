@@ -2253,6 +2253,49 @@ function onClick(
 
     }
 
+   const logoutClose =
+
+    event.target.closest(
+
+        "[data-logout-close]"
+
+    );
+
+
+if(
+
+    logoutClose
+
+){
+
+    closeLogoutModal();
+
+    return;
+
+}
+
+
+const logoutConfirm =
+
+    event.target.closest(
+
+        "#profile-logout-confirm"
+
+    );
+
+
+if(
+
+    logoutConfirm
+
+){
+
+    confirmLogout();
+
+    return;
+
+}
+
 }
 
 
