@@ -60,6 +60,12 @@ import {
 
 } from "../../js/workspace.js";
 
+import {
+
+    updateAccountDisplayName
+
+} from "../../js/module.js";
+
 
 import {
 
@@ -419,6 +425,8 @@ async function init(){
 
 
     renderTheme();
+
+    renderNameSetting();
 
 
     initThemeEvent();
@@ -2519,6 +2527,129 @@ function renderTheme(){
                 ""
 
             );
+
+}
+
+/* =====================================================
+   NAME SETTING
+===================================================== */
+
+function renderNameSetting(){
+
+    const container =
+
+        document.getElementById(
+
+            "profile-name-setting"
+
+        );
+
+
+    if(
+
+        !container
+
+    ){
+
+        return;
+
+    }
+
+
+    const currentName =
+
+        State.user?.displayName
+
+        ||
+
+        "";
+
+
+    container.innerHTML =
+
+    `
+
+        <div class="profile-name-setting">
+
+            <div class="profile-name-setting-current">
+
+                <span class="profile-name-setting-label">
+
+                    Nama saat ini
+
+                </span>
+
+
+                <strong class="profile-name-setting-value">
+
+                    ${
+
+                        escapeHtml(
+
+                            currentName
+
+                            ||
+
+                            "Belum diatur"
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <div class="profile-name-setting-form">
+
+                <input
+
+                    id="profile-name-input"
+
+                    class="profile-name-input"
+
+                    type="text"
+
+                    value="${escapeHtml(currentName)}"
+
+                    placeholder="Masukkan nama"
+
+                    autocomplete="name"
+
+                    maxlength="100"
+
+                >
+
+
+                <button
+
+                    id="profile-name-save"
+
+                    class="profile-name-save"
+
+                    type="button"
+
+                >
+
+                    Simpan Nama
+
+                </button>
+
+            </div>
+
+
+            <p class="profile-name-setting-note">
+
+                Nama ini akan digunakan di
+
+                Finance Assistant.
+
+            </p>
+
+        </div>
+
+    `;
 
 }
 
