@@ -2143,15 +2143,36 @@
 
 }
 
+    
 /* =====================================================
    PROFILE NAME SETTING
 ===================================================== */
 
-.profile-name-setting{
+#profile-name-setting{
+
     width:100%;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =====================================================
+   NAME WRAPPER
+===================================================== */
+
+#profile-name-setting .profile-name-setting{
+
+    width:100%;
+
     display:flex;
+
     flex-direction:column;
+
     gap:18px;
+
+    box-sizing:border-box;
+
 }
 
 
@@ -2159,25 +2180,59 @@
    CURRENT NAME
 ===================================================== */
 
+#profile-name-setting
 .profile-name-setting-current{
+
+    width:100%;
+
     display:flex;
+
     flex-direction:column;
+
+    align-items:flex-start;
+
     gap:5px;
+
+    box-sizing:border-box;
+
 }
 
 
+#profile-name-setting
 .profile-name-setting-label{
+
+    display:block;
+
+    width:100%;
+
+    margin:0;
+
     font-size:13px;
+
     line-height:1.4;
+
     color:var(--text-secondary);
+
 }
 
 
+#profile-name-setting
 .profile-name-setting-value{
+
+    display:block;
+
+    width:100%;
+
+    margin:0;
+
     font-size:17px;
+
     line-height:1.5;
+
     font-weight:700;
+
     color:var(--text);
+
 }
 
 
@@ -2185,51 +2240,97 @@
    NAME FORM
 ===================================================== */
 
+#profile-name-setting
 .profile-name-setting-form{
+
+    width:100%;
+
     display:flex;
+
     flex-direction:column;
+
+    align-items:stretch;
+
     gap:10px;
+
+    box-sizing:border-box;
+
 }
 
 
+/* =====================================================
+   INPUT
+===================================================== */
+
+#profile-name-setting
 .profile-name-input{
+
+    display:block;
+
     width:100%;
+
     height:52px;
+
+    min-height:52px;
+
     box-sizing:border-box;
+
+    margin:0;
 
     padding:0 16px;
 
     border:1px solid var(--border);
+
     border-radius:15px;
 
     background:var(--background);
+
     color:var(--text);
 
     font-family:inherit;
+
     font-size:16px;
-    line-height:1;
+
+    line-height:1.2;
 
     outline:none;
 
+    appearance:none;
+
+    -webkit-appearance:none;
+
     transition:
+
         border-color .2s ease,
+
         box-shadow .2s ease,
+
         background .2s ease;
+
 }
 
 
+#profile-name-setting
 .profile-name-input::placeholder{
+
     color:var(--text-secondary);
+
     opacity:.7;
+
 }
 
 
+#profile-name-setting
 .profile-name-input:focus{
+
     border-color:var(--primary);
 
     box-shadow:
+
         0 0 0 3px
+
         rgba(59,130,246,.12);
+
 }
 
 
@@ -2237,38 +2338,75 @@
    SAVE BUTTON
 ===================================================== */
 
+#profile-name-setting
 .profile-name-save{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
     width:100%;
+
+    min-width:0;
+
     min-height:52px;
+
+    height:52px;
+
+    box-sizing:border-box;
+
+    margin:0;
 
     padding:0 16px;
 
     border:none;
+
     border-radius:15px;
 
     background:var(--primary);
+
     color:#ffffff;
 
     font-family:inherit;
+
     font-size:15px;
+
     font-weight:700;
+
+    line-height:1.2;
 
     cursor:pointer;
 
+    appearance:none;
+
+    -webkit-appearance:none;
+
     transition:
+
         transform .15s ease,
+
         opacity .15s ease;
+
 }
 
 
+#profile-name-setting
 .profile-name-save:active{
+
     transform:scale(.98);
+
 }
 
 
+#profile-name-setting
 .profile-name-save:disabled{
+
     opacity:.6;
+
     cursor:not-allowed;
+
 }
 
 
@@ -2276,13 +2414,25 @@
    NOTE
 ===================================================== */
 
+#profile-name-setting
 .profile-name-setting-note{
+
+    display:block;
+
+    width:100%;
+
+    box-sizing:border-box;
+
     margin:0;
 
+    padding:0;
+
     font-size:12px;
+
     line-height:1.6;
 
     color:var(--text-secondary);
+
 }
 
 
@@ -2292,19 +2442,39 @@
 
 @media (max-width:380px){
 
+    #profile-name-setting
     .profile-name-setting{
+
         gap:16px;
+
     }
 
 
+    #profile-name-setting
     .profile-name-input{
+
         height:50px;
+
+        min-height:50px;
+
         font-size:15px;
+
     }
 
 
+    #profile-name-setting
     .profile-name-save{
+
+        height:50px;
+
         min-height:50px;
+
     }
 
 }
+
+    
+
+
+
+
