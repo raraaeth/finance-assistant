@@ -2142,3 +2142,169 @@
     }
 
 }
+
+/* =====================================================
+   PROFILE NAME SETTING
+===================================================== */
+
+.profile-name-setting{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+
+/* =====================================================
+   CURRENT NAME
+===================================================== */
+
+.profile-name-setting-current{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+
+.profile-name-setting-label{
+    font-size:13px;
+    line-height:1.4;
+    color:var(--text-secondary);
+}
+
+
+.profile-name-setting-value{
+    font-size:17px;
+    line-height:1.5;
+    font-weight:700;
+    color:var(--text);
+}
+
+
+/* =====================================================
+   NAME FORM
+===================================================== */
+
+.profile-name-setting-form{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+
+.profile-name-input{
+    width:100%;
+    height:52px;
+    box-sizing:border-box;
+
+    padding:0 16px;
+
+    border:1px solid var(--border);
+    border-radius:15px;
+
+    background:var(--background);
+    color:var(--text);
+
+    font-family:inherit;
+    font-size:16px;
+    line-height:1;
+
+    outline:none;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+
+.profile-name-input::placeholder{
+    color:var(--text-secondary);
+    opacity:.7;
+}
+
+
+.profile-name-input:focus{
+    border-color:var(--primary);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(59,130,246,.12);
+}
+
+
+/* =====================================================
+   SAVE BUTTON
+===================================================== */
+
+.profile-name-save{
+    width:100%;
+    min-height:52px;
+
+    padding:0 16px;
+
+    border:none;
+    border-radius:15px;
+
+    background:var(--primary);
+    color:#ffffff;
+
+    font-family:inherit;
+    font-size:15px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+
+.profile-name-save:active{
+    transform:scale(.98);
+}
+
+
+.profile-name-save:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+
+/* =====================================================
+   NOTE
+===================================================== */
+
+.profile-name-setting-note{
+    margin:0;
+
+    font-size:12px;
+    line-height:1.6;
+
+    color:var(--text-secondary);
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width:380px){
+
+    .profile-name-setting{
+        gap:16px;
+    }
+
+
+    .profile-name-input{
+        height:50px;
+        font-size:15px;
+    }
+
+
+    .profile-name-save{
+        min-height:50px;
+    }
+
+}
