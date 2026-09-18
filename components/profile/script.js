@@ -1992,9 +1992,24 @@ function renderLogoutCard(){
 
         </button>
 
+
+        <div class="profile-delete-account">
+
+            <a
+                href="/delete-account/"
+            >
+
+                Hapus Akun
+
+            </a>
+
+        </div>
+
     `;
 
 }
+
+    
 
 
 /* =====================================================
