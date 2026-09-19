@@ -60,6 +60,12 @@ if (footer) {
           About App
         </a>
 
+        <span>*</span>
+
+        <a href="/contact/">
+          Contact & Feedback
+        </a>
+
       </nav>
 
     </footer>
