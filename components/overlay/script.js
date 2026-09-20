@@ -365,29 +365,21 @@ export const Overlay = {
             );
 
 
-        if(
+        if(exportButton){
 
-            exportButton
+    exportButton.addEventListener(
+        "click",
+        () => {
 
-        ){
+            exportButton.textContent =
+                "TEST: TOMBOL TERTEKAN";
 
-            exportButton.addEventListener(
-
-                "click",
-
-                () => {
-
-                   alert(
-                "EXPORT BUTTON BERHASIL DIKLIK"
-            );
-
-                    Overlay.exportPNG();
-
-                }
-
-            );
+            Overlay.exportPNG();
 
         }
+    );
+
+}
 
 
         /* =============================================
