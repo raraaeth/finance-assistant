@@ -29,6 +29,8 @@ import artikel05
     from "./articles/artikel05.js";
 import artikel06
     from "./articles/artikel06.js";
+import artikel07
+    from "./articles/artikel07.js";
 
 
 
@@ -43,7 +45,8 @@ const articles = [
     artikel03,
     artikel04,
     artikel05,
-    artikel06
+    artikel06,
+    artikel07
 
 ];
 
