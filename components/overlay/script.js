@@ -377,6 +377,10 @@ export const Overlay = {
 
                 () => {
 
+                   alert(
+                "EXPORT BUTTON BERHASIL DIKLIK"
+            );
+
                     Overlay.exportPNG();
 
                 }
