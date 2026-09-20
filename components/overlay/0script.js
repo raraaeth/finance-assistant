@@ -371,9 +371,7 @@ export const Overlay = {
         "click",
         () => {
 
-            exportButton.textContent =
-                "TEST: TOMBOL TERTEKAN";
-
+         
             Overlay.exportPNG();
 
         }
