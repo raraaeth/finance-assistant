@@ -2,18 +2,16 @@
    Finance Assistant
    Component    : Global Overlay
    File         : script.js
-   Version      : 1.3.0
+   Version      : 1.3.1
 
    Description :
    Reusable Global Overlay
    With PNG Export
 
    Export Support :
-   - Browser Download
+   - Browser
    - PWA
    - Android WebView / App
-   - Web Share API
-   - Share to Files / Save to Device
 
    Direction :
    Right → Left
@@ -64,7 +62,7 @@ async function loadHtml2Canvas(){
 
 
             /* =========================================
-               EXISTING SCRIPT
+               SCRIPT SUDAH ADA
             ========================================= */
 
             if(
@@ -72,10 +70,6 @@ async function loadHtml2Canvas(){
                 existing
 
             ){
-
-                /*
-                 * Script sudah selesai dimuat.
-                 */
 
                 if(
 
@@ -196,10 +190,6 @@ async function loadHtml2Canvas(){
                 );
 
 
-                /*
-                 * Jangan menunggu selamanya.
-                 */
-
                 setTimeout(
 
                     () => {
@@ -246,7 +236,7 @@ async function loadHtml2Canvas(){
 
 
             /* =========================================
-               CREATE SCRIPT
+               BUAT SCRIPT
             ========================================= */
 
             const script =
@@ -438,7 +428,7 @@ function canvasToBlob(
 
 
 /* =====================================================
-   CREATE FILE NAME
+   FILE NAME
 ===================================================== */
 
 function createExportFileName(){
@@ -501,26 +491,30 @@ function createExportFileName(){
 
 
 /* =====================================================
-   SHARE PNG
+   DETECT ANDROID WEBVIEW / APP
 ===================================================== */
 
-async function sharePNG(
+function isAndroidWebView(){
 
-    blob,
+    const ua =
 
-    filename
+        navigator.userAgent ||
 
-){
+        "";
 
-    /*
-     * Pastikan Web Share tersedia.
-     */
+
+    const isAndroid =
+
+        /Android/i.test(
+
+            ua
+
+        );
+
 
     if(
 
-        typeof navigator.share !==
-
-        "function"
+        !isAndroid
 
     ){
 
@@ -529,148 +523,70 @@ async function sharePNG(
     }
 
 
-    const file =
-
-        new File(
-
-            [
-
-                blob
-
-            ],
-
-            filename,
-
-            {
-
-                type :
-
-                    "image/png"
-
-            }
-
-        );
-
-
     /*
-     * Tidak semua browser/WebView
-     * mendukung sharing file.
+     * Android WebView biasanya mempunyai
+     * "; wv)" pada User Agent.
      */
 
     if(
 
-        typeof navigator.canShare ===
+        /;\s*wv\)/i.test(
 
-        "function"
+            ua
+
+        )
 
     ){
-
-        let canShareFiles =
-
-            false;
-
-
-        try{
-
-            canShareFiles =
-
-                navigator.canShare({
-
-                    files : [
-
-                        file
-
-                    ]
-
-                });
-
-        }
-
-        catch(error){
-
-            canShareFiles =
-
-                false;
-
-        }
-
-
-        if(
-
-            !canShareFiles
-
-        ){
-
-            return false;
-
-        }
-
-    }
-
-
-    try{
-
-        await navigator.share({
-
-            title :
-
-                "Rincian Gaji",
-
-            text :
-
-                "Rincian gaji Finance Assistant",
-
-            files : [
-
-                file
-
-            ]
-
-        });
-
 
         return true;
 
     }
 
-    catch(error){
 
-        /*
-         * Jika user menutup Share Sheet,
-         * jangan dianggap sebagai error fatal.
-         */
+    /*
+     * Fallback untuk beberapa wrapper
+     * Android yang menggunakan pola
+     * Version/4.0 + Chrome.
+     */
 
-        if(
+    if(
 
-            error?.name ===
+        /Version\/4\.0/i.test(
 
-            "AbortError"
+            ua
 
-        ){
+        )
 
-            return true;
+        &&
 
-        }
+        /Chrome\//i.test(
 
+            ua
 
-        console.error(
+        )
 
-            "Share PNG Error:",
+        &&
 
-            error
+        /Mobile/i.test(
 
-        );
+            ua
 
+        )
 
-        return false;
+    ){
+
+        return true;
 
     }
+
+
+    return false;
 
 }
 
 
 /* =====================================================
-   DOWNLOAD PNG
+   NORMAL DOWNLOAD
 ===================================================== */
 
 function downloadPNG(
@@ -726,11 +642,6 @@ function downloadPNG(
         link.click();
 
 
-        /*
-         * Tunggu sebentar sebelum
-         * menghapus object URL.
-         */
-
         setTimeout(
 
             () => {
@@ -745,7 +656,7 @@ function downloadPNG(
 
             },
 
-            1000
+            1500
 
         );
 
@@ -768,6 +679,390 @@ function downloadPNG(
         return false;
 
     }
+
+}
+
+
+/* =====================================================
+   OPEN BLOB URL
+===================================================== */
+
+function openBlobURL(
+
+    blob
+
+){
+
+    try{
+
+        const url =
+
+            URL.createObjectURL(
+
+                blob
+
+            );
+
+
+        const opened =
+
+            window.open(
+
+                url,
+
+                "_blank"
+
+            );
+
+
+        if(
+
+            !opened
+
+        ){
+
+            /*
+             * Fallback navigasi langsung.
+             */
+
+            window.location.href =
+
+                url;
+
+        }
+
+
+        /*
+         * Jangan langsung revoke karena
+         * halaman baru masih membutuhkan URL.
+
+         * Biarkan browser mengelolanya.
+         */
+
+        return true;
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Open Blob URL Error:",
+
+            error
+
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   WEB SHARE WITH TIMEOUT
+===================================================== */
+
+async function tryWebShare(
+
+    blob,
+
+    filename
+
+){
+
+    if(
+
+        typeof navigator.share !==
+
+        "function"
+
+    ){
+
+        return false;
+
+    }
+
+
+    const file =
+
+        new File(
+
+            [
+
+                blob
+
+            ],
+
+            filename,
+
+            {
+
+                type :
+
+                    "image/png"
+
+            }
+
+        );
+
+
+    /*
+     * Kalau canShare tersedia,
+     * pastikan file memang bisa dishare.
+     */
+
+    if(
+
+        typeof navigator.canShare ===
+
+        "function"
+
+    ){
+
+        try{
+
+            const supported =
+
+                navigator.canShare({
+
+                    files : [
+
+                        file
+
+                    ]
+
+                });
+
+
+            if(
+
+                !supported
+
+            ){
+
+                return false;
+
+            }
+
+        }
+
+        catch(error){
+
+            return false;
+
+        }
+
+    }
+
+
+    /*
+     * Jangan biarkan WebView menggantung
+     * selamanya pada navigator.share().
+     */
+
+    const sharePromise =
+
+        navigator.share({
+
+            title :
+
+                "Rincian Gaji",
+
+            text :
+
+                "Rincian gaji Finance Assistant",
+
+            files : [
+
+                file
+
+            ]
+
+        })
+
+        .then(
+
+            () => true
+
+        )
+
+        .catch(
+
+            error => {
+
+                /*
+                 * User membatalkan share.
+                 */
+
+                if(
+
+                    error?.name ===
+
+                    "AbortError"
+
+                ){
+
+                    return true;
+
+                }
+
+
+                console.error(
+
+                    "Web Share Error:",
+
+                    error
+
+                );
+
+
+                return false;
+
+            }
+
+        );
+
+
+    const timeoutPromise =
+
+        new Promise(
+
+            resolve => {
+
+                setTimeout(
+
+                    () => {
+
+                        resolve(
+
+                            false
+
+                        );
+
+                    },
+
+                    2500
+
+                );
+
+            }
+
+        );
+
+
+    return Promise.race(
+
+        [
+
+            sharePromise,
+
+            timeoutPromise
+
+        ]
+
+    );
+
+}
+
+
+/* =====================================================
+   APP EXPORT
+===================================================== */
+
+async function exportForApp(
+
+    blob,
+
+    filename
+
+){
+
+    /*
+     * METODE 1
+     *
+     * Web Share API
+     *
+     * Kalau WebView mendukung,
+     * Android akan membuka Share Sheet.
+     */
+
+    const shared =
+
+        await tryWebShare(
+
+            blob,
+
+            filename
+
+        );
+
+
+    if(
+
+        shared
+
+    ){
+
+        return true;
+
+    }
+
+
+    /*
+     * METODE 2
+     *
+     * Download biasa.
+     *
+     * Beberapa WebView tetap meneruskan
+     * download ke sistem Android.
+     */
+
+    const downloaded =
+
+        downloadPNG(
+
+            blob,
+
+            filename
+
+        );
+
+
+    if(
+
+        downloaded
+
+    ){
+
+        /*
+         * Kita tidak langsung menganggap
+         * berhasil secara native, tetapi
+         * metode sudah dipanggil.
+         */
+
+        return true;
+
+    }
+
+
+    /*
+     * METODE 3
+     *
+     * Buka Blob URL.
+     *
+     * Ini menjadi fallback terakhir untuk
+     * WebView yang tidak menjalankan
+     * <a download>.
+     */
+
+    return openBlobURL(
+
+        blob
+
+    );
 
 }
 
@@ -1156,7 +1451,7 @@ export const Overlay = {
 
 
         /* =============================================
-           RESET EXPORT BUTTON
+           RESET BUTTON
         ============================================= */
 
         const exportButton =
@@ -1174,13 +1469,14 @@ export const Overlay = {
 
         ){
 
-            exportButton.textContent =
-
-                "Simpan sebagai gambar";
-
             exportButton.disabled =
 
                 false;
+
+
+            exportButton.textContent =
+
+                "Simpan sebagai gambar";
 
         }
 
@@ -1240,10 +1536,9 @@ export const Overlay = {
             );
 
 
-        /*
-         * Cegah klik berkali-kali ketika
-         * proses export sedang berlangsung.
-         */
+        /* =============================================
+           LOCK BUTTON
+        ============================================= */
 
         if(
 
@@ -1255,6 +1550,7 @@ export const Overlay = {
 
                 true;
 
+
             exportButton.textContent =
 
                 "Menyiapkan gambar...";
@@ -1263,7 +1559,7 @@ export const Overlay = {
 
 
         /* =============================================
-           LOAD HTML2CANVAS
+           LOAD LIBRARY
         ============================================= */
 
         const ready =
@@ -1291,9 +1587,10 @@ export const Overlay = {
 
                     false;
 
+
                 exportButton.textContent =
 
-                    "Export tidak tersedia";
+                    "Simpan sebagai gambar";
 
             }
 
@@ -1570,7 +1867,7 @@ export const Overlay = {
 
 
             /* =========================================
-               CANVAS → PNG BLOB
+               CANVAS → PNG
             ========================================= */
 
             const blob =
@@ -1607,12 +1904,25 @@ export const Overlay = {
 
 
             /* =========================================
-               TRY WEB SHARE
+               DETECT APP
             ========================================= */
 
-            const shared =
+            const appMode =
 
-                await sharePNG(
+                isAndroidWebView();
+
+
+            /* =========================================
+               APP
+            ========================================= */
+
+            if(
+
+                appMode
+
+            ){
+
+                await exportForApp(
 
                     blob,
 
@@ -1620,48 +1930,25 @@ export const Overlay = {
 
                 );
 
-
-            if(
-
-                shared
-
-            ){
-
-                /*
-                 * Jika Share Sheet berhasil dibuka
-                 * atau user menutup Share Sheet,
-                 * proses selesai.
-                 */
-
-                return;
-
             }
 
-
             /* =========================================
-               FALLBACK DOWNLOAD
+               BROWSER / PWA
             ========================================= */
 
-            const downloaded =
+            else{
+
+                /*
+                 * Browser dan PWA sengaja langsung
+                 * menggunakan download seperti
+                 * versi awal.
+                 */
 
                 downloadPNG(
 
                     blob,
 
                     filename
-
-                );
-
-
-            if(
-
-                !downloaded
-
-            ){
-
-                console.error(
-
-                    "PNG tidak dapat disimpan"
 
                 );
 
@@ -1703,6 +1990,7 @@ export const Overlay = {
                 exportButton.disabled =
 
                     false;
+
 
                 exportButton.textContent =
 
