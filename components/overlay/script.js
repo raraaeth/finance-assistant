@@ -2,11 +2,18 @@
    Finance Assistant
    Component    : Global Overlay
    File         : script.js
-   Version      : 1.2.0
+   Version      : 1.3.0
 
    Description :
    Reusable Global Overlay
    With PNG Export
+
+   Export Support :
+   - Browser Download
+   - PWA
+   - Android WebView / App
+   - Web Share API
+   - Share to Files / Save to Device
 
    Direction :
    Right → Left
@@ -23,40 +30,10 @@ let html2canvasLoaded = false;
 
 
 /* =====================================================
-   EXPORT STATUS
-===================================================== */
-
-function setExportStatus(
-    text
-){
-
-    const button =
-        document.getElementById(
-            "global-overlay-export"
-        );
-
-
-    if(
-        button
-    ){
-
-        button.textContent =
-            text;
-
-    }
-
-}
-
-
-/* =====================================================
    LOAD HTML2CANVAS
 ===================================================== */
 
 async function loadHtml2Canvas(){
-
-    /* =============================================
-       ALREADY LOADED
-    ============================================= */
 
     if(
 
@@ -73,10 +50,6 @@ async function loadHtml2Canvas(){
     }
 
 
-    /* =============================================
-       EXISTING SCRIPT
-    ============================================= */
-
     return new Promise(
 
         resolve => {
@@ -90,6 +63,10 @@ async function loadHtml2Canvas(){
                 );
 
 
+            /* =========================================
+               EXISTING SCRIPT
+            ========================================= */
+
             if(
 
                 existing
@@ -97,8 +74,7 @@ async function loadHtml2Canvas(){
             ){
 
                 /*
-                 * Jika script sebenarnya sudah selesai
-                 * dimuat sebelum listener dipasang.
+                 * Script sudah selesai dimuat.
                  */
 
                 if(
@@ -221,10 +197,7 @@ async function loadHtml2Canvas(){
 
 
                 /*
-                 * Timeout.
-                 *
-                 * Supaya APK tidak menunggu
-                 * selamanya jika CDN tidak merespons.
+                 * Jangan menunggu selamanya.
                  */
 
                 setTimeout(
@@ -272,9 +245,9 @@ async function loadHtml2Canvas(){
             }
 
 
-            /* =====================================
+            /* =========================================
                CREATE SCRIPT
-            ===================================== */
+            ========================================= */
 
             const script =
 
@@ -377,9 +350,9 @@ async function loadHtml2Canvas(){
             );
 
 
-            /* =====================================
+            /* =========================================
                TIMEOUT
-            ===================================== */
+            ========================================= */
 
             setTimeout(
 
@@ -423,6 +396,378 @@ async function loadHtml2Canvas(){
         }
 
     );
+
+}
+
+
+/* =====================================================
+   CANVAS TO BLOB
+===================================================== */
+
+function canvasToBlob(
+
+    canvas
+
+){
+
+    return new Promise(
+
+        resolve => {
+
+            canvas.toBlob(
+
+                blob => {
+
+                    resolve(
+
+                        blob
+
+                    );
+
+                },
+
+                "image/png"
+
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   CREATE FILE NAME
+===================================================== */
+
+function createExportFileName(){
+
+    const title =
+
+        document
+
+            .getElementById(
+
+                "global-overlay-title"
+
+            )
+
+            ?.textContent
+
+            ||
+
+            "Rincian-Gaji";
+
+
+    const filename =
+
+        title
+
+            .trim()
+
+            .replace(
+
+                /[^a-z0-9]+/gi,
+
+                "-"
+
+            )
+
+            .replace(
+
+                /^-+|-+$/g,
+
+                ""
+
+            )
+
+            .toLowerCase();
+
+
+    return (
+
+        `${
+
+            filename ||
+
+            "rincian-gaji"
+
+        }.png`
+
+    );
+
+}
+
+
+/* =====================================================
+   SHARE PNG
+===================================================== */
+
+async function sharePNG(
+
+    blob,
+
+    filename
+
+){
+
+    /*
+     * Pastikan Web Share tersedia.
+     */
+
+    if(
+
+        typeof navigator.share !==
+
+        "function"
+
+    ){
+
+        return false;
+
+    }
+
+
+    const file =
+
+        new File(
+
+            [
+
+                blob
+
+            ],
+
+            filename,
+
+            {
+
+                type :
+
+                    "image/png"
+
+            }
+
+        );
+
+
+    /*
+     * Tidak semua browser/WebView
+     * mendukung sharing file.
+     */
+
+    if(
+
+        typeof navigator.canShare ===
+
+        "function"
+
+    ){
+
+        let canShareFiles =
+
+            false;
+
+
+        try{
+
+            canShareFiles =
+
+                navigator.canShare({
+
+                    files : [
+
+                        file
+
+                    ]
+
+                });
+
+        }
+
+        catch(error){
+
+            canShareFiles =
+
+                false;
+
+        }
+
+
+        if(
+
+            !canShareFiles
+
+        ){
+
+            return false;
+
+        }
+
+    }
+
+
+    try{
+
+        await navigator.share({
+
+            title :
+
+                "Rincian Gaji",
+
+            text :
+
+                "Rincian gaji Finance Assistant",
+
+            files : [
+
+                file
+
+            ]
+
+        });
+
+
+        return true;
+
+    }
+
+    catch(error){
+
+        /*
+         * Jika user menutup Share Sheet,
+         * jangan dianggap sebagai error fatal.
+         */
+
+        if(
+
+            error?.name ===
+
+            "AbortError"
+
+        ){
+
+            return true;
+
+        }
+
+
+        console.error(
+
+            "Share PNG Error:",
+
+            error
+
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   DOWNLOAD PNG
+===================================================== */
+
+function downloadPNG(
+
+    blob,
+
+    filename
+
+){
+
+    try{
+
+        const url =
+
+            URL.createObjectURL(
+
+                blob
+
+            );
+
+
+        const link =
+
+            document.createElement(
+
+                "a"
+
+            );
+
+
+        link.href =
+
+            url;
+
+
+        link.download =
+
+            filename;
+
+
+        link.style.display =
+
+            "none";
+
+
+        document.body.appendChild(
+
+            link
+
+        );
+
+
+        link.click();
+
+
+        /*
+         * Tunggu sebentar sebelum
+         * menghapus object URL.
+         */
+
+        setTimeout(
+
+            () => {
+
+                link.remove();
+
+                URL.revokeObjectURL(
+
+                    url
+
+                );
+
+            },
+
+            1000
+
+        );
+
+
+        return true;
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Download PNG Error:",
+
+            error
+
+        );
+
+
+        return false;
+
+    }
 
 }
 
@@ -653,19 +998,6 @@ export const Overlay = {
 
                 () => {
 
-                    /*
-                     * Diagnosis:
-                     * memastikan event click
-                     * benar-benar diterima APK.
-                     */
-
-                    setExportStatus(
-
-                        "1. EXPORT DIPANGGIL"
-
-                    );
-
-
                     Overlay.exportPNG();
 
                 }
@@ -846,6 +1178,10 @@ export const Overlay = {
 
                 "Simpan sebagai gambar";
 
+            exportButton.disabled =
+
+                false;
+
         }
 
 
@@ -875,17 +1211,6 @@ export const Overlay = {
 
     async exportPNG(){
 
-        /* =============================================
-           STEP 1
-        ============================================= */
-
-        setExportStatus(
-
-            "1. EXPORT DIPANGGIL"
-
-        );
-
-
         const panel =
 
             document.getElementById(
@@ -895,53 +1220,56 @@ export const Overlay = {
             );
 
 
-        /* =============================================
-           CHECK PANEL
-        ============================================= */
-
         if(
 
             !panel
 
         ){
 
-            setExportStatus(
-
-                "2. PANEL TIDAK DITEMUKAN"
-
-            );
-
             return;
 
         }
 
 
-        setExportStatus(
+        const exportButton =
 
-            "2. PANEL DITEMUKAN"
+            document.getElementById(
 
-        );
+                "global-overlay-export"
+
+            );
+
+
+        /*
+         * Cegah klik berkali-kali ketika
+         * proses export sedang berlangsung.
+         */
+
+        if(
+
+            exportButton
+
+        ){
+
+            exportButton.disabled =
+
+                true;
+
+            exportButton.textContent =
+
+                "Menyiapkan gambar...";
+
+        }
 
 
         /* =============================================
-           LOAD LIBRARY
+           LOAD HTML2CANVAS
         ============================================= */
-
-        setExportStatus(
-
-            "3. MEMUAT HTML2CANVAS..."
-
-        );
-
 
         const ready =
 
             await loadHtml2Canvas();
 
-
-        /* =============================================
-           HTML2CANVAS RESULT
-        ============================================= */
 
         if(
 
@@ -953,22 +1281,26 @@ export const Overlay = {
 
         ){
 
-            setExportStatus(
+            if(
 
-                "3. HTML2CANVAS GAGAL"
+                exportButton
 
-            );
+            ){
+
+                exportButton.disabled =
+
+                    false;
+
+                exportButton.textContent =
+
+                    "Export tidak tersedia";
+
+            }
+
 
             return;
 
         }
-
-
-        setExportStatus(
-
-            "4. HTML2CANVAS SIAP"
-
-        );
 
 
         /* =============================================
@@ -1012,7 +1344,7 @@ export const Overlay = {
            REMOVE EXPORT BUTTON
         ============================================= */
 
-        const exportButton =
+        const clonedExportButton =
 
             clone.querySelector(
 
@@ -1023,11 +1355,11 @@ export const Overlay = {
 
         if(
 
-            exportButton
+            clonedExportButton
 
         ){
 
-            exportButton.remove();
+            clonedExportButton.remove();
 
         }
 
@@ -1167,13 +1499,6 @@ export const Overlay = {
            WAIT FOR LAYOUT
         ============================================= */
 
-        setExportStatus(
-
-            "5. MENYIAPKAN GAMBAR..."
-
-        );
-
-
         await new Promise(
 
             resolve =>
@@ -1198,13 +1523,6 @@ export const Overlay = {
         ============================================= */
 
         try{
-
-            setExportStatus(
-
-                "6. MEMBUAT PNG..."
-
-            );
-
 
             const canvas =
 
@@ -1251,103 +1569,103 @@ export const Overlay = {
                 );
 
 
-            setExportStatus(
+            /* =========================================
+               CANVAS → PNG BLOB
+            ========================================= */
 
-                "7. PNG BERHASIL DIBUAT"
+            const blob =
 
-            );
+                await canvasToBlob(
+
+                    canvas
+
+                );
+
+
+            if(
+
+                !blob
+
+            ){
+
+                throw new Error(
+
+                    "PNG Blob gagal dibuat"
+
+                );
+
+            }
 
 
             /* =========================================
-               DOWNLOAD
+               FILE NAME
             ========================================= */
-
-            const link =
-
-                document.createElement(
-
-                    "a"
-
-                );
-
-
-            const title =
-
-                document
-
-                    .getElementById(
-
-                        "global-overlay-title"
-
-                    )
-
-                    ?.textContent
-
-                    ||
-
-                    "Rincian-Gaji";
-
 
             const filename =
 
-                title
-
-                    .trim()
-
-                    .replace(
-
-                        /[^a-z0-9]+/gi,
-
-                        "-"
-
-                    )
-
-                    .replace(
-
-                        /^-+|-+$/g,
-
-                        ""
-
-                    )
-
-                    .toLowerCase();
+                createExportFileName();
 
 
-            link.download =
+            /* =========================================
+               TRY WEB SHARE
+            ========================================= */
 
-                `${
+            const shared =
 
-                    filename ||
+                await sharePNG(
 
-                    "rincian-gaji"
+                    blob,
 
-                }.png`;
-
-
-            link.href =
-
-                canvas.toDataURL(
-
-                    "image/png"
+                    filename
 
                 );
 
 
-            setExportStatus(
+            if(
 
-                "8. MENYIAPKAN DOWNLOAD..."
+                shared
 
-            );
+            ){
+
+                /*
+                 * Jika Share Sheet berhasil dibuka
+                 * atau user menutup Share Sheet,
+                 * proses selesai.
+                 */
+
+                return;
+
+            }
 
 
-            link.click();
+            /* =========================================
+               FALLBACK DOWNLOAD
+            ========================================= */
+
+            const downloaded =
+
+                downloadPNG(
+
+                    blob,
+
+                    filename
+
+                );
 
 
-            setExportStatus(
+            if(
 
-                "9. DOWNLOAD DIPANGGIL"
+                !downloaded
 
-            );
+            ){
+
+                console.error(
+
+                    "PNG tidak dapat disimpan"
+
+                );
+
+            }
 
         }
 
@@ -1361,15 +1679,7 @@ export const Overlay = {
 
             );
 
-
-            setExportStatus(
-
-                "GAGAL MEMBUAT PNG"
-
-            );
-
         }
-
 
         finally{
 
@@ -1378,6 +1688,27 @@ export const Overlay = {
             ========================================= */
 
             container.remove();
+
+
+            /* =========================================
+               RESTORE BUTTON
+            ========================================= */
+
+            if(
+
+                exportButton
+
+            ){
+
+                exportButton.disabled =
+
+                    false;
+
+                exportButton.textContent =
+
+                    "Simpan sebagai gambar";
+
+            }
 
         }
 
