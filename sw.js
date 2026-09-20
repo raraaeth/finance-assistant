@@ -38,7 +38,7 @@
 
 const CACHE_NAME =
 
-    "finance-assistant-v13";
+    "finance-assistant-v14";
 
 
 /*
