@@ -2,20 +2,23 @@
    Finance Assistant
    Module      : Financial
    File        : debt.js
-   Version     : 1.0.0
+   Version     : 2.0.0
 
    Description :
-   Financial Debt Engine
+   Financial Debt & Lending Engine
 
    Handles :
    - Hutang
    - Bayar hutang
+   - Meminjamkan
+   - Pengembalian pinjaman
    - Outstanding debt
+   - Outstanding lending
 ===================================================== */
 
 
 /* =====================================================
-   DEBT ENGINE
+   DEBT & LENDING ENGINE
 ===================================================== */
 
 export const Debt = {
@@ -27,11 +30,31 @@ export const Debt = {
 
     data : {
 
+        /* =============================================
+           HUTANG
+        ============================================= */
+
         borrowed : 0,
 
         paid : 0,
 
         outstanding : 0,
+
+
+        /* =============================================
+           MEMINJAMKAN
+        ============================================= */
+
+        lent : 0,
+
+        returned : 0,
+
+        outstandingLending : 0,
+
+
+        /* =============================================
+           TRANSACTIONS
+        ============================================= */
 
         transactions : []
 
@@ -51,6 +74,11 @@ export const Debt = {
         let borrowed = 0;
 
         let paid = 0;
+
+
+        let lent = 0;
+
+        let returned = 0;
 
 
         const data = [];
@@ -86,6 +114,10 @@ export const Debt = {
                     .toLowerCase();
 
 
+                /* =====================================
+                   ONLY DEBT TRANSACTIONS
+                ===================================== */
+
                 if(
 
                     type !==
@@ -108,6 +140,10 @@ export const Debt = {
                     );
 
 
+                /* =====================================
+                   HUTANG
+                ===================================== */
+
                 if(
 
                     jenis ===
@@ -120,10 +156,30 @@ export const Debt = {
 
                         nominal;
 
+
+                    data.push({
+
+                        ...item,
+
+                        nominal,
+
+                        debtType :
+
+                            "borrow"
+
+                    });
+
+
+                    return;
+
                 }
 
 
-                else if(
+                /* =====================================
+                   BAYAR HUTANG
+                ===================================== */
+
+                if(
 
                     jenis ===
 
@@ -135,42 +191,66 @@ export const Debt = {
 
                         nominal;
 
-                }
 
+                    data.push({
 
-                else {
+                        ...item,
+
+                        nominal,
+
+                        debtType :
+
+                            "payment"
+
+                    });
+
 
                     return;
 
                 }
 
-
-                data.push({
-
-                    ...item,
-
-                    nominal,
-
-                    debtType :
-
-                        jenis ===
-
-                        "hutang"
-
-                            ?
-
-                            "borrow"
-
-                            :
-
-                            "payment"
-
-                });
-
             }
 
         );
 
+
+        /* =============================================
+           HUTANG OUTSTANDING
+        ============================================= */
+
+        const outstanding =
+
+            Math.max(
+
+                0,
+
+                borrowed -
+
+                paid
+
+            );
+
+
+        /* =============================================
+           MEMINJAMKAN OUTSTANDING
+        ============================================= */
+
+        const outstandingLending =
+
+            Math.max(
+
+                0,
+
+                lent -
+
+                returned
+
+            );
+
+
+        /* =============================================
+           SAVE STATE
+        ============================================= */
 
         Debt.data = {
 
@@ -178,17 +258,15 @@ export const Debt = {
 
             paid,
 
-            outstanding :
+            outstanding,
 
-                Math.max(
 
-                    0,
+            lent,
 
-                    borrowed -
+            returned,
 
-                    paid
+            outstandingLending,
 
-                ),
 
             transactions :
 
