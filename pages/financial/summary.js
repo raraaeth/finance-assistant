@@ -424,6 +424,10 @@ function renderFinancialPosition(){
         saving?.tabunganKaleng;
 
 
+    /* =============================================
+       HUTANG
+    ============================================= */
+
     const debtBalance =
 
         toNumber(
@@ -432,6 +436,23 @@ function renderFinancialPosition(){
 
         );
 
+
+    /* =============================================
+       DIPINJAM
+    ============================================= */
+
+    const lendingBalance =
+
+        toNumber(
+
+            debt?.outstandingLending
+
+        );
+
+
+    /* =============================================
+       SAVING
+    ============================================= */
 
     const danaDaruratBalance =
 
@@ -458,6 +479,8 @@ function renderFinancialPosition(){
     if(
 
         debtBalance <= 0 &&
+
+        lendingBalance <= 0 &&
 
         danaDaruratBalance <= 0 &&
 
@@ -551,6 +574,27 @@ function renderFinancialPosition(){
         card.innerHTML +=
 
             createDebtCard(
+
+                debt
+
+            );
+
+    }
+
+
+    /* =============================================
+       DIPINJAM
+    ============================================= */
+
+    if(
+
+        lendingBalance > 0
+
+    ){
+
+        card.innerHTML +=
+
+            createLendingCard(
 
                 debt
 
@@ -810,6 +854,124 @@ function createDebtCard(
                         shortRupiah(
 
                             debt?.outstanding ?? 0
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+}
+
+/* =====================================================
+   LENDING CARD
+===================================================== */
+
+function createLendingCard(
+
+    debt
+
+){
+
+    return `
+
+        <div class="financial-position-card debt-card">
+
+
+            <div class="financial-position-header">
+
+
+                <span class="financial-position-emoji">
+
+                    💸
+
+                </span>
+
+
+                <strong>
+
+                    Dipinjam
+
+                </strong>
+
+            </div>
+
+
+            <div class="financial-position-row">
+
+                <span>
+
+                    Dipinjamkan
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        shortRupiah(
+
+                            debt?.lent ?? 0
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <div class="financial-position-row">
+
+                <span>
+
+                    Dikembalikan
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        shortRupiah(
+
+                            debt?.returned ?? 0
+
+                        )
+
+                    }
+
+                </strong>
+
+            </div>
+
+
+            <div class="financial-position-row">
+
+                <span>
+
+                    Sisa
+
+                </span>
+
+
+                <strong>
+
+                    ${
+
+                        shortRupiah(
+
+                            debt?.outstandingLending ?? 0
 
                         )
 
