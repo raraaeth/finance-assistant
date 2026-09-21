@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Financial
    File        : debt.js
-   Version     : 2.0.0
+   Version     : 2.1.0
 
    Description :
    Financial Debt & Lending Engine
@@ -10,10 +10,51 @@
    Handles :
    - Hutang
    - Bayar hutang
-   - Meminjamkan
+   - Dipinjamkan
    - Pengembalian pinjaman
    - Outstanding debt
    - Outstanding lending
+
+   Transaction structure :
+
+   jenis = hutang
+   type  = hutang_piutang
+
+       → menambah posisi hutang
+
+
+   jenis = bayar
+   type  = hutang_piutang
+
+       → mengurangi posisi hutang
+
+
+   Keyword dari keterangan digunakan
+   untuk menentukan pasangan transaksi.
+
+
+   Contoh :
+
+   bayar
+   hutang_piutang
+   Dipinjam Dilla
+
+       +
+
+   hutang
+   hutang_piutang
+   Dilla membayar hutang
+
+
+   Keyword :
+
+   dilla
+
+
+   Hasil :
+
+   lent     → uang yang dipinjamkan
+   returned → uang yang dikembalikan
 ===================================================== */
 
 
@@ -42,7 +83,7 @@ export const Debt = {
 
 
         /* =============================================
-           MEMINJAMKAN
+           DIPINJAM
         ============================================= */
 
         lent : 0,
@@ -50,6 +91,13 @@ export const Debt = {
         returned : 0,
 
         outstandingLending : 0,
+
+
+        /* =============================================
+           DETAIL PER KEYWORD
+        ============================================= */
+
+        groups : [],
 
 
         /* =============================================
@@ -71,18 +119,15 @@ export const Debt = {
 
     ){
 
-        let borrowed = 0;
-
-        let paid = 0;
-
-
-        let lent = 0;
-
-        let returned = 0;
-
-
         const data = [];
 
+
+        const groups = {};
+
+
+        /* =============================================
+           READ TRANSACTIONS
+        ============================================= */
 
         transactions.forEach(
 
@@ -115,7 +160,7 @@ export const Debt = {
 
 
                 /* =====================================
-                   ONLY DEBT TRANSACTIONS
+                   HANYA HUTANG PIUTANG
                 ===================================== */
 
                 if(
@@ -123,6 +168,23 @@ export const Debt = {
                     type !==
 
                     "hutang_piutang"
+
+                ){
+
+                    return;
+
+                }
+
+
+                /* =====================================
+                   HANYA HUTANG & BAYAR
+                ===================================== */
+
+                if(
+
+                    jenis !== "hutang" &&
+
+                    jenis !== "bayar"
 
                 ){
 
@@ -140,74 +202,171 @@ export const Debt = {
                     );
 
 
+                if(
+
+                    nominal <= 0
+
+                ){
+
+                    return;
+
+                }
+
+
+                /* =====================================
+                   KEYWORD
+                ===================================== */
+
+                const keyword =
+
+                    extractDebtKeyword(
+
+                        item?.keterangan
+
+                    );
+
+
+                /* =====================================
+                   TANPA KEYWORD
+
+                   Tetap disimpan sebagai transaksi
+                   tetapi tidak bisa dipasangkan
+                   dengan transaksi lain.
+                ===================================== */
+
+                if(
+
+                    !keyword
+
+                ){
+
+                    data.push({
+
+                        ...item,
+
+                        nominal,
+
+                        debtType :
+
+                            jenis === "hutang"
+
+                                ?
+
+                                "borrow"
+
+                                :
+
+                                "payment",
+
+                        keyword :
+
+                            ""
+
+                    });
+
+                    return;
+
+                }
+
+
+                /* =====================================
+                   CREATE GROUP
+                ===================================== */
+
+                if(
+
+                    !groups[keyword]
+
+                ){
+
+                    groups[keyword] = {
+
+                        keyword,
+
+                        borrowed : 0,
+
+                        paid : 0,
+
+                        transactions : []
+
+                    };
+
+                }
+
+
                 /* =====================================
                    HUTANG
                 ===================================== */
 
                 if(
 
-                    jenis ===
-
-                    "hutang"
+                    jenis === "hutang"
 
                 ){
 
-                    borrowed +=
+                    groups[keyword].borrowed +=
 
                         nominal;
-
-
-                    data.push({
-
-                        ...item,
-
-                        nominal,
-
-                        debtType :
-
-                            "borrow"
-
-                    });
-
-
-                    return;
 
                 }
 
 
                 /* =====================================
-                   BAYAR HUTANG
+                   BAYAR
                 ===================================== */
 
-                if(
+                else if(
 
-                    jenis ===
-
-                    "bayar"
+                    jenis === "bayar"
 
                 ){
 
-                    paid +=
+                    groups[keyword].paid +=
 
                         nominal;
 
-
-                    data.push({
-
-                        ...item,
-
-                        nominal,
-
-                        debtType :
-
-                            "payment"
-
-                    });
-
-
-                    return;
-
                 }
+
+
+                /* =====================================
+                   SAVE TRANSACTION
+                ===================================== */
+
+                const transaction = {
+
+                    ...item,
+
+                    nominal,
+
+                    debtType :
+
+                        jenis === "hutang"
+
+                            ?
+
+                            "borrow"
+
+                            :
+
+                            "payment",
+
+                    keyword
+
+                };
+
+
+                groups[keyword].transactions.push(
+
+                    transaction
+
+                );
+
+
+                data.push(
+
+                    transaction
+
+                );
 
             }
 
@@ -215,37 +374,210 @@ export const Debt = {
 
 
         /* =============================================
-           HUTANG OUTSTANDING
+           FINAL TOTAL
         ============================================= */
 
-        const outstanding =
+        let borrowed = 0;
 
-            Math.max(
+        let paid = 0;
 
-                0,
+        let outstanding = 0;
 
-                borrowed -
 
-                paid
+        let lent = 0;
 
-            );
+        let returned = 0;
+
+        let outstandingLending = 0;
+
+
+        const groupList = [];
 
 
         /* =============================================
-           MEMINJAMKAN OUTSTANDING
+           PROCESS EACH KEYWORD
         ============================================= */
 
-        const outstandingLending =
+        Object.values(
 
-            Math.max(
+            groups
 
-                0,
+        ).forEach(
 
-                lent -
+            group => {
 
-                returned
+                const net =
 
-            );
+                    group.borrowed -
+
+                    group.paid;
+
+
+                /* =====================================
+                   HUTANG
+
+                   net > 0
+
+                   Contoh :
+
+                   hutang 1.000.000
+                   bayar    400.000
+
+                   net = 600.000
+                ===================================== */
+
+                if(
+
+                    net > 0
+
+                ){
+
+                    borrowed +=
+
+                        group.borrowed;
+
+
+                    paid +=
+
+                        group.paid;
+
+
+                    outstanding +=
+
+                        net;
+
+
+                    group.position =
+
+                        "debt";
+
+
+                    group.outstanding =
+
+                        net;
+
+                }
+
+
+                /* =====================================
+                   DIPINJAM
+
+                   net < 0
+
+                   Contoh :
+
+                   bayar  1.000.000
+                   hutang   400.000
+
+                   net = -600.000
+                ===================================== */
+
+                else if(
+
+                    net < 0
+
+                ){
+
+                    lent +=
+
+                        group.paid;
+
+
+                    returned +=
+
+                        group.borrowed;
+
+
+                    outstandingLending +=
+
+                        Math.abs(
+
+                            net
+
+                        );
+
+
+                    group.position =
+
+                        "lending";
+
+
+                    group.outstanding =
+
+                        Math.abs(
+
+                            net
+
+                        );
+
+                }
+
+
+                /* =====================================
+                   SELESAI / NET 0
+
+                   Tidak mempunyai posisi aktif.
+                ===================================== */
+
+                else {
+
+                    group.position =
+
+                        "settled";
+
+
+                    group.outstanding =
+
+                        0;
+
+                }
+
+
+                /* =====================================
+                   GROUP RESULT
+                ===================================== */
+
+                groupList.push({
+
+                    keyword :
+
+                        group.keyword,
+
+
+                    borrowed :
+
+                        group.borrowed,
+
+
+                    paid :
+
+                        group.paid,
+
+
+                    net :
+
+                        net,
+
+
+                    position :
+
+                        group.position,
+
+
+                    outstanding :
+
+                        group.outstanding,
+
+
+                    transactions :
+
+                        group.transactions
+
+                });
+
+            }
+
+        );
 
 
         /* =============================================
@@ -268,6 +600,11 @@ export const Debt = {
             outstandingLending,
 
 
+            groups :
+
+                groupList,
+
+
             transactions :
 
                 data
@@ -280,6 +617,183 @@ export const Debt = {
     }
 
 };
+
+
+/* =====================================================
+   EXTRACT DEBT KEYWORD
+===================================================== */
+
+function extractDebtKeyword(
+
+    value
+
+){
+
+    if(
+
+        !value
+
+    ){
+
+        return "";
+
+    }
+
+
+    let text =
+
+        String(
+
+            value
+
+        )
+
+        .trim()
+
+        .toLowerCase();
+
+
+    if(
+
+        !text
+
+    ){
+
+        return "";
+
+    }
+
+
+    /* =============================================
+       NORMALIZE SEPARATORS
+    ============================================= */
+
+    text =
+
+        text
+
+            .replace(
+
+                /[.,!?;:()[\]{}]/g,
+
+                " "
+
+            )
+
+            .replace(
+
+                /\s+/g,
+
+                " "
+
+            )
+
+            .trim();
+
+
+    /* =============================================
+       REMOVE COMMON DEBT WORDS
+
+       Contoh :
+
+       "Dipinjam Dilla"
+
+       menjadi :
+
+       "dilla"
+
+
+       "Dilla membayar hutang"
+
+       menjadi :
+
+       "dilla"
+    ============================================= */
+
+    const stopWords = [
+
+        "dipinjam",
+
+        "pinjam",
+
+        "meminjam",
+
+        "minjam",
+
+        "dari",
+
+        "kepada",
+
+        "untuk",
+
+        "membayar",
+
+        "bayar",
+
+        "dibayar",
+
+        "membayarkan",
+
+        "hutang",
+
+        "utang",
+
+        "nyaur",
+
+        "kembali",
+
+        "dikembalikan",
+
+        "pengembalian"
+
+    ];
+
+
+    const words =
+
+        text
+
+            .split(
+
+                " "
+
+            )
+
+            .filter(
+
+                word =>
+
+                    word &&
+
+                    !stopWords.includes(
+
+                        word
+
+                    )
+
+            );
+
+
+    /* =============================================
+       RESULT
+
+       Contoh :
+
+       "Dipinjam Dilla"
+       → "dilla"
+
+
+       "Dilla membayar hutang"
+       → "dilla"
+    ============================================= */
+
+    return words.join(
+
+        " "
+
+    ).trim();
+
+}
 
 
 /* =====================================================
