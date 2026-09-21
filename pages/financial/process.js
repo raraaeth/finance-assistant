@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Financial
    File        : process.js
-   Version     : 1.1.2
+   Version     : 1.2.0
 
    Description :
    Financial Processing Engine
@@ -15,7 +15,7 @@
           ↓
    Apply Rules
           ↓
-   Debt Engine
+   Debt & Lending Engine
           ↓
    Saving Engine
           ↓
@@ -228,7 +228,7 @@ export const Process = {
 
 
         /* =============================================
-           DEBT
+           DEBT & LENDING
         ============================================= */
 
         Process.debt =
@@ -688,7 +688,7 @@ function getCashflowCategory(
 
 
 /* =====================================================
-   DEBT ACTION
+   DEBT & LENDING ACTION
 ===================================================== */
 
 function getDebtAction(
@@ -731,6 +731,10 @@ function getDebtAction(
     }
 
 
+    /* =============================================
+       HUTANG
+    ============================================= */
+
     if(
 
         jenis === "hutang" &&
@@ -743,6 +747,10 @@ function getDebtAction(
 
     }
 
+
+    /* =============================================
+       BAYAR HUTANG
+    ============================================= */
 
     if(
 
@@ -1248,7 +1256,7 @@ function parseLocalDate(
 
         )
 
-    ){
+        ){
 
         return null;
 
