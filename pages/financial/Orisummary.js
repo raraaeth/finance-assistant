@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : Financial
    File        : summary.js
-   Version     : 1.2.0
+   Version     : 1.3.0
 
    Description :
    Financial Summary Controller
@@ -13,12 +13,17 @@
    - Init
    - Overview
    - Financial Position
+   - Saving Card
+   - Debt Card
    - Distribution
+   - Distribution Donut
    - Distribution List
-   - Summary Detail
-   - Detail Result
+   - Distribution Bar
+   - Financial Analysis
    - Calculate Overview
-   - Helper
+   - Date
+   - Number
+   - Escape HTML
 ===================================================== */
 
 
@@ -42,16 +47,9 @@ import {
 
 import {
 
-    SummaryDetail
+    Analisa
 
-} from "./detail.js";
-
-
-import {
-
-    Filter
-
-} from "../../js/filter.js";
+} from "./analisa.js";
 
 
 import {
@@ -131,15 +129,31 @@ Summary.init = function(
         );
 
 
+    /* =============================================
+       SUMMARY SECTIONS
+    ============================================= */
+
     renderOverview();
 
     renderFinancialPosition();
 
     renderDistribution();
 
-    SummaryDetail.init();
 
-    renderSummaryDetail();
+    /* =============================================
+       FINANCIAL ANALYSIS
+
+       Analisa membaca Process.data /
+       data hasil Process.init().
+
+       Tidak mengubah data transaksi.
+    ============================================= */
+
+    Analisa.init(
+
+        Summary.data
+
+    );
 
 
     return Summary;
@@ -1502,903 +1516,32 @@ function createDistributionBar(
 
 
 /* =====================================================
-   SUMMARY DETAIL
+   FINANCIAL ANALYSIS
 ===================================================== */
 
-function renderSummaryDetail(){
-
-    const section =
-
-        document.getElementById(
-
-            "summary-financial-detail"
-
-        );
-
-
-    const list =
-
-        document.getElementById(
-
-            "summary-financial-detail-list"
-
-        );
-
-
-    const pagination =
-
-        document.getElementById(
-
-            "summary-financial-detail-pagination"
-
-        );
-
-
-    if(
-
-        !section
-
-    ){
-
-        return;
-
-    }
-
-
-    /* =============================================
-       OPEN FINANCIAL DETAIL
-    ============================================= */
-
-    section.classList.remove(
-
-        "hidden"
-
-    );
-
-
-    /* =============================================
-       VALIDATE RESULT ELEMENTS
-    ============================================= */
-
-    if(
-
-        !list ||
-
-        !pagination
-
-    ){
-
-        console.warn(
-
-            "Summary Detail: element hasil belum lengkap."
-
-        );
-
-        return;
-
-    }
-
-
-    /* =============================================
-       FILTER DATA
-    ============================================= */
-
-    const months =
-
-        SummaryDetail.getMonths();
-
-
-    const jenisOptions =
-
-        SummaryDetail.getJenis();
-
-
-    const currentMonth =
-
-        getCurrentMonthValue(
-
-            months
-
-        );
-
-
-    const defaultJenis =
-
-        jenisOptions[0] ??
-
-        "";
-
-
-    const defaultCategories =
-
-        SummaryDetail.getCategories(
-
-            defaultJenis
-
-        );
-
-
-    const defaultCategory =
-
-        defaultCategories[0] ??
-
-        "";
-
-
-    /* =============================================
-       GLOBAL FILTER
-    ============================================= */
-
-    const filterContainer =
-
-        getDetailFilterContainer(
-
-            section
-
-        );
-
-
-    if(
-
-        !filterContainer
-
-    ){
-
-        console.warn(
-
-            "Summary Detail: container filter global tidak ditemukan."
-
-        );
-
-        return;
-
-    }
-
-
-    Filter.renderDetail({
-
-        container :
-
-            "#" +
-
-            filterContainer.id,
-
-
-        months :
-
-            months,
-
-
-        jenis :
-
-            jenisOptions,
-
-
-        categories :
-
-            defaultCategories,
-
-
-        value : {
-
-            month :
-
-                currentMonth,
-
-            jenis :
-
-                defaultJenis,
-
-            category :
-
-                defaultCategory
-
-        },
-
-
-        /* =========================================
-           JENIS BERUBAH
-        ========================================== */
-
-        onJenisChange :
-
-            jenis => {
-
-                return SummaryDetail.getCategories(
-
-                    jenis
-
-                );
-
-            },
-
-
-        /* =========================================
-           FILTER BERUBAH
-        ========================================== */
-
-        onChange :
-
-            filters => {
-
-                applyDetailFilter(
-
-                    filters
-
-                );
-
-            }
-
-    });
-
-
-    /* =============================================
-       INITIAL FILTER
-    ============================================= */
-
-    applyDetailFilter({
-
-        month :
-
-            currentMonth,
-
-        jenis :
-
-            defaultJenis,
-
-        category :
-
-            defaultCategory
-
-    });
-
-
-    /* =============================================
-       PAGINATION EVENT
-    ============================================= */
-
-    pagination.onclick =
-
-        event => {
-
-            const button =
-
-                event.target.closest(
-
-                    "[data-detail-page]"
-
-                );
-
-
-            if(
-
-                !button
-
-            ){
-
-                return;
-
-            }
-
-
-            const action =
-
-                button.dataset.detailPage;
-
-
-            if(
-
-                action ===
-
-                "previous"
-
-            ){
-
-                SummaryDetail.previous();
-
-            }
-
-
-            else if(
-
-                action ===
-
-                "next"
-
-            ){
-
-                SummaryDetail.next();
-
-            }
-
-
-            renderDetailResult();
-
-        };
-
-}
-
-
-/* =====================================================
-   DETAIL FILTER CONTAINER
-===================================================== */
-
-function getDetailFilterContainer(
-
-    section
-
-){
-
-    /* =============================================
-       PRIORITAS 1
-
-       Container khusus dari HTML.
-    ============================================= */
-
-    let container =
-
-        document.getElementById(
-
-            "summary-financial-detail-filter"
-
-        );
-
-
-    if(
-
-        container
-
-    ){
-
-        return container;
-
-    }
-
-
-    /* =============================================
-       PRIORITAS 2
-
-       Class khusus.
-    ============================================= */
-
-    container =
-
-        section.querySelector(
-
-            ".summary-financial-detail-filter"
-
-        );
-
-
-    if(
-
-        container
-
-    ){
-
-        if(
-
-            !container.id
-
-        ){
-
-            container.id =
-
-                "summary-financial-detail-filter";
-
-        }
-
-        return container;
-
-    }
-
-
-    /* =============================================
-       PRIORITAS 3
-
-       Compatibility dengan HTML filter lama.
-
-       Kalau HTML lama masih memiliki:
-
-       #summary-financial-detail-month
-
-       maka kita cari parent terdekatnya
-       dan menggunakan parent tersebut sebagai
-       container global filter.
-    ============================================= */
-
-    const oldMonth =
-
-        document.getElementById(
-
-            "summary-financial-detail-month"
-
-        );
-
-
-    if(
-
-        oldMonth
-
-    ){
-
-        container =
-
-            oldMonth.parentElement;
-
-
-        if(
-
-            container
-
-        ){
-
-            container.id =
-
-                "summary-financial-detail-filter";
-
-
-            return container;
-
-        }
-
-    }
-
-
-    return null;
-
-}
-
-
-/* =====================================================
-   APPLY DETAIL FILTER
-===================================================== */
-
-function applyDetailFilter(
-
-    filters = {}
-
-){
-
-    SummaryDetail.setFilter({
-
-        month :
-
-            filters.month ??
-
-            "",
-
-        jenis :
-
-            filters.jenis ??
-
-            "",
-
-        category :
-
-            filters.category ??
-
-            ""
-
-    });
-
-
-    renderDetailResult();
-
-}
-
-
-/* =====================================================
-   DETAIL RESULT
-===================================================== */
-
-function renderDetailResult(){
-
-    const list =
-
-        document.getElementById(
-
-            "summary-financial-detail-list"
-
-        );
-
-
-    const pagination =
-
-        document.getElementById(
-
-            "summary-financial-detail-pagination"
-
-        );
-
-
-    if(
-
-        !list ||
-
-        !pagination
-
-    ){
-
-        return;
-
-    }
-
-
-    const result =
-
-        SummaryDetail.getResult();
-
-
-    /* =============================================
-       EMPTY
-    ============================================= */
-
-    if(
-
-        !result.items.length
-
-    ){
-
-        list.innerHTML = `
-
-            <div class="summary-detail-empty">
-
-                Belum ada data.
-
-            </div>
-
-        `;
-
-    }
-
-
-    else{
-
-        list.innerHTML =
-
-            result.items
-
-                .map(
-
-                    createDetailGroup
-
-                )
-
-                .join("");
-
-    }
-
-
-    /* =============================================
-       PAGINATION
-    ============================================= */
-
-    pagination.innerHTML = `
-
-        <button
-
-            type="button"
-
-            data-detail-page="previous"
-
-            ${
-
-                result.hasPrevious
-
-                    ?
-
-                    ""
-
-                    :
-
-                    "disabled"
-
-            }
-
-        >
-
-            ← Back
-
-        </button>
-
-
-        <span>
-
-            ${result.page}
-
-            /
-
-            ${result.totalPages}
-
-        </span>
-
-
-        <button
-
-            type="button"
-
-            data-detail-page="next"
-
-            ${
-
-                result.hasNext
-
-                    ?
-
-                    ""
-
-                    :
-
-                    "disabled"
-
-            }
-
-        >
-
-            Next →
-
-        </button>
-
-    `;
-
-}
-
-
-/* =====================================================
-   DETAIL GROUP
-===================================================== */
-
-function createDetailGroup(
-
-    group
-
-){
-
-    return `
-
-        <article class="summary-detail-item">
-
-
-            <div class="summary-detail-info">
-
-                <strong>
-
-                    ${escapeHTML(
-
-                        formatDetailText(
-
-                            group.keyword
-
-                        )
-
-                    )}
-
-                </strong>
-
-
-                <small>
-
-                    ${group.count}
-
-                    transaksi
-
-                </small>
-
-            </div>
-
-
-            <strong class="summary-detail-amount">
-
-                ${formatDetailAmount(
-
-                    group.total
-
-                )}
-
-            </strong>
-
-
-        </article>
-
-    `;
-
-}
-
-
-/* =====================================================
-   CURRENT MONTH
-===================================================== */
-
-function getCurrentMonthValue(
-
-    months
-
-){
-
-    const now =
-
-        new Date();
-
-
-    const value =
-
-        [
-
-            now.getFullYear(),
-
-            String(
-
-                now.getMonth() + 1
-
-            ).padStart(
-
-                2,
-
-                "0"
-
-            )
-
-        ].join("-");
-
-
-    return months.includes(
-
-        value
-
-    )
-
-        ?
-
-        value
-
-        :
-
-        months[0] ?? "";
-
-}
-
-
-/* =====================================================
-   FORMAT TEXT
-===================================================== */
-
-function formatDetailText(
-
-    value
-
-){
-
-    if(
-
-        !value
-
-    ){
-
-        return "-";
-
-    }
-
-
-    return String(value)
-
-        .replace(
-
-            /_/g,
-
-            " "
-
-        )
-
-        .replace(
-
-            /\b\w/g,
-
-            letter =>
-
-                letter.toUpperCase()
-
-        );
-
-}
-
-
-/* =====================================================
-   FORMAT AMOUNT
-===================================================== */
-
-function formatDetailAmount(
-
-    value
-
-){
-
-    return new Intl.NumberFormat(
-
-        "id-ID",
-
-        {
-
-            style :
-
-                "currency",
-
-            currency :
-
-                "IDR",
-
-            maximumFractionDigits :
-
-                0
-
-        }
-
-    ).format(
-
-        Number(value) || 0
-
-    );
-
-}
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(
-
-    value
-
-){
-
-    return String(
-
-        value ?? ""
-
-    )
-
-        .replace(
-
-            /&/g,
-
-            "&amp;"
-
-        )
-
-        .replace(
-
-            /</g,
-
-            "&lt;"
-
-        )
-
-        .replace(
-
-            />/g,
-
-            "&gt;"
-
-        )
-
-        .replace(
-
-            /"/g,
-
-            "&quot;"
-
-        )
-
-        .replace(
-
-            /'/g,
-
-            "&#039;"
-
-        );
-
-}
+/*
+   Financial Analysis sekarang ditangani oleh:
+
+       ./analisa.js
+
+   Summary hanya meneruskan data hasil Process
+   ke Analisa.
+
+   HTML yang digunakan Analisa:
+
+       #summary-financial-analysis
+       #summary-financial-analysis-card
+       #financial-analysis-search-input
+       #financial-analysis-chart
+       #financial-analysis-trending-list
+       #financial-analysis-result-info
+       #financial-analysis-result-list
+       #financial-analysis-empty
+       #financial-analysis-period-select
+
+   Tidak ada logic Analisa yang ditempatkan
+   di Summary agar controller tetap sederhana.
+*/
 
 
 /* =====================================================
@@ -2733,5 +1876,64 @@ function toNumber(
         :
 
         0;
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+
+    value
+
+){
+
+    return String(
+
+        value ?? ""
+
+    )
+
+        .replace(
+
+            /&/g,
+
+            "&amp;"
+
+        )
+
+        .replace(
+
+            /</g,
+
+            "&lt;"
+
+        )
+
+        .replace(
+
+            />/g,
+
+            "&gt;"
+
+        )
+
+        .replace(
+
+            /"/g,
+
+            "&quot;"
+
+        )
+
+        .replace(
+
+            /'/g,
+
+            "&#039;"
+
+        );
 
 }
