@@ -18,7 +18,7 @@
    - Date lock
    - Confirm
    - AppScript / Write Engine
-   - Loading
+   - Confirm button state
    - Double-submit protection
 
    PRINCIPLE :
@@ -96,6 +96,8 @@
            transactions: [...]
        }
             ↓
+       button "Menyimpan..."
+            ↓
        saveInput()
             ↓
        Write Engine
@@ -106,9 +108,6 @@
 
    Semua transaction dikirim
    dalam SATU request.
-
-   Loading aktif selama seluruh proses
-   penyimpanan berlangsung.
 
    Double protection :
 
@@ -179,17 +178,6 @@ import {
     saveInput
 
 } from "../../js/write.js";
-
-
-/* =====================================================
-   LOADING
-===================================================== */
-
-import {
-
-    Loading
-
-} from "../loading/script.js";
 
 
 /* =====================================================
@@ -1703,6 +1691,7 @@ export function renderTransactionList(){
 
     bindListActions();
 
+
 }
 
 
@@ -2109,7 +2098,7 @@ function bindConfirmButton(){
           ↓
        lock
           ↓
-       Loading.show()
+       button → "Menyimpan..."
           ↓
        snapshot transactions
           ↓
@@ -2241,6 +2230,10 @@ async function confirmTransactions(){
 
         button.disabled = true;
 
+        button.textContent =
+
+            "Menyimpan...";
+
         button.setAttribute(
 
             "aria-disabled",
@@ -2261,55 +2254,6 @@ async function confirmTransactions(){
 
 
     try{
-
-        /* =========================================
-           LOADING
-        ========================================= */
-
-        await Loading.show();
-
-
-        /*
-           Beri browser kesempatan untuk
-           menggambar Loading terlebih dahulu.
-        */
-
-        await new Promise(
-
-            resolve => {
-
-                if(
-
-                    typeof requestAnimationFrame ===
-
-                        "function"
-
-                ){
-
-                    requestAnimationFrame(
-
-                        () => resolve()
-
-                    );
-
-                }
-
-                else{
-
-                    setTimeout(
-
-                        resolve,
-
-                        0
-
-                    );
-
-                }
-
-            }
-
-        );
-
 
         /* =========================================
            SNAPSHOT TRANSACTIONS
@@ -2681,33 +2625,6 @@ async function confirmTransactions(){
     finally{
 
         /* =========================================
-           HIDE LOADING
-        ========================================= */
-
-        try{
-
-            await Loading.hide();
-
-        }
-
-        catch(
-
-            loadingError
-
-        ){
-
-            console.warn(
-
-                "Loading hide gagal:",
-
-                loadingError
-
-            );
-
-        }
-
-
-        /* =========================================
            UNLOCK CONFIRM
         ========================================= */
 
@@ -2721,6 +2638,10 @@ async function confirmTransactions(){
         ){
 
             button.disabled = false;
+
+            button.textContent =
+
+                "Konfirmasi";
 
             button.removeAttribute(
 
