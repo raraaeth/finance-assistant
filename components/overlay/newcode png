@@ -1,0 +1,120 @@
+/* =============================================
+   CREATE PNG DATA
+============================================= */
+
+const pngData =
+    canvas.toDataURL(
+        "image/png"
+    );
+
+
+/* =============================================
+   FILE NAME
+============================================= */
+
+const title =
+    document
+        .getElementById(
+            "global-overlay-title"
+        )
+        ?.textContent
+        ||
+        "Rincian-Gaji";
+
+
+const filename =
+    title
+        .trim()
+        .replace(
+            /[^a-z0-9]+/gi,
+            "-"
+        )
+        .replace(
+            /^-+|-+$/g,
+            ""
+        )
+        .toLowerCase()
+        ||
+        "rincian-gaji";
+
+
+/* =============================================
+   ANDROID APP EXPORT
+============================================= */
+
+if(
+
+    window.AndroidExport &&
+
+    typeof window.AndroidExport.startPngExport ===
+        "function"
+
+){
+
+    const base64 =
+        pngData.split(
+            "base64,"
+        )[1];
+
+
+    window.AndroidExport.startPngExport(
+        `${filename}.png`
+    );
+
+
+    /* =========================================
+       SEND PNG IN CHUNKS
+    ========================================= */
+
+    const chunkSize =
+        64 * 1024;
+
+
+    for(
+
+        let i = 0;
+
+        i < base64.length;
+
+        i += chunkSize
+
+    ){
+
+        window.AndroidExport.appendPngChunk(
+
+            base64.substring(
+                i,
+                i + chunkSize
+            )
+
+        );
+
+    }
+
+
+    window.AndroidExport.finishPngExport();
+
+
+/* =============================================
+   NORMAL WEB / PWA EXPORT
+============================================= */
+
+} else {
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.download =
+        `${filename}.png`;
+
+
+    link.href =
+        pngData;
+
+
+    link.click();
+
+}
