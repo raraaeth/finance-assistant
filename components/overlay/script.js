@@ -365,19 +365,25 @@ export const Overlay = {
             );
 
 
-        if(exportButton){
+        if(
 
-    exportButton.addEventListener(
-        "click",
-        () => {
+            exportButton
 
-         
-            Overlay.exportPNG();
+        ){
+
+            exportButton.addEventListener(
+
+                "click",
+
+                () => {
+
+                    Overlay.exportPNG();
+
+                }
+
+            );
 
         }
-    );
-
-}
 
 
         /* =============================================
@@ -871,17 +877,21 @@ export const Overlay = {
 
 
             /* =========================================
-               DOWNLOAD
+               CREATE PNG DATA
             ========================================= */
 
-            const link =
+            const pngData =
 
-                document.createElement(
+                canvas.toDataURL(
 
-                    "a"
+                    "image/png"
 
                 );
 
+
+            /* =========================================
+               FILE NAME
+            ========================================= */
 
             const title =
 
@@ -925,7 +935,7 @@ export const Overlay = {
                     .toLowerCase();
 
 
-            link.download =
+            const finalFilename =
 
                 `${
 
@@ -936,16 +946,213 @@ export const Overlay = {
                 }.png`;
 
 
-            link.href =
+            /* =========================================
+               ANDROID APP EXPORT
+               
+               Hanya aktif ketika halaman berjalan
+               di Android WebView yang memiliki
+               AndroidExport bridge.
+            ========================================= */
 
-                canvas.toDataURL(
+            if(
 
-                    "image/png"
+                window.AndroidExport
 
-                );
+                &&
+
+                typeof window.AndroidExport.startPngExport ===
+
+                    "function"
+
+                &&
+
+                typeof window.AndroidExport.appendPngChunk ===
+
+                    "function"
+
+                &&
+
+                typeof window.AndroidExport.finishPngExport ===
+
+                    "function"
+
+            ){
+
+                try{
+
+                    /* =================================
+                       AMBIL BASE64
+                    ================================= */
+
+                    const base64 =
+
+                        pngData.split(
+
+                            "base64,"
+
+                        )[1];
 
 
-            link.click();
+                    if(
+
+                        !base64
+
+                    ){
+
+                        throw new Error(
+
+                            "Data PNG tidak valid"
+
+                        );
+
+                    }
+
+
+                    /* =================================
+                       MULAI EXPORT ANDROID
+                    ================================= */
+
+                    window.AndroidExport.startPngExport(
+
+                        finalFilename
+
+                    );
+
+
+                    /* =================================
+                       KIRIM DALAM CHUNK
+                       
+                       Jangan mengirim Base64
+                       sekaligus karena ukuran PNG
+                       bisa besar.
+                    ================================= */
+
+                    const chunkSize =
+
+                        64 * 1024;
+
+
+                    for(
+
+                        let i = 0;
+
+                        i < base64.length;
+
+                        i += chunkSize
+
+                    ){
+
+                        window.AndroidExport.appendPngChunk(
+
+                            base64.substring(
+
+                                i,
+
+                                i + chunkSize
+
+                            )
+
+                        );
+
+                    }
+
+
+                    /* =================================
+                       SELESAI
+                    ================================= */
+
+                    window.AndroidExport.finishPngExport();
+
+                }
+
+                catch(androidError){
+
+                    console.error(
+
+                        "Android PNG Export Error:",
+
+                        androidError
+
+                    );
+
+
+                    /* ================================
+                       BATalkan BUFFER ANDROID
+                    ================================= */
+
+                    if(
+
+                        typeof window.AndroidExport.cancelPngExport ===
+
+                            "function"
+
+                    ){
+
+                        try{
+
+                            window.AndroidExport.cancelPngExport();
+
+                        }
+
+                        catch(cancelError){
+
+                            console.error(
+
+                                "Android PNG Cancel Error:",
+
+                                cancelError
+
+                            );
+
+                        }
+
+                    }
+
+
+                    alert(
+
+                        "Gagal menyimpan PNG di Android."
+
+                    );
+
+                }
+
+            }
+
+
+            /* =========================================
+               PWA / BROWSER EXPORT
+               
+               BAGIAN INI TETAP SEPERTI SEBELUMNYA.
+               
+               Hanya dijalankan jika AndroidExport
+               tidak tersedia.
+            ========================================= */
+
+            else{
+
+                const link =
+
+                    document.createElement(
+
+                        "a"
+
+                    );
+
+
+                link.download =
+
+                    finalFilename;
+
+
+                link.href =
+
+                    pngData;
+
+
+                link.click();
+
+            }
 
         }
 
