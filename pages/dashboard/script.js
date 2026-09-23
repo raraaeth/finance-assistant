@@ -389,6 +389,10 @@ function createFooter(){
                         Contact dan Feedback
                     </a>
 
+                    <a href="/sitemap/">
+                        Sitemap
+                    </a>
+
                     <a href="/privacy/">
                         Privacy Policy
                     </a>
