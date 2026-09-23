@@ -65,6 +65,11 @@ if (footer) {
         <a href="/contact/">
           Contact & Feedback
         </a>
+        <span>*</span>
+
+        <a href="/sitemap/">
+          Sitemap
+        </a>
 
       </nav>
 
