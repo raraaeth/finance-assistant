@@ -318,7 +318,7 @@ const artikel09 = {
 
         <p>
             Itulah alasan saya membuat bagian <strong>Analisa Financial</strong>
-            di Finance Assistant.
+            di <a href="/docs/financial">Finance Assistant</a>..
         </p>
 
         <p>
