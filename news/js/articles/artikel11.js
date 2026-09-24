@@ -1,3 +1,14 @@
+/* =====================================================
+   FINANCE ASSISTANT
+   NEWS & UPDATE
+
+   File    : /news/js/articles/artikel11.js
+   Version : 1.0.0
+
+   Description :
+   Artikel News #11
+===================================================== */
+
 const artikel11 = {
 
     slug: "cara-ikutan-event-airdrop",
