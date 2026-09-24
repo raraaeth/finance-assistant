@@ -393,7 +393,9 @@ const artikel12 = {
         </p>
 
         <p>
-            Dan menurut saya, di situlah pencatatan keuangan
+            Dan menurut saya, di situlah  <a href="/news/apa-itu-finance-assistant">
+                pencatatan keuangan
+            </a> 
             mulai menjadi lebih berguna.
         </p>
 
@@ -486,7 +488,9 @@ const artikel12 = {
 
         <p>
             Mungkin itulah salah satu alasan kenapa
-            perencanaan keuangan dan kebiasaan mencatat
+             <a href="/docs/financial">
+                perencanaan keuangan
+            </a> dan kebiasaan mencatat
             pengeluaran menjadi penting.
         </p>
 
