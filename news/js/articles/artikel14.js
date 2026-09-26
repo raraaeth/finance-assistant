@@ -1,3 +1,11 @@
+/* =====================================================
+   FINANCE ASSISTANT
+   NEWS & UPDATE
+
+   Article : 14
+   File    : artikel14.js
+===================================================== */
+
 const artikel14 = {
 
     slug: "seberapa-penting-penghasilan-tambahan-bagi-keluarga",
