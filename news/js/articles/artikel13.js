@@ -1,3 +1,12 @@
+/* =====================================================
+   FINANCE ASSISTANT
+   NEWS & UPDATE
+
+   Article : 13
+   File    : artikel13.js
+===================================================== */
+
+
 const artikel13 = {
 
     slug: "dana-darurat-sesuai-kondisi-keuangan",
@@ -896,7 +905,10 @@ const artikel13 = {
         <p>
             Tujuannya adalah memiliki sedikit ruang ketika
             sesuatu yang tidak kita rencanakan terjadi,
-            sehingga kita tidak langsung harus berhutang
+            sehingga kita tidak langsung
+            <a href="/news/perlukah-kita-berhutang">
+                harus berhutang
+            </a>
             hanya karena membutuhkan uang.
         </p>
 
