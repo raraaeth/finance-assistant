@@ -37,8 +37,8 @@ if (footer) {
 
         <span>*</span>
         
-        <a href="/docs/">
-          User Guide
+        <a href="/news/">
+          News and Update
         </a>
 
         <span>*</span>
