@@ -8,9 +8,9 @@
 
 const artikel14 = {
 
-    slug: "seberapa-penting-penghasilan-tambahan-bagi-keluarga",
+    slug: "seberapa-penting-punya-penghasilan-tambahan",
 
-    title: "Seberapa Penting Penghasilan Tambahan bagi Keluarga?",
+    title: "Seberapa Penting Penghasilan Tambahan Bagi Yang Sudah Berkeluarga?",
 
     date: "2026-09-26",
 
@@ -20,7 +20,7 @@ const artikel14 = {
     seo: {
 
         title:
-            "Seberapa Penting Penghasilan Tambahan bagi Keluarga? | Finance Assistant",
+            "Seberapa Penting Penghasilan Tambahan Bagi Yang Sudah Berkeluarga? | Finance Assistant",
 
         description:
             "Cerita tentang pentingnya penghasilan tambahan bagi keluarga, terutama ketika kebutuhan terus bertambah dan satu penghasilan utama semakin sulit mencukupi semuanya.",
@@ -336,8 +336,10 @@ const artikel14 = {
                 Gojek dan Grab sebagai pengemudi ojek online
             </li>
 
-            <li>
+            <li> 
+                <a href="/news/cara-ikutan-event-airdrop">
                 Airdrop hunter
+            </a>
             </li>
 
         </ul>
