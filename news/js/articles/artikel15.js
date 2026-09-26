@@ -1,5 +1,13 @@
-const article15 = {
-    slug: "contoh-penghasilan-tambahan-pekerja-full-time",
+/* =====================================================
+   FINANCE ASSISTANT
+   NEWS & UPDATE
+
+   Article : 15
+   File    : artikel15.js
+===================================================== */
+
+const artikel15 = {
+    slug: "6-contoh-penghasilan-tambahan",
 
     title: "6 Contoh Penghasilan Tambahan yang Bisa Dicoba Saat Sudah Punya Pekerjaan Utama",
 
@@ -578,4 +586,4 @@ const article15 = {
     `
 };
 
-export default article15;
+export default artikel15;
