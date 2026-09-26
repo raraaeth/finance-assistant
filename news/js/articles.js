@@ -17,6 +17,8 @@
    IMPORT ARTICLES
 ===================================================== */
 
+import artikel14
+    from "./articles/artikel14.js";
 import artikel13
     from "./articles/artikel13.js";
 import artikel12
@@ -54,6 +56,7 @@ import artikel09
 
 const articles = [
 
+    artikel14,
     artikel13,
     artikel12,
     artikel11,
