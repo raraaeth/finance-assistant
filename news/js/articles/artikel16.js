@@ -1,3 +1,11 @@
+/* =====================================================
+   FINANCE ASSISTANT
+   NEWS & UPDATE
+
+   Article : 16
+   File    : artikel16.js
+===================================================== */
+
 const artikel16 = {
     slug: "4-channel-airdrop-yang-wajib-diikuti",
 
