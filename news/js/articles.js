@@ -1,9 +1,7 @@
 /* =====================================================
-   FINANCE ASSISTANT
-   NEWS & UPDATE
+   FINANCE ASSISTANT - NEWS & UPDATE
 
    File    : /news/js/articles.js
-   Version : 1.0.0
 
    Description :
    Article Registry.
@@ -11,12 +9,12 @@
    Semua artikel News didaftarkan
    melalui file ini.
 ===================================================== */
-
-
 /* =====================================================
    IMPORT ARTICLES
 ===================================================== */
 
+import artikel18
+    from "./articles/artikel18.js";
 import artikel17
     from "./articles/artikel17.js";
 import artikel16
@@ -58,6 +56,7 @@ import artikel09
 
 const articles = [
 
+    artikel18,
     artikel17,
     artikel16,
     artikel15,
