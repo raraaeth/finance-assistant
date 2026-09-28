@@ -1,3 +1,11 @@
+/* =====================================================
+   FINANCE ASSISTANT
+   NEWS & UPDATE
+
+   Article : 17
+   File    : artikel17.js
+===================================================== */
+
 const artikel17 = {
     slug: "cara-menghemat-gaji-agar-tidak-cepat-habis",
 
