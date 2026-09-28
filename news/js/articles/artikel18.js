@@ -23,8 +23,6 @@ const artikel18 = {
     },
 
     content: `
-        <h2>Awalnya Cuma Mencatat</h2>
-
         <p>
             Ketika pertama kali mulai mencatat pengeluaran, mungkin tujuan kita sederhana:
             hanya ingin mengetahui uang keluar untuk apa saja.
