@@ -1373,6 +1373,10 @@ Statistics.renderTransaction = function(){
                     income :
 
                         0,
+                   
+                   totalQty :
+
+                        0,
 
                     jobs : []
 
@@ -1392,6 +1396,17 @@ Statistics.renderTransaction = function(){
                     item
 
                 );
+           /* =====================================
+   TOTAL PEKERJAAN HARI
+===================================== */
+
+grouped[key].totalQty +=
+
+    toNumber(
+
+        item.qty
+
+    );
 
 
             /* =====================================
