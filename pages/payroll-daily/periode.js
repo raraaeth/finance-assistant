@@ -3,18 +3,18 @@
    Page        : Payroll Daily
    Module      : Periode
    File        : periode.js
-   Version     : 2.0.0
+   Version     : 1.1.0
 
    Description :
    Payroll Daily Salary Period
 
    Logic :
-   - Periode gaji mengikuti Rule Gaji dari sheet
-   - Mengambil nilai_start sebagai tanggal mulai
-   - Mengambil nilai_end sebagai tanggal akhir
-   - Tidak menggunakan periode_start / periode_end
-     sebagai pola periode gaji
+   - Periode gaji berjalan mengikuti Rule Gaji
    - Periode sebelumnya mengikuti periode berjalan
+   - nilai_start menentukan tanggal mulai
+   - nilai_end menentukan tanggal akhir
+   - periode_start / periode_end tidak digunakan
+     sebagai pola periode gaji
 ===================================================== */
 
 
@@ -50,71 +50,70 @@ export const Periode = {
         }
 
 
-        const salaryRule =
+        return rules.find(
 
-            rules.find(
+            rule =>
 
-                rule =>
+                String(
 
-                    String(
+                    rule?.type_rule ?? ""
 
-                        rule?.type_rule ?? ""
+                )
 
-                    )
+                .trim()
 
-                    .trim()
+                .toLowerCase()
 
-                    .toLowerCase()
+                ===
 
-                    ===
+                "rule_gaji"
 
-                    "rule_gaji"
+                &&
 
-                    &&
+                String(
 
-                    String(
+                    rule?.nama ?? ""
 
-                        rule?.nama ?? ""
+                )
 
-                    )
+                .trim()
 
-                    .trim()
+                .toLowerCase()
 
-                    .toLowerCase()
+                ===
 
-                    ===
+                "gaji"
 
-                    "gaji"
+                &&
 
-                    &&
+                String(
 
-                    String(
+                    rule?.kondisi ?? ""
 
-                        rule?.kondisi ?? ""
+                )
 
-                    )
+                .trim()
 
-                    .trim()
+                .toLowerCase()
 
-                    .toLowerCase()
+                ===
 
-                    ===
+                "periode"
 
-                    "periode"
+        )
 
-            );
+        ||
 
-
-        return salaryRule ?? null;
+        null;
 
     },
 
 
     /* =================================================
-       GET PERIOD CONFIG
+       GET PERIOD DAY
     ================================================= */
 
-    getPeriodConfig(
+    getPeriodDays(
 
         rules = []
 
@@ -160,9 +159,7 @@ export const Periode = {
 
         if(
 
-            !startDate
-
-            ||
+            !startDate ||
 
             !endDate
 
@@ -173,101 +170,15 @@ export const Periode = {
         }
 
 
-        const startDay =
-
-            startDate.getDate();
-
-
-        const endDay =
-
-            endDate.getDate();
-
-
-        if(
-
-            !startDay
-
-            ||
-
-            !endDay
-
-        ){
-
-            return null;
-
-        }
-
-
         return {
 
-            startDay,
+            startDay :
 
-            endDay
+                startDate.getDate(),
 
-        };
+            endDay :
 
-    },
-
-
-    /* =================================================
-       CREATE PERIOD
-    ================================================= */
-
-    createPeriod(
-
-        year,
-
-        month,
-
-        startDay,
-
-        endDay
-
-    ){
-
-        const start =
-
-            new Date(
-
-                year,
-
-                month,
-
-                startDay
-
-            );
-
-
-        const end =
-
-            new Date(
-
-                year,
-
-                month + 1,
-
-                endDay
-
-            );
-
-
-        return {
-
-            start :
-
-                this.startOfDay(
-
-                    start
-
-                ),
-
-            end :
-
-                this.endOfDay(
-
-                    end
-
-                )
+                endDate.getDate()
 
         };
 
@@ -295,9 +206,9 @@ export const Periode = {
             );
 
 
-        const config =
+        const periodDays =
 
-            this.getPeriodConfig(
+            this.getPeriodDays(
 
                 rules
 
@@ -305,12 +216,13 @@ export const Periode = {
 
 
         /* ---------------------------------------------
-           Rule Gaji tidak tersedia
+           Jika Rule Gaji tidak ditemukan
+           jangan membuat periode palsu.
         --------------------------------------------- */
 
         if(
 
-            !config
+            !periodDays
 
         ){
 
@@ -319,29 +231,20 @@ export const Periode = {
         }
 
 
-        const {
+        const startDay =
 
-            startDay,
+            periodDays.startDay;
 
-            endDay
 
-        } = config;
+        const endDay =
+
+            periodDays.endDay;
 
 
         /* ---------------------------------------------
-           Menentukan apakah tanggal sekarang sudah
-           masuk periode yang dimulai bulan ini.
-
-           Contoh:
-
-           Rule Gaji:
-           21 → 20
-
-           Tanggal:
-           29 September
-
-           Maka:
-           21 September → 20 Oktober
+           Jika tanggal >= tanggal mulai
+           periode dimulai tanggal mulai bulan ini
+           dan berakhir tanggal akhir bulan berikutnya
         --------------------------------------------- */
 
         if(
@@ -350,48 +253,106 @@ export const Periode = {
 
         ){
 
-            return this.createPeriod(
+            const start =
 
-                currentDate.getFullYear(),
+                new Date(
 
-                currentDate.getMonth(),
+                    currentDate.getFullYear(),
 
-                startDay,
+                    currentDate.getMonth(),
 
-                endDay
+                    startDay
 
-            );
+                );
+
+
+            const end =
+
+                new Date(
+
+                    currentDate.getFullYear(),
+
+                    currentDate.getMonth() + 1,
+
+                    endDay
+
+                );
+
+
+            return {
+
+                start :
+
+                    this.startOfDay(
+
+                        start
+
+                    ),
+
+                end :
+
+                    this.endOfDay(
+
+                        end
+
+                    )
+
+            };
 
         }
 
 
         /* ---------------------------------------------
-           Jika tanggal sekarang masih sebelum
-           tanggal mulai periode:
-
-           Contoh:
-
-           Rule Gaji:
-           21 → 20
-
-           Tanggal:
-           10 September
-
-           Maka:
-           21 Agustus → 20 September
+           Jika tanggal < tanggal mulai
+           periode dimulai tanggal mulai bulan sebelumnya
+           dan berakhir tanggal akhir bulan ini
         --------------------------------------------- */
 
-        return this.createPeriod(
+        const start =
 
-            currentDate.getFullYear(),
+            new Date(
 
-            currentDate.getMonth() - 1,
+                currentDate.getFullYear(),
 
-            startDay,
+                currentDate.getMonth() - 1,
 
-            endDay
+                startDay
 
-        );
+            );
+
+
+        const end =
+
+            new Date(
+
+                currentDate.getFullYear(),
+
+                currentDate.getMonth(),
+
+                endDay
+
+            );
+
+
+        return {
+
+            start :
+
+                this.startOfDay(
+
+                    start
+
+                ),
+
+            end :
+
+                this.endOfDay(
+
+                    end
+
+                )
+
+        };
 
     },
 
@@ -522,13 +483,9 @@ export const Periode = {
 
         if(
 
-            !period
+            !period ||
 
-            ||
-
-            !period.start
-
-            ||
+            !period.start ||
 
             !period.end
 
@@ -643,25 +600,6 @@ export const Periode = {
             day
 
         ] = parts;
-
-
-        if(
-
-            !year
-
-            ||
-
-            !month
-
-            ||
-
-            !day
-
-        ){
-
-            return null;
-
-        }
 
 
         const date =
