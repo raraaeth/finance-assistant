@@ -1697,12 +1697,17 @@ function renderCurrentDetail(
 
             <div class="summary-payroll-group">
 
+    <div class="summary-payroll-group-title">
 
-                <div class="summary-payroll-group-title">
+        <span>
+            🏭 Rincian Pekerjaan
+        </span>
 
-                    🏭 Rincian Pekerjaan
+        <span>
+            ${getPeriodDays(result.period)} hari
+        </span>
 
-                </div>
+    </div>
 
 
                 <div class="summary-payroll-work-list">
@@ -2459,9 +2464,15 @@ function openDetailOverlay(){
 
         <div class="global-overlay-subtitle">
 
-            🏭 Rincian Pekerjaan
+    <span>
+        🏭 Rincian Pekerjaan
+    </span>
 
-        </div>
+    <span>
+        ${getPeriodDays(result.period)} hari
+    </span>
+
+</div>
 
         `
 
@@ -3128,6 +3139,103 @@ function parseDateKey(
 
 }
 
+
+/* =====================================================
+   GET PERIOD DAYS
+===================================================== */
+
+function getPeriodDays(
+
+    period
+
+){
+
+    if(
+
+        !period
+
+        ||
+
+        !period.start
+
+        ||
+
+        !period.end
+
+    ){
+
+        return 0;
+
+    }
+
+
+    const start =
+
+        new Date(
+
+            period.start
+
+        );
+
+
+    const end =
+
+        new Date(
+
+            period.end
+
+        );
+
+
+    if(
+
+        Number.isNaN(
+
+            start.getTime()
+
+        )
+
+        ||
+
+        Number.isNaN(
+
+            end.getTime()
+
+        )
+
+    ){
+
+        return 0;
+
+    }
+
+
+    const millisecondsPerDay =
+
+        1000 *
+
+        60 *
+
+        60 *
+
+        24;
+
+
+    return Math.floor(
+
+        (
+
+            end - start
+
+        )
+
+        /
+
+        millisecondsPerDay
+
+    ) + 1;
+
+}
 
 /* =====================================================
    EMPTY SUMMARY
