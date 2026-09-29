@@ -2,7 +2,7 @@
    Finance Assistant
    Component    : Global Input
    File         : session.js
-   Version      : 3.1.0
+   Version      : 3.2.0
 
    Description :
    Global Input Session Controller
@@ -111,6 +111,16 @@ export function initSession(
     renderId();
 
     renderDate();
+
+
+    /* =============================================
+       BIND DATE INPUT
+       
+       Perubahan tanggal dari UI harus
+       masuk kembali ke State.date.
+    ============================================= */
+
+    bindDateInput();
 
 }
 
@@ -778,6 +788,68 @@ function renderDate(){
     input.disabled =
 
         false;
+
+}
+
+
+/* =====================================================
+   BIND DATE INPUT
+=====================================================
+
+   Fungsi ini menjadi jembatan :
+
+       HTML Date Picker
+              ↓
+          setDate()
+              ↓
+        State.date
+
+   Sebelumnya renderDate() hanya mengirim :
+
+       State.date
+           ↓
+       HTML input
+
+   Sekarang perubahan dari user juga
+   dikirim kembali ke State.
+
+===================================================== */
+
+function bindDateInput(){
+
+    const input =
+
+        document.getElementById(
+
+            "global-input-date"
+
+        );
+
+
+    if(
+
+        !input
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CHANGE EVENT
+    ============================================= */
+
+    input.onchange = () => {
+
+        setDate(
+
+            input.value
+
+        );
+
+    };
 
 }
 
