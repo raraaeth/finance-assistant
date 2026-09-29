@@ -442,6 +442,77 @@
 
 }
 
+/* =====================================================
+   TOTAL PEKERJAAN
+===================================================== */
+
+#statistics-transaction-list
+.transaction-total-work{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    width:100%;
+
+    gap:12px;
+
+    color:
+
+        var(--text);
+
+    font-size:15px;
+
+    line-height:1.4;
+
+}
+
+
+/* =====================================================
+   TOTAL PEKERJAAN LABEL
+===================================================== */
+
+#statistics-transaction-list
+.transaction-total-work span{
+
+    min-width:0;
+
+    color:
+
+        var(--text-secondary);
+
+    font-size:15px;
+
+    font-weight:600;
+
+}
+
+
+/* =====================================================
+   TOTAL PEKERJAAN VALUE
+===================================================== */
+
+#statistics-transaction-list
+.transaction-total-work strong{
+
+    flex-shrink:0;
+
+    color:
+
+        var(--text);
+
+    font-size:16px;
+
+    font-weight:700;
+
+    text-align:right;
+
+    white-space:nowrap;
+
+}
+
 
 /* =====================================================
    TRANSACTION DETAIL
@@ -914,6 +985,33 @@
         font-size:20px;
 
     }
+
+   /* ---------------------------------------------
+   TOTAL PEKERJAAN
+--------------------------------------------- */
+
+#statistics-transaction-list
+.transaction-total-work{
+
+    gap:8px;
+
+}
+
+
+#statistics-transaction-list
+.transaction-total-work span{
+
+    font-size:14px;
+
+}
+
+
+#statistics-transaction-list
+.transaction-total-work strong{
+
+    font-size:15px;
+
+}
 
 
     #statistics-transaction-list
