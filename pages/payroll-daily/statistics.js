@@ -1674,6 +1674,33 @@ Statistics.renderTransaction = function(){
 
                     </div>
 
+                    <!-- =================================
+     TOTAL PEKERJAAN
+================================== -->
+
+<div class="transaction-total-work">
+
+    <span>
+
+        📦 Jumlah total pekerjaan
+
+    </span>
+
+
+    <strong>
+
+        ${
+
+            day.totalQty
+
+        }
+
+        pcs
+
+    </strong>
+
+</div>
+
 
                     <!-- =================================
                          WORK DETAILS
