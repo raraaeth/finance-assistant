@@ -1704,8 +1704,8 @@ function renderCurrentDetail(
         </span>
 
         <span>
-            ${getPeriodDays(result.period)} hari
-        </span>
+    ${getWorkDays(result.data)} hari
+</span>
 
     </div>
 
@@ -2469,8 +2469,8 @@ function openDetailOverlay(){
     </span>
 
     <span>
-        ${getPeriodDays(result.period)} hari
-    </span>
+    ${getWorkDays(result.data)} hari
+</span>
 
 </div>
 
@@ -3141,65 +3141,20 @@ function parseDateKey(
 
 
 /* =====================================================
-   GET PERIOD DAYS
+   GET WORK DAYS
 ===================================================== */
 
-function getPeriodDays(
+function getWorkDays(
 
-    period
+    data
 
 ){
 
     if(
 
-        !period
+        !Array.isArray(
 
-        ||
-
-        !period.start
-
-        ||
-
-        !period.end
-
-    ){
-
-        return 0;
-
-    }
-
-
-    const start =
-
-        new Date(
-
-            period.start
-
-        );
-
-
-    const end =
-
-        new Date(
-
-            period.end
-
-        );
-
-
-    if(
-
-        Number.isNaN(
-
-            start.getTime()
-
-        )
-
-        ||
-
-        Number.isNaN(
-
-            end.getTime()
+            data
 
         )
 
@@ -3210,32 +3165,51 @@ function getPeriodDays(
     }
 
 
-    const millisecondsPerDay =
+    const dates =
 
-        1000 *
-
-        60 *
-
-        60 *
-
-        24;
+        new Set();
 
 
-    return Math.floor(
+    data.forEach(
 
-        (
+        item => {
 
-            end - start
+            const date =
 
-        )
+                getDate(
 
-        /
+                    item
 
-        millisecondsPerDay
+                );
 
-    ) + 1;
+
+            if(
+
+                date
+
+            ){
+
+                dates.add(
+
+                    dateKey(
+
+                        date
+
+                    )
+
+                );
+
+            }
+
+        }
+
+    );
+
+
+    return dates.size;
 
 }
+
 
 /* =====================================================
    EMPTY SUMMARY
