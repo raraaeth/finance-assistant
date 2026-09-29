@@ -190,12 +190,18 @@ export const Process = {
 
 
         /* =============================================
-           SALARY PERIOD
-        ============================================= */
+   SALARY PERIOD
+============================================= */
 
-        this.period =
+this.period =
 
-            Periode.current();
+    Periode.current(
+
+        new Date(),
+
+        this.rules
+
+    );
 
 
         /* =============================================
@@ -565,9 +571,15 @@ export const Process = {
 
     getPreviousPeriod(){
 
-        return Periode.previous();
+    return Periode.previous(
 
-    },
+        new Date(),
+
+        this.rules
+
+    );
+
+},
 
 
     /* =================================================
