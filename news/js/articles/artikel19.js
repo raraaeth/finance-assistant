@@ -151,7 +151,7 @@ const artikel19 = {
         <p>
             Saya juga pernah membahas bagaimana pengeluaran kecil bisa dianalisa
             agar uang tidak habis sebelum gajian. Kamu bisa membaca artikel
-            <a href="/news//pentingnya-menganalisa-pengeluaran-kecil">
+            <a href="/news/pentingnya-menganalisa-pengeluaran-kecil">
                 Menganalisa Pengeluaran Kecil agar Uang Tidak Habis Sebelum Gajian
             </a>
             untuk melihat bagaimana catatan pengeluaran dapat digunakan untuk
