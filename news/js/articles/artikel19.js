@@ -151,7 +151,7 @@ const artikel19 = {
         <p>
             Saya juga pernah membahas bagaimana pengeluaran kecil bisa dianalisa
             agar uang tidak habis sebelum gajian. Kamu bisa membaca artikel
-            <a href="/news/menganalisa-pengeluaran-kecil-agar-uang-tidak-habis-sebelum-gajian">
+            <a href="/news//pentingnya-menganalisa-pengeluaran-kecil">
                 Menganalisa Pengeluaran Kecil agar Uang Tidak Habis Sebelum Gajian
             </a>
             untuk melihat bagaimana catatan pengeluaran dapat digunakan untuk
@@ -270,7 +270,7 @@ const artikel19 = {
         <p>
             Untuk melihat beberapa contoh yang bisa dicoba oleh pekerja
             full-time, kamu juga bisa membaca
-            <a href="/news/contoh-penghasilan-tambahan-pekerja-full-time">
+            <a href="/news/6-contoh-penghasilan-tambahan">
                 6 Contoh Penghasilan Tambahan yang Bisa Dicoba Saat Sudah Punya
                 Pekerjaan Utama
             </a>.
@@ -539,7 +539,7 @@ const artikel19 = {
         <p>
             Kamu juga bisa melihat bagaimana fitur Saving digunakan untuk
             mencatat berbagai bentuk tabungan melalui artikel
-            <a href="/news/saving-finance-assistant-multiple-bank">
+            <a href="/news/cara-jitu-mencatat-transaksi-multiple-bank">
                 Saving Finance Assistant: Cara Jitu Mencatat Transaksi Multiple
                 Bank dalam Satu Aplikasi
             </a>.
