@@ -2,19 +2,21 @@
    Finance Assistant
    Component    : Landing Page
    File         : landing.js
-   Version      : 1.0.0
+   Version      : 2.0.0
 
    Description :
-   Landing Page Module Slider
+   Landing Page Module Slider + Latest News
 
    Handles :
    - Module card
    - Module selection
    - Automatic slide
-   - 15 second interval
+   - 5 second interval
    - Manual module selection
    - Slide indicator
    - Active module state
+   - Latest 5 News
+   - Dynamic News from articles.js
 
    Principle :
 
@@ -24,16 +26,23 @@
             ↓
        Show Module Slide
 
-   Automatic :
+   News :
 
-       Slide 1
-          ↓ 15s
-       Slide 2
-          ↓ 15s
-       Slide 3
-          ↓
-       kembali Slide 1
+       articles.js
+            ↓
+       Sort by date
+            ↓
+       Take 5 latest
+            ↓
+       Render to Root Homepage
 ===================================================== */
+
+
+/* =====================================================
+   IMPORT ARTICLES
+===================================================== */
+
+import articles from "../news/js/articles.js";
 
 
 /* =====================================================
@@ -42,9 +51,9 @@
 
 const CONFIG = {
 
-    interval :
+    interval: 5000,
 
-        5000
+    latestNewsLimit: 5
 
 };
 
@@ -55,25 +64,15 @@ const CONFIG = {
 
 const State = {
 
-    current :
+    current: 0,
 
-        0,
+    timer: null,
 
-    timer :
+    modules: [],
 
-        null,
+    slides: [],
 
-    modules :
-
-        [],
-
-    slides :
-
-        [],
-
-    dots :
-
-        []
+    dots: []
 
 };
 
@@ -89,9 +88,7 @@ function init(){
         Array.from(
 
             document.querySelectorAll(
-
                 ".module-card"
-
             )
 
         );
@@ -102,9 +99,7 @@ function init(){
         Array.from(
 
             document.querySelectorAll(
-
                 ".module-slide"
-
             )
 
         );
@@ -115,9 +110,7 @@ function init(){
         Array.from(
 
             document.querySelectorAll(
-
                 ".module-slider-dot"
-
             )
 
         );
@@ -166,26 +159,17 @@ function bindModuleEvents(){
                 () => {
 
                     const id =
-
                         module.dataset.module;
 
 
-                    if(
-
-                        !id
-
-                    ){
+                    if(!id){
 
                         return;
 
                     }
 
 
-                    showModule(
-
-                        id
-
-                    );
+                    showModule(id);
 
                 }
 
@@ -220,11 +204,7 @@ function bindDotEvents(){
 
                 () => {
 
-                    showSlide(
-
-                        index
-
-                    );
+                    showSlide(index);
 
                 }
 
@@ -244,15 +224,10 @@ function bindDotEvents(){
 function setInitialSlide(){
 
     const firstModule =
-
         State.modules[0];
 
 
-    if(
-
-        !firstModule
-
-    ){
+    if(!firstModule){
 
         return;
 
@@ -260,7 +235,6 @@ function setInitialSlide(){
 
 
     const firstId =
-
         firstModule.dataset.module;
 
 
@@ -300,18 +274,11 @@ function showModule(
         );
 
 
-    if(
-
-        slideIndex === -1
-
-    ){
+    if(slideIndex === -1){
 
         console.warn(
-
             "Landing slide tidak ditemukan:",
-
             moduleId
-
         );
 
         return;
@@ -321,7 +288,9 @@ function showModule(
 
     showSlide(
 
-        slideIndex
+        slideIndex,
+
+        false
 
     );
 
@@ -351,16 +320,9 @@ function showModule(
 
     /* =============================================
        RESTART TIMER
-       
-       Jika user memilih module secara manual,
-       hitungan 15 detik dimulai lagi.
     ============================================= */
 
-    if(
-
-        restart
-
-    ){
+    if(restart){
 
         restartAutoSlide();
 
@@ -396,13 +358,11 @@ function showSlide(
     }
 
 
-    State.current =
-
-        index;
+    State.current = index;
 
 
     /* =============================================
-       HIDE ALL SLIDES
+       HIDE / SHOW SLIDES
     ============================================= */
 
     State.slides.forEach(
@@ -460,12 +420,10 @@ function showSlide(
     ============================================= */
 
     const currentSlide =
-
         State.slides[index];
 
 
     const moduleId =
-
         currentSlide?.dataset.slide;
 
 
@@ -488,11 +446,7 @@ function showSlide(
     );
 
 
-    if(
-
-        restart
-
-    ){
+    if(restart){
 
         restartAutoSlide();
 
@@ -519,7 +473,6 @@ function nextSlide(){
 
 
     let next =
-
         State.current + 1;
 
 
@@ -579,11 +532,7 @@ function startAutoSlide(){
 
 function stopAutoSlide(){
 
-    if(
-
-        State.timer
-
-    ){
+    if(State.timer){
 
         clearInterval(
 
@@ -591,9 +540,7 @@ function stopAutoSlide(){
 
         );
 
-        State.timer =
-
-            null;
+        State.timer = null;
 
     }
 
@@ -613,13 +560,6 @@ function restartAutoSlide(){
 
 /* =====================================================
    VISIBILITY CHANGE
-=====================================================
-
-   Jika user pindah tab,
-   timer dihentikan.
-
-   Saat kembali,
-   timer dimulai lagi.
 ===================================================== */
 
 function initVisibility(){
@@ -630,11 +570,7 @@ function initVisibility(){
 
         () => {
 
-            if(
-
-                document.hidden
-
-            ){
+            if(document.hidden){
 
                 stopAutoSlide();
 
@@ -654,7 +590,410 @@ function initVisibility(){
 
 
 /* =====================================================
-   INIT
+   NEWS
+===================================================== */
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value){
+
+    if(value === null || value === undefined){
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =====================================================
+   EXTRACT TEXT
+===================================================== */
+
+function extractText(html){
+
+    if(!html){
+
+        return "";
+
+    }
+
+
+    const temp =
+        document.createElement("div");
+
+
+    temp.innerHTML = html;
+
+
+    return temp.textContent
+
+        .replace(/\s+/g, " ")
+
+        .trim();
+
+}
+
+
+/* =====================================================
+   CREATE EXCERPT
+===================================================== */
+
+function createExcerpt(
+
+    article,
+
+    maxLength = 125
+
+){
+
+    const source =
+
+        article?.seo?.description
+
+        ||
+
+        extractText(
+
+            article?.content
+
+        );
+
+
+    if(!source){
+
+        return "";
+
+    }
+
+
+    const text =
+        source.trim();
+
+
+    if(text.length <= maxLength){
+
+        return text;
+
+    }
+
+
+    return (
+
+        text
+
+            .slice(
+
+                0,
+
+                maxLength
+
+            )
+
+            .replace(
+
+                /\s+\S*$/,
+
+                ""
+
+            )
+
+            .trim()
+
+        + "..."
+
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT DATE
+===================================================== */
+
+function formatNewsDate(date){
+
+    if(!date){
+
+        return "";
+
+    }
+
+
+    const parsed =
+        new Date(date);
+
+
+    if(
+
+        Number.isNaN(
+
+            parsed.getTime()
+
+        )
+
+    ){
+
+        return escapeHTML(date);
+
+    }
+
+
+    return new Intl.DateTimeFormat(
+
+        "id-ID",
+
+        {
+
+            day: "numeric",
+
+            month: "long",
+
+            year: "numeric"
+
+        }
+
+    ).format(parsed);
+
+}
+
+
+/* =====================================================
+   GET LATEST ARTICLES
+===================================================== */
+
+function getLatestArticles(){
+
+    if(!Array.isArray(articles)){
+
+        return [];
+
+    }
+
+
+    return [...articles]
+
+        .filter(
+
+            article =>
+
+                article &&
+
+                article.title
+
+        )
+
+        .sort(
+
+            (a, b) =>
+
+                new Date(b.date) -
+
+                new Date(a.date)
+
+        )
+
+        .slice(
+
+            0,
+
+            CONFIG.latestNewsLimit
+
+        );
+
+}
+
+
+/* =====================================================
+   RENDER NEWS
+===================================================== */
+
+function renderLatestNews(){
+
+    const container =
+
+        document.getElementById(
+
+            "latestNewsList"
+
+        );
+
+
+    if(!container){
+
+        return;
+
+    }
+
+
+    const latestArticles =
+        getLatestArticles();
+
+
+    if(
+
+        latestArticles.length === 0
+
+    ){
+
+        container.innerHTML = `
+
+            <div class="latest-news-empty">
+
+                <p>
+                    Belum ada News & Update.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+
+        latestArticles
+
+            .map(
+
+                article => {
+
+                    const slug =
+                        encodeURIComponent(
+
+                            article.slug || ""
+
+                        );
+
+
+                    const title =
+                        escapeHTML(
+
+                            article.title
+
+                        );
+
+
+                    const image =
+                        escapeHTML(
+
+                            article.image || ""
+
+                        );
+
+
+                    const date =
+                        formatNewsDate(
+
+                            article.date
+
+                        );
+
+
+                    const excerpt =
+                        escapeHTML(
+
+                            createExcerpt(
+
+                                article
+
+                            )
+
+                        );
+
+
+                    return `
+
+                        <article
+                            class="latest-news-card"
+                        >
+
+                            <a
+                                href="/news/${slug}"
+                                class="latest-news-image-link"
+                                aria-label="Baca ${title}"
+                            >
+
+                                <img
+                                    src="${image}"
+                                    alt="${title}"
+                                    loading="lazy"
+                                >
+
+                            </a>
+
+
+                            <div
+                                class="latest-news-card-content"
+                            >
+
+                                <time
+                                    datetime="${escapeHTML(article.date || "")}"
+                                    class="latest-news-date"
+                                >
+                                    ${date}
+                                </time>
+
+
+                                <h3>
+
+                                    <a
+                                        href="/news/${slug}"
+                                    >
+                                        ${title}
+                                    </a>
+
+                                </h3>
+
+
+                                <p>
+                                    ${excerpt}
+                                </p>
+
+
+                                <a
+                                    href="/news/${slug}"
+                                    class="latest-news-link"
+                                >
+                                    Baca selengkapnya →
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    `;
+
+                }
+
+            )
+
+            .join("");
+
+}
+
+
+/* =====================================================
+   DOM READY
 ===================================================== */
 
 document.addEventListener(
@@ -666,6 +1005,8 @@ document.addEventListener(
         init();
 
         initVisibility();
+
+        renderLatestNews();
 
     }
 
