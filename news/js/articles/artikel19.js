@@ -1,11 +1,4 @@
 /* =====================================================
-   FINANCE ASSISTANT
-   NEWS & UPDATE
-
-   Article : 19
-   File    : artikel19.js
-===================================================== */
-/* =====================================================
    Finance Assistant
    News Article
    File        : artikel19.js
