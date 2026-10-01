@@ -786,9 +786,11 @@ function buildArticleHTML(
 
             <div class="news-article-share">
 
-                <div class="sharethis-inline-share-buttons"></div>
+    <p class="news-share-title">Bagikan artikel :</p>
 
-            </div>
+    <div class="sharethis-inline-share-buttons"></div>
+
+</div>
 
 
             <nav
