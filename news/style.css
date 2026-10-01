@@ -1319,3 +1319,19 @@ body.news-menu-open .news-drawer {
     }
 
 }
+
+/* =====================================================
+   SHARETHIS
+===================================================== */
+
+.news-article-share {
+    margin-top: 32px;
+    padding-top: 0;
+}
+
+.news-share-title {
+    margin: 0 0 14px 0;
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 600;
+}
