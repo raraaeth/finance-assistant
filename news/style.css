@@ -1325,7 +1325,7 @@ body.news-menu-open .news-drawer {
 ===================================================== */
 
 .news-article-share {
-    margin-top: 32px;
+    margin-top: 36px;
 }
 
 .news-share-title {
@@ -1339,4 +1339,5 @@ body.news-menu-open .news-drawer {
 .news-article-share .sharethis-inline-share-buttons {
     display: block !important;
     width: 100%;
+    margin-top: 14px !important;
 }
