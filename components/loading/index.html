@@ -2,10 +2,28 @@
      Finance Assistant
      Component    : Global Loading
      File         : index.html
-     Version      : 2.0.0
+     Version      : 3.0.0
 
      Description :
-     Simple Full Screen Loading
+     Global Loading & HTML Alert Component
+
+     Responsibility :
+     - Full Screen Loading
+     - Loading Message
+     - Loading Indicator
+     - HTML Alert
+     - Alert Action
+     - Mobile First
+
+     Usage :
+     Loading.show()
+     Loading.hide()
+     Loading.alert()
+===================================================== -->
+
+
+<!-- =====================================================
+     GLOBAL LOADING
 ===================================================== -->
 
 <div
@@ -13,15 +31,166 @@
     class="global-loading is-hidden"
     aria-hidden="true">
 
-    <div class="global-loading-content">
 
-        <div class="global-loading-icon">
-            ✅
+    <!-- =================================================
+         LOADING CONTENT
+    ================================================== -->
+
+    <div
+        class="global-loading-content">
+
+
+        <!-- =============================================
+             LOADING LOGO
+        ============================================== -->
+
+        <div
+            class="global-loading-logo"
+            aria-hidden="true">
+
+            <div
+                class="global-loading-logo-mark">
+
+                FA
+
+            </div>
+
         </div>
 
-        <div class="global-loading-text">
-            Tunggu sebentar
+
+        <!-- =============================================
+             LOADING TITLE
+        ============================================== -->
+
+        <div
+            id="global-loading-title"
+            class="global-loading-title">
+
+            Menyiapkan Finance Assistant...
+
         </div>
+
+
+        <!-- =============================================
+             LOADING INDICATOR
+        ============================================== -->
+
+        <div
+            class="global-loading-spinner"
+            aria-hidden="true">
+
+            <span></span>
+
+            <span></span>
+
+            <span></span>
+
+        </div>
+
+
+        <!-- =============================================
+             LOADING MESSAGE
+        ============================================== -->
+
+        <div
+            id="global-loading-text"
+            class="global-loading-text">
+
+            Mohon tunggu sebentar.
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     GLOBAL HTML ALERT
+===================================================== -->
+
+<div
+    id="global-alert"
+    class="global-alert is-hidden"
+    aria-hidden="true">
+
+
+    <!-- =================================================
+         ALERT BACKDROP
+    ================================================== -->
+
+    <div
+        class="global-alert-backdrop">
+    </div>
+
+
+    <!-- =================================================
+         ALERT PANEL
+    ================================================== -->
+
+    <div
+        class="global-alert-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="global-alert-title"
+        aria-describedby="global-alert-message">
+
+
+        <!-- =============================================
+             ALERT ICON
+        ============================================== -->
+
+        <div
+            id="global-alert-icon"
+            class="global-alert-icon"
+            aria-hidden="true">
+
+            ✓
+
+        </div>
+
+
+        <!-- =============================================
+             ALERT TITLE
+        ============================================== -->
+
+        <div
+            id="global-alert-title"
+            class="global-alert-title">
+
+            Berhasil
+
+        </div>
+
+
+        <!-- =============================================
+             ALERT MESSAGE
+        ============================================== -->
+
+        <div
+            id="global-alert-message"
+            class="global-alert-message">
+
+            Finance Assistant berhasil disiapkan.
+
+        </div>
+
+
+        <!-- =============================================
+             ALERT ACTION
+        ============================================== -->
+
+        <button
+            type="button"
+            id="global-alert-confirm"
+            class="global-alert-confirm">
+
+            OK
+
+        </button>
+
 
     </div>
 
