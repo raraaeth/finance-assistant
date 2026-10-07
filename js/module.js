@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : MODULE
    File        : module.js
-   Version     : 2.1.0
+   Version     : 2.2.0
 
    Description :
    Google Drive + Google Sheets Engine
@@ -48,6 +48,25 @@
    account
        ↓
    UPDATE displayName + updatedAt
+
+   CREATED STATUS :
+
+   initializeModule() sekarang juga
+   mengembalikan status created :
+
+   folder.created
+   financeCore.created
+   account.created
+
+   Nilai :
+
+   true
+       ↓
+   resource baru dibuat
+
+   false
+       ↓
+   resource sudah ditemukan
 
    TIDAK menangani:
    - Active Workspace
@@ -452,7 +471,12 @@ export async function initializeModule(
 
                 name :
 
-                    folder.name
+                    folder.name,
+
+
+                created :
+
+                    folder.created === true
 
             },
 
@@ -471,7 +495,12 @@ export async function initializeModule(
 
                 url :
 
-                    core.url
+                    core.url,
+
+
+                created :
+
+                    core.created === true
 
             },
 
@@ -485,7 +514,12 @@ export async function initializeModule(
 
                 sheetId :
 
-                    accountSheet.sheetId
+                    accountSheet.sheetId,
+
+
+                created :
+
+                    accountSheet.created === true
 
             },
 
@@ -744,7 +778,23 @@ async function getOrCreateFinanceFolder(
         );
 
 
-        return existing;
+        return {
+
+            id :
+
+                existing.id,
+
+
+            name :
+
+                existing.name,
+
+
+            created :
+
+                false
+
+        };
 
     }
 
@@ -805,7 +855,23 @@ async function getOrCreateFinanceFolder(
     );
 
 
-    return folder;
+    return {
+
+        id :
+
+            folder.id,
+
+
+        name :
+
+            folder.name,
+
+
+        created :
+
+            true
+
+    };
 
 }
 
@@ -877,7 +943,12 @@ async function getOrCreateFinanceCore(
 
                 ||
 
-                `https://docs.google.com/spreadsheets/d/${existing.id}/edit`
+                `https://docs.google.com/spreadsheets/d/${existing.id}/edit`,
+
+
+            created :
+
+                false
 
         };
 
@@ -1010,7 +1081,12 @@ async function getOrCreateFinanceCore(
 
             ||
 
-            `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`
+            `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
+
+
+        created :
+
+            true
 
     };
 
@@ -1107,7 +1183,12 @@ async function getOrCreateAccountSheet(
 
             sheetId :
 
-                existing.properties.sheetId
+                existing.properties.sheetId,
+
+
+            created :
+
+                false
 
         };
 
@@ -1222,7 +1303,12 @@ async function getOrCreateAccountSheet(
 
         sheetId :
 
-            createdSheet.sheetId
+            createdSheet.sheetId,
+
+
+        created :
+
+            true
 
     };
 
@@ -1652,8 +1738,7 @@ async function writeAccountData(
        displayName
        updatedAt
 
-   Field lain tidak disentuh.
-========================================== */
+       ====================================== */
 
 export async function updateAccountDisplayName(
 
@@ -1880,7 +1965,7 @@ export async function updateAccountDisplayName(
 
                 }
 
-            );
+        );
 
 
         const values =
