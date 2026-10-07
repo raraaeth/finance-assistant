@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 9.4.0
+   Version     : 9.5.0
 
    Description :
    Supabase Authentication Engine
@@ -13,84 +13,6 @@
    Supabase Session
    +
    Google Provider Token Refresh
-
-   Google :
-   - Identity
-   - Email
-   - Avatar
-   - Google Provider Token
-   - Google Provider Refresh Token
-
-   Finance Assistant :
-   - Display Name
-   - Currency
-   - Theme
-   - Onboarding
-
-   Google Drive / Sheets :
-   Ditangani oleh module.js
-
-   IMPORTANT :
-
-   Google provider_token dari Supabase
-   tidak selalu tersedia kembali setelah
-   browser refresh.
-
-   Karena itu :
-
-   1. Token disimpan lokal
-   2. Refresh token disimpan lokal
-   3. Expiry token disimpan lokal
-   4. Jika access token expired /
-      mendekati expired,
-      auth.js meminta refresh ke Apps Script
-   5. Apps Script menggunakan refresh token
-      Google untuk mendapatkan access token baru
-
-   THEME PERSISTENCE :
-
-   1. Theme pilihan user disimpan lokal
-   2. Refresh browser tidak boleh
-      menimpa theme lokal
-   3. Theme dari Finance Core hanya
-      digunakan sebagai restore awal
-      jika local theme belum tersedia
-
-   LOGIN REDIRECT :
-
-   1. /pages/ tidak otomatis diarahkan
-      ke Dashboard ketika halaman dibuka
-   2. Redirect ke Dashboard hanya dilakukan
-      setelah proses Google Login berhasil
-      dan onboarding sudah selesai
-   3. Setelah Finance Module berhasil,
-      jika ada resource baru dibuat,
-      user mendapatkan message setup
-
-   FINANCE MODULE :
-
-   1. Jika session sudah ada ketika
-      halaman direfresh / dibuka kembali,
-      Finance Module tetap diinisialisasi.
-   2. Ini memastikan Finance Core,
-      Account, dan workspace state dapat
-      dibaca kembali oleh module lain.
-   3. initializeModule() hanya boleh
-      berjalan satu proses pada satu waktu.
-
-   CREATED STATUS :
-
-   module.js mengembalikan :
-
-       result.folder.created
-       result.financeCore.created
-       result.account.created
-
-   true :
-       resource baru dibuat
-
-   false :
-       resource sudah ditemukan
 ========================================== */
 
 
@@ -123,6 +45,17 @@ import {
 
 
 /* ==========================================
+   LOADING
+========================================== */
+
+import {
+
+    Loading
+
+} from "../components/loading/script.js";
+
+
+/* ==========================================
    CONFIG
 ========================================== */
 
@@ -143,27 +76,6 @@ const Auth = {
    FINANCE MODULE INITIALIZATION LOCK
 ========================================== */
 
-/*
-   Mencegah initializeModule() berjalan
-   dua kali secara bersamaan.
-
-   Contoh :
-
-   init()
-       ↓
-   initializeFinanceModule()
-       ↓
-   SIGNED_IN
-       ↓
-   initializeFinanceModule()
-
-   Keduanya akan menggunakan Promise
-   yang sama.
-
-   Tidak membuat proses initialization
-   kedua.
-*/
-
 let financeModuleInitializationPromise =
 
     null;
@@ -172,21 +84,6 @@ let financeModuleInitializationPromise =
 /* ==========================================
    LOGIN REDIRECT FLAG
 ========================================== */
-
-/*
-   Digunakan untuk membedakan :
-
-   1. User membuka /pages/ secara normal
-   2. User baru selesai melakukan Google Login
-
-   /pages/ secara normal :
-   Tidak redirect ke Dashboard.
-
-   Setelah Google Login :
-   Jika onboarding selesai,
-   Finance Module berhasil,
-   redirect ke Dashboard.
-*/
 
 const LOGIN_REDIRECT_KEY =
 
@@ -203,11 +100,6 @@ function redirectToDashboard(){
 
         "/pages/dashboard/";
 
-
-    /*
-       Jangan redirect jika user
-       sudah berada di Dashboard.
-    */
 
     if(
 
@@ -292,14 +184,6 @@ const GOOGLE_AUTH_API =
    TOKEN REFRESH BUFFER
 ========================================== */
 
-/*
-   Refresh token sedikit lebih awal
-   sebelum benar-benar expired.
-
-   Buffer :
-   60 detik.
-*/
-
 const TOKEN_REFRESH_BUFFER =
 
     60 * 1000;
@@ -308,20 +192,6 @@ const TOKEN_REFRESH_BUFFER =
 /* ==========================================
    FALLBACK TOKEN LIFETIME
 ========================================== */
-
-/*
-   Google Provider Access Token umumnya
-   berlaku sekitar 1 jam.
-
-   Jika Supabase tidak memberikan
-   provider_token_expires_in,
-   kita gunakan 55 menit sebagai
-   perkiraan expiry.
-
-   Dengan begitu token akan dianggap
-   perlu diperbarui sebelum benar-benar
-   mencapai batas 1 jam.
-*/
 
 const FALLBACK_TOKEN_LIFETIME =
 
@@ -349,10 +219,6 @@ function saveGoogleTokens(
     }
 
 
-    /* ======================================
-       PROVIDER ACCESS TOKEN
-    ====================================== */
-
     if(
 
         session.provider_token
@@ -377,10 +243,6 @@ function saveGoogleTokens(
     }
 
 
-    /* ======================================
-       PROVIDER REFRESH TOKEN
-    ====================================== */
-
     if(
 
         session.provider_refresh_token
@@ -404,21 +266,6 @@ function saveGoogleTokens(
 
     }
 
-
-    /* ======================================
-       TOKEN EXPIRY
-    ====================================== */
-
-    /*
-       Prioritas :
-
-       1. provider_token_expires_in
-       2. fallback 55 menit
-
-       Jangan overwrite expiry yang sudah
-       ada hanya karena Supabase tidak
-       mengirim expires_in.
-    */
 
     if(
 
@@ -644,15 +491,6 @@ function isGoogleTokenExpired(){
         loadGoogleTokenExpiry();
 
 
-    /*
-       Jika expiry belum diketahui,
-       jangan langsung menganggap expired.
-
-       saveGoogleTokens() akan membuat
-       fallback expiry 55 menit ketika
-       provider token baru tersedia.
-    */
-
     if(
 
         !expiresAt
@@ -764,15 +602,6 @@ function hasLocalTheme(){
    JSONP REQUEST
 ========================================== */
 
-/*
-   Digunakan untuk komunikasi dengan
-   Apps Script Web App dari GitHub Pages.
-
-   Apps Script :
-
-   action=refreshToken
-*/
-
 function jsonpRequest(
 
     params = {}
@@ -789,10 +618,6 @@ function jsonpRequest(
 
         ) => {
 
-
-            /* =================================
-               CALLBACK NAME
-            ================================= */
 
             const callbackName =
 
@@ -823,10 +648,6 @@ function jsonpRequest(
                 );
 
 
-            /* =================================
-               SCRIPT
-            ================================= */
-
             const script =
 
                 document.createElement(
@@ -835,10 +656,6 @@ function jsonpRequest(
 
                 );
 
-
-            /* =================================
-               REQUEST PARAMS
-            ================================= */
 
             const requestParams =
 
@@ -891,10 +708,6 @@ function jsonpRequest(
             );
 
 
-            /* =================================
-               CALLBACK
-            ================================= */
-
             requestParams.set(
 
                 "callback",
@@ -904,18 +717,10 @@ function jsonpRequest(
             );
 
 
-            /* =================================
-               TIMEOUT
-            ================================= */
-
             let timeout =
 
                 null;
 
-
-            /* =================================
-               CLEANUP
-            ================================= */
 
             const cleanup = () => {
 
@@ -967,10 +772,6 @@ function jsonpRequest(
             };
 
 
-            /* =================================
-               CALLBACK HANDLER
-            ================================= */
-
             window[
 
                 callbackName
@@ -993,10 +794,6 @@ function jsonpRequest(
             };
 
 
-            /* =================================
-               SCRIPT ERROR
-            ================================= */
-
             script.onerror = function(){
 
                 cleanup();
@@ -1014,10 +811,6 @@ function jsonpRequest(
 
             };
 
-
-            /* =================================
-               TIMEOUT
-            ================================= */
 
             timeout =
 
@@ -1045,10 +838,6 @@ function jsonpRequest(
                 );
 
 
-            /* =================================
-               BUILD URL
-            ================================= */
-
             script.src =
 
                 GOOGLE_AUTH_API
@@ -1062,23 +851,12 @@ function jsonpRequest(
                 requestParams.toString();
 
 
-            /* =================================
-               DEBUG
-
-               Jangan tampilkan URL karena
-               URL berisi refresh token.
-            ================================= */
-
             console.log(
 
                 "AUTH: Mengirim request refreshToken ke Apps Script..."
 
             );
 
-
-            /* =================================
-               SEND
-            ================================= */
 
             document.head.appendChild(
 
@@ -1097,20 +875,6 @@ function jsonpRequest(
    REFRESH GOOGLE PROVIDER TOKEN
 ========================================== */
 
-/*
-   Flow :
-
-   Local Refresh Token
-          ↓
-      Apps Script
-          ↓
-   refreshAccessToken()
-          ↓
-   Google Access Token Baru
-          ↓
-   Local Storage
-*/
-
 export async function refreshGoogleProviderToken(){
 
     console.log(
@@ -1125,10 +889,6 @@ export async function refreshGoogleProviderToken(){
         "=========================================="
     );
 
-
-    /* ======================================
-       REFRESH TOKEN
-    ====================================== */
 
     const refreshToken =
 
@@ -1169,10 +929,6 @@ export async function refreshGoogleProviderToken(){
 
     try{
 
-        /* ==================================
-           REQUEST APPS SCRIPT
-        ================================== */
-
         console.log(
 
             "AUTH: Meminta access token baru..."
@@ -1196,10 +952,6 @@ export async function refreshGoogleProviderToken(){
             });
 
 
-        /* ==================================
-           DEBUG RESPONSE
-        ================================== */
-
         console.log(
 
             "AUTH: Refresh response diterima."
@@ -1215,10 +967,6 @@ export async function refreshGoogleProviderToken(){
 
         );
 
-
-        /* ==================================
-           VALIDATE RESPONSE
-        ================================== */
 
         if(
 
@@ -1258,10 +1006,6 @@ export async function refreshGoogleProviderToken(){
         }
 
 
-        /* ==================================
-           ACCESS TOKEN
-        ================================== */
-
         const accessToken =
 
             result.accessToken
@@ -1290,10 +1034,6 @@ export async function refreshGoogleProviderToken(){
         }
 
 
-        /* ==================================
-           SAVE ACCESS TOKEN
-        ================================== */
-
         localStorage.setItem(
 
             GOOGLE_TOKEN_KEY,
@@ -1309,10 +1049,6 @@ export async function refreshGoogleProviderToken(){
 
         );
 
-
-        /* ==================================
-           SAVE EXPIRY
-        ================================== */
 
         const expiresIn =
 
@@ -1377,12 +1113,6 @@ export async function refreshGoogleProviderToken(){
 
         else{
 
-            /*
-               Jika Apps Script tidak
-               mengembalikan expiresIn,
-               gunakan fallback 55 menit.
-            */
-
             const fallbackExpiresAt =
 
                 Date.now()
@@ -1414,10 +1144,6 @@ export async function refreshGoogleProviderToken(){
         }
 
 
-        /* ==================================
-           UPDATE AUTH SESSION MEMORY
-        ================================== */
-
         if(
 
             Auth.session
@@ -1436,10 +1162,6 @@ export async function refreshGoogleProviderToken(){
 
         }
 
-
-        /* ==================================
-           SUCCESS
-        ================================== */
 
         console.log(
             "=========================================="
@@ -1492,26 +1214,6 @@ export async function refreshGoogleProviderToken(){
    GET VALID GOOGLE PROVIDER TOKEN
 ========================================== */
 
-/*
-   Prioritas :
-
-   1. Cek apakah local token expired
-   2. Jika expired → refresh
-   3. Session provider token
-   4. Local token
-   5. Refresh token
-
-   IMPORTANT :
-
-   Jangan langsung percaya
-   session.provider_token.
-
-   Token Google dapat tetap terlihat
-   tersedia di Supabase session meskipun
-   access token Google sebenarnya sudah
-   expired.
-*/
-
 export async function getValidGoogleProviderToken(){
 
     console.log(
@@ -1527,18 +1229,10 @@ export async function getValidGoogleProviderToken(){
     );
 
 
-    /* ======================================
-       SESSION
-    ====================================== */
-
     const session =
 
         await getSession();
 
-
-    /* ======================================
-       LOCAL TOKEN
-    ====================================== */
 
     const localToken =
 
@@ -1561,10 +1255,6 @@ export async function getValidGoogleProviderToken(){
 
     );
 
-
-    /* ======================================
-       CHECK EXPIRY FIRST
-    ====================================== */
 
     if(
 
@@ -1595,10 +1285,6 @@ export async function getValidGoogleProviderToken(){
     }
 
 
-    /* ======================================
-       SESSION PROVIDER TOKEN
-    ====================================== */
-
     const sessionToken =
 
         session?.provider_token
@@ -1621,23 +1307,12 @@ export async function getValidGoogleProviderToken(){
         );
 
 
-        /*
-           Pastikan token dan expiry
-           tersimpan.
-        */
-
         saveGoogleTokens(
 
             session
 
         );
 
-
-        /*
-           Cek kembali setelah save.
-           Ini penting jika saveGoogleTokens()
-           baru membuat fallback expiry.
-        */
 
         if(
 
@@ -1669,10 +1344,6 @@ export async function getValidGoogleProviderToken(){
     }
 
 
-    /* ======================================
-       LOCAL TOKEN
-    ====================================== */
-
     if(
 
         localToken
@@ -1690,10 +1361,6 @@ export async function getValidGoogleProviderToken(){
 
     }
 
-
-    /* ======================================
-       TOKEN MISSING
-    ====================================== */
 
     console.log(
 
@@ -1738,10 +1405,6 @@ async function init(){
 
     try{
 
-        /* ==================================
-           GET CURRENT SESSION
-        ================================== */
-
         const {
 
             data,
@@ -1766,10 +1429,6 @@ async function init(){
 
             data.session;
 
-
-        /* ==================================
-           EXISTING SESSION
-        ================================== */
 
         if(
 
@@ -1798,20 +1457,12 @@ async function init(){
             );
 
 
-            /* ==================================
-               SAVE PROVIDER TOKENS
-            ================================== */
-
             saveGoogleTokens(
 
                 data.session
 
             );
 
-
-            /* ==================================
-               RESTORE USER
-            ================================== */
 
             restoreUser(
 
@@ -1820,26 +1471,10 @@ async function init(){
             );
 
 
-            /* ==================================
-               CHECK ONBOARDING
-            ================================== */
-
             const currentUser =
 
                 loadUser();
 
-
-            /*
-               Hanya redirect ke Dashboard jika
-               halaman ini merupakan hasil dari
-               proses Google Login.
-
-               Jika user hanya membuka :
-
-                   /pages/
-
-               secara normal, tidak ada redirect.
-            */
 
             const loginRedirectPending =
 
@@ -1850,17 +1485,26 @@ async function init(){
                 );
 
 
-            /*
-               Jangan langsung menghapus flag.
+            /* ==================================
+               LOGIN LOADING
+            ================================== */
 
-               Flag baru dihapus setelah
-               Finance Module berhasil.
+            if(
 
-               Dengan begitu jika initialization
-               gagal, proses login masih dapat
-               dilanjutkan tanpa kehilangan
-               status redirect.
-            */
+                loginRedirectPending === "true"
+
+            ){
+
+                await Loading.show(
+
+                    "Menyiapkan Finance Assistant...",
+
+                    "Menghubungkan akun dan menyiapkan data kamu."
+
+                );
+
+            }
+
 
             if(
 
@@ -1874,12 +1518,6 @@ async function init(){
 
                 ){
 
-                    /*
-                       Redirect dilakukan setelah
-                       Finance Module berhasil.
-                       Prosesnya ada di bawah.
-                    */
-
                     console.log(
 
                         "AUTH: Google Login terdeteksi. Menunggu Finance Module..."
@@ -1890,10 +1528,6 @@ async function init(){
 
             }
 
-
-            /* ==================================
-               DEBUG TOKEN STATE
-            ================================== */
 
             const providerToken =
 
@@ -1947,10 +1581,6 @@ async function init(){
             );
 
 
-            /* ==================================
-               TOKEN VALIDATION / REFRESH
-            ================================== */
-
             try{
 
                 await getValidGoogleProviderToken();
@@ -1979,28 +1609,6 @@ async function init(){
                FINANCE MODULE RESTORE
             ================================== */
 
-            /*
-               PENTING :
-
-               Existing session tidak selalu
-               menghasilkan event SIGNED_IN.
-
-               Karena itu Finance Module harus
-               tetap diinisialisasi di sini.
-
-               Ini memastikan :
-
-               Google Session
-                    ↓
-               Finance Module
-                    ↓
-               Finance Core
-                    ↓
-               Account
-                    ↓
-               Workspace
-            */
-
             try{
 
                 console.log(
@@ -2026,11 +1634,6 @@ async function init(){
                    LOGIN REDIRECT
                 ============================== */
 
-                /*
-                   Hanya jalankan jika session ini
-                   berasal dari proses Google Login.
-                */
-
                 if(
 
                     loginRedirectPending === "true"
@@ -2045,23 +1648,12 @@ async function init(){
 
                 ){
 
-                    /*
-                       Tampilkan message hanya jika
-                       module.js melaporkan ada
-                       resource baru yang dibuat.
-                    */
-
-                    showFinanceSetupMessage(
+                    await showFinanceSetupMessage(
 
                         financeResult
 
                     );
 
-
-                    /*
-                       Flag redirect baru dihapus
-                       setelah Finance Module sukses.
-                    */
 
                     sessionStorage.removeItem(
 
@@ -2084,6 +1676,21 @@ async function init(){
                     error?.message
 
                 );
+
+
+                /* ==============================
+                   HIDE LOGIN LOADING
+                ============================== */
+
+                if(
+
+                    loginRedirectPending === "true"
+
+                ){
+
+                    Loading.hide();
+
+                }
 
             }
 
@@ -2118,10 +1725,6 @@ async function init(){
                 );
 
 
-                /* ==================================
-                   UPDATE AUTH STATE
-                ================================== */
-
                 Auth.session =
 
                     session;
@@ -2135,10 +1738,6 @@ async function init(){
 
                     null;
 
-
-                /* ==================================
-                   SESSION EXISTS
-                ================================== */
 
                 if(
 
@@ -2155,10 +1754,6 @@ async function init(){
                     );
 
 
-                    /* ==============================
-                       SAVE GOOGLE TOKENS
-                    ============================== */
-
                     saveGoogleTokens(
 
                         session
@@ -2166,20 +1761,12 @@ async function init(){
                     );
 
 
-                    /* ==============================
-                       RESTORE IDENTITY
-                    ============================== */
-
                     restoreUser(
 
                         session.user
 
                     );
 
-
-                    /* ==============================
-                       SIGNED IN
-                    ============================== */
 
                     if(
 
@@ -2194,24 +1781,12 @@ async function init(){
                         );
 
 
-                        /*
-                           Gunakan initialization lock.
-
-                           Jika init() sedang melakukan
-                           initialization, event ini akan
-                           menggunakan Promise yang sama.
-                        */
-
                         initializeFinanceModule();
 
                     }
 
                 }
 
-
-                /* ==================================
-                   TOKEN REFRESHED
-                ================================== */
 
                 if(
 
@@ -2234,10 +1809,6 @@ async function init(){
 
                 }
 
-
-                /* ==================================
-                   SIGNED OUT
-                ================================== */
 
                 if(
 
@@ -2318,19 +1889,6 @@ export async function loginGoogle(){
 
     try{
 
-        /* ==================================
-           MARK LOGIN REDIRECT
-        ================================== */
-
-        /*
-           Tandai bahwa halaman berikutnya
-           merupakan hasil dari proses login.
-
-           Flag ini hanya disimpan di
-           sessionStorage sehingga tidak
-           bertahan seperti localStorage.
-        */
-
         sessionStorage.setItem(
 
             LOGIN_REDIRECT_KEY,
@@ -2339,10 +1897,6 @@ export async function loginGoogle(){
 
         );
 
-
-        /* ==================================
-           START GOOGLE OAUTH
-        ================================== */
 
         const {
 
@@ -2397,11 +1951,6 @@ export async function loginGoogle(){
 
         ){
 
-            /*
-               Jika OAuth gagal dimulai,
-               jangan tinggalkan flag.
-            */
-
             sessionStorage.removeItem(
 
                 LOGIN_REDIRECT_KEY
@@ -2424,11 +1973,6 @@ export async function loginGoogle(){
 
 
     }catch(error){
-
-        /*
-           Pastikan flag tidak tertinggal
-           jika proses login mengalami error.
-        */
 
         sessionStorage.removeItem(
 
@@ -2477,23 +2021,7 @@ window.loginGoogle =
    FINANCE SETUP MESSAGE
 ========================================== */
 
-/*
-   Message ini hanya ditampilkan ketika
-   module.js benar-benar membuat resource
-   baru.
-
-   module.js menjadi source of truth.
-
-   created === true :
-
-       resource baru dibuat
-
-   created === false :
-
-       resource sudah ada
-*/
-
-function showFinanceSetupMessage(
+async function showFinanceSetupMessage(
 
     result
 
@@ -2577,46 +2105,72 @@ function showFinanceSetupMessage(
 
 
         /* ==================================
-           TIDAK ADA RESOURCE BARU
+           MESSAGE
         ================================== */
+
+        let message =
+
+            "Finance Assistant berhasil disiapkan.";
+
 
         if(
 
-            createdItems.length === 0
+            createdItems.length > 0
 
         ){
 
-            return;
+            message =
+
+                "Workspace Finance Assistant berhasil disiapkan.\n\n"
+
+                +
+
+                createdItems.join(
+
+                    "\n"
+
+                )
+
+                +
+
+                "\n\nSemua data disimpan di Google Drive kamu.";
 
         }
 
 
         /* ==================================
-           MESSAGE
+           HIDE LOADING
         ================================== */
 
-        const message =
-
-            "Workspace Finance Assistant berhasil disiapkan.\n\n"
-
-            +
-
-            createdItems.join(
-
-                "\n"
-
-            )
-
-            +
-
-            "\n\nSemua data disimpan di Google Drive kamu.";
+        Loading.hide();
 
 
-        alert(
+        /* ==================================
+           HTML ALERT
+        ================================== */
 
-            message
+        await Loading.alert({
 
-        );
+            title :
+
+                "Login berhasil",
+
+
+            message :
+
+                message,
+
+
+            buttonText :
+
+                "OK",
+
+
+            icon :
+
+                "✓"
+
+        });
 
 
     }catch(error){
@@ -2629,6 +2183,9 @@ function showFinanceSetupMessage(
 
         );
 
+
+        Loading.hide();
+
     }
 
 }
@@ -2639,10 +2196,6 @@ function showFinanceSetupMessage(
 ========================================== */
 
 async function initializeFinanceModule(){
-
-    /* ======================================
-       EXISTING INITIALIZATION
-    ====================================== */
 
     if(
 
@@ -2673,10 +2226,6 @@ async function initializeFinanceModule(){
     }
 
 
-    /* ======================================
-       CREATE INITIALIZATION PROMISE
-    ====================================== */
-
     financeModuleInitializationPromise =
 
         (
@@ -2697,10 +2246,6 @@ async function initializeFinanceModule(){
 
 
                 try{
-
-                    /* ======================================
-                       SESSION
-                    ====================================== */
 
                     const session =
 
@@ -2732,10 +2277,6 @@ async function initializeFinanceModule(){
                     );
 
 
-                    /* ======================================
-                       GOOGLE USER
-                    ====================================== */
-
                     console.log(
 
                         "Module: Google User:",
@@ -2744,17 +2285,6 @@ async function initializeFinanceModule(){
 
                     );
 
-
-                    /* ======================================
-                       PROVIDER TOKEN
-                    ====================================== */
-
-                    /*
-                       Gunakan getValidGoogleProviderToken()
-                       agar token yang digunakan module
-                       sudah melalui pengecekan expiry /
-                       refresh.
-                    */
 
                     let providerToken =
 
@@ -2815,10 +2345,6 @@ async function initializeFinanceModule(){
                     }
 
 
-                    /* ======================================
-                       LOCAL USER / ONBOARDING DATA
-                    ====================================== */
-
                     const localUser =
 
                         loadUser()
@@ -2836,10 +2362,6 @@ async function initializeFinanceModule(){
 
                     );
 
-
-                    /* ======================================
-                       ONBOARDING
-                    ====================================== */
 
                     const onboarding = {
 
@@ -2886,10 +2408,6 @@ async function initializeFinanceModule(){
                     );
 
 
-                    /* ======================================
-                       INITIALIZE MODULE
-                    ====================================== */
-
                     console.log(
 
                         "Module: Memulai Finance Core setup..."
@@ -2915,10 +2433,6 @@ async function initializeFinanceModule(){
                     );
 
 
-                    /* ======================================
-                       SAVE MODULE INFO
-                    ====================================== */
-
                     if(
 
                         result
@@ -2942,10 +2456,6 @@ async function initializeFinanceModule(){
 
                         );
 
-
-                        /* ==================================
-                           RESTORE ACCOUNT DATA
-                        ================================== */
 
                         if(
 
@@ -2971,16 +2481,6 @@ async function initializeFinanceModule(){
 
                             try{
 
-                                /*
-                                   Jangan biarkan accountData
-                                   menimpa seluruh data lokal
-                                   yang sudah dipilih user.
-
-                                   Data dari Finance Core tetap
-                                   dipulihkan, tetapi nilai lokal
-                                   yang sudah ada dipertahankan.
-                                */
-
                                 const currentUser =
 
                                     loadUser()
@@ -2998,10 +2498,6 @@ async function initializeFinanceModule(){
 
                                 };
 
-
-                                /*
-                                   Theme lokal memiliki prioritas.
-                                */
 
                                 const localTheme =
 
@@ -3047,13 +2543,6 @@ async function initializeFinanceModule(){
 
                             }
 
-
-                            /* ==============================
-                               RESTORE THEME
-
-                               Finance Core hanya digunakan
-                               jika local theme belum ada.
-                            ============================== */
 
                             const localTheme =
 
@@ -3188,14 +2677,6 @@ async function initializeFinanceModule(){
                     );
 
 
-                    /*
-                       Login Supabase tetap berhasil
-                       meskipun Drive / Sheets gagal.
-
-                       Error module tidak membuat
-                       user dianggap logout.
-                    */
-
                     return {
 
                         success :
@@ -3225,14 +2706,6 @@ async function initializeFinanceModule(){
         return await financeModuleInitializationPromise;
 
     }finally{
-
-        /*
-           Lock dilepas setelah proses benar-benar
-           selesai.
-
-           Proses berikutnya boleh melakukan
-           initialization baru.
-        */
 
         financeModuleInitializationPromise =
 
@@ -3291,10 +2764,6 @@ export async function getSession(){
 
         null;
 
-
-    /* ======================================
-       SAVE PROVIDER TOKENS
-    ====================================== */
 
     if(
 
@@ -3449,18 +2918,6 @@ export async function getGoogleProviderToken(){
         await getSession();
 
 
-    /*
-       Jangan langsung refresh di fungsi ini.
-
-       Fungsi ini hanya mengambil token
-       yang tersedia.
-
-       Untuk token yang dijamin valid,
-       gunakan :
-
-       getValidGoogleProviderToken()
-    */
-
     return (
 
         session?.provider_token
@@ -3574,10 +3031,6 @@ function restoreUser(
         {};
 
 
-    /* ======================================
-       EXISTING LOCAL FINANCE USER
-    ====================================== */
-
     const existingUser =
 
         loadUser()
@@ -3595,23 +3048,6 @@ function restoreUser(
 
     );
 
-
-    /* ======================================
-       USER DATA
-
-       Google identity :
-
-       - id
-       - email
-       - avatar
-
-       Finance profile :
-
-       - displayName
-       - currency
-       - theme
-       - onboardingCompleted
-    ====================================== */
 
     const userData = {
 
@@ -3684,10 +3120,6 @@ function restoreUser(
     };
 
 
-    /* ======================================
-       SAVE USER
-    ====================================== */
-
     try{
 
         saveUser(
@@ -3724,19 +3156,6 @@ function restoreUser(
         );
 
     }
-
-
-    /*
-       IMPORTANT :
-
-       Theme TIDAK disimpan ulang di sini.
-
-       restoreUser() hanya memulihkan
-       identitas Finance Assistant.
-
-       Theme dikontrol oleh localStorage
-       dan initializeFinanceModule().
-    */
 
 }
 
@@ -3780,10 +3199,6 @@ export async function logout(){
         }
 
 
-        /* ======================================
-           CLEAR AUTH STATE
-        ====================================== */
-
         Auth.session =
 
             null;
@@ -3794,17 +3209,8 @@ export async function logout(){
             null;
 
 
-        /* ======================================
-           CLEAR GOOGLE TOKENS
-        ====================================== */
-
         clearGoogleTokens();
 
-
-        /*
-           Pastikan flag redirect login juga
-           dibersihkan saat logout.
-        */
 
         sessionStorage.removeItem(
 
@@ -3826,10 +3232,6 @@ export async function logout(){
 
         );
 
-
-        /* ======================================
-           REDIRECT
-        ====================================== */
 
         window.location.replace(
 
