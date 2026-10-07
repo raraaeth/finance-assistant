@@ -1640,10 +1640,6 @@ async function init(){
 
                     &&
 
-                    currentUser?.onboardingCompleted === true
-
-                    &&
-
                     financeResult?.success === true
 
                 ){
