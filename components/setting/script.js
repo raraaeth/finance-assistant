@@ -806,20 +806,23 @@ export const Setting = {
 
             if(
 
-                result?.success === true
+    result?.success === true
 
-            ){
+){
 
-                /* =====================================
-                   CLOSE SETTING
-                ===================================== */
-
-                Setting.close();
+    Setting.close();
 
 
-                return result;
+    window.location.replace(
 
-            }
+        "/pages/"
+
+    );
+
+
+    return result;
+
+}
 
 
             /* =========================================
