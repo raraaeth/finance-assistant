@@ -8,7 +8,6 @@
    Global Setting Controller
 
    Responsibility :
-   - Load HTML
    - Init
    - Open
    - Close
@@ -126,13 +125,6 @@ import {
     saveSetting
 
 } from "../../js/write.js";
-
-
-import {
-
-    Loading
-
-} from "../loading/script.js";
 
 
 
