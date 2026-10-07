@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 9.3.0
+   Version     : 9.4.0
 
    Description :
    Supabase Authentication Engine
@@ -63,6 +63,9 @@
    2. Redirect ke Dashboard hanya dilakukan
       setelah proses Google Login berhasil
       dan onboarding sudah selesai
+   3. Setelah Finance Module berhasil,
+      jika ada resource baru dibuat,
+      user mendapatkan message setup
 
    FINANCE MODULE :
 
@@ -72,6 +75,22 @@
    2. Ini memastikan Finance Core,
       Account, dan workspace state dapat
       dibaca kembali oleh module lain.
+   3. initializeModule() hanya boleh
+      berjalan satu proses pada satu waktu.
+
+   CREATED STATUS :
+
+   module.js mengembalikan :
+
+       result.folder.created
+       result.financeCore.created
+       result.account.created
+
+   true :
+       resource baru dibuat
+
+   false :
+       resource sudah ditemukan
 ========================================== */
 
 
@@ -121,6 +140,36 @@ const Auth = {
 
 
 /* ==========================================
+   FINANCE MODULE INITIALIZATION LOCK
+========================================== */
+
+/*
+   Mencegah initializeModule() berjalan
+   dua kali secara bersamaan.
+
+   Contoh :
+
+   init()
+       ↓
+   initializeFinanceModule()
+       ↓
+   SIGNED_IN
+       ↓
+   initializeFinanceModule()
+
+   Keduanya akan menggunakan Promise
+   yang sama.
+
+   Tidak membuat proses initialization
+   kedua.
+*/
+
+let financeModuleInitializationPromise =
+
+    null;
+
+
+/* ==========================================
    LOGIN REDIRECT FLAG
 ========================================== */
 
@@ -135,6 +184,7 @@ const Auth = {
 
    Setelah Google Login :
    Jika onboarding selesai,
+   Finance Module berhasil,
    redirect ke Dashboard.
 */
 
@@ -1800,22 +1850,23 @@ async function init(){
                 );
 
 
+            /*
+               Jangan langsung menghapus flag.
+
+               Flag baru dihapus setelah
+               Finance Module berhasil.
+
+               Dengan begitu jika initialization
+               gagal, proses login masih dapat
+               dilanjutkan tanpa kehilangan
+               status redirect.
+            */
+
             if(
 
                 loginRedirectPending === "true"
 
             ){
-
-                /*
-                   Flag hanya digunakan satu kali.
-                */
-
-                sessionStorage.removeItem(
-
-                    LOGIN_REDIRECT_KEY
-
-                );
-
 
                 if(
 
@@ -1823,7 +1874,17 @@ async function init(){
 
                 ){
 
-                    redirectToDashboard();
+                    /*
+                       Redirect dilakukan setelah
+                       Finance Module berhasil.
+                       Prosesnya ada di bawah.
+                    */
+
+                    console.log(
+
+                        "AUTH: Google Login terdeteksi. Menunggu Finance Module..."
+
+                    );
 
                 }
 
@@ -1949,14 +2010,69 @@ async function init(){
                 );
 
 
-                await initializeFinanceModule();
+                const financeResult =
+
+                    await initializeFinanceModule();
 
 
                 console.log(
 
-                    "AUTH: Finance Module berhasil dipulihkan."
+                    "AUTH: Finance Module berhasil diproses."
 
                 );
+
+
+                /* ==============================
+                   LOGIN REDIRECT
+                ============================== */
+
+                /*
+                   Hanya jalankan jika session ini
+                   berasal dari proses Google Login.
+                */
+
+                if(
+
+                    loginRedirectPending === "true"
+
+                    &&
+
+                    currentUser?.onboardingCompleted === true
+
+                    &&
+
+                    financeResult?.success === true
+
+                ){
+
+                    /*
+                       Tampilkan message hanya jika
+                       module.js melaporkan ada
+                       resource baru yang dibuat.
+                    */
+
+                    showFinanceSetupMessage(
+
+                        financeResult
+
+                    );
+
+
+                    /*
+                       Flag redirect baru dihapus
+                       setelah Finance Module sukses.
+                    */
+
+                    sessionStorage.removeItem(
+
+                        LOGIN_REDIRECT_KEY
+
+                    );
+
+
+                    redirectToDashboard();
+
+                }
 
 
             }catch(error){
@@ -2077,6 +2193,14 @@ async function init(){
 
                         );
 
+
+                        /*
+                           Gunakan initialization lock.
+
+                           Jika init() sedang melakukan
+                           initialization, event ini akan
+                           menggunakan Promise yang sama.
+                        */
 
                         initializeFinanceModule();
 
@@ -2248,7 +2372,7 @@ export async function loginGoogle(){
 
                     "https://www.googleapis.com/auth/drive.file ",
 
-                    
+
                 queryParams : {
 
                     access_type :
@@ -2350,310 +2474,352 @@ window.loginGoogle =
 
 
 /* ==========================================
+   FINANCE SETUP MESSAGE
+========================================== */
+
+/*
+   Message ini hanya ditampilkan ketika
+   module.js benar-benar membuat resource
+   baru.
+
+   module.js menjadi source of truth.
+
+   created === true :
+
+       resource baru dibuat
+
+   created === false :
+
+       resource sudah ada
+*/
+
+function showFinanceSetupMessage(
+
+    result
+
+){
+
+    try{
+
+        if(
+
+            !result
+
+            ||
+
+            result.success !== true
+
+        ){
+
+            return;
+
+        }
+
+
+        const createdItems = [];
+
+
+        /* ==================================
+           FOLDER
+        ================================== */
+
+        if(
+
+            result.folder?.created === true
+
+        ){
+
+            createdItems.push(
+
+                "Folder Finance Assistant"
+
+            );
+
+        }
+
+
+        /* ==================================
+           FINANCE CORE
+        ================================== */
+
+        if(
+
+            result.financeCore?.created === true
+
+        ){
+
+            createdItems.push(
+
+                "Finance Core"
+
+            );
+
+        }
+
+
+        /* ==================================
+           ACCOUNT
+        ================================== */
+
+        if(
+
+            result.account?.created === true
+
+        ){
+
+            createdItems.push(
+
+                "Sheet account"
+
+            );
+
+        }
+
+
+        /* ==================================
+           TIDAK ADA RESOURCE BARU
+        ================================== */
+
+        if(
+
+            createdItems.length === 0
+
+        ){
+
+            return;
+
+        }
+
+
+        /* ==================================
+           MESSAGE
+        ================================== */
+
+        const message =
+
+            "Workspace Finance Assistant berhasil disiapkan.\n\n"
+
+            +
+
+            createdItems.join(
+
+                "\n"
+
+            )
+
+            +
+
+            "\n\nSemua data disimpan di Google Drive kamu.";
+
+
+        alert(
+
+            message
+
+        );
+
+
+    }catch(error){
+
+        console.warn(
+
+            "AUTH: Gagal menampilkan message setup:",
+
+            error
+
+        );
+
+    }
+
+}
+
+
+/* ==========================================
    INITIALIZE FINANCE MODULE
 ========================================== */
 
 async function initializeFinanceModule(){
 
-    console.log(
-        "=========================================="
-    );
+    /* ======================================
+       EXISTING INITIALIZATION
+    ====================================== */
 
-    console.log(
-        "===== FINANCE MODULE START ====="
-    );
+    if(
 
-    console.log(
-        "=========================================="
-    );
+        financeModuleInitializationPromise
 
-
-    try{
-
-        /* ======================================
-           SESSION
-        ====================================== */
-
-        const session =
-
-            Auth.session;
-
-
-        if(
-
-            !session
-
-        ){
-
-            console.warn(
-
-                "Module: Session tidak ditemukan."
-
-            );
-
-
-            return null;
-
-        }
-
+    ){
 
         console.log(
 
-            "Module: Session OK."
+            "AUTH: Finance Module initialization sedang berjalan."
 
         );
 
 
-        /* ======================================
-           GOOGLE USER
-        ====================================== */
-
         console.log(
 
-            "Module: Google User:",
-
-            session.user
+            "AUTH: Menggunakan initialization Promise yang sama."
 
         );
 
 
-        /* ======================================
-           PROVIDER TOKEN
-        ====================================== */
+        return (
 
-        /*
-           Gunakan getValidGoogleProviderToken()
-           agar token yang digunakan module
-           sudah melalui pengecekan expiry /
-           refresh.
-        */
-
-        let providerToken =
-
-            null;
-
-
-        try{
-
-            providerToken =
-
-                await getValidGoogleProviderToken();
-
-        }catch(error){
-
-            console.error(
-
-                "Module: Gagal mendapatkan Google Provider Token:",
-
-                error
-
-            );
-
-
-            throw error;
-
-        }
-
-
-        console.log(
-
-            "Module: Google Provider Token:",
-
-            providerToken
-
-                ?
-
-                "AVAILABLE"
-
-                :
-
-                "MISSING"
+            financeModuleInitializationPromise
 
         );
 
+    }
 
-        if(
 
-            !providerToken
+    /* ======================================
+       CREATE INITIALIZATION PROMISE
+    ====================================== */
 
-        ){
+    financeModuleInitializationPromise =
 
-            throw new Error(
+        (
 
-                "Google Provider Token tidak tersedia."
-
-            );
-
-        }
-
-
-        /* ======================================
-           LOCAL USER / ONBOARDING DATA
-        ====================================== */
-
-        const localUser =
-
-            loadUser()
-
-            ||
-
-            {};
-
-
-        console.log(
-
-            "Module: Local Finance Assistant User:",
-
-            localUser
-
-        );
-
-
-        /* ======================================
-           ONBOARDING
-        ====================================== */
-
-        const onboarding = {
-
-            displayName :
-
-                localUser.displayName
-
-                ||
-
-                "",
-
-
-            currency :
-
-                localUser.currency
-
-                ||
-
-                "IDR",
-
-
-            theme :
-
-                localUser.theme
-
-                ||
-
-                "light",
-
-
-            onboardingCompleted :
-
-                localUser.onboardingCompleted === true
-
-        };
-
-
-        console.log(
-
-            "Module: Local Onboarding Data:",
-
-            onboarding
-
-        );
-
-
-        /* ======================================
-           INITIALIZE MODULE
-        ====================================== */
-
-        console.log(
-
-            "Module: Memulai Finance Core setup..."
-
-        );
-
-
-        const result =
-
-            await initializeModule(
-
-                onboarding
-
-            );
-
-
-        console.log(
-
-            "Module: Initialize result:",
-
-            result
-
-        );
-
-
-        /* ======================================
-           SAVE MODULE INFO
-        ====================================== */
-
-        if(
-
-            result
-
-            &&
-
-            result.success
-
-        ){
-
-            saveModuleInfo(
-
-                result
-
-            );
-
-
-            console.log(
-
-                "Module: Info berhasil disimpan."
-
-            );
-
-
-            /* ==================================
-               RESTORE ACCOUNT DATA
-            ================================== */
-
-            if(
-
-                result.accountData
-
-            ){
+            async () => {
 
                 console.log(
-
-                    "Module: Restoring Finance Account Data..."
-
+                    "=========================================="
                 );
 
+                console.log(
+                    "===== FINANCE MODULE START ====="
+                );
 
                 console.log(
-
-                    "Module: Account Data:",
-
-                    result.accountData
-
+                    "=========================================="
                 );
 
 
                 try{
 
-                    /*
-                       Jangan biarkan accountData
-                       menimpa seluruh data lokal
-                       yang sudah dipilih user.
+                    /* ======================================
+                       SESSION
+                    ====================================== */
 
-                       Data dari Finance Core tetap
-                       dipulihkan, tetapi nilai lokal
-                       yang sudah ada dipertahankan.
+                    const session =
+
+                        Auth.session;
+
+
+                    if(
+
+                        !session
+
+                    ){
+
+                        console.warn(
+
+                            "Module: Session tidak ditemukan."
+
+                        );
+
+
+                        return null;
+
+                    }
+
+
+                    console.log(
+
+                        "Module: Session OK."
+
+                    );
+
+
+                    /* ======================================
+                       GOOGLE USER
+                    ====================================== */
+
+                    console.log(
+
+                        "Module: Google User:",
+
+                        session.user
+
+                    );
+
+
+                    /* ======================================
+                       PROVIDER TOKEN
+                    ====================================== */
+
+                    /*
+                       Gunakan getValidGoogleProviderToken()
+                       agar token yang digunakan module
+                       sudah melalui pengecekan expiry /
+                       refresh.
                     */
 
-                    const currentUser =
+                    let providerToken =
+
+                        null;
+
+
+                    try{
+
+                        providerToken =
+
+                            await getValidGoogleProviderToken();
+
+                    }catch(error){
+
+                        console.error(
+
+                            "Module: Gagal mendapatkan Google Provider Token:",
+
+                            error
+
+                        );
+
+
+                        throw error;
+
+                    }
+
+
+                    console.log(
+
+                        "Module: Google Provider Token:",
+
+                        providerToken
+
+                            ?
+
+                            "AVAILABLE"
+
+                            :
+
+                            "MISSING"
+
+                    );
+
+
+                    if(
+
+                        !providerToken
+
+                    ){
+
+                        throw new Error(
+
+                            "Google Provider Token tidak tersedia."
+
+                        );
+
+                    }
+
+
+                    /* ======================================
+                       LOCAL USER / ONBOARDING DATA
+                    ====================================== */
+
+                    const localUser =
 
                         loadUser()
 
@@ -2662,228 +2828,415 @@ async function initializeFinanceModule(){
                         {};
 
 
-                    const restoredUser = {
+                    console.log(
 
-                        ...currentUser,
+                        "Module: Local Finance Assistant User:",
 
-                        ...result.accountData
+                        localUser
+
+                    );
+
+
+                    /* ======================================
+                       ONBOARDING
+                    ====================================== */
+
+                    const onboarding = {
+
+                        displayName :
+
+                            localUser.displayName
+
+                            ||
+
+                            "",
+
+
+                        currency :
+
+                            localUser.currency
+
+                            ||
+
+                            "IDR",
+
+
+                        theme :
+
+                            localUser.theme
+
+                            ||
+
+                            "light",
+
+
+                        onboardingCompleted :
+
+                            localUser.onboardingCompleted === true
 
                     };
 
 
-                    /*
-                       Theme lokal memiliki prioritas.
-                    */
+                    console.log(
 
-                    const localTheme =
+                        "Module: Local Onboarding Data:",
 
-                        loadLocalTheme();
-
-
-                    if(
-
-                        localTheme
-
-                    ){
-
-                        restoredUser.theme =
-
-                            localTheme;
-
-                    }
-
-
-                    saveUser(
-
-                        restoredUser
+                        onboarding
 
                     );
+
+
+                    /* ======================================
+                       INITIALIZE MODULE
+                    ====================================== */
+
+                    console.log(
+
+                        "Module: Memulai Finance Core setup..."
+
+                    );
+
+
+                    const result =
+
+                        await initializeModule(
+
+                            onboarding
+
+                        );
 
 
                     console.log(
 
-                        "Module: Finance Account berhasil dipulihkan."
+                        "Module: Initialize result:",
+
+                        result
 
                     );
 
 
-                }catch(error){
+                    /* ======================================
+                       SAVE MODULE INFO
+                    ====================================== */
 
-                    console.warn(
+                    if(
 
-                        "Module: Gagal restore Finance Account:",
+                        result
 
-                        error
+                        &&
 
-                    );
+                        result.success
 
-                }
+                    ){
 
+                        saveModuleInfo(
 
-                /* ==============================
-                   RESTORE THEME
-
-                   Finance Core hanya digunakan
-                   jika local theme belum ada.
-                ============================== */
-
-                const localTheme =
-
-                    loadLocalTheme();
-
-
-                const financeTheme =
-
-                    result
-                    ?.accountData
-                    ?.theme;
-
-
-                if(
-
-                    !localTheme
-
-                    &&
-
-                    financeTheme
-
-                ){
-
-                    try{
-
-                        saveTheme(
-
-                            financeTheme
+                            result
 
                         );
 
 
                         console.log(
 
-                            "Module: Theme dipulihkan dari Finance Core:",
-
-                            financeTheme
+                            "Module: Info berhasil disimpan."
 
                         );
 
 
-                    }catch(error){
+                        /* ==================================
+                           RESTORE ACCOUNT DATA
+                        ================================== */
 
-                        console.warn(
+                        if(
 
-                            "Module: Gagal restore theme:",
+                            result.accountData
 
-                            error
+                        ){
 
-                        );
+                            console.log(
+
+                                "Module: Restoring Finance Account Data..."
+
+                            );
+
+
+                            console.log(
+
+                                "Module: Account Data:",
+
+                                result.accountData
+
+                            );
+
+
+                            try{
+
+                                /*
+                                   Jangan biarkan accountData
+                                   menimpa seluruh data lokal
+                                   yang sudah dipilih user.
+
+                                   Data dari Finance Core tetap
+                                   dipulihkan, tetapi nilai lokal
+                                   yang sudah ada dipertahankan.
+                                */
+
+                                const currentUser =
+
+                                    loadUser()
+
+                                    ||
+
+                                    {};
+
+
+                                const restoredUser = {
+
+                                    ...currentUser,
+
+                                    ...result.accountData
+
+                                };
+
+
+                                /*
+                                   Theme lokal memiliki prioritas.
+                                */
+
+                                const localTheme =
+
+                                    loadLocalTheme();
+
+
+                                if(
+
+                                    localTheme
+
+                                ){
+
+                                    restoredUser.theme =
+
+                                        localTheme;
+
+                                }
+
+
+                                saveUser(
+
+                                    restoredUser
+
+                                );
+
+
+                                console.log(
+
+                                    "Module: Finance Account berhasil dipulihkan."
+
+                                );
+
+
+                            }catch(error){
+
+                                console.warn(
+
+                                    "Module: Gagal restore Finance Account:",
+
+                                    error
+
+                                );
+
+                            }
+
+
+                            /* ==============================
+                               RESTORE THEME
+
+                               Finance Core hanya digunakan
+                               jika local theme belum ada.
+                            ============================== */
+
+                            const localTheme =
+
+                                loadLocalTheme();
+
+
+                            const financeTheme =
+
+                                result
+                                ?.accountData
+                                ?.theme;
+
+
+                            if(
+
+                                !localTheme
+
+                                &&
+
+                                financeTheme
+
+                            ){
+
+                                try{
+
+                                    saveTheme(
+
+                                        financeTheme
+
+                                    );
+
+
+                                    console.log(
+
+                                        "Module: Theme dipulihkan dari Finance Core:",
+
+                                        financeTheme
+
+                                    );
+
+
+                                }catch(error){
+
+                                    console.warn(
+
+                                        "Module: Gagal restore theme:",
+
+                                        error
+
+                                    );
+
+                                }
+
+                            }
+
+                            else if(
+
+                                localTheme
+
+                            ){
+
+                                console.log(
+
+                                    "Module: Theme lokal dipertahankan:",
+
+                                    localTheme
+
+                                );
+
+                            }
+
+                        }
 
                     }
 
-                }
-
-                else if(
-
-                    localTheme
-
-                ){
 
                     console.log(
+                        "=========================================="
+                    );
 
-                        "Module: Theme lokal dipertahankan:",
+                    console.log(
+                        "===== FINANCE MODULE SUCCESS ====="
+                    );
 
-                        localTheme
+                    console.log(
+                        "=========================================="
+                    );
+
+
+                    return result;
+
+
+                }catch(error){
+
+                    console.error(
+                        "=========================================="
+                    );
+
+                    console.error(
+                        "===== FINANCE MODULE FAILED ====="
+                    );
+
+                    console.error(
+                        "=========================================="
+                    );
+
+
+                    console.error(
+
+                        "Module Error:",
+
+                        error
 
                     );
+
+
+                    console.error(
+
+                        "Module Error Message:",
+
+                        error?.message
+
+                    );
+
+
+                    console.error(
+
+                        "Module Error Stack:",
+
+                        error?.stack
+
+                    );
+
+
+                    /*
+                       Login Supabase tetap berhasil
+                       meskipun Drive / Sheets gagal.
+
+                       Error module tidak membuat
+                       user dianggap logout.
+                    */
+
+                    return {
+
+                        success :
+
+                            false,
+
+
+                        error :
+
+                            error?.message
+
+                            ||
+
+                            "Finance Module gagal"
+
+                    };
 
                 }
 
             }
 
-        }
+        )();
 
 
-        console.log(
-            "=========================================="
-        );
+    try{
 
-        console.log(
-            "===== FINANCE MODULE SUCCESS ====="
-        );
+        return await financeModuleInitializationPromise;
 
-        console.log(
-            "=========================================="
-        );
-
-
-        return result;
-
-
-    }catch(error){
-
-        console.error(
-            "=========================================="
-        );
-
-        console.error(
-            "===== FINANCE MODULE FAILED ====="
-        );
-
-        console.error(
-            "=========================================="
-        );
-
-
-        console.error(
-
-            "Module Error:",
-
-            error
-
-        );
-
-
-        console.error(
-
-            "Module Error Message:",
-
-            error?.message
-
-        );
-
-
-        console.error(
-
-            "Module Error Stack:",
-
-            error?.stack
-
-        );
-
+    }finally{
 
         /*
-           Login Supabase tetap berhasil
-           meskipun Drive / Sheets gagal.
+           Lock dilepas setelah proses benar-benar
+           selesai.
 
-           Error module tidak membuat
-           user dianggap logout.
+           Proses berikutnya boleh melakukan
+           initialization baru.
         */
 
-        return {
+        financeModuleInitializationPromise =
 
-            success :
-
-                false,
-
-
-            error :
-
-                error?.message
-
-                ||
-
-                "Finance Module gagal"
-
-        };
+            null;
 
     }
 
