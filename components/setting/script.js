@@ -881,53 +881,52 @@ export const Setting = {
 
         finally{
 
-            /* =============================================
-               HIDE GLOBAL LOADING
-            ============================================= */
+    /* =============================================
+       UNLOCK
+    ============================================= */
 
-            Loading.hide();
+    isConfirming =
 
-
-            /* =============================================
-               UNLOCK
-            ============================================= */
-
-            isConfirming =
-
-                false;
+        false;
 
 
-            /* =============================================
-               ENABLE BUTTON
-            ============================================= */
+    /* =============================================
+       ENABLE BUTTON
+    ============================================= */
 
-            if(
+    if(
 
-                confirmButton
+        confirmButton
 
-            ){
+    ){
 
-                confirmButton.disabled =
+        confirmButton.disabled =
 
-                    false;
-
-
-                confirmButton.removeAttribute(
-
-                    "aria-disabled"
-
-                );
+            false;
 
 
-                confirmButton.removeAttribute(
+        confirmButton.textContent =
 
-                    "aria-busy"
+            "Konfirmasi";
 
-                );
 
-            }
+        confirmButton.removeAttribute(
 
-        }
+            "aria-disabled"
+
+        );
+
+
+        confirmButton.removeAttribute(
+
+            "aria-busy"
+
+        );
+
+    }
+
+}
+                
 
     }
 
