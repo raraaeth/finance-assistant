@@ -660,31 +660,6 @@ export const Setting = {
 
 
         /* =============================================
-           SHOW GLOBAL LOADING
-        ============================================= */
-
-        await Loading.show();
-
-
-        /*
-         * Beri browser kesempatan untuk
-         * merender fullscreen loading terlebih dahulu.
-         */
-
-        await new Promise(
-
-            resolve =>
-
-                requestAnimationFrame(
-
-                    resolve
-
-                )
-
-        );
-
-
-        /* =============================================
            PROCESS
         ============================================= */
 
