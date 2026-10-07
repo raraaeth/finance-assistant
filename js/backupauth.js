@@ -3,7 +3,7 @@
    Module      : AUTH
    File        : auth.js
 
-   Version     : 9.1.0
+   Version     : 9.3.0
 
    Description :
    Supabase Authentication Engine
@@ -56,6 +56,22 @@
       digunakan sebagai restore awal
       jika local theme belum tersedia
 
+   LOGIN REDIRECT :
+
+   1. /pages/ tidak otomatis diarahkan
+      ke Dashboard ketika halaman dibuka
+   2. Redirect ke Dashboard hanya dilakukan
+      setelah proses Google Login berhasil
+      dan onboarding sudah selesai
+
+   FINANCE MODULE :
+
+   1. Jika session sudah ada ketika
+      halaman direfresh / dibuka kembali,
+      Finance Module tetap diinisialisasi.
+   2. Ini memastikan Finance Core,
+      Account, dan workspace state dapat
+      dibaca kembali oleh module lain.
 ========================================== */
 
 
@@ -102,6 +118,30 @@ const Auth = {
         null
 
 };
+
+
+/* ==========================================
+   LOGIN REDIRECT FLAG
+========================================== */
+
+/*
+   Digunakan untuk membedakan :
+
+   1. User membuka /pages/ secara normal
+   2. User baru selesai melakukan Google Login
+
+   /pages/ secara normal :
+   Tidak redirect ke Dashboard.
+
+   Setelah Google Login :
+   Jika onboarding selesai,
+   redirect ke Dashboard.
+*/
+
+const LOGIN_REDIRECT_KEY =
+
+    "finance_login_redirect_pending";
+
 
 /* ==========================================
    DASHBOARD REDIRECT
@@ -1274,7 +1314,6 @@ export async function refreshGoogleProviderToken(){
 
                 )
 
-
             );
 
 
@@ -1730,24 +1769,65 @@ async function init(){
 
             );
 
-           /* ==================================
-   CHECK ONBOARDING
-================================== */
 
-const currentUser =
+            /* ==================================
+               CHECK ONBOARDING
+            ================================== */
 
-    loadUser();
+            const currentUser =
+
+                loadUser();
 
 
-if(
+            /*
+               Hanya redirect ke Dashboard jika
+               halaman ini merupakan hasil dari
+               proses Google Login.
 
-    currentUser?.onboardingCompleted === true
+               Jika user hanya membuka :
 
-){
+                   /pages/
 
-    redirectToDashboard();
+               secara normal, tidak ada redirect.
+            */
 
-}
+            const loginRedirectPending =
+
+                sessionStorage.getItem(
+
+                    LOGIN_REDIRECT_KEY
+
+                );
+
+
+            if(
+
+                loginRedirectPending === "true"
+
+            ){
+
+                /*
+                   Flag hanya digunakan satu kali.
+                */
+
+                sessionStorage.removeItem(
+
+                    LOGIN_REDIRECT_KEY
+
+                );
+
+
+                if(
+
+                    currentUser?.onboardingCompleted === true
+
+                ){
+
+                    redirectToDashboard();
+
+                }
+
+            }
 
 
             /* ==================================
@@ -1826,6 +1906,64 @@ if(
                 console.warn(
 
                     "AUTH: Automatic Google token refresh gagal:",
+
+                    error?.message
+
+                );
+
+            }
+
+
+            /* ==================================
+               FINANCE MODULE RESTORE
+            ================================== */
+
+            /*
+               PENTING :
+
+               Existing session tidak selalu
+               menghasilkan event SIGNED_IN.
+
+               Karena itu Finance Module harus
+               tetap diinisialisasi di sini.
+
+               Ini memastikan :
+
+               Google Session
+                    ↓
+               Finance Module
+                    ↓
+               Finance Core
+                    ↓
+               Account
+                    ↓
+               Workspace
+            */
+
+            try{
+
+                console.log(
+
+                    "AUTH: Existing session → initialize Finance Module..."
+
+                );
+
+
+                await initializeFinanceModule();
+
+
+                console.log(
+
+                    "AUTH: Finance Module berhasil dipulihkan."
+
+                );
+
+
+            }catch(error){
+
+                console.warn(
+
+                    "AUTH: Finance Module restore gagal:",
 
                     error?.message
 
@@ -2056,6 +2194,32 @@ export async function loginGoogle(){
 
     try{
 
+        /* ==================================
+           MARK LOGIN REDIRECT
+        ================================== */
+
+        /*
+           Tandai bahwa halaman berikutnya
+           merupakan hasil dari proses login.
+
+           Flag ini hanya disimpan di
+           sessionStorage sehingga tidak
+           bertahan seperti localStorage.
+        */
+
+        sessionStorage.setItem(
+
+            LOGIN_REDIRECT_KEY,
+
+            "true"
+
+        );
+
+
+        /* ==================================
+           START GOOGLE OAUTH
+        ================================== */
+
         const {
 
             data,
@@ -2082,13 +2246,9 @@ export async function loginGoogle(){
 
                 scopes :
 
-                    "https://www.googleapis.com/auth/drive.file "
+                    "https://www.googleapis.com/auth/drive.file ",
 
-                    +
-
-                    "https://www.googleapis.com/auth/spreadsheets",
-
-
+                    
                 queryParams : {
 
                     access_type :
@@ -2113,6 +2273,18 @@ export async function loginGoogle(){
 
         ){
 
+            /*
+               Jika OAuth gagal dimulai,
+               jangan tinggalkan flag.
+            */
+
+            sessionStorage.removeItem(
+
+                LOGIN_REDIRECT_KEY
+
+            );
+
+
             throw error;
 
         }
@@ -2128,6 +2300,18 @@ export async function loginGoogle(){
 
 
     }catch(error){
+
+        /*
+           Pastikan flag tidak tertinggal
+           jika proses login mengalami error.
+        */
+
+        sessionStorage.removeItem(
+
+            LOGIN_REDIRECT_KEY
+
+        );
+
 
         console.error(
             "=========================================="
@@ -3262,6 +3446,18 @@ export async function logout(){
         ====================================== */
 
         clearGoogleTokens();
+
+
+        /*
+           Pastikan flag redirect login juga
+           dibersihkan saat logout.
+        */
+
+        sessionStorage.removeItem(
+
+            LOGIN_REDIRECT_KEY
+
+        );
 
 
         console.log(
