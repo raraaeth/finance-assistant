@@ -622,36 +622,41 @@ export const Setting = {
 
             );
 
+            if(
 
-        if(
+    confirmButton
 
-            confirmButton
+){
 
-        ){
+    confirmButton.disabled =
 
-            confirmButton.disabled =
-
-                true;
-
-
-            confirmButton.setAttribute(
-
-                "aria-disabled",
-
-                "true"
-
-            );
+        true;
 
 
-            confirmButton.setAttribute(
+    confirmButton.textContent =
 
-                "aria-busy",
+        "Menyimpan...";
 
-                "true"
 
-            );
+    confirmButton.setAttribute(
 
-        }
+        "aria-disabled",
+
+        "true"
+
+    );
+
+
+    confirmButton.setAttribute(
+
+        "aria-busy",
+
+        "true"
+
+    );
+
+}
+                
 
 
         /* =============================================
