@@ -2,26 +2,37 @@
    Finance Assistant
    Component    : Global Loading
    File         : script.js
-   Version      : 2.1.0
+   Version      : 3.0.0
 
    Description :
-   Global Full Screen Loading Controller
+   Global Loading & HTML Alert Controller
 
    Responsibility :
-   - Load CSS loading
-   - Load HTML loading
+   - Load CSS
+   - Load HTML
    - Show loading
    - Hide loading
-   - Prevent duplicate loading element
+   - Show HTML alert
+   - Hide HTML alert
+   - Prevent duplicate component
    - Lock body scroll
 
-   UI :
-   - Icon ✅
-   - Text "Tunggu sebentar"
-
    Usage :
-   Loading.show()
-   Loading.hide()
+
+   Loading.show();
+
+   Loading.show(
+       "Menyiapkan Finance Assistant...",
+       "Mohon tunggu sebentar."
+   );
+
+   Loading.hide();
+
+   await Loading.alert({
+       title : "Login berhasil",
+       message :
+           "Finance Assistant berhasil disiapkan."
+   });
 ===================================================== */
 
 
@@ -33,7 +44,12 @@ let initialized = false;
 
 let loadingElement = null;
 
+let alertElement = null;
+
 let styleLoaded = false;
+
+let alertResolver = null;
+
 
 
 /* =====================================================
@@ -57,26 +73,26 @@ export const Loading = {
 
             initialized &&
 
-            loadingElement
+            loadingElement &&
+
+            alertElement
 
         ){
 
-            return loadingElement;
+            return true;
 
         }
 
 
         /* =============================================
            LOAD CSS
-           
-           CSS harus dipastikan masuk terlebih dahulu.
         ============================================= */
 
         await loadCSS();
 
 
         /* =============================================
-           EXISTING DOM
+           EXISTING LOADING
         ============================================= */
 
         loadingElement =
@@ -88,18 +104,40 @@ export const Loading = {
             );
 
 
+        /* =============================================
+           EXISTING ALERT
+        ============================================= */
+
+        alertElement =
+
+            document.getElementById(
+
+                "global-alert"
+
+            );
+
+
+        /* =============================================
+           BOTH EXIST
+        ============================================= */
+
         if(
 
-            loadingElement
+            loadingElement &&
+
+            alertElement
 
         ){
+
+            bindAlertEvents();
+
 
             initialized =
 
                 true;
 
 
-            return loadingElement;
+            return true;
 
         }
 
@@ -163,9 +201,30 @@ export const Loading = {
                 html.trim();
 
 
+            /* =========================================
+               FIND LOADING
+            ========================================= */
+
             loadingElement =
 
-                wrapper.firstElementChild;
+                wrapper.querySelector(
+
+                    "#global-loading"
+
+                );
+
+
+            /* =========================================
+               FIND ALERT
+            ========================================= */
+
+            alertElement =
+
+                wrapper.querySelector(
+
+                    "#global-alert"
+
+                );
 
 
             if(
@@ -183,6 +242,21 @@ export const Loading = {
             }
 
 
+            if(
+
+                !alertElement
+
+            ){
+
+                throw new Error(
+
+                    "Global Alert root tidak ditemukan."
+
+                );
+
+            }
+
+
             /* =========================================
                APPEND
             ========================================= */
@@ -194,12 +268,30 @@ export const Loading = {
             );
 
 
+            document.body.appendChild(
+
+                alertElement
+
+            );
+
+
+            /* =========================================
+               BIND EVENTS
+            ========================================= */
+
+            bindAlertEvents();
+
+
+            /* =========================================
+               STATE
+            ========================================= */
+
             initialized =
 
                 true;
 
 
-            return loadingElement;
+            return true;
 
         }
 
@@ -219,12 +311,17 @@ export const Loading = {
                 null;
 
 
+            alertElement =
+
+                null;
+
+
             initialized =
 
                 false;
 
 
-            return null;
+            return false;
 
         }
 
@@ -235,16 +332,26 @@ export const Loading = {
        SHOW
     ================================================= */
 
-    async show(){
+    async show(
 
-        const element =
+        title =
+
+            "Menyiapkan Finance Assistant...",
+
+        message =
+
+            "Mohon tunggu sebentar."
+
+    ){
+
+        const ready =
 
             await Loading.init();
 
 
         if(
 
-            !element
+            !ready
 
         ){
 
@@ -261,24 +368,83 @@ export const Loading = {
 
 
         /* =============================================
-           SHOW
+           UPDATE TITLE
         ============================================= */
 
-        element.classList.remove(
+        const titleElement =
+
+            loadingElement.querySelector(
+
+                "#global-loading-title"
+
+            );
+
+
+        if(
+
+            titleElement
+
+        ){
+
+            titleElement.textContent =
+
+                title;
+
+        }
+
+
+        /* =============================================
+           UPDATE MESSAGE
+        ============================================= */
+
+        const messageElement =
+
+            loadingElement.querySelector(
+
+                "#global-loading-text"
+
+            );
+
+
+        if(
+
+            messageElement
+
+        ){
+
+            messageElement.textContent =
+
+                message;
+
+        }
+
+
+        /* =============================================
+           HIDE ALERT
+        ============================================= */
+
+        hideAlert();
+
+
+        /* =============================================
+           SHOW LOADING
+        ============================================= */
+
+        loadingElement.classList.remove(
 
             "is-hidden"
 
         );
 
 
-        element.classList.add(
+        loadingElement.classList.add(
 
             "is-visible"
 
         );
 
 
-        element.setAttribute(
+        loadingElement.setAttribute(
 
             "aria-hidden",
 
@@ -288,7 +454,7 @@ export const Loading = {
 
 
         /* =============================================
-           PREVENT SCROLL
+           BODY LOCK
         ============================================= */
 
         document.body.classList.add(
@@ -328,20 +494,13 @@ export const Loading = {
 
         ){
 
-            console.warn(
-
-                "Global Loading element tidak ditemukan."
-
-            );
-
-
             return;
 
         }
 
 
         /* =============================================
-           HIDE
+           HIDE LOADING
         ============================================= */
 
         element.classList.remove(
@@ -368,7 +527,7 @@ export const Loading = {
 
 
         /* =============================================
-           RESTORE SCROLL
+           RESTORE BODY
         ============================================= */
 
         document.body.classList.remove(
@@ -377,9 +536,404 @@ export const Loading = {
 
         );
 
+    },
+
+
+    /* =================================================
+       ALERT
+    ================================================= */
+
+    async alert({
+
+        title =
+
+            "Berhasil",
+
+        message =
+
+            "",
+
+        buttonText =
+
+            "OK",
+
+        icon =
+
+            "✓"
+
+    } = {}){
+
+        const ready =
+
+            await Loading.init();
+
+
+        if(
+
+            !ready
+
+        ){
+
+            console.error(
+
+                "Global Alert gagal diinisialisasi."
+
+            );
+
+
+            return false;
+
+        }
+
+
+        /* =============================================
+           HIDE LOADING
+        ============================================= */
+
+        Loading.hide();
+
+
+        /* =============================================
+           ELEMENT
+        ============================================= */
+
+        const titleElement =
+
+            alertElement.querySelector(
+
+                "#global-alert-title"
+
+            );
+
+
+        const messageElement =
+
+            alertElement.querySelector(
+
+                "#global-alert-message"
+
+            );
+
+
+        const iconElement =
+
+            alertElement.querySelector(
+
+                "#global-alert-icon"
+
+            );
+
+
+        const confirmButton =
+
+            alertElement.querySelector(
+
+                "#global-alert-confirm"
+
+            );
+
+
+        /* =============================================
+           SET CONTENT
+        ============================================= */
+
+        if(
+
+            titleElement
+
+        ){
+
+            titleElement.textContent =
+
+                title;
+
+        }
+
+
+        if(
+
+            messageElement
+
+        ){
+
+            messageElement.textContent =
+
+                message;
+
+        }
+
+
+        if(
+
+            iconElement
+
+        ){
+
+            iconElement.textContent =
+
+                icon;
+
+        }
+
+
+        if(
+
+            confirmButton
+
+        ){
+
+            confirmButton.textContent =
+
+                buttonText;
+
+
+            confirmButton.disabled =
+
+                false;
+
+        }
+
+
+        /* =============================================
+           SHOW
+        ============================================= */
+
+        alertElement.classList.remove(
+
+            "is-hidden"
+
+        );
+
+
+        alertElement.setAttribute(
+
+            "aria-hidden",
+
+            "false"
+
+        );
+
+
+        /* =============================================
+           BODY LOCK
+        ============================================= */
+
+        document.body.classList.add(
+
+            "global-loading-active"
+
+        );
+
+
+        /* =============================================
+           FOCUS
+        ============================================= */
+
+        if(
+
+            confirmButton
+
+        ){
+
+            setTimeout(
+
+                () => {
+
+                    confirmButton.focus();
+
+                },
+
+                0
+
+            );
+
+        }
+
+
+        /* =============================================
+           PROMISE
+        ============================================= */
+
+        return new Promise(
+
+            resolve => {
+
+                alertResolver =
+
+                    resolve;
+
+            }
+
+        );
+
+    },
+
+
+    /* =================================================
+       HIDE ALERT
+    ================================================= */
+
+    hideAlert(){
+
+        hideAlert();
+
     }
 
 };
+
+
+
+/* =====================================================
+   BIND ALERT EVENTS
+===================================================== */
+
+function bindAlertEvents(){
+
+    if(
+
+        !alertElement
+
+    ){
+
+        return;
+
+    }
+
+
+    /* =============================================
+       CONFIRM BUTTON
+    ============================================= */
+
+    const confirmButton =
+
+        alertElement.querySelector(
+
+            "#global-alert-confirm"
+
+        );
+
+
+    if(
+
+        confirmButton
+
+    ){
+
+        confirmButton.addEventListener(
+
+            "click",
+
+            handleAlertConfirm
+
+        );
+
+    }
+
+
+    /* =============================================
+       BACKDROP
+       
+       Untuk login kita tidak menutup alert
+       ketika backdrop ditekan.
+       User harus menekan OK.
+    ============================================= */
+
+}
+
+
+
+/* =====================================================
+   HANDLE ALERT CONFIRM
+===================================================== */
+
+function handleAlertConfirm(){
+
+    hideAlert();
+
+
+    if(
+
+        typeof alertResolver ===
+
+        "function"
+
+    ){
+
+        const resolve =
+
+            alertResolver;
+
+
+        alertResolver =
+
+            null;
+
+
+        resolve(
+
+            true
+
+        );
+
+    }
+
+}
+
+
+
+/* =====================================================
+   HIDE ALERT
+===================================================== */
+
+function hideAlert(){
+
+    const element =
+
+        alertElement
+
+        ||
+
+        document.getElementById(
+
+            "global-alert"
+
+        );
+
+
+    if(
+
+        !element
+
+    ){
+
+        return;
+
+    }
+
+
+    element.classList.add(
+
+        "is-hidden"
+
+    );
+
+
+    element.setAttribute(
+
+        "aria-hidden",
+
+        "true"
+
+    );
+
+
+    document.body.classList.remove(
+
+        "global-loading-active"
+
+    );
+
+}
 
 
 
@@ -479,6 +1033,7 @@ async function loadCSS(){
 
                         true;
 
+
                     resolve(
 
                         true
@@ -499,6 +1054,7 @@ async function loadCSS(){
                         error
 
                     );
+
 
                     resolve(
 
