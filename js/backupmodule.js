@@ -2,7 +2,7 @@
    Finance Assistant
    Module      : MODULE
    File        : module.js
-   Version     : 2.0.0
+   Version     : 2.1.0
 
    Description :
    Google Drive + Google Sheets Engine
@@ -36,6 +36,18 @@
    READ account
        ↓
    JANGAN overwrite
+
+   ACCOUNT UPDATE :
+
+   Profile
+       ↓
+   updateAccountDisplayName()
+       ↓
+   Google Sheets API
+       ↓
+   account
+       ↓
+   UPDATE displayName + updatedAt
 
    TIDAK menangani:
    - Active Workspace
@@ -1597,6 +1609,649 @@ async function writeAccountData(
         "Data account berhasil ditulis."
 
     );
+
+}
+
+
+/* ==========================================
+   UPDATE ACCOUNT DISPLAY NAME
+========================================== */
+
+/*
+   Fungsi ini khusus untuk mengubah
+   displayName pada sheet account.
+
+   TIDAK menggunakan write.js.
+
+   TIDAK menggunakan Apps Script.
+
+   TIDAK menulis ulang seluruh account.
+
+   Flow :
+
+   Profile
+       ↓
+   updateAccountDisplayName()
+       ↓
+   Google Provider Token
+       ↓
+   Finance Core
+       ↓
+   sheet account
+       ↓
+   cari field displayName
+       ↓
+   update cell value
+       ↓
+   cari field updatedAt
+       ↓
+   update timestamp
+
+   Yang diubah hanya :
+
+       displayName
+       updatedAt
+
+   Field lain tidak disentuh.
+========================================== */
+
+export async function updateAccountDisplayName(
+
+    displayName
+
+){
+
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "===== UPDATE ACCOUNT DISPLAY NAME ====="
+    );
+
+    console.log(
+        "=========================================="
+    );
+
+
+    try{
+
+        /* ======================================
+           VALIDATE NAME
+        ====================================== */
+
+        const newName =
+
+            String(
+
+                displayName
+
+                ||
+
+                ""
+
+            ).trim();
+
+
+        if(
+
+            !newName
+
+        ){
+
+            throw new Error(
+
+                "Nama tidak boleh kosong."
+
+            );
+
+        }
+
+
+        /* ======================================
+           GOOGLE TOKEN
+        ====================================== */
+
+        const accessToken =
+
+            await getGoogleProviderToken();
+
+
+        if(
+
+            !accessToken
+
+        ){
+
+            throw new Error(
+
+                "Google Provider Token tidak ditemukan."
+
+            );
+
+        }
+
+
+        console.log(
+
+            "Google Provider Token tersedia."
+
+        );
+
+
+        /* ======================================
+           FINANCE MODULE INFO
+        ====================================== */
+
+        const moduleInfo =
+
+            loadModuleInfo();
+
+
+        if(
+
+            !moduleInfo
+
+        ){
+
+            throw new Error(
+
+                "Finance Module Info tidak ditemukan."
+
+            );
+
+        }
+
+
+        /* ======================================
+           FINANCE CORE
+        ====================================== */
+
+        const financeCore =
+
+            moduleInfo.financeCore;
+
+
+        if(
+
+            !financeCore
+
+            ||
+
+            !financeCore.id
+
+        ){
+
+            throw new Error(
+
+                "Finance Core Spreadsheet ID tidak ditemukan."
+
+            );
+
+        }
+
+
+        const spreadsheetId =
+
+            financeCore.id;
+
+
+        /* ======================================
+           ACCOUNT SHEET
+        ====================================== */
+
+        const accountSheet =
+
+            moduleInfo.account;
+
+
+        const sheetName =
+
+            accountSheet?.title
+
+            ||
+
+            Module.accountSheetName;
+
+
+        if(
+
+            !sheetName
+
+        ){
+
+            throw new Error(
+
+                "Nama sheet account tidak ditemukan."
+
+            );
+
+        }
+
+
+        console.log(
+
+            "Finance Core:",
+
+            spreadsheetId
+
+        );
+
+
+        console.log(
+
+            "Account Sheet:",
+
+            sheetName
+
+        );
+
+
+        /* ======================================
+           READ ACCOUNT SHEET
+        ====================================== */
+
+        const range =
+
+            `${sheetName}!A:B`;
+
+
+        const result =
+
+            await sheetsRequest(
+
+                accessToken,
+
+                `/spreadsheets/${encodeURIComponent(
+
+                    spreadsheetId
+
+                )}/values/${encodeURIComponent(
+
+                    range
+
+                )}`,
+
+                {
+
+                    method :
+
+                        "GET"
+
+                }
+
+            );
+
+
+        const values =
+
+            result?.values
+
+            ||
+
+            [];
+
+
+        /* ======================================
+           VALIDATE ACCOUNT
+        ====================================== */
+
+        if(
+
+            values.length < 2
+
+        ){
+
+            throw new Error(
+
+                "Data account tidak ditemukan."
+
+            );
+
+        }
+
+
+        /* ======================================
+           FIND ACCOUNT FIELD ROWS
+        ====================================== */
+
+        let displayNameRow =
+
+            null;
+
+
+        let updatedAtRow =
+
+            null;
+
+
+        values.forEach(
+
+            (row, index) => {
+
+                const field =
+
+                    String(
+
+                        row?.[0]
+
+                        ||
+
+                        ""
+
+                    ).trim();
+
+
+                if(
+
+                    field ===
+
+                    "displayName"
+
+                ){
+
+                    displayNameRow =
+
+                        index + 1;
+
+                }
+
+
+                if(
+
+                    field ===
+
+                    "updatedAt"
+
+                ){
+
+                    updatedAtRow =
+
+                        index + 1;
+
+                }
+
+            }
+
+        );
+
+
+        /* ======================================
+           DISPLAY NAME FIELD NOT FOUND
+        ====================================== */
+
+        if(
+
+            !displayNameRow
+
+        ){
+
+            throw new Error(
+
+                "Field displayName tidak ditemukan di sheet account."
+
+            );
+
+        }
+
+
+        /* ======================================
+           UPDATED AT FIELD NOT FOUND
+        ====================================== */
+
+        if(
+
+            !updatedAtRow
+
+        ){
+
+            throw new Error(
+
+                "Field updatedAt tidak ditemukan di sheet account."
+
+            );
+
+        }
+
+
+        console.log(
+
+            "displayName berada di baris:",
+
+            displayNameRow
+
+        );
+
+
+        console.log(
+
+            "updatedAt berada di baris:",
+
+            updatedAtRow
+
+        );
+
+
+        /* ======================================
+           TIMESTAMP
+        ====================================== */
+
+        const updatedAt =
+
+            new Date()
+
+            .toISOString();
+
+
+        /* ======================================
+           UPDATE CELLS
+        ====================================== */
+
+        const updateData = [
+
+            {
+
+                range :
+
+                    `${sheetName}!B${displayNameRow}`,
+
+                majorDimension :
+
+                    "ROWS",
+
+                values : [
+
+                    [
+
+                        newName
+
+                    ]
+
+                ]
+
+            },
+
+
+            {
+
+                range :
+
+                    `${sheetName}!B${updatedAtRow}`,
+
+                majorDimension :
+
+                    "ROWS",
+
+                values : [
+
+                    [
+
+                        updatedAt
+
+                    ]
+
+                ]
+
+            }
+
+        ];
+
+
+        console.log(
+
+            "Account update data:",
+
+            updateData
+
+        );
+
+
+        /* ======================================
+           GOOGLE SHEETS BATCH UPDATE
+        ====================================== */
+
+        await sheetsRequest(
+
+            accessToken,
+
+            `/spreadsheets/${encodeURIComponent(
+
+                spreadsheetId
+
+            )}/values:batchUpdate`,
+
+            {
+
+                method :
+
+                    "POST",
+
+
+                body : {
+
+                    valueInputOption :
+
+                        "USER_ENTERED",
+
+
+                    data :
+
+                        updateData
+
+                }
+
+            }
+
+        );
+
+
+        /* ======================================
+           SUCCESS
+        ====================================== */
+
+        console.log(
+
+            "=========================================="
+
+        );
+
+        console.log(
+
+            "ACCOUNT DISPLAY NAME BERHASIL DIUPDATE"
+
+        );
+
+        console.log(
+
+            "Nama baru:",
+
+            newName
+
+        );
+
+        console.log(
+
+            "Updated At:",
+
+            updatedAt
+
+        );
+
+        console.log(
+
+            "=========================================="
+
+        );
+
+
+        return {
+
+            success :
+
+                true,
+
+
+            displayName :
+
+                newName,
+
+
+            updatedAt :
+
+                updatedAt
+
+        };
+
+
+    }catch(error){
+
+        console.error(
+
+            "=========================================="
+
+        );
+
+        console.error(
+
+            "===== UPDATE ACCOUNT ERROR ====="
+
+        );
+
+        console.error(
+
+            "=========================================="
+
+        );
+
+
+        console.error(
+
+            error
+
+        );
+
+
+        console.error(
+
+            "Message:",
+
+            error?.message
+
+        );
+
+
+        console.error(
+
+            "Stack:",
+
+            error?.stack
+
+        );
+
+
+        throw error;
+
+    }
 
 }
 
