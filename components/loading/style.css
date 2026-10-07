@@ -2,10 +2,16 @@
    Finance Assistant
    Component    : Global Loading
    File         : style.css
-   Version      : 2.0.0
+   Version      : 3.0.0
 
    Description :
-   Simple Full Screen Loading
+   Global Loading & HTML Alert Component
+
+   Responsibility :
+   - Full Screen Loading
+   - Loading Animation
+   - HTML Alert
+   - Mobile First
 ===================================================== */
 
 
@@ -22,7 +28,7 @@
     width: 100%;
     height: 100%;
 
-    background: #ffffff;
+    background: #0f1115;
 
     display: flex;
 
@@ -42,10 +48,16 @@
 
 
 /* =====================================================
-   CONTENT
+   LOADING CONTENT
 ===================================================== */
 
 .global-loading-content{
+
+    width: 100%;
+
+    max-width: 360px;
+
+    padding: 32px 24px;
 
     display: flex;
 
@@ -57,37 +69,182 @@
 
     text-align: center;
 
-    padding: 24px;
-
 }
 
 
 /* =====================================================
-   ICON
+   LOADING LOGO
 ===================================================== */
 
-.global-loading-icon{
+.global-loading-logo{
 
-    font-size: 56px;
-
-    line-height: 1;
-
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 
 }
 
 
 /* =====================================================
-   TEXT
+   LOGO MARK
+===================================================== */
+
+.global-loading-logo-mark{
+
+    width: 64px;
+
+    height: 64px;
+
+    border-radius: 18px;
+
+    background: #1976d2;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #ffffff;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.5px;
+
+    box-shadow:
+        0 8px 24px
+        rgba(25, 118, 210, 0.28);
+
+}
+
+
+/* =====================================================
+   LOADING TITLE
+===================================================== */
+
+.global-loading-title{
+
+    margin-bottom: 18px;
+
+    color: #ffffff;
+
+    font-size: 19px;
+
+    font-weight: 600;
+
+    line-height: 1.4;
+
+}
+
+
+/* =====================================================
+   LOADING SPINNER
+===================================================== */
+
+.global-loading-spinner{
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    margin-bottom: 18px;
+
+}
+
+
+/* =====================================================
+   SPINNER DOT
+===================================================== */
+
+.global-loading-spinner span{
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #64b5f6;
+
+    animation:
+        globalLoadingPulse
+        1.2s
+        infinite
+        ease-in-out;
+
+}
+
+
+/* =====================================================
+   SPINNER DELAY
+===================================================== */
+
+.global-loading-spinner span:nth-child(1){
+
+    animation-delay: 0s;
+
+}
+
+
+.global-loading-spinner span:nth-child(2){
+
+    animation-delay: 0.15s;
+
+}
+
+
+.global-loading-spinner span:nth-child(3){
+
+    animation-delay: 0.3s;
+
+}
+
+
+/* =====================================================
+   LOADING TEXT
 ===================================================== */
 
 .global-loading-text{
 
-    font-size: 18px;
+    color: #9ca3af;
 
-    font-weight: 600;
+    font-size: 14px;
 
-    color: #1f2937;
+    line-height: 1.5;
+
+}
+
+
+/* =====================================================
+   SPINNER ANIMATION
+===================================================== */
+
+@keyframes globalLoadingPulse{
+
+    0%,
+    80%,
+    100%{
+
+        opacity: 0.35;
+
+        transform:
+            scale(0.75);
+
+    }
+
+
+    40%{
+
+        opacity: 1;
+
+        transform:
+            scale(1);
+
+    }
 
 }
 
@@ -125,26 +282,363 @@ body.global-loading-active{
 }
 
 
+
+/* =====================================================
+   GLOBAL HTML ALERT
+===================================================== */
+
+.global-alert{
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 100000;
+
+}
+
+
+/* =====================================================
+   ALERT BACKDROP
+===================================================== */
+
+.global-alert-backdrop{
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.68);
+
+    backdrop-filter:
+        blur(4px);
+
+    -webkit-backdrop-filter:
+        blur(4px);
+
+}
+
+
+/* =====================================================
+   ALERT PANEL
+===================================================== */
+
+.global-alert-panel{
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 340px;
+
+    padding: 28px 22px 22px;
+
+    border-radius: 20px;
+
+    background: #181b21;
+
+    border: 1px solid #292e38;
+
+    box-shadow:
+        0 20px 50px
+        rgba(0, 0, 0, 0.45);
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    transform:
+        translateY(8px)
+        scale(0.98);
+
+    opacity: 0;
+
+    animation:
+        globalAlertShow
+        0.2s
+        ease-out
+        forwards;
+
+}
+
+
+/* =====================================================
+   ALERT ICON
+===================================================== */
+
+.global-alert-icon{
+
+    width: 52px;
+
+    height: 52px;
+
+    margin-bottom: 16px;
+
+    border-radius: 50%;
+
+    background: #1976d2;
+
+    color: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 25px;
+
+    font-weight: 700;
+
+}
+
+
+/* =====================================================
+   ALERT TITLE
+===================================================== */
+
+.global-alert-title{
+
+    margin-bottom: 10px;
+
+    color: #ffffff;
+
+    font-size: 19px;
+
+    font-weight: 600;
+
+    line-height: 1.4;
+
+}
+
+
+/* =====================================================
+   ALERT MESSAGE
+===================================================== */
+
+.global-alert-message{
+
+    width: 100%;
+
+    margin-bottom: 24px;
+
+    color: #aeb4bf;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    white-space: pre-line;
+
+}
+
+
+/* =====================================================
+   ALERT BUTTON
+===================================================== */
+
+.global-alert-confirm{
+
+    width: 100%;
+
+    min-height: 46px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #1976d2;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
+
+}
+
+
+.global-alert-confirm:active{
+
+    transform:
+        scale(0.98);
+
+}
+
+
+.global-alert-confirm:disabled{
+
+    opacity: 0.6;
+
+    cursor: default;
+
+}
+
+
+/* =====================================================
+   ALERT HIDDEN
+===================================================== */
+
+.global-alert.is-hidden{
+
+    display: none;
+
+}
+
+
+/* =====================================================
+   ALERT VISIBLE
+===================================================== */
+
+.global-alert:not(.is-hidden){
+
+    display: flex;
+
+}
+
+
+/* =====================================================
+   ALERT ANIMATION
+===================================================== */
+
+@keyframes globalAlertShow{
+
+    from{
+
+        opacity: 0;
+
+        transform:
+            translateY(8px)
+            scale(0.98);
+
+    }
+
+
+    to{
+
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+    }
+
+}
+
+
 /* =====================================================
    MOBILE
 ===================================================== */
 
 @media(
-
     max-width: 600px
-
 ){
 
-    .global-loading-icon{
+    .global-loading-content{
 
-        font-size: 52px;
+        padding:
+            28px 20px;
+
+    }
+
+
+    .global-loading-logo-mark{
+
+        width: 60px;
+
+        height: 60px;
+
+        border-radius: 17px;
+
+        font-size: 19px;
+
+    }
+
+
+    .global-loading-title{
+
+        font-size: 18px;
 
     }
 
 
     .global-loading-text{
 
-        font-size: 17px;
+        font-size: 13px;
+
+    }
+
+
+    .global-alert{
+
+        padding:
+            18px;
+
+    }
+
+
+    .global-alert-panel{
+
+        max-width: 100%;
+
+        padding:
+            26px 20px 20px;
+
+        border-radius: 18px;
+
+    }
+
+}
+
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media(
+    prefers-reduced-motion: reduce
+){
+
+    .global-loading-spinner span{
+
+        animation:
+            none;
+
+    }
+
+
+    .global-alert-panel{
+
+        animation:
+            none;
+
+        opacity: 1;
+
+        transform:
+            none;
 
     }
 
