@@ -1,28 +1,21 @@
-name: Generate Sitemap
 
+name: Generate News Pages and Sitemap
 
 on:
-
   push:
     branches:
       - main
 
   workflow_dispatch:
 
-
 permissions:
   contents: write
 
-
 jobs:
-
-  generate-sitemap:
-
+  generate-news-and-sitemap:
     runs-on: ubuntu-latest
 
-
     steps:
-
       # ================================================
       # Checkout repository
       # ================================================
@@ -30,17 +23,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
       # ================================================
       # Setup Node.js
       # ================================================
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-
         with:
           node-version: 20
 
+      # ================================================
+      # Generate static News pages
+      # ================================================
+
+      - name: Generate News pages
+        run: node js/generate-news-pages.mjs
 
       # ================================================
       # Generate sitemap
@@ -49,29 +46,20 @@ jobs:
       - name: Generate sitemap
         run: node js/generate-sitemap.mjs
 
-
       # ================================================
-      # Save sitemap
+      # Commit generated files
       # ================================================
 
-      - name: Commit sitemap
+      - name: Commit generated files
         run: |
-
           git config user.name "github-actions[bot]"
-
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add sitemap.xml
-
+          git add sitemap.xml news/
 
           if git diff --cached --quiet; then
-
-            echo "Sitemap tidak berubah."
-
+            echo "Tidak ada file hasil generator yang berubah."
           else
-
-            git commit -m "chore: update sitemap"
-
+            git commit -m "chore: generate news pages and sitemap"
             git push
-
           fi
