@@ -977,6 +977,7 @@ function getSortedArticles(){
 }
 
 
+
 /* =====================================================
    ARTICLE URL
 ===================================================== */
@@ -985,9 +986,10 @@ function getArticleURL(
     slug
 ){
 
-    return `/news/${encodeURIComponent(slug)}`;
+    return `/news/${encodeURIComponent(slug)}/`;
 
 }
+
 
 
 /* =====================================================
