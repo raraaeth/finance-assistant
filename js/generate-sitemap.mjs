@@ -1,9 +1,10 @@
+
 /* =====================================================
    FINANCE ASSISTANT
    Sitemap Generator
 
    File    : /js/generate-sitemap.mjs
-   Version : 1.0.0
+   Version : 1.1.0
 
    Description :
    Generate sitemap.xml otomatis untuk halaman
@@ -20,12 +21,12 @@
    - Onboarding
 ===================================================== */
 
-
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import {
-    fileURLToPath
-} from "url";
+    fileURLToPath,
+    pathToFileURL
+} from "node:url";
 
 
 /* =====================================================
@@ -33,30 +34,13 @@ import {
 ===================================================== */
 
 const __filename =
-    fileURLToPath(
-        import.meta.url
-    );
-
+    fileURLToPath(import.meta.url);
 
 const __dirname =
-    path.dirname(
-        __filename
-    );
-
-
-/*
-   File berada di:
-
-   /js/generate-sitemap.mjs
-
-   Naik satu level = root project
-*/
+    path.dirname(__filename);
 
 const ROOT_DIR =
-    path.resolve(
-        __dirname,
-        ".."
-    );
+    path.resolve(__dirname, "..");
 
 
 /* =====================================================
@@ -90,18 +74,6 @@ const PUBLIC_PAGES = [
 
 /* =====================================================
    4. DOCUMENTATION ARTICLES
-=====================================================
-
-   Berdasarkan router Docs.
-
-   Artikel "pengenalan" adalah DEFAULT_ARTICLE
-   sehingga URL-nya:
-
-   /docs/
-
-   Bukan:
-
-   /docs/pengenalan
 ===================================================== */
 
 const DOCS_ARTICLES = [
@@ -151,66 +123,37 @@ const NEWS_ARTICLES_FILE =
 async function loadNewsArticles() {
 
     if (
-        !fs.existsSync(
-            NEWS_ARTICLES_FILE
-        )
+        !fs.existsSync(NEWS_ARTICLES_FILE)
     ) {
 
-        console.warn(
-            "[SITEMAP] articles.js tidak ditemukan:"
+        throw new Error(
+            `articles.js tidak ditemukan: ${NEWS_ARTICLES_FILE}`
         );
 
-        console.warn(
+    }
+
+    const moduleURL =
+        pathToFileURL(
             NEWS_ARTICLES_FILE
+        ).href;
+
+    const module =
+        await import(
+            `${moduleURL}?t=${Date.now()}`
         );
 
-        return [];
+    const articles =
+        module.default;
+
+    if (!Array.isArray(articles)) {
+
+        throw new Error(
+            "articles.js tidak mengekspor array artikel."
+        );
 
     }
 
-
-    try {
-
-        const module =
-            await import(
-                `file://${NEWS_ARTICLES_FILE}?t=${Date.now()}`
-            );
-
-
-        const articles =
-            module.default;
-
-
-        if (
-            !Array.isArray(
-                articles
-            )
-        ) {
-
-            console.warn(
-                "[SITEMAP] articles.js tidak mengexport array."
-            );
-
-            return [];
-
-        }
-
-
-        return articles;
-
-    } catch (error) {
-
-        console.error(
-            "[SITEMAP] Gagal membaca articles.js:"
-        );
-
-        console.error(
-            error
-        );
-
-        return [];
-
-    }
+    return articles;
 
 }
 
@@ -219,28 +162,26 @@ async function loadNewsArticles() {
    7. NORMALIZE URL
 ===================================================== */
 
-function normalizeURL(
-    url
-) {
+function normalizeURL(url) {
 
-    if (
-        url === "/"
-    ) {
-
+    if (url === "/") {
         return "/";
-
     }
 
+    let normalized =
+        String(url)
+            .replace(/\\/g, "/")
+            .replace(/\/+/g, "/");
 
-    return url
-        .replace(
-            /^\/+/,
-            "/"
-        )
-        .replace(
-            /\/+/g,
-            "/"
-        );
+    if (!normalized.startsWith("/")) {
+        normalized = `/${normalized}`;
+    }
+
+    if (!normalized.endsWith("/")) {
+        normalized += "/";
+    }
+
+    return normalized;
 
 }
 
@@ -249,33 +190,14 @@ function normalizeURL(
    8. ESCAPE XML
 ===================================================== */
 
-function escapeXML(
-    value
-) {
+function escapeXML(value) {
 
-    return String(
-        value
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&apos;"
-        );
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
 
 }
 
@@ -284,37 +206,27 @@ function escapeXML(
    9. BUILD URL
 ===================================================== */
 
-function buildURL(
-    item
-) {
+function buildURL(item) {
+
+    const normalizedURL =
+        normalizeURL(item.url);
 
     const fullURL =
-        `${SITE_URL}${normalizeURL(
-            item.url
-        )}`;
+        `${SITE_URL}${normalizedURL}`;
 
+    let output =
+`    <url>
+        <loc>${escapeXML(fullURL)}</loc>`;
 
-    let output = `    <url>
-        <loc>${escapeXML(
-            fullURL
-        )}</loc>`;
-
-
-    if (
-        item.lastmod
-    ) {
+    if (item.lastmod) {
 
         output += `
-        <lastmod>${escapeXML(
-            item.lastmod
-        )}</lastmod>`;
+        <lastmod>${escapeXML(item.lastmod)}</lastmod>`;
 
     }
 
-
     output += `
     </url>`;
-
 
     return output;
 
@@ -331,7 +243,6 @@ async function generateSitemap() {
         "[SITEMAP] Memulai generate sitemap..."
     );
 
-
     const urls = [];
 
 
@@ -339,15 +250,10 @@ async function generateSitemap() {
        PUBLIC PAGES
     ================================================= */
 
-    for (
-        const page
-        of PUBLIC_PAGES
-    ) {
+    for (const page of PUBLIC_PAGES) {
 
         urls.push({
-
             url: page
-
         });
 
     }
@@ -357,16 +263,10 @@ async function generateSitemap() {
        DOCUMENTATION
     ================================================= */
 
-    for (
-        const article
-        of DOCS_ARTICLES
-    ) {
+    for (const article of DOCS_ARTICLES) {
 
         urls.push({
-
-            url:
-                `/docs/${article}`
-
+            url: `/docs/${article}/`
         });
 
     }
@@ -379,43 +279,54 @@ async function generateSitemap() {
     const newsArticles =
         await loadNewsArticles();
 
+    const seenSlugs =
+        new Set();
 
-    for (
-        const article
-        of newsArticles
-    ) {
-
-        /*
-           Artikel tanpa slug tidak dimasukkan.
-        */
+    for (const article of newsArticles) {
 
         if (
             !article ||
             !article.slug
         ) {
 
-            console.warn(
-                "[SITEMAP] Artikel News dilewati karena tidak memiliki slug."
+            throw new Error(
+                "Ada artikel News yang tidak memiliki slug."
             );
-
-            continue;
 
         }
 
+        if (
+            !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+                article.slug
+            )
+        ) {
+
+            throw new Error(
+                `Slug artikel tidak valid: ${article.slug}`
+            );
+
+        }
+
+        if (seenSlugs.has(article.slug)) {
+
+            throw new Error(
+                `Slug artikel duplikat: ${article.slug}`
+            );
+
+        }
+
+        seenSlugs.add(article.slug);
 
         const slug =
             encodeURIComponent(
                 article.slug
             );
 
-
         urls.push({
 
-            url:
-                `/news/${slug}`,
+            url: `/news/${slug}/`,
 
-            lastmod:
-                article.date || null
+            lastmod: article.date || null
 
         });
 
@@ -429,21 +340,19 @@ async function generateSitemap() {
     const uniqueURLs =
         new Map();
 
+    for (const item of urls) {
 
-    for (
-        const item
-        of urls
-    ) {
+        const normalizedURL =
+            normalizeURL(item.url);
 
-        if (
-            !uniqueURLs.has(
-                item.url
-            )
-        ) {
+        if (!uniqueURLs.has(normalizedURL)) {
 
             uniqueURLs.set(
-                item.url,
-                item
+                normalizedURL,
+                {
+                    ...item,
+                    url: normalizedURL
+                }
             );
 
         }
@@ -456,14 +365,9 @@ async function generateSitemap() {
     ================================================= */
 
     const entries =
-        Array.from(
-            uniqueURLs.values()
-        )
-            .map(
-                buildURL
-            )
+        Array.from(uniqueURLs.values())
+            .map(buildURL)
             .join("\n");
-
 
     const xml =
 `<?xml version="1.0" encoding="UTF-8"?>
@@ -485,7 +389,6 @@ ${entries}
             "sitemap.xml"
         );
 
-
     fs.writeFileSync(
         outputPath,
         xml,
@@ -501,9 +404,7 @@ ${entries}
         "[SITEMAP] Berhasil dibuat:"
     );
 
-    console.log(
-        outputPath
-    );
+    console.log(outputPath);
 
     console.log(
         `[SITEMAP] Total URL: ${uniqueURLs.size}`
@@ -517,20 +418,14 @@ ${entries}
 ===================================================== */
 
 generateSitemap()
-    .catch(
-        error => {
+    .catch(error => {
 
-            console.error(
-                "[SITEMAP] Gagal membuat sitemap."
-            );
+        console.error(
+            "[SITEMAP] Gagal membuat sitemap."
+        );
 
-            console.error(
-                error
-            );
+        console.error(error);
 
-            process.exit(
-                1
-            );
+        process.exitCode = 1;
 
-        }
-    );
+    });
