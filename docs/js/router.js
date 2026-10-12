@@ -1,102 +1,97 @@
+
 /* =========================================================
    FINANCE ASSISTANT — DOCUMENTATION
    Router
+   File : router.js
    ========================================================= */
 
 
 /* =========================================================
-   1. IMPORT SEO
-   ========================================================= */
+   1. ARTICLE REGISTRY
 
-import {
-  updateSEO
-} from "./seo.js";
-
-
-/* =========================================================
-   2. ARTICLE REGISTRY
-   Urutan di sini juga menentukan Previous / Next.
+   Urutan artikel menentukan Previous / Next.
+   Artikel menggunakan halaman HTML mandiri.
    ========================================================= */
 
 export const ARTICLES = [
 
   // =========================
-  // STARTED
+  // DOKUMENTASI
   // =========================
 
   {
     id: "pengenalan",
     title: "Pengenalan",
     section: "DOKUMENTASI",
-    path: "../started/pengenalan.js"
+    url: "/docs/pengenalan/"
   },
 
   {
     id: "mulai",
     title: "Mulai",
     section: "DOKUMENTASI",
-    path: "../started/mulai.js"
+    url: "/docs/mulai/"
   },
 
   {
     id: "workspace",
     title: "Workspace",
     section: "DOKUMENTASI",
-    path: "../started/workspace.js"
+    url: "/docs/workspace/"
   },
 
   {
     id: "input",
     title: "Pengaturan & Input",
     section: "DOKUMENTASI",
-    path: "../started/input.js"
+    url: "/docs/input/"
   },
 
 
   // =========================
-  // MODULE
+  // FITUR
   // =========================
 
   {
     id: "saving",
     title: "Tabungan",
     section: "FITUR",
-    path: "../fitur/savingdocs.js"
+    url: "/docs/saving/"
   },
 
   {
     id: "kas",
     title: "Kas Bersama",
     section: "FITUR",
-    path: "../fitur/kasdocs.js"
+    url: "/docs/kas/"
   },
 
   {
     id: "financial",
     title: "Financial",
     section: "FITUR",
-    path: "../fitur/financialdocs.js"
+    url: "/docs/financial/"
   },
 
   {
     id: "monthly",
     title: "Perhitungan Gaji Bulanan",
     section: "FITUR",
-    path: "../fitur/monthlydocs.js"
+    url: "/docs/monthly/"
   },
 
   {
     id: "daily",
     title: "Perhitungan Gaji Harian",
     section: "FITUR",
-    path: "../fitur/dailydocs.js"
+    url: "/docs/daily/"
   },
 
   {
     id: "airdrop",
     title: "Pengingat Airdrop",
     section: "FITUR",
-    path: "../fitur/airdropdocs.js"
+    url: "/docs/airdrop/"
   },
 
 
@@ -108,128 +103,28 @@ export const ARTICLES = [
     id: "akun",
     title: "Akun",
     section: "DATA & PRIVASI",
-    path: "../data/akun.js"
+    url: "/docs/akun/"
   },
 
   {
     id: "privacy",
     title: "Data & Privasi",
     section: "DATA & PRIVASI",
-    path: "../data/privacy.js"
+    url: "/docs/privacy/"
   }
 
 ];
 
 
 /* =========================================================
-   3. DEFAULT ARTICLE
+   2. DEFAULT ARTICLE
    ========================================================= */
 
 const DEFAULT_ARTICLE = "pengenalan";
 
 
 /* =========================================================
-   4. DOCS BASE PATH
-   ========================================================= */
-
-const DOCS_BASE_PATH = "/docs";
-
-
-/* =========================================================
-   5. GET ARTICLE FROM URL
-   ========================================================= */
-
-function getArticleIdFromURL() {
-
-  const pathname =
-    window.location.pathname
-      .replace(/\/+$/, "");
-
-
-  /* =========================================
-     Route dari 404.html
-     ========================================= */
-
-  const storedPath =
-    sessionStorage.getItem(
-      "finance-doc-path"
-    );
-
-
-  if (storedPath) {
-
-    sessionStorage.removeItem(
-      "finance-doc-path"
-    );
-
-
-    const articleId =
-      storedPath
-        .replace(/^\/docs\/?/, "")
-        .split("/")[0];
-
-
-    return (
-      articleId ||
-      DEFAULT_ARTICLE
-    );
-
-  }
-
-
-  /* =========================================
-     URL utama:
-     /docs
-     ========================================= */
-
-  if (
-    pathname === DOCS_BASE_PATH ||
-    pathname === ""
-  ) {
-
-    return DEFAULT_ARTICLE;
-
-  }
-
-
-  /* =========================================
-     URL artikel:
-     /docs/mulai
-     ========================================= */
-
-  if (
-    pathname.startsWith(
-      `${DOCS_BASE_PATH}/`
-    )
-  ) {
-
-    const articleId =
-      pathname
-        .slice(
-          `${DOCS_BASE_PATH}/`.length
-        )
-        .split("/")[0];
-
-
-    return (
-      articleId ||
-      DEFAULT_ARTICLE
-    );
-
-  }
-
-
-  /* =========================================
-     Fallback
-     ========================================= */
-
-  return DEFAULT_ARTICLE;
-
-}
-
-
-/* =========================================================
-   6. FIND ARTICLE
+   3. GET ARTICLE
    ========================================================= */
 
 export function getArticle(id) {
@@ -242,139 +137,77 @@ export function getArticle(id) {
 
 
 /* =========================================================
-   7. BUILD ARTICLE URL
+   4. GET ARTICLE ID FROM URL
    ========================================================= */
 
-function getArticleURL(articleId) {
+export function getArticleIdFromURL() {
+
+  const pathname =
+    window.location.pathname
+      .replace(/\/+$/, "");
+
+  const docsBasePath = "/docs";
+
+
+  // Halaman utama dokumentasi
 
   if (
-    articleId === DEFAULT_ARTICLE
+    pathname === docsBasePath ||
+    pathname === ""
   ) {
 
-    return `${DOCS_BASE_PATH}/`;
+    return DEFAULT_ARTICLE;
 
   }
 
 
-  return `${DOCS_BASE_PATH}/${articleId}`;
+  // Halaman artikel
+
+  if (
+    pathname.startsWith(`${docsBasePath}/`)
+  ) {
+
+    const articleId =
+      pathname
+        .slice(`${docsBasePath}/`.length)
+        .split("/")[0];
+
+    return getArticle(articleId)
+      ? articleId
+      : DEFAULT_ARTICLE;
+
+  }
+
+
+  return DEFAULT_ARTICLE;
 
 }
 
 
 /* =========================================================
-   8. LOAD ARTICLE
+   5. BUILD ARTICLE URL
    ========================================================= */
 
-async function loadArticle(article) {
+export function getArticleURL(articleId) {
 
-  const articleContainer =
-    document.getElementById("article");
+  const article =
+    getArticle(articleId);
 
-
-  if (!articleContainer) {
-    return;
-  }
-
-
-  /* =========================================
-     Loading
-     ========================================= */
-
-  articleContainer.innerHTML =
-    `<div class="article-loading">
-      Memuat dokumentasi...
-    </div>`;
-
-
-  try {
-
-    const module =
-      await import(
-        article.path
-      );
-
-
-    const data =
-      module.default;
-
-
-    if (!data) {
-
-      throw new Error(
-        "Artikel tidak memiliki export default."
-      );
-
-    }
-
-
-    /* =========================================
-       Update SEO
-       ========================================= */
-
-    updateSEO(
-      article.id
-    );
-
-
-    /* =========================================
-       Render
-       ========================================= */
-
-    articleContainer.innerHTML =
-      data.content || "";
-
-
-    /* =========================================
-       Scroll ke atas
-       ========================================= */
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
-
-  } catch (error) {
-
-    console.error(
-      "Gagal memuat artikel:",
-      error
-    );
-
-
-    articleContainer.innerHTML = `
-      <div class="article-error">
-
-        <h1>Artikel tidak ditemukan</h1>
-
-        <p>
-          Dokumentasi yang kamu cari belum tersedia
-          atau terjadi kesalahan saat memuat artikel.
-        </p>
-
-        <a href="${getArticleURL(DEFAULT_ARTICLE)}">
-          Kembali ke Pengenalan
-        </a>
-
-      </div>
-    `;
-
-  }
+  return article
+    ? article.url
+    : "/docs/";
 
 }
 
 
 /* =========================================================
-   9. PREVIOUS / NEXT
+   6. PREVIOUS / NEXT NAVIGATION
    ========================================================= */
 
-function renderArticleNavigation(articleId) {
+export function renderArticleNavigation(articleId) {
 
   const navigation =
-    document.getElementById(
-      "articleNavigation"
-    );
-
+    document.getElementById("articleNavigation");
 
   if (!navigation) {
     return;
@@ -386,11 +219,9 @@ function renderArticleNavigation(articleId) {
       article => article.id === articleId
     );
 
-
   if (currentIndex === -1) {
 
     navigation.innerHTML = "";
-
     return;
 
   }
@@ -398,7 +229,6 @@ function renderArticleNavigation(articleId) {
 
   const previous =
     ARTICLES[currentIndex - 1] || null;
-
 
   const next =
     ARTICLES[currentIndex + 1] || null;
@@ -410,9 +240,8 @@ function renderArticleNavigation(articleId) {
       previous
         ? `
           <a
-            href="${getArticleURL(previous.id)}"
+            href="${previous.url}"
             class="article-nav-button previous"
-            data-doc="${previous.id}"
           >
 
             <span class="article-nav-label">
@@ -425,19 +254,15 @@ function renderArticleNavigation(articleId) {
 
           </a>
         `
-        : `
-          <div></div>
-        `
+        : "<div></div>"
     }
-
 
     ${
       next
         ? `
           <a
-            href="${getArticleURL(next.id)}"
+            href="${next.url}"
             class="article-nav-button next"
-            data-doc="${next.id}"
           >
 
             <span class="article-nav-label">
@@ -450,9 +275,7 @@ function renderArticleNavigation(articleId) {
 
           </a>
         `
-        : `
-          <div></div>
-        `
+        : "<div></div>"
     }
 
   `;
@@ -461,118 +284,10 @@ function renderArticleNavigation(articleId) {
 
 
 /* =========================================================
-   10. NAVIGATION CLICK
-   Intercept link supaya tidak reload.
+   7. ACTIVE SIDEBAR EVENT
    ========================================================= */
 
-function setupNavigationLinks() {
-
-  document.addEventListener(
-    "click",
-    event => {
-
-      const link =
-        event.target.closest(
-          "[data-doc]"
-        );
-
-
-      if (!link) {
-        return;
-      }
-
-
-      event.preventDefault();
-
-
-      const articleId =
-        link.dataset.doc;
-
-
-      navigateTo(
-        articleId
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   11. NAVIGATE
-   ========================================================= */
-
-export async function navigateTo(
-  articleId,
-  updateURL = true
-) {
-
-  let article =
-    getArticle(
-      articleId
-    );
-
-
-  /* =========================================
-     Fallback
-     ========================================= */
-
-  if (!article) {
-
-    article =
-      getArticle(
-        DEFAULT_ARTICLE
-      );
-
-    articleId =
-      DEFAULT_ARTICLE;
-
-  }
-
-
-  /* =========================================
-     Update URL
-     ========================================= */
-
-  if (updateURL) {
-
-    const url =
-      getArticleURL(
-        articleId
-      );
-
-
-    window.history.pushState(
-      {},
-      "",
-      url
-    );
-
-  }
-
-
-  /* =========================================
-     Load
-     ========================================= */
-
-  await loadArticle(
-    article
-  );
-
-
-  /* =========================================
-     Previous / Next
-     ========================================= */
-
-  renderArticleNavigation(
-    articleId
-  );
-
-
-  /* =========================================
-     Active sidebar
-     ========================================= */
+export function notifyNavigation(articleId) {
 
   document.dispatchEvent(
     new CustomEvent(
@@ -589,38 +304,9 @@ export async function navigateTo(
 
 
 /* =========================================================
-   12. BROWSER BACK / FORWARD
-   ========================================================= */
-
-function setupHistoryNavigation() {
-
-  window.addEventListener(
-    "popstate",
-    () => {
-
-      const articleId =
-        getArticleIdFromURL();
-
-
-      navigateTo(
-        articleId,
-        false
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   13. LEGACY URL SUPPORT
-
-   URL lama:
+   8. LEGACY URL SUPPORT
+   Mendukung URL lama:
    /docs/?doc=mulai
-
-   Akan diarahkan menjadi:
-   /docs/mulai
    ========================================================= */
 
 function handleLegacyURL() {
@@ -630,67 +316,55 @@ function handleLegacyURL() {
       window.location.search
     );
 
-
   const legacyArticle =
     params.get("doc");
 
-
   if (!legacyArticle) {
-    return;
+    return false;
   }
 
 
   const article =
-    getArticle(
-      legacyArticle
-    );
-
+    getArticle(legacyArticle);
 
   if (!article) {
-    return;
+    return false;
   }
 
 
-  const cleanURL =
-    getArticleURL(
-      article.id
-    );
+  window.location.replace(article.url);
 
-
-  window.history.replaceState(
-    {},
-    "",
-    cleanURL
-  );
+  return true;
 
 }
 
 
 /* =========================================================
-   14. INITIALIZE ROUTER
+   9. INITIALIZE ROUTER
    ========================================================= */
 
 export function initRouter() {
 
-  setupNavigationLinks();
+  // Konversi URL lama jika masih digunakan.
 
-  setupHistoryNavigation();
-
-
-  /* =========================================
-     Convert URL lama jika masih digunakan
-     ========================================= */
-
-  handleLegacyURL();
+  if (handleLegacyURL()) {
+    return;
+  }
 
 
   const articleId =
     getArticleIdFromURL();
 
 
-  navigateTo(
-    articleId,
-    false
-  );
+  // Previous / Next hanya dibuat jika elemen tersedia.
+  // Halaman artikel mandiri dapat memanggil fungsi ini
+  // setelah HTML artikel selesai dimuat.
+
+  renderArticleNavigation(articleId);
+
+
+  // Sinkronisasi menu aktif pada sidebar.
+
+  notifyNavigation(articleId);
 
 }
