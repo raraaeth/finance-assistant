@@ -1308,3 +1308,416 @@ a {
   }
 }
 
+
+/* =========================================================
+   FINANCE ASSISTANT — DOCUMENTATION
+   Compatibility Fix: HTML + JavaScript + Layout
+   Tambahkan di bagian paling bawah style.css
+   ========================================================= */
+
+/* 1. LAYOUT UTAMA
+   Struktur HTML: header, sidebar, overlay, main */
+
+body {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  grid-template-rows: var(--header-height) auto;
+  align-items: start;
+}
+
+.docs-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+.docs-sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  width: var(--sidebar-width);
+  min-width: 0;
+  min-height: calc(100vh - var(--header-height));
+  z-index: 950;
+}
+
+#sidebarContent {
+  padding: 28px 16px 40px;
+}
+
+.docs-main {
+  grid-column: 2;
+  grid-row: 2;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 2. HEADER DAN BRAND
+   Cocok dengan .docs-brand pada HTML */
+
+.docs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 24px;
+}
+
+.docs-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  color: var(--color-primary);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.docs-brand span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* 3. TOMBOL MENU SIDEBAR */
+
+#sidebarToggle {
+  display: inline-flex;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+#sidebarToggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+#sidebarToggle:hover {
+  background: var(--color-hover);
+}
+
+#searchButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: #fff;
+  color: var(--color-text-soft);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#searchButton:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* 4. SIDEBAR CONTENT */
+
+.sidebar-section {
+  margin-bottom: 28px;
+}
+
+.sidebar-section-title {
+  margin: 0 10px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.sidebar-list li {
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: var(--radius-small);
+  color: var(--color-text-soft);
+  font-size: 14px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.sidebar-link.active {
+  background: var(--color-active);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* 5. SIDEBAR FOOTER */
+
+.sidebar-footer {
+  margin-top: 12px;
+  padding: 20px 10px 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.sidebar-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.sidebar-footer-links a {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  text-decoration: none;
+}
+
+.sidebar-footer-links a:hover {
+  color: var(--color-primary);
+}
+
+/* 6. OVERLAY SIDEBAR */
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 7. SEARCH MODAL
+   Cocok dengan .search-modal-header dan ID HTML */
+
+.search-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 20px 20px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.search-modal.active {
+  display: flex;
+}
+
+.search-modal-content {
+  width: 100%;
+  max-width: 640px;
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: #fff;
+  box-shadow: var(--shadow-modal);
+}
+
+.search-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.search-modal-header h2 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--color-text);
+}
+
+#searchClose {
+  padding: 7px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: #fff;
+  color: var(--color-text-soft);
+  font-size: 13px;
+}
+
+#searchInput {
+  display: block;
+  width: calc(100% - 24px);
+  height: 44px;
+  margin: 12px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  outline: none;
+  font-size: 15px;
+}
+
+#searchInput:focus {
+  border-color: #93b4f5;
+}
+
+#searchResults {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 8px 12px 12px;
+}
+
+#searchResults .search-result {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: var(--radius-small);
+  text-decoration: none;
+}
+
+#searchResults .search-result:hover {
+  background: var(--color-hover);
+}
+
+.search-result-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.search-result-snippet {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.search-empty {
+  padding: 12px;
+  color: var(--color-text-soft);
+  font-size: 14px;
+}
+
+/* 8. MOBILE */
+
+@media (max-width: 700px) {
+  body {
+    display: block;
+  }
+
+  .docs-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: var(--header-height);
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .docs-brand {
+    flex: 1;
+    gap: 5px;
+    overflow: hidden;
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  .docs-brand span {
+    font-size: 12px;
+  }
+
+  #searchButton {
+    max-width: 84px;
+    padding: 0 9px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .docs-sidebar {
+    position: fixed;
+    top: var(--header-height);
+    bottom: 0;
+    left: 0;
+    z-index: 950;
+    width: min(290px, 82vw);
+    height: calc(100vh - var(--header-height));
+    min-height: 0;
+    overflow-y: auto;
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+    background: var(--color-sidebar);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .docs-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .docs-main {
+    width: 100%;
+    padding: 42px 20px 50px;
+  }
+
+  .article-navigation {
+    grid-template-columns: 1fr;
+  }
+
+  .article-nav-button.next {
+    text-align: left;
+  }
+
+  .sidebar-footer {
+    padding-bottom: 24px;
+  }
+}
+
+@media (max-width: 400px) {
+  .docs-main {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .docs-brand {
+    font-size: 13px;
+  }
+}
+
+
