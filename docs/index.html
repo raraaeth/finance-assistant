@@ -1,21 +1,15 @@
 
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>Finance Assistant — Dokumentasi</title>
+  <title>Pengenalan Finance Assistant — Dokumentasi</title>
 
   <meta
     name="description"
-    content="Dokumentasi resmi Finance Assistant. Pelajari cara menggunakan fitur tabungan, kas bersama, pengelolaan keuangan, dan perhitungan gaji."
+    content="Kenali Finance Assistant, aplikasi untuk membantu mengelola tabungan, kas bersama, aktivitas keuangan, perhitungan gaji, dan pengingat airdrop."
   >
 
   <meta name="robots" content="index, follow">
@@ -25,204 +19,352 @@
     href="https://financeassistant.web.id/docs/"
   >
 
-  <link
-    rel="stylesheet"
-    href="./css/style.css"
+  <meta property="og:type" content="article">
+  <meta
+    property="og:title"
+    content="Pengenalan Finance Assistant — Dokumentasi"
+  >
+  <meta
+    property="og:description"
+    content="Pelajari pengenalan Finance Assistant dan berbagai module yang tersedia untuk membantu mengelola aktivitas keuangan."
+  >
+  <meta
+    property="og:url"
+    content="https://financeassistant.web.id/docs/"
+  >
+  <meta property="og:site_name" content="Finance Assistant">
+
+  <meta name="twitter:card" content="summary">
+  <meta
+    name="twitter:title"
+    content="Pengenalan Finance Assistant"
+  >
+  <meta
+    name="twitter:description"
+    content="Kenali module dan cara kerja Finance Assistant."
   >
 
+  <link rel="stylesheet" href="./css/style.css">
 </head>
-
 
 <body>
 
-  <!-- =========================================
-       HEADER
-       ========================================= -->
-
+  <!-- HEADER -->
   <header class="docs-header">
+    <button
+      id="sidebarToggle"
+      class="sidebar-toggle"
+      type="button"
+      aria-label="Buka navigasi"
+      aria-controls="sidebar"
+      aria-expanded="false"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-    <div class="header-left">
+    <a href="/docs/" class="docs-brand">
+      Finance Assistant
+      <span>Dokumentasi</span>
+    </a>
 
-      <button
-        id="sidebarToggle"
-        class="icon-button"
-        type="button"
-        aria-label="Buka menu"
-        aria-expanded="false"
-        aria-controls="sidebar"
-      >
-        ☰
-      </button>
-
-      <a
-        href="/docs/"
-        class="brand"
-      >
-
-        <span class="brand-name">
-          Finance Assistant
-        </span>
-
-        <span class="brand-label">
-          Dokumentasi
-        </span>
-
-      </a>
-
-    </div>
-
-
-    <div class="header-right">
-
-      <button
-        id="searchButton"
-        class="header-button"
-        type="button"
-        aria-label="Cari dokumentasi"
-      >
-
-        🔍
-
-        <span>
-          Cari
-        </span>
-
-      </button>
-
-    </div>
-
+    <button
+      id="searchButton"
+      class="search-button"
+      type="button"
+      aria-label="Cari dokumentasi"
+    >
+      <span>Cari dokumentasi...</span>
+      <kbd>/</kbd>
+    </button>
   </header>
 
-
-  <!-- =========================================
-       LAYOUT
-       ========================================= -->
-
+  <!-- LAYOUT -->
   <div class="docs-layout">
 
-    <!-- =======================================
-         SIDEBAR
-         ======================================= -->
-
-    <aside
-      id="sidebar"
-      class="docs-sidebar"
-      aria-label="Navigasi dokumentasi"
-    >
-
-      <div class="sidebar-inner">
-
-        <div id="sidebarContent">
-          <!-- Menu dan footer dibuat oleh JavaScript -->
-        </div>
-
-      </div>
-
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="docs-sidebar">
+      <div id="sidebarContent" class="sidebar-inner"></div>
     </aside>
 
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-    <!-- =======================================
-         OVERLAY MOBILE
-         ======================================= -->
-
-    <div
-      id="sidebarOverlay"
-      class="sidebar-overlay"
-      aria-hidden="true"
-    ></div>
-
-
-    <!-- =======================================
-         MAIN CONTENT
-         ======================================= -->
-
+    <!-- MAIN CONTENT -->
     <main class="docs-main">
 
-      <article
-        id="article"
-        class="docs-article"
-      >
-        <!-- Konten halaman utama dimuat oleh router -->
+      <article id="article" class="docs-article">
+
+        <h1>Selamat datang di Finance Assistant</h1>
+
+        <p>
+          Finance Assistant dibuat untuk membantu kamu mengelola
+          berbagai aktivitas keuangan dalam satu tempat.
+          Mulai dari tabungan, kas bersama, perhitungan gaji,
+          sampai pengingat airdrop.
+        </p>
+
+        <p>
+          Tujuannya sederhana: supaya kamu bisa lebih mudah
+          melihat, mencatat, dan memahami apa yang sedang terjadi
+          dengan keuanganmu tanpa harus berpindah-pindah tempat.
+        </p>
+
+        <h2>Apa yang bisa kamu lakukan?</h2>
+
+        <p>
+          Finance Assistant terdiri dari beberapa module yang
+          masing-masing punya tugasnya sendiri.
+          Kamu bisa menggunakan module yang memang sesuai
+          dengan kebutuhanmu.
+        </p>
+
+        <!-- MODULE OVERVIEW -->
+        <div class="module-overview">
+
+          <div class="module-overview-header">
+            <span class="module-overview-icon">✨</span>
+
+            <div>
+              <h3>Kenali module di Finance Assistant</h3>
+
+              <p>
+                Setiap module dibuat untuk membantu kebutuhan
+                yang berbeda.
+              </p>
+            </div>
+          </div>
+
+          <div class="module-list">
+
+            <!-- TABUNGAN -->
+            <a
+              href="/docs/saving/"
+              class="module-card"
+              data-doc="saving"
+            >
+              <div class="module-icon">💰</div>
+
+              <div class="module-info">
+                <h3>Tabungan</h3>
+
+                <p>
+                  Digunakan untuk membantu mencatat dan memantau
+                  aktivitas tabungan yang kamu miliki.
+                </p>
+              </div>
+            </a>
+
+            <!-- KAS BERSAMA -->
+            <a
+              href="/docs/kas/"
+              class="module-card"
+              data-doc="kas"
+            >
+              <div class="module-icon">🤝</div>
+
+              <div class="module-info">
+                <h3>Kas Bersama</h3>
+
+                <p>
+                  Untuk mengelola keuangan yang digunakan bersama,
+                  sehingga pemasukan dan pengeluaran bisa lebih
+                  mudah dipantau.
+                </p>
+              </div>
+            </a>
+
+            <!-- FINANCIAL -->
+            <a
+              href="/docs/financial/"
+              class="module-card"
+              data-doc="financial"
+            >
+              <div class="module-icon">💵</div>
+
+              <div class="module-info">
+                <h3>Financial</h3>
+
+                <p>
+                  Tempat untuk mengelola aktivitas keuangan dan
+                  melihat bagaimana kondisi keuanganmu dari waktu
+                  ke waktu.
+                </p>
+              </div>
+            </a>
+
+            <!-- PAYROLL MONTHLY -->
+            <a
+              href="/docs/monthly/"
+              class="module-card"
+              data-doc="monthly"
+            >
+              <div class="module-icon">📅</div>
+
+              <div class="module-info">
+                <h3>Perhitungan Gaji Bulanan</h3>
+
+                <p>
+                  Membantu menghitung gaji bulanan berdasarkan
+                  data yang digunakan oleh sistem payroll bulanan
+                  berdasarkan data kehadiran.
+                </p>
+              </div>
+            </a>
+
+            <!-- PAYROLL DAILY -->
+            <a
+              href="/docs/daily/"
+              class="module-card"
+              data-doc="daily"
+            >
+              <div class="module-icon">🕐</div>
+
+              <div class="module-info">
+                <h3>Perhitungan Gaji Harian</h3>
+
+                <p>
+                  Digunakan untuk perhitungan gaji berdasarkan
+                  pendapatan harian dan aturan yang berlaku.
+                </p>
+              </div>
+            </a>
+
+            <!-- AIRDROP -->
+            <a
+              href="/docs/airdrop/"
+              class="module-card"
+              data-doc="airdrop"
+            >
+              <div class="module-icon">🔔</div>
+
+              <div class="module-info">
+                <h3>Pengingat Airdrop</h3>
+
+                <p>
+                  Membantu kamu mengingat aktivitas atau deadline
+                  airdrop yang sedang kamu ikuti.
+                </p>
+              </div>
+            </a>
+
+          </div>
+
+          <!-- MODULE OVERVIEW FOOTER -->
+          <div class="module-overview-footer">
+            <span>💡</span>
+
+            <p>
+              Kamu tidak harus menggunakan semua module.
+              Gunakan yang memang kamu butuhkan.
+            </p>
+          </div>
+
+        </div>
+
+        <h2>Semua dimulai dari Workspace</h2>
+
+        <p>
+          Finance Assistant menggunakan konsep
+          <strong>Workspace</strong> sebagai tempat berbagai
+          data dan pengaturan aplikasi kamu berada.
+        </p>
+
+        <p>
+          Sebelum mulai menggunakan module yang ada,
+          kamu akan terlebih dahulu menyiapkan Workspace.
+          Setelah itu, kamu bisa mengatur data dan mulai
+          menggunakan fitur yang kamu butuhkan.
+        </p>
+
+        <h2>Bagaimana cara kerjanya?</h2>
+
+        <p>
+          Secara sederhana, alurnya seperti ini:
+        </p>
+
+        <pre><code>Kamu
+  ↓
+Input / aktivitas
+  ↓
+Finance Assistant
+  ↓
+Data Workspace
+  ↓
+Module memproses data
+  ↓
+Hasil &amp; ringkasan</code></pre>
+
+        <p>
+          Kamu tidak perlu memahami proses teknis di baliknya
+          untuk menggunakan Finance Assistant. Cukup masukkan
+          data yang diperlukan, dan biarkan sistem membantu
+          mengolahnya.
+        </p>
+
+        <h2>Siap mulai?</h2>
+
+        <p>
+          Kalau ini pertama kalinya kamu menggunakan
+          Finance Assistant, sebaiknya mulai dari panduan
+          berikut.
+        </p>
+
+        <p>
+          <a href="/docs/mulai/" data-doc="mulai">
+            Mulai menggunakan Finance Assistant →
+          </a>
+        </p>
+
       </article>
 
-
-      <!-- =====================================
-           PREVIOUS / NEXT
-           ===================================== -->
+      <!-- SHARE & NAVIGATION -->
+      <div id="articleShare"></div>
 
       <nav
         id="articleNavigation"
         class="article-navigation"
         aria-label="Navigasi artikel"
-      >
-        <!-- Navigasi artikel dibuat oleh JavaScript -->
-      </nav>
+      ></nav>
 
     </main>
-
   </div>
 
-
-  <!-- =========================================
-       SEARCH MODAL
-       ========================================= -->
-
+  <!-- SEARCH MODAL -->
   <div
     id="searchModal"
     class="search-modal"
-    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Cari dokumentasi"
   >
-
-    <div class="search-modal-backdrop"></div>
-
-    <div
-      class="search-modal-content"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Cari dokumentasi"
-    >
+    <div class="search-dialog">
 
       <div class="search-header">
-
         <input
-          id="searchInput"
           type="search"
-          placeholder="Cari di dokumentasi..."
+          id="searchInput"
+          placeholder="Cari dokumentasi..."
           autocomplete="off"
+          aria-label="Kata kunci pencarian"
         >
 
         <button
           id="searchClose"
-          class="icon-button"
           type="button"
           aria-label="Tutup pencarian"
         >
-          ×
+          Tutup
         </button>
-
       </div>
 
-      <div
-        id="searchResults"
-        class="search-results"
-      >
-        <!-- Hasil pencarian dibuat oleh JavaScript -->
-      </div>
+      <div id="searchResults" class="search-results"></div>
 
     </div>
-
   </div>
 
-
-  <!-- =========================================
-       JAVASCRIPT
-       ========================================= -->
-
-  <script
-    type="module"
-    src="./js/app.js"
-  ></script>
+  <!-- APP -->
+  <script type="module" src="./js/app.js"></script>
 
 </body>
-
 </html>
