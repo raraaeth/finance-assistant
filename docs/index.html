@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -14,16 +15,25 @@
 
   <meta
     name="description"
-    content="Dokumentasi resmi Finance Assistant."
+    content="Dokumentasi resmi Finance Assistant. Pelajari cara menggunakan fitur tabungan, kas bersama, pengelolaan keuangan, dan perhitungan gaji."
   >
 
-  <link rel="stylesheet" href="./css/style.css">
+  <meta name="robots" content="index, follow">
+
+  <link
+    rel="canonical"
+    href="https://financeassistant.web.id/docs/"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./css/style.css"
+  >
 
 </head>
 
 
 <body>
-
 
   <!-- =========================================
        HEADER
@@ -39,13 +49,13 @@
         type="button"
         aria-label="Buka menu"
         aria-expanded="false"
+        aria-controls="sidebar"
       >
         ☰
       </button>
 
-
       <a
-        href="./index.html"
+        href="/docs/"
         class="brand"
       >
 
@@ -68,6 +78,7 @@
         id="searchButton"
         class="header-button"
         type="button"
+        aria-label="Cari dokumentasi"
       >
 
         🔍
@@ -83,13 +94,11 @@
   </header>
 
 
-
   <!-- =========================================
        LAYOUT
        ========================================= -->
 
   <div class="docs-layout">
-
 
     <!-- =======================================
          SIDEBAR
@@ -104,13 +113,12 @@
       <div class="sidebar-inner">
 
         <div id="sidebarContent">
-          <!-- Menu dibuat oleh sidebar.js -->
+          <!-- Menu dan footer dibuat oleh JavaScript -->
         </div>
 
       </div>
 
     </aside>
-
 
 
     <!-- =======================================
@@ -124,7 +132,6 @@
     ></div>
 
 
-
     <!-- =======================================
          MAIN CONTENT
          ======================================= -->
@@ -135,11 +142,8 @@
         id="article"
         class="docs-article"
       >
-        <!--
-          Isi artikel akan dimuat oleh JavaScript.
-        -->
+        <!-- Konten halaman utama dimuat oleh router -->
       </article>
-
 
 
       <!-- =====================================
@@ -151,24 +155,12 @@
         class="article-navigation"
         aria-label="Navigasi artikel"
       >
-        <!--
-          Tombol Sebelumnya dan Berikutnya
-          dibuat oleh JavaScript.
-        -->
+        <!-- Navigasi artikel dibuat oleh JavaScript -->
       </nav>
 
     </main>
 
   </div>
-
-
-
-  <!-- =========================================
-       FOOTER
-       ========================================= -->
-
-  <div id="docsFooter"></div>
-
 
 
   <!-- =========================================
@@ -182,7 +174,6 @@
   >
 
     <div class="search-modal-backdrop"></div>
-
 
     <div
       class="search-modal-content"
@@ -200,7 +191,6 @@
           autocomplete="off"
         >
 
-
         <button
           id="searchClose"
           class="icon-button"
@@ -211,7 +201,6 @@
         </button>
 
       </div>
-
 
       <div
         id="searchResults"
@@ -225,7 +214,6 @@
   </div>
 
 
-
   <!-- =========================================
        JAVASCRIPT
        ========================================= -->
@@ -234,13 +222,6 @@
     type="module"
     src="./js/app.js"
   ></script>
-
-
-  <script
-    type="module"
-    src="./js/footer.js"
-  ></script>
-
 
 </body>
 
