@@ -1268,3 +1268,43 @@ a {
   }
 
 }
+
+
+/* =========================================================
+   SIDEBAR FOOTER
+   Tautan tambahan di bawah menu dokumentasi
+   ========================================================= */
+
+.sidebar-footer {
+  margin-top: 12px;
+  padding: 20px 10px 8px;
+
+  border-top: 1px solid var(--color-border);
+}
+
+.sidebar-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.sidebar-footer-links a {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+
+  text-decoration: none;
+
+  transition: color 0.18s ease;
+}
+
+.sidebar-footer-links a:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 700px) {
+  .sidebar-footer {
+    padding-bottom: 24px;
+  }
+}
+
