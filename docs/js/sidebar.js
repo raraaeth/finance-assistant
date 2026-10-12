@@ -2,6 +2,7 @@
 /* =========================================================
    FINANCE ASSISTANT — DOCUMENTATION
    Sidebar
+   File : sidebar.js
    ========================================================= */
 
 import {
@@ -29,10 +30,6 @@ const sidebarOverlay =
 
 /* =========================================================
    2. GROUP ARTICLES
-   Berdasarkan section:
-   DOKUMENTASI
-   FITUR
-   DATA & PRIVASI
    ========================================================= */
 
 function groupArticles() {
@@ -56,7 +53,7 @@ function groupArticles() {
 
 /* =========================================================
    3. RENDER SIDEBAR
-   Menggunakan permalink artikel
+   Semua tautan menggunakan permalink dari router.js.
    ========================================================= */
 
 function renderSidebar() {
@@ -75,30 +72,18 @@ function renderSidebar() {
       const section =
         document.createElement("div");
 
-      section.className =
-        "sidebar-section";
-
-
-      /* Section title */
+      section.className = "sidebar-section";
 
       const title =
         document.createElement("div");
 
-      title.className =
-        "sidebar-section-title";
-
-      title.textContent =
-        sectionName;
-
-
-      /* Article list */
+      title.className = "sidebar-section-title";
+      title.textContent = sectionName;
 
       const list =
         document.createElement("ul");
 
-      list.className =
-        "sidebar-list";
-
+      list.className = "sidebar-list";
 
       articles.forEach(article => {
 
@@ -108,29 +93,18 @@ function renderSidebar() {
         const link =
           document.createElement("a");
 
-        link.className =
-          "sidebar-link";
-
-        link.href =
-          article.url;
-
-        link.dataset.doc =
-          article.id;
-
-        link.textContent =
-          article.title;
+        link.className = "sidebar-link";
+        link.href = article.url;
+        link.dataset.doc = article.id;
+        link.textContent = article.title;
 
         item.appendChild(link);
-
         list.appendChild(item);
 
       });
 
-
       section.appendChild(title);
-
       section.appendChild(list);
-
       sidebarContent.appendChild(section);
 
     }
@@ -141,7 +115,7 @@ function renderSidebar() {
 
 /* =========================================================
    4. ACTIVE ARTICLE
-   Ditentukan berdasarkan URL halaman
+   Berdasarkan permalink halaman saat ini.
    ========================================================= */
 
 function setActiveArticle(articleId) {
@@ -151,32 +125,23 @@ function setActiveArticle(articleId) {
   }
 
   const links =
-    sidebarContent.querySelectorAll(
-      "[data-doc]"
-    );
+    sidebarContent.querySelectorAll("a[data-doc]");
 
   links.forEach(link => {
 
     const isActive =
+      Boolean(articleId) &&
       link.dataset.doc === articleId;
 
-    link.classList.toggle(
-      "active",
-      isActive
-    );
+    link.classList.toggle("active", isActive);
 
     if (isActive) {
 
-      link.setAttribute(
-        "aria-current",
-        "page"
-      );
+      link.setAttribute("aria-current", "page");
 
     } else {
 
-      link.removeAttribute(
-        "aria-current"
-      );
+      link.removeAttribute("aria-current");
 
     }
 
@@ -191,17 +156,13 @@ function setActiveArticle(articleId) {
 
 function closeSidebar() {
 
-  if (!sidebar) {
-    return;
+  if (sidebar) {
+    sidebar.classList.remove("open");
   }
-
-  sidebar.classList.remove("open");
 
   if (sidebarOverlay) {
 
-    sidebarOverlay.classList.remove(
-      "active"
-    );
+    sidebarOverlay.classList.remove("active");
 
     sidebarOverlay.setAttribute(
       "aria-hidden",
@@ -263,9 +224,7 @@ function toggleSidebar() {
 
     sidebarToggle.setAttribute(
       "aria-label",
-      isOpen
-        ? "Tutup menu"
-        : "Buka menu"
+      isOpen ? "Tutup menu" : "Buka menu"
     );
 
   }
@@ -274,8 +233,8 @@ function toggleSidebar() {
 
 
 /* =========================================================
-   7. SIDEBAR CLICK
-   Navigasi menggunakan permalink normal
+   7. SIDEBAR LINKS
+   Navigasi normal melalui permalink.
    ========================================================= */
 
 function setupSidebarLinks() {
@@ -289,19 +248,14 @@ function setupSidebarLinks() {
     event => {
 
       const link =
-        event.target.closest(
-          "a[data-doc]"
-        );
+        event.target.closest("a[data-doc]");
 
       if (!link) {
         return;
       }
 
-      /*
-       * Tidak menggunakan preventDefault().
-       * Browser membuka URL artikel secara normal.
-       */
-
+      // Biarkan browser membuka halaman HTML tujuan.
+      // Jangan gunakan preventDefault().
       closeSidebar();
 
     }
@@ -311,27 +265,23 @@ function setupSidebarLinks() {
 
 
 /* =========================================================
-   8. TOGGLE BUTTON
+   8. TOGGLE BUTTON & OVERLAY
    ========================================================= */
 
 function setupSidebarToggle() {
 
-  if (!sidebarToggle) {
-    return;
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener(
+      "click",
+      toggleSidebar
+    );
   }
 
-  sidebarToggle.addEventListener(
-    "click",
-    toggleSidebar
-  );
-
   if (sidebarOverlay) {
-
     sidebarOverlay.addEventListener(
       "click",
       closeSidebar
     );
-
   }
 
 }
@@ -347,11 +297,9 @@ function setupEscapeKey() {
     "keydown",
     event => {
 
-      if (event.key !== "Escape") {
-        return;
+      if (event.key === "Escape") {
+        closeSidebar();
       }
-
-      closeSidebar();
 
     }
   );
@@ -372,11 +320,7 @@ function setupNavigationListener() {
       const articleId =
         event.detail?.articleId;
 
-      if (!articleId) {
-        return;
-      }
-
-      setActiveArticle(articleId);
+      setActiveArticle(articleId || null);
 
     }
   );
@@ -390,23 +334,19 @@ function setupNavigationListener() {
 
 export function initSidebar() {
 
+  if (!sidebarContent) {
+    return;
+  }
+
   renderSidebar();
 
-  /*
-   * Tandai artikel aktif berdasarkan URL
-   * saat halaman pertama kali dibuka.
-   */
-
-  setActiveArticle(
-    getArticleIdFromURL()
-  );
+  // /docs/ otomatis menandai Pengenalan aktif.
+  // URL yang tidak dikenal tidak menandai artikel apa pun.
+  setActiveArticle(getArticleIdFromURL());
 
   setupSidebarLinks();
-
   setupSidebarToggle();
-
   setupEscapeKey();
-
   setupNavigationListener();
 
 }
