@@ -1,80 +1,101 @@
+
 /* =====================================================
    Finance Assistant
    Documentation
-   Component    : Footer
+   Component    : Sidebar Footer
    File         : footer.js
    ===================================================== */
 
-const footer = document.getElementById("docsFooter");
+const sidebarContent =
+  document.getElementById("sidebarContent");
 
 
-if (footer) {
+/* =====================================================
+   1. RENDER SIDEBAR FOOTER
+   ===================================================== */
+
+function renderSidebarFooter() {
+
+  if (!sidebarContent) {
+    return;
+  }
+
+  /*
+   * Hindari footer ganda jika fungsi dipanggil ulang.
+   */
+
+  const existingFooter =
+    sidebarContent.querySelector(".sidebar-footer");
+
+  if (existingFooter) {
+    existingFooter.remove();
+  }
+
+  const footer =
+    document.createElement("footer");
+
+  footer.className =
+    "sidebar-footer";
 
   footer.innerHTML = `
 
-    <footer class="docs-footer">
+    <nav
+      class="sidebar-footer-links"
+      aria-label="Tautan informasi"
+    >
 
-      <nav
-        class="docs-footer-links"
-        aria-label="Tautan informasi"
-      >
+      <a href="/">
+        Beranda
+      </a>
 
-       <a href="/">
-          Beranda
-        </a>
+      <a href="/pages/dashboard">
+        Dashboard
+      </a>
 
-        <span>*</span>
+      <a href="/pages/">
+        Home App
+      </a>
 
-        <a href="/pages/dashboard">
-          Dashboard
-        </a>
+      <a href="/news/">
+        News and Update
+      </a>
 
-        <span>*</span>
+      <a href="/privacy/">
+        Privacy Policy
+      </a>
 
-        <a href="/pages/">
-          Home App
-        </a>
+      <a href="/terms/">
+        Terms of Service
+      </a>
 
-        <span>*</span>
-        
-        <a href="/news/">
-          News and Update
-        </a>
+      <a href="/app/">
+        About App
+      </a>
 
-        <span>*</span>
-        
-        <a href="/privacy/">
-          Privacy Policy
-        </a>
+      <a href="/contact/">
+        Contact &amp; Feedback
+      </a>
 
-        <span>*</span>
+      <a href="/sitemap/">
+        Sitemap
+      </a>
 
-
-        <a href="/terms/">
-          Terms of Service
-        </a>
-
-        <span>*</span>
-
-        <a href="/app/">
-          About App
-        </a>
-
-        <span>*</span>
-
-        <a href="/contact/">
-          Contact & Feedback
-        </a>
-        <span>*</span>
-
-        <a href="/sitemap/">
-          Sitemap
-        </a>
-
-      </nav>
-
-    </footer>
+    </nav>
 
   `;
 
+  /*
+   * Footer diletakkan setelah semua kategori
+   * artikel di dalam sidebar.
+   */
+
+  sidebarContent.appendChild(footer);
+
 }
+
+
+/* =====================================================
+   2. INITIALIZE
+   ===================================================== */
+
+renderSidebarFooter();
