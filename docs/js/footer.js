@@ -98,4 +98,6 @@ function renderSidebarFooter() {
    2. INITIALIZE
    ===================================================== */
 
-renderSidebarFooter();
+export function initSidebarFooter() {
+  renderSidebarFooter();
+}
