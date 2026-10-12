@@ -1,3 +1,4 @@
+
 /* =========================================================
    FINANCE ASSISTANT — DOCUMENTATION
    Sidebar
@@ -5,7 +6,7 @@
 
 import {
   ARTICLES,
-  navigateTo
+  getArticleIdFromURL
 } from "./router.js";
 
 
@@ -55,6 +56,7 @@ function groupArticles() {
 
 /* =========================================================
    3. RENDER SIDEBAR
+   Menggunakan permalink artikel
    ========================================================= */
 
 function renderSidebar() {
@@ -63,13 +65,9 @@ function renderSidebar() {
     return;
   }
 
-
-  const groups =
-    groupArticles();
-
+  const groups = groupArticles();
 
   sidebarContent.innerHTML = "";
-
 
   Object.entries(groups).forEach(
     ([sectionName, articles]) => {
@@ -107,23 +105,20 @@ function renderSidebar() {
         const item =
           document.createElement("li");
 
-
         const link =
           document.createElement("a");
-
 
         link.className =
           "sidebar-link";
 
         link.href =
-          `?doc=${article.id}`;
+          article.url;
 
         link.dataset.doc =
           article.id;
 
         link.textContent =
           article.title;
-
 
         item.appendChild(link);
 
@@ -146,6 +141,7 @@ function renderSidebar() {
 
 /* =========================================================
    4. ACTIVE ARTICLE
+   Ditentukan berdasarkan URL halaman
    ========================================================= */
 
 function setActiveArticle(articleId) {
@@ -154,23 +150,35 @@ function setActiveArticle(articleId) {
     return;
   }
 
-
   const links =
     sidebarContent.querySelectorAll(
       "[data-doc]"
     );
-
 
   links.forEach(link => {
 
     const isActive =
       link.dataset.doc === articleId;
 
-
     link.classList.toggle(
       "active",
       isActive
     );
+
+    if (isActive) {
+
+      link.setAttribute(
+        "aria-current",
+        "page"
+      );
+
+    } else {
+
+      link.removeAttribute(
+        "aria-current"
+      );
+
+    }
 
   });
 
@@ -187,11 +195,10 @@ function closeSidebar() {
     return;
   }
 
-
   sidebar.classList.remove("open");
 
-
   if (sidebarOverlay) {
+
     sidebarOverlay.classList.remove(
       "active"
     );
@@ -200,8 +207,8 @@ function closeSidebar() {
       "aria-hidden",
       "true"
     );
-  }
 
+  }
 
   if (sidebarToggle) {
 
@@ -230,10 +237,8 @@ function toggleSidebar() {
     return;
   }
 
-
   const isOpen =
     sidebar.classList.toggle("open");
-
 
   if (sidebarOverlay) {
 
@@ -248,7 +253,6 @@ function toggleSidebar() {
     );
 
   }
-
 
   if (sidebarToggle) {
 
@@ -271,6 +275,7 @@ function toggleSidebar() {
 
 /* =========================================================
    7. SIDEBAR CLICK
+   Navigasi menggunakan permalink normal
    ========================================================= */
 
 function setupSidebarLinks() {
@@ -279,35 +284,22 @@ function setupSidebarLinks() {
     return;
   }
 
-
   sidebarContent.addEventListener(
     "click",
     event => {
 
       const link =
         event.target.closest(
-          "[data-doc]"
+          "a[data-doc]"
         );
-
 
       if (!link) {
         return;
       }
 
-
-      event.preventDefault();
-
-
-      const articleId =
-        link.dataset.doc;
-
-
-      navigateTo(articleId);
-
-
       /*
-       * Di mobile, setelah memilih artikel,
-       * sidebar otomatis ditutup.
+       * Tidak menggunakan preventDefault().
+       * Browser membuka URL artikel secara normal.
        */
 
       closeSidebar();
@@ -328,12 +320,10 @@ function setupSidebarToggle() {
     return;
   }
 
-
   sidebarToggle.addEventListener(
     "click",
     toggleSidebar
   );
-
 
   if (sidebarOverlay) {
 
@@ -361,7 +351,6 @@ function setupEscapeKey() {
         return;
       }
 
-
       closeSidebar();
 
     }
@@ -383,15 +372,11 @@ function setupNavigationListener() {
       const articleId =
         event.detail?.articleId;
 
-
       if (!articleId) {
         return;
       }
 
-
-      setActiveArticle(
-        articleId
-      );
+      setActiveArticle(articleId);
 
     }
   );
@@ -406,6 +391,15 @@ function setupNavigationListener() {
 export function initSidebar() {
 
   renderSidebar();
+
+  /*
+   * Tandai artikel aktif berdasarkan URL
+   * saat halaman pertama kali dibuka.
+   */
+
+  setActiveArticle(
+    getArticleIdFromURL()
+  );
 
   setupSidebarLinks();
 
