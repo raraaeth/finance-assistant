@@ -5,15 +5,13 @@
    Version      : 2.0.0
 
    Description :
-   Landing Page Module Slider + Latest News
+   Landing Page Module Tabs + Latest News
 
    Handles :
    - Module card
    - Module selection
-   - Automatic slide
-   - 5 second interval
    - Manual module selection
-   - Slide indicator
+   - Keyboard navigation
    - Active module state
    - Latest 5 News
    - Dynamic News from articles.js
@@ -86,8 +84,6 @@ function blogArticleUrl(slug) {
 
 const CONFIG = {
 
-    interval: 5000,
-
     latestNewsLimit: 5
 
 };
@@ -101,13 +97,9 @@ const State = {
 
     current: 0,
 
-    timer: null,
-
     modules: [],
 
-    slides: [],
-
-    dots: []
+    slides: []
 
 };
 
@@ -140,15 +132,7 @@ function init(){
         );
 
 
-    State.dots =
-
-        Array.from(
-
-            document.querySelectorAll(
-                ".module-slider-dot"
-            )
-
-        );
+    initThemeSwitch();
 
 
     if(
@@ -168,17 +152,15 @@ function init(){
 
     bindModuleEvents();
 
-    bindDotEvents();
+    bindTabKeys();
 
     setInitialSlide();
-
-    startAutoSlide();
 
 }
 
 
 /* =====================================================
-   MODULE EVENT
+   MODULE EVENT (TAB)
 ===================================================== */
 
 function bindModuleEvents(){
@@ -218,30 +200,128 @@ function bindModuleEvents(){
 
 
 /* =====================================================
-   DOT EVENT
+   TAB KEYBOARD NAVIGATION
 ===================================================== */
 
-function bindDotEvents(){
+function bindTabKeys(){
 
-    State.dots.forEach(
+    const grid =
 
-        (
+        document.querySelector(
+            ".module-grid"
+        );
 
-            dot,
 
-            index
+    if(!grid){
 
-        ) => {
+        return;
 
-            dot.addEventListener(
+    }
 
-                "click",
 
-                () => {
+    grid.addEventListener(
 
-                    showSlide(index);
+        "keydown",
 
-                }
+        event => {
+
+            const keys = [
+
+                "ArrowRight",
+
+                "ArrowLeft",
+
+                "Home",
+
+                "End"
+
+            ];
+
+
+            if(!keys.includes(event.key)){
+
+                return;
+
+            }
+
+
+            const currentIndex =
+
+                State.modules.indexOf(
+
+                    document.activeElement
+
+                );
+
+
+            if(currentIndex === -1){
+
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            let nextIndex = currentIndex;
+
+
+            if(event.key === "ArrowRight"){
+
+                nextIndex =
+
+                    (currentIndex + 1) %
+
+                    State.modules.length;
+
+            }
+
+            else if(event.key === "ArrowLeft"){
+
+                nextIndex =
+
+                    (currentIndex -
+
+                        1 +
+
+                        State.modules.length) %
+
+                    State.modules.length;
+
+            }
+
+            else if(event.key === "Home"){
+
+                nextIndex = 0;
+
+            }
+
+            else if(event.key === "End"){
+
+                nextIndex =
+
+                    State.modules.length - 1;
+
+            }
+
+
+            const target =
+                State.modules[nextIndex];
+
+
+            if(!target){
+
+                return;
+
+            }
+
+
+            target.focus();
+
+            showModule(
+
+                target.dataset.module
 
             );
 
@@ -269,15 +349,9 @@ function setInitialSlide(){
     }
 
 
-    const firstId =
-        firstModule.dataset.module;
-
-
     showModule(
 
-        firstId,
-
-        false
+        firstModule.dataset.module
 
     );
 
@@ -285,16 +359,10 @@ function setInitialSlide(){
 
 
 /* =====================================================
-   SHOW MODULE
+   SHOW MODULE (TAB PANEL)
 ===================================================== */
 
-function showModule(
-
-    moduleId,
-
-    restart = true
-
-){
+function showModule(moduleId){
 
     const slideIndex =
 
@@ -321,62 +389,16 @@ function showModule(
     }
 
 
-    showSlide(
-
-        slideIndex,
-
-        false
-
-    );
-
-
-    /* =============================================
-       ACTIVE MODULE
-    ============================================= */
-
-    State.modules.forEach(
-
-        module => {
-
-            module.classList.toggle(
-
-                "active",
-
-                module.dataset.module ===
-
-                    moduleId
-
-            );
-
-        }
-
-    );
-
-
-    /* =============================================
-       RESTART TIMER
-    ============================================= */
-
-    if(restart){
-
-        restartAutoSlide();
-
-    }
+    showSlide(slideIndex);
 
 }
 
 
 /* =====================================================
-   SHOW SLIDE
+   SHOW SLIDE (TAB PANEL)
 ===================================================== */
 
-function showSlide(
-
-    index,
-
-    restart = true
-
-){
+function showSlide(index){
 
     if(
 
@@ -396,10 +418,6 @@ function showSlide(
     State.current = index;
 
 
-    /* =============================================
-       HIDE / SHOW SLIDES
-    ============================================= */
-
     State.slides.forEach(
 
         (
@@ -410,49 +428,25 @@ function showSlide(
 
         ) => {
 
+            const isActive =
+                slideIndex === index;
+
+
             slide.classList.toggle(
 
                 "active",
 
-                slideIndex === index
+                isActive
 
             );
+
+
+            slide.hidden = !isActive;
 
         }
 
     );
 
-
-    /* =============================================
-       ACTIVE DOT
-    ============================================= */
-
-    State.dots.forEach(
-
-        (
-
-            dot,
-
-            dotIndex
-
-        ) => {
-
-            dot.classList.toggle(
-
-                "active",
-
-                dotIndex === index
-
-            );
-
-        }
-
-    );
-
-
-    /* =============================================
-       ACTIVE MODULE
-    ============================================= */
 
     const currentSlide =
         State.slides[index];
@@ -466,156 +460,109 @@ function showSlide(
 
         module => {
 
+            const isActive =
+
+                module.dataset.module ===
+
+                    moduleId;
+
+
             module.classList.toggle(
 
                 "active",
 
-                module.dataset.module ===
-
-                    moduleId
+                isActive
 
             );
+
+
+            module.setAttribute(
+
+                "aria-selected",
+
+                String(isActive)
+
+            );
+
+
+            module.tabIndex =
+
+                isActive ? 0 : -1;
 
         }
 
     );
 
-
-    if(restart){
-
-        restartAutoSlide();
-
-    }
-
 }
 
 
 /* =====================================================
-   NEXT SLIDE
+   HERO THEME SWITCHER
+   Mengganti tema mockup ponsel di hero saja,
+   bukan tema halaman.
 ===================================================== */
 
-function nextSlide(){
+function initThemeSwitch(){
 
-    if(
+    const phone =
 
-        State.slides.length === 0
+        document.getElementById(
+            "faPhone"
+        );
 
-    ){
+
+    const buttons =
+
+        Array.from(
+
+            document.querySelectorAll(
+                ".fa-theme-btn"
+            )
+
+        );
+
+
+    if(!phone || buttons.length === 0){
 
         return;
 
     }
 
 
-    let next =
-        State.current + 1;
+    buttons.forEach(
+
+        button => {
+
+            button.addEventListener(
+
+                "click",
+
+                () => {
+
+                    phone.dataset.theme =
+
+                        button.dataset.themeChoice;
 
 
-    if(
+                    buttons.forEach(
 
-        next >=
+                        other => {
 
-        State.slides.length
+                            other.setAttribute(
 
-    ){
+                                "aria-pressed",
 
-        next = 0;
+                                String(other === button)
 
-    }
+                            );
 
+                        }
 
-    showSlide(
+                    );
 
-        next,
+                }
 
-        false
-
-    );
-
-}
-
-
-/* =====================================================
-   START AUTO SLIDE
-===================================================== */
-
-function startAutoSlide(){
-
-    stopAutoSlide();
-
-
-    State.timer =
-
-        setInterval(
-
-            () => {
-
-                nextSlide();
-
-            },
-
-            CONFIG.interval
-
-        );
-
-}
-
-
-/* =====================================================
-   STOP AUTO SLIDE
-===================================================== */
-
-function stopAutoSlide(){
-
-    if(State.timer){
-
-        clearInterval(
-
-            State.timer
-
-        );
-
-        State.timer = null;
-
-    }
-
-}
-
-
-/* =====================================================
-   RESTART AUTO SLIDE
-===================================================== */
-
-function restartAutoSlide(){
-
-    startAutoSlide();
-
-}
-
-
-/* =====================================================
-   VISIBILITY CHANGE
-===================================================== */
-
-function initVisibility(){
-
-    document.addEventListener(
-
-        "visibilitychange",
-
-        () => {
-
-            if(document.hidden){
-
-                stopAutoSlide();
-
-            }
-
-            else{
-
-                startAutoSlide();
-
-            }
+            );
 
         }
 
@@ -1038,8 +985,6 @@ document.addEventListener(
     () => {
 
         init();
-
-        initVisibility();
 
         renderLatestNews();
 

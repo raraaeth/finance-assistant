@@ -131,34 +131,168 @@
 
 <header class="hero">
 
-    <div class="hero-content">
+    <div class="hero-content hero-layout">
 
-        <span class="badge">
-            💙 Personal Finance Platform
-        </span>
+        <div class="hero-text">
 
-
-        <h1>
-            Kelola Keuangan Lebih Mudah,
-            Lebih Cerdas, dan Lebih Terarah.
-        </h1>
+            <span class="badge">
+                💙 Personal Finance Platform
+            </span>
 
 
-        <p>
-            Finance Assistant membantu kamu mengatur
-            pemasukan, pengeluaran, tabungan, payroll,
-            hingga kas bersama dalam satu aplikasi yang
-            sederhana dan nyaman digunakan setiap hari.
-        </p>
+            <h1>
+                Kelola Keuangan Lebih Mudah,
+                Lebih Cerdas, dan Lebih Terarah.
+            </h1>
 
 
-        <button
-            id="start-app"
-            type="button">
+            <p>
+                Finance Assistant membantu kamu mencatat
+                pemasukan dan pengeluaran, mengejar target
+                tabungan, mengelola kas bersama, sampai
+                menghitung payroll — dalam satu aplikasi,
+                dengan data tersimpan di Google Drive
+                milikmu sendiri.
+            </p>
 
-            Mulai Gratis
 
-        </button>
+            <div class="hero-actions">
+
+                <button
+                    id="start-app"
+                    type="button">
+
+                    Mulai Gratis
+
+                </button>
+
+                <a
+                    class="hero-blog-link"
+                    href="https://blog.financeassistant.web.id/">
+
+                    Baca Blog
+
+                </a>
+
+            </div>
+
+
+            <div class="hero-facts">
+
+                <span><strong>6</strong> modul workspace</span>
+
+                <span><strong>4</strong> tema tampilan</span>
+
+                <span><strong>Tanpa install</strong> — langsung dari browser</span>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-visual">
+
+            <div
+                class="fa-phone"
+                id="faPhone"
+                data-theme="light"
+                aria-hidden="true">
+
+                <div class="fa-screen">
+
+                    <div class="fa-status">
+                        <span>09.41</span>
+                        <span>Finance Assistant</span>
+                    </div>
+
+                    <div class="fa-app-head">
+                        <span class="fa-logo">FA</span>
+                        <div>
+                            <strong>Selamat pagi 👋</strong>
+                            <small>Workspace: Financial</small>
+                        </div>
+                    </div>
+
+                    <div class="fa-balance">
+                        <small>Saldo Bulan Ini</small>
+                        <strong>Rp 4.250.000</strong>
+                        <div class="fa-balance-row">
+                            <span>▲ Masuk Rp 6.500.000</span>
+                            <span>▼ Keluar Rp 2.250.000</span>
+                        </div>
+                    </div>
+
+                    <div class="fa-tx-title">Transaksi Terakhir</div>
+
+                    <div class="fa-tx-list">
+
+                        <div class="fa-tx">
+                            <span class="fa-tx-ic">☕</span>
+                            <div>
+                                <strong>Kopi &amp; jajan</strong>
+                                <small>Hari ini</small>
+                            </div>
+                            <b class="fa-neg">−Rp 18.000</b>
+                        </div>
+
+                        <div class="fa-tx">
+                            <span class="fa-tx-ic">💼</span>
+                            <div>
+                                <strong>Gaji bulanan</strong>
+                                <small>Kemarin</small>
+                            </div>
+                            <b class="fa-pos">+Rp 6.500.000</b>
+                        </div>
+
+                        <div class="fa-tx">
+                            <span class="fa-tx-ic">🚌</span>
+                            <div>
+                                <strong>Transport</strong>
+                                <small>Kemarin</small>
+                            </div>
+                            <b class="fa-neg">−Rp 25.000</b>
+                        </div>
+
+                    </div>
+
+                    <div class="fa-nav">
+                        <span class="on">Beranda</span>
+                        <span>Transaksi</span>
+                        <span>Statistik</span>
+                        <span>Profil</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="fa-theme-switch"
+                role="group"
+                aria-label="Coba tema tampilan">
+
+                <span class="fa-theme-label">Coba tema:</span>
+
+                <button type="button" class="fa-theme-btn" data-theme-choice="light" aria-pressed="true">
+                    <span class="fa-dot"></span>Light
+                </button>
+
+                <button type="button" class="fa-theme-btn" data-theme-choice="dark" aria-pressed="false">
+                    <span class="fa-dot"></span>Dark
+                </button>
+
+                <button type="button" class="fa-theme-btn" data-theme-choice="green" aria-pressed="false">
+                    <span class="fa-dot"></span>Green
+                </button>
+
+                <button type="button" class="fa-theme-btn" data-theme-choice="pink" aria-pressed="false">
+                    <span class="fa-dot"></span>Pink
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -169,29 +303,7 @@
 <main>
 
 
-    <!-- =================================================
-         ABOUT
-    ================================================== -->
-
-    <section
-        aria-labelledby="about-heading">
-
-        <h2 id="about-heading">
-            Mengapa Finance Assistant?
-        </h2>
-
-
-        <p>
-            Banyak aplikasi keuangan terasa rumit dan penuh
-            fitur yang tidak benar-benar digunakan.
-
-            Finance Assistant dibuat dengan tujuan sederhana,
-            yaitu membantu siapa pun membangun kebiasaan
-            finansial yang lebih baik melalui pengalaman
-            yang ringan, cepat, dan mudah dipahami.
-        </p>
-
-    </section>
+    
 
 
 
@@ -220,7 +332,7 @@
              MODULE GRID
         ============================================== -->
 
-        <div class="module-grid">
+        <div class="module-grid" role="tablist" aria-label="Pilih modul Finance Assistant">
 
 
             <!-- =========================================
@@ -230,7 +342,7 @@
             <button
                 type="button"
                 class="module-card"
-                data-module="saving">
+                data-module="saving" role="tab" id="tab-saving" aria-controls="panel-saving" aria-selected="false" tabindex="-1">
 
                 <span
                     class="module-icon"
@@ -256,7 +368,7 @@
             <button
                 type="button"
                 class="module-card"
-                data-module="financial">
+                data-module="financial" role="tab" id="tab-financial" aria-controls="panel-financial" aria-selected="false" tabindex="-1">
 
                 <span
                     class="module-icon"
@@ -282,7 +394,7 @@
             <button
                 type="button"
                 class="module-card"
-                data-module="kas">
+                data-module="kas" role="tab" id="tab-kas" aria-controls="panel-kas" aria-selected="false" tabindex="-1">
 
                 <span
                     class="module-icon"
@@ -308,7 +420,7 @@
             <button
                 type="button"
                 class="module-card"
-                data-module="payroll-monthly">
+                data-module="payroll-monthly" role="tab" id="tab-payroll-monthly" aria-controls="panel-payroll-monthly" aria-selected="false" tabindex="-1">
 
                 <span
                     class="module-icon"
@@ -334,7 +446,7 @@
             <button
                 type="button"
                 class="module-card"
-                data-module="payroll-daily">
+                data-module="payroll-daily" role="tab" id="tab-payroll-daily" aria-controls="panel-payroll-daily" aria-selected="false" tabindex="-1">
 
                 <span
                     class="module-icon"
@@ -360,7 +472,7 @@
             <button
                 type="button"
                 class="module-card"
-                data-module="airdrop">
+                data-module="airdrop" role="tab" id="tab-airdrop" aria-controls="panel-airdrop" aria-selected="false" tabindex="-1">
 
                 <span
                     class="module-icon"
@@ -402,9 +514,11 @@
 
             <article
     class="module-slide"
-    data-slide="saving">
+    data-slide="saving" role="tabpanel" id="panel-saving" aria-labelledby="tab-saving">
 
-    <img
+    <div class="module-slide-visual">
+
+            <img
         src="assets/images/slide/slide-saving.webp"
         alt="Tampilan modul Saving Finance Assistant"
         loading="lazy">
@@ -430,6 +544,38 @@
 
     </div>
 
+            </div>
+            <div class="module-slide-detail">
+
+                <p class="module-problem">
+                    Tabungan tersebar di banyak tempat sampai tidak tahu totalnya sudah berapa.
+                </p>
+
+                <ul class="module-points">
+                        <li>Catat tabungan dari berbagai bank, wallet, dan tabungan pribadi</li>
+                        <li>Pantau saldo dan riwayat transaksi tiap akun tabungan</li>
+                        <li>Lihat total tabungan terkumpul dalam satu ringkasan</li>
+                </ul>
+
+                <div class="module-aside">
+
+                    <span class="module-aside-label">
+                        Bacaan terkait
+                    </span>
+
+                    <a
+                        class="module-article-link"
+                        href="https://blog.financeassistant.web.id/2026/11/5-tips-menabung-rutin-menyisihkan-gaji.html">
+
+                        5 tips menabung rutin menyisihkan gaji →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
 </article>
 
 
@@ -440,9 +586,11 @@
 
             <article
     class="module-slide"
-    data-slide="financial">
+    data-slide="financial" role="tabpanel" id="panel-financial" aria-labelledby="tab-financial">
 
-    <img
+    <div class="module-slide-visual">
+
+            <img
         src="assets/images/slide/slide-financial.webp"
         alt="Tampilan modul Financial Finance Assistant"
         loading="lazy">
@@ -469,6 +617,38 @@
 
     </div>
 
+            </div>
+            <div class="module-slide-detail">
+
+                <p class="module-problem">
+                    Pengeluaran receh yang tidak tercatat tahu-tahu membuat uang bocor sebelum tengah bulan.
+                </p>
+
+                <ul class="module-points">
+                        <li>Catat pemasukan dan pengeluaran harian dalam hitungan detik</li>
+                        <li>Analisa dan statistik pengeluaran per kategori dan periode</li>
+                        <li>Posisi keuangan — hutang dan dana darurat — mengikuti pengaturanmu</li>
+                </ul>
+
+                <div class="module-aside">
+
+                    <span class="module-aside-label">
+                        Bacaan terkait
+                    </span>
+
+                    <a
+                        class="module-article-link"
+                        href="https://blog.financeassistant.web.id/2026/11/cara-mencatat-keuangan-pribadi.html">
+
+                        Cara mencatat keuangan pribadi →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
 </article>
 
 
@@ -479,9 +659,11 @@
 
             <article
     class="module-slide"
-    data-slide="kas">
+    data-slide="kas" role="tabpanel" id="panel-kas" aria-labelledby="tab-kas">
 
-    <img
+    <div class="module-slide-visual">
+
+            <img
         src="assets/images/slide/slide-kas.webp"
         alt="Tampilan modul Kas Bersama Finance Assistant"
         loading="lazy">
@@ -507,6 +689,38 @@
 
     </div>
 
+            </div>
+            <div class="module-slide-detail">
+
+                <p class="module-problem">
+                    Catatan kas bersama gampang berantakan — siapa sudah iuran, siapa belum, mulai tidak jelas.
+                </p>
+
+                <ul class="module-points">
+                        <li>Catat iuran, pemasukan, dan pengeluaran kas bersama</li>
+                        <li>Kelola hutang dan transaksi antaranggota dengan jelas</li>
+                        <li>Ringkasan kas yang transparan untuk semua anggota</li>
+                </ul>
+
+                <div class="module-aside">
+
+                    <span class="module-aside-label">
+                        Bacaan terkait
+                    </span>
+
+                    <a
+                        class="module-article-link"
+                        href="https://blog.financeassistant.web.id/2026/11/awal-mula-kas-bersama-dibuat.html">
+
+                        Awal mula Kas Bersama dibuat →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
 </article>
 
 
@@ -517,9 +731,11 @@
 
             <article
     class="module-slide"
-    data-slide="payroll-monthly">
+    data-slide="payroll-monthly" role="tabpanel" id="panel-payroll-monthly" aria-labelledby="tab-payroll-monthly">
 
-    <img
+    <div class="module-slide-visual">
+
+            <img
         src="assets/images/slide/slide-monthly.webp"
         alt="Tampilan modul Payroll Monthly Finance Assistant"
         loading="lazy">
@@ -545,6 +761,38 @@
 
     </div>
 
+            </div>
+            <div class="module-slide-detail">
+
+                <p class="module-problem">
+                    Menghitung gaji manual dari data absensi rawan salah dan makan waktu setiap akhir bulan.
+                </p>
+
+                <ul class="module-points">
+                        <li>Gaji dihitung dari data kehadiran karyawan</li>
+                        <li>Potongan absen dan telat, tambahan lembur — mengikuti aturan di Pengaturan</li>
+                        <li>Rekap gaji per karyawan dan per periode</li>
+                </ul>
+
+                <div class="module-aside">
+
+                    <span class="module-aside-label">
+                        Bacaan terkait
+                    </span>
+
+                    <a
+                        class="module-article-link"
+                        href="https://blog.financeassistant.web.id/2026/11/payroll-monthly-menghitung-gaji-dari-data-kehadiran.html">
+
+                        Payroll Monthly: menghitung gaji dari data kehadiran →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
 </article>
 
 
@@ -555,9 +803,11 @@
 
             <article
     class="module-slide"
-    data-slide="payroll-daily">
+    data-slide="payroll-daily" role="tabpanel" id="panel-payroll-daily" aria-labelledby="tab-payroll-daily">
 
-    <img
+    <div class="module-slide-visual">
+
+            <img
         src="assets/images/slide/slide-daily.webp"
         alt="Tampilan modul Payroll Daily Finance Assistant"
         loading="lazy">
@@ -583,6 +833,38 @@
 
     </div>
 
+            </div>
+            <div class="module-slide-detail">
+
+                <p class="module-problem">
+                    Upah harian berubah mengikuti pekerjaan yang diselesaikan; dihitung manual, totalnya mudah meleset.
+                </p>
+
+                <ul class="module-points">
+                        <li>Upah dihitung dari pekerjaan dan jumlah pekerjaan yang diselesaikan</li>
+                        <li>Aturan hari kerja dan akhir pekan mengikuti Pengaturan</li>
+                        <li>Rekap penghasilan dari harian sampai bulanan</li>
+                </ul>
+
+                <div class="module-aside">
+
+                    <span class="module-aside-label">
+                        Bacaan terkait
+                    </span>
+
+                    <a
+                        class="module-article-link"
+                        href="https://blog.financeassistant.web.id/2026/11/apa-itu-payroll-daily.html">
+
+                        Apa itu Payroll Daily? →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
 </article>
 
 
@@ -593,9 +875,11 @@
 
             <article
     class="module-slide"
-    data-slide="airdrop">
+    data-slide="airdrop" role="tabpanel" id="panel-airdrop" aria-labelledby="tab-airdrop">
 
-    <img
+    <div class="module-slide-visual">
+
+            <img
         src="assets/images/slide/slide_airdrop.webp"
         alt="Tampilan modul Airdrop Finance Assistant"
         loading="lazy">
@@ -621,6 +905,38 @@
 
     </div>
 
+            </div>
+            <div class="module-slide-detail">
+
+                <p class="module-problem">
+                    Ikut banyak campaign sekaligus membuat status dan reward-nya mudah terlupa.
+                </p>
+
+                <ul class="module-points">
+                        <li>Catat campaign yang diikuti beserta statusnya</li>
+                        <li>Catat reward dan hasil yang diterima dari tiap campaign</li>
+                        <li>Semua garapan terpantau dalam satu daftar</li>
+                </ul>
+
+                <div class="module-aside">
+
+                    <span class="module-aside-label">
+                        Bacaan terkait
+                    </span>
+
+                    <a
+                        class="module-article-link"
+                        href="https://blog.financeassistant.web.id/2026/11/cara-ikutan-event-airdrop.html">
+
+                        Cara ikutan event airdrop →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
 </article>
 
 
@@ -628,66 +944,101 @@
 
 
 
-        <!-- =============================================
-             SLIDE INDICATORS
-        ============================================== -->
+        
 
-        <div
-            class="module-slider-indicators"
-            aria-label="Pilih pratinjau modul">
+    </section>
 
 
-            <button
-                type="button"
-                class="module-slider-dot"
-                data-slide-dot="saving"
-                aria-label="Tampilkan Saving">
-            </button>
+<!-- =================================================
+         TRUST CARDS
+    ================================================== -->
+
+    <section
+        class="trust-section"
+        aria-label="Keunggulan Finance Assistant">
+
+        <div class="trust-grid">
+
+            <article class="trust-card">
+
+                <span class="trust-icon" aria-hidden="true">🗂️</span>
+
+                <h3>
+                    Data di Google Drive Milikmu
+                </h3>
+
+                <p>
+                    Versi web menyimpan data sebagai
+                    Finance Core di Google Drive milikmu
+                    sendiri — bukan di server kami.
+                </p>
+
+            </article>
 
 
-            <button
-                type="button"
-                class="module-slider-dot"
-                data-slide-dot="financial"
-                aria-label="Tampilkan Financial">
-            </button>
+            <article class="trust-card">
+
+                <span class="trust-icon" aria-hidden="true">📱</span>
+
+                <h3>
+                    Web &amp; Aplikasi Android
+                </h3>
+
+                <p>
+                    Pakai langsung dari browser tanpa
+                    install, atau unduh aplikasi Android
+                    resminya di Google Play.
+                </p>
+
+            </article>
 
 
-            <button
-                type="button"
-                class="module-slider-dot"
-                data-slide-dot="kas"
-                aria-label="Tampilkan Kas Bersama">
-            </button>
+            <article class="trust-card">
 
+                <span class="trust-icon" aria-hidden="true">🎨</span>
 
-            <button
-                type="button"
-                class="module-slider-dot"
-                data-slide-dot="payroll-monthly"
-                aria-label="Tampilkan Payroll Monthly">
-            </button>
+                <h3>
+                    Empat Tema Tampilan
+                </h3>
 
+                <p>
+                    Light, Dark, Green, dan Pink — ganti
+                    kapan saja mengikuti seleramu. Coba
+                    langsung di mockup di atas.
+                </p>
 
-            <button
-                type="button"
-                class="module-slider-dot"
-                data-slide-dot="payroll-daily"
-                aria-label="Tampilkan Payroll Daily">
-            </button>
-
-
-            <button
-                type="button"
-                class="module-slider-dot"
-                data-slide-dot="airdrop"
-                aria-label="Tampilkan Airdrop">
-            </button>
-
+            </article>
 
         </div>
 
     </section>
+
+
+
+<!-- =================================================
+         ABOUT
+    ================================================== -->
+
+    <section
+        aria-labelledby="about-heading">
+
+        <h2 id="about-heading">
+            Mengapa Finance Assistant?
+        </h2>
+
+
+        <p>
+            Banyak aplikasi keuangan terasa rumit dan penuh
+            fitur yang tidak benar-benar digunakan.
+
+            Finance Assistant dibuat dengan tujuan sederhana,
+            yaitu membantu siapa pun membangun kebiasaan
+            finansial yang lebih baik melalui pengalaman
+            yang ringan, cepat, dan mudah dipahami.
+        </p>
+
+    </section>
+
 
 
 <!-- =================================================
@@ -883,13 +1234,54 @@
         </p>
 
 
-        <button
-            id="register-app"
-            type="button">
+        <div class="cta-cards">
 
-            Daftar Sekarang
+            <article class="cta-card">
 
-        </button>
+                <h3>
+                    Buka Web App
+                </h3>
+
+                <p>
+                    Langsung dari browser, tanpa install.
+                    Datamu tersimpan di Google Drive
+                    milikmu sendiri.
+                </p>
+
+                <button
+                    id="register-app"
+                    type="button">
+
+                    Mulai Gratis
+
+                </button>
+
+            </article>
+
+
+            <article class="cta-card">
+
+                <h3>
+                    Baca Blog Dulu
+                </h3>
+
+                <p>
+                    Tips mencatat keuangan, cerita fitur,
+                    dan update terbaru seputar Finance
+                    Assistant.
+                </p>
+
+                <a
+                    class="cta-blog-link"
+                    href="https://blog.financeassistant.web.id/">
+
+                    Kunjungi Blog →
+
+                </a>
+
+            </article>
+
+        </div>
 
     </section>
 
