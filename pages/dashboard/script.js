@@ -36,9 +36,14 @@ const DOCUMENTATION_URL =
     "https://financeassistant.web.id/docs/";
 
 
-const APK_URL =
+const PLAY_STORE_URL =
 
-    "../../assets/download/app-release.apk";
+    "https://play.google.com/store/apps/details?id=web.financeassistant.app";
+
+
+const PLAY_BADGE_URL =
+
+    "https://play.google.com/intl/en_us/badges/static/images/badges/id_badge_web_generic.png";
 
 
 /* ==========================================
@@ -197,10 +202,10 @@ function createDocumentationCard(){
 
 
 /* ==========================================
-   APK DOWNLOAD CARD
+   GOOGLE PLAY CARD
 ========================================== */
 
-function createApkCard(){
+function createPlayStoreCard(){
 
     return `
 
@@ -214,25 +219,33 @@ function createApkCard(){
 
             <p>
 
-                Gunakan aplikasi Android Finance Assistant
+                Unduh aplikasi Android Finance Assistant
 
-                langsung dari perangkatmu untuk pengalaman
+                resmi di Google Play untuk pengalaman
 
                 yang lebih praktis.
 
             </p>
 
-            <button
+            <a
 
-                id="download-apk"
+                class="play-badge"
 
-                class="install-button"
+                href="${PLAY_STORE_URL}"
 
-                type="button">
+                target="_blank"
 
-                📱 Download APK
+                rel="noopener noreferrer">
 
-            </button>
+                <img
+
+                    src="${PLAY_BADGE_URL}"
+
+                    alt="Dapatkan di Google Play"
+
+                    loading="lazy">
+
+            </a>
 
         </section>
 
@@ -452,7 +465,7 @@ function render(){
         )}
 
 
-        ${createApkCard()}
+        ${createPlayStoreCard()}
 
 
         ${createInstallCard()}
@@ -495,44 +508,6 @@ function openDocumentation(){
 }
 
 
-/* ==========================================
-   DOWNLOAD APK
-========================================== */
-
-function downloadAPK(){
-
-    const link =
-
-        document.createElement(
-
-            "a"
-
-        );
-
-
-    link.href =
-
-        APK_URL;
-
-
-    link.download =
-
-        "app-release.apk";
-
-
-    document.body.appendChild(
-
-        link
-
-    );
-
-
-    link.click();
-
-
-    link.remove();
-
-}
 
 
 /* ==========================================
@@ -605,32 +580,6 @@ function bindModuleEvents(){
             "click",
 
             openApp
-
-        );
-
-    }
-
-
-    const apkButton =
-
-        document.getElementById(
-
-            "download-apk"
-
-        );
-
-
-    if(
-
-        apkButton
-
-    ){
-
-        apkButton.addEventListener(
-
-            "click",
-
-            downloadAPK
 
         );
 
