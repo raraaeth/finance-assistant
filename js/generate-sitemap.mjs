@@ -13,7 +13,8 @@
    Sumber:
    - Public pages : konfigurasi tetap
    - Documentation: registry Docs
-   - News         : /news/js/articles.js
+   - News         : SUDAH MIGRASI ke blog,
+     tidak lagi dimasukkan ke sitemap ini
 
    Tidak memasukkan:
    - Dashboard
@@ -65,9 +66,7 @@ const PUBLIC_PAGES = [
 
     "/app/",
 
-    "/docs/",
-
-    "/news/"
+    "/docs/"
 
 ];
 
@@ -274,63 +273,11 @@ async function generateSitemap() {
 
     /* =================================================
        NEWS
+       Sudah migrasi ke blog
+       (blog.financeassistant.web.id),
+       jadi artikel News tidak lagi
+       dimasukkan ke sitemap.xml ini.
     ================================================= */
-
-    const newsArticles =
-        await loadNewsArticles();
-
-    const seenSlugs =
-        new Set();
-
-    for (const article of newsArticles) {
-
-        if (
-            !article ||
-            !article.slug
-        ) {
-
-            throw new Error(
-                "Ada artikel News yang tidak memiliki slug."
-            );
-
-        }
-
-        if (
-            !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
-                article.slug
-            )
-        ) {
-
-            throw new Error(
-                `Slug artikel tidak valid: ${article.slug}`
-            );
-
-        }
-
-        if (seenSlugs.has(article.slug)) {
-
-            throw new Error(
-                `Slug artikel duplikat: ${article.slug}`
-            );
-
-        }
-
-        seenSlugs.add(article.slug);
-
-        const slug =
-            encodeURIComponent(
-                article.slug
-            );
-
-        urls.push({
-
-            url: `/news/${slug}/`,
-
-            lastmod: article.date || null
-
-        });
-
-    }
 
 
     /* =================================================
