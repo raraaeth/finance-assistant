@@ -122,7 +122,7 @@ const ROUTES = {
 
     news :
 
-        "/news/"
+        "https://blog.financeassistant.web.id/"
 
 };
 

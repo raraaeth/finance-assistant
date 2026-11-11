@@ -56,7 +56,7 @@ function renderSidebarFooter() {
         Home App
       </a>
 
-      <a href="/news/">
+      <a href="https://blog.financeassistant.web.id/">
         News and Update
       </a>
 

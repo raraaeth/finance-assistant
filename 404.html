@@ -55,44 +55,77 @@
 
 
             /* =================================================
-               NEWS CLEAN ROUTE
+               NEWS SUDAH MIGRASI KE BLOG
             ================================================= */
 
             /*
-             * News menggunakan satu index.html.
+             * News & Update sudah dipindahkan ke blog:
              *
-             * Contoh:
+             * https://blog.financeassistant.web.id/
              *
-             * /news/artikel01
-             *
-             * Karena tidak ada folder/file fisik
-             * bernama artikel01, GitHub Pages akan
-             * masuk ke 404.html.
-             *
-             * Simpan pathname artikel,
-             * kemudian kembali ke /news/.
+             * URL artikel lama /news/<slug>
+             * diarahkan ke artikel yang sama di blog.
+             * Slug yang tidak dikenal diarahkan
+             * ke beranda blog.
              */
 
             if (
-    path.startsWith("/news/") &&
-    path !== "/news/" &&
-    path !== "/news/index.html"
-) {
+                path.startsWith("/news/")
+            ) {
 
-    const newsPath =
-        encodeURIComponent(
-            path
-        );
+                const BLOG_SLUG_MAP = {
+                    "pentingnya-menganalisa-pengeluaran-kecil":
+                        "pentingnya-menganalisa-pengeluaran-keci",
+                    "seberapa-penting-punya-penghasilan-tambahan":
+                        "seberapa-penting-punya-penghasilan",
+                    "cara-menghemat-gaji-agar-tidak-cepat-habis":
+                        "cara-menghemat-gaji-agar-tidak-cepat",
+                    "5-tips-menabung-rutin-menyisihkan-gaji-bulanan":
+                        "5-tips-menabung-rutin-menyisihkan-gaji",
+                    "penghasilan-besar-belum-tentu-terbebas-dari-hutang":
+                        "penghasilan-besar-belum-tentu-terbebas"
+                };
+
+                const newsSlug =
+                    path
+                        .replace(/^\/news\//, "")
+                        .replace(/\/index\.html$/, "")
+                        .replace(/\/$/, "");
+
+                let blogUrl =
+                    "https://blog.financeassistant.web.id/";
+
+                if (
+                    newsSlug &&
+                    !newsSlug.includes("/")
+                ) {
+
+                    if (newsSlug === "panduan-finance-assistant") {
+
+                        blogUrl =
+                            "https://blog.financeassistant.web.id/2026/10/panduan-finance-assistant.html";
+
+                    } else {
+
+                        const blogSlug =
+                            BLOG_SLUG_MAP[newsSlug] || newsSlug;
+
+                        blogUrl =
+                            `https://blog.financeassistant.web.id/2026/11/${blogSlug}.html`;
+
+                    }
+
+                }
 
 
-    window.location.replace(
-        `/news/?route=${newsPath}`
-    );
+                window.location.replace(
+                    blogUrl
+                );
 
 
-    return;
+                return;
 
-}
+            }
 
 
             /* =================================================

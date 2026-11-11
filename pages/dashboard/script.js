@@ -381,7 +381,7 @@ function createFooter(){
                         User Guide
                     </a>
 
-                    <a href="/news/">
+                    <a href="https://blog.financeassistant.web.id/">
                         News and Update
                     </a>
 

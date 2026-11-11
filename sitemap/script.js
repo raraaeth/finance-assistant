@@ -5,6 +5,41 @@
 
 import articles from "../news/js/articles.js";
 
+/* =====================================================
+   BLOG
+   News sudah migrasi ke blog.
+===================================================== */
+
+const BLOG_URL =
+    "https://blog.financeassistant.web.id";
+
+const BLOG_SLUG_MAP = {
+    "pentingnya-menganalisa-pengeluaran-kecil":
+        "pentingnya-menganalisa-pengeluaran-keci",
+    "seberapa-penting-punya-penghasilan-tambahan":
+        "seberapa-penting-punya-penghasilan",
+    "cara-menghemat-gaji-agar-tidak-cepat-habis":
+        "cara-menghemat-gaji-agar-tidak-cepat",
+    "5-tips-menabung-rutin-menyisihkan-gaji-bulanan":
+        "5-tips-menabung-rutin-menyisihkan-gaji",
+    "penghasilan-besar-belum-tentu-terbebas-dari-hutang":
+        "penghasilan-besar-belum-tentu-terbebas"
+};
+
+function blogArticleUrl(slug) {
+
+    if (!slug) return `${BLOG_URL}/`;
+
+    if (slug === "panduan-finance-assistant") {
+        return `${BLOG_URL}/2026/10/panduan-finance-assistant.html`;
+    }
+
+    const blogSlug = BLOG_SLUG_MAP[slug] || slug;
+
+    return `${BLOG_URL}/2026/11/${blogSlug}.html`;
+}
+
+
 
 /* =====================================================
    MAIN PAGES
@@ -21,7 +56,7 @@ const mainPages = [
     },
     {
         title: "News & Update",
-        url: "/news/"
+        url: "https://blog.financeassistant.web.id/"
     },
     {
         title: "About App",
@@ -106,7 +141,7 @@ const newsLinks = articles
     })
     .map(article => ({
         title: article.title,
-        url: `/news/${article.slug}`
+        url: blogArticleUrl(article.slug)
     }));
 
 
