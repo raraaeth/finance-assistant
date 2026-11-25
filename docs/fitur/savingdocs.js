@@ -38,7 +38,7 @@ export default {
     <div class="doc-image-card">
       <img
         src="/docs/images/saving_view.webp"
-        alt="Tampilan Home, Statistik, dan Summary pada Saving"
+        alt="Tampilan Home, Statistik, dan Ringkasan pada Saving"
         loading="lazy"
       >
     </div>
@@ -142,10 +142,10 @@ export default {
 
     <div class="doc-step">
 
-      <h3>📋 Summary</h3>
+      <h3>📋 Ringkasan</h3>
 
       <p>
-        Summary memberikan gambaran yang lebih ringkas
+        Ringkasan memberikan gambaran yang lebih ringkas
         mengenai <strong>kondisi keseluruhan dana
         Saving.</strong>
       </p>
@@ -640,7 +640,7 @@ export default {
       </p>
 
       <p>
-        <strong>Summary</strong><br>
+        <strong>Ringkasan</strong><br>
         Lihat total saldo dan distribusi dana di seluruh
         penyimpanan.
       </p>
@@ -660,7 +660,7 @@ export default {
         Setelah bank atau tempat penyimpanan dikonfigurasi,
         kamu bisa mulai mencatat transaksi dan memantau
         perkembangan dana melalui Home, Statistik,
-        dan Summary.
+        dan Ringkasan.
       </p>
 
     </div>

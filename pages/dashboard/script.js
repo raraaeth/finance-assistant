@@ -255,51 +255,6 @@ function createPlayStoreCard(){
 
 
 /* ==========================================
-   PWA INSTALL CARD
-========================================== */
-
-function createInstallCard(){
-
-    return `
-
-        <section class="install-card">
-
-            <h3>
-
-                Install Finance Assistant
-
-            </h3>
-
-            <p>
-
-                Tambahkan Finance Assistant ke homescreen
-
-                perangkatmu agar dapat diakses lebih cepat
-
-                seperti aplikasi.
-
-            </p>
-
-            <button
-
-                id="install-pwa"
-
-                class="install-button"
-
-                type="button">
-
-                📲 Tambahkan ke Homescreen
-
-            </button>
-
-        </section>
-
-    `;
-
-}
-
-
-/* ==========================================
    START CARD
 ========================================== */
 
@@ -460,15 +415,12 @@ function render(){
 
         ${createSectionTitle(
 
-            "📱 Install Finance Assistant"
+            "📱 Aplikasi Android"
 
         )}
 
 
         ${createPlayStoreCard()}
-
-
-        ${createInstallCard()}
 
 
         ${createSectionTitle(

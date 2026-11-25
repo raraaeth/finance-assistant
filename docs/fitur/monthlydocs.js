@@ -167,7 +167,7 @@ export default {
             <h2>💰 Ringkasan</h2>
 
             <p>
-                Pada workspace lain, Summary biasanya digunakan
+                Pada workspace lain, Ringkasan biasanya digunakan
                 untuk merangkum data transaksi.
             </p>
 

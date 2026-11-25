@@ -225,7 +225,7 @@ export default {
       <p>
         Namun uang tersebut tidak dianggap sebagai pengeluaran biasa.
         Nominalnya akan tercatat sebagai <strong>tabungan</strong>
-        dan dapat ditampilkan pada Summary.
+        dan dapat ditampilkan pada Ringkasan.
       </p>
 
       <div class="doc-info-box">
@@ -278,7 +278,7 @@ export default {
         Namun uang tersebut bukan penghasilan milikmu. Uang tersebut
         menjadi kewajiban yang harus dibayar kembali. Karena itu,
         nominalnya juga akan tercatat sebagai <strong>hutang</strong>
-        pada Summary.
+        pada Ringkasan.
       </p>
 
 
@@ -305,7 +305,7 @@ export default {
       </div>
 
 
-      <h2>📊 Summary dan Statistik</h2>
+      <h2>📊 Ringkasan dan Statistik</h2>
 
       <p>
         Data yang kamu masukkan di Financial akan digunakan untuk
@@ -313,7 +313,7 @@ export default {
       </p>
 
       <p>
-        Pada <strong>Summary</strong>, selain pemasukan dan pengeluaran,
+        Pada <strong>Ringkasan</strong>, selain pemasukan dan pengeluaran,
         kamu juga dapat melihat informasi <strong>tabungan</strong>
         dan <strong>hutang</strong> jika rule tersebut digunakan.
       </p>

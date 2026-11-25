@@ -7,11 +7,11 @@
     <title>Data & Privasi | Finance Assistant</title>
     <meta
         name="description"
-        content="Pelajari bagaimana Finance Assistant mengelola data dan privasi pengguna, termasuk penyimpanan melalui Google Drive dan Google Sheets milik masing-masing pengguna."
+        content="Pelajari bagaimana Finance Assistant mengelola data dan privasi pengguna, termasuk penyimpanan lokal di perangkat Android dan sinkronisasi ke Google Drive milik masing-masing pengguna."
     >
     <meta
         name="keywords"
-        content="privasi Finance Assistant, keamanan data keuangan, penyimpanan Google Drive, Google Sheets, privasi pengguna, data keuangan pribadi"
+        content="privasi Finance Assistant, keamanan data keuangan, penyimpanan Google Drive, penyimpanan lokal, privasi pengguna, data keuangan pribadi"
     >
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://financeassistant.web.id/docs/privacy/">
@@ -24,7 +24,7 @@
     >
     <meta
         property="og:description"
-        content="Kenali prinsip penyimpanan data Finance Assistant dan bagaimana workspace pengguna terhubung dengan Google Drive dan Google Sheets."
+        content="Kenali prinsip penyimpanan data Finance Assistant dan bagaimana data pengguna tersimpan di perangkat dan tersinkron ke Google Drive miliknya."
     >
     <meta
         property="og:url"
@@ -48,7 +48,7 @@
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": "Data & Privasi Finance Assistant",
-        "description": "Penjelasan mengenai prinsip penyimpanan data pengguna Finance Assistant melalui Google Drive dan Google Sheets masing-masing pengguna.",
+        "description": "Penjelasan mengenai prinsip penyimpanan data pengguna Finance Assistant: data tersimpan lokal di perangkat Android pengguna dan dapat disinkronkan ke Google Drive miliknya sendiri.",
         "url": "https://financeassistant.web.id/docs/privacy/",
         "author": {
             "@type": "Organization",
@@ -120,76 +120,96 @@
                 </p>
 
                 <p>
-                    Karena itu, Finance Assistant tidak dirancang untuk
-                    mengumpulkan seluruh data keuangan pengguna ke dalam
-                    satu database pusat. Setiap user menggunakan akun Google
-                    miliknya sendiri untuk menyimpan dan mengelola data
-                    Finance Assistant.
+                    Karena itu, Finance Assistant tidak mengumpulkan data
+                    keuangan pengguna ke dalam satu database pusat. Pada
+                    aplikasi Android, seluruh data keuanganmu tersimpan
+                    <strong>lokal di perangkatmu sendiri</strong>.
                 </p>
 
                 <div class="doc-highlight">
                     <strong>Prinsip utama Finance Assistant</strong>
 
                     <p>
-                        Finance Assistant berfungsi sebagai aplikasi yang
-                        menjembatani user dengan data miliknya sendiri,
-                        bukan mengambil alih kepemilikan data tersebut.
+                        Data keuangan tinggal di perangkat milikmu. Google
+                        Drive hanya menjadi tempat cadangan dan sinkronisasi
+                        milikmu, bukan tempat aplikasi mengambil alih datamu.
                     </p>
                 </div>
 
                 <h2>Mengapa Harus Login dengan Google?</h2>
 
                 <p>
-                    Login Google diperlukan karena Finance Assistant
-                    memanfaatkan <strong>Google Drive dan Google Sheets</strong>
-                    sebagai tempat penyimpanan data masing-masing user.
+                    Login Google dipakai untuk menghubungkan Finance
+                    Assistant dengan <strong>Google Drive milikmu</strong>.
+                    Saat pertama kali masuk, aplikasi dapat memuat file
+                    <strong>Finance Core</strong> dari Drive tersebut, termasuk
+                    data yang sebelumnya kamu buat di Finance Assistant
+                    versi web.
                 </p>
 
                 <p>
-                    Setelah user memberikan izin, Finance Assistant dapat
-                    menggunakan Google Services milik user untuk membuat,
-                    membaca, dan memperbarui data yang dibutuhkan aplikasi.
+                    Sesudah itu, login menjaga sesi kamu dan memberi aplikasi
+                    akses terbatas ke Drive, hanya untuk menyimpan dan memuat
+                    kembali file Finance Core milikmu saat kamu menjalankan
+                    sinkronisasi.
                 </p>
 
                 <p>
-                    Jadi, login Google bukan sekadar untuk mengetahui siapa
-                    yang menggunakan aplikasi. Login tersebut menjadi
-                    penghubung antara Finance Assistant dan ruang data pribadi
-                    milik user.
+                    Jadi, login Google bukan untuk mengirim data keuanganmu
+                    ke server pusat. Login tersebut menjadi penghubung antara
+                    aplikasi di perangkatmu dan ruang cadangan pribadi
+                    milikmu di Google Drive.
                 </p>
 
-                <h2>Data Disimpan di Google Drive Milikmu</h2>
+                <h2>Data Tersimpan di Perangkatmu</h2>
 
                 <p>
-                    Finance Assistant membuat struktur workspace pada Google
-                    Drive akun yang terhubung. Di dalamnya terdapat folder
-                    <strong>Finance Assistant</strong> dan
-                    <strong>Finance Core</strong> sebagai bagian dari sistem
-                    workspace.
+                    Semua yang kamu catat, mulai dari pemasukan, pengeluaran,
+                    tabungan, kas, payroll, airdrop, sampai konfigurasi
+                    workspace, tersimpan di penyimpanan internal aplikasi
+                    pada perangkat Android kamu.
                 </p>
 
                 <p>
-                    Data setiap user berada pada ruang Google miliknya sendiri.
-                    User lain tidak mendapatkan akses otomatis ke workspace
-                    atau data tersebut.
+                    Artinya, data tetap bisa kamu buka dan kelola dari
+                    aplikasi tanpa bergantung pada koneksi internet, dan
+                    tidak ada spreadsheet pusat yang menampung data keuangan
+                    seluruh pengguna Finance Assistant.
                 </p>
 
                 <div class="doc-info-box">
                     <strong>Setiap user memiliki ruang datanya sendiri</strong>
 
                     <p>
-                        Tidak ada satu spreadsheet pusat yang digunakan untuk
-                        menampung data keuangan seluruh pengguna Finance Assistant.
+                        Ruang data utama kamu adalah perangkatmu sendiri.
+                        User lain tidak mendapatkan akses otomatis ke
+                        workspace atau data tersebut.
                     </p>
                 </div>
+
+                <h2>Sinkronisasi ke Google Drive Milikmu</h2>
+
+                <p>
+                    Dari halaman Profile, tombol
+                    <strong>Sinkronisasi Drive</strong> menyimpan salinan
+                    datamu sebagai file <strong>Finance Core</strong> di
+                    folder <strong>Finance Assistant</strong> pada Google
+                    Drive akun yang kamu hubungkan.
+                </p>
+
+                <p>
+                    Salinan itu bisa dimuat kembali kapan saja, misalnya
+                    saat kamu berganti perangkat atau ingin melanjutkan
+                    data dari versi web. File Finance Core berada di Drive
+                    milikmu dan tetap milikmu, kamu juga bisa menghapusnya
+                    sendiri dari Google Drive kapan saja.
+                </p>
 
                 <h2>Bagaimana dengan Data yang Kamu Masukkan?</h2>
 
                 <p>
-                    Ketika kamu mencatat pemasukan, pengeluaran, tabungan,
-                    kas, payroll, airdrop, maupun konfigurasi lainnya,
-                    data tersebut digunakan untuk kebutuhan workspace kamu
-                    sendiri.
+                    Data yang kamu masukkan digunakan hanya untuk kebutuhan
+                    workspace kamu sendiri di perangkatmu.
                 </p>
 
                 <p>
@@ -200,8 +220,25 @@
 
                 <p>
                     Dengan arsitektur seperti ini, <strong>developer dan user
-                    lain tidak secara otomatis mengetahui data yang kamu
+                    lain tidak menerima salinan data keuangan yang kamu
                     masukkan ke dalam workspace milikmu.</strong>
+                </p>
+
+                <h2>Iklan dan Notifikasi</h2>
+
+                <p>
+                    Aplikasi Android Finance Assistant menampilkan iklan
+                    melalui Google AdMob. Untuk keperluan iklan tersebut,
+                    aplikasi memakai Advertising ID perangkat sesuai
+                    kebijakan Google, dan izin iklan dapat kamu kelola dari
+                    pengaturan perangkatmu.
+                </p>
+
+                <p>
+                    Notifikasi hanya dipakai untuk pengingat yang kamu
+                    aktifkan sendiri, yaitu Pengingat Harian dan Reminder
+                    Airdrop. Isi notifikasi dibuat di perangkatmu dari data
+                    workspace milikmu.
                 </p>
 
                 <h2>Bagaimana dengan Data Login?</h2>
@@ -209,8 +246,7 @@
                 <p>
                     Informasi login Google digunakan untuk autentikasi,
                     menjaga sesi user, dan mendapatkan akses yang diperlukan
-                    untuk menggunakan Google Drive dan Google Sheets milik
-                    user.
+                    untuk menggunakan Google Drive milik user.
                 </p>
 
                 <p>
@@ -219,30 +255,19 @@
                     disebarluaskan kepada pihak lain.
                 </p>
 
-                <p>
-                    Prinsipnya sederhana:
-                    <strong>login digunakan agar Finance Assistant dapat
-                    menyimpan dan memuat kembali data dari Google milikmu.</strong>
-                </p>
-
-                <h2>Finance Assistant Hanya sebagai Jembatan</h2>
+                <h2>Menghapus Akun dan Data</h2>
 
                 <p>
-                    Finance Assistant dapat dibayangkan sebagai sebuah
-                    <strong>jembatan</strong>.
+                    Menu <strong>Hapus Akun</strong> di Profile menghapus
+                    seluruh data Finance Assistant di perangkatmu secara
+                    permanen. Dari sana, aplikasi juga membuka halaman
+                    penghapusan akun untuk menghapus akun login web kamu.
                 </p>
 
                 <p>
-                    Di satu sisi terdapat kamu dan data milikmu di Google Drive.
-                    Di sisi lainnya terdapat aplikasi Finance Assistant yang
-                    menyediakan tampilan, fitur, perhitungan, dan sistem untuk
-                    mengelola data tersebut.
-                </p>
-
-                <p>
-                    Aplikasi membantu kamu menggunakan data tersebut dengan
-                    lebih mudah, tetapi ruang penyimpanan dasarnya tetap berada
-                    pada akun Google yang kamu gunakan sendiri.
+                    Logout hanya mengeluarkanmu ke layar awal. Datamu di
+                    perangkat tetap tersimpan dan bisa dimuat lagi saat
+                    kamu masuk kembali.
                 </p>
 
                 <div class="doc-highlight">
@@ -259,13 +284,20 @@
 
                 <ul>
                     <li>
-                        Login Google diperlukan untuk menghubungkan Finance
-                        Assistant dengan Google milik user.
+                        Data keuangan tersimpan lokal di perangkat Android
+                        milikmu, bukan di database pusat Finance Assistant.
                     </li>
 
                     <li>
-                        Data disimpan pada Google Drive dan Google Sheets
-                        milik masing-masing user.
+                        Login Google diperlukan untuk menghubungkan Finance
+                        Assistant dengan Google Drive milikmu.
+                    </li>
+
+                    <li>
+                        Sinkronisasi Drive menyimpan salinan data sebagai
+                        file Finance Core di folder Finance Assistant pada
+                        Drive milikmu, dan salinan itu bisa dimuat kembali
+                        kapan saja.
                     </li>
 
                     <li>
@@ -281,11 +313,6 @@
                         Informasi login digunakan untuk kebutuhan autentikasi
                         dan akses data yang diperlukan aplikasi, bukan untuk
                         kepentingan lain atau disebarluaskan.
-                    </li>
-
-                    <li>
-                        Finance Assistant berperan sebagai aplikasi yang
-                        menjembatani kamu dengan data milikmu sendiri.
                     </li>
                 </ul>
 

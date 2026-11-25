@@ -58,9 +58,13 @@ const registerButton =
 
 function openApp(){
 
-    location.href =
+    window.open(
 
-        "pages/dashboard/";
+        "https://play.google.com/store/apps/details?id=web.financeassistant.app",
+
+        "_blank"
+
+    );
 
 }
 
